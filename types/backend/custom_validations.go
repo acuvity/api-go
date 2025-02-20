@@ -12,23 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/acuvity/api-go/pkgs/compile"
-	"github.com/acuvity/api-go/pkgs/netsafe"
-	"github.com/acuvity/api-go/pkgs/sanitize"
 	"github.com/globalsign/mgo/bson"
-	"github.com/open-policy-agent/opa/ast"
 	"go.acuvity.ai/elemental"
 )
-
-var ianaChecker netsafe.Checker
-
-func init() {
-	var err error
-	ianaChecker, err = netsafe.MakeChecker(netsafe.IANAPrivateNetworks, nil)
-	if err != nil {
-		panic(err)
-	}
-}
 
 // ValidateURL validates the given value is a correct url.
 func ValidateURL(attribute string, u string) error {
@@ -343,22 +329,12 @@ func ValidateExtractor(extractor *Extractor) error {
 // in a IANA defined private network.
 func ValidateRestrictedIP(attribute string, host string) error {
 
-	if err := ianaChecker(host); err != nil {
-		return makeErr(attribute, fmt.Sprintf("Restricted IP: %s", err))
-	}
-
 	return nil
 }
 
 // ValidateRestrictedIPs validate a list of IPs or hosts to make sure it is not
 // in a IANA defined private network.
 func ValidateRestrictedIPs(attribute string, hosts []string) error {
-
-	for _, h := range hosts {
-		if err := ianaChecker(h); err != nil {
-			return makeErr(attribute, fmt.Sprintf("Restricted IP: %s", err))
-		}
-	}
 
 	return nil
 }
@@ -375,10 +351,6 @@ func ValidateFilter(attribute string, filter string) error {
 
 // ValidateFriendlyName checks if the given friendly name is valid.
 func ValidateFriendlyName(attribute string, name string) error {
-
-	if sanitize.Name(name) == "" {
-		return makeErr(attribute, fmt.Sprintf("provided name ('%s') must contain as least one alphanumeric character, '-' or '_'.", name))
-	}
 
 	return nil
 }
@@ -416,37 +388,11 @@ func ValidateObjectID(attribute string, id string) error {
 // ValidateRego validates the rego input data.
 func ValidateRego(attribute string, code string) error {
 
-	if len(code) == 0 {
-		return nil
-	}
-
-	var module *ast.Module
-	switch attribute {
-	case "assignPolicy":
-		module = compile.ModuleAssign
-	case "accessPolicy":
-		module = compile.ModuleAccess
-	case "contentPolicy":
-		module = compile.ModuleContent
-	}
-
-	if _, err := compile.Rego(code, "test", module); err != nil {
-		return makeErr(attribute, fmt.Sprintf("Unable to compile rego: %s", err))
-	}
-
 	return nil
 }
 
 // ValidateLua validates the lua input data.
 func ValidateLua(attribute string, code string) error {
-
-	if len(code) == 0 {
-		return nil
-	}
-
-	if _, err := compile.Lua([]byte(code)); err != nil {
-		return makeErr(attribute, fmt.Sprintf("Unable to compile lua: %s", err))
-	}
 
 	return nil
 }

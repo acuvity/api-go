@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/acuvity/api-go/pkgs/compile"
-	"github.com/open-policy-agent/opa/ast"
 	"go.acuvity.ai/elemental"
 )
 
@@ -38,24 +36,6 @@ func ValidatePrincipal(principal *Principal) error {
 
 // ValidateRego validates the rego input data.
 func ValidateRego(attribute string, code string) error {
-
-	if len(code) == 0 {
-		return nil
-	}
-
-	var module *ast.Module
-	switch attribute {
-	case "assignPolicy":
-		module = compile.ModuleAssign
-	case "accessPolicy":
-		module = compile.ModuleAccess
-	case "contentPolicy":
-		module = compile.ModuleContent
-	}
-
-	if _, err := compile.Rego(code, "test", module); err != nil {
-		return makeErr(attribute, fmt.Sprintf("Unable to compile rego: %s", err))
-	}
 
 	return nil
 }
