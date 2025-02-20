@@ -1,0 +1,134 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@auto-propagated",
+    "@namelinkable"
+  ],
+  "$friendlyName": "Custom Data Type",
+  "$friendlyNamePlural": "Custom Data Types",
+  "$modelName": "CustomDataType",
+  "$modelPackage": "lain",
+  "$modelResourceName": "customdatatypes",
+  "$modelRestName": "customdatatype",
+  "additionalProperties": true,
+  "description": "Allows to create custom data detectors.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the custom data type.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "matches": {
+      "$friendlyName": "Matches",
+      "description": "A list of RE2 regular expressions used for data detection. Each expression can include zero or one capturing group. If no capturing group is present, detection positions will be determined based on the entire captured portion of the data. If a single capturing group is included, the detection positions will correspond to the part defined by that group. However, if more than one capturing group is found, the system will return a validation error. Additionally, extra validations are performed to ensure that the regular expressions are not overly complex, preventing any negative impact on detection engine performance.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "matches",
+      "type": "array"
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "friendlyName"
+  ],
+  "title": "CustomDataType",
+  "type": "object"
+}

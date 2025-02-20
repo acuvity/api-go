@@ -1,0 +1,534 @@
+{
+  "properties": {
+    "accesspolicies": {
+      "items": {
+        "$ref": "accesspolicy.json"
+      },
+      "type": "array"
+    },
+    "adminmagiclinks": {
+      "items": {
+        "$ref": "adminmagiclink.json"
+      },
+      "type": "array"
+    },
+    "adminorgs": {
+      "items": {
+        "$ref": "adminorg.json"
+      },
+      "type": "array"
+    },
+    "agentconfigs": {
+      "items": {
+        "$ref": "agentconfig.json"
+      },
+      "type": "array"
+    },
+    "agents": {
+      "items": {
+        "$ref": "agent.json"
+      },
+      "type": "array"
+    },
+    "aidomains": {
+      "items": {
+        "$ref": "aidomain.json"
+      },
+      "type": "array"
+    },
+    "alertdefinitions": {
+      "items": {
+        "$ref": "alertdefinition.json"
+      },
+      "type": "array"
+    },
+    "alertevents": {
+      "items": {
+        "$ref": "alertevent.json"
+      },
+      "type": "array"
+    },
+    "alerts": {
+      "items": {
+        "$ref": "alert.json"
+      },
+      "type": "array"
+    },
+    "alerttriggers": {
+      "items": {
+        "$ref": "alerttrigger.json"
+      },
+      "type": "array"
+    },
+    "analysis": {
+      "items": {
+        "$ref": "analysis.json"
+      },
+      "type": "array"
+    },
+    "analyzermodels": {
+      "items": {
+        "$ref": "analyzermodel.json"
+      },
+      "type": "array"
+    },
+    "analyzers": {
+      "items": {
+        "$ref": "analyzer.json"
+      },
+      "type": "array"
+    },
+    "apiauthorizations": {
+      "items": {
+        "$ref": "apiauthorization.json"
+      },
+      "type": "array"
+    },
+    "appcomponents": {
+      "items": {
+        "$ref": "appcomponent.json"
+      },
+      "type": "array"
+    },
+    "apps": {
+      "items": {
+        "$ref": "app.json"
+      },
+      "type": "array"
+    },
+    "apptokens": {
+      "items": {
+        "$ref": "apptoken.json"
+      },
+      "type": "array"
+    },
+    "authsettings": {
+      "items": {
+        "$ref": "authsettings.json"
+      },
+      "type": "array"
+    },
+    "contentpolicies": {
+      "items": {
+        "$ref": "contentpolicy.json"
+      },
+      "type": "array"
+    },
+    "customdatatypes": {
+      "items": {
+        "$ref": "customdatatype.json"
+      },
+      "type": "array"
+    },
+    "detectionmatchers": {
+      "items": {
+        "$ref": "detectionmatcher.json"
+      },
+      "type": "array"
+    },
+    "detections": {
+      "items": {
+        "$ref": "detection.json"
+      },
+      "type": "array"
+    },
+    "detectors": {
+      "items": {
+        "$ref": "detector.json"
+      },
+      "type": "array"
+    },
+    "domainhits": {
+      "items": {
+        "$ref": "domainhits.json"
+      },
+      "type": "array"
+    },
+    "errortransformers": {
+      "items": {
+        "$ref": "errortransformer.json"
+      },
+      "type": "array"
+    },
+    "extractioninformation": {
+      "items": {
+        "$ref": "extractioninformation.json"
+      },
+      "type": "array"
+    },
+    "extractions": {
+      "items": {
+        "$ref": "extraction.json"
+      },
+      "type": "array"
+    },
+    "extractionsummaries": {
+      "items": {
+        "$ref": "extractionsummary.json"
+      },
+      "type": "array"
+    },
+    "extractors": {
+      "items": {
+        "$ref": "extractor.json"
+      },
+      "type": "array"
+    },
+    "feedbacks": {
+      "items": {
+        "$ref": "feedback.json"
+      },
+      "type": "array"
+    },
+    "gitbooktokens": {
+      "items": {
+        "$ref": "gitbooktoken.json"
+      },
+      "type": "array"
+    },
+    "hosts": {
+      "items": {
+        "$ref": "host.json"
+      },
+      "type": "array"
+    },
+    "ignoreddomains": {
+      "items": {
+        "$ref": "ignoreddomain.json"
+      },
+      "type": "array"
+    },
+    "import": {
+      "items": {
+        "$ref": "import.json"
+      },
+      "type": "array"
+    },
+    "ingressproviderconfigs": {
+      "items": {
+        "$ref": "ingressproviderconfig.json"
+      },
+      "type": "array"
+    },
+    "injectors": {
+      "items": {
+        "$ref": "injector.json"
+      },
+      "type": "array"
+    },
+    "labelvalues": {
+      "items": {
+        "$ref": "labelvalue.json"
+      },
+      "type": "array"
+    },
+    "landings": {
+      "items": {
+        "$ref": "landing.json"
+      },
+      "type": "array"
+    },
+    "latencies": {
+      "items": {
+        "$ref": "latency.json"
+      },
+      "type": "array"
+    },
+    "mappers": {
+      "items": {
+        "$ref": "mapper.json"
+      },
+      "type": "array"
+    },
+    "metriclabelvalues": {
+      "items": {
+        "$ref": "metriclabelvalue.json"
+      },
+      "type": "array"
+    },
+    "metricranges": {
+      "items": {
+        "$ref": "metricrange.json"
+      },
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "metric.json"
+      },
+      "type": "array"
+    },
+    "metricseries": {
+      "items": {
+        "$ref": "metricserie.json"
+      },
+      "type": "array"
+    },
+    "modalities": {
+      "items": {
+        "$ref": "modality.json"
+      },
+      "type": "array"
+    },
+    "moderations": {
+      "items": {
+        "$ref": "moderation.json"
+      },
+      "type": "array"
+    },
+    "orgsettings": {
+      "items": {
+        "$ref": "orgsettings.json"
+      },
+      "type": "array"
+    },
+    "orgstorages": {
+      "items": {
+        "$ref": "orgstorage.json"
+      },
+      "type": "array"
+    },
+    "pacconfigs": {
+      "items": {
+        "$ref": "pacconfig.json"
+      },
+      "type": "array"
+    },
+    "pagedataviewpredicates": {
+      "items": {
+        "$ref": "pagedataviewpredicate.json"
+      },
+      "type": "array"
+    },
+    "pagedataviews": {
+      "items": {
+        "$ref": "pagedataview.json"
+      },
+      "type": "array"
+    },
+    "policyupdates": {
+      "items": {
+        "$ref": "policyupdate.json"
+      },
+      "type": "array"
+    },
+    "predicate": {
+      "items": {
+        "$ref": "predicate.json"
+      },
+      "type": "array"
+    },
+    "principalapps": {
+      "items": {
+        "$ref": "principalapp.json"
+      },
+      "type": "array"
+    },
+    "principals": {
+      "items": {
+        "$ref": "principal.json"
+      },
+      "type": "array"
+    },
+    "principalusers": {
+      "items": {
+        "$ref": "principaluser.json"
+      },
+      "type": "array"
+    },
+    "projects": {
+      "items": {
+        "$ref": "project.json"
+      },
+      "type": "array"
+    },
+    "providerdetails": {
+      "items": {
+        "$ref": "providerdetail.json"
+      },
+      "type": "array"
+    },
+    "providerretentionpolicies": {
+      "items": {
+        "$ref": "providerretentionpolicy.json"
+      },
+      "type": "array"
+    },
+    "providers": {
+      "items": {
+        "$ref": "provider.json"
+      },
+      "type": "array"
+    },
+    "providerteams": {
+      "items": {
+        "$ref": "providerteam.json"
+      },
+      "type": "array"
+    },
+    "providertokens": {
+      "items": {
+        "$ref": "providertoken.json"
+      },
+      "type": "array"
+    },
+    "providertrainingpolicies": {
+      "items": {
+        "$ref": "providertrainingpolicy.json"
+      },
+      "type": "array"
+    },
+    "proxyconfs": {
+      "items": {
+        "$ref": "proxyconf.json"
+      },
+      "type": "array"
+    },
+    "proxyroundtrips": {
+      "items": {
+        "$ref": "proxyroundtrip.json"
+      },
+      "type": "array"
+    },
+    "queries": {
+      "items": {
+        "$ref": "query.json"
+      },
+      "type": "array"
+    },
+    "queryranges": {
+      "items": {
+        "$ref": "queryrange.json"
+      },
+      "type": "array"
+    },
+    "roles": {
+      "items": {
+        "$ref": "role.json"
+      },
+      "type": "array"
+    },
+    "root": {
+      "items": {
+        "$ref": "root.json"
+      },
+      "type": "array"
+    },
+    "schemaversions": {
+      "items": {
+        "$ref": "schemaversion.json"
+      },
+      "type": "array"
+    },
+    "series": {
+      "items": {
+        "$ref": "serie.json"
+      },
+      "type": "array"
+    },
+    "signups": {
+      "items": {
+        "$ref": "signup.json"
+      },
+      "type": "array"
+    },
+    "sinkemail": {
+      "items": {
+        "$ref": "sinkemail.json"
+      },
+      "type": "array"
+    },
+    "sinkpagerduty": {
+      "items": {
+        "$ref": "sinkpagerduty.json"
+      },
+      "type": "array"
+    },
+    "sinks": {
+      "items": {
+        "$ref": "sink.json"
+      },
+      "type": "array"
+    },
+    "sinkslack": {
+      "items": {
+        "$ref": "sinkslack.json"
+      },
+      "type": "array"
+    },
+    "sinksplunk": {
+      "items": {
+        "$ref": "sinksplunk.json"
+      },
+      "type": "array"
+    },
+    "teams": {
+      "items": {
+        "$ref": "team.json"
+      },
+      "type": "array"
+    },
+    "textualdetections": {
+      "items": {
+        "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    },
+    "usertokens": {
+      "items": {
+        "$ref": "usertoken.json"
+      },
+      "type": "array"
+    },
+    "visitedurls": {
+      "items": {
+        "$ref": "visitedurl.json"
+      },
+      "type": "array"
+    },
+    "watchedorgs": {
+      "items": {
+        "$ref": "watchedorg.json"
+      },
+      "type": "array"
+    },
+    "webextensionconfigs": {
+      "items": {
+        "$ref": "webextensionconfig.json"
+      },
+      "type": "array"
+    },
+    "identitymodifier": {
+      "items": {
+        "$ref": "identitymodifier.json"
+      },
+      "type": "array"
+    },
+    "samlsource": {
+      "items": {
+        "$ref": "samlsource.json"
+      },
+      "type": "array"
+    },
+    "oidcsource": {
+      "items": {
+        "$ref": "oidcsource.json"
+      },
+      "type": "array"
+    },
+    "oauth2source": {
+      "items": {
+        "$ref": "oauth2source.json"
+      },
+      "type": "array"
+    },
+    "permissions": {
+      "items": {
+        "$ref": "permissions.json"
+      },
+      "type": "array"
+    }
+  },
+  "title": "api resource lists",
+  "type": "object"
+}

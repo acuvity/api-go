@@ -1,0 +1,104 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "LabelValue",
+  "$friendlyNamePlural": "LabelValues",
+  "$modelName": "LabelValue",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "labelvalues",
+  "$modelRestName": "labelvalue",
+  "additionalProperties": true,
+  "description": "Get all values for a given label.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "end",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "endRelative": {
+      "$friendlyName": "EndRelative",
+      "description": "The relative end of the time window as time.Duration.",
+      "title": "endRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "$required": true,
+      "description": "The label to retrieve all available the values for.",
+      "title": "label",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "query": {
+      "$friendlyName": "Query",
+      "description": "A set of log stream selector that selects the streams to match and return label values for.",
+      "title": "query",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "description": "The result of the request.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "result",
+      "type": "array"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "startRelative": {
+      "$friendlyName": "StartRelative",
+      "description": "The relative start of the time window as time.Duration.",
+      "title": "startRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "label"
+  ],
+  "title": "LabelValue",
+  "type": "object"
+}

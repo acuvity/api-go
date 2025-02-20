@@ -1,0 +1,177 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@principalable",
+    "@pipelinepasstype",
+    "@tubularpipelinepass"
+  ],
+  "$friendlyName": "PoliceResponse",
+  "$friendlyNamePlural": "PoliceResponses",
+  "$modelName": "PoliceResponse",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policeresponses",
+  "$modelRestName": "policeresponse",
+  "additionalProperties": true,
+  "description": "This is a scan and police response.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alerts": {
+      "$friendlyName": "Alerts",
+      "description": "List of alerts that got raised during the policy resolution.",
+      "items": {
+        "$ref": "alertevent.json"
+      },
+      "title": "alerts",
+      "type": "array"
+    },
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Annotations attached to the log.",
+      "title": "annotations",
+      "type": "object"
+    },
+    "client": {
+      "$friendlyName": "Client",
+      "description": "The client used to send the request.",
+      "title": "client",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientVersion": {
+      "$friendlyName": "Client Version",
+      "description": "The version of the client used to send the request.",
+      "title": "clientVersion",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "decision": {
+      "$friendlyName": "Decision",
+      "description": "Tell what was the decision about the data.",
+      "enum": [
+        "Deny",
+        "Allow",
+        "Ask",
+        "Bypassed",
+        "ForbiddenUser",
+        "Skipped"
+      ],
+      "title": "decision"
+    },
+    "extractions": {
+      "$friendlyName": "Extractions",
+      "description": "The extractions to log.",
+      "items": {
+        "$ref": "extraction.json"
+      },
+      "title": "extractions",
+      "type": "array"
+    },
+    "hash": {
+      "$friendlyName": "Hash",
+      "description": "The hash of the input.",
+      "title": "hash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "latency": {
+      "$friendlyName": "Latency",
+      "$ref": "latency.json",
+      "description": "Information about latency of various stage of request and response.",
+      "title": "latency"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pipelineName": {
+      "$friendlyName": "Pipeline Name",
+      "description": "The name of the particular pipeline that extracted the text.",
+      "title": "pipelineName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "the provider to use.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reasons": {
+      "$friendlyName": "Reasons",
+      "description": "The various reasons returned by the policy engine.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "reasons",
+      "type": "array"
+    },
+    "summary": {
+      "$friendlyName": "Summary",
+      "$ref": "extractionsummary.json",
+      "description": "The summary of the extractions.",
+      "title": "summary"
+    },
+    "time": {
+      "$friendlyName": "Time",
+      "description": "Set the time of the message request.",
+      "title": "time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of text.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "principal"
+  ],
+  "title": "PoliceResponse",
+  "type": "object"
+}

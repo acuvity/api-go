@@ -1,0 +1,217 @@
+{
+  "$extends": [
+    "@extractionmetadata",
+    "@extractioncore"
+  ],
+  "$friendlyName": "Extraction",
+  "$friendlyNamePlural": "Extractions",
+  "$modelName": "Extraction",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "extractions",
+  "$modelRestName": "extraction",
+  "additionalProperties": true,
+  "description": "Represents the extracted information to log.",
+  "properties": {
+    "PIIs": {
+      "$friendlyName": "PIIs",
+      "description": "The PIIs found during classification.  The current list can be obtained through the analyzers API by searching for detector groups 'PIIs' accross all analyzers.  Example of PIIs detected: aba_routing_number, address, bank_account, bitcoin_wallet, credit_card, driver_license, email_address, itin_number, location, medical_license, money_amount, passport_number, person, phone_number, ssn.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "PIIs",
+      "type": "object"
+    },
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "description": "Annotations attached to the extraction.",
+      "items": {
+        "type": "string"
+      },
+      "title": "annotations",
+      "type": "object"
+    },
+    "categories": {
+      "$friendlyName": "Categories",
+      "description": "The categories are remapping of the modalities in a more human friendly way.",
+      "items": {
+        "$ref": "modality.json"
+      },
+      "title": "categories",
+      "type": "array"
+    },
+    "confidentiality": {
+      "$friendlyName": "Confidentiality",
+      "description": "The level of general confidentiality of the input.",
+      "title": "confidentiality",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "description": "The custom data types found during classification.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "customDataTypes",
+      "type": "object"
+    },
+    "data": {
+      "$friendlyName": "Data",
+      "description": "The data extracted.",
+      "title": "data",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detections": {
+      "$friendlyName": "Detections",
+      "description": "The textual detections found while applying policies.",
+      "items": {
+        "$ref": "textualdetection.json"
+      },
+      "title": "detections",
+      "type": "array"
+    },
+    "exploits": {
+      "$friendlyName": "Exploits",
+      "description": "The various exploits attempts.  The current list can be obtained through the analyzers API by searching for detector groups 'Exploits' accross all analyzers.  Example of exploits detected: jailbreak, prompt_injection, malicious_url.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "exploits",
+      "type": "object"
+    },
+    "hash": {
+      "$friendlyName": "Hash",
+      "description": "The hash of the extraction.",
+      "title": "hash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "intent": {
+      "$friendlyName": "Intent",
+      "description": "The estimated intent embodied into the text.  The current list can be obtained through the analyzers API by searching for detector groups 'Intent' accross all analyzers.  Example of intent detected: explain, outline, summarize, write.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "intent",
+      "type": "object"
+    },
+    "internal": {
+      "$friendlyName": "Internal",
+      "description": "If true, this extraction is for internal use only. This can be used by agentic systems to mark an extraction as internal only as opposed to user facing.",
+      "title": "internal",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "isFile": {
+      "$friendlyName": "isFile",
+      "description": "If true, the data of the extraction is a file.",
+      "title": "isFile",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "isStored": {
+      "$friendlyName": "isStored",
+      "description": "If true, indicates that the file has been stored.",
+      "title": "isStored",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "keywords": {
+      "$friendlyName": "Keywords",
+      "description": "The keywords found during classification.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "keywords",
+      "type": "object"
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "description": "A means of distinguishing what was extracted, such as prompt, input file or code.",
+      "title": "label",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "languages": {
+      "$friendlyName": "Languages",
+      "description": "The language of the classification.  The current list can be obtained through the analyzers API by searching for detector groups 'Languages' accross all analyzers.  Example of languages: chinese, english, french, german, gibberish, japanese, russian, spanish.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "languages",
+      "type": "object"
+    },
+    "luaID": {
+      "$friendlyName": "Lua ID",
+      "description": "An internal field for lua code. it is ignored by the API.",
+      "title": "luaID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "malcontents": {
+      "$friendlyName": "Malcontents",
+      "description": "The various malcontents attempts.  The current list can be obtained through the analyzers API by searching for detector groups 'Malcontents' accross all analyzers.  Example of malcontents: biased, harmful, toxic.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "malcontents",
+      "type": "object"
+    },
+    "modalities": {
+      "$friendlyName": "Modalities",
+      "description": "The modalities of data detected in the data.",
+      "items": {
+        "$ref": "modality.json"
+      },
+      "title": "modalities",
+      "type": "array"
+    },
+    "relevance": {
+      "$friendlyName": "Relevance",
+      "description": "The level of general organization relevance of the input.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "title": "relevance",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "secrets": {
+      "$friendlyName": "Secrets",
+      "description": "The secrets found during classification.  The current list can be obtained through the analyzers API by searching for detector groups 'Secrets' accross all analyzers.  Example of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian, aws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess, credentials, database_url_with_credentials, databricks, denodeploy, dfuse, digitalocean, discord_webhook, docker_hub, doppler, dropbox, endorlabs, fleetbase, flutterwave, frameio, freshdesk, fullstory, github, gitlab, gocardless, google_api, grafana, groq, huggingface, intra42, jwt, klaviyo, launchdarkly, linearapi, locationiq, mailchimp, mailgun, mapbox, maxmind, microsoft_teams_webhook, nightfall, notion, npm, openai, otp_auth_url, pagarme, paystack, planetscale, planetscaledb, portainer, posthog, postman, prefect, private_key, pubnub_publish, pubnub_subscribe, pulumi, ramp, razorpay, readme, rechargepayments, replicate, rubygems, salesforce, sendgrid, sendinblue, shopify, slack_access, slack_bot, slack_refresh, slack_user, slack_webhook, slack_workflow_webhook, sourcegraph, sourcegraphcody, squareapp, squareup, stripe, supabase, tailscale, tines_webhook, trufflehog, twilio, ubidots, voiceflow, web_url_with_credentials, zapierwebhook.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "secrets",
+      "type": "object"
+    },
+    "topics": {
+      "$friendlyName": "Topics",
+      "description": "The topic of the classification.  The current list can be obtained through the analyzers API, with the following conditions:   1. Includes all analyzers EXCEPT those in the 'Modality' group   2. Includes all analyzer detectors EXCEPT those in these groups:     - 'Secrets'     - 'Exploits'     - 'Intent'     - 'PIIs'     - 'Malcontents'  Example of topics: category/enterprise, category/healthcare, category/medical, category/personal, contains/blank_image, contains/certificate_signing_request, contains/database_url, contains/handwritten_text, contains/printed_text, contains/public_key, contains/ssh_public_key, contains/web_url, decoded/base32_data, decoded/base58_data, decoded/base64_data, decoded/base64_url_data, decoded/base85_data, decoded/hexadecimal_data, decoded/puny_code_data, decoded/quoted_printable_data, decoded/url_encoding_data, department/compliance, department/cybersecurity, department/finance, department/human_resources, department/information_technology, department/legal, department/logistics, department/marketing, department/performance_evaluation, department/product_management, department/project_management, department/sales, department/strategy, department/support, depict/check, depict/code, depict/document, depict/unclassified, depict/whiteboard, domain/commercial, domain/development, domain/financial, domain/general, domain/regulatory, domain/workforce, extracted/csv_cell_content, extracted/document_text_content, extracted/handwritten_text_content, extracted/pdf_text_content, extracted/pptx_text_content, extracted/spreadsheet_text_content, extracted/typed_text_content, timeframe/current_year, timeframe/future, timeframe/last_year, timeframe/next_year, timeframe/past, transcribed/audio_text_content.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+      "items": {
+        "type": "float"
+      },
+      "title": "topics",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "Extraction",
+  "type": "object"
+}

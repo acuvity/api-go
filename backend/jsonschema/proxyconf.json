@@ -1,0 +1,122 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "ProxyConf",
+  "$friendlyNamePlural": "ProxyConfs",
+  "$modelName": "ProxyConf",
+  "$modelPackage": "lain",
+  "$modelResourceName": "proxyconfs",
+  "$modelRestName": "proxyconf",
+  "additionalProperties": true,
+  "description": "ProxyConf is an API for proxy.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "PACConfigs": {
+      "$friendlyName": "PACConfigs",
+      "description": "The PAC configurations of the organizations.",
+      "items": {
+        "$ref": "pacconfig.json"
+      },
+      "title": "PACConfigs",
+      "type": "array"
+    },
+    "accessPolicy": {
+      "$friendlyName": "Access Policy",
+      "description": "The computed access policy.",
+      "title": "accessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agentConfig": {
+      "$friendlyName": "Agent Configuration",
+      "$ref": "agentconfig.json",
+      "description": "The agent configuration.",
+      "title": "agentConfig"
+    },
+    "assignPolicy": {
+      "$friendlyName": "Assign Policy",
+      "description": "The computed assign policy.",
+      "title": "assignPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contentPolicy": {
+      "$friendlyName": "Content Policy",
+      "description": "The computed content policy.",
+      "title": "contentPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "description": "List of custom data types.",
+      "items": {
+        "$ref": "customdatatype.json"
+      },
+      "title": "customDataTypes",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "orgSettings": {
+      "$friendlyName": "Organization Settings",
+      "$ref": "orgsettings.json",
+      "description": "The organization settings.",
+      "title": "orgSettings"
+    },
+    "providers": {
+      "$friendlyName": "Providers",
+      "description": "The list of available provider.",
+      "items": {
+        "$ref": "provider.json"
+      },
+      "title": "providers",
+      "type": "array"
+    },
+    "tokens": {
+      "$friendlyName": "Tokens",
+      "description": "Tokens pool to authenticate with the provider.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "tokens",
+      "type": "object"
+    },
+    "webExtensionConfig": {
+      "$friendlyName": "Web Extension Configuration",
+      "$ref": "webextensionconfig.json",
+      "description": "The web extension configuration.",
+      "title": "webExtensionConfig"
+    }
+  },
+  "required": [],
+  "title": "ProxyConf",
+  "type": "object"
+}

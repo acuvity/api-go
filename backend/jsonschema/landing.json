@@ -1,0 +1,47 @@
+{
+  "$extends": [],
+  "$friendlyName": "Landing",
+  "$friendlyNamePlural": "Landings",
+  "$modelName": "Landing",
+  "$modelPackage": "lain",
+  "$modelResourceName": "landings",
+  "$modelRestName": "landing",
+  "additionalProperties": true,
+  "description": "Potential Landing namespaces based on permissions.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "Identifier",
+      "description": "The identifier of the landing.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "permissions": {
+      "$friendlyName": "Permissions",
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "boolean"
+        },
+        "type": "object"
+      },
+      "description": "The permissions for the landing type.",
+      "title": "permissions",
+      "type": "object"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "Type of access.",
+      "enum": [
+        "Apps",
+        "Employees",
+        "All"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "Landing",
+  "type": "object"
+}

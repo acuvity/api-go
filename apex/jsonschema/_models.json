@@ -1,0 +1,69 @@
+{
+  "properties": {
+    "alertevent": {
+      "$ref": "alertevent.json"
+    },
+    "analyzer": {
+      "$ref": "analyzer.json"
+    },
+    "analyzermodel": {
+      "$ref": "analyzermodel.json"
+    },
+    "detectionmatcher": {
+      "$ref": "detectionmatcher.json"
+    },
+    "detector": {
+      "$ref": "detector.json"
+    },
+    "extraction": {
+      "$ref": "extraction.json"
+    },
+    "extractioninformation": {
+      "$ref": "extractioninformation.json"
+    },
+    "extractionrequest": {
+      "$ref": "extractionrequest.json"
+    },
+    "extractionsummary": {
+      "$ref": "extractionsummary.json"
+    },
+    "latency": {
+      "$ref": "latency.json"
+    },
+    "modality": {
+      "$ref": "modality.json"
+    },
+    "policeexternaluser": {
+      "$ref": "policeexternaluser.json"
+    },
+    "policerequest": {
+      "$ref": "policerequest.json"
+    },
+    "policeresponse": {
+      "$ref": "policeresponse.json"
+    },
+    "principal": {
+      "$ref": "principal.json"
+    },
+    "principalapp": {
+      "$ref": "principalapp.json"
+    },
+    "principaluser": {
+      "$ref": "principaluser.json"
+    },
+    "root": {
+      "$ref": "root.json"
+    },
+    "scanrequest": {
+      "$ref": "scanrequest.json"
+    },
+    "scanresponse": {
+      "$ref": "scanresponse.json"
+    },
+    "textualdetection": {
+      "$ref": "textualdetection.json"
+    }
+  },
+  "title": "api resources",
+  "type": "object"
+}

@@ -1,0 +1,124 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@principalable",
+    "@sharded",
+    "@timed"
+  ],
+  "$friendlyName": "Feedback",
+  "$friendlyNamePlural": "Feedbacks",
+  "$modelName": "Feedback",
+  "$modelPackage": "lain",
+  "$modelResourceName": "feedbacks",
+  "$modelRestName": "feedback",
+  "additionalProperties": true,
+  "description": "Feedbacks from user regarding analysis decisions.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "comment": {
+      "$friendlyName": "Comment",
+      "description": "General comments on the feedback.",
+      "title": "comment",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "key": {
+      "$creationOnly": true,
+      "$friendlyName": "Key",
+      "$required": true,
+      "description": "The key of the feedback.",
+      "title": "key",
+      "type": "string"
+    },
+    "logHash": {
+      "$creationOnly": true,
+      "$friendlyName": "Log Hash",
+      "$required": true,
+      "description": "The hash of the log.",
+      "title": "logHash",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "provider": {
+      "$creationOnly": true,
+      "$friendlyName": "Provider",
+      "$required": true,
+      "description": "The provider of the feedback.",
+      "title": "provider",
+      "type": "string"
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The feedback score (+1 for upvote, -1 for downvote).",
+      "title": "score",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "value": {
+      "$creationOnly": true,
+      "$friendlyName": "Value",
+      "$required": true,
+      "description": "The value of the feedback.",
+      "title": "value",
+      "type": "string"
+    }
+  },
+  "required": [
+    "key",
+    "logHash",
+    "principal",
+    "provider",
+    "value"
+  ],
+  "title": "Feedback",
+  "type": "object"
+}

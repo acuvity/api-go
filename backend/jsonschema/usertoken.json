@@ -1,0 +1,162 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@xtoken"
+  ],
+  "$friendlyName": "User Token",
+  "$friendlyNamePlural": "User Tokens",
+  "$modelName": "UserToken",
+  "$modelPackage": "lain",
+  "$modelResourceName": "usertokens",
+  "$modelRestName": "usertoken",
+  "additionalProperties": true,
+  "description": "User Token are revocable long lived tokens for users.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "claims": {
+      "$friendlyName": "Claims",
+      "$readOnly": true,
+      "description": "The list of claims delivered in the token.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "clientType": {
+      "$defaultValue": "None",
+      "$friendlyName": "Client Type",
+      "description": "the client type of the user token.",
+      "enum": [
+        "None",
+        "WebExtension",
+        "Acushield"
+      ],
+      "title": "clientType"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email": {
+      "$friendlyName": "Email",
+      "$readOnly": true,
+      "description": "The email of the user who requested the token.",
+      "title": "email",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expirationDate": {
+      "$friendlyName": "Expiration Date",
+      "$readOnly": true,
+      "description": "Tells when the token will expire.",
+      "title": "expirationDate",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "Name of the token is specified while creating the token.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sourceIP": {
+      "$friendlyName": "SourceIP",
+      "$readOnly": true,
+      "description": "The source IP of the request that initiated the creation of the token.",
+      "title": "sourceIP",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "token": {
+      "$friendlyName": "Token",
+      "description": "The generated token. It won't be stored.",
+      "title": "token",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenID": {
+      "$friendlyName": "Token ID",
+      "description": "The ID of the associated token.",
+      "title": "tokenID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "transient": {
+      "$friendlyName": "Transient",
+      "description": "If true, the token will not be stored and will only be revocable if you keep track of the token ID yourself. Also, the validity will be capped and the token won't be long lived.",
+      "title": "transient",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "validity": {
+      "$defaultValue": "8760h",
+      "$friendlyName": "Validity",
+      "description": "Configures the validity of the token.",
+      "title": "validity",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "UserToken",
+  "type": "object"
+}

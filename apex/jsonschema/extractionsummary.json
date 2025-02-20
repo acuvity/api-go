@@ -1,0 +1,86 @@
+{
+  "$extends": [],
+  "$friendlyName": "Extraction Summary",
+  "$friendlyNamePlural": "Extraction Summaries",
+  "$modelName": "ExtractionSummary",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "extractionsummaries",
+  "$modelRestName": "extractionsummary",
+  "additionalProperties": true,
+  "description": "Represents the summary of the extractions.",
+  "properties": {
+    "PIIs": {
+      "$friendlyName": "PIIs",
+      "additionalProperties": true,
+      "description": "The PIIs found during classification.",
+      "title": "PIIs",
+      "type": "object"
+    },
+    "categories": {
+      "$friendlyName": "Categories",
+      "additionalProperties": true,
+      "description": "The categories are remapping of the modalities in a more human friendly way.",
+      "title": "categories",
+      "type": "object"
+    },
+    "exploits": {
+      "$friendlyName": "Exploits",
+      "additionalProperties": true,
+      "description": "The various exploits attempts.",
+      "title": "exploits",
+      "type": "object"
+    },
+    "intent": {
+      "$friendlyName": "Intent",
+      "additionalProperties": true,
+      "description": "The estimated intent embodied into the text.",
+      "title": "intent",
+      "type": "object"
+    },
+    "keywords": {
+      "$friendlyName": "Keywords",
+      "additionalProperties": true,
+      "description": "The keywords found during classification.",
+      "title": "keywords",
+      "type": "object"
+    },
+    "languages": {
+      "$friendlyName": "Languages",
+      "additionalProperties": true,
+      "description": "The language of the classification.",
+      "title": "languages",
+      "type": "object"
+    },
+    "malcontents": {
+      "$friendlyName": "Malcontents",
+      "additionalProperties": true,
+      "description": "The various malcontents attempts.",
+      "title": "malcontents",
+      "type": "object"
+    },
+    "modalities": {
+      "$friendlyName": "Modalities",
+      "additionalProperties": true,
+      "description": "The modalities of data detected in the data.",
+      "title": "modalities",
+      "type": "object"
+    },
+    "secrets": {
+      "$friendlyName": "Secrets",
+      "additionalProperties": true,
+      "description": "The secrets found during classification.",
+      "title": "secrets",
+      "type": "object"
+    },
+    "topics": {
+      "$friendlyName": "Topics",
+      "additionalProperties": true,
+      "description": "The topic of the classification.",
+      "title": "topics",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "ExtractionSummary",
+  "type": "object"
+}

@@ -1,0 +1,100 @@
+{
+  "$extends": [],
+  "$friendlyName": "Textual Detection",
+  "$friendlyNamePlural": "Textual Detections",
+  "$modelName": "TextualDetection",
+  "$modelPackage": "lain",
+  "$modelResourceName": "textualdetections",
+  "$modelRestName": "textualdetection",
+  "additionalProperties": true,
+  "description": "Represents a textual detection done by policy.",
+  "properties": {
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end position of the detection in the original data.",
+      "title": "end",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "key": {
+      "$friendlyName": "Key",
+      "description": "The key that is used in the name's place, If empty, a sequence of X's are used.",
+      "title": "key",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the detection.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "redacted": {
+      "$friendlyName": "Redacted",
+      "description": "If true this detection has been redacted.",
+      "title": "redacted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactedEnd": {
+      "$friendlyName": "Redacted End",
+      "description": "The end position of the detection in the redacted data.",
+      "title": "redactedEnd",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "redactedStart": {
+      "$friendlyName": "Redacted Start",
+      "description": "The start position of the detection in the redacted data.",
+      "title": "redactedStart",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The confidence score of the detection.",
+      "maximum": 1,
+      "title": "score",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start position of the detection in the original data.",
+      "title": "start",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of detection.",
+      "enum": [
+        "Keyword",
+        "PII",
+        "Secret",
+        "CDT"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "TextualDetection",
+  "type": "object"
+}

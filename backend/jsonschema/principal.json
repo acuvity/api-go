@@ -1,0 +1,84 @@
+{
+  "$extends": [],
+  "$friendlyName": "Principal",
+  "$friendlyNamePlural": "Principals",
+  "$modelName": "Principal",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "principals",
+  "$modelRestName": "principal",
+  "additionalProperties": true,
+  "description": "Describe the principal.",
+  "properties": {
+    "app": {
+      "$friendlyName": "App",
+      "$ref": "principalapp.json",
+      "description": "The application principal information if type is App.",
+      "title": "app"
+    },
+    "authType": {
+      "$friendlyName": "Auth Type",
+      "description": "The type of authentication.",
+      "enum": [
+        "Certificate",
+        "UserToken",
+        "AppToken",
+        "Hostname",
+        "Token",
+        "ComponentToken",
+        "External"
+      ],
+      "title": "authType"
+    },
+    "claims": {
+      "$friendlyName": "Claims",
+      "description": "List of claims extracted from the user query.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "team": {
+      "$friendlyName": "Team",
+      "description": "The team that was used to authorize the request.",
+      "title": "team",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenName": {
+      "$friendlyName": "Token Name",
+      "description": "The name of the token, if any.",
+      "title": "tokenName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of principal.",
+      "enum": [
+        "User",
+        "App"
+      ],
+      "title": "type"
+    },
+    "user": {
+      "$friendlyName": "User",
+      "$ref": "principaluser.json",
+      "description": "The user principal information if type is User.",
+      "title": "user"
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "Principal",
+  "type": "object"
+}

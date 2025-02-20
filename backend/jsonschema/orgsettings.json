@@ -1,0 +1,230 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Organization Settings",
+  "$friendlyNamePlural": "Organization Settings",
+  "$modelName": "OrgSettings",
+  "$modelPackage": "lain",
+  "$modelResourceName": "orgsettings",
+  "$modelRestName": "orgsettings",
+  "additionalProperties": true,
+  "description": "Manage the default settings for the entire organization.",
+  "properties": {
+    "CA": {
+      "$friendlyName": "CA",
+      "description": "The Certificate authority to use to validate user certificates in PEM format.",
+      "title": "CA",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "CACommonNames": {
+      "$friendlyName": "CA Common Names",
+      "$readOnly": true,
+      "description": "The currently used Certificate authorities's Common Name.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "CACommonNames",
+      "type": "array"
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accessPolicy": {
+      "$friendlyName": "Access Policy",
+      "description": "The rego policy that decides if the incoming request can access the provider. If this empty, the dynamic policy transpiled from AccessPolicies API objects will be used by Apexes. If set however, everything computed by API objects are ignored and this becomes the final policy.",
+      "title": "accessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "allowSupportAccess": {
+      "$friendlyName": "Allow Support Access",
+      "description": "When enabled, an API authorization will be created in your organization to allow the Support Team to access your organization in read-only fashion to help you with any issue you might have. Disable it again to remove the permissions.",
+      "title": "allowSupportAccess",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "askConsent": {
+      "$friendlyName": "Ask Consent",
+      "description": "Ask the user of web applications for consent before accessing a monitored provider, using an html splash screen the first time they connect. If this is not set, the users of the providers can still figure out the provider is monitored. This is a courtesy and not a security feature.",
+      "title": "askConsent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "assignPolicy": {
+      "$friendlyName": "Assign Policy",
+      "description": "The rego policy that decides in which team an user should be in. The team will be passed to the accessPolicy. If this empty, the dynamic policy transpiled from AssignPolicies API objects will be used by Apexes. If set however, everything computed by API objects are ignored and this becomes the final policy.",
+      "title": "assignPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contentPolicy": {
+      "$friendlyName": "Content Policy",
+      "description": "The policy that decides how to handle the request content, once access has been granted by accessPolicy and the content analysis was performed. If this empty, the dynamic policy transpiled from AccessPolicies API objects will be used by Apexes. If set however, everything computed by API objects are ignored and this becomes the final policy.",
+      "title": "contentPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disableURLDiscovery": {
+      "$friendlyName": "Disable URL Discovery",
+      "description": "If true, it disables discovering of the visited URLs.",
+      "title": "disableURLDiscovery",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "fingerprints": {
+      "$friendlyName": "Fingerprints",
+      "$readOnly": true,
+      "description": "the fingerprint of the cas in the chain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "fingerprints",
+      "type": "array"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profile": {
+      "$friendlyName": "Profile",
+      "description": "A few sentences about the organization. The description must be short and detailed. It will be used by the inference engine to decide if the content sent by the users are relevant to your company.",
+      "title": "profile",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "storeInputFiles": {
+      "$friendlyName": "Store Input Files",
+      "description": "If set, files uploaded by the users will be stored.",
+      "title": "storeInputFiles",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "storeOutputFiles": {
+      "$friendlyName": "Store Output Files",
+      "description": "If set, files sent to the users will be stored.",
+      "title": "storeOutputFiles",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "subjectKeyIDs": {
+      "$friendlyName": "Subject Key IDs",
+      "$readOnly": true,
+      "description": "the IDs of the subject keys of the cas in the chain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "subjectKeyIDs",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "useRegoCodeOnly": {
+      "$friendlyName": "Use Rego code only",
+      "description": "If true, it uses Rego code to define team assignment, provider access and content policies.",
+      "title": "useRegoCodeOnly",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "OrgSettings",
+  "type": "object"
+}

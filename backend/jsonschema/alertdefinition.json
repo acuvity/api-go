@@ -1,0 +1,172 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@namelinkable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Alert Definition",
+  "$friendlyNamePlural": "Alert Definitions",
+  "$modelName": "AlertDefinition",
+  "$modelPackage": "avi",
+  "$modelResourceName": "alertdefinitions",
+  "$modelRestName": "alertdefinition",
+  "additionalProperties": true,
+  "description": "Represents a definition of an alert.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cooldown": {
+      "$defaultValue": "5m",
+      "$friendlyName": "Cooldown",
+      "description": "If set, how long until a subsequent alert notification can be raised.",
+      "title": "cooldown",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the alert definition.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "message": {
+      "$friendlyName": "Message",
+      "description": "The message sent when notifying.",
+      "title": "message",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "severity": {
+      "$defaultValue": "Warning",
+      "$friendlyName": "Severity",
+      "$required": true,
+      "description": "The severity of the alert event.",
+      "enum": [
+        "Critical",
+        "Warning",
+        "Info"
+      ],
+      "title": "severity"
+    },
+    "sinks": {
+      "$friendlyName": "Sinks",
+      "description": "The sinks used to notify.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "sinks",
+      "type": "array"
+    },
+    "trigger": {
+      "$friendlyName": "Trigger",
+      "$ref": "alerttrigger.json",
+      "description": "If set, the criteria to trigger an alert notification.",
+      "title": "trigger"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "friendlyName",
+    "severity"
+  ],
+  "title": "AlertDefinition",
+  "type": "object"
+}

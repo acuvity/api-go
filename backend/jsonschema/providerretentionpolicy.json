@@ -1,0 +1,45 @@
+{
+  "$extends": [],
+  "$friendlyName": "Provider Data Retention policy",
+  "$friendlyNamePlural": "Provider Data Retention policies",
+  "$modelName": "ProviderRetentionPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "providerretentionpolicies",
+  "$modelRestName": "providerretentionpolicy",
+  "additionalProperties": true,
+  "description": "Represents data retention policy for a given subscription type.",
+  "properties": {
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the data retention policy for the subscription type.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "duration": {
+      "$friendlyName": "Duration",
+      "description": "The duration of time the data retention policy applies to the subscription type.",
+      "title": "duration",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subscriptionType": {
+      "$defaultValue": "Free",
+      "$friendlyName": "Subscription Type",
+      "description": "The type of subscription for which the data retention policy needs to be defined.",
+      "enum": [
+        "Enterprise",
+        "Paid",
+        "Free"
+      ],
+      "title": "subscriptionType"
+    }
+  },
+  "required": [],
+  "title": "ProviderRetentionPolicy",
+  "type": "object"
+}

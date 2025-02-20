@@ -1,0 +1,141 @@
+{
+  "$extends": [
+    "@anonymizationable",
+    "@pipelinepasstype",
+    "@scanrequestcore"
+  ],
+  "$friendlyName": "ScanRequest",
+  "$friendlyNamePlural": "ScanRequests",
+  "$modelName": "ScanRequest",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "scanrequests",
+  "$modelRestName": "scanrequest",
+  "additionalProperties": true,
+  "description": "This is a scan request.",
+  "properties": {
+    "accessPolicy": {
+      "$friendlyName": "Access Policy",
+      "description": "AccessPolicy allows to pass optional Rego access policy. If not set, The action is always Allow, If it is set, it will be run, and the final decision will be computed based on that policy. If the rego code does not start with package main, then the needed classic package definition and  acuvity imports will be added automatically. If the code starts with package main, then everything remains untouched.",
+      "title": "accessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "analyzers": {
+      "$friendlyName": "Analyzers",
+      "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analyzis (slower but more acurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analyzis (faster but less acurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "analyzers",
+      "type": "array"
+    },
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Annotations attached to the extraction.",
+      "title": "annotations",
+      "type": "object"
+    },
+    "anonymization": {
+      "$defaultValue": "FixedSize",
+      "$friendlyName": "Anonymization",
+      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "enum": [
+        "FixedSize",
+        "VariableSize"
+      ],
+      "title": "anonymization"
+    },
+    "bypassHash": {
+      "$friendlyName": "Bypass Hash",
+      "description": "In the case of a contentPolicy that asks for a confirmation, this is the hash you must send back to bypass the block. This is only useful when a content policy has been set or is evaluated remotely.",
+      "title": "bypassHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contentPolicy": {
+      "$friendlyName": "Content Policy",
+      "description": "ContentPolicy allows to pass optional Rego content policy. If not set, The action is always Allow, and there cannot be any alerts raised etc If it is set, it will be run, and the final decision will be computed based on that policy. If the rego code does not start with package main, then the needed classic package definition and  acuvity imports will be added automatically. If the code starts with package main, then everything remains untouched.",
+      "title": "contentPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "extractions": {
+      "$friendlyName": "Extractions",
+      "description": "The extractions to request.",
+      "items": {
+        "$ref": "extractionrequest.json"
+      },
+      "title": "extractions",
+      "type": "array"
+    },
+    "keywords": {
+      "$friendlyName": "Keywords",
+      "description": "The keywords found during classification.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "keywords",
+      "type": "array"
+    },
+    "messages": {
+      "$friendlyName": "Messages",
+      "description": "Messages to process and provide detections for. Use data in extractions for processing binary data.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "messages",
+      "type": "array"
+    },
+    "minimalLogging": {
+      "$friendlyName": "MinimalLogging",
+      "description": "If true, the system will not log the contents that were scanned.",
+      "title": "minimalLogging",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactions": {
+      "$friendlyName": "Redactions",
+      "description": "The redactions to perform if they are detected.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "redactions",
+      "type": "array"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of text.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "ScanRequest",
+  "type": "object"
+}

@@ -1,0 +1,55 @@
+{
+  "$extends": [
+    "@matcher"
+  ],
+  "$friendlyName": "Injector",
+  "$friendlyNamePlural": "Injectors",
+  "$modelName": "Injector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "injectors",
+  "$modelRestName": "injector",
+  "additionalProperties": true,
+  "description": "TODO.",
+  "properties": {
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "$required": true,
+      "description": "A regular expression to match an URL to log.",
+      "title": "match",
+      "type": "string"
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "$required": true,
+      "description": "The method to match.",
+      "enum": [
+        "Post",
+        "Put",
+        "Patch",
+        "Get",
+        "Delete",
+        "Options",
+        "Head"
+      ],
+      "title": "method"
+    }
+  },
+  "required": [
+    "match",
+    "method"
+  ],
+  "title": "Injector",
+  "type": "object"
+}

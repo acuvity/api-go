@@ -1,0 +1,46 @@
+{
+  "$extends": [],
+  "$friendlyName": "Principal App",
+  "$friendlyNamePlural": "Principal Apps",
+  "$modelName": "PrincipalApp",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "principalapps",
+  "$modelRestName": "principalapp",
+  "additionalProperties": true,
+  "description": "Describes the principal information of an application.",
+  "properties": {
+    "component": {
+      "$friendlyName": "Component",
+      "description": "The component of the application request.",
+      "title": "component",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "labels": {
+      "$friendlyName": "Labels",
+      "description": "The list of labels attached to an application request.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "labels",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the application.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PrincipalApp",
+  "type": "object"
+}

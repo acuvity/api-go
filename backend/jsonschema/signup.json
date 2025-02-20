@@ -1,0 +1,93 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@sharded",
+    "@timed"
+  ],
+  "$friendlyName": "Sign Up",
+  "$friendlyNamePlural": "Sign Ups",
+  "$modelName": "Signup",
+  "$modelPackage": "amaterasu",
+  "$modelResourceName": "signups",
+  "$modelRestName": "signup",
+  "additionalProperties": true,
+  "description": "Represents a sign up request.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "email": {
+      "$friendlyName": "Email",
+      "$readOnly": true,
+      "description": "The email requesting the signup. This email can be considered valid and verified, as for the signup request to succeed, it must have been verified by signing up with one of the oauth2 source we support.",
+      "title": "email",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$creationOnly": true,
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of signup requested.",
+      "enum": [
+        "Employees",
+        "Apps"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verifiedBy": {
+      "$friendlyName": "Verified By",
+      "$readOnly": true,
+      "description": "The source of verification.",
+      "title": "verifiedBy",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "Signup",
+  "type": "object"
+}

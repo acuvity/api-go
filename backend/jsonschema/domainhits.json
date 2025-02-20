@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Domain Hits",
+  "$friendlyNamePlural": "Domain Hits",
+  "$modelName": "DomainHits",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "domainhits",
+  "$modelRestName": "domainhits",
+  "additionalProperties": true,
+  "description": "This is a domain hit.",
+  "properties": {
+    "app": {
+      "$friendlyName": "App",
+      "description": "The name of the application that the domain belongs to.",
+      "title": "app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "component": {
+      "$friendlyName": "Component",
+      "description": "The component of the application that the domain belongs to.",
+      "title": "component",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "Domain that has been visited.",
+      "title": "domain",
+      "type": "string"
+    },
+    "hits": {
+      "$friendlyName": "Hits",
+      "$required": true,
+      "description": "The number of hits for this report.",
+      "minimum": 1,
+      "title": "hits",
+      "type": "integer"
+    },
+    "suspicious": {
+      "$friendlyName": "Suspicious",
+      "description": "Suspicious is true if the service might be a Shadow AI.",
+      "title": "suspicious",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "domain",
+    "hits"
+  ],
+  "title": "DomainHits",
+  "type": "object"
+}

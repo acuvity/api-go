@@ -1,0 +1,28 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Email",
+  "$friendlyNamePlural": "Sink Emails",
+  "$modelName": "SinkEmail",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkemail",
+  "$modelRestName": "sinkemail",
+  "additionalProperties": true,
+  "description": "Additional configuration for sending an email.",
+  "properties": {
+    "recipients": {
+      "$friendlyName": "Recipients",
+      "$required": true,
+      "description": "The list of email recipients the notification will be sent to.",
+      "items": {
+        "type": "string"
+      },
+      "title": "recipients",
+      "type": "array"
+    }
+  },
+  "required": [
+    "recipients"
+  ],
+  "title": "SinkEmail",
+  "type": "object"
+}

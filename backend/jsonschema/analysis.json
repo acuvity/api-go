@@ -1,0 +1,70 @@
+{
+  "$extends": [],
+  "$friendlyName": "Analysis",
+  "$friendlyNamePlural": "Analysis",
+  "$modelName": "Analysis",
+  "$modelPackage": "lain",
+  "$modelResourceName": "analysis",
+  "$modelRestName": "analysis",
+  "additionalProperties": true,
+  "description": "Represent a ml pipeline graph analysis.",
+  "properties": {
+    "analyses": {
+      "$friendlyName": "Analyses",
+      "description": "The list of analysis chained to this analyzer analysis.",
+      "items": {
+        "$ref": "analysis.json"
+      },
+      "title": "analyses",
+      "type": "array"
+    },
+    "analyzerID": {
+      "$friendlyName": "Analyzer",
+      "description": "The ID of the analyzer.",
+      "title": "analyzerID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detections": {
+      "$friendlyName": "Detections",
+      "description": "The list of detections the analyzer returned.",
+      "items": {
+        "$ref": "detection.json"
+      },
+      "title": "detections",
+      "type": "array"
+    },
+    "duration": {
+      "$friendlyName": "Duration",
+      "description": "The time taken by the analyzer.",
+      "title": "duration",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "matchingDetections": {
+      "$friendlyName": "Matching Detections",
+      "description": "A list of detections that matches the detection matchers criteria set on analyzers, triggering their execution.",
+      "items": {
+        "$ref": "detection.json"
+      },
+      "title": "matchingDetections",
+      "type": "array"
+    },
+    "skippedReason": {
+      "$friendlyName": "Skipped Reason",
+      "description": "The reason the analyzer was skipped.",
+      "title": "skippedReason",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Analysis",
+  "type": "object"
+}

@@ -1,0 +1,83 @@
+{
+  "$extends": [
+    "@matcher"
+  ],
+  "$friendlyName": "Mapper",
+  "$friendlyNamePlural": "Mappers",
+  "$modelName": "Mapper",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mappers",
+  "$modelRestName": "mapper",
+  "additionalProperties": true,
+  "description": "TODO.",
+  "properties": {
+    "expiration": {
+      "$defaultValue": "1h",
+      "$friendlyName": "Expiration",
+      "description": "Set how long the data should be cached.",
+      "title": "expiration",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "$required": true,
+      "description": "A regular expression to match an URL to log.",
+      "title": "match",
+      "type": "string"
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "$required": true,
+      "description": "The method to match.",
+      "enum": [
+        "Post",
+        "Put",
+        "Patch",
+        "Get",
+        "Delete",
+        "Options",
+        "Head"
+      ],
+      "title": "method"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the extractor. It will be used to identify which extractor was used during an extraction.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "script": {
+      "$friendlyName": "Lua Script",
+      "description": "If not empty, use this lua code to run the extraction.",
+      "title": "script",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "match",
+    "method"
+  ],
+  "title": "Mapper",
+  "type": "object"
+}

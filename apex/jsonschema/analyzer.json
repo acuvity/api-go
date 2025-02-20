@@ -1,0 +1,101 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Analyzer",
+  "$friendlyNamePlural": "Analyzers",
+  "$modelName": "Analyzer",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "analyzers",
+  "$modelRestName": "analyzer",
+  "additionalProperties": true,
+  "description": "Represents an analyzer.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the analyzer.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detectionMatchers": {
+      "$friendlyName": "DetectionMatchers",
+      "description": "A list of detection matcher that will trigger the analyzer.",
+      "items": {
+        "$ref": "detectionmatcher.json"
+      },
+      "title": "detectionMatchers",
+      "type": "array"
+    },
+    "detectors": {
+      "$friendlyName": "Detectors",
+      "description": "The detectors the analyzer can use.",
+      "items": {
+        "$ref": "detector.json"
+      },
+      "title": "detectors",
+      "type": "array"
+    },
+    "enabled": {
+      "$friendlyName": "Enabled",
+      "description": "Tell if the analyzer is enabled by default.",
+      "title": "enabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "group": {
+      "$friendlyName": "Group",
+      "description": "The group the analyzer belongs to.",
+      "title": "group",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "models": {
+      "$friendlyName": "Models",
+      "description": "The models used by the analyzer.",
+      "items": {
+        "$ref": "analyzermodel.json"
+      },
+      "title": "models",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the analyzer.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Analyzer",
+  "type": "object"
+}

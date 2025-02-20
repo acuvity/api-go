@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "PoliceExternalUser",
+  "$friendlyNamePlural": "PoliceExternalUsers",
+  "$modelName": "PoliceExternalUser",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policeexternalusers",
+  "$modelRestName": "policeexternaluser",
+  "additionalProperties": true,
+  "description": "PoliceExternalUser holds the information about the remote user for a PoliceRequest.",
+  "properties": {
+    "claims": {
+      "$friendlyName": "Claims",
+      "$required": true,
+      "description": "List of claims extracted from the user query.",
+      "items": {
+        "type": "string"
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the external user.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claims",
+    "name"
+  ],
+  "title": "PoliceExternalUser",
+  "type": "object"
+}

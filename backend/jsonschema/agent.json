@@ -1,0 +1,167 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@principalable"
+  ],
+  "$friendlyName": "Agent",
+  "$friendlyNamePlural": "Agents",
+  "$modelName": "Agent",
+  "$modelPackage": "lain",
+  "$modelResourceName": "agents",
+  "$modelRestName": "agent",
+  "additionalProperties": true,
+  "description": "Stores information about a known agent.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agentConfig": {
+      "$friendlyName": "Agent Configuration",
+      "$ref": "agentconfig.json",
+      "description": "The agent configuration.",
+      "title": "agentConfig"
+    },
+    "currentVersion": {
+      "$friendlyName": "Current Version",
+      "$required": true,
+      "description": "The current version of the agent.",
+      "title": "currentVersion",
+      "type": "string"
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "$required": true,
+      "description": "The name of the host where the agent is runnning.",
+      "title": "hostname",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isAPEXReachable": {
+      "$friendlyName": "Is Apex Reachable",
+      "description": "True if the apex is reachable.",
+      "title": "isAPEXReachable",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "isAPEXTrusted": {
+      "$friendlyName": "Is Apex Trusted",
+      "description": "True if the apex is trusted.",
+      "title": "isAPEXTrusted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "managedCAState": {
+      "$friendlyName": "Managed CA State",
+      "description": "The state of the managed CA.",
+      "title": "managedCAState",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "managedInterfaces": {
+      "$friendlyName": "Managed interfaces",
+      "description": "The list of managed interfaces.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "managedInterfaces",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "$required": true,
+      "description": "The last ping recorded for the agent.",
+      "title": "ping",
+      "type": "string"
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "$required": true,
+      "description": "The start time for the agent.",
+      "title": "start",
+      "type": "string"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the agent.",
+      "enum": [
+        "Alive",
+        "Stopped"
+      ],
+      "title": "status"
+    },
+    "systemProxyManagementState": {
+      "$friendlyName": "System Proxy Management State",
+      "description": "The state of the system proxy management.",
+      "title": "systemProxyManagementState",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "currentVersion",
+    "hostname",
+    "ping",
+    "principal",
+    "start",
+    "status"
+  ],
+  "title": "Agent",
+  "type": "object"
+}

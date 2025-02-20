@@ -1,0 +1,86 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Page Data View",
+  "$friendlyNamePlural": "Page Data Views",
+  "$modelName": "PageDataView",
+  "$modelPackage": "lain",
+  "$modelResourceName": "pagedataviews",
+  "$modelRestName": "pagedataview",
+  "additionalProperties": true,
+  "description": "Represents a page data view.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the page data view.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pageID": {
+      "$friendlyName": "Page ID",
+      "$required": true,
+      "description": "The name of the page.",
+      "title": "pageID",
+      "type": "string"
+    },
+    "predicates": {
+      "$friendlyName": "Predicates",
+      "description": "The match criteria used to make a query.",
+      "items": {
+        "$ref": "pagedataviewpredicate.json"
+      },
+      "title": "predicates",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "pageID"
+  ],
+  "title": "PageDataView",
+  "type": "object"
+}

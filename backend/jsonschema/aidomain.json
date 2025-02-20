@@ -1,0 +1,228 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@importable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "AI Domain",
+  "$friendlyNamePlural": "AI Domains",
+  "$modelName": "AIDomain",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidomains",
+  "$modelRestName": "aidomain",
+  "additionalProperties": true,
+  "description": "AI domain provides an AI risk score given a domain url.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "compliances": {
+      "$friendlyName": "Compliances",
+      "description": "The list of compliance provided by the domain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "compliances",
+      "type": "array"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataResidency": {
+      "$friendlyName": "Data Residency",
+      "description": "The user data storage location.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "dataResidency",
+      "type": "array"
+    },
+    "dataSharing": {
+      "$friendlyName": "Data Sharing",
+      "description": "Does the provider share user data with 3rd party or services.",
+      "title": "dataSharing",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "dataSharingConsent": {
+      "$friendlyName": "Data Sharing Consent",
+      "description": "Does the provider share user data with consent with 3rd party or services.",
+      "title": "dataSharingConsent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "A brief description about the AI domain and what services it provides.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$creationOnly": true,
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "The domain of the AI provider.",
+      "title": "domain",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isAIDomain": {
+      "$friendlyName": "Is AIDomain",
+      "description": "Flag to say if the domain is a AI domain or not.",
+      "title": "isAIDomain",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "models": {
+      "$friendlyName": "Models",
+      "description": "List of AI models used by the domain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "models",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "providerName": {
+      "$friendlyName": "Provider Name",
+      "description": "The name of the main provider.",
+      "title": "providerName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "providerRetentionPolicies": {
+      "$friendlyName": "Provider Retention Policy",
+      "description": "The data retention policies by the domain for each type of users.",
+      "items": {
+        "$ref": "providerretentionpolicy.json"
+      },
+      "title": "providerRetentionPolicies",
+      "type": "array"
+    },
+    "providerTrainingPolicies": {
+      "$friendlyName": "Data Usage To Train",
+      "description": "Does the provider use user data for training its model.",
+      "items": {
+        "$ref": "providertrainingpolicy.json"
+      },
+      "title": "providerTrainingPolicies",
+      "type": "array"
+    },
+    "riskExplanation": {
+      "$friendlyName": "Risk Explanation",
+      "description": "A Markdown formatted string explaining the risk score.",
+      "title": "riskExplanation",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "riskScore": {
+      "$friendlyName": "Risk score",
+      "$required": true,
+      "description": "The risk score for the domain.",
+      "maximum": 1,
+      "title": "riskScore",
+      "type": "number"
+    },
+    "thirdPartyModelUsage": {
+      "$friendlyName": "Third Party Model Usage",
+      "description": "Does provider use third party model.",
+      "title": "thirdPartyModelUsage",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "domain",
+    "riskScore"
+  ],
+  "title": "AIDomain",
+  "type": "object"
+}

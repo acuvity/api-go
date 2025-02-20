@@ -1,0 +1,77 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Role",
+  "$friendlyNamePlural": "Roles",
+  "$modelName": "Role",
+  "$modelPackage": "lain",
+  "$modelResourceName": "roles",
+  "$modelRestName": "role",
+  "additionalProperties": true,
+  "description": "Role for API Authorizations.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the role.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "description": "The friendly name of the role.",
+      "title": "friendlyName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the role.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "permissions": {
+      "$friendlyName": "Permissions",
+      "description": "Permissions for the role.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "permissions",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "Role",
+  "type": "object"
+}

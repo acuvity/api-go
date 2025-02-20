@@ -1,0 +1,180 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@claimfilter"
+  ],
+  "$friendlyName": "OAuth2 Source",
+  "$friendlyNamePlural": "OAuth2 Sources",
+  "$modelName": "OAuth2Source",
+  "$modelPackage": "a3s",
+  "$modelResourceName": "oauth2sources",
+  "$modelRestName": "oauth2source",
+  "additionalProperties": true,
+  "description": "An Oauth Auth source can be used to issue tokens based on supported OAuth2 providers. accounts.",
+  "properties": {
+    "CA": {
+      "$friendlyName": "CA",
+      "description": "The Certificate authority to use to validate the authenticity of the OAuth server. If left empty, the system trust store will be used. In most of the cases, you don't need to set this.",
+      "title": "CA",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "$required": true,
+      "description": "Unique client ID.",
+      "title": "clientID",
+      "type": "string"
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "$required": true,
+      "description": "Client secret associated with the client ID.",
+      "title": "clientSecret",
+      "type": "string"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the object.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ignoredKeys": {
+      "$friendlyName": "IgnoredKeys",
+      "description": "A list of claims that will be filtered out from the identity token. A claim will be ignored if it is prefixed with one of the items in the ignoredKeys list. This runs before includedKeys computation.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "ignoredKeys",
+      "type": "array"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "includedKeys": {
+      "$friendlyName": "IncludedKeys",
+      "description": "A list of claims that defines which claims will be added to the identity token. A claim will be included if it is prefixed with one of the items in the includedKeys list. This runs after ignoreddKeys computation.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "includedKeys",
+      "type": "array"
+    },
+    "modifier": {
+      "$friendlyName": "Modifier",
+      "$ref": "identitymodifier.json",
+      "description": "Contains optional information about a remote service that can be used to modify the claims that are about to be delivered using this authentication source.",
+      "title": "modifier"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the source.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "$required": true,
+      "description": "Select a supported OAuth2 provider.",
+      "enum": [
+        "Github",
+        "Gitlab",
+        "Huggingface",
+        "Google"
+      ],
+      "title": "provider"
+    },
+    "scopes": {
+      "$friendlyName": "Scopes",
+      "description": "List of scopes to request.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "scopes",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "clientID",
+    "clientSecret",
+    "name",
+    "provider"
+  ],
+  "title": "OAuth2Source",
+  "type": "object"
+}

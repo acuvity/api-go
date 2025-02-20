@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "ScanExternalUser",
+  "$friendlyNamePlural": "ScanExternalUsers",
+  "$modelName": "ScanExternalUser",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "scanexternalusers",
+  "$modelRestName": "scanexternaluser",
+  "additionalProperties": true,
+  "description": "ScanExternalUser holds the information about the remote user for a ScanRequest.",
+  "properties": {
+    "claims": {
+      "$friendlyName": "Claims",
+      "$required": true,
+      "description": "List of claims extracted from the user query.",
+      "items": {
+        "type": "string"
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the external user.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "claims",
+    "name"
+  ],
+  "title": "ScanExternalUser",
+  "type": "object"
+}

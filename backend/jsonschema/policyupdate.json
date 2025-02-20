@@ -1,0 +1,38 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Policy Update",
+  "$friendlyNamePlural": "Policy Updates",
+  "$modelName": "PolicyUpdate",
+  "$modelPackage": "lain",
+  "$modelResourceName": "policyupdates",
+  "$modelRestName": "policyupdate",
+  "additionalProperties": true,
+  "description": "Object used to notify Apexes for policy changes.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PolicyUpdate",
+  "type": "object"
+}

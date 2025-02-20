@@ -1,0 +1,45 @@
+{
+  "$extends": [],
+  "$friendlyName": "Provider use of user data based on the subscription type.",
+  "$friendlyNamePlural": "Provider use of user data based on the subscription type.s",
+  "$modelName": "ProviderTrainingPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "providertrainingpolicies",
+  "$modelRestName": "providertrainingpolicy",
+  "additionalProperties": true,
+  "description": "Represents provider data usage policy for a given subscription type.",
+  "properties": {
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the data usage policy for a subscription type.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subscriptionType": {
+      "$defaultValue": "Free",
+      "$friendlyName": "Subscription Type",
+      "description": "The type of subscription for which the data retention policy needs to be defined.",
+      "enum": [
+        "Enterprise",
+        "Paid",
+        "Free"
+      ],
+      "title": "subscriptionType"
+    },
+    "useData": {
+      "$friendlyName": "Use Data",
+      "description": "User Data usage to train or improve the models based on the subscription type.",
+      "title": "useData",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ProviderTrainingPolicy",
+  "type": "object"
+}

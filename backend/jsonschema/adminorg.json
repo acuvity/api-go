@@ -1,0 +1,143 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Admin Org",
+  "$friendlyNamePlural": "Admin Orgs",
+  "$modelName": "AdminOrg",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "adminorgs",
+  "$modelRestName": "adminorg",
+  "additionalProperties": true,
+  "description": "Administrative API to create new organizations.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "forceReimportTemplate": {
+      "$friendlyName": "Force Reimport Template",
+      "description": "This property if true will force reimport the template data. Setting it false is a noop.",
+      "title": "forceReimportTemplate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "githubSigninEnabled": {
+      "$friendlyName": "Github Signin Enabled",
+      "description": "Enables the global Sign In With Github for the organization.",
+      "title": "githubSigninEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "gitlabSigninEnabled": {
+      "$friendlyName": "Gitlab Signin Enabled",
+      "description": "Enables the global Sign In With Gitlab for the organization.",
+      "title": "gitlabSigninEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "googleSigninEnabled": {
+      "$friendlyName": "Google Signin Enabled",
+      "description": "Enables the global Sign In With Google for the organization.",
+      "title": "googleSigninEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "huggingfaceSigninEnabled": {
+      "$friendlyName": "Huggingface Signin Enabled",
+      "description": "Enables the global Sign In With Huggingface for the organization.",
+      "title": "huggingfaceSigninEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "mode": {
+      "$defaultValue": "Normal",
+      "$friendlyName": "Mode",
+      "description": "The mode of the organization.",
+      "enum": [
+        "Trial",
+        "TrialEmployees",
+        "TrialApps",
+        "Pilot",
+        "Normal",
+        "NormalEmployees",
+        "NormalApps",
+        "Blocked",
+        "Dead"
+      ],
+      "title": "mode"
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the organization.",
+      "pattern": "^[a-zA-Z0-9-_/@.]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reimportTemplate": {
+      "$friendlyName": "Reimport Template",
+      "$readOnly": true,
+      "description": "This is an internal property used to decide if the org template needs to be reimported.",
+      "title": "reimportTemplate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "subject": {
+      "$friendlyName": "Subject",
+      "description": "A tag expression that identifies the authorized user(s). If set it will configure the complete subject of the admin api authorization, ignoring anything passed in claims.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "subject",
+      "type": "array"
+    },
+    "type": {
+      "$defaultValue": "Full",
+      "$friendlyName": "Type",
+      "description": "The type of organization. Either Full or Single. Full represents an organization that will need to onboard additional users, while Single represents a single user account.",
+      "enum": [
+        "Full",
+        "Single"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AdminOrg",
+  "type": "object"
+}

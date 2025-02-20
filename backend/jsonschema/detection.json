@@ -1,0 +1,110 @@
+{
+  "$extends": [
+    "@detectable"
+  ],
+  "$friendlyName": "Detection",
+  "$friendlyNamePlural": "Detections",
+  "$modelName": "Detection",
+  "$modelPackage": "lain",
+  "$modelResourceName": "detections",
+  "$modelRestName": "detection",
+  "additionalProperties": true,
+  "description": "Represent a detection.",
+  "properties": {
+    "confidence": {
+      "$friendlyName": "Confidence",
+      "description": "The confidence level of the detection.",
+      "enum": [
+        "Unlikely",
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "title": "confidence"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the detection.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end position of the poisitional detection.",
+      "title": "end",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "group": {
+      "$friendlyName": "Group",
+      "description": "The group the detection belongs to.",
+      "title": "group",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "description": "The label returned by the model.",
+      "title": "label",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the detection.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "positional": {
+      "$friendlyName": "Positional",
+      "description": "Tell if the detection is positional.",
+      "title": "positional",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "raw_score": {
+      "$friendlyName": "Raw Score",
+      "description": "The raw score of the detection retuned by the model.",
+      "title": "raw_score",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The normalized score of the detection against its confidence level thresholds. Between 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
+      "title": "score",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start position of the poisitional detection.",
+      "title": "start",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Detection",
+  "type": "object"
+}

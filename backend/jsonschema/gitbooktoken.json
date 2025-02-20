@@ -1,0 +1,26 @@
+{
+  "$extends": [],
+  "$friendlyName": "Gitbook Token",
+  "$friendlyNamePlural": "Gitbook Tokens",
+  "$modelName": "GitbookToken",
+  "$modelPackage": "amaterasu",
+  "$modelResourceName": "gitbooktokens",
+  "$modelRestName": "gitbooktoken",
+  "additionalProperties": true,
+  "description": "Allows to exchange an Acuvity token for a token signed for our documentation.",
+  "properties": {
+    "token": {
+      "$friendlyName": "Token",
+      "$readOnly": true,
+      "description": "The token to access gitbook. This is not a valid acuvity token.",
+      "title": "token",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "GitbookToken",
+  "type": "object"
+}

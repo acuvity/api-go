@@ -1,0 +1,185 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed"
+  ],
+  "$friendlyName": "Access Policy",
+  "$friendlyNamePlural": "Access Policies",
+  "$modelName": "AccessPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "accesspolicies",
+  "$modelRestName": "accesspolicy",
+  "additionalProperties": true,
+  "description": "Define which teams or individuals can access a provider.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accessDeniedMessage": {
+      "$friendlyName": "Access Denied Message",
+      "description": "The message that is sent if the access is denied.",
+      "title": "accessDeniedMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "action": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Action",
+      "description": "Define if the provider is allowed or denied for the match expression.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "description": "The definition to use for alerting when action is deny.",
+      "title": "alertDefinition",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "contentPolicies": {
+      "$friendlyName": "Content Policies",
+      "description": "The list of content policies to apply when the user has access to the provider.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "contentPolicies",
+      "type": "array"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the access policy.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the policy is disabled.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "description": "The match criteria used to take a decision on the access.",
+      "items": {
+        "$ref": "predicate.json"
+      },
+      "title": "match",
+      "type": "array"
+    },
+    "minimalLogging": {
+      "$friendlyName": "Minimal Logging",
+      "description": "If true, the system will not log the messages that are not considered as violations.",
+      "title": "minimalLogging",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the access policy.",
+      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "offbandAnalysis": {
+      "$friendlyName": "Offband Analysis",
+      "description": "If true, the system will run analysis in parallel of the user request. When this is active, no further policing will be done, and no content policy will run. This can be used to observe the transmitted data and have analysis report, without adding latency to the end user request, at the price of not being able to do any form of content moderation.",
+      "title": "offbandAnalysis",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "permissive": {
+      "$friendlyName": "Permissive",
+      "description": "If set, just log the decision, but don't enforce it.",
+      "title": "permissive",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AccessPolicy",
+  "type": "object"
+}

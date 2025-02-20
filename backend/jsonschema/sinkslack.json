@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Slack",
+  "$friendlyNamePlural": "Sink Slacks",
+  "$modelName": "SinkSlack",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkslack",
+  "$modelRestName": "sinkslack",
+  "additionalProperties": true,
+  "description": "Additional configuration for sending a Slack message.",
+  "properties": {
+    "webhookURL": {
+      "$friendlyName": "Webhook URL",
+      "$required": true,
+      "description": "The webhook URL to send the Slack messages to.",
+      "title": "webhookURL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "webhookURL"
+  ],
+  "title": "SinkSlack",
+  "type": "object"
+}

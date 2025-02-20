@@ -1,0 +1,128 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed"
+  ],
+  "$friendlyName": "Web Extension Configuration",
+  "$friendlyNamePlural": "Web Extension Configurations",
+  "$modelName": "WebExtensionConfig",
+  "$modelPackage": "lain",
+  "$modelResourceName": "webextensionconfigs",
+  "$modelRestName": "webextensionconfig",
+  "additionalProperties": true,
+  "description": "WebExtensionConfig stores the configuration information for the webextension.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "allowProxySettings": {
+      "$friendlyName": "Allow proxy settings.",
+      "description": "Allow the webextension to set the proxy settings in the employee browser.",
+      "title": "allowProxySettings",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the webextension configuration.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the webextension configuration.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "refreshWebExtensionConfigInterval": {
+      "$defaultValue": 120,
+      "$friendlyName": "Refresh configuration interval",
+      "description": "Define the interval in minutes to refresh the configuration browser.",
+      "title": "refreshWebExtensionConfigInterval",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "reportVisitedURLsInterval": {
+      "$defaultValue": 60,
+      "$friendlyName": "Report visited URLs interval",
+      "description": "Define the interval in minutes between two reports of the visited urls.",
+      "title": "reportVisitedURLsInterval",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "WebExtensionConfig",
+  "type": "object"
+}

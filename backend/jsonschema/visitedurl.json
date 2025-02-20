@@ -1,0 +1,92 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@principalable",
+    "@importable"
+  ],
+  "$friendlyName": "Visited URLs",
+  "$friendlyNamePlural": "Visited URLs",
+  "$modelName": "VisitedURL",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "visitedurls",
+  "$modelRestName": "visitedurl",
+  "additionalProperties": true,
+  "description": "This is a visited URL.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domainHits": {
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "Domain that has been visited.",
+      "items": {
+        "$ref": "domainhits.json"
+      },
+      "title": "domainHits",
+      "type": "array"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "origin": {
+      "$defaultValue": "Proxy",
+      "$friendlyName": "Origin",
+      "$required": true,
+      "description": "Origin indicates from where the url has been tracked.",
+      "enum": [
+        "WebExtension",
+        "Proxy"
+      ],
+      "title": "origin"
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    }
+  },
+  "required": [
+    "domainHits",
+    "origin",
+    "principal"
+  ],
+  "title": "VisitedURL",
+  "type": "object"
+}

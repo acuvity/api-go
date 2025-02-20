@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Latency",
+  "$friendlyNamePlural": "Latencies",
+  "$modelName": "Latency",
+  "$modelPackage": "lain",
+  "$modelResourceName": "latencies",
+  "$modelRestName": "latency",
+  "additionalProperties": true,
+  "description": "Holds information about latencies introduced by Apex.",
+  "properties": {
+    "accessPolicy": {
+      "$friendlyName": "Access Policy",
+      "description": "How much time it took to run the access policy in nanoseconds.",
+      "title": "accessPolicy",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "analysis": {
+      "$friendlyName": "Analysis",
+      "description": "How much time it took to run content analysis in nanoseconds.",
+      "title": "analysis",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "assignPolicy": {
+      "$friendlyName": "Assign Policy",
+      "description": "How much time it took to run the assign policy in nanoseconds.",
+      "title": "assignPolicy",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "contentPolicy": {
+      "$friendlyName": "Content Policy",
+      "description": "How much time it took to run content policy in nanoseconds.",
+      "title": "contentPolicy",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "extraction": {
+      "$friendlyName": "Extraction",
+      "description": "How much time it took to run input or output extraction in nanoseconds.",
+      "title": "extraction",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Latency",
+  "type": "object"
+}

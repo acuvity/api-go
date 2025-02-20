@@ -1,0 +1,93 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Query",
+  "$friendlyNamePlural": "Queries",
+  "$modelName": "Query",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "queries",
+  "$modelRestName": "query",
+  "additionalProperties": true,
+  "description": "This is a Log.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "direction": {
+      "$defaultValue": "Backward",
+      "$friendlyName": "Direction",
+      "description": "Determines the sort order of logs.",
+      "enum": [
+        "Forward",
+        "Backward"
+      ],
+      "title": "direction"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "query": {
+      "$friendlyName": "Query",
+      "$required": true,
+      "description": "The query in LogQL format.",
+      "title": "query",
+      "type": "string"
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "description": "The result of the request.",
+      "items": {
+        "type": "object"
+      },
+      "title": "result",
+      "type": "array"
+    },
+    "resultType": {
+      "$friendlyName": "ResultType",
+      "description": "The type of the result.",
+      "title": "resultType",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "time": {
+      "$friendlyName": "Time",
+      "description": "The time for the query in any format supported by https://github.com/araddon/dateparse.",
+      "title": "time",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timeRelative": {
+      "$friendlyName": "TimeRelative",
+      "description": "The relative time of the time window as time.Duration.",
+      "title": "timeRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "Query",
+  "type": "object"
+}

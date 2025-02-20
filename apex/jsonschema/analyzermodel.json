@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "Analyzer Model",
+  "$friendlyNamePlural": "Analyzer Models",
+  "$modelName": "AnalyzerModel",
+  "$modelPackage": "lain",
+  "$modelResourceName": "analyzermodels",
+  "$modelRestName": "analyzermodel",
+  "additionalProperties": true,
+  "description": "Represent an analyzer model.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the model.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "description": "The revision of the model.",
+      "title": "revision",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AnalyzerModel",
+  "type": "object"
+}

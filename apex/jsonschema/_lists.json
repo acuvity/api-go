@@ -1,0 +1,132 @@
+{
+  "properties": {
+    "alertevents": {
+      "items": {
+        "$ref": "alertevent.json"
+      },
+      "type": "array"
+    },
+    "analyzermodels": {
+      "items": {
+        "$ref": "analyzermodel.json"
+      },
+      "type": "array"
+    },
+    "analyzers": {
+      "items": {
+        "$ref": "analyzer.json"
+      },
+      "type": "array"
+    },
+    "detectionmatchers": {
+      "items": {
+        "$ref": "detectionmatcher.json"
+      },
+      "type": "array"
+    },
+    "detectors": {
+      "items": {
+        "$ref": "detector.json"
+      },
+      "type": "array"
+    },
+    "extractioninformation": {
+      "items": {
+        "$ref": "extractioninformation.json"
+      },
+      "type": "array"
+    },
+    "extractionrequests": {
+      "items": {
+        "$ref": "extractionrequest.json"
+      },
+      "type": "array"
+    },
+    "extractions": {
+      "items": {
+        "$ref": "extraction.json"
+      },
+      "type": "array"
+    },
+    "extractionsummaries": {
+      "items": {
+        "$ref": "extractionsummary.json"
+      },
+      "type": "array"
+    },
+    "latencies": {
+      "items": {
+        "$ref": "latency.json"
+      },
+      "type": "array"
+    },
+    "modalities": {
+      "items": {
+        "$ref": "modality.json"
+      },
+      "type": "array"
+    },
+    "policeexternalusers": {
+      "items": {
+        "$ref": "policeexternaluser.json"
+      },
+      "type": "array"
+    },
+    "policerequests": {
+      "items": {
+        "$ref": "policerequest.json"
+      },
+      "type": "array"
+    },
+    "policeresponses": {
+      "items": {
+        "$ref": "policeresponse.json"
+      },
+      "type": "array"
+    },
+    "principalapps": {
+      "items": {
+        "$ref": "principalapp.json"
+      },
+      "type": "array"
+    },
+    "principals": {
+      "items": {
+        "$ref": "principal.json"
+      },
+      "type": "array"
+    },
+    "principalusers": {
+      "items": {
+        "$ref": "principaluser.json"
+      },
+      "type": "array"
+    },
+    "root": {
+      "items": {
+        "$ref": "root.json"
+      },
+      "type": "array"
+    },
+    "scanrequests": {
+      "items": {
+        "$ref": "scanrequest.json"
+      },
+      "type": "array"
+    },
+    "scanresponses": {
+      "items": {
+        "$ref": "scanresponse.json"
+      },
+      "type": "array"
+    },
+    "textualdetections": {
+      "items": {
+        "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    }
+  },
+  "title": "api resource lists",
+  "type": "object"
+}

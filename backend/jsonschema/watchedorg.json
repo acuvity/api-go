@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Watched Org",
+  "$friendlyNamePlural": "Watched Orgs",
+  "$modelName": "WatchedOrg",
+  "$modelPackage": "lain",
+  "$modelResourceName": "watchedorgs",
+  "$modelRestName": "watchedorg",
+  "additionalProperties": true,
+  "description": "List the organization your organization watches.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the accessible organization.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "orgNamespace": {
+      "$friendlyName": "Org Namespace",
+      "description": "The name namespace of the org.",
+      "title": "orgNamespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "WatchedOrg",
+  "type": "object"
+}

@@ -1,0 +1,63 @@
+{
+  "$extends": [
+    "@principalable"
+  ],
+  "$friendlyName": "Alert Event",
+  "$friendlyNamePlural": "Alert Events",
+  "$modelName": "AlertEvent",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "alertevents",
+  "$modelRestName": "alertevent",
+  "additionalProperties": true,
+  "description": "Represents an alert event raised by a policy.",
+  "properties": {
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "$required": true,
+      "description": "The name of the alert definition that triggered the alert event.",
+      "title": "alertDefinition",
+      "type": "string"
+    },
+    "alertDefinitionNamespace": {
+      "$friendlyName": "Alert Definition Namespace",
+      "description": "The namespace of the alert definition.",
+      "title": "alertDefinitionNamespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The provider used that the alert came from.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timestamp": {
+      "$friendlyName": "Timestamp",
+      "$readOnly": true,
+      "description": "When the alert event was raised.",
+      "title": "timestamp",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "alertDefinition",
+    "principal"
+  ],
+  "title": "AlertEvent",
+  "type": "object"
+}

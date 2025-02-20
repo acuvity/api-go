@@ -1,0 +1,172 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed"
+  ],
+  "$friendlyName": "Agent Configuration",
+  "$friendlyNamePlural": "Agent Configurations",
+  "$modelName": "AgentConfig",
+  "$modelPackage": "lain",
+  "$modelResourceName": "agentconfigs",
+  "$modelRestName": "agentconfig",
+  "additionalProperties": true,
+  "description": "AgentConfig stores the configuration information for the acushield agent.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the agent configuration.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disableAutoStart": {
+      "$friendlyName": "Disable auto-start agent",
+      "description": "If disabled, the agent needs to be restarted manually.",
+      "title": "disableAutoStart",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "disableManagedCA": {
+      "$friendlyName": "Disable Managed CA",
+      "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",
+      "title": "disableManagedCA",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "disableSystemProxyManagement": {
+      "$friendlyName": "Disable System Proxy management",
+      "description": "If disabled, the system proxy needs to be configured manually.",
+      "title": "disableSystemProxyManagement",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "disableURLDiscovery": {
+      "$friendlyName": "Disable URLs discovery",
+      "description": "If disabled, the agent will stop reporting the visited domains.",
+      "title": "disableURLDiscovery",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "listeningPort": {
+      "$defaultValue": "8081",
+      "$friendlyName": "Listening Port",
+      "$required": true,
+      "description": "The port use by the agent to proxy the traffic.",
+      "title": "listeningPort",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the agent configuration.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pacName": {
+      "$friendlyName": "PAC Configuration Name",
+      "description": "The name of the PAC configuration to use.",
+      "title": "pacName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pingInterval": {
+      "$defaultValue": "10m",
+      "$friendlyName": "Ping Interval",
+      "description": "The ping interval at which acushield should check in with the backend.",
+      "title": "pingInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "useDynamicPort": {
+      "$friendlyName": "Use dynamic port",
+      "description": "If system proxy management is enabled and this flag is enabled, the system can take another port, different that the listeningPort.",
+      "title": "useDynamicPort",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "listeningPort",
+    "name"
+  ],
+  "title": "AgentConfig",
+  "type": "object"
+}

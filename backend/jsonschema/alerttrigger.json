@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "Alert Trigger",
+  "$friendlyNamePlural": "Alert Triggers",
+  "$modelName": "AlertTrigger",
+  "$modelPackage": "avi",
+  "$modelResourceName": "alerttriggers",
+  "$modelRestName": "alerttrigger",
+  "additionalProperties": true,
+  "description": "Represents the criteria to trigger an alert notification.",
+  "properties": {
+    "interval": {
+      "$defaultValue": "24h",
+      "$friendlyName": "Interval",
+      "$required": true,
+      "description": "What time window to look for an alert event.",
+      "title": "interval",
+      "type": "string"
+    },
+    "occurrences": {
+      "$defaultValue": 1,
+      "$friendlyName": "Occurrences",
+      "$required": true,
+      "description": "The number of times an alert event is seen to cause a trigger.",
+      "minimum": 1,
+      "title": "occurrences",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "interval",
+    "occurrences"
+  ],
+  "title": "AlertTrigger",
+  "type": "object"
+}

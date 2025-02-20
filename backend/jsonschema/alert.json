@@ -1,0 +1,113 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Alert",
+  "$friendlyNamePlural": "Alerts",
+  "$modelName": "Alert",
+  "$modelPackage": "avi",
+  "$modelResourceName": "alerts",
+  "$modelRestName": "alert",
+  "additionalProperties": true,
+  "description": "Represents an alert.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "$readOnly": true,
+      "$ref": "alertdefinition.json",
+      "description": "The alert definition that triggered the alert.",
+      "title": "alertDefinition"
+    },
+    "alertDefinitionName": {
+      "$creationOnly": true,
+      "$friendlyName": "Alert Definition Name",
+      "$required": true,
+      "description": "The name identifier of the alert definition that triggered the alert.",
+      "title": "alertDefinitionName",
+      "type": "string"
+    },
+    "alertEvents": {
+      "$friendlyName": "Alert Events",
+      "$readOnly": true,
+      "description": "The events related to the alert.",
+      "items": {
+        "$ref": "alertevent.json"
+      },
+      "title": "alertEvents",
+      "type": "array"
+    },
+    "counter": {
+      "$defaultValue": 1,
+      "$friendlyName": "Counter",
+      "$required": true,
+      "description": "The number of times the alert was raised.",
+      "title": "counter",
+      "type": "integer"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "$required": true,
+      "description": "When the alert was last raised.",
+      "title": "end",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "$creationOnly": true,
+      "$friendlyName": "Start",
+      "$required": true,
+      "description": "When the alert was first raised.",
+      "title": "start",
+      "type": "string"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "alertDefinitionName",
+    "counter",
+    "end",
+    "start"
+  ],
+  "title": "Alert",
+  "type": "object"
+}

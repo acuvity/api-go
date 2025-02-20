@@ -1,0 +1,15 @@
+{
+  "$extends": [],
+  "$friendlyName": "Schema Version",
+  "$friendlyNamePlural": "Schema Versions",
+  "$modelName": "SchemaVersion",
+  "$modelPackage": "zerolift",
+  "$modelResourceName": "schemaversions",
+  "$modelRestName": "schemaversion",
+  "additionalProperties": true,
+  "description": "This holds the schema version of a service.",
+  "properties": {},
+  "required": [],
+  "title": "SchemaVersion",
+  "type": "object"
+}

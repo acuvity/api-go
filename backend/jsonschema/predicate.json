@@ -1,0 +1,69 @@
+{
+  "$extends": [],
+  "$friendlyName": "Predicate",
+  "$friendlyNamePlural": "Predicates",
+  "$modelName": "Predicate",
+  "$modelPackage": "lain",
+  "$modelResourceName": "predicate",
+  "$modelRestName": "predicate",
+  "additionalProperties": true,
+  "description": "Represents a Predicate.",
+  "properties": {
+    "key": {
+      "$friendlyName": "Key",
+      "$required": true,
+      "description": "The key of the predicate.",
+      "enum": [
+        "Categories",
+        "Confidentiality",
+        "CustomDataTypes",
+        "Exploits",
+        "Keywords",
+        "Languages",
+        "Malcontents",
+        "Modality",
+        "Model",
+        "PIIs",
+        "Plugin",
+        "Provider",
+        "Relevance",
+        "Secrets",
+        "Size",
+        "Team",
+        "Tools",
+        "Topics",
+        "Workspace"
+      ],
+      "title": "key"
+    },
+    "operator": {
+      "$friendlyName": "Operator",
+      "$required": true,
+      "description": "The operator of the predicate.",
+      "enum": [
+        "All",
+        "Any",
+        "Empty",
+        "Equals",
+        "EqualsOrGreaterThan",
+        "EqualsOrLesserThan",
+        "NotAny",
+        "NotEmpty",
+        "NotEquals"
+      ],
+      "title": "operator"
+    },
+    "values": {
+      "$friendlyName": "Values",
+      "description": "The values of the predicate.",
+      "title": "values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "key",
+    "operator"
+  ],
+  "title": "Predicate",
+  "type": "object"
+}

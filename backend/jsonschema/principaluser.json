@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Principal User",
+  "$friendlyNamePlural": "Principal Users",
+  "$modelName": "PrincipalUser",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "principalusers",
+  "$modelRestName": "principaluser",
+  "additionalProperties": true,
+  "description": "Describes the principal information of a user.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "Identification bit that will be used to identify the origin of the request.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PrincipalUser",
+  "type": "object"
+}

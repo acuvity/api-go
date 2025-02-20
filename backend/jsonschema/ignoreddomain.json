@@ -1,0 +1,102 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@importable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Ignored Domain",
+  "$friendlyNamePlural": "Ignored Domains",
+  "$modelName": "IgnoredDomain",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ignoreddomains",
+  "$modelRestName": "ignoreddomain",
+  "additionalProperties": true,
+  "description": "Defines an ignored domain to be excluded from investigation.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$creationOnly": true,
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "The domain to ignore.",
+      "title": "domain",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "domain"
+  ],
+  "title": "IgnoredDomain",
+  "type": "object"
+}

@@ -1,0 +1,74 @@
+{
+  "$extends": [],
+  "$friendlyName": "Moderation",
+  "$friendlyNamePlural": "Moderations",
+  "$modelName": "Moderation",
+  "$modelPackage": "lain",
+  "$modelResourceName": "moderations",
+  "$modelRestName": "moderation",
+  "additionalProperties": true,
+  "description": "Represents a moderation to take in the content policy.",
+  "properties": {
+    "action": {
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The actual action to take when triggered.",
+      "enum": [
+        "Warn",
+        "Block",
+        "None"
+      ],
+      "title": "action"
+    },
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "description": "The definition to use for alerting.",
+      "title": "alertDefinition",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "link": {
+      "$friendlyName": "Link",
+      "description": "Sets an optional link to reference a document with more explanation on the moderation.",
+      "title": "link",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "message": {
+      "$friendlyName": "Message",
+      "description": "The message if the moderation action is warn or block.",
+      "title": "message",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "predicates": {
+      "$friendlyName": "Predicates",
+      "description": "The predicate expression for the moderation to be triggered.",
+      "items": {
+        "$ref": "predicate.json"
+      },
+      "title": "predicates",
+      "type": "array"
+    },
+    "redact": {
+      "$friendlyName": "Redact",
+      "description": "If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.",
+      "title": "redact",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "title": "Moderation",
+  "type": "object"
+}

@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "Authentication Settings",
+  "$friendlyNamePlural": "Authentication Settings",
+  "$modelName": "AuthSettings",
+  "$modelPackage": "lain",
+  "$modelResourceName": "authsettings",
+  "$modelRestName": "authsettings",
+  "additionalProperties": true,
+  "description": "Returns the authentication source names available for this organization.",
+  "properties": {
+    "sourceName": {
+      "$defaultValue": "default",
+      "$friendlyName": "Source name",
+      "description": "The name of the source.",
+      "title": "sourceName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sourceType": {
+      "$friendlyName": "Source type",
+      "description": "The type of source.",
+      "enum": [
+        "SAML",
+        "OIDC",
+        "OAuth2"
+      ],
+      "title": "sourceType"
+    }
+  },
+  "required": [],
+  "title": "AuthSettings",
+  "type": "object"
+}

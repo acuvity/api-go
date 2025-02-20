@@ -1,0 +1,51 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Splunk",
+  "$friendlyNamePlural": "Sink Splunks",
+  "$modelName": "SinkSplunk",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinksplunk",
+  "$modelRestName": "sinksplunk",
+  "additionalProperties": true,
+  "description": "Additional configuration for sending an alert to Splunk.",
+  "properties": {
+    "HECURL": {
+      "$friendlyName": "HEC URL",
+      "$required": true,
+      "description": "The HTTP event collector (HEC) URL to send the alert to.",
+      "title": "HECURL",
+      "type": "string"
+    },
+    "certificateAuthority": {
+      "$friendlyName": "Certificate Authority",
+      "description": "If set, will use this as the CA for TLS communication.",
+      "title": "certificateAuthority",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "insecureSkipVerify": {
+      "$friendlyName": "Insecure Skip Verify",
+      "description": "If true, will attempt to skip TLS verification when communicating.",
+      "title": "insecureSkipVerify",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "token": {
+      "$friendlyName": "Token",
+      "$required": true,
+      "description": "The token to communicate with the HTTP event collector.",
+      "title": "token",
+      "type": "string"
+    }
+  },
+  "required": [
+    "HECURL",
+    "token"
+  ],
+  "title": "SinkSplunk",
+  "type": "object"
+}

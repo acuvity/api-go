@@ -1,0 +1,44 @@
+{
+  "$extends": [],
+  "$friendlyName": "Error Transformer",
+  "$friendlyNamePlural": "Error Transformers",
+  "$modelName": "ErrorTransformer",
+  "$modelPackage": "lain",
+  "$modelResourceName": "errortransformers",
+  "$modelRestName": "errortransformer",
+  "additionalProperties": true,
+  "description": "Used to transform errors before sending them back to the client.",
+  "properties": {
+    "contentType": {
+      "$defaultValue": "application/json",
+      "$friendlyName": "Content Type",
+      "description": "The Content-Type to use when returning a formatted error.",
+      "title": "contentType",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "statusCode": {
+      "$friendlyName": "Status Code",
+      "description": "HTTP status code to return, instead of the classical one.",
+      "title": "statusCode",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "template": {
+      "$friendlyName": "Template",
+      "description": "Go template to process and transform the error. The delimiters are \u003c\u003c and \u003e\u003e to prevent collision with acuctl templating. The template will be passed the following informations:  - `.Messages`: a list of string containing the messages to return. - `.Code`: The original status code. - `.TransformedCode`: The transformed status code. - `.Action`: The policy decision action (ask or deny).  All the sprig text function are available.",
+      "title": "template",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ErrorTransformer",
+  "type": "object"
+}

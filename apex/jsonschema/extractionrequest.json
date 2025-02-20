@@ -1,0 +1,70 @@
+{
+  "$extends": [
+    "@extractionmetadata"
+  ],
+  "$friendlyName": "ExtractionRequest",
+  "$friendlyNamePlural": "ExtractionRequests",
+  "$modelName": "ExtractionRequest",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "extractionrequests",
+  "$modelRestName": "extractionrequest",
+  "additionalProperties": true,
+  "description": "Represents the extraction that the user wants to extract.",
+  "properties": {
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Annotations attached to the extraction.",
+      "title": "annotations",
+      "type": "object"
+    },
+    "data": {
+      "$friendlyName": "Data",
+      "contentEncoding": "base64",
+      "description": "The binary data to request extraction for.",
+      "title": "data",
+      "type": "string"
+    },
+    "internal": {
+      "$friendlyName": "Internal",
+      "description": "If true, this extraction is for internal use only. This can be used by agentic systems to mark an extraction as internal only as opposed to user facing.",
+      "title": "internal",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "isFile": {
+      "$friendlyName": "isFile",
+      "description": "If true, the data of the extraction is a file.",
+      "title": "isFile",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "isStored": {
+      "$friendlyName": "isStored",
+      "description": "If true, indicates that the file has been stored.",
+      "title": "isStored",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "description": "A means of distinguishing what was extracted, such as prompt, input file or code.",
+      "title": "label",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ExtractionRequest",
+  "type": "object"
+}

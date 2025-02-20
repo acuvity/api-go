@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Host",
+  "$friendlyNamePlural": "Hosts",
+  "$modelName": "Host",
+  "$modelPackage": "lain",
+  "$modelResourceName": "hosts",
+  "$modelRestName": "host",
+  "additionalProperties": true,
+  "description": "This is node definition.",
+  "properties": {
+    "disableFingerprintingResistance": {
+      "$friendlyName": "Disable Fingerprinting Resistance",
+      "description": "Disable Apex routines to try to mimic client's tls handshake signature. You probably want this on.",
+      "title": "disableFingerprintingResistance",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The hostname.",
+      "title": "name",
+      "type": "string"
+    },
+    "prefix": {
+      "$friendlyName": "Prefix",
+      "description": "URL prefix for additional matching.",
+      "title": "prefix",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "proxyLabel": {
+      "$friendlyName": "Proxy Label",
+      "description": "The proxy label to use to exit to this host.",
+      "title": "proxyLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "Host",
+  "type": "object"
+}

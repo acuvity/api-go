@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink PagerDuty",
+  "$friendlyNamePlural": "Sink PagerDuties",
+  "$modelName": "SinkPagerDuty",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkpagerduty",
+  "$modelRestName": "sinkpagerduty",
+  "additionalProperties": true,
+  "description": "Additional configuration for sending a PagerDuty event.",
+  "properties": {
+    "token": {
+      "$friendlyName": "Token",
+      "$required": true,
+      "description": "The token for PagerDuty events.",
+      "title": "token",
+      "type": "string"
+    }
+  },
+  "required": [
+    "token"
+  ],
+  "title": "SinkPagerDuty",
+  "type": "object"
+}

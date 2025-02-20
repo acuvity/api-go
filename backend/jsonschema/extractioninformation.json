@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Extraction Information",
+  "$friendlyNamePlural": "Extraction Informations",
+  "$modelName": "ExtractionInformation",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "extractioninformation",
+  "$modelRestName": "extractioninformation",
+  "additionalProperties": true,
+  "description": "Represents extracted information.",
+  "properties": {
+    "n": {
+      "$friendlyName": "Count",
+      "description": "The number of times it has been seen.",
+      "title": "n",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ExtractionInformation",
+  "type": "object"
+}

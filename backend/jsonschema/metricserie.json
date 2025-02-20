@@ -1,0 +1,102 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Metric Serie",
+  "$friendlyNamePlural": "Metric Series",
+  "$modelName": "MetricSerie",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "metricseries",
+  "$modelRestName": "metricserie",
+  "additionalProperties": true,
+  "description": "This is a metric serie.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "end",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "endRelative": {
+      "$friendlyName": "EndRelative",
+      "description": "The relative end of the time window as time.Duration.",
+      "title": "endRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "limit": {
+      "$defaultValue": 100,
+      "$friendlyName": "Limit",
+      "description": "The max number of results to return.",
+      "title": "limit",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "query": {
+      "$friendlyName": "Query",
+      "$required": true,
+      "description": "The query in Prometheus format.",
+      "title": "query",
+      "type": "string"
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "description": "The result of the request.",
+      "items": {
+        "type": "object"
+      },
+      "title": "result",
+      "type": "array"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "startRelative": {
+      "$friendlyName": "StartRelative",
+      "description": "The relative start of the time window as time.Duration.",
+      "title": "startRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "MetricSerie",
+  "type": "object"
+}

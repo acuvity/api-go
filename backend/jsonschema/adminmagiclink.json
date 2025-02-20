@@ -1,0 +1,44 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Admin Magic Link",
+  "$friendlyNamePlural": "Admin Magic Links",
+  "$modelName": "AdminMagicLink",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "adminmagiclinks",
+  "$modelRestName": "adminmagiclink",
+  "additionalProperties": true,
+  "description": "Administrative API to create magic links.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "passcode": {
+      "$friendlyName": "Passcode",
+      "$ref": "passcode.json",
+      "description": "The passcode information.",
+      "title": "passcode"
+    }
+  },
+  "required": [],
+  "title": "AdminMagicLink",
+  "type": "object"
+}

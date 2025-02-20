@@ -1,0 +1,93 @@
+{
+  "$extends": [
+    "@anonymizationable",
+    "@pipelinepasstype",
+    "@scanrequestcore"
+  ],
+  "$friendlyName": "PoliceRequest",
+  "$friendlyNamePlural": "PoliceRequests",
+  "$modelName": "PoliceRequest",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policerequests",
+  "$modelRestName": "policerequest",
+  "additionalProperties": true,
+  "description": "This is a scan and police request.",
+  "properties": {
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Annotations attached to the extraction.",
+      "title": "annotations",
+      "type": "object"
+    },
+    "anonymization": {
+      "$defaultValue": "FixedSize",
+      "$friendlyName": "Anonymization",
+      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "enum": [
+        "FixedSize",
+        "VariableSize"
+      ],
+      "title": "anonymization"
+    },
+    "bypassHash": {
+      "$friendlyName": "Bypass Hash",
+      "description": "In the case of a contentPolicy that asks for a confirmation, this is the hash you must send back to bypass the block. This is only useful when a content policy has been set or is evaluated remotely.",
+      "title": "bypassHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "extractions": {
+      "$friendlyName": "Extractions",
+      "description": "The extractions to request.",
+      "items": {
+        "$ref": "extractionrequest.json"
+      },
+      "title": "extractions",
+      "type": "array"
+    },
+    "messages": {
+      "$friendlyName": "Messages",
+      "description": "Messages to process and provide detections for. Use data in extractions for processing binary data.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "messages",
+      "type": "array"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The name of the provider to use for policy resolutions. If not set, it will default to the principal name (the application itself).",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of text.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    },
+    "user": {
+      "$friendlyName": "User",
+      "$ref": "policeexternaluser.json",
+      "description": "The user information that the PoliceRequest is passing on to the policy engine that can be used for additional policy resolution.",
+      "title": "user"
+    }
+  },
+  "required": [],
+  "title": "PoliceRequest",
+  "type": "object"
+}

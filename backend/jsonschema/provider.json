@@ -1,0 +1,234 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@importable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Provider",
+  "$friendlyNamePlural": "Providers",
+  "$modelName": "Provider",
+  "$modelPackage": "lain",
+  "$modelResourceName": "providers",
+  "$modelRestName": "provider",
+  "additionalProperties": true,
+  "description": "Providers are services that can be accessed using the APEX. These can both be external services as well as internal services built/deployed within the organization.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "analyzeOutput": {
+      "$friendlyName": "Analyze Output",
+      "description": "If enabled, run the analysis pipelines on the provider output. No policy will be applied, but the response will be analyzed and classified.",
+      "title": "analyzeOutput",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "category": {
+      "$friendlyName": "Provider Category",
+      "$required": true,
+      "description": "The category of the provider.",
+      "enum": [
+        "User",
+        "App"
+      ],
+      "title": "category"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the provider.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "errorTransformer": {
+      "$friendlyName": "Error Transformer",
+      "$ref": "errortransformer.json",
+      "description": "Use to transform an error before sending it back to the client.",
+      "title": "errorTransformer"
+    },
+    "experimental": {
+      "$friendlyName": "Experimental",
+      "description": "If true, consider this provider as experimental. It will require to use a custom PAC Config to make it usable from the proxy.pac.",
+      "title": "experimental",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly Name of the provider.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Hosts supported by the providers.",
+      "items": {
+        "$ref": "host.json"
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "icon": {
+      "$friendlyName": "Icon",
+      "description": "The icon of the provider, base64 encoded.",
+      "title": "icon",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "injectors": {
+      "$friendlyName": "Injectors",
+      "description": "Defines injection point for javascript snippet.",
+      "items": {
+        "$ref": "injector.json"
+      },
+      "title": "injectors",
+      "type": "array"
+    },
+    "inputExtractors": {
+      "$friendlyName": "InputExtractors",
+      "description": "List of input extractors.",
+      "items": {
+        "$ref": "extractor.json"
+      },
+      "title": "inputExtractors",
+      "type": "array"
+    },
+    "mappers": {
+      "$friendlyName": "Mappers",
+      "description": "List of user mappers.",
+      "items": {
+        "$ref": "mapper.json"
+      },
+      "title": "mappers",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "Name of the provider.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "outputExtractors": {
+      "$friendlyName": "OutputExtractors",
+      "description": "List of output extractors.",
+      "items": {
+        "$ref": "extractor.json"
+      },
+      "title": "outputExtractors",
+      "type": "array"
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "tokenSwap": {
+      "$friendlyName": "TokenSwap",
+      "description": "If true, consider the incoming calls to use an acuvity token and swap them using registered providertokens.",
+      "title": "tokenSwap",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "trustedCA": {
+      "$friendlyName": "Trusted CA",
+      "description": "If set, additionally trust the Certificate Authorities from the PEM data. This is useful when working on a custom provider using a self signed CA chain.",
+      "title": "trustedCA",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "upstreamUnsecure": {
+      "$friendlyName": "UpstreamUnsecure",
+      "description": "If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for dev purposes.",
+      "title": "upstreamUnsecure",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "category",
+    "friendlyName",
+    "name"
+  ],
+  "title": "Provider",
+  "type": "object"
+}

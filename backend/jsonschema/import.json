@@ -1,0 +1,196 @@
+{
+  "$extends": [],
+  "$friendlyName": "Import",
+  "$friendlyNamePlural": "Imports",
+  "$modelName": "Import",
+  "$modelPackage": "lain",
+  "$modelResourceName": "import",
+  "$modelRestName": "import",
+  "additionalProperties": true,
+  "description": "Import multiple resource at once.",
+  "properties": {
+    "AIDomains": {
+      "$friendlyName": "AI Domains",
+      "description": "AI domains to import.",
+      "items": {
+        "$ref": "aidomain.json"
+      },
+      "title": "AIDomains",
+      "type": "array"
+    },
+    "APIAuthorizations": {
+      "$friendlyName": "APIAuthorizations",
+      "description": "APIAuthorizations to import.",
+      "items": {
+        "$ref": "apiauthorization.json"
+      },
+      "title": "APIAuthorizations",
+      "type": "array"
+    },
+    "PACConfigs": {
+      "$friendlyName": "PAC Configs",
+      "description": "PACConfigs to import.",
+      "items": {
+        "$ref": "pacconfig.json"
+      },
+      "title": "PACConfigs",
+      "type": "array"
+    },
+    "accessPolicies": {
+      "$friendlyName": "Access Policies",
+      "description": "Access policies to import.",
+      "items": {
+        "$ref": "accesspolicy.json"
+      },
+      "title": "accessPolicies",
+      "type": "array"
+    },
+    "agentConfigs": {
+      "$friendlyName": "Agent configurations",
+      "description": "Agent configurations to import.",
+      "items": {
+        "$ref": "agentconfig.json"
+      },
+      "title": "agentConfigs",
+      "type": "array"
+    },
+    "alertDefinitions": {
+      "$friendlyName": "Alert Definitions",
+      "description": "Alert definitions to import.",
+      "items": {
+        "$ref": "alertdefinition.json"
+      },
+      "title": "alertDefinitions",
+      "type": "array"
+    },
+    "apps": {
+      "$friendlyName": "Apps",
+      "description": "Apps to import.",
+      "items": {
+        "$ref": "app.json"
+      },
+      "title": "apps",
+      "type": "array"
+    },
+    "contentPolicies": {
+      "$friendlyName": "Content Policies",
+      "description": "Content policies to import.",
+      "items": {
+        "$ref": "contentpolicy.json"
+      },
+      "title": "contentPolicies",
+      "type": "array"
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "description": "Custom Data Types to import.",
+      "items": {
+        "$ref": "customdatatype.json"
+      },
+      "title": "customDataTypes",
+      "type": "array"
+    },
+    "ignoredDomains": {
+      "$friendlyName": "Ignored Domains",
+      "description": "Ignored domains to import.",
+      "items": {
+        "$ref": "ignoreddomain.json"
+      },
+      "title": "ignoredDomains",
+      "type": "array"
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "$required": true,
+      "description": "Import label that will be used to identify all the resources imported by this resource.",
+      "title": "label",
+      "type": "string"
+    },
+    "orgSettings": {
+      "$friendlyName": "OrgSettings",
+      "description": "OrgSettings to import.",
+      "items": {
+        "$ref": "orgsettings.json"
+      },
+      "title": "orgSettings",
+      "type": "array"
+    },
+    "providerTeams": {
+      "$friendlyName": "ProviderTeams",
+      "description": "Provider teams to import.",
+      "items": {
+        "$ref": "providerteam.json"
+      },
+      "title": "providerTeams",
+      "type": "array"
+    },
+    "providerTokens": {
+      "$friendlyName": "ProviderTokens",
+      "description": "ProviderTokens to import.",
+      "items": {
+        "$ref": "providertoken.json"
+      },
+      "title": "providerTokens",
+      "type": "array"
+    },
+    "providers": {
+      "$friendlyName": "Providers",
+      "description": "Providers to import.",
+      "items": {
+        "$ref": "provider.json"
+      },
+      "title": "providers",
+      "type": "array"
+    },
+    "proxyroundtrips": {
+      "$friendlyName": "Proxy Roundtrips",
+      "description": "Proxy roundtrip to import. This will populate dummy data.",
+      "items": {
+        "$ref": "proxyroundtrip.json"
+      },
+      "title": "proxyroundtrips",
+      "type": "array"
+    },
+    "sinks": {
+      "$friendlyName": "Sinks",
+      "description": "Sinks to import.",
+      "items": {
+        "$ref": "sink.json"
+      },
+      "title": "sinks",
+      "type": "array"
+    },
+    "teams": {
+      "$friendlyName": "Teams",
+      "description": "Teams to import.",
+      "items": {
+        "$ref": "team.json"
+      },
+      "title": "teams",
+      "type": "array"
+    },
+    "visitedurls": {
+      "$friendlyName": "Visited URLs",
+      "description": "Visited URLs to import.",
+      "items": {
+        "$ref": "visitedurl.json"
+      },
+      "title": "visitedurls",
+      "type": "array"
+    },
+    "webExtensionConfigs": {
+      "$friendlyName": "Web Extension configurations",
+      "description": "Web Extension configurations to import.",
+      "items": {
+        "$ref": "webextensionconfig.json"
+      },
+      "title": "webExtensionConfigs",
+      "type": "array"
+    }
+  },
+  "required": [
+    "label"
+  ],
+  "title": "Import",
+  "type": "object"
+}

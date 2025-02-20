@@ -1,0 +1,270 @@
+{
+  "properties": {
+    "accesspolicy": {
+      "$ref": "accesspolicy.json"
+    },
+    "adminmagiclink": {
+      "$ref": "adminmagiclink.json"
+    },
+    "adminorg": {
+      "$ref": "adminorg.json"
+    },
+    "agent": {
+      "$ref": "agent.json"
+    },
+    "agentconfig": {
+      "$ref": "agentconfig.json"
+    },
+    "aidomain": {
+      "$ref": "aidomain.json"
+    },
+    "alert": {
+      "$ref": "alert.json"
+    },
+    "alertdefinition": {
+      "$ref": "alertdefinition.json"
+    },
+    "alertevent": {
+      "$ref": "alertevent.json"
+    },
+    "alerttrigger": {
+      "$ref": "alerttrigger.json"
+    },
+    "analysis": {
+      "$ref": "analysis.json"
+    },
+    "analyzer": {
+      "$ref": "analyzer.json"
+    },
+    "analyzermodel": {
+      "$ref": "analyzermodel.json"
+    },
+    "apiauthorization": {
+      "$ref": "apiauthorization.json"
+    },
+    "app": {
+      "$ref": "app.json"
+    },
+    "appcomponent": {
+      "$ref": "appcomponent.json"
+    },
+    "apptoken": {
+      "$ref": "apptoken.json"
+    },
+    "authsettings": {
+      "$ref": "authsettings.json"
+    },
+    "contentpolicy": {
+      "$ref": "contentpolicy.json"
+    },
+    "customdatatype": {
+      "$ref": "customdatatype.json"
+    },
+    "detection": {
+      "$ref": "detection.json"
+    },
+    "detectionmatcher": {
+      "$ref": "detectionmatcher.json"
+    },
+    "detector": {
+      "$ref": "detector.json"
+    },
+    "domainhits": {
+      "$ref": "domainhits.json"
+    },
+    "errortransformer": {
+      "$ref": "errortransformer.json"
+    },
+    "extraction": {
+      "$ref": "extraction.json"
+    },
+    "extractioninformation": {
+      "$ref": "extractioninformation.json"
+    },
+    "extractionsummary": {
+      "$ref": "extractionsummary.json"
+    },
+    "extractor": {
+      "$ref": "extractor.json"
+    },
+    "feedback": {
+      "$ref": "feedback.json"
+    },
+    "gitbooktoken": {
+      "$ref": "gitbooktoken.json"
+    },
+    "host": {
+      "$ref": "host.json"
+    },
+    "ignoreddomain": {
+      "$ref": "ignoreddomain.json"
+    },
+    "import": {
+      "$ref": "import.json"
+    },
+    "ingressproviderconfig": {
+      "$ref": "ingressproviderconfig.json"
+    },
+    "injector": {
+      "$ref": "injector.json"
+    },
+    "labelvalue": {
+      "$ref": "labelvalue.json"
+    },
+    "landing": {
+      "$ref": "landing.json"
+    },
+    "latency": {
+      "$ref": "latency.json"
+    },
+    "mapper": {
+      "$ref": "mapper.json"
+    },
+    "metric": {
+      "$ref": "metric.json"
+    },
+    "metriclabelvalue": {
+      "$ref": "metriclabelvalue.json"
+    },
+    "metricrange": {
+      "$ref": "metricrange.json"
+    },
+    "metricserie": {
+      "$ref": "metricserie.json"
+    },
+    "modality": {
+      "$ref": "modality.json"
+    },
+    "moderation": {
+      "$ref": "moderation.json"
+    },
+    "orgsettings": {
+      "$ref": "orgsettings.json"
+    },
+    "orgstorage": {
+      "$ref": "orgstorage.json"
+    },
+    "pacconfig": {
+      "$ref": "pacconfig.json"
+    },
+    "pagedataview": {
+      "$ref": "pagedataview.json"
+    },
+    "pagedataviewpredicate": {
+      "$ref": "pagedataviewpredicate.json"
+    },
+    "policyupdate": {
+      "$ref": "policyupdate.json"
+    },
+    "predicate": {
+      "$ref": "predicate.json"
+    },
+    "principal": {
+      "$ref": "principal.json"
+    },
+    "principalapp": {
+      "$ref": "principalapp.json"
+    },
+    "principaluser": {
+      "$ref": "principaluser.json"
+    },
+    "project": {
+      "$ref": "project.json"
+    },
+    "provider": {
+      "$ref": "provider.json"
+    },
+    "providerdetail": {
+      "$ref": "providerdetail.json"
+    },
+    "providerretentionpolicy": {
+      "$ref": "providerretentionpolicy.json"
+    },
+    "providerteam": {
+      "$ref": "providerteam.json"
+    },
+    "providertoken": {
+      "$ref": "providertoken.json"
+    },
+    "providertrainingpolicy": {
+      "$ref": "providertrainingpolicy.json"
+    },
+    "proxyconf": {
+      "$ref": "proxyconf.json"
+    },
+    "proxyroundtrip": {
+      "$ref": "proxyroundtrip.json"
+    },
+    "query": {
+      "$ref": "query.json"
+    },
+    "queryrange": {
+      "$ref": "queryrange.json"
+    },
+    "role": {
+      "$ref": "role.json"
+    },
+    "root": {
+      "$ref": "root.json"
+    },
+    "schemaversion": {
+      "$ref": "schemaversion.json"
+    },
+    "serie": {
+      "$ref": "serie.json"
+    },
+    "signup": {
+      "$ref": "signup.json"
+    },
+    "sink": {
+      "$ref": "sink.json"
+    },
+    "sinkemail": {
+      "$ref": "sinkemail.json"
+    },
+    "sinkpagerduty": {
+      "$ref": "sinkpagerduty.json"
+    },
+    "sinkslack": {
+      "$ref": "sinkslack.json"
+    },
+    "sinksplunk": {
+      "$ref": "sinksplunk.json"
+    },
+    "team": {
+      "$ref": "team.json"
+    },
+    "textualdetection": {
+      "$ref": "textualdetection.json"
+    },
+    "usertoken": {
+      "$ref": "usertoken.json"
+    },
+    "visitedurl": {
+      "$ref": "visitedurl.json"
+    },
+    "watchedorg": {
+      "$ref": "watchedorg.json"
+    },
+    "webextensionconfig": {
+      "$ref": "webextensionconfig.json"
+    },
+    "identitymodifier": {
+      "$ref": "identitymodifier.json"
+    },
+    "samlsource": {
+      "$ref": "samlsource.json"
+    },
+    "oidcsource": {
+      "$ref": "oidcsource.json"
+    },
+    "oauth2source": {
+      "$ref": "oauth2source.json"
+    },
+    "permissions": {
+      "$ref": "permissions.json"
+    }
+  },
+  "title": "api resources",
+  "type": "object"
+}

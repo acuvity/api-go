@@ -1,0 +1,146 @@
+{
+  "$extends": [
+    "@matcher",
+    "@anonymizationable"
+  ],
+  "$friendlyName": "Extractor",
+  "$friendlyNamePlural": "Extractors",
+  "$modelName": "Extractor",
+  "$modelPackage": "lain",
+  "$modelResourceName": "extractors",
+  "$modelRestName": "extractor",
+  "additionalProperties": true,
+  "description": "TODO.",
+  "properties": {
+    "analyzers": {
+      "$friendlyName": "Analyzers",
+      "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analyzis (slower but more acurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analyzis (faster but less acurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "analyzers",
+      "type": "array"
+    },
+    "anonymization": {
+      "$defaultValue": "FixedSize",
+      "$friendlyName": "Anonymization",
+      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "enum": [
+        "FixedSize",
+        "VariableSize"
+      ],
+      "title": "anonymization"
+    },
+    "behavior": {
+      "$defaultValue": "Popup",
+      "$friendlyName": "Behavior",
+      "description": "Defines how to handle error in the case of a webpage. If set to Popup, the error will be shown in a popup. If throw, a javascript error will be returned.",
+      "enum": [
+        "Popup",
+        "Throw",
+        "Ignore"
+      ],
+      "title": "behavior"
+    },
+    "block": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Block",
+      "description": "Block the request to the provider if not Allow. If Before, the data will be blocked before running any extraction or analyzis. If After block the request after analysizis.",
+      "enum": [
+        "Allow",
+        "Before",
+        "After"
+      ],
+      "title": "block"
+    },
+    "cancelBehavior": {
+      "$defaultValue": "Block",
+      "$friendlyName": "Cancel Behavior",
+      "description": "The behavior to take when cancel is chosen from the popup.",
+      "enum": [
+        "Block",
+        "SendRedacted"
+      ],
+      "title": "cancelBehavior"
+    },
+    "deanonymize": {
+      "$friendlyName": "Deanonymize",
+      "description": "If true, deanonymize the redacted data. This has no effects on streaming output.",
+      "title": "deanonymize",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "ignore": {
+      "$friendlyName": "Ignore",
+      "description": "If true, the analysis will run, but nothing will be logged.",
+      "title": "ignore",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "$required": true,
+      "description": "A regular expression to match an URL to log.",
+      "title": "match",
+      "type": "string"
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "$required": true,
+      "description": "The method to match.",
+      "enum": [
+        "Post",
+        "Put",
+        "Patch",
+        "Get",
+        "Delete",
+        "Options",
+        "Head"
+      ],
+      "title": "method"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the extractor. It will be used to identify which extractor was used during an extraction.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "script": {
+      "$friendlyName": "Script",
+      "description": "If not empty, use this lua code to run the extraction.",
+      "title": "script",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "match",
+    "method"
+  ],
+  "title": "Extractor",
+  "type": "object"
+}

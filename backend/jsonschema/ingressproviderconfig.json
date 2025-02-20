@@ -1,0 +1,85 @@
+{
+  "$extends": [],
+  "$friendlyName": "Ingress Provider Config",
+  "$friendlyNamePlural": "Ingress Provider Configs",
+  "$modelName": "IngressProviderConfig",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ingressproviderconfigs",
+  "$modelRestName": "ingressproviderconfig",
+  "additionalProperties": true,
+  "description": "Represents the configuration if an apex is to act as an ingress for a provider.",
+  "properties": {
+    "listenPort": {
+      "$friendlyName": "Listen Port",
+      "$required": true,
+      "description": "The listening port. For appcomponent configurations this is the listening port that traffic will be intercepted on or mirrored from.",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "listenPort",
+      "type": "integer"
+    },
+    "listenTLS": {
+      "$defaultValue": "Auto",
+      "$friendlyName": "Listen TLS",
+      "description": "Should be explicitly set to enabled if the listener expects TLS connections. And vice versa it should be set to disabled if the listener expects connections in plaintext. By default this setting is set to auto which means that TLS connections will be accepted, and proxied as new TLS connections (HTTPS), and plain TCP connections will be accepted and proxied as new HTTP connections. This setting is ignored in mirror mode.",
+      "enum": [
+        "Auto",
+        "Enabled",
+        "Disabled"
+      ],
+      "title": "listenTLS"
+    },
+    "listenTLSCert": {
+      "$friendlyName": "Listen TLS Certificate",
+      "description": "Optional PEM encoded X509v3 certificate to use for the listener for this provider. This setting will be ignored if listenMode is not TLS or Auto or mode is not Inline. However, this setting is required if listenTLSKey is set.",
+      "title": "listenTLSCert",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "listenTLSKey": {
+      "$friendlyName": "Listen TLS Key",
+      "description": "Optional PEM encoded key pair to use for the listener for this provider. This setting will be ignored if listenMode is not TLS or Auto or mode is not Inline. However, this setting is required if listenTLSCert is set.",
+      "title": "listenTLSKey",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mode": {
+      "$defaultValue": "Disabled",
+      "$friendlyName": "Mode",
+      "description": "The ingress datapath mode to use for network traffic arriving for this ingress provider for this application component. By default this is set to disabled. However, this can be changed to mirror traffic where the Apex is only providing visibility with no possibility of any access or content policies to take effect. Or this can be set to inline in which case all traffic to providers will be redirected to the Apex which acts as a transparent proxy in this case. In this mode access and content policies will take effect.",
+      "enum": [
+        "Disabled",
+        "Mirror",
+        "Inline"
+      ],
+      "title": "mode"
+    },
+    "name": {
+      "$defaultValue": "ingress",
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The provider name. This **MUST** match the name of a provider.",
+      "title": "name",
+      "type": "string"
+    },
+    "upstreamCA": {
+      "$friendlyName": "Upstream CA",
+      "description": "Optional X509v3 PEM encoded certificates appended by newlines. This setting only has affect if upstream connections are being dialed using TLS. You should use this if your upstream server is serving a certificate which is not signed by a public CA.",
+      "title": "upstreamCA",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "listenPort",
+    "name"
+  ],
+  "title": "IngressProviderConfig",
+  "type": "object"
+}

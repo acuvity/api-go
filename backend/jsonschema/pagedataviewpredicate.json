@@ -1,0 +1,49 @@
+{
+  "$extends": [],
+  "$friendlyName": "Page Data View Predicate",
+  "$friendlyNamePlural": "Page Data View Predicates",
+  "$modelName": "PageDataViewPredicate",
+  "$modelPackage": "lain",
+  "$modelResourceName": "pagedataviewpredicates",
+  "$modelRestName": "pagedataviewpredicate",
+  "additionalProperties": true,
+  "description": "Represents a page data view predicate.",
+  "properties": {
+    "key": {
+      "$friendlyName": "Key",
+      "$required": true,
+      "description": "The key of the page data view predicate.",
+      "title": "key",
+      "type": "string"
+    },
+    "operator": {
+      "$friendlyName": "Operator",
+      "$required": true,
+      "description": "The operator of the page data view predicate.",
+      "enum": [
+        "All",
+        "Any",
+        "Empty",
+        "Equals",
+        "EqualsOrGreaterThan",
+        "EqualsOrLesserThan",
+        "NotAny",
+        "NotEmpty",
+        "NotEquals"
+      ],
+      "title": "operator"
+    },
+    "values": {
+      "$friendlyName": "Values",
+      "description": "The values of the predicate.",
+      "title": "values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "key",
+    "operator"
+  ],
+  "title": "PageDataViewPredicate",
+  "type": "object"
+}
