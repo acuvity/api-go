@@ -297,6 +297,12 @@
             "readOnly": true,
             "type": "string"
           },
+          "allowedPauseInterval": {
+            "default": "0s",
+            "description": "An administrator can set this for users to pause enforcement for this interval.\nA value of 0s means that users are not allowed to pause the enforcement.",
+            "example": "60m",
+            "type": "string"
+          },
           "createTime": {
             "description": "Creation date of the object.",
             "format": "date-time",
@@ -793,15 +799,20 @@
           "detectionMatchers": {
             "description": "A list of detection matcher that will trigger the analyzer.",
             "example": [
-              {
-                "confidence": "Medium",
-                "group": "Text",
-                "name": "txt",
-                "operator": "min"
-              }
+              [
+                {
+                  "confidence": "Medium",
+                  "group": "Text",
+                  "name": "txt",
+                  "operator": "min"
+                }
+              ]
             ],
             "items": {
-              "$ref": "#/components/schemas/detectionmatcher"
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
             },
             "type": "array"
           },
@@ -4528,7 +4539,7 @@
             "type": "string"
           },
           "allowProxySettings": {
-            "description": "Allow the webextension to set the proxy settings in the employee browser.",
+            "description": "Allows the web extension to set the proxy settings of the employee's browser.",
             "type": "boolean"
           },
           "createTime": {
@@ -4561,12 +4572,12 @@
           },
           "refreshWebExtensionConfigInterval": {
             "default": 120,
-            "description": "Define the interval in minutes to refresh the configuration browser.",
+            "description": "Defines the refresh interval in minutes for the configuration of the deployed\nweb extensions.",
             "type": "integer"
           },
           "reportVisitedURLsInterval": {
             "default": 60,
-            "description": "Define the interval in minutes between two reports of the visited urls.",
+            "description": "Define the interval in minutes between two reports of the visited URLs.",
             "type": "integer"
           },
           "updateTime": {

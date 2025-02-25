@@ -25,8 +25,8 @@
       ]
     },
     "allowProxySettings": {
-      "$friendlyName": "Allow proxy settings.",
-      "description": "Allow the webextension to set the proxy settings in the employee browser.",
+      "$friendlyName": "Manage Browser Proxy Settings",
+      "description": "Allows the web extension to set the proxy settings of the employee's browser.",
       "title": "allowProxySettings",
       "type": [
         "boolean",
@@ -91,8 +91,8 @@
     },
     "refreshWebExtensionConfigInterval": {
       "$defaultValue": 120,
-      "$friendlyName": "Refresh configuration interval",
-      "description": "Define the interval in minutes to refresh the configuration browser.",
+      "$friendlyName": "Configuration Refresh Interval",
+      "description": "Defines the refresh interval in minutes for the configuration of the deployed web extensions.",
       "title": "refreshWebExtensionConfigInterval",
       "type": [
         "integer",
@@ -101,8 +101,8 @@
     },
     "reportVisitedURLsInterval": {
       "$defaultValue": 60,
-      "$friendlyName": "Report visited URLs interval",
-      "description": "Define the interval in minutes between two reports of the visited urls.",
+      "$friendlyName": "Visited URLs Report Interval",
+      "description": "Define the interval in minutes between two reports of the visited URLs.",
       "title": "reportVisitedURLsInterval",
       "type": [
         "integer",

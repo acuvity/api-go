@@ -34,7 +34,10 @@
       "$friendlyName": "DetectionMatchers",
       "description": "A list of detection matcher that will trigger the analyzer.",
       "items": {
-        "$ref": "detectionmatcher.json"
+        "items": {
+          "type": "object"
+        },
+        "type": "array"
       },
       "title": "detectionMatchers",
       "type": "array"

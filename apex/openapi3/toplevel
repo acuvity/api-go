@@ -48,15 +48,20 @@
           "detectionMatchers": {
             "description": "A list of detection matcher that will trigger the analyzer.",
             "example": [
-              {
-                "confidence": "Medium",
-                "group": "Text",
-                "name": "txt",
-                "operator": "min"
-              }
+              [
+                {
+                  "confidence": "Medium",
+                  "group": "Text",
+                  "name": "txt",
+                  "operator": "min"
+                }
+              ]
             ],
             "items": {
-              "$ref": "#/components/schemas/detectionmatcher"
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
             },
             "type": "array"
           },

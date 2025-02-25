@@ -24,6 +24,16 @@
         "null"
       ]
     },
+    "allowedPauseInterval": {
+      "$defaultValue": "0s",
+      "$friendlyName": "Allowed Pause Interval",
+      "description": "An administrator can set this for users to pause enforcement for this interval. A value of 0s means that users are not allowed to pause the enforcement.",
+      "title": "allowedPauseInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "createTime": {
       "$friendlyName": "CreateTime",
       "$readOnly": true,

@@ -87,7 +87,7 @@ type WebExtensionConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Allow the webextension to set the proxy settings in the employee browser.
+	// Allows the web extension to set the proxy settings of the employee's browser.
 	AllowProxySettings bool `json:"allowProxySettings" msgpack:"allowProxySettings" bson:"allowproxysettings" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
@@ -109,10 +109,11 @@ type WebExtensionConfig struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Define the interval in minutes to refresh the configuration browser.
+	// Defines the refresh interval in minutes for the configuration of the deployed
+	// web extensions.
 	RefreshWebExtensionConfigInterval int `json:"refreshWebExtensionConfigInterval" msgpack:"refreshWebExtensionConfigInterval" bson:"refreshwebextensionconfiginterval" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
-	// Define the interval in minutes between two reports of the visited urls.
+	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval int `json:"reportVisitedURLsInterval" msgpack:"reportVisitedURLsInterval" bson:"reportvisitedurlsinterval" mapstructure:"reportVisitedURLsInterval,omitempty"`
 
 	// Last update date of the object.
@@ -529,7 +530,7 @@ var WebExtensionConfigAttributesMap = map[string]elemental.AttributeSpecificatio
 		AllowedChoices: []string{},
 		BSONFieldName:  "allowproxysettings",
 		ConvertedName:  "AllowProxySettings",
-		Description:    `Allow the webextension to set the proxy settings in the employee browser.`,
+		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
 		Exposed:        true,
 		Name:           "allowProxySettings",
 		Stored:         true,
@@ -619,18 +620,19 @@ same import operation.`,
 		BSONFieldName:  "refreshwebextensionconfiginterval",
 		ConvertedName:  "RefreshWebExtensionConfigInterval",
 		DefaultValue:   120,
-		Description:    `Define the interval in minutes to refresh the configuration browser.`,
-		Exposed:        true,
-		Name:           "refreshWebExtensionConfigInterval",
-		Stored:         true,
-		Type:           "integer",
+		Description: `Defines the refresh interval in minutes for the configuration of the deployed
+web extensions.`,
+		Exposed: true,
+		Name:    "refreshWebExtensionConfigInterval",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"ReportVisitedURLsInterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reportvisitedurlsinterval",
 		ConvertedName:  "ReportVisitedURLsInterval",
 		DefaultValue:   60,
-		Description:    `Define the interval in minutes between two reports of the visited urls.`,
+		Description:    `Define the interval in minutes between two reports of the visited URLs.`,
 		Exposed:        true,
 		Name:           "reportVisitedURLsInterval",
 		Stored:         true,
@@ -674,7 +676,7 @@ var WebExtensionConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		AllowedChoices: []string{},
 		BSONFieldName:  "allowproxysettings",
 		ConvertedName:  "AllowProxySettings",
-		Description:    `Allow the webextension to set the proxy settings in the employee browser.`,
+		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
 		Exposed:        true,
 		Name:           "allowProxySettings",
 		Stored:         true,
@@ -764,18 +766,19 @@ same import operation.`,
 		BSONFieldName:  "refreshwebextensionconfiginterval",
 		ConvertedName:  "RefreshWebExtensionConfigInterval",
 		DefaultValue:   120,
-		Description:    `Define the interval in minutes to refresh the configuration browser.`,
-		Exposed:        true,
-		Name:           "refreshWebExtensionConfigInterval",
-		Stored:         true,
-		Type:           "integer",
+		Description: `Defines the refresh interval in minutes for the configuration of the deployed
+web extensions.`,
+		Exposed: true,
+		Name:    "refreshWebExtensionConfigInterval",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"reportvisitedurlsinterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reportvisitedurlsinterval",
 		ConvertedName:  "ReportVisitedURLsInterval",
 		DefaultValue:   60,
-		Description:    `Define the interval in minutes between two reports of the visited urls.`,
+		Description:    `Define the interval in minutes between two reports of the visited URLs.`,
 		Exposed:        true,
 		Name:           "reportVisitedURLsInterval",
 		Stored:         true,
@@ -864,7 +867,7 @@ type SparseWebExtensionConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Allow the webextension to set the proxy settings in the employee browser.
+	// Allows the web extension to set the proxy settings of the employee's browser.
 	AllowProxySettings *bool `json:"allowProxySettings,omitempty" msgpack:"allowProxySettings,omitempty" bson:"allowproxysettings,omitempty" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
@@ -886,10 +889,11 @@ type SparseWebExtensionConfig struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Define the interval in minutes to refresh the configuration browser.
+	// Defines the refresh interval in minutes for the configuration of the deployed
+	// web extensions.
 	RefreshWebExtensionConfigInterval *int `json:"refreshWebExtensionConfigInterval,omitempty" msgpack:"refreshWebExtensionConfigInterval,omitempty" bson:"refreshwebextensionconfiginterval,omitempty" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
-	// Define the interval in minutes between two reports of the visited urls.
+	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval *int `json:"reportVisitedURLsInterval,omitempty" msgpack:"reportVisitedURLsInterval,omitempty" bson:"reportvisitedurlsinterval,omitempty" mapstructure:"reportVisitedURLsInterval,omitempty"`
 
 	// Last update date of the object.
