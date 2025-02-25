@@ -15,12 +15,14 @@ Represents an analyzer.
 ```json
 {
   "detectionMatchers": [
-    {
-      "confidence": "Medium",
-      "group": "Text",
-      "name": "txt",
-      "operator": "min"
-    }
+    [
+      {
+        "confidence": "Medium",
+        "group": "Text",
+        "name": "txt",
+        "operator": "min"
+      }
+    ]
   ],
   "enabled": false
 }
@@ -48,7 +50,7 @@ The description of the analyzer.
 
 ##### `detectionMatchers`
 
-Type: [`[]detectionmatcher`](#detectionmatcher)
+Type: `[][]detectionmatcher`
 
 A list of detection matcher that will trigger the analyzer.
 

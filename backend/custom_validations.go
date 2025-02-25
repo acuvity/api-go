@@ -464,6 +464,30 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyMalcontents:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'Malcontents' only supports operators 'Any', and 'NotEmpty")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Malcontents' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'Malcontents' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'Malcontents' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'Malcontents' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyPlugin:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
 			return makeErr("operator", "Key 'Plugin' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")

@@ -90,7 +90,7 @@ type Analyzer struct {
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
 	// A list of detection matcher that will trigger the analyzer.
-	DetectionMatchers []*DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
+	DetectionMatchers [][]DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
 
 	// The detectors the analyzer can use.
 	Detectors []*Detector `json:"detectors,omitempty" msgpack:"detectors,omitempty" bson:"-" mapstructure:"detectors,omitempty"`
@@ -329,16 +329,6 @@ func (o *Analyzer) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.DetectionMatchers {
-		if sub == nil {
-			continue
-		}
-		elemental.ResetDefaultForZeroValues(sub)
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
-	}
-
 	for _, sub := range o.Detectors {
 		if sub == nil {
 			continue
@@ -447,8 +437,8 @@ var AnalyzerAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `A list of detection matcher that will trigger the analyzer.`,
 		Exposed:        true,
 		Name:           "detectionMatchers",
-		SubType:        "detectionmatcher",
-		Type:           "refList",
+		SubType:        "[][]detectionmatcher",
+		Type:           "external",
 	},
 	"Detectors": {
 		AllowedChoices: []string{},
@@ -540,8 +530,8 @@ var AnalyzerLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Description:    `A list of detection matcher that will trigger the analyzer.`,
 		Exposed:        true,
 		Name:           "detectionMatchers",
-		SubType:        "detectionmatcher",
-		Type:           "refList",
+		SubType:        "[][]detectionmatcher",
+		Type:           "external",
 	},
 	"detectors": {
 		AllowedChoices: []string{},
@@ -672,7 +662,7 @@ type SparseAnalyzer struct {
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"-" mapstructure:"description,omitempty"`
 
 	// A list of detection matcher that will trigger the analyzer.
-	DetectionMatchers *[]*DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
+	DetectionMatchers *[][]DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
 
 	// The detectors the analyzer can use.
 	Detectors *[]*Detector `json:"detectors,omitempty" msgpack:"detectors,omitempty" bson:"-" mapstructure:"detectors,omitempty"`

@@ -87,6 +87,10 @@ type AgentConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// An administrator can set this for users to pause enforcement for this interval.
+	// A value of 0s means that users are not allowed to pause the enforcement.
+	AllowedPauseInterval string `json:"allowedPauseInterval" msgpack:"allowedPauseInterval" bson:"allowedpauseinterval" mapstructure:"allowedPauseInterval,omitempty"`
+
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
@@ -148,9 +152,10 @@ type AgentConfig struct {
 func NewAgentConfig() *AgentConfig {
 
 	return &AgentConfig{
-		ModelVersion:  1,
-		ListeningPort: "8081",
-		PingInterval:  "10m",
+		ModelVersion:         1,
+		AllowedPauseInterval: "0s",
+		ListeningPort:        "8081",
+		PingInterval:         "10m",
 	}
 }
 
@@ -185,6 +190,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AllowedPauseInterval = o.AllowedPauseInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.DisableAutoStart = o.DisableAutoStart
@@ -220,6 +226,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.AllowedPauseInterval = s.AllowedPauseInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.DisableAutoStart = s.DisableAutoStart
@@ -338,6 +345,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseAgentConfig{
 			ID:                           &o.ID,
+			AllowedPauseInterval:         &o.AllowedPauseInterval,
 			CreateTime:                   &o.CreateTime,
 			Description:                  &o.Description,
 			DisableAutoStart:             &o.DisableAutoStart,
@@ -363,6 +371,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "allowedPauseInterval":
+			sp.AllowedPauseInterval = &(o.AllowedPauseInterval)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
@@ -412,6 +422,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAgentConfig)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AllowedPauseInterval != nil {
+		o.AllowedPauseInterval = *so.AllowedPauseInterval
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -545,6 +558,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "allowedPauseInterval":
+		return o.AllowedPauseInterval
 	case "createTime":
 		return o.CreateTime
 	case "description":
@@ -600,6 +615,18 @@ var AgentConfigAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"AllowedPauseInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "allowedpauseinterval",
+		ConvertedName:  "AllowedPauseInterval",
+		DefaultValue:   "0s",
+		Description: `An administrator can set this for users to pause enforcement for this interval.
+A value of 0s means that users are not allowed to pause the enforcement.`,
+		Exposed: true,
+		Name:    "allowedPauseInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -798,6 +825,18 @@ var AgentConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"allowedpauseinterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "allowedpauseinterval",
+		ConvertedName:  "AllowedPauseInterval",
+		DefaultValue:   "0s",
+		Description: `An administrator can set this for users to pause enforcement for this interval.
+A value of 0s means that users are not allowed to pause the enforcement.`,
+		Exposed: true,
+		Name:    "allowedPauseInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -1046,6 +1085,10 @@ type SparseAgentConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// An administrator can set this for users to pause enforcement for this interval.
+	// A value of 0s means that users are not allowed to pause the enforcement.
+	AllowedPauseInterval *string `json:"allowedPauseInterval,omitempty" msgpack:"allowedPauseInterval,omitempty" bson:"allowedpauseinterval,omitempty" mapstructure:"allowedPauseInterval,omitempty"`
+
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
@@ -1146,6 +1189,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.AllowedPauseInterval != nil {
+		s.AllowedPauseInterval = o.AllowedPauseInterval
+	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
@@ -1216,6 +1262,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AllowedPauseInterval != nil {
+		o.AllowedPauseInterval = s.AllowedPauseInterval
+	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
@@ -1283,6 +1332,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	out := NewAgentConfig()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.AllowedPauseInterval != nil {
+		out.AllowedPauseInterval = *o.AllowedPauseInterval
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1445,6 +1497,7 @@ func (o *SparseAgentConfig) DeepCopyInto(out *SparseAgentConfig) {
 
 type mongoAttributesAgentConfig struct {
 	ID                           bson.ObjectId `bson:"_id,omitempty"`
+	AllowedPauseInterval         string        `bson:"allowedpauseinterval"`
 	CreateTime                   time.Time     `bson:"createtime"`
 	Description                  string        `bson:"description"`
 	DisableAutoStart             bool          `bson:"disableautostart"`
@@ -1465,6 +1518,7 @@ type mongoAttributesAgentConfig struct {
 }
 type mongoAttributesSparseAgentConfig struct {
 	ID                           bson.ObjectId `bson:"_id,omitempty"`
+	AllowedPauseInterval         *string       `bson:"allowedpauseinterval,omitempty"`
 	CreateTime                   *time.Time    `bson:"createtime,omitempty"`
 	Description                  *string       `bson:"description,omitempty"`
 	DisableAutoStart             *bool         `bson:"disableautostart,omitempty"`
