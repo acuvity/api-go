@@ -116,6 +116,7 @@
     },
     "tokenID": {
       "$friendlyName": "Token ID",
+      "$readOnly": true,
       "description": "The ID of the associated token.",
       "title": "tokenID",
       "type": [

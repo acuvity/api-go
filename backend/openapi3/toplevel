@@ -1158,6 +1158,7 @@
           },
           "tokenID": {
             "description": "The ID of the associated token.",
+            "readOnly": true,
             "type": "string"
           },
           "transient": {
@@ -4389,7 +4390,8 @@
             "enum": [
               "None",
               "WebExtension",
-              "Acushield"
+              "Acushield",
+              "Acuctl"
             ]
           },
           "createTime": {
@@ -4407,6 +4409,11 @@
             "description": "Tells when the token will expire.",
             "format": "date-time",
             "readOnly": true,
+            "type": "string"
+          },
+          "machineID": {
+            "description": "ID of the source machine that initiated the creation of the token.",
+            "example": "my-computer.local",
             "type": "string"
           },
           "name": {
@@ -4430,6 +4437,7 @@
           },
           "tokenID": {
             "description": "The ID of the associated token.",
+            "readOnly": true,
             "type": "string"
           },
           "transient": {

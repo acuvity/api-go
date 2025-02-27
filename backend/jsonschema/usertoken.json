@@ -44,7 +44,8 @@
       "enum": [
         "None",
         "WebExtension",
-        "Acushield"
+        "Acushield",
+        "Acuctl"
       ],
       "title": "clientType"
     },
@@ -73,6 +74,16 @@
       "$readOnly": true,
       "description": "Tells when the token will expire.",
       "title": "expirationDate",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "machineID": {
+      "$creationOnly": true,
+      "$friendlyName": "Machine ID",
+      "description": "ID of the source machine that initiated the creation of the token.",
+      "title": "machineID",
       "type": [
         "string",
         "null"
@@ -117,6 +128,7 @@
     },
     "tokenID": {
       "$friendlyName": "Token ID",
+      "$readOnly": true,
       "description": "The ID of the associated token.",
       "title": "tokenID",
       "type": [
