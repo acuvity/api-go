@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "Metric Serie",
   "$friendlyNamePlural": "Metric Series",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "metricseries",
   "$modelRestName": "metricserie",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a metric serie.",
   "properties": {
     "ID": {

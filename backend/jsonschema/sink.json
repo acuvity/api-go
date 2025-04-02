@@ -13,7 +13,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "sinks",
   "$modelRestName": "sink",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the sink used to send a notification.",
   "properties": {
     "ID": {

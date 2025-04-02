@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "proxyconfs",
   "$modelRestName": "proxyconf",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "ProxyConf is an API for proxy.",
   "properties": {
     "ID": {
@@ -70,6 +70,15 @@
         "$ref": "customdatatype.json"
       },
       "title": "customDataTypes",
+      "type": "array"
+    },
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "description": "The extractors of the organization.",
+      "items": {
+        "$ref": "extractor.json"
+      },
+      "title": "extractors",
       "type": "array"
     },
     "namespace": {

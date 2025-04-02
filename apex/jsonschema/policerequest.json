@@ -10,7 +10,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "policerequests",
   "$modelRestName": "policerequest",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a scan and police request.",
   "properties": {
     "annotations": {

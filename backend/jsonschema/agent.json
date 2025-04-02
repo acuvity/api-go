@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "agents",
   "$modelRestName": "agent",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Stores information about a known agent.",
   "properties": {
     "ID": {

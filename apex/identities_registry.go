@@ -20,6 +20,8 @@ var (
 		"root":           RootIdentity,
 		"scanrequest":    ScanRequestIdentity,
 		"scanresponse":   ScanResponseIdentity,
+
+		"traceref": TraceRefIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
@@ -36,6 +38,8 @@ var (
 		"root":            RootIdentity,
 		"scanrequests":    ScanRequestIdentity,
 		"scanresponses":   ScanResponseIdentity,
+
+		"tracerefs": TraceRefIdentity,
 	}
 
 	aliasesMap = map[string]elemental.Identity{}
@@ -51,6 +55,7 @@ var (
 		"root":           nil,
 		"scanrequest":    nil,
 		"scanresponse":   nil,
+		"traceref":       nil,
 	}
 )
 
@@ -111,6 +116,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewScanRequest()
 	case ScanResponseIdentity:
 		return NewScanResponse()
+	case TraceRefIdentity:
+		return NewTraceRef()
 	default:
 		return nil
 	}
@@ -138,6 +145,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseScanRequest()
 	case ScanResponseIdentity:
 		return NewSparseScanResponse()
+	case TraceRefIdentity:
+		return NewSparseTraceRef()
 	default:
 		return nil
 	}
@@ -175,6 +184,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ScanRequestsList{}
 	case ScanResponseIdentity:
 		return &ScanResponsesList{}
+	case TraceRefIdentity:
+		return &TraceRefsList{}
 	default:
 		return nil
 	}
@@ -202,6 +213,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseScanRequestsList{}
 	case ScanResponseIdentity:
 		return &SparseScanResponsesList{}
+	case TraceRefIdentity:
+		return &SparseTraceRefsList{}
 	default:
 		return nil
 	}
@@ -240,6 +253,7 @@ func AllIdentities() []elemental.Identity {
 		RootIdentity,
 		ScanRequestIdentity,
 		ScanResponseIdentity,
+		TraceRefIdentity,
 	}
 }
 
@@ -266,6 +280,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case ScanRequestIdentity:
 		return []string{}
 	case ScanResponseIdentity:
+		return []string{}
+	case TraceRefIdentity:
 		return []string{}
 	}
 

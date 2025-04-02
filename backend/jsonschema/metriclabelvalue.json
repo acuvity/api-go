@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "Metric Label Value",
   "$friendlyNamePlural": "Metric Label Values",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "metriclabelvalues",
   "$modelRestName": "metriclabelvalue",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Get all metric values for a given label.",
   "properties": {
     "ID": {

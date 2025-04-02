@@ -10,7 +10,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "alerts",
   "$modelRestName": "alert",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents an alert.",
   "properties": {
     "ID": {

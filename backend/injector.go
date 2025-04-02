@@ -39,15 +39,19 @@ const (
 
 // Injector represents the model of a injector
 type Injector struct {
+	// Since JS world is the mess we all know, there are some cases when we must delay
+	// the monkey patching of the XHR request.
+	DelayXHRPatching bool `json:"delayXHRPatching,omitempty" msgpack:"delayXHRPatching,omitempty" bson:"delayxhrpatching,omitempty" mapstructure:"delayXHRPatching,omitempty"`
+
 	// Optional hosts to match. This is useful in case the provider has multiple hosts
 	// to discriminate which logger to use.
 	Hosts []string `json:"hosts,omitempty" msgpack:"hosts,omitempty" bson:"hosts,omitempty" mapstructure:"hosts,omitempty"`
 
-	// A regular expression to match an URL to log.
-	Match string `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
-
 	// The method to match.
 	Method InjectorMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
+
+	// A regular expression to match a URL path to log.
+	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -71,9 +75,10 @@ func (o *Injector) GetBSON() (any, error) {
 
 	s := &mongoAttributesInjector{}
 
+	s.DelayXHRPatching = o.DelayXHRPatching
 	s.Hosts = o.Hosts
-	s.Match = o.Match
 	s.Method = o.Method
+	s.Path = o.Path
 
 	return s, nil
 }
@@ -91,9 +96,10 @@ func (o *Injector) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.DelayXHRPatching = s.DelayXHRPatching
 	o.Hosts = s.Hosts
-	o.Match = s.Match
 	o.Method = s.Method
+	o.Path = s.Path
 
 	return nil
 }
@@ -104,10 +110,10 @@ func (o *Injector) BleveType() string {
 	return "injector"
 }
 
-// GetMatch returns the Match of the receiver.
-func (o *Injector) GetMatch() string {
+// GetPath returns the Path of the receiver.
+func (o *Injector) GetPath() string {
 
-	return o.Match
+	return o.Path
 }
 
 // DeepCopy returns a deep copy if the Injector.
@@ -140,16 +146,16 @@ func (o *Injector) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("match", o.Match); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredString("method", string(o.Method)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateStringInList("method", string(o.Method), []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("path", o.Path); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -186,12 +192,14 @@ func (*Injector) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 func (o *Injector) ValueForAttribute(name string) any {
 
 	switch name {
+	case "delayXHRPatching":
+		return o.DelayXHRPatching
 	case "hosts":
 		return o.Hosts
-	case "match":
-		return o.Match
 	case "method":
 		return o.Method
+	case "path":
+		return o.Path
 	}
 
 	return nil
@@ -199,6 +207,17 @@ func (o *Injector) ValueForAttribute(name string) any {
 
 // InjectorAttributesMap represents the map of attribute for Injector.
 var InjectorAttributesMap = map[string]elemental.AttributeSpecification{
+	"DelayXHRPatching": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "delayxhrpatching",
+		ConvertedName:  "DelayXHRPatching",
+		Description: `Since JS world is the mess we all know, there are some cases when we must delay
+the monkey patching of the XHR request.`,
+		Exposed: true,
+		Name:    "delayXHRPatching",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Hosts": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hosts",
@@ -210,18 +229,6 @@ to discriminate which logger to use.`,
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
-	},
-	"Match": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "match",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
 	},
 	"Method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
@@ -235,10 +242,33 @@ to discriminate which logger to use.`,
 		SubType:        "string",
 		Type:           "enum",
 	},
+	"Path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // InjectorLowerCaseAttributesMap represents the map of attribute for Injector.
 var InjectorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"delayxhrpatching": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "delayxhrpatching",
+		ConvertedName:  "DelayXHRPatching",
+		Description: `Since JS world is the mess we all know, there are some cases when we must delay
+the monkey patching of the XHR request.`,
+		Exposed: true,
+		Name:    "delayXHRPatching",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"hosts": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hosts",
@@ -250,18 +280,6 @@ to discriminate which logger to use.`,
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
-	},
-	"match": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "match",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
 	},
 	"method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
@@ -275,10 +293,23 @@ to discriminate which logger to use.`,
 		SubType:        "string",
 		Type:           "enum",
 	},
+	"path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 type mongoAttributesInjector struct {
-	Hosts  []string            `bson:"hosts,omitempty"`
-	Match  string              `bson:"match"`
-	Method InjectorMethodValue `bson:"method"`
+	DelayXHRPatching bool                `bson:"delayxhrpatching,omitempty"`
+	Hosts            []string            `bson:"hosts,omitempty"`
+	Method           InjectorMethodValue `bson:"method"`
+	Path             string              `bson:"path"`
 }

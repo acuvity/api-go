@@ -11,6 +11,23 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// IngressProviderConfigDialTLSValue represents the possible values for attribute "dialTLS".
+type IngressProviderConfigDialTLSValue string
+
+const (
+	// IngressProviderConfigDialTLSAuto represents the value Auto.
+	IngressProviderConfigDialTLSAuto IngressProviderConfigDialTLSValue = "Auto"
+
+	// IngressProviderConfigDialTLSDisabled represents the value Disabled.
+	IngressProviderConfigDialTLSDisabled IngressProviderConfigDialTLSValue = "Disabled"
+
+	// IngressProviderConfigDialTLSEnabled represents the value Enabled.
+	IngressProviderConfigDialTLSEnabled IngressProviderConfigDialTLSValue = "Enabled"
+
+	// IngressProviderConfigDialTLSPreserve represents the value Preserve.
+	IngressProviderConfigDialTLSPreserve IngressProviderConfigDialTLSValue = "Preserve"
+)
+
 // IngressProviderConfigListenTLSValue represents the possible values for attribute "listenTLS".
 type IngressProviderConfigListenTLSValue string
 
@@ -111,16 +128,35 @@ func (o IngressProviderConfigsList) Version() int {
 
 // IngressProviderConfig represents the model of a ingressproviderconfig
 type IngressProviderConfig struct {
+	// This option controls the dialing behaviour of the apex to the origin server.
+	// Should be explicitly set to enabled if the origin expects TLS connections. And
+	// vice versa it should be set to disabled if the origin expects connections in
+	// plaintext. By default this setting is set to preserve which means that the apex
+	// is going to dial using whatever mode it terminated its own connection with: if
+	// the apex received a TLS connection, it will dial TLS, if it received a plaintext
+	// connection, then it will dial plaintext. The apex receiving behaviour can be
+	// controlled with the listenTLS option. As a last resort this setting can be set
+	// to auto which means that the apex is going to probe the origin server to
+	// determine if it needs to dial using TLS or not. Note that this is potentially
+	// sending a TLS Client Hello to a plaintext HTTP server which is not expecting
+	// that. Therefore, this option is not recommended if it can be avoided. This
+	// setting is ignored in mirror mode.
+	DialTLS IngressProviderConfigDialTLSValue `json:"dialTLS" msgpack:"dialTLS" bson:"dialtls" mapstructure:"dialTLS,omitempty"`
+
 	// The listening port. For appcomponent configurations this is the listening port
 	// that traffic will be intercepted on or mirrored from.
 	ListenPort int `json:"listenPort" msgpack:"listenPort" bson:"listenport" mapstructure:"listenPort,omitempty"`
 
-	// Should be explicitly set to enabled if the listener expects TLS connections. And
-	// vice versa it should be set to disabled if the listener expects connections in
-	// plaintext. By default this setting is set to auto which means that TLS
-	// connections will be accepted, and proxied as new TLS connections (HTTPS), and
-	// plain TCP connections will be accepted and proxied as new HTTP connections. This
-	// setting is ignored in mirror mode.
+	// This option controls the receiving behaviour of connection to the apex before
+	// they are going to be proxied to the origin server. To control the dialing
+	// behaviour of the apex towards the origin server use the dialTLS option. Should
+	// be explicitly set to enabled if the listener expects TLS connections. And vice
+	// versa it should be set to disabled if the listener expects connections in
+	// plaintext. By default this setting is set to auto which means that the listener
+	// will automatically determine if incoming connections are TLS or not: TLS
+	// connections will be accepted, as well as  plain TCP connections will be
+	// accepted, both on the configured listenPort. This setting is ignored in mirror
+	// mode.
 	ListenTLS IngressProviderConfigListenTLSValue `json:"listenTLS" msgpack:"listenTLS" bson:"listentls" mapstructure:"listenTLS,omitempty"`
 
 	// Optional PEM encoded X509v3 certificate to use for the listener for this
@@ -142,15 +178,6 @@ type IngressProviderConfig struct {
 	// mode access and content policies will take effect.
 	Mode IngressProviderConfigModeValue `json:"mode" msgpack:"mode" bson:"mode" mapstructure:"mode,omitempty"`
 
-	// The provider name. This **MUST** match the name of a provider.
-	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
-
-	// Optional X509v3 PEM encoded certificates appended by newlines. This setting only
-	// has affect if upstream connections are being dialed using TLS. You should use
-	// this if your upstream server is serving a certificate which is not signed by a
-	// public CA.
-	UpstreamCA string `json:"upstreamCA,omitempty" msgpack:"upstreamCA,omitempty" bson:"upstreamca,omitempty" mapstructure:"upstreamCA,omitempty"`
-
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -159,9 +186,9 @@ func NewIngressProviderConfig() *IngressProviderConfig {
 
 	return &IngressProviderConfig{
 		ModelVersion: 1,
+		DialTLS:      IngressProviderConfigDialTLSPreserve,
 		ListenTLS:    IngressProviderConfigListenTLSAuto,
 		Mode:         IngressProviderConfigModeDisabled,
-		Name:         "ingress",
 	}
 }
 
@@ -192,13 +219,12 @@ func (o *IngressProviderConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesIngressProviderConfig{}
 
+	s.DialTLS = o.DialTLS
 	s.ListenPort = o.ListenPort
 	s.ListenTLS = o.ListenTLS
 	s.ListenTLSCert = o.ListenTLSCert
 	s.ListenTLSKey = o.ListenTLSKey
 	s.Mode = o.Mode
-	s.Name = o.Name
-	s.UpstreamCA = o.UpstreamCA
 
 	return s, nil
 }
@@ -216,13 +242,12 @@ func (o *IngressProviderConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.DialTLS = s.DialTLS
 	o.ListenPort = s.ListenPort
 	o.ListenTLS = s.ListenTLS
 	o.ListenTLSCert = s.ListenTLSCert
 	o.ListenTLSKey = s.ListenTLSKey
 	o.Mode = s.Mode
-	o.Name = s.Name
-	o.UpstreamCA = s.UpstreamCA
 
 	return nil
 }
@@ -263,19 +288,20 @@ func (o *IngressProviderConfig) ToSparse(fields ...string) elemental.SparseIdent
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseIngressProviderConfig{
+			DialTLS:       &o.DialTLS,
 			ListenPort:    &o.ListenPort,
 			ListenTLS:     &o.ListenTLS,
 			ListenTLSCert: &o.ListenTLSCert,
 			ListenTLSKey:  &o.ListenTLSKey,
 			Mode:          &o.Mode,
-			Name:          &o.Name,
-			UpstreamCA:    &o.UpstreamCA,
 		}
 	}
 
 	sp := &SparseIngressProviderConfig{}
 	for _, f := range fields {
 		switch f {
+		case "dialTLS":
+			sp.DialTLS = &(o.DialTLS)
 		case "listenPort":
 			sp.ListenPort = &(o.ListenPort)
 		case "listenTLS":
@@ -286,10 +312,6 @@ func (o *IngressProviderConfig) ToSparse(fields ...string) elemental.SparseIdent
 			sp.ListenTLSKey = &(o.ListenTLSKey)
 		case "mode":
 			sp.Mode = &(o.Mode)
-		case "name":
-			sp.Name = &(o.Name)
-		case "upstreamCA":
-			sp.UpstreamCA = &(o.UpstreamCA)
 		}
 	}
 
@@ -303,6 +325,9 @@ func (o *IngressProviderConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseIngressProviderConfig)
+	if so.DialTLS != nil {
+		o.DialTLS = *so.DialTLS
+	}
 	if so.ListenPort != nil {
 		o.ListenPort = *so.ListenPort
 	}
@@ -317,12 +342,6 @@ func (o *IngressProviderConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Mode != nil {
 		o.Mode = *so.Mode
-	}
-	if so.Name != nil {
-		o.Name = *so.Name
-	}
-	if so.UpstreamCA != nil {
-		o.UpstreamCA = *so.UpstreamCA
 	}
 }
 
@@ -356,6 +375,10 @@ func (o *IngressProviderConfig) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("dialTLS", string(o.DialTLS), []string{"Preserve", "Auto", "Enabled", "Disabled"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredInt("listenPort", o.ListenPort); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -381,14 +404,6 @@ func (o *IngressProviderConfig) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("mode", string(o.Mode), []string{"Disabled", "Mirror", "Inline"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := ValidatePEM("upstreamCA", o.UpstreamCA); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -426,6 +441,8 @@ func (*IngressProviderConfig) AttributeSpecifications() map[string]elemental.Att
 func (o *IngressProviderConfig) ValueForAttribute(name string) any {
 
 	switch name {
+	case "dialTLS":
+		return o.DialTLS
 	case "listenPort":
 		return o.ListenPort
 	case "listenTLS":
@@ -436,10 +453,6 @@ func (o *IngressProviderConfig) ValueForAttribute(name string) any {
 		return o.ListenTLSKey
 	case "mode":
 		return o.Mode
-	case "name":
-		return o.Name
-	case "upstreamCA":
-		return o.UpstreamCA
 	}
 
 	return nil
@@ -447,6 +460,29 @@ func (o *IngressProviderConfig) ValueForAttribute(name string) any {
 
 // IngressProviderConfigAttributesMap represents the map of attribute for IngressProviderConfig.
 var IngressProviderConfigAttributesMap = map[string]elemental.AttributeSpecification{
+	"DialTLS": {
+		AllowedChoices: []string{"Preserve", "Auto", "Enabled", "Disabled"},
+		BSONFieldName:  "dialtls",
+		ConvertedName:  "DialTLS",
+		DefaultValue:   IngressProviderConfigDialTLSPreserve,
+		Description: `This option controls the dialing behaviour of the apex to the origin server.
+Should be explicitly set to enabled if the origin expects TLS connections. And
+vice versa it should be set to disabled if the origin expects connections in
+plaintext. By default this setting is set to preserve which means that the apex
+is going to dial using whatever mode it terminated its own connection with: if
+the apex received a TLS connection, it will dial TLS, if it received a plaintext
+connection, then it will dial plaintext. The apex receiving behaviour can be
+controlled with the listenTLS option. As a last resort this setting can be set
+to auto which means that the apex is going to probe the origin server to
+determine if it needs to dial using TLS or not. Note that this is potentially
+sending a TLS Client Hello to a plaintext HTTP server which is not expecting
+that. Therefore, this option is not recommended if it can be avoided. This
+setting is ignored in mirror mode.`,
+		Exposed: true,
+		Name:    "dialTLS",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"ListenPort": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "listenport",
@@ -466,12 +502,16 @@ that traffic will be intercepted on or mirrored from.`,
 		BSONFieldName:  "listentls",
 		ConvertedName:  "ListenTLS",
 		DefaultValue:   IngressProviderConfigListenTLSAuto,
-		Description: `Should be explicitly set to enabled if the listener expects TLS connections. And
-vice versa it should be set to disabled if the listener expects connections in
-plaintext. By default this setting is set to auto which means that TLS
-connections will be accepted, and proxied as new TLS connections (HTTPS), and
-plain TCP connections will be accepted and proxied as new HTTP connections. This
-setting is ignored in mirror mode.`,
+		Description: `This option controls the receiving behaviour of connection to the apex before
+they are going to be proxied to the origin server. To control the dialing
+behaviour of the apex towards the origin server use the dialTLS option. Should
+be explicitly set to enabled if the listener expects TLS connections. And vice
+versa it should be set to disabled if the listener expects connections in
+plaintext. By default this setting is set to auto which means that the listener
+will automatically determine if incoming connections are TLS or not: TLS
+connections will be accepted, as well as  plain TCP connections will be
+accepted, both on the configured listenPort. This setting is ignored in mirror
+mode.`,
 		Exposed: true,
 		Name:    "listenTLS",
 		Stored:  true,
@@ -518,35 +558,33 @@ mode access and content policies will take effect.`,
 		Stored:  true,
 		Type:    "enum",
 	},
-	"Name": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "name",
-		ConvertedName:  "Name",
-		DefaultValue:   "ingress",
-		Description:    `The provider name. This **MUST** match the name of a provider.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
-	"UpstreamCA": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "upstreamca",
-		ConvertedName:  "UpstreamCA",
-		Description: `Optional X509v3 PEM encoded certificates appended by newlines. This setting only
-has affect if upstream connections are being dialed using TLS. You should use
-this if your upstream server is serving a certificate which is not signed by a
-public CA.`,
-		Exposed: true,
-		Name:    "upstreamCA",
-		Stored:  true,
-		Type:    "string",
-	},
 }
 
 // IngressProviderConfigLowerCaseAttributesMap represents the map of attribute for IngressProviderConfig.
 var IngressProviderConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"dialtls": {
+		AllowedChoices: []string{"Preserve", "Auto", "Enabled", "Disabled"},
+		BSONFieldName:  "dialtls",
+		ConvertedName:  "DialTLS",
+		DefaultValue:   IngressProviderConfigDialTLSPreserve,
+		Description: `This option controls the dialing behaviour of the apex to the origin server.
+Should be explicitly set to enabled if the origin expects TLS connections. And
+vice versa it should be set to disabled if the origin expects connections in
+plaintext. By default this setting is set to preserve which means that the apex
+is going to dial using whatever mode it terminated its own connection with: if
+the apex received a TLS connection, it will dial TLS, if it received a plaintext
+connection, then it will dial plaintext. The apex receiving behaviour can be
+controlled with the listenTLS option. As a last resort this setting can be set
+to auto which means that the apex is going to probe the origin server to
+determine if it needs to dial using TLS or not. Note that this is potentially
+sending a TLS Client Hello to a plaintext HTTP server which is not expecting
+that. Therefore, this option is not recommended if it can be avoided. This
+setting is ignored in mirror mode.`,
+		Exposed: true,
+		Name:    "dialTLS",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"listenport": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "listenport",
@@ -566,12 +604,16 @@ that traffic will be intercepted on or mirrored from.`,
 		BSONFieldName:  "listentls",
 		ConvertedName:  "ListenTLS",
 		DefaultValue:   IngressProviderConfigListenTLSAuto,
-		Description: `Should be explicitly set to enabled if the listener expects TLS connections. And
-vice versa it should be set to disabled if the listener expects connections in
-plaintext. By default this setting is set to auto which means that TLS
-connections will be accepted, and proxied as new TLS connections (HTTPS), and
-plain TCP connections will be accepted and proxied as new HTTP connections. This
-setting is ignored in mirror mode.`,
+		Description: `This option controls the receiving behaviour of connection to the apex before
+they are going to be proxied to the origin server. To control the dialing
+behaviour of the apex towards the origin server use the dialTLS option. Should
+be explicitly set to enabled if the listener expects TLS connections. And vice
+versa it should be set to disabled if the listener expects connections in
+plaintext. By default this setting is set to auto which means that the listener
+will automatically determine if incoming connections are TLS or not: TLS
+connections will be accepted, as well as  plain TCP connections will be
+accepted, both on the configured listenPort. This setting is ignored in mirror
+mode.`,
 		Exposed: true,
 		Name:    "listenTLS",
 		Stored:  true,
@@ -617,31 +659,6 @@ mode access and content policies will take effect.`,
 		Name:    "mode",
 		Stored:  true,
 		Type:    "enum",
-	},
-	"name": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "name",
-		ConvertedName:  "Name",
-		DefaultValue:   "ingress",
-		Description:    `The provider name. This **MUST** match the name of a provider.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
-	"upstreamca": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "upstreamca",
-		ConvertedName:  "UpstreamCA",
-		Description: `Optional X509v3 PEM encoded certificates appended by newlines. This setting only
-has affect if upstream connections are being dialed using TLS. You should use
-this if your upstream server is serving a certificate which is not signed by a
-public CA.`,
-		Exposed: true,
-		Name:    "upstreamCA",
-		Stored:  true,
-		Type:    "string",
 	},
 }
 
@@ -708,16 +725,35 @@ func (o SparseIngressProviderConfigsList) Version() int {
 
 // SparseIngressProviderConfig represents the sparse version of a ingressproviderconfig.
 type SparseIngressProviderConfig struct {
+	// This option controls the dialing behaviour of the apex to the origin server.
+	// Should be explicitly set to enabled if the origin expects TLS connections. And
+	// vice versa it should be set to disabled if the origin expects connections in
+	// plaintext. By default this setting is set to preserve which means that the apex
+	// is going to dial using whatever mode it terminated its own connection with: if
+	// the apex received a TLS connection, it will dial TLS, if it received a plaintext
+	// connection, then it will dial plaintext. The apex receiving behaviour can be
+	// controlled with the listenTLS option. As a last resort this setting can be set
+	// to auto which means that the apex is going to probe the origin server to
+	// determine if it needs to dial using TLS or not. Note that this is potentially
+	// sending a TLS Client Hello to a plaintext HTTP server which is not expecting
+	// that. Therefore, this option is not recommended if it can be avoided. This
+	// setting is ignored in mirror mode.
+	DialTLS *IngressProviderConfigDialTLSValue `json:"dialTLS,omitempty" msgpack:"dialTLS,omitempty" bson:"dialtls,omitempty" mapstructure:"dialTLS,omitempty"`
+
 	// The listening port. For appcomponent configurations this is the listening port
 	// that traffic will be intercepted on or mirrored from.
 	ListenPort *int `json:"listenPort,omitempty" msgpack:"listenPort,omitempty" bson:"listenport,omitempty" mapstructure:"listenPort,omitempty"`
 
-	// Should be explicitly set to enabled if the listener expects TLS connections. And
-	// vice versa it should be set to disabled if the listener expects connections in
-	// plaintext. By default this setting is set to auto which means that TLS
-	// connections will be accepted, and proxied as new TLS connections (HTTPS), and
-	// plain TCP connections will be accepted and proxied as new HTTP connections. This
-	// setting is ignored in mirror mode.
+	// This option controls the receiving behaviour of connection to the apex before
+	// they are going to be proxied to the origin server. To control the dialing
+	// behaviour of the apex towards the origin server use the dialTLS option. Should
+	// be explicitly set to enabled if the listener expects TLS connections. And vice
+	// versa it should be set to disabled if the listener expects connections in
+	// plaintext. By default this setting is set to auto which means that the listener
+	// will automatically determine if incoming connections are TLS or not: TLS
+	// connections will be accepted, as well as  plain TCP connections will be
+	// accepted, both on the configured listenPort. This setting is ignored in mirror
+	// mode.
 	ListenTLS *IngressProviderConfigListenTLSValue `json:"listenTLS,omitempty" msgpack:"listenTLS,omitempty" bson:"listentls,omitempty" mapstructure:"listenTLS,omitempty"`
 
 	// Optional PEM encoded X509v3 certificate to use for the listener for this
@@ -738,15 +774,6 @@ type SparseIngressProviderConfig struct {
 	// redirected to the Apex which acts as a transparent proxy in this case. In this
 	// mode access and content policies will take effect.
 	Mode *IngressProviderConfigModeValue `json:"mode,omitempty" msgpack:"mode,omitempty" bson:"mode,omitempty" mapstructure:"mode,omitempty"`
-
-	// The provider name. This **MUST** match the name of a provider.
-	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
-
-	// Optional X509v3 PEM encoded certificates appended by newlines. This setting only
-	// has affect if upstream connections are being dialed using TLS. You should use
-	// this if your upstream server is serving a certificate which is not signed by a
-	// public CA.
-	UpstreamCA *string `json:"upstreamCA,omitempty" msgpack:"upstreamCA,omitempty" bson:"upstreamca,omitempty" mapstructure:"upstreamCA,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -783,6 +810,9 @@ func (o *SparseIngressProviderConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseIngressProviderConfig{}
 
+	if o.DialTLS != nil {
+		s.DialTLS = o.DialTLS
+	}
 	if o.ListenPort != nil {
 		s.ListenPort = o.ListenPort
 	}
@@ -797,12 +827,6 @@ func (o *SparseIngressProviderConfig) GetBSON() (any, error) {
 	}
 	if o.Mode != nil {
 		s.Mode = o.Mode
-	}
-	if o.Name != nil {
-		s.Name = o.Name
-	}
-	if o.UpstreamCA != nil {
-		s.UpstreamCA = o.UpstreamCA
 	}
 
 	return s, nil
@@ -821,6 +845,9 @@ func (o *SparseIngressProviderConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.DialTLS != nil {
+		o.DialTLS = s.DialTLS
+	}
 	if s.ListenPort != nil {
 		o.ListenPort = s.ListenPort
 	}
@@ -836,12 +863,6 @@ func (o *SparseIngressProviderConfig) SetBSON(raw bson.Raw) error {
 	if s.Mode != nil {
 		o.Mode = s.Mode
 	}
-	if s.Name != nil {
-		o.Name = s.Name
-	}
-	if s.UpstreamCA != nil {
-		o.UpstreamCA = s.UpstreamCA
-	}
 
 	return nil
 }
@@ -856,6 +877,9 @@ func (o *SparseIngressProviderConfig) Version() int {
 func (o *SparseIngressProviderConfig) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewIngressProviderConfig()
+	if o.DialTLS != nil {
+		out.DialTLS = *o.DialTLS
+	}
 	if o.ListenPort != nil {
 		out.ListenPort = *o.ListenPort
 	}
@@ -870,12 +894,6 @@ func (o *SparseIngressProviderConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Mode != nil {
 		out.Mode = *o.Mode
-	}
-	if o.Name != nil {
-		out.Name = *o.Name
-	}
-	if o.UpstreamCA != nil {
-		out.UpstreamCA = *o.UpstreamCA
 	}
 
 	return out
@@ -906,20 +924,18 @@ func (o *SparseIngressProviderConfig) DeepCopyInto(out *SparseIngressProviderCon
 }
 
 type mongoAttributesIngressProviderConfig struct {
+	DialTLS       IngressProviderConfigDialTLSValue   `bson:"dialtls"`
 	ListenPort    int                                 `bson:"listenport"`
 	ListenTLS     IngressProviderConfigListenTLSValue `bson:"listentls"`
 	ListenTLSCert string                              `bson:"listentlscert,omitempty"`
 	ListenTLSKey  string                              `bson:"listentlskey,omitempty"`
 	Mode          IngressProviderConfigModeValue      `bson:"mode"`
-	Name          string                              `bson:"name"`
-	UpstreamCA    string                              `bson:"upstreamca,omitempty"`
 }
 type mongoAttributesSparseIngressProviderConfig struct {
+	DialTLS       *IngressProviderConfigDialTLSValue   `bson:"dialtls,omitempty"`
 	ListenPort    *int                                 `bson:"listenport,omitempty"`
 	ListenTLS     *IngressProviderConfigListenTLSValue `bson:"listentls,omitempty"`
 	ListenTLSCert *string                              `bson:"listentlscert,omitempty"`
 	ListenTLSKey  *string                              `bson:"listentlskey,omitempty"`
 	Mode          *IngressProviderConfigModeValue      `bson:"mode,omitempty"`
-	Name          *string                              `bson:"name,omitempty"`
-	UpstreamCA    *string                              `bson:"upstreamca,omitempty"`
 }

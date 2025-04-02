@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "LabelValue",
   "$friendlyNamePlural": "LabelValues",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "labelvalues",
   "$modelRestName": "labelvalue",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Get all values for a given label.",
   "properties": {
     "ID": {

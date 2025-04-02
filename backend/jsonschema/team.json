@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "teams",
   "$modelRestName": "team",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Teams can be created to create groups of people, identified by their jwt claims that can be used when writing authorizations.",
   "properties": {
     "ID": {

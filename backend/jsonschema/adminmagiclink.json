@@ -8,7 +8,7 @@
   "$modelPackage": "ultradmin",
   "$modelResourceName": "adminmagiclinks",
   "$modelRestName": "adminmagiclink",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Administrative API to create magic links.",
   "properties": {
     "ID": {

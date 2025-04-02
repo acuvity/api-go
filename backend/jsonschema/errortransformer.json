@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "errortransformers",
   "$modelRestName": "errortransformer",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Used to transform errors before sending them back to the client.",
   "properties": {
     "contentType": {

@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "Metric Range",
   "$friendlyNamePlural": "Metric Ranges",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "metricranges",
   "$modelRestName": "metricrange",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a metric range stored in Mimir.",
   "properties": {
     "ID": {

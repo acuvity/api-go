@@ -6,7 +6,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "sinkemail",
   "$modelRestName": "sinkemail",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Additional configuration for sending an email.",
   "properties": {
     "recipients": {

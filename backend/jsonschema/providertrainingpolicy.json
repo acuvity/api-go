@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "providertrainingpolicies",
   "$modelRestName": "providertrainingpolicy",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents provider data usage policy for a given subscription type.",
   "properties": {
     "description": {

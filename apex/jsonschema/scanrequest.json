@@ -10,7 +10,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "scanrequests",
   "$modelRestName": "scanrequest",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a scan request.",
   "properties": {
     "accessPolicy": {

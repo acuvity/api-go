@@ -46,15 +46,15 @@ type Mapper struct {
 	// to discriminate which logger to use.
 	Hosts []string `json:"hosts,omitempty" msgpack:"hosts,omitempty" bson:"hosts,omitempty" mapstructure:"hosts,omitempty"`
 
-	// A regular expression to match an URL to log.
-	Match string `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
-
 	// The method to match.
 	Method MapperMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
 
 	// The name of the extractor. It will be used to identify which extractor was used
 	// during an extraction.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// A regular expression to match a URL path to log.
+	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
 
 	// If not empty, use this lua code to run the extraction.
 	Script string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
@@ -84,9 +84,9 @@ func (o *Mapper) GetBSON() (any, error) {
 
 	s.Expiration = o.Expiration
 	s.Hosts = o.Hosts
-	s.Match = o.Match
 	s.Method = o.Method
 	s.Name = o.Name
+	s.Path = o.Path
 	s.Script = o.Script
 
 	return s, nil
@@ -107,9 +107,9 @@ func (o *Mapper) SetBSON(raw bson.Raw) error {
 
 	o.Expiration = s.Expiration
 	o.Hosts = s.Hosts
-	o.Match = s.Match
 	o.Method = s.Method
 	o.Name = s.Name
+	o.Path = s.Path
 	o.Script = s.Script
 
 	return nil
@@ -121,10 +121,10 @@ func (o *Mapper) BleveType() string {
 	return "mapper"
 }
 
-// GetMatch returns the Match of the receiver.
-func (o *Mapper) GetMatch() string {
+// GetPath returns the Path of the receiver.
+func (o *Mapper) GetPath() string {
 
-	return o.Match
+	return o.Path
 }
 
 // DeepCopy returns a deep copy if the Mapper.
@@ -161,16 +161,16 @@ func (o *Mapper) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("match", o.Match); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredString("method", string(o.Method)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateStringInList("method", string(o.Method), []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("path", o.Path); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := ValidateLua("script", o.Script); err != nil {
@@ -215,12 +215,12 @@ func (o *Mapper) ValueForAttribute(name string) any {
 		return o.Expiration
 	case "hosts":
 		return o.Hosts
-	case "match":
-		return o.Match
 	case "method":
 		return o.Method
 	case "name":
 		return o.Name
+	case "path":
+		return o.Path
 	case "script":
 		return o.Script
 	}
@@ -253,18 +253,6 @@ to discriminate which logger to use.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"Match": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "match",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"Method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
 		BSONFieldName:  "method",
@@ -287,6 +275,18 @@ during an extraction.`,
 		Name:    "name",
 		Stored:  true,
 		Type:    "string",
+	},
+	"Path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Script": {
 		AllowedChoices: []string{},
@@ -325,18 +325,6 @@ to discriminate which logger to use.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"match": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "match",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
 		BSONFieldName:  "method",
@@ -360,6 +348,18 @@ during an extraction.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"script": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "script",
@@ -375,8 +375,8 @@ during an extraction.`,
 type mongoAttributesMapper struct {
 	Expiration string            `bson:"expiration"`
 	Hosts      []string          `bson:"hosts,omitempty"`
-	Match      string            `bson:"match"`
 	Method     MapperMethodValue `bson:"method"`
 	Name       string            `bson:"name,omitempty"`
+	Path       string            `bson:"path"`
 	Script     string            `bson:"script,omitempty"`
 }

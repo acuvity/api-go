@@ -13,7 +13,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "contentpolicies",
   "$modelRestName": "contentpolicy",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "The policy that decides how to handle the request content.",
   "properties": {
     "ID": {

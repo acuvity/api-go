@@ -12,7 +12,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "aidomains",
   "$modelRestName": "aidomain",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "AI domain provides an AI risk score given a domain url.",
   "properties": {
     "ID": {

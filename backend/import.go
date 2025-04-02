@@ -110,6 +110,9 @@ type Import struct {
 	// Custom Data Types to import.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
+	// Extractors to import.
+	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+
 	// Ignored domains to import.
 	IgnoredDomains IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"-" mapstructure:"ignoredDomains,omitempty"`
 
@@ -161,6 +164,7 @@ func NewImport() *Import {
 		Apps:                AppsList{},
 		ContentPolicies:     ContentPoliciesList{},
 		CustomDataTypes:     CustomDataTypesList{},
+		Extractors:          ExtractorsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
 		OrgSettings:         OrgSettingsList{},
 		ProviderTeams:       ProviderTeamsList{},
@@ -265,6 +269,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Apps:                &o.Apps,
 			ContentPolicies:     &o.ContentPolicies,
 			CustomDataTypes:     &o.CustomDataTypes,
+			Extractors:          &o.Extractors,
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
 			OrgSettings:         &o.OrgSettings,
@@ -300,6 +305,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ContentPolicies = &(o.ContentPolicies)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "extractors":
+			sp.Extractors = &(o.Extractors)
 		case "ignoredDomains":
 			sp.IgnoredDomains = &(o.IgnoredDomains)
 		case "label":
@@ -361,6 +368,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.Extractors != nil {
+		o.Extractors = *so.Extractors
 	}
 	if so.IgnoredDomains != nil {
 		o.IgnoredDomains = *so.IgnoredDomains
@@ -508,6 +518,16 @@ func (o *Import) Validate() error {
 	}
 
 	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
@@ -673,6 +693,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.ContentPolicies
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "extractors":
+		return o.Extractors
 	case "ignoredDomains":
 		return o.IgnoredDomains
 	case "label":
@@ -781,6 +803,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"Extractors": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Extractors",
+		Description:    `Extractors to import.`,
+		Exposed:        true,
+		Name:           "extractors",
+		SubType:        "extractor",
 		Type:           "refList",
 	},
 	"IgnoredDomains": {
@@ -966,6 +997,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"extractors": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Extractors",
+		Description:    `Extractors to import.`,
+		Exposed:        true,
+		Name:           "extractors",
+		SubType:        "extractor",
 		Type:           "refList",
 	},
 	"ignoreddomains": {
@@ -1160,6 +1200,9 @@ type SparseImport struct {
 	// Custom Data Types to import.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
+	// Extractors to import.
+	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+
 	// Ignored domains to import.
 	IgnoredDomains *IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"-" mapstructure:"ignoredDomains,omitempty"`
 
@@ -1284,6 +1327,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.Extractors != nil {
+		out.Extractors = *o.Extractors
 	}
 	if o.IgnoredDomains != nil {
 		out.IgnoredDomains = *o.IgnoredDomains

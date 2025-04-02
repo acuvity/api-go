@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "watchedorgs",
   "$modelRestName": "watchedorg",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "List the organization your organization watches.",
   "properties": {
     "ID": {

@@ -2,6 +2,7 @@
   "$extends": [
     "@identifiable",
     "@principalable",
+    "@traceable",
     "@pipelinepasstype",
     "@tubularpipelinepass"
   ],
@@ -11,7 +12,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "scanresponses",
   "$modelRestName": "scanresponse",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a scan response.",
   "properties": {
     "ID": {
@@ -158,6 +159,12 @@
         "string",
         "null"
       ]
+    },
+    "trace": {
+      "$friendlyName": "Trace",
+      "$ref": "traceref.json",
+      "description": "References to the trace of the request.",
+      "title": "trace"
     },
     "type": {
       "$friendlyName": "Type",

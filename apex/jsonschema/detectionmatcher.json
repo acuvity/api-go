@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "detectionmatchers",
   "$modelRestName": "detectionmatcher",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represent a detection matcher. A Detection Matcher serves as a filtering mechanism for analyzers, determining which detections should trigger an analysis. It allows for flexible pattern matching on detection attributes such as name, label, and group using glob-style wildcards. Additionally, it enables confidence-based filtering by defining thresholds and comparison operators. Detection Matchers provide a structured way to control when and how analyzers engage with incoming detections.",
   "properties": {
     "confidence": {

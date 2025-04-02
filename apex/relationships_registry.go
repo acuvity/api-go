@@ -46,4 +46,6 @@ func init() {
 
 	relationshipsRegistry[ScanResponseIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[TraceRefIdentity] = &elemental.Relationship{}
+
 }

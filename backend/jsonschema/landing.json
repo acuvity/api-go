@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "landings",
   "$modelRestName": "landing",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Potential Landing namespaces based on permissions.",
   "properties": {
     "ID": {

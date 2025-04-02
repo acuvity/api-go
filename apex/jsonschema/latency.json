@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "latencies",
   "$modelRestName": "latency",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Holds information about latencies introduced by Apex.",
   "properties": {
     "accessPolicy": {

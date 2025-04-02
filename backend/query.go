@@ -228,6 +228,30 @@ func (o *Query) SetNamespace(namespace string) {
 	o.Namespace = namespace
 }
 
+// GetTime returns the Time of the receiver.
+func (o *Query) GetTime() string {
+
+	return o.Time
+}
+
+// SetTime sets the property Time of the receiver using the given value.
+func (o *Query) SetTime(time string) {
+
+	o.Time = time
+}
+
+// GetTimeRelative returns the TimeRelative of the receiver.
+func (o *Query) GetTimeRelative() string {
+
+	return o.TimeRelative
+}
+
+// SetTimeRelative sets the property TimeRelative of the receiver using the given value.
+func (o *Query) SetTimeRelative(timeRelative string) {
+
+	o.TimeRelative = timeRelative
+}
+
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
 func (o *Query) ToSparse(fields ...string) elemental.SparseIdentifiable {
@@ -474,7 +498,9 @@ var QueryAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The time for the query in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "time",
+		Setter:  true,
 		Type:    "string",
 	},
 	"TimeRelative": {
@@ -482,7 +508,9 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "TimeRelative",
 		Description:    `The relative time of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "timeRelative",
+		Setter:         true,
 		Type:           "string",
 	},
 }
@@ -560,7 +588,9 @@ var QueryLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The time for the query in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "time",
+		Setter:  true,
 		Type:    "string",
 	},
 	"timerelative": {
@@ -568,7 +598,9 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "TimeRelative",
 		Description:    `The relative time of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "timeRelative",
+		Setter:         true,
 		Type:           "string",
 	},
 }
@@ -788,6 +820,38 @@ func (o *SparseQuery) GetNamespace() (out string) {
 func (o *SparseQuery) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetTime returns the Time of the receiver.
+func (o *SparseQuery) GetTime() (out string) {
+
+	if o.Time == nil {
+		return
+	}
+
+	return *o.Time
+}
+
+// SetTime sets the property Time of the receiver using the address of the given value.
+func (o *SparseQuery) SetTime(time string) {
+
+	o.Time = &time
+}
+
+// GetTimeRelative returns the TimeRelative of the receiver.
+func (o *SparseQuery) GetTimeRelative() (out string) {
+
+	if o.TimeRelative == nil {
+		return
+	}
+
+	return *o.TimeRelative
+}
+
+// SetTimeRelative sets the property TimeRelative of the receiver using the address of the given value.
+func (o *SparseQuery) SetTimeRelative(timeRelative string) {
+
+	o.TimeRelative = &timeRelative
 }
 
 // DeepCopy returns a deep copy if the SparseQuery.

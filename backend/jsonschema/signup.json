@@ -10,7 +10,7 @@
   "$modelPackage": "amaterasu",
   "$modelResourceName": "signups",
   "$modelRestName": "signup",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a sign up request.",
   "properties": {
     "ID": {

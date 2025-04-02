@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "hosts",
   "$modelRestName": "host",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is node definition.",
   "properties": {
     "disableFingerprintingResistance": {

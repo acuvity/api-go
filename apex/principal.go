@@ -44,6 +44,9 @@ const (
 	// PrincipalTypeApp represents the value App.
 	PrincipalTypeApp PrincipalTypeValue = "App"
 
+	// PrincipalTypeExternal represents the value External.
+	PrincipalTypeExternal PrincipalTypeValue = "External"
+
 	// PrincipalTypeUser represents the value User.
 	PrincipalTypeUser PrincipalTypeValue = "User"
 )
@@ -120,6 +123,9 @@ func (o PrincipalsList) Version() int {
 
 // Principal represents the model of a principal
 type Principal struct {
+	// The source IP address of the request.
+	IP string `json:"IP,omitempty" msgpack:"IP,omitempty" bson:"ip,omitempty" mapstructure:"IP,omitempty"`
+
 	// The application principal information if type is App.
 	App *PrincipalApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"app,omitempty" mapstructure:"app,omitempty"`
 
@@ -180,6 +186,7 @@ func (o *Principal) GetBSON() (any, error) {
 
 	s := &mongoAttributesPrincipal{}
 
+	s.IP = o.IP
 	s.App = o.App
 	s.AuthType = o.AuthType
 	s.Claims = o.Claims
@@ -204,6 +211,7 @@ func (o *Principal) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.IP = s.IP
 	o.App = s.App
 	o.AuthType = s.AuthType
 	o.Claims = s.Claims
@@ -251,6 +259,7 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePrincipal{
+			IP:        &o.IP,
 			App:       o.App,
 			AuthType:  &o.AuthType,
 			Claims:    &o.Claims,
@@ -264,6 +273,8 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparsePrincipal{}
 	for _, f := range fields {
 		switch f {
+		case "IP":
+			sp.IP = &(o.IP)
 		case "app":
 			sp.App = o.App
 		case "authType":
@@ -291,6 +302,9 @@ func (o *Principal) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparsePrincipal)
+	if so.IP != nil {
+		o.IP = *so.IP
+	}
 	if so.App != nil {
 		o.App = so.App
 	}
@@ -359,7 +373,7 @@ func (o *Principal) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"User", "App"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"User", "App", "External"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -409,6 +423,8 @@ func (*Principal) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *Principal) ValueForAttribute(name string) any {
 
 	switch name {
+	case "IP":
+		return o.IP
 	case "app":
 		return o.App
 	case "authType":
@@ -430,6 +446,16 @@ func (o *Principal) ValueForAttribute(name string) any {
 
 // PrincipalAttributesMap represents the map of attribute for Principal.
 var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
+	"IP": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ip",
+		ConvertedName:  "IP",
+		Description:    `The source IP address of the request.`,
+		Exposed:        true,
+		Name:           "IP",
+		Stored:         true,
+		Type:           "string",
+	},
 	"App": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "app",
@@ -483,7 +509,7 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"User", "App"},
+		AllowedChoices: []string{"User", "App", "External"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of principal.`,
@@ -508,6 +534,16 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 
 // PrincipalLowerCaseAttributesMap represents the map of attribute for Principal.
 var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ip": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ip",
+		ConvertedName:  "IP",
+		Description:    `The source IP address of the request.`,
+		Exposed:        true,
+		Name:           "IP",
+		Stored:         true,
+		Type:           "string",
+	},
 	"app": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "app",
@@ -561,7 +597,7 @@ var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Type:           "string",
 	},
 	"type": {
-		AllowedChoices: []string{"User", "App"},
+		AllowedChoices: []string{"User", "App", "External"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of principal.`,
@@ -647,6 +683,9 @@ func (o SparsePrincipalsList) Version() int {
 
 // SparsePrincipal represents the sparse version of a principal.
 type SparsePrincipal struct {
+	// The source IP address of the request.
+	IP *string `json:"IP,omitempty" msgpack:"IP,omitempty" bson:"ip,omitempty" mapstructure:"IP,omitempty"`
+
 	// The application principal information if type is App.
 	App *PrincipalApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"app,omitempty" mapstructure:"app,omitempty"`
 
@@ -703,6 +742,9 @@ func (o *SparsePrincipal) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparsePrincipal{}
 
+	if o.IP != nil {
+		s.IP = o.IP
+	}
 	if o.App != nil {
 		s.App = o.App
 	}
@@ -741,6 +783,9 @@ func (o *SparsePrincipal) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.IP != nil {
+		o.IP = s.IP
+	}
 	if s.App != nil {
 		o.App = s.App
 	}
@@ -776,6 +821,9 @@ func (o *SparsePrincipal) Version() int {
 func (o *SparsePrincipal) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewPrincipal()
+	if o.IP != nil {
+		out.IP = *o.IP
+	}
 	if o.App != nil {
 		out.App = o.App
 	}
@@ -826,6 +874,7 @@ func (o *SparsePrincipal) DeepCopyInto(out *SparsePrincipal) {
 }
 
 type mongoAttributesPrincipal struct {
+	IP        string                 `bson:"ip,omitempty"`
 	App       *PrincipalApp          `bson:"app,omitempty"`
 	AuthType  PrincipalAuthTypeValue `bson:"authtype"`
 	Claims    []string               `bson:"claims,omitempty"`
@@ -835,6 +884,7 @@ type mongoAttributesPrincipal struct {
 	User      *PrincipalUser         `bson:"user,omitempty"`
 }
 type mongoAttributesSparsePrincipal struct {
+	IP        *string                 `bson:"ip,omitempty"`
 	App       *PrincipalApp           `bson:"app,omitempty"`
 	AuthType  *PrincipalAuthTypeValue `bson:"authtype,omitempty"`
 	Claims    *[]string               `bson:"claims,omitempty"`

@@ -10,7 +10,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "visitedurls",
   "$modelRestName": "visitedurl",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a visited URL.",
   "properties": {
     "ID": {

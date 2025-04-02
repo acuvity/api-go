@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "detectors",
   "$modelRestName": "detector",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represent a detector an analyzer can use.",
   "properties": {
     "description": {

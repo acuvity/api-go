@@ -6,9 +6,18 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "principals",
   "$modelRestName": "principal",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Describe the principal.",
   "properties": {
+    "IP": {
+      "$friendlyName": "IP",
+      "description": "The source IP address of the request.",
+      "title": "IP",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "app": {
       "$friendlyName": "App",
       "$ref": "principalapp.json",
@@ -65,7 +74,8 @@
       "description": "The type of principal.",
       "enum": [
         "User",
-        "App"
+        "App",
+        "External"
       ],
       "title": "type"
     },

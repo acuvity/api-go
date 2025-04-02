@@ -60,6 +60,9 @@
     "customdatatype": {
       "$ref": "customdatatype.json"
     },
+    "destination": {
+      "$ref": "destination.json"
+    },
     "detection": {
       "$ref": "detection.json"
     },
@@ -86,6 +89,9 @@
     },
     "extractor": {
       "$ref": "extractor.json"
+    },
+    "extractorref": {
+      "$ref": "extractorref.json"
     },
     "feedback": {
       "$ref": "feedback.json"
@@ -236,6 +242,15 @@
     },
     "textualdetection": {
       "$ref": "textualdetection.json"
+    },
+    "trace": {
+      "$ref": "trace.json"
+    },
+    "traceref": {
+      "$ref": "traceref.json"
+    },
+    "tracesearch": {
+      "$ref": "tracesearch.json"
     },
     "usertoken": {
       "$ref": "usertoken.json"

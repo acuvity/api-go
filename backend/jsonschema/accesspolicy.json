@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "accesspolicies",
   "$modelRestName": "accesspolicy",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Define which teams or individuals can access a provider.",
   "properties": {
     "ID": {

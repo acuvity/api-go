@@ -12,7 +12,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "orgsettings",
   "$modelRestName": "orgsettings",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Manage the default settings for the entire organization.",
   "properties": {
     "CA": {

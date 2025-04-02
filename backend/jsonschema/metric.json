@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timepointable"
   ],
   "$friendlyName": "Metric",
   "$friendlyNamePlural": "Metrics",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "metrics",
   "$modelRestName": "metric",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a metric stored in Mimir.",
   "properties": {
     "ID": {

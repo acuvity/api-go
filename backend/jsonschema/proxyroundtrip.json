@@ -3,6 +3,8 @@
     "@identifiable",
     "@importable",
     "@principalable",
+    "@traceable",
+    "@destinationable",
     "@pipelinepasstype",
     "@tubularpipelinepass"
   ],
@@ -12,7 +14,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "proxyroundtrips",
   "$modelRestName": "proxyroundtrip",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a Proxy roundtrip.",
   "properties": {
     "ID": {
@@ -73,6 +75,12 @@
         "Skipped"
       ],
       "title": "decision"
+    },
+    "destination": {
+      "$friendlyName": "Destination",
+      "$ref": "destination.json",
+      "description": "Captures all details of the destination of the request.",
+      "title": "destination"
     },
     "extractions": {
       "$friendlyName": "Extractions",
@@ -179,6 +187,12 @@
         "string",
         "null"
       ]
+    },
+    "trace": {
+      "$friendlyName": "Trace",
+      "$ref": "traceref.json",
+      "description": "References to the trace of the request.",
+      "title": "trace"
     },
     "type": {
       "$friendlyName": "Type",

@@ -6,7 +6,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "principalusers",
   "$modelRestName": "principaluser",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Describes the principal information of a user.",
   "properties": {
     "name": {

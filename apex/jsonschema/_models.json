@@ -62,6 +62,9 @@
     },
     "textualdetection": {
       "$ref": "textualdetection.json"
+    },
+    "traceref": {
+      "$ref": "traceref.json"
     }
   },
   "title": "api resources",

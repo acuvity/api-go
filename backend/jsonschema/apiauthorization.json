@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "apiauthorizations",
   "$modelRestName": "apiauthorization",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Define API Authorizations to define who can access the Acuvity console.",
   "properties": {
     "ID": {

@@ -104,6 +104,9 @@ type ProxyConf struct {
 	// List of custom data types.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
+	// The extractors of the organization.
+	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -242,6 +245,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AssignPolicy:       &o.AssignPolicy,
 			ContentPolicy:      &o.ContentPolicy,
 			CustomDataTypes:    &o.CustomDataTypes,
+			Extractors:         &o.Extractors,
 			Namespace:          &o.Namespace,
 			OrgSettings:        o.OrgSettings,
 			Providers:          &o.Providers,
@@ -267,6 +271,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ContentPolicy = &(o.ContentPolicy)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "extractors":
+			sp.Extractors = &(o.Extractors)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "orgSettings":
@@ -310,6 +316,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.Extractors != nil {
+		o.Extractors = *so.Extractors
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
@@ -376,6 +385,16 @@ func (o *ProxyConf) Validate() error {
 	}
 
 	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
@@ -457,6 +476,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.ContentPolicy
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "extractors":
+		return o.Extractors
 	case "namespace":
 		return o.Namespace
 	case "orgSettings":
@@ -538,6 +559,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"Extractors": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Extractors",
+		Description:    `The extractors of the organization.`,
+		Exposed:        true,
+		Name:           "extractors",
+		SubType:        "extractor",
 		Type:           "refList",
 	},
 	"Namespace": {
@@ -659,6 +689,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"extractors": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Extractors",
+		Description:    `The extractors of the organization.`,
+		Exposed:        true,
+		Name:           "extractors",
+		SubType:        "extractor",
 		Type:           "refList",
 	},
 	"namespace": {
@@ -798,6 +837,9 @@ type SparseProxyConf struct {
 	// List of custom data types.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
+	// The extractors of the organization.
+	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -918,6 +960,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.Extractors != nil {
+		out.Extractors = *o.Extractors
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace

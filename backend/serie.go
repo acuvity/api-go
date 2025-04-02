@@ -205,6 +205,24 @@ func (o *Serie) String() string {
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
+// GetEnd returns the End of the receiver.
+func (o *Serie) GetEnd() string {
+
+	return o.End
+}
+
+// SetEnd sets the property End of the receiver using the given value.
+func (o *Serie) SetEnd(end string) {
+
+	o.End = end
+}
+
+// GetEndRelative returns the EndRelative of the receiver.
+func (o *Serie) GetEndRelative() string {
+
+	return o.EndRelative
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *Serie) GetNamespace() string {
 
@@ -215,6 +233,24 @@ func (o *Serie) GetNamespace() string {
 func (o *Serie) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetStart returns the Start of the receiver.
+func (o *Serie) GetStart() string {
+
+	return o.Start
+}
+
+// SetStart sets the property Start of the receiver using the given value.
+func (o *Serie) SetStart(start string) {
+
+	o.Start = start
+}
+
+// GetStartRelative returns the StartRelative of the receiver.
+func (o *Serie) GetStartRelative() string {
+
+	return o.StartRelative
 }
 
 // ToSparse returns the sparse version of the model.
@@ -413,7 +449,9 @@ var SerieAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The end of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "end",
+		Setter:  true,
 		Type:    "string",
 	},
 	"EndRelative": {
@@ -421,6 +459,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "EndRelative",
 		Description:    `The relative end of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "endRelative",
 		Type:           "string",
 	},
@@ -463,7 +502,9 @@ https://github.com/araddon/dateparse.`,
 		Description: `The start of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "start",
+		Setter:  true,
 		Type:    "string",
 	},
 	"StartRelative": {
@@ -471,6 +512,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "StartRelative",
 		Description:    `The relative start of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "startRelative",
 		Type:           "string",
 	},
@@ -499,7 +541,9 @@ var SerieLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The end of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "end",
+		Setter:  true,
 		Type:    "string",
 	},
 	"endrelative": {
@@ -507,6 +551,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "EndRelative",
 		Description:    `The relative end of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "endRelative",
 		Type:           "string",
 	},
@@ -549,7 +594,9 @@ https://github.com/araddon/dateparse.`,
 		Description: `The start of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "start",
+		Setter:  true,
 		Type:    "string",
 	},
 	"startrelative": {
@@ -557,6 +604,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "StartRelative",
 		Description:    `The relative start of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "startRelative",
 		Type:           "string",
 	},
@@ -764,6 +812,32 @@ func (o *SparseSerie) ToPlain() elemental.PlainIdentifiable {
 	return out
 }
 
+// GetEnd returns the End of the receiver.
+func (o *SparseSerie) GetEnd() (out string) {
+
+	if o.End == nil {
+		return
+	}
+
+	return *o.End
+}
+
+// SetEnd sets the property End of the receiver using the address of the given value.
+func (o *SparseSerie) SetEnd(end string) {
+
+	o.End = &end
+}
+
+// GetEndRelative returns the EndRelative of the receiver.
+func (o *SparseSerie) GetEndRelative() (out string) {
+
+	if o.EndRelative == nil {
+		return
+	}
+
+	return *o.EndRelative
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseSerie) GetNamespace() (out string) {
 
@@ -778,6 +852,32 @@ func (o *SparseSerie) GetNamespace() (out string) {
 func (o *SparseSerie) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetStart returns the Start of the receiver.
+func (o *SparseSerie) GetStart() (out string) {
+
+	if o.Start == nil {
+		return
+	}
+
+	return *o.Start
+}
+
+// SetStart sets the property Start of the receiver using the address of the given value.
+func (o *SparseSerie) SetStart(start string) {
+
+	o.Start = &start
+}
+
+// GetStartRelative returns the StartRelative of the receiver.
+func (o *SparseSerie) GetStartRelative() (out string) {
+
+	if o.StartRelative == nil {
+		return
+	}
+
+	return *o.StartRelative
 }
 
 // DeepCopy returns a deep copy if the SparseSerie.

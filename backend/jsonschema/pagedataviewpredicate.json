@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "pagedataviewpredicates",
   "$modelRestName": "pagedataviewpredicate",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a page data view predicate.",
   "properties": {
     "key": {

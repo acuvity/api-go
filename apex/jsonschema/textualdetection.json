@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "textualdetections",
   "$modelRestName": "textualdetection",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a textual detection done by policy.",
   "properties": {
     "end": {

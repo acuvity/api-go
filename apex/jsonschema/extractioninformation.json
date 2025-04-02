@@ -6,7 +6,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "extractioninformation",
   "$modelRestName": "extractioninformation",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents extracted information.",
   "properties": {
     "n": {

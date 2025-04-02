@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "modalities",
   "$modelRestName": "modality",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the modality of a some data.",
   "properties": {
     "group": {

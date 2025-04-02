@@ -6,7 +6,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "domainhits",
   "$modelRestName": "domainhits",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a domain hit.",
   "properties": {
     "app": {

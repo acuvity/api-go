@@ -6,9 +6,21 @@
   "$modelPackage": "lain",
   "$modelResourceName": "ingressproviderconfigs",
   "$modelRestName": "ingressproviderconfig",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the configuration if an apex is to act as an ingress for a provider.",
   "properties": {
+    "dialTLS": {
+      "$defaultValue": "Preserve",
+      "$friendlyName": "Dial TLS",
+      "description": "This option controls the dialing behaviour of the apex to the origin server. Should be explicitly set to enabled if the origin expects TLS connections. And vice versa it should be set to disabled if the origin expects connections in plaintext. By default this setting is set to preserve which means that the apex is going to dial using whatever mode it terminated its own connection with: if the apex received a TLS connection, it will dial TLS, if it received a plaintext connection, then it will dial plaintext. The apex receiving behaviour can be controlled with the listenTLS option. As a last resort this setting can be set to auto which means that the apex is going to probe the origin server to determine if it needs to dial using TLS or not. Note that this is potentially sending a TLS Client Hello to a plaintext HTTP server which is not expecting that. Therefore, this option is not recommended if it can be avoided. This setting is ignored in mirror mode.",
+      "enum": [
+        "Preserve",
+        "Auto",
+        "Enabled",
+        "Disabled"
+      ],
+      "title": "dialTLS"
+    },
     "listenPort": {
       "$friendlyName": "Listen Port",
       "$required": true,
@@ -21,7 +33,7 @@
     "listenTLS": {
       "$defaultValue": "Auto",
       "$friendlyName": "Listen TLS",
-      "description": "Should be explicitly set to enabled if the listener expects TLS connections. And vice versa it should be set to disabled if the listener expects connections in plaintext. By default this setting is set to auto which means that TLS connections will be accepted, and proxied as new TLS connections (HTTPS), and plain TCP connections will be accepted and proxied as new HTTP connections. This setting is ignored in mirror mode.",
+      "description": "This option controls the receiving behaviour of connection to the apex before they are going to be proxied to the origin server. To control the dialing behaviour of the apex towards the origin server use the dialTLS option. Should be explicitly set to enabled if the listener expects TLS connections. And vice versa it should be set to disabled if the listener expects connections in plaintext. By default this setting is set to auto which means that the listener will automatically determine if incoming connections are TLS or not: TLS connections will be accepted, as well as  plain TCP connections will be accepted, both on the configured listenPort. This setting is ignored in mirror mode.",
       "enum": [
         "Auto",
         "Enabled",
@@ -57,28 +69,10 @@
         "Inline"
       ],
       "title": "mode"
-    },
-    "name": {
-      "$defaultValue": "ingress",
-      "$friendlyName": "Name",
-      "$required": true,
-      "description": "The provider name. This **MUST** match the name of a provider.",
-      "title": "name",
-      "type": "string"
-    },
-    "upstreamCA": {
-      "$friendlyName": "Upstream CA",
-      "description": "Optional X509v3 PEM encoded certificates appended by newlines. This setting only has affect if upstream connections are being dialed using TLS. You should use this if your upstream server is serving a certificate which is not signed by a public CA.",
-      "title": "upstreamCA",
-      "type": [
-        "string",
-        "null"
-      ]
     }
   },
   "required": [
-    "listenPort",
-    "name"
+    "listenPort"
   ],
   "title": "IngressProviderConfig",
   "type": "object"

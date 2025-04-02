@@ -166,6 +166,9 @@ type ScanResponse struct {
 	// Set the time of the message request.
 	Time time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
 
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
+
 	// The type of text.
 	Type ScanResponseTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
@@ -227,6 +230,7 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
+	s.Trace = o.Trace
 	s.Type = o.Type
 
 	return s, nil
@@ -260,6 +264,7 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
+	o.Trace = s.Trace
 	o.Type = s.Type
 
 	return nil
@@ -329,6 +334,7 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
+			Trace:         o.Trace,
 			Type:          &o.Type,
 		}
 	}
@@ -368,6 +374,8 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Summary = o.Summary
 		case "time":
 			sp.Time = &(o.Time)
+		case "trace":
+			sp.Trace = o.Trace
 		case "type":
 			sp.Type = &(o.Type)
 		}
@@ -430,6 +438,9 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Time != nil {
 		o.Time = *so.Time
+	}
+	if so.Trace != nil {
+		o.Trace = so.Trace
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -511,6 +522,13 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
+	if o.Trace != nil {
+		elemental.ResetDefaultForZeroValues(o.Trace)
+		if err := o.Trace.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -581,6 +599,8 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 		return o.Summary
 	case "time":
 		return o.Time
+	case "trace":
+		return o.Trace
 	case "type":
 		return o.Type
 	}
@@ -765,6 +785,17 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"Trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -956,6 +987,17 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Name:           "time",
 		Type:           "time",
 	},
+	"trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
+	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
 		BSONFieldName:  "type",
@@ -1079,6 +1121,9 @@ type SparseScanResponse struct {
 	// Set the time of the message request.
 	Time *time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
 
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
+
 	// The type of text.
 	Type *ScanResponseTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
@@ -1170,6 +1215,9 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 	if o.Summary != nil {
 		s.Summary = o.Summary
 	}
+	if o.Trace != nil {
+		s.Trace = o.Trace
+	}
 	if o.Type != nil {
 		s.Type = o.Type
 	}
@@ -1233,6 +1281,9 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
+	}
+	if s.Trace != nil {
+		o.Trace = s.Trace
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1299,6 +1350,9 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Time != nil {
 		out.Time = *o.Time
 	}
+	if o.Trace != nil {
+		out.Trace = o.Trace
+	}
 	if o.Type != nil {
 		out.Type = *o.Type
 	}
@@ -1362,6 +1416,7 @@ type mongoAttributesScanResponse struct {
 	Provider      string                    `bson:"provider"`
 	Reasons       []string                  `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary        `bson:"summary,omitempty"`
+	Trace         *TraceRef                 `bson:"trace"`
 	Type          ScanResponseTypeValue     `bson:"type"`
 }
 type mongoAttributesSparseScanResponse struct {
@@ -1380,5 +1435,6 @@ type mongoAttributesSparseScanResponse struct {
 	Provider      *string                    `bson:"provider,omitempty"`
 	Reasons       *[]string                  `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary         `bson:"summary,omitempty"`
+	Trace         *TraceRef                  `bson:"trace,omitempty"`
 	Type          *ScanResponseTypeValue     `bson:"type,omitempty"`
 }

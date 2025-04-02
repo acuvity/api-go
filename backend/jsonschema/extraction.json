@@ -9,7 +9,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "extractions",
   "$modelRestName": "extraction",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the extracted information to log.",
   "properties": {
     "PIIs": {

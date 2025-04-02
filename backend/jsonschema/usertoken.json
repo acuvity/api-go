@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "usertokens",
   "$modelRestName": "usertoken",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "User Token are revocable long lived tokens for users.",
   "properties": {
     "ID": {

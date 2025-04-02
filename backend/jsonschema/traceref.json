@@ -1,0 +1,66 @@
+{
+  "$extends": [],
+  "$friendlyName": "Trace Reference",
+  "$friendlyNamePlural": "Trace References",
+  "$modelName": "TraceRef",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "tracerefs",
+  "$modelRestName": "traceref",
+  "additionalProperties": false,
+  "description": "Holds all references to a trace.",
+  "properties": {
+    "parentSpanID": {
+      "$friendlyName": "Parent Span ID",
+      "description": "The parent span ID that is being referenced.",
+      "title": "parentSpanID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "spanEnd": {
+      "$friendlyName": "Span End",
+      "$required": true,
+      "description": "When the span ended.",
+      "title": "spanEnd",
+      "type": "string"
+    },
+    "spanID": {
+      "$friendlyName": "Span ID",
+      "$required": true,
+      "description": "The span ID that is being referenced.",
+      "title": "spanID",
+      "type": "string"
+    },
+    "spanName": {
+      "$friendlyName": "Span Name",
+      "$required": true,
+      "description": "The name of the span that is being collected.",
+      "title": "spanName",
+      "type": "string"
+    },
+    "spanStart": {
+      "$friendlyName": "Span Start",
+      "$required": true,
+      "description": "When the span started.",
+      "title": "spanStart",
+      "type": "string"
+    },
+    "traceID": {
+      "$friendlyName": "ID",
+      "$required": true,
+      "description": "The Trace ID that is being referenced.",
+      "title": "traceID",
+      "type": "string"
+    }
+  },
+  "required": [
+    "spanEnd",
+    "spanID",
+    "spanName",
+    "spanStart",
+    "traceID"
+  ],
+  "title": "TraceRef",
+  "type": "object"
+}

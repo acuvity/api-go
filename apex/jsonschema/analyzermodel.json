@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "analyzermodels",
   "$modelRestName": "analyzermodel",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represent an analyzer model.",
   "properties": {
     "name": {

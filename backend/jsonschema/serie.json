@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "Serie",
   "$friendlyNamePlural": "Series",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "series",
   "$modelRestName": "serie",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a Log serie.",
   "properties": {
     "ID": {

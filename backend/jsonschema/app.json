@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "apps",
   "$modelRestName": "app",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "App allow to define a generic application.",
   "properties": {
     "ID": {

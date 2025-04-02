@@ -6,7 +6,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "policeexternalusers",
   "$modelRestName": "policeexternaluser",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "PoliceExternalUser holds the information about the remote user for a PoliceRequest.",
   "properties": {
     "claims": {

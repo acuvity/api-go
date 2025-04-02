@@ -6,7 +6,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "principalapps",
   "$modelRestName": "principalapp",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Describes the principal information of an application.",
   "properties": {
     "component": {

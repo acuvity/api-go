@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@matcher"
+    "@hostmatcher",
+    "@urlmatcher"
   ],
   "$friendlyName": "Mapper",
   "$friendlyNamePlural": "Mappers",
@@ -8,7 +9,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "mappers",
   "$modelRestName": "mapper",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "TODO.",
   "properties": {
     "expiration": {
@@ -32,13 +33,6 @@
       },
       "title": "hosts",
       "type": "array"
-    },
-    "match": {
-      "$friendlyName": "Match",
-      "$required": true,
-      "description": "A regular expression to match an URL to log.",
-      "title": "match",
-      "type": "string"
     },
     "method": {
       "$friendlyName": "Method",
@@ -64,6 +58,13 @@
         "null"
       ]
     },
+    "path": {
+      "$friendlyName": "Path",
+      "$required": true,
+      "description": "A regular expression to match a URL path to log.",
+      "title": "path",
+      "type": "string"
+    },
     "script": {
       "$friendlyName": "Lua Script",
       "description": "If not empty, use this lua code to run the extraction.",
@@ -75,8 +76,8 @@
     }
   },
   "required": [
-    "match",
-    "method"
+    "method",
+    "path"
   ],
   "title": "Mapper",
   "type": "object"

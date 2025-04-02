@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timerangeable"
   ],
   "$friendlyName": "QueryRange",
   "$friendlyNamePlural": "QueryRanges",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "queryranges",
   "$modelRestName": "queryrange",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a Log.",
   "properties": {
     "ID": {

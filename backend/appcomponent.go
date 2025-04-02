@@ -102,7 +102,7 @@ type AppComponent struct {
 	// Apex itself which are issued by a dynamic TLS CA. If you enable this feature,
 	// the matching app component instances will get the CA certificate dynamically
 	// injected into the system trust store.
-	CAInjectionEnabled bool `json:"CAInjectionEnabled,omitempty" msgpack:"CAInjectionEnabled,omitempty" bson:"cainjectionenabled,omitempty" mapstructure:"CAInjectionEnabled,omitempty"`
+	CAInjectionEnabled bool `json:"CAInjectionEnabled" msgpack:"CAInjectionEnabled" bson:"cainjectionenabled" mapstructure:"CAInjectionEnabled,omitempty"`
 
 	// The description of the component.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
@@ -126,6 +126,10 @@ type AppComponent struct {
 
 	// The component name.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// If given, this is the provider name that this component represents. This
+	// **MUST** match the name of a provider.
+	ProviderName string `json:"providerName,omitempty" msgpack:"providerName,omitempty" bson:"providername,omitempty" mapstructure:"providerName,omitempty"`
 
 	// A tag expression that identify an application component based on downstream
 	// labels.
@@ -181,6 +185,7 @@ func (o *AppComponent) GetBSON() (any, error) {
 	s.EgressMode = o.EgressMode
 	s.IngressProviderConfigs = o.IngressProviderConfigs
 	s.Name = o.Name
+	s.ProviderName = o.ProviderName
 	s.Selector = o.Selector
 
 	return s, nil
@@ -204,6 +209,7 @@ func (o *AppComponent) SetBSON(raw bson.Raw) error {
 	o.EgressMode = s.EgressMode
 	o.IngressProviderConfigs = s.IngressProviderConfigs
 	o.Name = s.Name
+	o.ProviderName = s.ProviderName
 	o.Selector = s.Selector
 
 	return nil
@@ -250,6 +256,7 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			EgressMode:             &o.EgressMode,
 			IngressProviderConfigs: &o.IngressProviderConfigs,
 			Name:                   &o.Name,
+			ProviderName:           &o.ProviderName,
 			Selector:               &o.Selector,
 			Token:                  &o.Token,
 		}
@@ -268,6 +275,8 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.IngressProviderConfigs = &(o.IngressProviderConfigs)
 		case "name":
 			sp.Name = &(o.Name)
+		case "providerName":
+			sp.ProviderName = &(o.ProviderName)
 		case "selector":
 			sp.Selector = &(o.Selector)
 		case "token":
@@ -299,6 +308,9 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
+	}
+	if so.ProviderName != nil {
+		o.ProviderName = *so.ProviderName
 	}
 	if so.Selector != nil {
 		o.Selector = *so.Selector
@@ -405,6 +417,8 @@ func (o *AppComponent) ValueForAttribute(name string) any {
 		return o.IngressProviderConfigs
 	case "name":
 		return o.Name
+	case "providerName":
+		return o.ProviderName
 	case "selector":
 		return o.Selector
 	case "token":
@@ -484,6 +498,17 @@ configurations and reuse the same provider name within the configuration.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ProviderName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providername",
+		ConvertedName:  "ProviderName",
+		Description: `If given, this is the provider name that this component represents. This
+**MUST** match the name of a provider.`,
+		Exposed: true,
+		Name:    "providerName",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Selector": {
 		AllowedChoices: []string{},
@@ -582,6 +607,17 @@ configurations and reuse the same provider name within the configuration.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"providername": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providername",
+		ConvertedName:  "ProviderName",
+		Description: `If given, this is the provider name that this component represents. This
+**MUST** match the name of a provider.`,
+		Exposed: true,
+		Name:    "providerName",
+		Stored:  true,
+		Type:    "string",
 	},
 	"selector": {
 		AllowedChoices: []string{},
@@ -703,6 +739,10 @@ type SparseAppComponent struct {
 	// The component name.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// If given, this is the provider name that this component represents. This
+	// **MUST** match the name of a provider.
+	ProviderName *string `json:"providerName,omitempty" msgpack:"providerName,omitempty" bson:"providername,omitempty" mapstructure:"providerName,omitempty"`
+
 	// A tag expression that identify an application component based on downstream
 	// labels.
 	Selector *[][]string `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
@@ -762,6 +802,9 @@ func (o *SparseAppComponent) GetBSON() (any, error) {
 	if o.Name != nil {
 		s.Name = o.Name
 	}
+	if o.ProviderName != nil {
+		s.ProviderName = o.ProviderName
+	}
 	if o.Selector != nil {
 		s.Selector = o.Selector
 	}
@@ -797,6 +840,9 @@ func (o *SparseAppComponent) SetBSON(raw bson.Raw) error {
 	if s.Name != nil {
 		o.Name = s.Name
 	}
+	if s.ProviderName != nil {
+		o.ProviderName = s.ProviderName
+	}
 	if s.Selector != nil {
 		o.Selector = s.Selector
 	}
@@ -828,6 +874,9 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
+	}
+	if o.ProviderName != nil {
+		out.ProviderName = *o.ProviderName
 	}
 	if o.Selector != nil {
 		out.Selector = *o.Selector
@@ -864,11 +913,12 @@ func (o *SparseAppComponent) DeepCopyInto(out *SparseAppComponent) {
 }
 
 type mongoAttributesAppComponent struct {
-	CAInjectionEnabled     bool                        `bson:"cainjectionenabled,omitempty"`
+	CAInjectionEnabled     bool                        `bson:"cainjectionenabled"`
 	Description            string                      `bson:"description"`
 	EgressMode             AppComponentEgressModeValue `bson:"egressmode"`
 	IngressProviderConfigs IngressProviderConfigsList  `bson:"ingressproviderconfigs,omitempty"`
 	Name                   string                      `bson:"name"`
+	ProviderName           string                      `bson:"providername,omitempty"`
 	Selector               [][]string                  `bson:"selector,omitempty"`
 }
 type mongoAttributesSparseAppComponent struct {
@@ -877,5 +927,6 @@ type mongoAttributesSparseAppComponent struct {
 	EgressMode             *AppComponentEgressModeValue `bson:"egressmode,omitempty"`
 	IngressProviderConfigs *IngressProviderConfigsList  `bson:"ingressproviderconfigs,omitempty"`
 	Name                   *string                      `bson:"name,omitempty"`
+	ProviderName           *string                      `bson:"providername,omitempty"`
 	Selector               *[][]string                  `bson:"selector,omitempty"`
 }

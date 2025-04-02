@@ -24,8 +24,20 @@ const (
 	// PredicateKeyCustomDataTypes represents the value CustomDataTypes.
 	PredicateKeyCustomDataTypes PredicateKeyValue = "CustomDataTypes"
 
+	// PredicateKeyDstApp represents the value DstApp.
+	PredicateKeyDstApp PredicateKeyValue = "DstApp"
+
+	// PredicateKeyDstComponent represents the value DstComponent.
+	PredicateKeyDstComponent PredicateKeyValue = "DstComponent"
+
+	// PredicateKeyDstIPRange represents the value DstIPRange.
+	PredicateKeyDstIPRange PredicateKeyValue = "DstIPRange"
+
 	// PredicateKeyExploits represents the value Exploits.
 	PredicateKeyExploits PredicateKeyValue = "Exploits"
+
+	// PredicateKeyIsIngress represents the value IsIngress.
+	PredicateKeyIsIngress PredicateKeyValue = "IsIngress"
 
 	// PredicateKeyKeywords represents the value Keywords.
 	PredicateKeyKeywords PredicateKeyValue = "Keywords"
@@ -54,11 +66,26 @@ const (
 	// PredicateKeyRelevance represents the value Relevance.
 	PredicateKeyRelevance PredicateKeyValue = "Relevance"
 
+	// PredicateKeyRiskScore represents the value RiskScore.
+	PredicateKeyRiskScore PredicateKeyValue = "RiskScore"
+
 	// PredicateKeySecrets represents the value Secrets.
 	PredicateKeySecrets PredicateKeyValue = "Secrets"
 
 	// PredicateKeySize represents the value Size.
 	PredicateKeySize PredicateKeyValue = "Size"
+
+	// PredicateKeySrcApp represents the value SrcApp.
+	PredicateKeySrcApp PredicateKeyValue = "SrcApp"
+
+	// PredicateKeySrcComponent represents the value SrcComponent.
+	PredicateKeySrcComponent PredicateKeyValue = "SrcComponent"
+
+	// PredicateKeySrcIPRange represents the value SrcIPRange.
+	PredicateKeySrcIPRange PredicateKeyValue = "SrcIPRange"
+
+	// PredicateKeyStatus represents the value Status.
+	PredicateKeyStatus PredicateKeyValue = "Status"
 
 	// PredicateKeyTeam represents the value Team.
 	PredicateKeyTeam PredicateKeyValue = "Team"
@@ -205,7 +232,7 @@ func (o *Predicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "Confidentiality", "CustomDataTypes", "Exploits", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "Secrets", "Size", "Team", "Tools", "Topics", "Workspace"}, false); err != nil {
+	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "Topics", "Workspace"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -270,7 +297,7 @@ func (o *Predicate) ValueForAttribute(name string) any {
 // PredicateAttributesMap represents the map of attribute for Predicate.
 var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 	"Key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "Exploits", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "Secrets", "Size", "Team", "Tools", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,
@@ -307,7 +334,7 @@ var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 // PredicateLowerCaseAttributesMap represents the map of attribute for Predicate.
 var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "Exploits", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "Secrets", "Size", "Team", "Tools", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,

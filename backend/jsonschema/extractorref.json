@@ -1,0 +1,45 @@
+{
+  "$extends": [
+    "@hostmatcher"
+  ],
+  "$friendlyName": "Extractor Reference",
+  "$friendlyNamePlural": "Extractor References",
+  "$modelName": "ExtractorRef",
+  "$modelPackage": "lain",
+  "$modelResourceName": "extractorrefs",
+  "$modelRestName": "extractorref",
+  "additionalProperties": false,
+  "description": "This object allows to either define an extractor for the provider, or to reference an existing extractor from database.",
+  "properties": {
+    "def": {
+      "$friendlyName": "Definition",
+      "$ref": "extractor.json",
+      "description": "Defines an extractor for this reference.",
+      "title": "def"
+    },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "ref": {
+      "$friendlyName": "Extractor Reference",
+      "description": "References a preexisting extractor definition.",
+      "title": "ref",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ExtractorRef",
+  "type": "object"
+}

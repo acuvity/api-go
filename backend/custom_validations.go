@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/pem"
 	"fmt"
+	"net"
 	"net/http"
 	"net/mail"
 	"net/url"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -42,7 +42,7 @@ func ValidateURL(attribute string, u string) error {
 // ValidateURLs validates the given value is a list of correct url.
 func ValidateURLs(attribute string, u []string) error {
 
-	for i := 0; i < len(u); i++ {
+	for i := range len(u) {
 		if err := ValidateURL(attribute, u[i]); err != nil {
 			return err
 		}
@@ -243,72 +243,50 @@ func ValidateAccessPolicyTopics(attribute string, forbiddenTopics []string) erro
 // ValidateProvider validates the entire provider objects
 func ValidateProvider(provider *Provider) error {
 
-	hosts := make([]string, len(provider.Hosts))
-	for i, h := range provider.Hosts {
-		hosts[i] = h.Name
+	hosts := make(map[string]struct{}, len(provider.Hosts))
+	for _, h := range provider.Hosts {
+		hosts[h.Name] = struct{}{}
 	}
 
-	for i, extractor := range provider.InputExtractors {
+	for i, extractor := range provider.Extractors {
 		if len(extractor.Hosts) != 0 {
-			var matched bool
 			for _, h := range extractor.Hosts {
-				if slices.Contains(hosts, h) {
-					matched = true
+				if _, ok := hosts[h]; !ok {
+					return makeErr("extractors", fmt.Sprintf("extractors[%d].hosts '%s' is not defined in the provider hosts list", i, h))
 				}
-			}
-			if !matched {
-				return makeErr("hosts", fmt.Sprintf("inputExtractor[%d].hosts is not defined in the provider hosts list", i))
 			}
 		}
 
 		if err := extractor.Validate(); err != nil {
-			return makeErr("hosts", fmt.Sprintf("inputExtractor[%d]: %s", i, err))
-		}
-	}
-
-	for i, extractor := range provider.OutputExtractors {
-		if len(extractor.Hosts) != 0 {
-			var matched bool
-			for _, h := range extractor.Hosts {
-				if slices.Contains(hosts, h) {
-					matched = true
-				}
-			}
-			if !matched {
-				return makeErr("hosts", fmt.Sprintf("outputExtractor[%d].hosts is not defined in the provider hosts list", i))
-			}
-		}
-
-		if err := extractor.Validate(); err != nil {
-			return makeErr("hosts", fmt.Sprintf("outputExtractor[%d]: %s", i, err))
+			return err
 		}
 	}
 
 	for i, mapper := range provider.Mappers {
 		if len(mapper.Hosts) != 0 {
-			var matched bool
 			for _, h := range mapper.Hosts {
-				if slices.Contains(hosts, h) {
-					matched = true
+				if _, ok := hosts[h]; !ok {
+					return makeErr("hosts", fmt.Sprintf("mapper[%d].hosts '%s' is not defined in the provider hosts list", i, h))
 				}
 			}
-			if !matched {
-				return makeErr("hosts", fmt.Sprintf("mapper[%d].hosts is not defined in the provider hosts list", i))
-			}
+		}
+
+		if err := mapper.Validate(); err != nil {
+			return err
 		}
 	}
 
-	for i, injectors := range provider.Injectors {
-		if len(injectors.Hosts) != 0 {
-			var matched bool
-			for _, h := range injectors.Hosts {
-				if slices.Contains(hosts, h) {
-					matched = true
+	for i, injector := range provider.Injectors {
+		if len(injector.Hosts) != 0 {
+			for _, h := range injector.Hosts {
+				if _, ok := hosts[h]; !ok {
+					return makeErr("hosts", fmt.Sprintf("injectors[%d].hosts '%s' is not defined in the provider hosts list", i, h))
 				}
 			}
-			if !matched {
-				return makeErr("hosts", fmt.Sprintf("injectors[%d].hosts is not defined in the provider hosts list", i))
-			}
+		}
+
+		if err := injector.Validate(); err != nil {
+			return err
 		}
 	}
 
@@ -320,6 +298,20 @@ func ValidateExtractor(extractor *Extractor) error {
 
 	if extractor.Deanonymize && extractor.Anonymization == ExtractorAnonymizationFixedSize {
 		return makeErr("Deanonymize", fmt.Sprintf("Anonymization must be VariableSize to enable Deanonymization. got: %s", extractor.Anonymization))
+	}
+
+	return nil
+}
+
+// ValidateExtractorRef validates the given Extractor.
+func ValidateExtractorRef(extractor *ExtractorRef) error {
+
+	if extractor.Ref == "" && extractor.Def == nil {
+		return makeErr("ref", "You must set one ref or one def")
+	}
+
+	if extractor.Ref != "" && extractor.Def != nil {
+		return makeErr("ref", "You must only set either one ref or one def")
 	}
 
 	return nil
@@ -382,6 +374,177 @@ func ValidatePredicate(p *Predicate) error {
 	v := p.Values
 
 	switch p.Key {
+	case PredicateKeyDstApp:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'DstApp' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'DstApp' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'DstApp' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'DstApp' must not have a value that contains a quote")
+				}
+				if _, ok := m[strVal]; ok {
+					return makeErr("values", "Key 'DstApp' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'DstApp' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyDstComponent:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'DstComponent' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'DstComponent' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'DstComponent' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'DstComponent' must not have a value that contains a quote")
+				}
+				if _, ok := m[strVal]; ok {
+					return makeErr("values", "Key 'DstComponent' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'DstComponent' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyDstIPRange:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'DstIPRange' only supports operator 'Any' and 'NotAny'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "'DstIPRange' must have at least one value")
+		}
+		m := make(map[string]struct{}, len(v))
+		for _, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr("values", "Key 'DstIPRange' only supports string values")
+			}
+			if _, _, err := net.ParseCIDR(strVal); err != nil {
+				return makeErr("values", fmt.Sprintf("Key 'DstIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
+			}
+			if _, ok := m[strVal]; ok {
+				return makeErr("values", "Key 'DstIPRange' must not have duplicate values")
+			}
+			m[strVal] = struct{}{}
+		}
+
+	case PredicateKeyIsIngress:
+		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'IsIngress' only supports operator 'Equals' and 'NotEquals")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'IsIngress' only supports one single value")
+		}
+		if _, ok := p.Values[0].(bool); !ok {
+			return makeErr("values", "Key 'IsIngress' only supports boolean value")
+		}
+
+	case PredicateKeySrcApp:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'SrcApp' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'SrcApp' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'SrcApp' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'SrcApp' must not have a value that contains a quote")
+				}
+				if _, ok := m[strVal]; ok {
+					return makeErr("values", "Key 'SrcApp' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'SrcApp' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeySrcComponent:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'SrcComponent' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'SrcComponent' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'SrcComponent' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'SrcComponent' must not have a value that contains a quote")
+				}
+				if _, ok := m[strVal]; ok {
+					return makeErr("values", "Key 'SrcComponent' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'SrcComponent' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeySrcIPRange:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'SrcIPRange' only supports operator 'Any' and 'NotAny'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "'SrcIPRange' must have at least one value")
+		}
+		m := make(map[string]struct{}, len(v))
+		for _, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr("values", "Key 'SrcIPRange' only supports string values")
+			}
+			if _, _, err := net.ParseCIDR(strVal); err != nil {
+				return makeErr("values", fmt.Sprintf("Key 'SrcIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
+			}
+			if _, ok := m[strVal]; ok {
+				return makeErr("values", "Key 'SrcIPRange' must not have duplicate values")
+			}
+			m[strVal] = struct{}{}
+		}
+
 	case PredicateKeyProvider:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
 			return makeErr("operator", "Key 'Provider' only supports operator 'Any' and 'NotAny'")
@@ -786,6 +949,30 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr("values", "Key 'Tools' only supports no values when operation is 'Empty' or 'NotEmpty'")
 			}
 		}
+
+	case PredicateKeyRiskScore:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'RiskScore' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values", fmt.Sprintf("Key 'RiskScore' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyStatus:
+		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Status' only supports operator 'Equals' and 'NotEquals'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Status' only supports one single value")
+		}
+		if _, ok := p.Values[0].(string); !ok {
+			return makeErr("values", "Key 'Status' only supports string value")
+		}
 	}
 
 	return nil
@@ -802,6 +989,10 @@ func ValidatePrincipal(principal *Principal) error {
 	case PrincipalTypeUser:
 		if principal.User == nil {
 			return makeErr("user", "'User' must have its information defined.")
+		}
+	case PrincipalTypeExternal:
+		if principal.User != nil || principal.App != nil {
+			return makeErr("external", "'External' must not have 'User' or 'App' defined.")
 		}
 	}
 

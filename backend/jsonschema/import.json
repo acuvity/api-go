@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "import",
   "$modelRestName": "import",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Import multiple resource at once.",
   "properties": {
     "AIDomains": {
@@ -88,6 +88,15 @@
         "$ref": "customdatatype.json"
       },
       "title": "customDataTypes",
+      "type": "array"
+    },
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "description": "Extractors to import.",
+      "items": {
+        "$ref": "extractor.json"
+      },
+      "title": "extractors",
       "type": "array"
     },
     "ignoredDomains": {

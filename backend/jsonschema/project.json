@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "projects",
   "$modelRestName": "project",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Project is a container for a set of policies and authorization.",
   "properties": {
     "ID": {

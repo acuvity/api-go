@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "apptokens",
   "$modelRestName": "apptoken",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "App Token are revocable long lived tokens.",
   "properties": {
     "ID": {

@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "moderations",
   "$modelRestName": "moderation",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a moderation to take in the content policy.",
   "properties": {
     "action": {

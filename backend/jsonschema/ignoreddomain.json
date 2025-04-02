@@ -12,7 +12,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "ignoreddomains",
   "$modelRestName": "ignoreddomain",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Defines an ignored domain to be excluded from investigation.",
   "properties": {
     "ID": {

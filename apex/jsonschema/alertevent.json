@@ -8,7 +8,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "alertevents",
   "$modelRestName": "alertevent",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents an alert event raised by a policy.",
   "properties": {
     "alertDefinition": {

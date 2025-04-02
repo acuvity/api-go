@@ -6,7 +6,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "extractionsummaries",
   "$modelRestName": "extractionsummary",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the summary of the extractions.",
   "properties": {
     "PIIs": {

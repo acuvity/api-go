@@ -209,6 +209,24 @@ func (o *LabelValue) String() string {
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
+// GetEnd returns the End of the receiver.
+func (o *LabelValue) GetEnd() string {
+
+	return o.End
+}
+
+// SetEnd sets the property End of the receiver using the given value.
+func (o *LabelValue) SetEnd(end string) {
+
+	o.End = end
+}
+
+// GetEndRelative returns the EndRelative of the receiver.
+func (o *LabelValue) GetEndRelative() string {
+
+	return o.EndRelative
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *LabelValue) GetNamespace() string {
 
@@ -219,6 +237,24 @@ func (o *LabelValue) GetNamespace() string {
 func (o *LabelValue) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetStart returns the Start of the receiver.
+func (o *LabelValue) GetStart() string {
+
+	return o.Start
+}
+
+// SetStart sets the property Start of the receiver using the given value.
+func (o *LabelValue) SetStart(start string) {
+
+	o.Start = start
+}
+
+// GetStartRelative returns the StartRelative of the receiver.
+func (o *LabelValue) GetStartRelative() string {
+
+	return o.StartRelative
 }
 
 // ToSparse returns the sparse version of the model.
@@ -425,7 +461,9 @@ var LabelValueAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The end of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "end",
+		Setter:  true,
 		Type:    "string",
 	},
 	"EndRelative": {
@@ -433,6 +471,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "EndRelative",
 		Description:    `The relative end of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "endRelative",
 		Type:           "string",
 	},
@@ -484,7 +523,9 @@ values for.`,
 		Description: `The start of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "start",
+		Setter:  true,
 		Type:    "string",
 	},
 	"StartRelative": {
@@ -492,6 +533,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "StartRelative",
 		Description:    `The relative start of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "startRelative",
 		Type:           "string",
 	},
@@ -520,7 +562,9 @@ var LabelValueLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Description: `The end of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "end",
+		Setter:  true,
 		Type:    "string",
 	},
 	"endrelative": {
@@ -528,6 +572,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "EndRelative",
 		Description:    `The relative end of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "endRelative",
 		Type:           "string",
 	},
@@ -579,7 +624,9 @@ values for.`,
 		Description: `The start of the time window in any format supported by
 https://github.com/araddon/dateparse.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "start",
+		Setter:  true,
 		Type:    "string",
 	},
 	"startrelative": {
@@ -587,6 +634,7 @@ https://github.com/araddon/dateparse.`,
 		ConvertedName:  "StartRelative",
 		Description:    `The relative start of the time window as time.Duration.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "startRelative",
 		Type:           "string",
 	},
@@ -801,6 +849,32 @@ func (o *SparseLabelValue) ToPlain() elemental.PlainIdentifiable {
 	return out
 }
 
+// GetEnd returns the End of the receiver.
+func (o *SparseLabelValue) GetEnd() (out string) {
+
+	if o.End == nil {
+		return
+	}
+
+	return *o.End
+}
+
+// SetEnd sets the property End of the receiver using the address of the given value.
+func (o *SparseLabelValue) SetEnd(end string) {
+
+	o.End = &end
+}
+
+// GetEndRelative returns the EndRelative of the receiver.
+func (o *SparseLabelValue) GetEndRelative() (out string) {
+
+	if o.EndRelative == nil {
+		return
+	}
+
+	return *o.EndRelative
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseLabelValue) GetNamespace() (out string) {
 
@@ -815,6 +889,32 @@ func (o *SparseLabelValue) GetNamespace() (out string) {
 func (o *SparseLabelValue) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetStart returns the Start of the receiver.
+func (o *SparseLabelValue) GetStart() (out string) {
+
+	if o.Start == nil {
+		return
+	}
+
+	return *o.Start
+}
+
+// SetStart sets the property Start of the receiver using the address of the given value.
+func (o *SparseLabelValue) SetStart(start string) {
+
+	o.Start = &start
+}
+
+// GetStartRelative returns the StartRelative of the receiver.
+func (o *SparseLabelValue) GetStartRelative() (out string) {
+
+	if o.StartRelative == nil {
+		return
+	}
+
+	return *o.StartRelative
 }
 
 // DeepCopy returns a deep copy if the SparseLabelValue.

@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "agentconfigs",
   "$modelRestName": "agentconfig",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "AgentConfig stores the configuration information for the acushield agent.",
   "properties": {
     "ID": {
@@ -84,6 +84,15 @@
       "$friendlyName": "Disable URLs discovery",
       "description": "If disabled, the agent will stop reporting the visited domains.",
       "title": "disableURLDiscovery",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "enablePause": {
+      "$friendlyName": "Enable Pause",
+      "description": "If enabled, the agent will have the ability to pause enforcement.",
+      "title": "enablePause",
       "type": [
         "boolean",
         "null"

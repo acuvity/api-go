@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "providerdetails",
   "$modelRestName": "providerdetail",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "List all information about the provider and its AI domain.",
   "properties": {
     "ID": {

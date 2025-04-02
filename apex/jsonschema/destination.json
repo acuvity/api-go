@@ -1,0 +1,64 @@
+{
+  "$extends": [],
+  "$friendlyName": "Destination",
+  "$friendlyNamePlural": "Destinations",
+  "$modelName": "Destination",
+  "$modelPackage": "lain",
+  "$modelResourceName": "destinations",
+  "$modelRestName": "destination",
+  "additionalProperties": false,
+  "description": "Represents the destination that this request was made to.",
+  "properties": {
+    "app": {
+      "$friendlyName": "App",
+      "description": "The name of the application that the domain belongs to.",
+      "title": "app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "component": {
+      "$friendlyName": "Component",
+      "description": "The component of the application that the domain belongs to.",
+      "title": "component",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "host": {
+      "$friendlyName": "Host",
+      "$required": true,
+      "description": "The host name of the request.",
+      "title": "host",
+      "type": "string"
+    },
+    "ip": {
+      "$friendlyName": "IP",
+      "description": "The destination IP address of the request.",
+      "title": "ip",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "labels": {
+      "$friendlyName": "Labels",
+      "description": "The list of labels attached to the application request destination.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "labels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "host"
+  ],
+  "title": "Destination",
+  "type": "object"
+}

@@ -10,7 +10,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "pagedataviews",
   "$modelRestName": "pagedataview",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a page data view.",
   "properties": {
     "ID": {

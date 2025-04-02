@@ -5,10 +5,22 @@ package api
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.acuvity.ai/elemental"
+)
+
+// ExtractorSSEManagementValue represents the possible values for attribute "SSEManagement".
+type ExtractorSSEManagementValue string
+
+const (
+	// ExtractorSSEManagementCollect represents the value Collect.
+	ExtractorSSEManagementCollect ExtractorSSEManagementValue = "Collect"
+
+	// ExtractorSSEManagementStream represents the value Stream.
+	ExtractorSSEManagementStream ExtractorSSEManagementValue = "Stream"
 )
 
 // ExtractorAnonymizationValue represents the possible values for attribute "anonymization".
@@ -87,8 +99,98 @@ const (
 	ExtractorMethodPut ExtractorMethodValue = "Put"
 )
 
+// ExtractorTypeValue represents the possible values for attribute "type".
+type ExtractorTypeValue string
+
+const (
+	// ExtractorTypeInput represents the value Input.
+	ExtractorTypeInput ExtractorTypeValue = "Input"
+
+	// ExtractorTypeOutput represents the value Output.
+	ExtractorTypeOutput ExtractorTypeValue = "Output"
+)
+
+// ExtractorIdentity represents the Identity of the object.
+var ExtractorIdentity = elemental.Identity{
+	Name:     "extractor",
+	Category: "extractors",
+	Package:  "lain",
+	Private:  false,
+}
+
+// ExtractorsList represents a list of Extractors
+type ExtractorsList []*Extractor
+
+// Identity returns the identity of the objects in the list.
+func (o ExtractorsList) Identity() elemental.Identity {
+
+	return ExtractorIdentity
+}
+
+// Copy returns a pointer to a copy the ExtractorsList.
+func (o ExtractorsList) Copy() elemental.Identifiables {
+
+	out := append(ExtractorsList{}, o...)
+	return &out
+}
+
+// Append appends the objects to the a new copy of the ExtractorsList.
+func (o ExtractorsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := append(ExtractorsList{}, o...)
+	for _, obj := range objects {
+		out = append(out, obj.(*Extractor))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o ExtractorsList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o ExtractorsList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToSparse returns the ExtractorsList converted to SparseExtractorsList.
+// Objects in the list will only contain the given fields. No field means entire field set.
+func (o ExtractorsList) ToSparse(fields ...string) elemental.Identifiables {
+
+	out := make(SparseExtractorsList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i].ToSparse(fields...).(*SparseExtractor)
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o ExtractorsList) Version() int {
+
+	return 1
+}
+
 // Extractor represents the model of a extractor
 type Extractor struct {
+	// ID is the identifier of the object.
+	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// This property defines how you want the extractor to work with
+	// server-side events. With Collect all the events buffer until the server
+	// closes the connection and sends the entire data to the lua code
+	// while Stream will collect line by line and will send events line by line.
+	SSEManagement ExtractorSSEManagementValue `json:"SSEManagement" msgpack:"SSEManagement" bson:"ssemanagement" mapstructure:"SSEManagement,omitempty"`
+
 	// The analyzers parameter allows for customizing which analyzers should be used,
 	// overriding the default selection. Each analyzer entry can optionally include a
 	// prefix to modify its behavior:
@@ -126,28 +228,58 @@ type Extractor struct {
 	// The behavior to take when cancel is chosen from the popup.
 	CancelBehavior ExtractorCancelBehaviorValue `json:"cancelBehavior" msgpack:"cancelBehavior" bson:"cancelbehavior" mapstructure:"cancelBehavior,omitempty"`
 
+	// Creation date of the object.
+	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
 	// If true, deanonymize the redacted data. This has no effects on streaming output.
 	Deanonymize bool `json:"deanonymize" msgpack:"deanonymize" bson:"deanonymize" mapstructure:"deanonymize,omitempty"`
 
-	// Optional hosts to match. This is useful in case the provider has multiple hosts
-	// to discriminate which logger to use.
-	Hosts []string `json:"hosts,omitempty" msgpack:"hosts,omitempty" bson:"hosts,omitempty" mapstructure:"hosts,omitempty"`
+	// The description of the provider.
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// If true, it will wait on a prior popup and honor its decision. It only has
+	// effect if there is an existing popup being shown.
+	HonorPriorDecision bool `json:"honorPriorDecision" msgpack:"honorPriorDecision" bson:"honorpriordecision" mapstructure:"honorPriorDecision,omitempty"`
 
 	// If true, the analysis will run, but nothing will be logged.
-	Ignore bool `json:"ignore,omitempty" msgpack:"ignore,omitempty" bson:"ignore,omitempty" mapstructure:"ignore,omitempty"`
+	Ignore bool `json:"ignore" msgpack:"ignore" bson:"ignore" mapstructure:"ignore,omitempty"`
 
-	// A regular expression to match an URL to log.
-	Match string `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
+	// The hash of the structure used to compare with new import version.
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
 	// The method to match.
 	Method ExtractorMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
 
-	// The name of the extractor. It will be used to identify which extractor was used
-	// during an extraction.
-	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+	// The internal reference name of the object.
+	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// The namespace of the object.
+	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// A regular expression to match a URL path to log.
+	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// If not empty, use this lua code to run the extraction.
 	Script string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
+
+	// The type of extractor.
+	Type ExtractorTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+
+	// Hash of the object used to shard the data.
+	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
+
+	// Sharding zone.
+	Zone int `json:"-" msgpack:"-" bson:"zone" mapstructure:"-,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -157,13 +289,32 @@ func NewExtractor() *Extractor {
 
 	return &Extractor{
 		ModelVersion:   1,
+		SSEManagement:  ExtractorSSEManagementCollect,
 		Analyzers:      []string{},
 		Anonymization:  ExtractorAnonymizationFixedSize,
 		Behavior:       ExtractorBehaviorPopup,
 		Block:          ExtractorBlockAllow,
 		CancelBehavior: ExtractorCancelBehaviorBlock,
-		Hosts:          []string{},
+		Propagate:      true,
 	}
+}
+
+// Identity returns the Identity of the object.
+func (o *Extractor) Identity() elemental.Identity {
+
+	return ExtractorIdentity
+}
+
+// Identifier returns the value of the object's unique identifier.
+func (o *Extractor) Identifier() string {
+
+	return o.ID
+}
+
+// SetIdentifier sets the value of the object's unique identifier.
+func (o *Extractor) SetIdentifier(id string) {
+
+	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
@@ -176,18 +327,32 @@ func (o *Extractor) GetBSON() (any, error) {
 
 	s := &mongoAttributesExtractor{}
 
+	if o.ID != "" {
+		s.ID = bson.ObjectIdHex(o.ID)
+	}
+	s.SSEManagement = o.SSEManagement
 	s.Analyzers = o.Analyzers
 	s.Anonymization = o.Anonymization
 	s.Behavior = o.Behavior
 	s.Block = o.Block
 	s.CancelBehavior = o.CancelBehavior
+	s.CreateTime = o.CreateTime
 	s.Deanonymize = o.Deanonymize
-	s.Hosts = o.Hosts
+	s.Description = o.Description
+	s.HonorPriorDecision = o.HonorPriorDecision
 	s.Ignore = o.Ignore
-	s.Match = o.Match
+	s.ImportHash = o.ImportHash
+	s.ImportLabel = o.ImportLabel
 	s.Method = o.Method
 	s.Name = o.Name
+	s.Namespace = o.Namespace
+	s.Path = o.Path
+	s.Propagate = o.Propagate
 	s.Script = o.Script
+	s.Type = o.Type
+	s.UpdateTime = o.UpdateTime
+	s.ZHash = o.ZHash
+	s.Zone = o.Zone
 
 	return s, nil
 }
@@ -205,20 +370,38 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.ID = s.ID.Hex()
+	o.SSEManagement = s.SSEManagement
 	o.Analyzers = s.Analyzers
 	o.Anonymization = s.Anonymization
 	o.Behavior = s.Behavior
 	o.Block = s.Block
 	o.CancelBehavior = s.CancelBehavior
+	o.CreateTime = s.CreateTime
 	o.Deanonymize = s.Deanonymize
-	o.Hosts = s.Hosts
+	o.Description = s.Description
+	o.HonorPriorDecision = s.HonorPriorDecision
 	o.Ignore = s.Ignore
-	o.Match = s.Match
+	o.ImportHash = s.ImportHash
+	o.ImportLabel = s.ImportLabel
 	o.Method = s.Method
 	o.Name = s.Name
+	o.Namespace = s.Namespace
+	o.Path = s.Path
+	o.Propagate = s.Propagate
 	o.Script = s.Script
+	o.Type = s.Type
+	o.UpdateTime = s.UpdateTime
+	o.ZHash = s.ZHash
+	o.Zone = s.Zone
 
 	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *Extractor) Version() int {
+
+	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
@@ -227,10 +410,271 @@ func (o *Extractor) BleveType() string {
 	return "extractor"
 }
 
-// GetMatch returns the Match of the receiver.
-func (o *Extractor) GetMatch() string {
+// DefaultOrder returns the list of default ordering fields.
+func (o *Extractor) DefaultOrder() []string {
 
-	return o.Match
+	return []string{}
+}
+
+// Doc returns the documentation for the object
+func (o *Extractor) Doc() string {
+
+	return `An extractor allows to create a reusable extractor for providers.`
+}
+
+func (o *Extractor) String() string {
+
+	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *Extractor) GetCreateTime() time.Time {
+
+	return o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the given value.
+func (o *Extractor) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = createTime
+}
+
+// GetImportHash returns the ImportHash of the receiver.
+func (o *Extractor) GetImportHash() string {
+
+	return o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the given value.
+func (o *Extractor) SetImportHash(importHash string) {
+
+	o.ImportHash = importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *Extractor) GetImportLabel() string {
+
+	return o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the given value.
+func (o *Extractor) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = importLabel
+}
+
+// GetNamespace returns the Namespace of the receiver.
+func (o *Extractor) GetNamespace() string {
+
+	return o.Namespace
+}
+
+// SetNamespace sets the property Namespace of the receiver using the given value.
+func (o *Extractor) SetNamespace(namespace string) {
+
+	o.Namespace = namespace
+}
+
+// GetPath returns the Path of the receiver.
+func (o *Extractor) GetPath() string {
+
+	return o.Path
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *Extractor) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *Extractor) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *Extractor) GetUpdateTime() time.Time {
+
+	return o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
+func (o *Extractor) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = updateTime
+}
+
+// ToSparse returns the sparse version of the model.
+// The returned object will only contain the given fields. No field means entire field set.
+func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
+
+	if len(fields) == 0 {
+		// nolint: goimports
+		return &SparseExtractor{
+			ID:                 &o.ID,
+			SSEManagement:      &o.SSEManagement,
+			Analyzers:          &o.Analyzers,
+			Anonymization:      &o.Anonymization,
+			Behavior:           &o.Behavior,
+			Block:              &o.Block,
+			CancelBehavior:     &o.CancelBehavior,
+			CreateTime:         &o.CreateTime,
+			Deanonymize:        &o.Deanonymize,
+			Description:        &o.Description,
+			HonorPriorDecision: &o.HonorPriorDecision,
+			Ignore:             &o.Ignore,
+			ImportHash:         &o.ImportHash,
+			ImportLabel:        &o.ImportLabel,
+			Method:             &o.Method,
+			Name:               &o.Name,
+			Namespace:          &o.Namespace,
+			Path:               &o.Path,
+			Propagate:          &o.Propagate,
+			Script:             &o.Script,
+			Type:               &o.Type,
+			UpdateTime:         &o.UpdateTime,
+			ZHash:              &o.ZHash,
+			Zone:               &o.Zone,
+		}
+	}
+
+	sp := &SparseExtractor{}
+	for _, f := range fields {
+		switch f {
+		case "ID":
+			sp.ID = &(o.ID)
+		case "SSEManagement":
+			sp.SSEManagement = &(o.SSEManagement)
+		case "analyzers":
+			sp.Analyzers = &(o.Analyzers)
+		case "anonymization":
+			sp.Anonymization = &(o.Anonymization)
+		case "behavior":
+			sp.Behavior = &(o.Behavior)
+		case "block":
+			sp.Block = &(o.Block)
+		case "cancelBehavior":
+			sp.CancelBehavior = &(o.CancelBehavior)
+		case "createTime":
+			sp.CreateTime = &(o.CreateTime)
+		case "deanonymize":
+			sp.Deanonymize = &(o.Deanonymize)
+		case "description":
+			sp.Description = &(o.Description)
+		case "honorPriorDecision":
+			sp.HonorPriorDecision = &(o.HonorPriorDecision)
+		case "ignore":
+			sp.Ignore = &(o.Ignore)
+		case "importHash":
+			sp.ImportHash = &(o.ImportHash)
+		case "importLabel":
+			sp.ImportLabel = &(o.ImportLabel)
+		case "method":
+			sp.Method = &(o.Method)
+		case "name":
+			sp.Name = &(o.Name)
+		case "namespace":
+			sp.Namespace = &(o.Namespace)
+		case "path":
+			sp.Path = &(o.Path)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
+		case "script":
+			sp.Script = &(o.Script)
+		case "type":
+			sp.Type = &(o.Type)
+		case "updateTime":
+			sp.UpdateTime = &(o.UpdateTime)
+		case "zHash":
+			sp.ZHash = &(o.ZHash)
+		case "zone":
+			sp.Zone = &(o.Zone)
+		}
+	}
+
+	return sp
+}
+
+// Patch apply the non nil value of a *SparseExtractor to the object.
+func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
+	if !sparse.Identity().IsEqual(o.Identity()) {
+		panic("cannot patch from a parse with different identity")
+	}
+
+	so := sparse.(*SparseExtractor)
+	if so.ID != nil {
+		o.ID = *so.ID
+	}
+	if so.SSEManagement != nil {
+		o.SSEManagement = *so.SSEManagement
+	}
+	if so.Analyzers != nil {
+		o.Analyzers = *so.Analyzers
+	}
+	if so.Anonymization != nil {
+		o.Anonymization = *so.Anonymization
+	}
+	if so.Behavior != nil {
+		o.Behavior = *so.Behavior
+	}
+	if so.Block != nil {
+		o.Block = *so.Block
+	}
+	if so.CancelBehavior != nil {
+		o.CancelBehavior = *so.CancelBehavior
+	}
+	if so.CreateTime != nil {
+		o.CreateTime = *so.CreateTime
+	}
+	if so.Deanonymize != nil {
+		o.Deanonymize = *so.Deanonymize
+	}
+	if so.Description != nil {
+		o.Description = *so.Description
+	}
+	if so.HonorPriorDecision != nil {
+		o.HonorPriorDecision = *so.HonorPriorDecision
+	}
+	if so.Ignore != nil {
+		o.Ignore = *so.Ignore
+	}
+	if so.ImportHash != nil {
+		o.ImportHash = *so.ImportHash
+	}
+	if so.ImportLabel != nil {
+		o.ImportLabel = *so.ImportLabel
+	}
+	if so.Method != nil {
+		o.Method = *so.Method
+	}
+	if so.Name != nil {
+		o.Name = *so.Name
+	}
+	if so.Namespace != nil {
+		o.Namespace = *so.Namespace
+	}
+	if so.Path != nil {
+		o.Path = *so.Path
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
+	}
+	if so.Script != nil {
+		o.Script = *so.Script
+	}
+	if so.Type != nil {
+		o.Type = *so.Type
+	}
+	if so.UpdateTime != nil {
+		o.UpdateTime = *so.UpdateTime
+	}
+	if so.ZHash != nil {
+		o.ZHash = *so.ZHash
+	}
+	if so.Zone != nil {
+		o.Zone = *so.Zone
+	}
 }
 
 // DeepCopy returns a deep copy if the Extractor.
@@ -263,6 +707,10 @@ func (o *Extractor) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("SSEManagement", string(o.SSEManagement), []string{"Collect", "Stream"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateStringInList("anonymization", string(o.Anonymization), []string{"FixedSize", "VariableSize"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -279,10 +727,6 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("match", o.Match); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredString("method", string(o.Method)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -291,7 +735,27 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/]+$`, `must only contain alpha numerical characters, '/', '-' or '_'.`, true); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("path", o.Path); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
 	if err := ValidateLua("script", o.Script); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -334,6 +798,10 @@ func (*Extractor) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *Extractor) ValueForAttribute(name string) any {
 
 	switch name {
+	case "ID":
+		return o.ID
+	case "SSEManagement":
+		return o.SSEManagement
 	case "analyzers":
 		return o.Analyzers
 	case "anonymization":
@@ -344,20 +812,40 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.Block
 	case "cancelBehavior":
 		return o.CancelBehavior
+	case "createTime":
+		return o.CreateTime
 	case "deanonymize":
 		return o.Deanonymize
-	case "hosts":
-		return o.Hosts
+	case "description":
+		return o.Description
+	case "honorPriorDecision":
+		return o.HonorPriorDecision
 	case "ignore":
 		return o.Ignore
-	case "match":
-		return o.Match
+	case "importHash":
+		return o.ImportHash
+	case "importLabel":
+		return o.ImportLabel
 	case "method":
 		return o.Method
 	case "name":
 		return o.Name
+	case "namespace":
+		return o.Namespace
+	case "path":
+		return o.Path
+	case "propagate":
+		return o.Propagate
 	case "script":
 		return o.Script
+	case "type":
+		return o.Type
+	case "updateTime":
+		return o.UpdateTime
+	case "zHash":
+		return o.ZHash
+	case "zone":
+		return o.Zone
 	}
 
 	return nil
@@ -365,6 +853,35 @@ func (o *Extractor) ValueForAttribute(name string) any {
 
 // ExtractorAttributesMap represents the map of attribute for Extractor.
 var ExtractorAttributesMap = map[string]elemental.AttributeSpecification{
+	"ID": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "_id",
+		ConvertedName:  "ID",
+		Description:    `ID is the identifier of the object.`,
+		Exposed:        true,
+		Filterable:     true,
+		Identifier:     true,
+		Name:           "ID",
+		Orderable:      true,
+		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"SSEManagement": {
+		AllowedChoices: []string{"Collect", "Stream"},
+		BSONFieldName:  "ssemanagement",
+		ConvertedName:  "SSEManagement",
+		DefaultValue:   ExtractorSSEManagementCollect,
+		Description: `This property defines how you want the extractor to work with
+server-side events. With Collect all the events buffer until the server
+closes the connection and sends the entire data to the lua code
+while Stream will collect line by line and will send events line by line.`,
+		Exposed: true,
+		Name:    "SSEManagement",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"Analyzers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "analyzers",
@@ -442,6 +959,21 @@ after analysizis.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"CreateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"Deanonymize": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "deanonymize",
@@ -452,17 +984,26 @@ after analysizis.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Hosts": {
+	"Description": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "hosts",
-		ConvertedName:  "Hosts",
-		Description: `Optional hosts to match. This is useful in case the provider has multiple hosts
-to discriminate which logger to use.`,
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the provider.`,
+		Exposed:        true,
+		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"HonorPriorDecision": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "honorpriordecision",
+		ConvertedName:  "HonorPriorDecision",
+		Description: `If true, it will wait on a prior popup and honor its decision. It only has
+effect if there is an existing popup being shown.`,
 		Exposed: true,
-		Name:    "hosts",
+		Name:    "honorPriorDecision",
 		Stored:  true,
-		SubType: "string",
-		Type:    "list",
+		Type:    "boolean",
 	},
 	"Ignore": {
 		AllowedChoices: []string{},
@@ -474,17 +1015,33 @@ to discriminate which logger to use.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Match": {
+	"ImportHash": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		CreationOnly:   true,
+		Description:    `The hash of the structure used to compare with new import version.`,
 		Exposed:        true,
 		Getter:         true,
-		Name:           "match",
-		Required:       true,
+		Name:           "importHash",
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ImportLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
@@ -499,15 +1056,57 @@ to discriminate which logger to use.`,
 		Type:           "enum",
 	},
 	"Name": {
+		AllowedChars:   `^[a-zA-Z0-9-_/]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description: `The name of the extractor. It will be used to identify which extractor was used
-during an extraction.`,
-		Exposed: true,
-		Name:    "name",
-		Stored:  true,
-		Type:    "string",
+		CreationOnly:   true,
+		Description:    `The internal reference name of the object.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Namespace": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "namespace",
+		ConvertedName:  "Namespace",
+		Description:    `The namespace of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "namespace",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"Script": {
 		AllowedChoices: []string{},
@@ -519,10 +1118,65 @@ during an extraction.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"Type": {
+		AllowedChoices: []string{"Input", "Output"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of extractor.`,
+		Exposed:        true,
+		Name:           "type",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
+	"UpdateTime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 }
 
 // ExtractorLowerCaseAttributesMap represents the map of attribute for Extractor.
 var ExtractorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"id": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "_id",
+		ConvertedName:  "ID",
+		Description:    `ID is the identifier of the object.`,
+		Exposed:        true,
+		Filterable:     true,
+		Identifier:     true,
+		Name:           "ID",
+		Orderable:      true,
+		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"ssemanagement": {
+		AllowedChoices: []string{"Collect", "Stream"},
+		BSONFieldName:  "ssemanagement",
+		ConvertedName:  "SSEManagement",
+		DefaultValue:   ExtractorSSEManagementCollect,
+		Description: `This property defines how you want the extractor to work with
+server-side events. With Collect all the events buffer until the server
+closes the connection and sends the entire data to the lua code
+while Stream will collect line by line and will send events line by line.`,
+		Exposed: true,
+		Name:    "SSEManagement",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"analyzers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "analyzers",
@@ -600,6 +1254,21 @@ after analysizis.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"createtime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "createtime",
+		ConvertedName:  "CreateTime",
+		Description:    `Creation date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "createTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
 	"deanonymize": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "deanonymize",
@@ -610,17 +1279,26 @@ after analysizis.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"hosts": {
+	"description": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "hosts",
-		ConvertedName:  "Hosts",
-		Description: `Optional hosts to match. This is useful in case the provider has multiple hosts
-to discriminate which logger to use.`,
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the provider.`,
+		Exposed:        true,
+		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"honorpriordecision": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "honorpriordecision",
+		ConvertedName:  "HonorPriorDecision",
+		Description: `If true, it will wait on a prior popup and honor its decision. It only has
+effect if there is an existing popup being shown.`,
 		Exposed: true,
-		Name:    "hosts",
+		Name:    "honorPriorDecision",
 		Stored:  true,
-		SubType: "string",
-		Type:    "list",
+		Type:    "boolean",
 	},
 	"ignore": {
 		AllowedChoices: []string{},
@@ -632,17 +1310,33 @@ to discriminate which logger to use.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"match": {
+	"importhash": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "match",
-		ConvertedName:  "Match",
-		Description:    `A regular expression to match an URL to log.`,
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		CreationOnly:   true,
+		Description:    `The hash of the structure used to compare with new import version.`,
 		Exposed:        true,
 		Getter:         true,
-		Name:           "match",
-		Required:       true,
+		Name:           "importHash",
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"importlabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
@@ -657,15 +1351,57 @@ to discriminate which logger to use.`,
 		Type:           "enum",
 	},
 	"name": {
+		AllowedChars:   `^[a-zA-Z0-9-_/]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description: `The name of the extractor. It will be used to identify which extractor was used
-during an extraction.`,
-		Exposed: true,
-		Name:    "name",
-		Stored:  true,
-		Type:    "string",
+		CreationOnly:   true,
+		Description:    `The internal reference name of the object.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"namespace": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "namespace",
+		ConvertedName:  "Namespace",
+		Description:    `The namespace of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "namespace",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `A regular expression to match a URL path to log.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "path",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"script": {
 		AllowedChoices: []string{},
@@ -677,19 +1413,668 @@ during an extraction.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"type": {
+		AllowedChoices: []string{"Input", "Output"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of extractor.`,
+		Exposed:        true,
+		Name:           "type",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
+	"updatetime": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "updatetime",
+		ConvertedName:  "UpdateTime",
+		Description:    `Last update date of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "updateTime",
+		Orderable:      true,
+		ReadOnly:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "time",
+	},
+}
+
+// SparseExtractorsList represents a list of SparseExtractors
+type SparseExtractorsList []*SparseExtractor
+
+// Identity returns the identity of the objects in the list.
+func (o SparseExtractorsList) Identity() elemental.Identity {
+
+	return ExtractorIdentity
+}
+
+// Copy returns a pointer to a copy the SparseExtractorsList.
+func (o SparseExtractorsList) Copy() elemental.Identifiables {
+
+	copy := append(SparseExtractorsList{}, o...)
+	return &copy
+}
+
+// Append appends the objects to the a new copy of the SparseExtractorsList.
+func (o SparseExtractorsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := append(SparseExtractorsList{}, o...)
+	for _, obj := range objects {
+		out = append(out, obj.(*SparseExtractor))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o SparseExtractorsList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o SparseExtractorsList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToPlain returns the SparseExtractorsList converted to ExtractorsList.
+func (o SparseExtractorsList) ToPlain() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := 0; i < len(o); i++ {
+		out[i] = o[i].ToPlain()
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o SparseExtractorsList) Version() int {
+
+	return 1
+}
+
+// SparseExtractor represents the sparse version of a extractor.
+type SparseExtractor struct {
+	// ID is the identifier of the object.
+	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// This property defines how you want the extractor to work with
+	// server-side events. With Collect all the events buffer until the server
+	// closes the connection and sends the entire data to the lua code
+	// while Stream will collect line by line and will send events line by line.
+	SSEManagement *ExtractorSSEManagementValue `json:"SSEManagement,omitempty" msgpack:"SSEManagement,omitempty" bson:"ssemanagement,omitempty" mapstructure:"SSEManagement,omitempty"`
+
+	// The analyzers parameter allows for customizing which analyzers should be used,
+	// overriding the default selection. Each analyzer entry can optionally include a
+	// prefix to modify its behavior:
+	//
+	//   - No prefix: Runs only the specified analyzers and any dependencies required
+	// for deeper analyzis (slower but more acurate).
+	//   - '+' (enable): Activates an analyzer that is disabled by default.
+	//   - '-' (disable): Disables an analyzer that is enabled by default.
+	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
+	// analyzis (faster but less acurate).
+	//
+	// An analyzers entry can be specified using:
+	//   - The analyzer name (e.g., 'Toxicity detector')
+	//   - The analyzer ID (e.g., 'en-text-toxicity-detector')
+	//   - The analyzer group (e.g., 'Detectors')
+	//   - A detector name (e.g., 'toxic')
+	//   - A detector label (e.g., 'insult')
+	//   - A detector group (e.g., 'Malcontents')
+	//
+	// If left empty, all default analyzers will be executed.
+	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"analyzers,omitempty" mapstructure:"analyzers,omitempty"`
+
+	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	Anonymization *ExtractorAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
+
+	// Defines how to handle error in the case of a webpage. If set to Popup, the error
+	// will be shown in a popup. If throw, a javascript error will be returned.
+	Behavior *ExtractorBehaviorValue `json:"behavior,omitempty" msgpack:"behavior,omitempty" bson:"behavior,omitempty" mapstructure:"behavior,omitempty"`
+
+	// Block the request to the provider if not Allow. If Before, the data will be
+	// blocked before running any extraction or analyzis. If After block the request
+	// after analysizis.
+	Block *ExtractorBlockValue `json:"block,omitempty" msgpack:"block,omitempty" bson:"block,omitempty" mapstructure:"block,omitempty"`
+
+	// The behavior to take when cancel is chosen from the popup.
+	CancelBehavior *ExtractorCancelBehaviorValue `json:"cancelBehavior,omitempty" msgpack:"cancelBehavior,omitempty" bson:"cancelbehavior,omitempty" mapstructure:"cancelBehavior,omitempty"`
+
+	// Creation date of the object.
+	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
+	// If true, deanonymize the redacted data. This has no effects on streaming output.
+	Deanonymize *bool `json:"deanonymize,omitempty" msgpack:"deanonymize,omitempty" bson:"deanonymize,omitempty" mapstructure:"deanonymize,omitempty"`
+
+	// The description of the provider.
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// If true, it will wait on a prior popup and honor its decision. It only has
+	// effect if there is an existing popup being shown.
+	HonorPriorDecision *bool `json:"honorPriorDecision,omitempty" msgpack:"honorPriorDecision,omitempty" bson:"honorpriordecision,omitempty" mapstructure:"honorPriorDecision,omitempty"`
+
+	// If true, the analysis will run, but nothing will be logged.
+	Ignore *bool `json:"ignore,omitempty" msgpack:"ignore,omitempty" bson:"ignore,omitempty" mapstructure:"ignore,omitempty"`
+
+	// The hash of the structure used to compare with new import version.
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
+	// The method to match.
+	Method *ExtractorMethodValue `json:"method,omitempty" msgpack:"method,omitempty" bson:"method,omitempty" mapstructure:"method,omitempty"`
+
+	// The internal reference name of the object.
+	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The namespace of the object.
+	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// A regular expression to match a URL path to log.
+	Path *string `json:"path,omitempty" msgpack:"path,omitempty" bson:"path,omitempty" mapstructure:"path,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
+	// If not empty, use this lua code to run the extraction.
+	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
+
+	// The type of extractor.
+	Type *ExtractorTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
+
+	// Last update date of the object.
+	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+
+	// Hash of the object used to shard the data.
+	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
+
+	// Sharding zone.
+	Zone *int `json:"-" msgpack:"-" bson:"zone,omitempty" mapstructure:"-,omitempty"`
+
+	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
+}
+
+// NewSparseExtractor returns a new  SparseExtractor.
+func NewSparseExtractor() *SparseExtractor {
+	return &SparseExtractor{}
+}
+
+// Identity returns the Identity of the sparse object.
+func (o *SparseExtractor) Identity() elemental.Identity {
+
+	return ExtractorIdentity
+}
+
+// Identifier returns the value of the sparse object's unique identifier.
+func (o *SparseExtractor) Identifier() string {
+
+	if o.ID == nil {
+		return ""
+	}
+	return *o.ID
+}
+
+// SetIdentifier sets the value of the sparse object's unique identifier.
+func (o *SparseExtractor) SetIdentifier(id string) {
+
+	if id != "" {
+		o.ID = &id
+	} else {
+		o.ID = nil
+	}
+}
+
+// GetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseExtractor) GetBSON() (any, error) {
+
+	if o == nil {
+		return nil, nil
+	}
+
+	s := &mongoAttributesSparseExtractor{}
+
+	if o.ID != nil {
+		s.ID = bson.ObjectIdHex(*o.ID)
+	}
+	if o.SSEManagement != nil {
+		s.SSEManagement = o.SSEManagement
+	}
+	if o.Analyzers != nil {
+		s.Analyzers = o.Analyzers
+	}
+	if o.Anonymization != nil {
+		s.Anonymization = o.Anonymization
+	}
+	if o.Behavior != nil {
+		s.Behavior = o.Behavior
+	}
+	if o.Block != nil {
+		s.Block = o.Block
+	}
+	if o.CancelBehavior != nil {
+		s.CancelBehavior = o.CancelBehavior
+	}
+	if o.CreateTime != nil {
+		s.CreateTime = o.CreateTime
+	}
+	if o.Deanonymize != nil {
+		s.Deanonymize = o.Deanonymize
+	}
+	if o.Description != nil {
+		s.Description = o.Description
+	}
+	if o.HonorPriorDecision != nil {
+		s.HonorPriorDecision = o.HonorPriorDecision
+	}
+	if o.Ignore != nil {
+		s.Ignore = o.Ignore
+	}
+	if o.ImportHash != nil {
+		s.ImportHash = o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		s.ImportLabel = o.ImportLabel
+	}
+	if o.Method != nil {
+		s.Method = o.Method
+	}
+	if o.Name != nil {
+		s.Name = o.Name
+	}
+	if o.Namespace != nil {
+		s.Namespace = o.Namespace
+	}
+	if o.Path != nil {
+		s.Path = o.Path
+	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
+	if o.Script != nil {
+		s.Script = o.Script
+	}
+	if o.Type != nil {
+		s.Type = o.Type
+	}
+	if o.UpdateTime != nil {
+		s.UpdateTime = o.UpdateTime
+	}
+	if o.ZHash != nil {
+		s.ZHash = o.ZHash
+	}
+	if o.Zone != nil {
+		s.Zone = o.Zone
+	}
+
+	return s, nil
+}
+
+// SetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
+
+	if o == nil {
+		return nil
+	}
+
+	s := &mongoAttributesSparseExtractor{}
+	if err := raw.Unmarshal(s); err != nil {
+		return err
+	}
+
+	id := s.ID.Hex()
+	o.ID = &id
+	if s.SSEManagement != nil {
+		o.SSEManagement = s.SSEManagement
+	}
+	if s.Analyzers != nil {
+		o.Analyzers = s.Analyzers
+	}
+	if s.Anonymization != nil {
+		o.Anonymization = s.Anonymization
+	}
+	if s.Behavior != nil {
+		o.Behavior = s.Behavior
+	}
+	if s.Block != nil {
+		o.Block = s.Block
+	}
+	if s.CancelBehavior != nil {
+		o.CancelBehavior = s.CancelBehavior
+	}
+	if s.CreateTime != nil {
+		o.CreateTime = s.CreateTime
+	}
+	if s.Deanonymize != nil {
+		o.Deanonymize = s.Deanonymize
+	}
+	if s.Description != nil {
+		o.Description = s.Description
+	}
+	if s.HonorPriorDecision != nil {
+		o.HonorPriorDecision = s.HonorPriorDecision
+	}
+	if s.Ignore != nil {
+		o.Ignore = s.Ignore
+	}
+	if s.ImportHash != nil {
+		o.ImportHash = s.ImportHash
+	}
+	if s.ImportLabel != nil {
+		o.ImportLabel = s.ImportLabel
+	}
+	if s.Method != nil {
+		o.Method = s.Method
+	}
+	if s.Name != nil {
+		o.Name = s.Name
+	}
+	if s.Namespace != nil {
+		o.Namespace = s.Namespace
+	}
+	if s.Path != nil {
+		o.Path = s.Path
+	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
+	if s.Script != nil {
+		o.Script = s.Script
+	}
+	if s.Type != nil {
+		o.Type = s.Type
+	}
+	if s.UpdateTime != nil {
+		o.UpdateTime = s.UpdateTime
+	}
+	if s.ZHash != nil {
+		o.ZHash = s.ZHash
+	}
+	if s.Zone != nil {
+		o.Zone = s.Zone
+	}
+
+	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *SparseExtractor) Version() int {
+
+	return 1
+}
+
+// ToPlain returns the plain version of the sparse model.
+func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
+
+	out := NewExtractor()
+	if o.ID != nil {
+		out.ID = *o.ID
+	}
+	if o.SSEManagement != nil {
+		out.SSEManagement = *o.SSEManagement
+	}
+	if o.Analyzers != nil {
+		out.Analyzers = *o.Analyzers
+	}
+	if o.Anonymization != nil {
+		out.Anonymization = *o.Anonymization
+	}
+	if o.Behavior != nil {
+		out.Behavior = *o.Behavior
+	}
+	if o.Block != nil {
+		out.Block = *o.Block
+	}
+	if o.CancelBehavior != nil {
+		out.CancelBehavior = *o.CancelBehavior
+	}
+	if o.CreateTime != nil {
+		out.CreateTime = *o.CreateTime
+	}
+	if o.Deanonymize != nil {
+		out.Deanonymize = *o.Deanonymize
+	}
+	if o.Description != nil {
+		out.Description = *o.Description
+	}
+	if o.HonorPriorDecision != nil {
+		out.HonorPriorDecision = *o.HonorPriorDecision
+	}
+	if o.Ignore != nil {
+		out.Ignore = *o.Ignore
+	}
+	if o.ImportHash != nil {
+		out.ImportHash = *o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		out.ImportLabel = *o.ImportLabel
+	}
+	if o.Method != nil {
+		out.Method = *o.Method
+	}
+	if o.Name != nil {
+		out.Name = *o.Name
+	}
+	if o.Namespace != nil {
+		out.Namespace = *o.Namespace
+	}
+	if o.Path != nil {
+		out.Path = *o.Path
+	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
+	}
+	if o.Script != nil {
+		out.Script = *o.Script
+	}
+	if o.Type != nil {
+		out.Type = *o.Type
+	}
+	if o.UpdateTime != nil {
+		out.UpdateTime = *o.UpdateTime
+	}
+	if o.ZHash != nil {
+		out.ZHash = *o.ZHash
+	}
+	if o.Zone != nil {
+		out.Zone = *o.Zone
+	}
+
+	return out
+}
+
+// GetCreateTime returns the CreateTime of the receiver.
+func (o *SparseExtractor) GetCreateTime() (out time.Time) {
+
+	if o.CreateTime == nil {
+		return
+	}
+
+	return *o.CreateTime
+}
+
+// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
+func (o *SparseExtractor) SetCreateTime(createTime time.Time) {
+
+	o.CreateTime = &createTime
+}
+
+// GetImportHash returns the ImportHash of the receiver.
+func (o *SparseExtractor) GetImportHash() (out string) {
+
+	if o.ImportHash == nil {
+		return
+	}
+
+	return *o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the address of the given value.
+func (o *SparseExtractor) SetImportHash(importHash string) {
+
+	o.ImportHash = &importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *SparseExtractor) GetImportLabel() (out string) {
+
+	if o.ImportLabel == nil {
+		return
+	}
+
+	return *o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
+func (o *SparseExtractor) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = &importLabel
+}
+
+// GetNamespace returns the Namespace of the receiver.
+func (o *SparseExtractor) GetNamespace() (out string) {
+
+	if o.Namespace == nil {
+		return
+	}
+
+	return *o.Namespace
+}
+
+// SetNamespace sets the property Namespace of the receiver using the address of the given value.
+func (o *SparseExtractor) SetNamespace(namespace string) {
+
+	o.Namespace = &namespace
+}
+
+// GetPath returns the Path of the receiver.
+func (o *SparseExtractor) GetPath() (out string) {
+
+	if o.Path == nil {
+		return
+	}
+
+	return *o.Path
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseExtractor) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseExtractor) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
+// GetUpdateTime returns the UpdateTime of the receiver.
+func (o *SparseExtractor) GetUpdateTime() (out time.Time) {
+
+	if o.UpdateTime == nil {
+		return
+	}
+
+	return *o.UpdateTime
+}
+
+// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
+func (o *SparseExtractor) SetUpdateTime(updateTime time.Time) {
+
+	o.UpdateTime = &updateTime
+}
+
+// DeepCopy returns a deep copy if the SparseExtractor.
+func (o *SparseExtractor) DeepCopy() *SparseExtractor {
+
+	if o == nil {
+		return nil
+	}
+
+	out := &SparseExtractor{}
+	o.DeepCopyInto(out)
+
+	return out
+}
+
+// DeepCopyInto copies the receiver into the given *SparseExtractor.
+func (o *SparseExtractor) DeepCopyInto(out *SparseExtractor) {
+
+	target, err := copystructure.Copy(o)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to deepcopy SparseExtractor: %s", err))
+	}
+
+	*out = *target.(*SparseExtractor)
 }
 
 type mongoAttributesExtractor struct {
-	Analyzers      []string                     `bson:"analyzers,omitempty"`
-	Anonymization  ExtractorAnonymizationValue  `bson:"anonymization"`
-	Behavior       ExtractorBehaviorValue       `bson:"behavior,omitempty"`
-	Block          ExtractorBlockValue          `bson:"block"`
-	CancelBehavior ExtractorCancelBehaviorValue `bson:"cancelbehavior"`
-	Deanonymize    bool                         `bson:"deanonymize"`
-	Hosts          []string                     `bson:"hosts,omitempty"`
-	Ignore         bool                         `bson:"ignore,omitempty"`
-	Match          string                       `bson:"match"`
-	Method         ExtractorMethodValue         `bson:"method"`
-	Name           string                       `bson:"name,omitempty"`
-	Script         string                       `bson:"script,omitempty"`
+	ID                 bson.ObjectId                `bson:"_id,omitempty"`
+	SSEManagement      ExtractorSSEManagementValue  `bson:"ssemanagement"`
+	Analyzers          []string                     `bson:"analyzers,omitempty"`
+	Anonymization      ExtractorAnonymizationValue  `bson:"anonymization"`
+	Behavior           ExtractorBehaviorValue       `bson:"behavior,omitempty"`
+	Block              ExtractorBlockValue          `bson:"block"`
+	CancelBehavior     ExtractorCancelBehaviorValue `bson:"cancelbehavior"`
+	CreateTime         time.Time                    `bson:"createtime"`
+	Deanonymize        bool                         `bson:"deanonymize"`
+	Description        string                       `bson:"description"`
+	HonorPriorDecision bool                         `bson:"honorpriordecision"`
+	Ignore             bool                         `bson:"ignore"`
+	ImportHash         string                       `bson:"importhash,omitempty"`
+	ImportLabel        string                       `bson:"importlabel,omitempty"`
+	Method             ExtractorMethodValue         `bson:"method"`
+	Name               string                       `bson:"name"`
+	Namespace          string                       `bson:"namespace,omitempty"`
+	Path               string                       `bson:"path"`
+	Propagate          bool                         `bson:"propagate"`
+	Script             string                       `bson:"script,omitempty"`
+	Type               ExtractorTypeValue           `bson:"type"`
+	UpdateTime         time.Time                    `bson:"updatetime"`
+	ZHash              int                          `bson:"zhash"`
+	Zone               int                          `bson:"zone"`
+}
+type mongoAttributesSparseExtractor struct {
+	ID                 bson.ObjectId                 `bson:"_id,omitempty"`
+	SSEManagement      *ExtractorSSEManagementValue  `bson:"ssemanagement,omitempty"`
+	Analyzers          *[]string                     `bson:"analyzers,omitempty"`
+	Anonymization      *ExtractorAnonymizationValue  `bson:"anonymization,omitempty"`
+	Behavior           *ExtractorBehaviorValue       `bson:"behavior,omitempty"`
+	Block              *ExtractorBlockValue          `bson:"block,omitempty"`
+	CancelBehavior     *ExtractorCancelBehaviorValue `bson:"cancelbehavior,omitempty"`
+	CreateTime         *time.Time                    `bson:"createtime,omitempty"`
+	Deanonymize        *bool                         `bson:"deanonymize,omitempty"`
+	Description        *string                       `bson:"description,omitempty"`
+	HonorPriorDecision *bool                         `bson:"honorpriordecision,omitempty"`
+	Ignore             *bool                         `bson:"ignore,omitempty"`
+	ImportHash         *string                       `bson:"importhash,omitempty"`
+	ImportLabel        *string                       `bson:"importlabel,omitempty"`
+	Method             *ExtractorMethodValue         `bson:"method,omitempty"`
+	Name               *string                       `bson:"name,omitempty"`
+	Namespace          *string                       `bson:"namespace,omitempty"`
+	Path               *string                       `bson:"path,omitempty"`
+	Propagate          *bool                         `bson:"propagate,omitempty"`
+	Script             *string                       `bson:"script,omitempty"`
+	Type               *ExtractorTypeValue           `bson:"type,omitempty"`
+	UpdateTime         *time.Time                    `bson:"updatetime,omitempty"`
+	ZHash              *int                          `bson:"zhash,omitempty"`
+	Zone               *int                          `bson:"zone,omitempty"`
 }

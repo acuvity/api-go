@@ -125,6 +125,12 @@
         "$ref": "textualdetection.json"
       },
       "type": "array"
+    },
+    "tracerefs": {
+      "items": {
+        "$ref": "traceref.json"
+      },
+      "type": "array"
     }
   },
   "title": "api resource lists",

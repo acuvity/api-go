@@ -13,7 +13,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "alertdefinitions",
   "$modelRestName": "alertdefinition",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a definition of an alert.",
   "properties": {
     "ID": {

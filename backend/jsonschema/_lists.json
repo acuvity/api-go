@@ -120,6 +120,12 @@
       },
       "type": "array"
     },
+    "destinations": {
+      "items": {
+        "$ref": "destination.json"
+      },
+      "type": "array"
+    },
     "detectionmatchers": {
       "items": {
         "$ref": "detectionmatcher.json"
@@ -165,6 +171,12 @@
     "extractionsummaries": {
       "items": {
         "$ref": "extractionsummary.json"
+      },
+      "type": "array"
+    },
+    "extractorrefs": {
+      "items": {
+        "$ref": "extractorref.json"
       },
       "type": "array"
     },
@@ -471,6 +483,24 @@
     "textualdetections": {
       "items": {
         "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    },
+    "tracerefs": {
+      "items": {
+        "$ref": "traceref.json"
+      },
+      "type": "array"
+    },
+    "traces": {
+      "items": {
+        "$ref": "trace.json"
+      },
+      "type": "array"
+    },
+    "tracesearches": {
+      "items": {
+        "$ref": "tracesearch.json"
       },
       "type": "array"
     },

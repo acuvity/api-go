@@ -620,6 +620,12 @@ Type: `time`
 
 Set the time of the message request.
 
+##### `trace`
+
+Type: [`traceref`](#traceref)
+
+References to the trace of the request.
+
 ##### `type`
 
 Type: `enum(Input | Output)`
@@ -1409,6 +1415,7 @@ Describe the principal.
 
 ```json
 {
+  "IP": "192.0.2.42",
   "authType": "Certificate",
   "team": "admins",
   "tokenName": "my-user-token",
@@ -1419,6 +1426,12 @@ Describe the principal.
 ```
 
 #### Attributes
+
+##### `IP`
+
+Type: `string`
+
+The source IP address of the request.
 
 ##### `app`
 
@@ -1452,7 +1465,7 @@ The name of the token, if any.
 
 ##### `type` [`required`]
 
-Type: `enum(User | App)`
+Type: `enum(User | App | External)`
 
 The type of principal.
 
@@ -1587,3 +1600,58 @@ The start position of the detection in the original data.
 Type: `enum(Keyword | PII | Secret | CDT)`
 
 The type of detection.
+
+### TraceRef
+
+Holds all references to a trace.
+
+#### Example
+
+```json
+{
+  "parentSpanID": "00f067aa0ba902b7",
+  "spanEnd": "2025-03-22T14:35:00.123456789Z",
+  "spanID": "6ba80aaa3b2f43d8",
+  "spanName": "acuvity_prompt_input_analysis",
+  "spanStart": "2025-03-22T14:35:00.123456789Z",
+  "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+}
+```
+
+#### Attributes
+
+##### `parentSpanID`
+
+Type: `string`
+
+The parent span ID that is being referenced.
+
+##### `spanEnd` [`required`]
+
+Type: `time`
+
+When the span ended.
+
+##### `spanID` [`required`]
+
+Type: `string`
+
+The span ID that is being referenced.
+
+##### `spanName` [`required`]
+
+Type: `string`
+
+The name of the span that is being collected.
+
+##### `spanStart` [`required`]
+
+Type: `time`
+
+When the span started.
+
+##### `traceID` [`required`]
+
+Type: `string`
+
+The Trace ID that is being referenced.

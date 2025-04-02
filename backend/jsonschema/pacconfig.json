@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "pacconfigs",
   "$modelRestName": "pacconfig",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "PAC Config allows to create a custom PAC, with a selection of services enabled.",
   "properties": {
     "ID": {

@@ -6,7 +6,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "sinkpagerduty",
   "$modelRestName": "sinkpagerduty",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Additional configuration for sending a PagerDuty event.",
   "properties": {
     "token": {

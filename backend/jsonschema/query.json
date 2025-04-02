@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@identifiable"
+    "@identifiable",
+    "@timepointable"
   ],
   "$friendlyName": "Query",
   "$friendlyNamePlural": "Queries",
@@ -8,7 +9,7 @@
   "$modelPackage": "snitch",
   "$modelResourceName": "queries",
   "$modelRestName": "query",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a Log.",
   "properties": {
     "ID": {

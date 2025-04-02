@@ -6,7 +6,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "alerttriggers",
   "$modelRestName": "alerttrigger",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the criteria to trigger an alert notification.",
   "properties": {
     "interval": {

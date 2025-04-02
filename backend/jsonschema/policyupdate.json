@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "policyupdates",
   "$modelRestName": "policyupdate",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Object used to notify Apexes for policy changes.",
   "properties": {
     "ID": {

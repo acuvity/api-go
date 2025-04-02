@@ -90,7 +90,7 @@ type SinkSplunk struct {
 	CertificateAuthority string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
 
 	// If true, will attempt to skip TLS verification when communicating.
-	InsecureSkipVerify bool `json:"insecureSkipVerify,omitempty" msgpack:"insecureSkipVerify,omitempty" bson:"insecureskipverify,omitempty" mapstructure:"insecureSkipVerify,omitempty"`
+	InsecureSkipVerify bool `json:"insecureSkipVerify" msgpack:"insecureSkipVerify" bson:"insecureskipverify" mapstructure:"insecureSkipVerify,omitempty"`
 
 	// The token to communicate with the HTTP event collector.
 	Token string `json:"token" msgpack:"token" bson:"token" mapstructure:"token,omitempty"`
@@ -684,7 +684,7 @@ func (o *SparseSinkSplunk) DeepCopyInto(out *SparseSinkSplunk) {
 type mongoAttributesSinkSplunk struct {
 	HECURL               string `bson:"hecurl"`
 	CertificateAuthority string `bson:"certificateauthority,omitempty"`
-	InsecureSkipVerify   bool   `bson:"insecureskipverify,omitempty"`
+	InsecureSkipVerify   bool   `bson:"insecureskipverify"`
 	Token                string `bson:"token"`
 }
 type mongoAttributesSparseSinkSplunk struct {

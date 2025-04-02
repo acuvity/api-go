@@ -23,6 +23,17 @@ const (
 	ProviderCategoryUser ProviderCategoryValue = "User"
 )
 
+// ProviderStatusValue represents the possible values for attribute "status".
+type ProviderStatusValue string
+
+const (
+	// ProviderStatusStable represents the value Stable.
+	ProviderStatusStable ProviderStatusValue = "Stable"
+
+	// ProviderStatusUnstable represents the value Unstable.
+	ProviderStatusUnstable ProviderStatusValue = "Unstable"
+)
+
 // ProviderIdentity represents the Identity of the object.
 var ProviderIdentity = elemental.Identity{
 	Name:     "provider",
@@ -100,7 +111,7 @@ type Provider struct {
 
 	// If enabled, run the analysis pipelines on the provider output. No policy will be
 	// applied, but the response will be analyzed and classified.
-	AnalyzeOutput bool `json:"analyzeOutput,omitempty" msgpack:"analyzeOutput,omitempty" bson:"analyzeoutput,omitempty" mapstructure:"analyzeOutput,omitempty"`
+	AnalyzeOutput bool `json:"analyzeOutput" msgpack:"analyzeOutput" bson:"analyzeoutput" mapstructure:"analyzeOutput,omitempty"`
 
 	// The category of the provider.
 	Category ProviderCategoryValue `json:"category" msgpack:"category" bson:"category" mapstructure:"category,omitempty"`
@@ -116,7 +127,10 @@ type Provider struct {
 
 	// If true, consider this provider as experimental. It will require to use a custom
 	// PAC Config to make it usable from the proxy.pac.
-	Experimental bool `json:"experimental,omitempty" msgpack:"experimental,omitempty" bson:"experimental,omitempty" mapstructure:"experimental,omitempty"`
+	Experimental bool `json:"experimental" msgpack:"experimental" bson:"experimental" mapstructure:"experimental,omitempty"`
+
+	// List of extractors for the provider.
+	Extractors []*ExtractorRef `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
 
 	// Friendly Name of the provider.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
@@ -137,9 +151,6 @@ type Provider struct {
 	// Defines injection point for javascript snippet.
 	Injectors []*Injector `json:"injectors,omitempty" msgpack:"injectors,omitempty" bson:"injectors,omitempty" mapstructure:"injectors,omitempty"`
 
-	// List of input extractors.
-	InputExtractors []*Extractor `json:"inputExtractors,omitempty" msgpack:"inputExtractors,omitempty" bson:"inputextractors,omitempty" mapstructure:"inputExtractors,omitempty"`
-
 	// List of user mappers.
 	Mappers []*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
 
@@ -149,15 +160,18 @@ type Provider struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// List of output extractors.
-	OutputExtractors []*Extractor `json:"outputExtractors,omitempty" msgpack:"outputExtractors,omitempty" bson:"outputextractors,omitempty" mapstructure:"outputExtractors,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
+	// The latest risk score of the provider.
+	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
+
+	// The support status of the provider.
+	Status ProviderStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
+
 	// If true, consider the incoming calls to use an acuvity token and swap them using
 	// registered providertokens.
-	TokenSwap bool `json:"tokenSwap,omitempty" msgpack:"tokenSwap,omitempty" bson:"tokenswap,omitempty" mapstructure:"tokenSwap,omitempty"`
+	TokenSwap bool `json:"tokenSwap" msgpack:"tokenSwap" bson:"tokenswap" mapstructure:"tokenSwap,omitempty"`
 
 	// If set, additionally trust the Certificate Authorities from the PEM data. This
 	// is useful when working on a custom provider using a self signed CA chain.
@@ -168,7 +182,7 @@ type Provider struct {
 
 	// If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
 	// dev purposes.
-	UpstreamUnsecure bool `json:"upstreamUnsecure,omitempty" msgpack:"upstreamUnsecure,omitempty" bson:"upstreamunsecure,omitempty" mapstructure:"upstreamUnsecure,omitempty"`
+	UpstreamUnsecure bool `json:"upstreamUnsecure" msgpack:"upstreamUnsecure" bson:"upstreamunsecure" mapstructure:"upstreamUnsecure,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -186,6 +200,7 @@ func NewProvider() *Provider {
 		ModelVersion: 1,
 		Hosts:        []*Host{},
 		Propagate:    true,
+		Status:       ProviderStatusStable,
 	}
 }
 
@@ -226,18 +241,19 @@ func (o *Provider) GetBSON() (any, error) {
 	s.Description = o.Description
 	s.ErrorTransformer = o.ErrorTransformer
 	s.Experimental = o.Experimental
+	s.Extractors = o.Extractors
 	s.FriendlyName = o.FriendlyName
 	s.Hosts = o.Hosts
 	s.Icon = o.Icon
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Injectors = o.Injectors
-	s.InputExtractors = o.InputExtractors
 	s.Mappers = o.Mappers
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.OutputExtractors = o.OutputExtractors
 	s.Propagate = o.Propagate
+	s.RiskScore = o.RiskScore
+	s.Status = o.Status
 	s.TokenSwap = o.TokenSwap
 	s.TrustedCA = o.TrustedCA
 	s.UpdateTime = o.UpdateTime
@@ -268,18 +284,19 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.ErrorTransformer = s.ErrorTransformer
 	o.Experimental = s.Experimental
+	o.Extractors = s.Extractors
 	o.FriendlyName = s.FriendlyName
 	o.Hosts = s.Hosts
 	o.Icon = s.Icon
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Injectors = s.Injectors
-	o.InputExtractors = s.InputExtractors
 	o.Mappers = s.Mappers
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.OutputExtractors = s.OutputExtractors
 	o.Propagate = s.Propagate
+	o.RiskScore = s.RiskScore
+	o.Status = s.Status
 	o.TokenSwap = s.TokenSwap
 	o.TrustedCA = s.TrustedCA
 	o.UpdateTime = s.UpdateTime
@@ -407,18 +424,19 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Description:      &o.Description,
 			ErrorTransformer: o.ErrorTransformer,
 			Experimental:     &o.Experimental,
+			Extractors:       &o.Extractors,
 			FriendlyName:     &o.FriendlyName,
 			Hosts:            &o.Hosts,
 			Icon:             &o.Icon,
 			ImportHash:       &o.ImportHash,
 			ImportLabel:      &o.ImportLabel,
 			Injectors:        &o.Injectors,
-			InputExtractors:  &o.InputExtractors,
 			Mappers:          &o.Mappers,
 			Name:             &o.Name,
 			Namespace:        &o.Namespace,
-			OutputExtractors: &o.OutputExtractors,
 			Propagate:        &o.Propagate,
+			RiskScore:        &o.RiskScore,
+			Status:           &o.Status,
 			TokenSwap:        &o.TokenSwap,
 			TrustedCA:        &o.TrustedCA,
 			UpdateTime:       &o.UpdateTime,
@@ -445,6 +463,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ErrorTransformer = o.ErrorTransformer
 		case "experimental":
 			sp.Experimental = &(o.Experimental)
+		case "extractors":
+			sp.Extractors = &(o.Extractors)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
 		case "hosts":
@@ -457,18 +477,18 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportLabel = &(o.ImportLabel)
 		case "injectors":
 			sp.Injectors = &(o.Injectors)
-		case "inputExtractors":
-			sp.InputExtractors = &(o.InputExtractors)
 		case "mappers":
 			sp.Mappers = &(o.Mappers)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "outputExtractors":
-			sp.OutputExtractors = &(o.OutputExtractors)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "riskScore":
+			sp.RiskScore = &(o.RiskScore)
+		case "status":
+			sp.Status = &(o.Status)
 		case "tokenSwap":
 			sp.TokenSwap = &(o.TokenSwap)
 		case "trustedCA":
@@ -515,6 +535,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Experimental != nil {
 		o.Experimental = *so.Experimental
 	}
+	if so.Extractors != nil {
+		o.Extractors = *so.Extractors
+	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
 	}
@@ -533,9 +556,6 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Injectors != nil {
 		o.Injectors = *so.Injectors
 	}
-	if so.InputExtractors != nil {
-		o.InputExtractors = *so.InputExtractors
-	}
 	if so.Mappers != nil {
 		o.Mappers = *so.Mappers
 	}
@@ -545,11 +565,14 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.OutputExtractors != nil {
-		o.OutputExtractors = *so.OutputExtractors
-	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
+	}
+	if so.RiskScore != nil {
+		o.RiskScore = *so.RiskScore
+	}
+	if so.Status != nil {
+		o.Status = *so.Status
 	}
 	if so.TokenSwap != nil {
 		o.TokenSwap = *so.TokenSwap
@@ -616,6 +639,16 @@ func (o *Provider) Validate() error {
 		}
 	}
 
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -640,16 +673,6 @@ func (o *Provider) Validate() error {
 		}
 	}
 
-	for _, sub := range o.InputExtractors {
-		if sub == nil {
-			continue
-		}
-		elemental.ResetDefaultForZeroValues(sub)
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
-	}
-
 	for _, sub := range o.Mappers {
 		if sub == nil {
 			continue
@@ -664,14 +687,12 @@ func (o *Provider) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.OutputExtractors {
-		if sub == nil {
-			continue
-		}
-		elemental.ResetDefaultForZeroValues(sub)
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
+	if err := elemental.ValidateRequiredString("status", string(o.Status)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Stable", "Unstable"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := ValidatePEM("trustedCA", o.TrustedCA); err != nil {
@@ -731,6 +752,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.ErrorTransformer
 	case "experimental":
 		return o.Experimental
+	case "extractors":
+		return o.Extractors
 	case "friendlyName":
 		return o.FriendlyName
 	case "hosts":
@@ -743,18 +766,18 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "injectors":
 		return o.Injectors
-	case "inputExtractors":
-		return o.InputExtractors
 	case "mappers":
 		return o.Mappers
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "outputExtractors":
-		return o.OutputExtractors
 	case "propagate":
 		return o.Propagate
+	case "riskScore":
+		return o.RiskScore
+	case "status":
+		return o.Status
 	case "tokenSwap":
 		return o.TokenSwap
 	case "trustedCA":
@@ -859,6 +882,17 @@ PAC Config to make it usable from the proxy.pac.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"Extractors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
+		ConvertedName:  "Extractors",
+		Description:    `List of extractors for the provider.`,
+		Exposed:        true,
+		Name:           "extractors",
+		Stored:         true,
+		SubType:        "extractorref",
+		Type:           "refList",
+	},
 	"FriendlyName": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
@@ -930,17 +964,6 @@ same import operation.`,
 		SubType:        "injector",
 		Type:           "refList",
 	},
-	"InputExtractors": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "inputextractors",
-		ConvertedName:  "InputExtractors",
-		Description:    `List of input extractors.`,
-		Exposed:        true,
-		Name:           "inputExtractors",
-		Stored:         true,
-		SubType:        "extractor",
-		Type:           "refList",
-	},
 	"Mappers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "mappers",
@@ -978,17 +1001,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"OutputExtractors": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "outputextractors",
-		ConvertedName:  "OutputExtractors",
-		Description:    `List of output extractors.`,
-		Exposed:        true,
-		Name:           "outputExtractors",
-		Stored:         true,
-		SubType:        "extractor",
-		Type:           "refList",
-	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1001,6 +1013,28 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"RiskScore": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "riskscore",
+		ConvertedName:  "RiskScore",
+		Description:    `The latest risk score of the provider.`,
+		Exposed:        true,
+		Name:           "riskScore",
+		Stored:         true,
+		Type:           "float",
+	},
+	"Status": {
+		AllowedChoices: []string{"Stable", "Unstable"},
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   ProviderStatusStable,
+		Description:    `The support status of the provider.`,
+		Exposed:        true,
+		Name:           "status",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"TokenSwap": {
 		AllowedChoices: []string{},
@@ -1139,6 +1173,17 @@ PAC Config to make it usable from the proxy.pac.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"extractors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
+		ConvertedName:  "Extractors",
+		Description:    `List of extractors for the provider.`,
+		Exposed:        true,
+		Name:           "extractors",
+		Stored:         true,
+		SubType:        "extractorref",
+		Type:           "refList",
+	},
 	"friendlyname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
@@ -1210,17 +1255,6 @@ same import operation.`,
 		SubType:        "injector",
 		Type:           "refList",
 	},
-	"inputextractors": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "inputextractors",
-		ConvertedName:  "InputExtractors",
-		Description:    `List of input extractors.`,
-		Exposed:        true,
-		Name:           "inputExtractors",
-		Stored:         true,
-		SubType:        "extractor",
-		Type:           "refList",
-	},
 	"mappers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "mappers",
@@ -1258,17 +1292,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"outputextractors": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "outputextractors",
-		ConvertedName:  "OutputExtractors",
-		Description:    `List of output extractors.`,
-		Exposed:        true,
-		Name:           "outputExtractors",
-		Stored:         true,
-		SubType:        "extractor",
-		Type:           "refList",
-	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1281,6 +1304,28 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"riskscore": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "riskscore",
+		ConvertedName:  "RiskScore",
+		Description:    `The latest risk score of the provider.`,
+		Exposed:        true,
+		Name:           "riskScore",
+		Stored:         true,
+		Type:           "float",
+	},
+	"status": {
+		AllowedChoices: []string{"Stable", "Unstable"},
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   ProviderStatusStable,
+		Description:    `The support status of the provider.`,
+		Exposed:        true,
+		Name:           "status",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"tokenswap": {
 		AllowedChoices: []string{},
@@ -1418,6 +1463,9 @@ type SparseProvider struct {
 	// PAC Config to make it usable from the proxy.pac.
 	Experimental *bool `json:"experimental,omitempty" msgpack:"experimental,omitempty" bson:"experimental,omitempty" mapstructure:"experimental,omitempty"`
 
+	// List of extractors for the provider.
+	Extractors *[]*ExtractorRef `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
+
 	// Friendly Name of the provider.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
@@ -1437,9 +1485,6 @@ type SparseProvider struct {
 	// Defines injection point for javascript snippet.
 	Injectors *[]*Injector `json:"injectors,omitempty" msgpack:"injectors,omitempty" bson:"injectors,omitempty" mapstructure:"injectors,omitempty"`
 
-	// List of input extractors.
-	InputExtractors *[]*Extractor `json:"inputExtractors,omitempty" msgpack:"inputExtractors,omitempty" bson:"inputextractors,omitempty" mapstructure:"inputExtractors,omitempty"`
-
 	// List of user mappers.
 	Mappers *[]*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
 
@@ -1449,11 +1494,14 @@ type SparseProvider struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// List of output extractors.
-	OutputExtractors *[]*Extractor `json:"outputExtractors,omitempty" msgpack:"outputExtractors,omitempty" bson:"outputextractors,omitempty" mapstructure:"outputExtractors,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
+	// The latest risk score of the provider.
+	RiskScore *float64 `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
+
+	// The support status of the provider.
+	Status *ProviderStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// If true, consider the incoming calls to use an acuvity token and swap them using
 	// registered providertokens.
@@ -1540,6 +1588,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Experimental != nil {
 		s.Experimental = o.Experimental
 	}
+	if o.Extractors != nil {
+		s.Extractors = o.Extractors
+	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
 	}
@@ -1558,9 +1609,6 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Injectors != nil {
 		s.Injectors = o.Injectors
 	}
-	if o.InputExtractors != nil {
-		s.InputExtractors = o.InputExtractors
-	}
 	if o.Mappers != nil {
 		s.Mappers = o.Mappers
 	}
@@ -1570,11 +1618,14 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.OutputExtractors != nil {
-		s.OutputExtractors = o.OutputExtractors
-	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
+	}
+	if o.RiskScore != nil {
+		s.RiskScore = o.RiskScore
+	}
+	if o.Status != nil {
+		s.Status = o.Status
 	}
 	if o.TokenSwap != nil {
 		s.TokenSwap = o.TokenSwap
@@ -1631,6 +1682,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Experimental != nil {
 		o.Experimental = s.Experimental
 	}
+	if s.Extractors != nil {
+		o.Extractors = s.Extractors
+	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
 	}
@@ -1649,9 +1703,6 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Injectors != nil {
 		o.Injectors = s.Injectors
 	}
-	if s.InputExtractors != nil {
-		o.InputExtractors = s.InputExtractors
-	}
 	if s.Mappers != nil {
 		o.Mappers = s.Mappers
 	}
@@ -1661,11 +1712,14 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.OutputExtractors != nil {
-		o.OutputExtractors = s.OutputExtractors
-	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
+	}
+	if s.RiskScore != nil {
+		o.RiskScore = s.RiskScore
+	}
+	if s.Status != nil {
+		o.Status = s.Status
 	}
 	if s.TokenSwap != nil {
 		o.TokenSwap = s.TokenSwap
@@ -1720,6 +1774,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	if o.Experimental != nil {
 		out.Experimental = *o.Experimental
 	}
+	if o.Extractors != nil {
+		out.Extractors = *o.Extractors
+	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
 	}
@@ -1738,9 +1795,6 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	if o.Injectors != nil {
 		out.Injectors = *o.Injectors
 	}
-	if o.InputExtractors != nil {
-		out.InputExtractors = *o.InputExtractors
-	}
 	if o.Mappers != nil {
 		out.Mappers = *o.Mappers
 	}
@@ -1750,11 +1804,14 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.OutputExtractors != nil {
-		out.OutputExtractors = *o.OutputExtractors
-	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
+	}
+	if o.RiskScore != nil {
+		out.RiskScore = *o.RiskScore
+	}
+	if o.Status != nil {
+		out.Status = *o.Status
 	}
 	if o.TokenSwap != nil {
 		out.TokenSwap = *o.TokenSwap
@@ -1900,28 +1957,29 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 
 type mongoAttributesProvider struct {
 	ID               bson.ObjectId         `bson:"_id,omitempty"`
-	AnalyzeOutput    bool                  `bson:"analyzeoutput,omitempty"`
+	AnalyzeOutput    bool                  `bson:"analyzeoutput"`
 	Category         ProviderCategoryValue `bson:"category"`
 	CreateTime       time.Time             `bson:"createtime"`
 	Description      string                `bson:"description"`
 	ErrorTransformer *ErrorTransformer     `bson:"errortransformer"`
-	Experimental     bool                  `bson:"experimental,omitempty"`
+	Experimental     bool                  `bson:"experimental"`
+	Extractors       []*ExtractorRef       `bson:"extractors,omitempty"`
 	FriendlyName     string                `bson:"friendlyname"`
 	Hosts            []*Host               `bson:"hosts"`
 	Icon             string                `bson:"icon,omitempty"`
 	ImportHash       string                `bson:"importhash,omitempty"`
 	ImportLabel      string                `bson:"importlabel,omitempty"`
 	Injectors        []*Injector           `bson:"injectors,omitempty"`
-	InputExtractors  []*Extractor          `bson:"inputextractors,omitempty"`
 	Mappers          []*Mapper             `bson:"mappers,omitempty"`
 	Name             string                `bson:"name"`
 	Namespace        string                `bson:"namespace,omitempty"`
-	OutputExtractors []*Extractor          `bson:"outputextractors,omitempty"`
 	Propagate        bool                  `bson:"propagate"`
-	TokenSwap        bool                  `bson:"tokenswap,omitempty"`
+	RiskScore        float64               `bson:"riskscore"`
+	Status           ProviderStatusValue   `bson:"status"`
+	TokenSwap        bool                  `bson:"tokenswap"`
 	TrustedCA        string                `bson:"trustedca,omitempty"`
 	UpdateTime       time.Time             `bson:"updatetime"`
-	UpstreamUnsecure bool                  `bson:"upstreamunsecure,omitempty"`
+	UpstreamUnsecure bool                  `bson:"upstreamunsecure"`
 	ZHash            int                   `bson:"zhash"`
 	Zone             int                   `bson:"zone"`
 }
@@ -1933,18 +1991,19 @@ type mongoAttributesSparseProvider struct {
 	Description      *string                `bson:"description,omitempty"`
 	ErrorTransformer *ErrorTransformer      `bson:"errortransformer,omitempty"`
 	Experimental     *bool                  `bson:"experimental,omitempty"`
+	Extractors       *[]*ExtractorRef       `bson:"extractors,omitempty"`
 	FriendlyName     *string                `bson:"friendlyname,omitempty"`
 	Hosts            *[]*Host               `bson:"hosts,omitempty"`
 	Icon             *string                `bson:"icon,omitempty"`
 	ImportHash       *string                `bson:"importhash,omitempty"`
 	ImportLabel      *string                `bson:"importlabel,omitempty"`
 	Injectors        *[]*Injector           `bson:"injectors,omitempty"`
-	InputExtractors  *[]*Extractor          `bson:"inputextractors,omitempty"`
 	Mappers          *[]*Mapper             `bson:"mappers,omitempty"`
 	Name             *string                `bson:"name,omitempty"`
 	Namespace        *string                `bson:"namespace,omitempty"`
-	OutputExtractors *[]*Extractor          `bson:"outputextractors,omitempty"`
 	Propagate        *bool                  `bson:"propagate,omitempty"`
+	RiskScore        *float64               `bson:"riskscore,omitempty"`
+	Status           *ProviderStatusValue   `bson:"status,omitempty"`
 	TokenSwap        *bool                  `bson:"tokenswap,omitempty"`
 	TrustedCA        *string                `bson:"trustedca,omitempty"`
 	UpdateTime       *time.Time             `bson:"updatetime,omitempty"`

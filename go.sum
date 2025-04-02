@@ -109,8 +109,8 @@ github.com/xeipuuv/gojsonschema v1.2.0 h1:LhYJRs+L4fBtjZUfuSZIKGeVu0QRy8e5Xi7D17
 github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQluxsYJ78Id3Y=
 go.acuvity.ai/elemental v0.0.0-20250226152430-c139902eba00 h1:juUUn54tyhwvwb08RroIYM/eoCXa3ET109Cf7HLmJ/I=
 go.acuvity.ai/elemental v0.0.0-20250226152430-c139902eba00/go.mod h1:sDDu7o1PoVLZHexbSxtsw/vNljuoDYDKCoN4V4JSQZw=
-go.acuvity.ai/regolithe v0.0.0-20250226152157-fbd9f24f9cec h1:k5uqnR33CXi0xMCox4lpZDl2RNJ3omZJHh5SjtZUEv4=
-go.acuvity.ai/regolithe v0.0.0-20250226152157-fbd9f24f9cec/go.mod h1:hYoJkZRbNRpHKMNtNiugQDu6emXrhHP/Es5xAX35O2Y=
+go.acuvity.ai/regolithe v0.0.0-20250321141528-1fe83b60f317 h1:zNRhRowG4yQgncNdR/IBZBhLskcc4W30QOWzpVVOZzM=
+go.acuvity.ai/regolithe v0.0.0-20250321141528-1fe83b60f317/go.mod h1:hYoJkZRbNRpHKMNtNiugQDu6emXrhHP/Es5xAX35O2Y=
 golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 golang.org/x/crypto v0.35.0 h1:b15kiHdrGCHrP6LvwaQ3c03kgNhhiMgvlhxHQhmg2Xs=
 golang.org/x/crypto v0.35.0/go.mod h1:dy7dXNW32cAb/6/PRuTNsix8T+vJAqvuIy5Bli/x0YQ=

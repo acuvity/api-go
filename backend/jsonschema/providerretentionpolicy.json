@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "providerretentionpolicies",
   "$modelRestName": "providerretentionpolicy",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents data retention policy for a given subscription type.",
   "properties": {
     "description": {

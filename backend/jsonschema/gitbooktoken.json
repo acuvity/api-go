@@ -6,7 +6,7 @@
   "$modelPackage": "amaterasu",
   "$modelResourceName": "gitbooktokens",
   "$modelRestName": "gitbooktoken",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Allows to exchange an Acuvity token for a token signed for our documentation.",
   "properties": {
     "token": {

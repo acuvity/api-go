@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "webextensionconfigs",
   "$modelRestName": "webextensionconfig",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "WebExtensionConfig stores the configuration information for the webextension.",
   "properties": {
     "ID": {

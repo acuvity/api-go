@@ -8,7 +8,7 @@
   "$modelPackage": "colektor",
   "$modelResourceName": "extractionrequests",
   "$modelRestName": "extractionrequest",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents the extraction that the user wants to extract.",
   "properties": {
     "annotations": {

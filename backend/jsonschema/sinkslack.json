@@ -6,7 +6,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "sinkslack",
   "$modelRestName": "sinkslack",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Additional configuration for sending a Slack message.",
   "properties": {
     "webhookURL": {

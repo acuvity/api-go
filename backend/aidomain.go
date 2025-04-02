@@ -97,10 +97,10 @@ type AIDomain struct {
 	DataResidency []string `json:"dataResidency,omitempty" msgpack:"dataResidency,omitempty" bson:"dataresidency,omitempty" mapstructure:"dataResidency,omitempty"`
 
 	// Does the provider share user data with 3rd party or services.
-	DataSharing bool `json:"dataSharing,omitempty" msgpack:"dataSharing,omitempty" bson:"datasharing,omitempty" mapstructure:"dataSharing,omitempty"`
+	DataSharing bool `json:"dataSharing" msgpack:"dataSharing" bson:"datasharing" mapstructure:"dataSharing,omitempty"`
 
 	// Does the provider share user data with consent with 3rd party or services.
-	DataSharingConsent bool `json:"dataSharingConsent,omitempty" msgpack:"dataSharingConsent,omitempty" bson:"datasharingconsent,omitempty" mapstructure:"dataSharingConsent,omitempty"`
+	DataSharingConsent bool `json:"dataSharingConsent" msgpack:"dataSharingConsent" bson:"datasharingconsent" mapstructure:"dataSharingConsent,omitempty"`
 
 	// A brief description about the AI domain and what services it provides.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
@@ -143,7 +143,7 @@ type AIDomain struct {
 	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
 	// Does provider use third party model.
-	ThirdPartyModelUsage bool `json:"thirdPartyModelUsage,omitempty" msgpack:"thirdPartyModelUsage,omitempty" bson:"thirdpartymodelusage,omitempty" mapstructure:"thirdPartyModelUsage,omitempty"`
+	ThirdPartyModelUsage bool `json:"thirdPartyModelUsage" msgpack:"thirdPartyModelUsage" bson:"thirdpartymodelusage" mapstructure:"thirdPartyModelUsage,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -1731,8 +1731,8 @@ type mongoAttributesAIDomain struct {
 	Compliances               []string                   `bson:"compliances,omitempty"`
 	CreateTime                time.Time                  `bson:"createtime"`
 	DataResidency             []string                   `bson:"dataresidency,omitempty"`
-	DataSharing               bool                       `bson:"datasharing,omitempty"`
-	DataSharingConsent        bool                       `bson:"datasharingconsent,omitempty"`
+	DataSharing               bool                       `bson:"datasharing"`
+	DataSharingConsent        bool                       `bson:"datasharingconsent"`
 	Description               string                     `bson:"description,omitempty"`
 	Domain                    string                     `bson:"domain"`
 	ImportHash                string                     `bson:"importhash,omitempty"`
@@ -1746,7 +1746,7 @@ type mongoAttributesAIDomain struct {
 	ProviderTrainingPolicies  []*ProviderTrainingPolicy  `bson:"providertrainingpolicies,omitempty"`
 	RiskExplanation           string                     `bson:"riskexplanation,omitempty"`
 	RiskScore                 float64                    `bson:"riskscore"`
-	ThirdPartyModelUsage      bool                       `bson:"thirdpartymodelusage,omitempty"`
+	ThirdPartyModelUsage      bool                       `bson:"thirdpartymodelusage"`
 	UpdateTime                time.Time                  `bson:"updatetime"`
 	ZHash                     int                        `bson:"zhash"`
 	Zone                      int                        `bson:"zone"`

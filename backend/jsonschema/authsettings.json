@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "authsettings",
   "$modelRestName": "authsettings",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Returns the authentication source names available for this organization.",
   "properties": {
     "sourceName": {

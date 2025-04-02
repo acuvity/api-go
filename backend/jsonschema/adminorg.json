@@ -8,7 +8,7 @@
   "$modelPackage": "ultradmin",
   "$modelResourceName": "adminorgs",
   "$modelRestName": "adminorg",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Administrative API to create new organizations.",
   "properties": {
     "ID": {

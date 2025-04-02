@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "analysis",
   "$modelRestName": "analysis",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represent a ml pipeline graph analysis.",
   "properties": {
     "analyses": {

@@ -6,7 +6,7 @@
   "$modelPackage": "avi",
   "$modelResourceName": "sinksplunk",
   "$modelRestName": "sinksplunk",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Additional configuration for sending an alert to Splunk.",
   "properties": {
     "HECURL": {

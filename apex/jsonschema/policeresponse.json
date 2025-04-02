@@ -11,7 +11,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "policeresponses",
   "$modelRestName": "policeresponse",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "This is a scan and police response.",
   "properties": {
     "ID": {

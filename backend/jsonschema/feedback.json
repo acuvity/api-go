@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "feedbacks",
   "$modelRestName": "feedback",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Feedbacks from user regarding analysis decisions.",
   "properties": {
     "ID": {

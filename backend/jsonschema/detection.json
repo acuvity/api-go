@@ -8,7 +8,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "detections",
   "$modelRestName": "detection",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represent a detection.",
   "properties": {
     "confidence": {

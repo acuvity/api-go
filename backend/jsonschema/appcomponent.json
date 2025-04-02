@@ -6,7 +6,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "appcomponents",
   "$modelRestName": "appcomponent",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents a particular component of the application.",
   "properties": {
     "CAInjectionEnabled": {
@@ -54,6 +54,15 @@
       "pattern": "^[a-zA-Z0-9-_]+$",
       "title": "name",
       "type": "string"
+    },
+    "providerName": {
+      "$friendlyName": "Provider Name",
+      "description": "If given, this is the provider name that this component represents. This **MUST** match the name of a provider.",
+      "title": "providerName",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "selector": {
       "$friendlyName": "Selector",

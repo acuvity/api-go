@@ -29,6 +29,8 @@ var (
 
 		"errortransformer": ErrorTransformerIdentity,
 
+		"extractor": ExtractorIdentity,
+
 		"feedback":     FeedbackIdentity,
 		"gitbooktoken": GitbookTokenIdentity,
 
@@ -78,6 +80,9 @@ var (
 		"sinksplunk":     SinkSplunkIdentity,
 		"team":           TeamIdentity,
 
+		"trace":              TraceIdentity,
+		"traceref":           TraceRefIdentity,
+		"tracesearch":        TraceSearchIdentity,
 		"usertoken":          UserTokenIdentity,
 		"visitedurl":         VisitedURLIdentity,
 		"watchedorg":         WatchedOrgIdentity,
@@ -106,6 +111,8 @@ var (
 		"customdatatypes":   CustomDataTypeIdentity,
 
 		"errortransformers": ErrorTransformerIdentity,
+
+		"extractors": ExtractorIdentity,
 
 		"feedbacks":     FeedbackIdentity,
 		"gitbooktokens": GitbookTokenIdentity,
@@ -156,6 +163,9 @@ var (
 		"sinksplunk":      SinkSplunkIdentity,
 		"teams":           TeamIdentity,
 
+		"traces":              TraceIdentity,
+		"tracerefs":           TraceRefIdentity,
+		"tracesearches":       TraceSearchIdentity,
 		"usertokens":          UserTokenIdentity,
 		"visitedurls":         VisitedURLIdentity,
 		"watchedorgs":         WatchedOrgIdentity,
@@ -223,6 +233,11 @@ var (
 			{"namespace", "name"},
 		},
 		"errortransformer": nil,
+		"extractor": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"feedback": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "logHash", "key", "value"},
@@ -315,6 +330,9 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"trace":       nil,
+		"traceref":    nil,
+		"tracesearch": nil,
 		"usertoken": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -401,6 +419,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewCustomDataType()
 	case ErrorTransformerIdentity:
 		return NewErrorTransformer()
+	case ExtractorIdentity:
+		return NewExtractor()
 	case FeedbackIdentity:
 		return NewFeedback()
 	case GitbookTokenIdentity:
@@ -481,6 +501,12 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSinkSplunk()
 	case TeamIdentity:
 		return NewTeam()
+	case TraceIdentity:
+		return NewTrace()
+	case TraceRefIdentity:
+		return NewTraceRef()
+	case TraceSearchIdentity:
+		return NewTraceSearch()
 	case UserTokenIdentity:
 		return NewUserToken()
 	case VisitedURLIdentity:
@@ -530,6 +556,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseCustomDataType()
 	case ErrorTransformerIdentity:
 		return NewSparseErrorTransformer()
+	case ExtractorIdentity:
+		return NewSparseExtractor()
 	case FeedbackIdentity:
 		return NewSparseFeedback()
 	case GitbookTokenIdentity:
@@ -608,6 +636,12 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSinkSplunk()
 	case TeamIdentity:
 		return NewSparseTeam()
+	case TraceIdentity:
+		return NewSparseTrace()
+	case TraceRefIdentity:
+		return NewSparseTraceRef()
+	case TraceSearchIdentity:
+		return NewSparseTraceSearch()
 	case UserTokenIdentity:
 		return NewSparseUserToken()
 	case VisitedURLIdentity:
@@ -667,6 +701,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &CustomDataTypesList{}
 	case ErrorTransformerIdentity:
 		return &ErrorTransformersList{}
+	case ExtractorIdentity:
+		return &ExtractorsList{}
 	case FeedbackIdentity:
 		return &FeedbacksList{}
 	case GitbookTokenIdentity:
@@ -745,6 +781,12 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SinkSplunksList{}
 	case TeamIdentity:
 		return &TeamsList{}
+	case TraceIdentity:
+		return &TracesList{}
+	case TraceRefIdentity:
+		return &TraceRefsList{}
+	case TraceSearchIdentity:
+		return &TraceSearchesList{}
 	case UserTokenIdentity:
 		return &UserTokensList{}
 	case VisitedURLIdentity:
@@ -794,6 +836,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseCustomDataTypesList{}
 	case ErrorTransformerIdentity:
 		return &SparseErrorTransformersList{}
+	case ExtractorIdentity:
+		return &SparseExtractorsList{}
 	case FeedbackIdentity:
 		return &SparseFeedbacksList{}
 	case GitbookTokenIdentity:
@@ -872,6 +916,12 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSinkSplunksList{}
 	case TeamIdentity:
 		return &SparseTeamsList{}
+	case TraceIdentity:
+		return &SparseTracesList{}
+	case TraceRefIdentity:
+		return &SparseTraceRefsList{}
+	case TraceSearchIdentity:
+		return &SparseTraceSearchesList{}
 	case UserTokenIdentity:
 		return &SparseUserTokensList{}
 	case VisitedURLIdentity:
@@ -924,6 +974,7 @@ func AllIdentities() []elemental.Identity {
 		ContentPolicyIdentity,
 		CustomDataTypeIdentity,
 		ErrorTransformerIdentity,
+		ExtractorIdentity,
 		FeedbackIdentity,
 		GitbookTokenIdentity,
 		IgnoredDomainIdentity,
@@ -964,6 +1015,9 @@ func AllIdentities() []elemental.Identity {
 		SinkSlackIdentity,
 		SinkSplunkIdentity,
 		TeamIdentity,
+		TraceIdentity,
+		TraceRefIdentity,
+		TraceSearchIdentity,
 		UserTokenIdentity,
 		VisitedURLIdentity,
 		WatchedOrgIdentity,
@@ -1006,6 +1060,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case CustomDataTypeIdentity:
 		return []string{}
 	case ErrorTransformerIdentity:
+		return []string{}
+	case ExtractorIdentity:
 		return []string{}
 	case FeedbackIdentity:
 		return []string{}
@@ -1086,6 +1142,12 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SinkSplunkIdentity:
 		return []string{}
 	case TeamIdentity:
+		return []string{}
+	case TraceIdentity:
+		return []string{}
+	case TraceRefIdentity:
+		return []string{}
+	case TraceSearchIdentity:
 		return []string{}
 	case UserTokenIdentity:
 		return []string{}

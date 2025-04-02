@@ -44,7 +44,7 @@ type Moderation struct {
 	Predicates []*Predicate `json:"predicates" msgpack:"predicates" bson:"predicates" mapstructure:"predicates,omitempty"`
 
 	// If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.
-	Redact bool `json:"redact,omitempty" msgpack:"redact,omitempty" bson:"redact,omitempty" mapstructure:"redact,omitempty"`
+	Redact bool `json:"redact" msgpack:"redact" bson:"redact" mapstructure:"redact,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -345,5 +345,5 @@ type mongoAttributesModeration struct {
 	Link            string                `bson:"link,omitempty"`
 	Message         string                `bson:"message"`
 	Predicates      []*Predicate          `bson:"predicates"`
-	Redact          bool                  `bson:"redact,omitempty"`
+	Redact          bool                  `bson:"redact"`
 }

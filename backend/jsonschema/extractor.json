@@ -1,7 +1,12 @@
 {
   "$extends": [
-    "@matcher",
-    "@anonymizationable"
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@anonymizationable",
+    "@urlmatcher",
+    "@auto-propagated"
   ],
   "$friendlyName": "Extractor",
   "$friendlyNamePlural": "Extractors",
@@ -9,9 +14,29 @@
   "$modelPackage": "lain",
   "$modelResourceName": "extractors",
   "$modelRestName": "extractor",
-  "additionalProperties": true,
-  "description": "TODO.",
+  "additionalProperties": false,
+  "description": "An extractor allows to create a reusable extractor for providers.",
   "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "SSEManagement": {
+      "$defaultValue": "Collect",
+      "$friendlyName": "SSE Management",
+      "description": "This property defines how you want the extractor to work with server-side events. With Collect all the events buffer until the server closes the connection and sends the entire data to the lua code while Stream will collect line by line and will send events line by line.",
+      "enum": [
+        "Collect",
+        "Stream"
+      ],
+      "title": "SSEManagement"
+    },
     "analyzers": {
       "$friendlyName": "Analyzers",
       "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analyzis (slower but more acurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analyzis (faster but less acurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
@@ -66,6 +91,16 @@
       ],
       "title": "cancelBehavior"
     },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "deanonymize": {
       "$friendlyName": "Deanonymize",
       "description": "If true, deanonymize the redacted data. This has no effects on streaming output.",
@@ -75,17 +110,23 @@
         "null"
       ]
     },
-    "hosts": {
-      "$friendlyName": "Hosts",
-      "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "hosts",
-      "type": "array"
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the provider.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "honorPriorDecision": {
+      "$friendlyName": "Honor Prior Decision",
+      "description": "If true, it will wait on a prior popup and honor its decision. It only has effect if there is an existing popup being shown.",
+      "title": "honorPriorDecision",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "ignore": {
       "$friendlyName": "Ignore",
@@ -96,12 +137,25 @@
         "null"
       ]
     },
-    "match": {
-      "$friendlyName": "Match",
-      "$required": true,
-      "description": "A regular expression to match an URL to log.",
-      "title": "match",
-      "type": "string"
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "method": {
       "$friendlyName": "Method",
@@ -119,11 +173,38 @@
       "title": "method"
     },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
-      "description": "The name of the extractor. It will be used to identify which extractor was used during an extraction.",
+      "$required": true,
+      "description": "The internal reference name of the object.",
+      "pattern": "^[a-zA-Z0-9-_/]+$",
       "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "path": {
+      "$friendlyName": "Path",
+      "$required": true,
+      "description": "A regular expression to match a URL path to log.",
+      "title": "path",
+      "type": "string"
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
         "null"
       ]
     },
@@ -135,11 +216,33 @@
         "string",
         "null"
       ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of extractor.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
-    "match",
-    "method"
+    "method",
+    "name",
+    "path",
+    "type"
   ],
   "title": "Extractor",
   "type": "object"

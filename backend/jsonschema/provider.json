@@ -12,7 +12,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "providers",
   "$modelRestName": "provider",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Providers are services that can be accessed using the APEX. These can both be external services as well as internal services built/deployed within the organization.",
   "properties": {
     "ID": {
@@ -78,6 +78,15 @@
         "null"
       ]
     },
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "description": "List of extractors for the provider.",
+      "items": {
+        "$ref": "extractorref.json"
+      },
+      "title": "extractors",
+      "type": "array"
+    },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
       "$required": true,
@@ -132,15 +141,6 @@
       "title": "injectors",
       "type": "array"
     },
-    "inputExtractors": {
-      "$friendlyName": "InputExtractors",
-      "description": "List of input extractors.",
-      "items": {
-        "$ref": "extractor.json"
-      },
-      "title": "inputExtractors",
-      "type": "array"
-    },
     "mappers": {
       "$friendlyName": "Mappers",
       "description": "List of user mappers.",
@@ -167,15 +167,6 @@
         "null"
       ]
     },
-    "outputExtractors": {
-      "$friendlyName": "OutputExtractors",
-      "description": "List of output extractors.",
-      "items": {
-        "$ref": "extractor.json"
-      },
-      "title": "outputExtractors",
-      "type": "array"
-    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -185,6 +176,26 @@
         "boolean",
         "null"
       ]
+    },
+    "riskScore": {
+      "$friendlyName": "Risk Score",
+      "description": "The latest risk score of the provider.",
+      "title": "riskScore",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "status": {
+      "$defaultValue": "Stable",
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The support status of the provider.",
+      "enum": [
+        "Stable",
+        "Unstable"
+      ],
+      "title": "status"
     },
     "tokenSwap": {
       "$friendlyName": "TokenSwap",
@@ -227,7 +238,8 @@
   "required": [
     "category",
     "friendlyName",
-    "name"
+    "name",
+    "status"
   ],
   "title": "Provider",
   "type": "object"

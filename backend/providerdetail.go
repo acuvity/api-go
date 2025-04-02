@@ -93,10 +93,10 @@ type ProviderDetail struct {
 	DataResidency []string `json:"dataResidency,omitempty" msgpack:"dataResidency,omitempty" bson:"dataresidency,omitempty" mapstructure:"dataResidency,omitempty"`
 
 	// Does the provider share user data with 3rd party or services.
-	DataSharing bool `json:"dataSharing,omitempty" msgpack:"dataSharing,omitempty" bson:"datasharing,omitempty" mapstructure:"dataSharing,omitempty"`
+	DataSharing bool `json:"dataSharing" msgpack:"dataSharing" bson:"datasharing" mapstructure:"dataSharing,omitempty"`
 
 	// Does the provider share user data with consent with 3rd party or services.
-	DataSharingConsent bool `json:"dataSharingConsent,omitempty" msgpack:"dataSharingConsent,omitempty" bson:"datasharingconsent,omitempty" mapstructure:"dataSharingConsent,omitempty"`
+	DataSharingConsent bool `json:"dataSharingConsent" msgpack:"dataSharingConsent" bson:"datasharingconsent" mapstructure:"dataSharingConsent,omitempty"`
 
 	// The description of the provider detail.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
@@ -129,7 +129,7 @@ type ProviderDetail struct {
 	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"-" mapstructure:"riskScore,omitempty"`
 
 	// Does provider use third party model.
-	ThirdPartyModelUsage bool `json:"thirdPartyModelUsage,omitempty" msgpack:"thirdPartyModelUsage,omitempty" bson:"thirdpartymodelusage,omitempty" mapstructure:"thirdPartyModelUsage,omitempty"`
+	ThirdPartyModelUsage bool `json:"thirdPartyModelUsage" msgpack:"thirdPartyModelUsage" bson:"thirdpartymodelusage" mapstructure:"thirdPartyModelUsage,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -1201,13 +1201,13 @@ type mongoAttributesProviderDetail struct {
 	ID                        bson.ObjectId              `bson:"_id,omitempty"`
 	Compliances               []string                   `bson:"compliances,omitempty"`
 	DataResidency             []string                   `bson:"dataresidency,omitempty"`
-	DataSharing               bool                       `bson:"datasharing,omitempty"`
-	DataSharingConsent        bool                       `bson:"datasharingconsent,omitempty"`
+	DataSharing               bool                       `bson:"datasharing"`
+	DataSharingConsent        bool                       `bson:"datasharingconsent"`
 	Models                    []string                   `bson:"models,omitempty"`
 	Namespace                 string                     `bson:"namespace,omitempty"`
 	ProviderRetentionPolicies []*ProviderRetentionPolicy `bson:"providerretentionpolicies,omitempty"`
 	ProviderTrainingPolicies  []*ProviderTrainingPolicy  `bson:"providertrainingpolicies,omitempty"`
-	ThirdPartyModelUsage      bool                       `bson:"thirdpartymodelusage,omitempty"`
+	ThirdPartyModelUsage      bool                       `bson:"thirdpartymodelusage"`
 }
 type mongoAttributesSparseProviderDetail struct {
 	ID                        bson.ObjectId               `bson:"_id,omitempty"`

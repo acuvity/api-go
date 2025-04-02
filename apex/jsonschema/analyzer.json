@@ -8,7 +8,7 @@
   "$modelPackage": "proxy",
   "$modelResourceName": "analyzers",
   "$modelRestName": "analyzer",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "Represents an analyzer.",
   "properties": {
     "ID": {

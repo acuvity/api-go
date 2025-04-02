@@ -329,6 +329,10 @@
             "description": "If disabled, the agent will stop reporting the visited domains.",
             "type": "boolean"
           },
+          "enablePause": {
+            "description": "If enabled, the agent will have the ability to pause enforcement.",
+            "type": "boolean"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
@@ -420,12 +424,10 @@
           },
           "dataSharing": {
             "description": "Does the provider share user data with 3rd party or services.",
-            "example": "A description text",
             "type": "boolean"
           },
           "dataSharingConsent": {
             "description": "Does the provider share user data with consent with 3rd party or services.",
-            "example": "A flag to indicate data sharing with consent",
             "type": "boolean"
           },
           "description": {
@@ -1074,6 +1076,11 @@
             "example": "mailerd",
             "type": "string"
           },
+          "providerName": {
+            "description": "If given, this is the provider name that this component represents. This\n**MUST** match the name of a provider.",
+            "example": "my-app-provider",
+            "type": "string"
+          },
           "selector": {
             "description": "A tag expression that identify an application component based on downstream\nlabels.",
             "example": [
@@ -1329,6 +1336,46 @@
         },
         "required": [
           "friendlyName"
+        ],
+        "type": "object"
+      },
+      "destination": {
+        "description": "Represents the destination that this request was made to.",
+        "properties": {
+          "app": {
+            "description": "The name of the application that the domain belongs to.",
+            "example": "MyApp",
+            "type": "string"
+          },
+          "component": {
+            "description": "The component of the application that the domain belongs to.",
+            "example": "frontend",
+            "type": "string"
+          },
+          "host": {
+            "description": "The host name of the request.",
+            "example": "api.openai.com",
+            "type": "string"
+          },
+          "ip": {
+            "description": "The destination IP address of the request.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
+          "labels": {
+            "description": "The list of labels attached to the application request destination.",
+            "example": [
+              "country=us",
+              "another-label"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "host"
         ],
         "type": "object"
       },
@@ -1752,8 +1799,21 @@
         "type": "object"
       },
       "extractor": {
-        "description": "TODO.",
+        "description": "An extractor allows to create a reusable extractor for providers.",
         "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "SSEManagement": {
+            "default": "Collect",
+            "description": "This property defines how you want the extractor to work with\nserver-side events. With Collect all the events buffer until the server\ncloses the connection and sends the entire data to the lua code\nwhile Stream will collect line by line and will send events line by line.",
+            "enum": [
+              "Collect",
+              "Stream"
+            ]
+          },
           "analyzers": {
             "description": "The analyzers parameter allows for customizing which analyzers should be used,\noverriding the default selection. Each analyzer entry can optionally include a\nprefix to modify its behavior:\n\n  - No prefix: Runs only the specified analyzers and any dependencies required\nfor deeper analyzis (slower but more acurate).\n  - '+' (enable): Activates an analyzer that is disabled by default.\n  - '-' (disable): Disables an analyzer that is enabled by default.\n  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper\nanalyzis (faster but less acurate).\n\nAn analyzers entry can be specified using:\n  - The analyzer name (e.g., 'Toxicity detector')\n  - The analyzer ID (e.g., 'en-text-toxicity-detector')\n  - The analyzer group (e.g., 'Detectors')\n  - A detector name (e.g., 'toxic')\n  - A detector label (e.g., 'insult')\n  - A detector group (e.g., 'Malcontents')\n\nIf left empty, all default analyzers will be executed.",
             "items": {
@@ -1795,27 +1855,34 @@
               "SendRedacted"
             ]
           },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
           "deanonymize": {
             "description": "If true, deanonymize the redacted data. This has no effects on streaming output.",
             "type": "boolean"
           },
-          "hosts": {
-            "description": "Optional hosts to match. This is useful in case the provider has multiple hosts\nto discriminate which logger to use.",
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
+          "description": {
+            "description": "The description of the provider.",
+            "type": "string"
+          },
+          "honorPriorDecision": {
+            "description": "If true, it will wait on a prior popup and honor its decision. It only has\neffect if there is an existing popup being shown.",
+            "type": "boolean"
           },
           "ignore": {
             "description": "If true, the analysis will run, but nothing will be logged.",
             "type": "boolean"
           },
-          "match": {
-            "description": "A regular expression to match an URL to log.",
-            "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
-            ],
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
           "method": {
@@ -1834,18 +1901,73 @@
             ]
           },
           "name": {
-            "description": "The name of the extractor. It will be used to identify which extractor was used\nduring an extraction.",
+            "description": "The internal reference name of the object.",
+            "example": "my-extractor",
             "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "path": {
+            "description": "A regular expression to match a URL path to log.",
+            "example": [
+              "/api/v1",
+              "/v1/*/hello/*"
+            ],
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
           },
           "script": {
             "description": "If not empty, use this lua code to run the extraction.",
             "type": "string"
+          },
+          "type": {
+            "description": "The type of extractor.",
+            "enum": [
+              "Input",
+              "Output"
+            ],
+            "example": "Input"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
           }
         },
         "required": [
-          "match",
-          "method"
+          "method",
+          "name",
+          "path",
+          "type"
         ],
+        "type": "object"
+      },
+      "extractorref": {
+        "description": "This object allows to either define an extractor for the provider, or to\nreference an existing extractor from database.",
+        "properties": {
+          "def": {
+            "$ref": "#/components/schemas/extractor"
+          },
+          "hosts": {
+            "description": "Optional hosts to match. This is useful in case the provider has multiple hosts\nto discriminate which logger to use.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ref": {
+            "description": "References a preexisting extractor definition.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "feedback": {
@@ -2067,6 +2189,13 @@
             },
             "type": "array"
           },
+          "extractors": {
+            "description": "Extractors to import.",
+            "items": {
+              "$ref": "#/components/schemas/extractor"
+            },
+            "type": "array"
+          },
           "ignoredDomains": {
             "description": "Ignored domains to import.",
             "items": {
@@ -2151,6 +2280,17 @@
       "ingressproviderconfig": {
         "description": "Represents the configuration if an apex is to act as an ingress for a provider.",
         "properties": {
+          "dialTLS": {
+            "default": "Preserve",
+            "description": "This option controls the dialing behaviour of the apex to the origin server.\nShould be explicitly set to enabled if the origin expects TLS connections. And\nvice versa it should be set to disabled if the origin expects connections in\nplaintext. By default this setting is set to preserve which means that the apex\nis going to dial using whatever mode it terminated its own connection with: if\nthe apex received a TLS connection, it will dial TLS, if it received a plaintext\nconnection, then it will dial plaintext. The apex receiving behaviour can be\ncontrolled with the listenTLS option. As a last resort this setting can be set\nto auto which means that the apex is going to probe the origin server to\ndetermine if it needs to dial using TLS or not. Note that this is potentially\nsending a TLS Client Hello to a plaintext HTTP server which is not expecting\nthat. Therefore, this option is not recommended if it can be avoided. This\nsetting is ignored in mirror mode.",
+            "enum": [
+              "Preserve",
+              "Auto",
+              "Enabled",
+              "Disabled"
+            ],
+            "example": "Enabled"
+          },
           "listenPort": {
             "description": "The listening port. For appcomponent configurations this is the listening port\nthat traffic will be intercepted on or mirrored from.",
             "example": 8443,
@@ -2158,7 +2298,7 @@
           },
           "listenTLS": {
             "default": "Auto",
-            "description": "Should be explicitly set to enabled if the listener expects TLS connections. And\nvice versa it should be set to disabled if the listener expects connections in\nplaintext. By default this setting is set to auto which means that TLS\nconnections will be accepted, and proxied as new TLS connections (HTTPS), and\nplain TCP connections will be accepted and proxied as new HTTP connections. This\nsetting is ignored in mirror mode.",
+            "description": "This option controls the receiving behaviour of connection to the apex before\nthey are going to be proxied to the origin server. To control the dialing\nbehaviour of the apex towards the origin server use the dialTLS option. Should\nbe explicitly set to enabled if the listener expects TLS connections. And vice\nversa it should be set to disabled if the listener expects connections in\nplaintext. By default this setting is set to auto which means that the listener\nwill automatically determine if incoming connections are TLS or not: TLS\nconnections will be accepted, as well as  plain TCP connections will be\naccepted, both on the configured listenPort. This setting is ignored in mirror\nmode.",
             "enum": [
               "Auto",
               "Enabled",
@@ -2185,42 +2325,26 @@
               "Inline"
             ],
             "example": "Inline"
-          },
-          "name": {
-            "default": "ingress",
-            "description": "The provider name. This **MUST** match the name of a provider.",
-            "example": "my-app-provider",
-            "type": "string"
-          },
-          "upstreamCA": {
-            "description": "Optional X509v3 PEM encoded certificates appended by newlines. This setting only\nhas affect if upstream connections are being dialed using TLS. You should use\nthis if your upstream server is serving a certificate which is not signed by a\npublic CA.",
-            "example": "-----BEGIN CERTIFICATE-----\nMIIF...\n...\n-----END CERTIFICATE-----",
-            "type": "string"
           }
         },
         "required": [
-          "listenPort",
-          "name"
+          "listenPort"
         ],
         "type": "object"
       },
       "injector": {
         "description": "TODO.",
         "properties": {
+          "delayXHRPatching": {
+            "description": "Since JS world is the mess we all know, there are some cases when we must delay\nthe monkey patching of the XHR request.",
+            "type": "boolean"
+          },
           "hosts": {
             "description": "Optional hosts to match. This is useful in case the provider has multiple hosts\nto discriminate which logger to use.",
             "items": {
               "type": "string"
             },
             "type": "array"
-          },
-          "match": {
-            "description": "A regular expression to match an URL to log.",
-            "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
-            ],
-            "type": "string"
           },
           "method": {
             "description": "The method to match.",
@@ -2236,11 +2360,19 @@
             "example": [
               "Post"
             ]
+          },
+          "path": {
+            "description": "A regular expression to match a URL path to log.",
+            "example": [
+              "/api/v1",
+              "/v1/*/hello/*"
+            ],
+            "type": "string"
           }
         },
         "required": [
-          "match",
-          "method"
+          "method",
+          "path"
         ],
         "type": "object"
       },
@@ -2371,14 +2503,6 @@
             },
             "type": "array"
           },
-          "match": {
-            "description": "A regular expression to match an URL to log.",
-            "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
-            ],
-            "type": "string"
-          },
           "method": {
             "description": "The method to match.",
             "enum": [
@@ -2398,14 +2522,22 @@
             "description": "The name of the extractor. It will be used to identify which extractor was used\nduring an extraction.",
             "type": "string"
           },
+          "path": {
+            "description": "A regular expression to match a URL path to log.",
+            "example": [
+              "/api/v1",
+              "/v1/*/hello/*"
+            ],
+            "type": "string"
+          },
           "script": {
             "description": "If not empty, use this lua code to run the extraction.",
             "type": "string"
           }
         },
         "required": [
-          "match",
-          "method"
+          "method",
+          "path"
         ],
         "type": "object"
       },
@@ -3034,7 +3166,11 @@
               "Categories",
               "Confidentiality",
               "CustomDataTypes",
+              "DstApp",
+              "DstComponent",
+              "DstIPRange",
               "Exploits",
+              "IsIngress",
               "Keywords",
               "Languages",
               "Malcontents",
@@ -3044,8 +3180,13 @@
               "Plugin",
               "Provider",
               "Relevance",
+              "RiskScore",
               "Secrets",
               "Size",
+              "SrcApp",
+              "SrcComponent",
+              "SrcIPRange",
+              "Status",
               "Team",
               "Tools",
               "Topics",
@@ -3086,6 +3227,11 @@
       "principal": {
         "description": "Describe the principal.",
         "properties": {
+          "IP": {
+            "description": "The source IP address of the request.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
           "app": {
             "$ref": "#/components/schemas/principalapp"
           },
@@ -3122,7 +3268,8 @@
             "description": "The type of principal.",
             "enum": [
               "User",
-              "App"
+              "App",
+              "External"
             ],
             "example": [
               "User"
@@ -3260,6 +3407,13 @@
             "description": "If true, consider this provider as experimental. It will require to use a custom\nPAC Config to make it usable from the proxy.pac.",
             "type": "boolean"
           },
+          "extractors": {
+            "description": "List of extractors for the provider.",
+            "items": {
+              "$ref": "#/components/schemas/extractorref"
+            },
+            "type": "array"
+          },
           "friendlyName": {
             "description": "Friendly Name of the provider.",
             "example": "OpenAI",
@@ -3291,13 +3445,6 @@
             },
             "type": "array"
           },
-          "inputExtractors": {
-            "description": "List of input extractors.",
-            "items": {
-              "$ref": "#/components/schemas/extractor"
-            },
-            "type": "array"
-          },
           "mappers": {
             "description": "List of user mappers.",
             "items": {
@@ -3315,17 +3462,22 @@
             "readOnly": true,
             "type": "string"
           },
-          "outputExtractors": {
-            "description": "List of output extractors.",
-            "items": {
-              "$ref": "#/components/schemas/extractor"
-            },
-            "type": "array"
-          },
           "propagate": {
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "riskScore": {
+            "description": "The latest risk score of the provider.",
+            "type": "number"
+          },
+          "status": {
+            "default": "Stable",
+            "description": "The support status of the provider.",
+            "enum": [
+              "Stable",
+              "Unstable"
+            ]
           },
           "tokenSwap": {
             "description": "If true, consider the incoming calls to use an acuvity token and swap them using\nregistered providertokens.",
@@ -3349,7 +3501,8 @@
         "required": [
           "category",
           "friendlyName",
-          "name"
+          "name",
+          "status"
         ],
         "type": "object"
       },
@@ -3684,6 +3837,13 @@
             },
             "type": "array"
           },
+          "extractors": {
+            "description": "The extractors of the organization.",
+            "items": {
+              "$ref": "#/components/schemas/extractor"
+            },
+            "type": "array"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -3762,6 +3922,9 @@
               "Skipped"
             ]
           },
+          "destination": {
+            "$ref": "#/components/schemas/destination"
+          },
           "extractions": {
             "description": "The extractions to log.",
             "items": {
@@ -3815,6 +3978,9 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "trace": {
+            "$ref": "#/components/schemas/traceref"
           },
           "type": {
             "description": "The type of text.",
@@ -4366,6 +4532,159 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "trace": {
+        "description": "This is a OTEL Trace.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "end": {
+            "description": "The end of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": "May 8, 2009 5:57:51 PM",
+            "type": "string"
+          },
+          "endRelative": {
+            "description": "The relative end of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "result": {
+            "description": "The result of the request.",
+            "type": "object"
+          },
+          "start": {
+            "description": "The start of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": 1700083708672317036,
+            "type": "string"
+          },
+          "startRelative": {
+            "description": "The relative start of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "traceID": {
+            "description": "The trace ID to query.",
+            "example": [
+              "1234567890abcdef"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "traceID"
+        ],
+        "type": "object"
+      },
+      "traceref": {
+        "description": "Holds all references to a trace.",
+        "properties": {
+          "parentSpanID": {
+            "description": "The parent span ID that is being referenced.",
+            "example": "00f067aa0ba902b7",
+            "type": "string"
+          },
+          "spanEnd": {
+            "description": "When the span ended.",
+            "example": "2025-03-22T14:35:00.123456789Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "spanID": {
+            "description": "The span ID that is being referenced.",
+            "example": "6ba80aaa3b2f43d8",
+            "type": "string"
+          },
+          "spanName": {
+            "description": "The name of the span that is being collected.",
+            "example": "acuvity_prompt_input_analysis",
+            "type": "string"
+          },
+          "spanStart": {
+            "description": "When the span started.",
+            "example": "2025-03-22T14:35:00.123456789Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "traceID": {
+            "description": "The Trace ID that is being referenced.",
+            "example": "4bf92f3577b34da6a3ce929d0e0e4736",
+            "type": "string"
+          }
+        },
+        "required": [
+          "spanEnd",
+          "spanID",
+          "spanName",
+          "spanStart",
+          "traceID"
+        ],
+        "type": "object"
+      },
+      "tracesearch": {
+        "description": "This is a OTEL TraceQL query wrapper.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "end": {
+            "description": "The end of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": "May 8, 2009 5:57:51 PM",
+            "type": "string"
+          },
+          "endRelative": {
+            "description": "The relative end of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "query": {
+            "description": "The query in TraceQL format.",
+            "example": [
+              "{resource.service.name = \"my-service\"}"
+            ],
+            "type": "string"
+          },
+          "result": {
+            "description": "The result of the request.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "spansPerSpanSet": {
+            "default": 32,
+            "description": "The max number of spans to return per span set.",
+            "type": "integer"
+          },
+          "start": {
+            "description": "The start of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": 1700083708672317036,
+            "type": "string"
+          },
+          "startRelative": {
+            "description": "The relative start of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          }
+        },
+        "required": [
+          "query"
+        ],
         "type": "object"
       },
       "usertoken": {
@@ -6462,6 +6781,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/customdatatype"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/extractors": {
+      "get": {
+        "description": "List all available extractors.",
+        "operationId": "get-all-Extractors",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/extractor"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new extractor.",
+        "operationId": "create-Extractor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extractor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractor"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/extractors/{id}": {
+      "delete": {
+        "description": "Delete an extractor given its identifier.",
+        "operationId": "delete-Extractor",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractor"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an extractor given its identifier.",
+        "operationId": "get-Extractor",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractor"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an extractor given its identifier.",
+        "operationId": "update-Extractor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extractor"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractor"
                 }
               }
             },
@@ -8937,6 +9399,68 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/team"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/traces": {
+      "post": {
+        "description": "send a trace request.",
+        "operationId": "create-Trace",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/trace"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/trace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/tracesearches": {
+      "post": {
+        "description": "send a tracesearch request.",
+        "operationId": "create-TraceSearch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/tracesearch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/tracesearch"
                 }
               }
             },

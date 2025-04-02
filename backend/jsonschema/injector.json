@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@matcher"
+    "@hostmatcher",
+    "@urlmatcher"
   ],
   "$friendlyName": "Injector",
   "$friendlyNamePlural": "Injectors",
@@ -8,9 +9,18 @@
   "$modelPackage": "lain",
   "$modelResourceName": "injectors",
   "$modelRestName": "injector",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "TODO.",
   "properties": {
+    "delayXHRPatching": {
+      "$friendlyName": "Delay XHR Patching",
+      "description": "Since JS world is the mess we all know, there are some cases when we must delay the monkey patching of the XHR request.",
+      "title": "delayXHRPatching",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "hosts": {
       "$friendlyName": "Hosts",
       "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
@@ -22,13 +32,6 @@
       },
       "title": "hosts",
       "type": "array"
-    },
-    "match": {
-      "$friendlyName": "Match",
-      "$required": true,
-      "description": "A regular expression to match an URL to log.",
-      "title": "match",
-      "type": "string"
     },
     "method": {
       "$friendlyName": "Method",
@@ -44,11 +47,18 @@
         "Head"
       ],
       "title": "method"
+    },
+    "path": {
+      "$friendlyName": "Path",
+      "$required": true,
+      "description": "A regular expression to match a URL path to log.",
+      "title": "path",
+      "type": "string"
     }
   },
   "required": [
-    "match",
-    "method"
+    "method",
+    "path"
   ],
   "title": "Injector",
   "type": "object"

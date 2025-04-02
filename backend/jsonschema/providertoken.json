@@ -11,7 +11,7 @@
   "$modelPackage": "lain",
   "$modelResourceName": "providertokens",
   "$modelRestName": "providertoken",
-  "additionalProperties": true,
+  "additionalProperties": false,
   "description": "ProviderToken are upstream tokens for the 'Provider' configured on our system to be used by the acuvity proxy.",
   "properties": {
     "ID": {
