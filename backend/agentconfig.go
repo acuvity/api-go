@@ -97,9 +97,6 @@ type AgentConfig struct {
 	// Description of the agent configuration.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
-	// If disabled, the agent needs to be restarted manually.
-	DisableAutoStart bool `json:"disableAutoStart" msgpack:"disableAutoStart" bson:"disableautostart" mapstructure:"disableAutoStart,omitempty"`
-
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
 	DisableManagedCA bool `json:"disableManagedCA" msgpack:"disableManagedCA" bson:"disablemanagedca" mapstructure:"disableManagedCA,omitempty"`
@@ -196,7 +193,6 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.AllowedPauseInterval = o.AllowedPauseInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.DisableAutoStart = o.DisableAutoStart
 	s.DisableManagedCA = o.DisableManagedCA
 	s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
 	s.DisableURLDiscovery = o.DisableURLDiscovery
@@ -233,7 +229,6 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.AllowedPauseInterval = s.AllowedPauseInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.DisableAutoStart = s.DisableAutoStart
 	o.DisableManagedCA = s.DisableManagedCA
 	o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
 	o.DisableURLDiscovery = s.DisableURLDiscovery
@@ -353,7 +348,6 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AllowedPauseInterval:         &o.AllowedPauseInterval,
 			CreateTime:                   &o.CreateTime,
 			Description:                  &o.Description,
-			DisableAutoStart:             &o.DisableAutoStart,
 			DisableManagedCA:             &o.DisableManagedCA,
 			DisableSystemProxyManagement: &o.DisableSystemProxyManagement,
 			DisableURLDiscovery:          &o.DisableURLDiscovery,
@@ -383,8 +377,6 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "disableAutoStart":
-			sp.DisableAutoStart = &(o.DisableAutoStart)
 		case "disableManagedCA":
 			sp.DisableManagedCA = &(o.DisableManagedCA)
 		case "disableSystemProxyManagement":
@@ -439,9 +431,6 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.DisableAutoStart != nil {
-		o.DisableAutoStart = *so.DisableAutoStart
 	}
 	if so.DisableManagedCA != nil {
 		o.DisableManagedCA = *so.DisableManagedCA
@@ -575,8 +564,6 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "disableAutoStart":
-		return o.DisableAutoStart
 	case "disableManagedCA":
 		return o.DisableManagedCA
 	case "disableSystemProxyManagement":
@@ -665,16 +652,6 @@ A value of 0s means that users are not allowed to pause the enforcement.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"DisableAutoStart": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disableautostart",
-		ConvertedName:  "DisableAutoStart",
-		Description:    `If disabled, the agent needs to be restarted manually.`,
-		Exposed:        true,
-		Name:           "disableAutoStart",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"DisableManagedCA": {
 		AllowedChoices: []string{},
@@ -885,16 +862,6 @@ A value of 0s means that users are not allowed to pause the enforcement.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"disableautostart": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disableautostart",
-		ConvertedName:  "DisableAutoStart",
-		Description:    `If disabled, the agent needs to be restarted manually.`,
-		Exposed:        true,
-		Name:           "disableAutoStart",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"disablemanagedca": {
 		AllowedChoices: []string{},
@@ -1128,9 +1095,6 @@ type SparseAgentConfig struct {
 	// Description of the agent configuration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// If disabled, the agent needs to be restarted manually.
-	DisableAutoStart *bool `json:"disableAutoStart,omitempty" msgpack:"disableAutoStart,omitempty" bson:"disableautostart,omitempty" mapstructure:"disableAutoStart,omitempty"`
-
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
 	DisableManagedCA *bool `json:"disableManagedCA,omitempty" msgpack:"disableManagedCA,omitempty" bson:"disablemanagedca,omitempty" mapstructure:"disableManagedCA,omitempty"`
@@ -1234,9 +1198,6 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
-	if o.DisableAutoStart != nil {
-		s.DisableAutoStart = o.DisableAutoStart
-	}
 	if o.DisableManagedCA != nil {
 		s.DisableManagedCA = o.DisableManagedCA
 	}
@@ -1310,9 +1271,6 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
-	if s.DisableAutoStart != nil {
-		o.DisableAutoStart = s.DisableAutoStart
-	}
 	if s.DisableManagedCA != nil {
 		o.DisableManagedCA = s.DisableManagedCA
 	}
@@ -1383,9 +1341,6 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.DisableAutoStart != nil {
-		out.DisableAutoStart = *o.DisableAutoStart
 	}
 	if o.DisableManagedCA != nil {
 		out.DisableManagedCA = *o.DisableManagedCA
@@ -1545,7 +1500,6 @@ type mongoAttributesAgentConfig struct {
 	AllowedPauseInterval         string        `bson:"allowedpauseinterval"`
 	CreateTime                   time.Time     `bson:"createtime"`
 	Description                  string        `bson:"description"`
-	DisableAutoStart             bool          `bson:"disableautostart"`
 	DisableManagedCA             bool          `bson:"disablemanagedca"`
 	DisableSystemProxyManagement bool          `bson:"disablesystemproxymanagement"`
 	DisableURLDiscovery          bool          `bson:"disableurldiscovery"`
@@ -1567,7 +1521,6 @@ type mongoAttributesSparseAgentConfig struct {
 	AllowedPauseInterval         *string       `bson:"allowedpauseinterval,omitempty"`
 	CreateTime                   *time.Time    `bson:"createtime,omitempty"`
 	Description                  *string       `bson:"description,omitempty"`
-	DisableAutoStart             *bool         `bson:"disableautostart,omitempty"`
 	DisableManagedCA             *bool         `bson:"disablemanagedca,omitempty"`
 	DisableSystemProxyManagement *bool         `bson:"disablesystemproxymanagement,omitempty"`
 	DisableURLDiscovery          *bool         `bson:"disableurldiscovery,omitempty"`

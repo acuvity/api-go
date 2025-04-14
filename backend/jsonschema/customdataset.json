@@ -3,16 +3,18 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@auto-propagated",
+    "@namelinkable"
   ],
-  "$friendlyName": "Web Extension Configuration",
-  "$friendlyNamePlural": "Web Extension Configurations",
-  "$modelName": "WebExtensionConfig",
+  "$friendlyName": "Custom Data Set",
+  "$friendlyNamePlural": "Custom Data Sets",
+  "$modelName": "CustomDataSet",
   "$modelPackage": "lain",
-  "$modelResourceName": "webextensionconfigs",
-  "$modelRestName": "webextensionconfig",
+  "$modelResourceName": "customdatasets",
+  "$modelRestName": "customdataset",
   "additionalProperties": false,
-  "description": "WebExtensionConfig stores the configuration information for the webextension.",
+  "description": "Allows to create a custom data set.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -21,15 +23,6 @@
       "title": "ID",
       "type": [
         "string",
-        "null"
-      ]
-    },
-    "allowProxySettings": {
-      "$friendlyName": "Manage Browser Proxy Settings",
-      "description": "Allows the web extension to set the proxy settings of the employee's browser.",
-      "title": "allowProxySettings",
-      "type": [
-        "boolean",
         "null"
       ]
     },
@@ -43,14 +36,33 @@
         "null"
       ]
     },
+    "dataTypes": {
+      "$friendlyName": "Data Types",
+      "description": "A list of all the data types which are associated to this data set.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "dataTypes",
+      "type": "array"
+    },
     "description": {
       "$friendlyName": "Description",
-      "description": "Description of the webextension configuration.",
+      "description": "Description of the custom data set.",
       "title": "description",
       "type": [
         "string",
         "null"
       ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
     },
     "importHash": {
       "$creationOnly": true,
@@ -73,11 +85,15 @@
       ]
     },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "The name of the webextension configuration.",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -89,25 +105,13 @@
         "null"
       ]
     },
-    "refreshWebExtensionConfigInterval": {
-      "$defaultValue": 120,
-      "$friendlyName": "Configuration Refresh Interval",
-      "description": "Defines the refresh interval in minutes for the configuration of the deployed web extensions.",
-      "minimum": 1,
-      "title": "refreshWebExtensionConfigInterval",
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
       "type": [
-        "integer",
-        "null"
-      ]
-    },
-    "reportVisitedURLsInterval": {
-      "$defaultValue": 60,
-      "$friendlyName": "Visited URLs Report Interval",
-      "description": "Define the interval in minutes between two reports of the visited URLs.",
-      "minimum": 1,
-      "title": "reportVisitedURLsInterval",
-      "type": [
-        "integer",
+        "boolean",
         "null"
       ]
     },
@@ -123,8 +127,8 @@
     }
   },
   "required": [
-    "name"
+    "friendlyName"
   ],
-  "title": "WebExtensionConfig",
+  "title": "CustomDataSet",
   "type": "object"
 }

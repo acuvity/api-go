@@ -12,43 +12,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// WebExtensionConfigIdentity represents the Identity of the object.
-var WebExtensionConfigIdentity = elemental.Identity{
-	Name:     "webextensionconfig",
-	Category: "webextensionconfigs",
+// CustomDataSetIdentity represents the Identity of the object.
+var CustomDataSetIdentity = elemental.Identity{
+	Name:     "customdataset",
+	Category: "customdatasets",
 	Package:  "lain",
 	Private:  false,
 }
 
-// WebExtensionConfigsList represents a list of WebExtensionConfigs
-type WebExtensionConfigsList []*WebExtensionConfig
+// CustomDataSetsList represents a list of CustomDataSets
+type CustomDataSetsList []*CustomDataSet
 
 // Identity returns the identity of the objects in the list.
-func (o WebExtensionConfigsList) Identity() elemental.Identity {
+func (o CustomDataSetsList) Identity() elemental.Identity {
 
-	return WebExtensionConfigIdentity
+	return CustomDataSetIdentity
 }
 
-// Copy returns a pointer to a copy the WebExtensionConfigsList.
-func (o WebExtensionConfigsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the CustomDataSetsList.
+func (o CustomDataSetsList) Copy() elemental.Identifiables {
 
-	out := append(WebExtensionConfigsList{}, o...)
+	out := append(CustomDataSetsList{}, o...)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the WebExtensionConfigsList.
-func (o WebExtensionConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the CustomDataSetsList.
+func (o CustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(WebExtensionConfigsList{}, o...)
+	out := append(CustomDataSetsList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*WebExtensionConfig))
+		out = append(out, obj.(*CustomDataSet))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o WebExtensionConfigsList) List() elemental.IdentifiablesList {
+func (o CustomDataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -59,42 +59,45 @@ func (o WebExtensionConfigsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o WebExtensionConfigsList) DefaultOrder() []string {
+func (o CustomDataSetsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the WebExtensionConfigsList converted to SparseWebExtensionConfigsList.
+// ToSparse returns the CustomDataSetsList converted to SparseCustomDataSetsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o WebExtensionConfigsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o CustomDataSetsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseWebExtensionConfigsList, len(o))
+	out := make(SparseCustomDataSetsList, len(o))
 	for i := 0; i < len(o); i++ {
-		out[i] = o[i].ToSparse(fields...).(*SparseWebExtensionConfig)
+		out[i] = o[i].ToSparse(fields...).(*SparseCustomDataSet)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o WebExtensionConfigsList) Version() int {
+func (o CustomDataSetsList) Version() int {
 
 	return 1
 }
 
-// WebExtensionConfig represents the model of a webextensionconfig
-type WebExtensionConfig struct {
+// CustomDataSet represents the model of a customdataset
+type CustomDataSet struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
-
-	// Allows the web extension to set the proxy settings of the employee's browser.
-	AllowProxySettings bool `json:"allowProxySettings" msgpack:"allowProxySettings" bson:"allowproxysettings" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// Description of the webextension configuration.
+	// A list of all the data types which are associated to this data set.
+	DataTypes []string `json:"dataTypes" msgpack:"dataTypes" bson:"datatypes" mapstructure:"dataTypes,omitempty"`
+
+	// Description of the custom data set.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// Friendly name of the object.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -103,18 +106,15 @@ type WebExtensionConfig struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the webextension configuration.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Defines the refresh interval in minutes for the configuration of the deployed
-	// web extensions.
-	RefreshWebExtensionConfigInterval int `json:"refreshWebExtensionConfigInterval" msgpack:"refreshWebExtensionConfigInterval" bson:"refreshwebextensionconfiginterval" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
-
-	// Define the interval in minutes between two reports of the visited URLs.
-	ReportVisitedURLsInterval int `json:"reportVisitedURLsInterval" msgpack:"reportVisitedURLsInterval" bson:"reportvisitedurlsinterval" mapstructure:"reportVisitedURLsInterval,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -128,56 +128,56 @@ type WebExtensionConfig struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewWebExtensionConfig returns a new *WebExtensionConfig
-func NewWebExtensionConfig() *WebExtensionConfig {
+// NewCustomDataSet returns a new *CustomDataSet
+func NewCustomDataSet() *CustomDataSet {
 
-	return &WebExtensionConfig{
-		ModelVersion:                      1,
-		RefreshWebExtensionConfigInterval: 120,
-		ReportVisitedURLsInterval:         60,
+	return &CustomDataSet{
+		ModelVersion: 1,
+		DataTypes:    []string{},
+		Propagate:    true,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *WebExtensionConfig) Identity() elemental.Identity {
+func (o *CustomDataSet) Identity() elemental.Identity {
 
-	return WebExtensionConfigIdentity
+	return CustomDataSetIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *WebExtensionConfig) Identifier() string {
+func (o *CustomDataSet) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *WebExtensionConfig) SetIdentifier(id string) {
+func (o *CustomDataSet) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *WebExtensionConfig) GetBSON() (any, error) {
+func (o *CustomDataSet) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesWebExtensionConfig{}
+	s := &mongoAttributesCustomDataSet{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.AllowProxySettings = o.AllowProxySettings
 	s.CreateTime = o.CreateTime
+	s.DataTypes = o.DataTypes
 	s.Description = o.Description
+	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
-	s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
+	s.Propagate = o.Propagate
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -187,27 +187,27 @@ func (o *WebExtensionConfig) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *WebExtensionConfig) SetBSON(raw bson.Raw) error {
+func (o *CustomDataSet) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesWebExtensionConfig{}
+	s := &mongoAttributesCustomDataSet{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
-	o.AllowProxySettings = s.AllowProxySettings
 	o.CreateTime = s.CreateTime
+	o.DataTypes = s.DataTypes
 	o.Description = s.Description
+	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
-	o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
+	o.Propagate = s.Propagate
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -216,128 +216,142 @@ func (o *WebExtensionConfig) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *WebExtensionConfig) Version() int {
+func (o *CustomDataSet) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *WebExtensionConfig) BleveType() string {
+func (o *CustomDataSet) BleveType() string {
 
-	return "webextensionconfig"
+	return "customdataset"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *WebExtensionConfig) DefaultOrder() []string {
+func (o *CustomDataSet) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *WebExtensionConfig) Doc() string {
+func (o *CustomDataSet) Doc() string {
 
-	return `WebExtensionConfig stores the configuration information for the webextension.`
+	return `Allows to create a custom data set.`
 }
 
-func (o *WebExtensionConfig) String() string {
+func (o *CustomDataSet) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *WebExtensionConfig) GetCreateTime() time.Time {
+func (o *CustomDataSet) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *WebExtensionConfig) SetCreateTime(createTime time.Time) {
+func (o *CustomDataSet) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *WebExtensionConfig) GetImportHash() string {
+func (o *CustomDataSet) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *WebExtensionConfig) SetImportHash(importHash string) {
+func (o *CustomDataSet) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *WebExtensionConfig) GetImportLabel() string {
+func (o *CustomDataSet) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *WebExtensionConfig) SetImportLabel(importLabel string) {
+func (o *CustomDataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *WebExtensionConfig) GetNamespace() string {
+func (o *CustomDataSet) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *WebExtensionConfig) SetNamespace(namespace string) {
+func (o *CustomDataSet) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *CustomDataSet) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *CustomDataSet) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *WebExtensionConfig) GetUpdateTime() time.Time {
+func (o *CustomDataSet) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *WebExtensionConfig) SetUpdateTime(updateTime time.Time) {
+func (o *CustomDataSet) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *CustomDataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseWebExtensionConfig{
-			ID:                                &o.ID,
-			AllowProxySettings:                &o.AllowProxySettings,
-			CreateTime:                        &o.CreateTime,
-			Description:                       &o.Description,
-			ImportHash:                        &o.ImportHash,
-			ImportLabel:                       &o.ImportLabel,
-			Name:                              &o.Name,
-			Namespace:                         &o.Namespace,
-			RefreshWebExtensionConfigInterval: &o.RefreshWebExtensionConfigInterval,
-			ReportVisitedURLsInterval:         &o.ReportVisitedURLsInterval,
-			UpdateTime:                        &o.UpdateTime,
-			ZHash:                             &o.ZHash,
-			Zone:                              &o.Zone,
+		return &SparseCustomDataSet{
+			ID:           &o.ID,
+			CreateTime:   &o.CreateTime,
+			DataTypes:    &o.DataTypes,
+			Description:  &o.Description,
+			FriendlyName: &o.FriendlyName,
+			ImportHash:   &o.ImportHash,
+			ImportLabel:  &o.ImportLabel,
+			Name:         &o.Name,
+			Namespace:    &o.Namespace,
+			Propagate:    &o.Propagate,
+			UpdateTime:   &o.UpdateTime,
+			ZHash:        &o.ZHash,
+			Zone:         &o.Zone,
 		}
 	}
 
-	sp := &SparseWebExtensionConfig{}
+	sp := &SparseCustomDataSet{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "allowProxySettings":
-			sp.AllowProxySettings = &(o.AllowProxySettings)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "dataTypes":
+			sp.DataTypes = &(o.DataTypes)
 		case "description":
 			sp.Description = &(o.Description)
+		case "friendlyName":
+			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -346,10 +360,8 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "refreshWebExtensionConfigInterval":
-			sp.RefreshWebExtensionConfigInterval = &(o.RefreshWebExtensionConfigInterval)
-		case "reportVisitedURLsInterval":
-			sp.ReportVisitedURLsInterval = &(o.ReportVisitedURLsInterval)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -362,24 +374,27 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseWebExtensionConfig to the object.
-func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseCustomDataSet to the object.
+func (o *CustomDataSet) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseWebExtensionConfig)
+	so := sparse.(*SparseCustomDataSet)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.AllowProxySettings != nil {
-		o.AllowProxySettings = *so.AllowProxySettings
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
+	if so.DataTypes != nil {
+		o.DataTypes = *so.DataTypes
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.FriendlyName != nil {
+		o.FriendlyName = *so.FriendlyName
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -393,11 +408,8 @@ func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.RefreshWebExtensionConfigInterval != nil {
-		o.RefreshWebExtensionConfigInterval = *so.RefreshWebExtensionConfigInterval
-	}
-	if so.ReportVisitedURLsInterval != nil {
-		o.ReportVisitedURLsInterval = *so.ReportVisitedURLsInterval
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -410,45 +422,45 @@ func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the WebExtensionConfig.
-func (o *WebExtensionConfig) DeepCopy() *WebExtensionConfig {
+// DeepCopy returns a deep copy if the CustomDataSet.
+func (o *CustomDataSet) DeepCopy() *CustomDataSet {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &WebExtensionConfig{}
+	out := &CustomDataSet{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *WebExtensionConfig.
-func (o *WebExtensionConfig) DeepCopyInto(out *WebExtensionConfig) {
+// DeepCopyInto copies the receiver into the given *CustomDataSet.
+func (o *CustomDataSet) DeepCopyInto(out *CustomDataSet) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy WebExtensionConfig: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy CustomDataSet: %s", err))
 	}
 
-	*out = *target.(*WebExtensionConfig)
+	*out = *target.(*CustomDataSet)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *WebExtensionConfig) Validate() error {
+func (o *CustomDataSet) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateMinimumInt("refreshWebExtensionConfigInterval", o.RefreshWebExtensionConfigInterval, int(1), false); err != nil {
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateMinimumInt("reportVisitedURLsInterval", o.ReportVisitedURLsInterval, int(1), false); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -464,36 +476,38 @@ func (o *WebExtensionConfig) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*WebExtensionConfig) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*CustomDataSet) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := WebExtensionConfigAttributesMap[name]; ok {
+	if v, ok := CustomDataSetAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return WebExtensionConfigLowerCaseAttributesMap[name]
+	return CustomDataSetLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*WebExtensionConfig) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*CustomDataSet) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return WebExtensionConfigAttributesMap
+	return CustomDataSetAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *WebExtensionConfig) ValueForAttribute(name string) any {
+func (o *CustomDataSet) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
-	case "allowProxySettings":
-		return o.AllowProxySettings
 	case "createTime":
 		return o.CreateTime
+	case "dataTypes":
+		return o.DataTypes
 	case "description":
 		return o.Description
+	case "friendlyName":
+		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -502,10 +516,8 @@ func (o *WebExtensionConfig) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "refreshWebExtensionConfigInterval":
-		return o.RefreshWebExtensionConfigInterval
-	case "reportVisitedURLsInterval":
-		return o.ReportVisitedURLsInterval
+	case "propagate":
+		return o.Propagate
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -517,8 +529,8 @@ func (o *WebExtensionConfig) ValueForAttribute(name string) any {
 	return nil
 }
 
-// WebExtensionConfigAttributesMap represents the map of attribute for WebExtensionConfig.
-var WebExtensionConfigAttributesMap = map[string]elemental.AttributeSpecification{
+// CustomDataSetAttributesMap represents the map of attribute for CustomDataSet.
+var CustomDataSetAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -533,16 +545,6 @@ var WebExtensionConfigAttributesMap = map[string]elemental.AttributeSpecificatio
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"AllowProxySettings": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "allowproxysettings",
-		ConvertedName:  "AllowProxySettings",
-		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
-		Exposed:        true,
-		Name:           "allowProxySettings",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -559,13 +561,35 @@ var WebExtensionConfigAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "time",
 	},
+	"DataTypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datatypes",
+		ConvertedName:  "DataTypes",
+		Description:    `A list of all the data types which are associated to this data set.`,
+		Exposed:        true,
+		Name:           "dataTypes",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the webextension configuration.`,
+		Description:    `Description of the custom data set.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Name:           "friendlyName",
+		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -598,15 +622,17 @@ same import operation.`,
 		Type:    "string",
 	},
 	"Name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the webextension configuration.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Name:    "name",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -623,30 +649,18 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"RefreshWebExtensionConfigInterval": {
+	"Propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "refreshwebextensionconfiginterval",
-		ConvertedName:  "RefreshWebExtensionConfigInterval",
-		DefaultValue:   120,
-		Description: `Defines the refresh interval in minutes for the configuration of the deployed
-web extensions.`,
-		Exposed:  true,
-		MinValue: 1,
-		Name:     "refreshWebExtensionConfigInterval",
-		Stored:   true,
-		Type:     "integer",
-	},
-	"ReportVisitedURLsInterval": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "reportvisitedurlsinterval",
-		ConvertedName:  "ReportVisitedURLsInterval",
-		DefaultValue:   60,
-		Description:    `Define the interval in minutes between two reports of the visited URLs.`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		MinValue:       1,
-		Name:           "reportVisitedURLsInterval",
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		Type:           "integer",
+		Type:           "boolean",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -665,8 +679,8 @@ web extensions.`,
 	},
 }
 
-// WebExtensionConfigLowerCaseAttributesMap represents the map of attribute for WebExtensionConfig.
-var WebExtensionConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// CustomDataSetLowerCaseAttributesMap represents the map of attribute for CustomDataSet.
+var CustomDataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -681,16 +695,6 @@ var WebExtensionConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"allowproxysettings": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "allowproxysettings",
-		ConvertedName:  "AllowProxySettings",
-		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
-		Exposed:        true,
-		Name:           "allowProxySettings",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -707,13 +711,35 @@ var WebExtensionConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		Stored:         true,
 		Type:           "time",
 	},
+	"datatypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datatypes",
+		ConvertedName:  "DataTypes",
+		Description:    `A list of all the data types which are associated to this data set.`,
+		Exposed:        true,
+		Name:           "dataTypes",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the webextension configuration.`,
+		Description:    `Description of the custom data set.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Name:           "friendlyName",
+		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -746,15 +772,17 @@ same import operation.`,
 		Type:    "string",
 	},
 	"name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the webextension configuration.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Name:    "name",
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -771,30 +799,18 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"refreshwebextensionconfiginterval": {
+	"propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "refreshwebextensionconfiginterval",
-		ConvertedName:  "RefreshWebExtensionConfigInterval",
-		DefaultValue:   120,
-		Description: `Defines the refresh interval in minutes for the configuration of the deployed
-web extensions.`,
-		Exposed:  true,
-		MinValue: 1,
-		Name:     "refreshWebExtensionConfigInterval",
-		Stored:   true,
-		Type:     "integer",
-	},
-	"reportvisitedurlsinterval": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "reportvisitedurlsinterval",
-		ConvertedName:  "ReportVisitedURLsInterval",
-		DefaultValue:   60,
-		Description:    `Define the interval in minutes between two reports of the visited URLs.`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		MinValue:       1,
-		Name:           "reportVisitedURLsInterval",
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		Type:           "integer",
+		Type:           "boolean",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -813,35 +829,35 @@ web extensions.`,
 	},
 }
 
-// SparseWebExtensionConfigsList represents a list of SparseWebExtensionConfigs
-type SparseWebExtensionConfigsList []*SparseWebExtensionConfig
+// SparseCustomDataSetsList represents a list of SparseCustomDataSets
+type SparseCustomDataSetsList []*SparseCustomDataSet
 
 // Identity returns the identity of the objects in the list.
-func (o SparseWebExtensionConfigsList) Identity() elemental.Identity {
+func (o SparseCustomDataSetsList) Identity() elemental.Identity {
 
-	return WebExtensionConfigIdentity
+	return CustomDataSetIdentity
 }
 
-// Copy returns a pointer to a copy the SparseWebExtensionConfigsList.
-func (o SparseWebExtensionConfigsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseCustomDataSetsList.
+func (o SparseCustomDataSetsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseWebExtensionConfigsList{}, o...)
+	copy := append(SparseCustomDataSetsList{}, o...)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseWebExtensionConfigsList.
-func (o SparseWebExtensionConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseCustomDataSetsList.
+func (o SparseCustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseWebExtensionConfigsList{}, o...)
+	out := append(SparseCustomDataSetsList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseWebExtensionConfig))
+		out = append(out, obj.(*SparseCustomDataSet))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseWebExtensionConfigsList) List() elemental.IdentifiablesList {
+func (o SparseCustomDataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -852,13 +868,13 @@ func (o SparseWebExtensionConfigsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseWebExtensionConfigsList) DefaultOrder() []string {
+func (o SparseCustomDataSetsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseWebExtensionConfigsList converted to WebExtensionConfigsList.
-func (o SparseWebExtensionConfigsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseCustomDataSetsList converted to CustomDataSetsList.
+func (o SparseCustomDataSetsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -869,24 +885,27 @@ func (o SparseWebExtensionConfigsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseWebExtensionConfigsList) Version() int {
+func (o SparseCustomDataSetsList) Version() int {
 
 	return 1
 }
 
-// SparseWebExtensionConfig represents the sparse version of a webextensionconfig.
-type SparseWebExtensionConfig struct {
+// SparseCustomDataSet represents the sparse version of a customdataset.
+type SparseCustomDataSet struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
-
-	// Allows the web extension to set the proxy settings of the employee's browser.
-	AllowProxySettings *bool `json:"allowProxySettings,omitempty" msgpack:"allowProxySettings,omitempty" bson:"allowproxysettings,omitempty" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// Description of the webextension configuration.
+	// A list of all the data types which are associated to this data set.
+	DataTypes *[]string `json:"dataTypes,omitempty" msgpack:"dataTypes,omitempty" bson:"datatypes,omitempty" mapstructure:"dataTypes,omitempty"`
+
+	// Description of the custom data set.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Friendly name of the object.
+	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -895,18 +914,15 @@ type SparseWebExtensionConfig struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the webextension configuration.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Defines the refresh interval in minutes for the configuration of the deployed
-	// web extensions.
-	RefreshWebExtensionConfigInterval *int `json:"refreshWebExtensionConfigInterval,omitempty" msgpack:"refreshWebExtensionConfigInterval,omitempty" bson:"refreshwebextensionconfiginterval,omitempty" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
-
-	// Define the interval in minutes between two reports of the visited URLs.
-	ReportVisitedURLsInterval *int `json:"reportVisitedURLsInterval,omitempty" msgpack:"reportVisitedURLsInterval,omitempty" bson:"reportvisitedurlsinterval,omitempty" mapstructure:"reportVisitedURLsInterval,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -920,19 +936,19 @@ type SparseWebExtensionConfig struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseWebExtensionConfig returns a new  SparseWebExtensionConfig.
-func NewSparseWebExtensionConfig() *SparseWebExtensionConfig {
-	return &SparseWebExtensionConfig{}
+// NewSparseCustomDataSet returns a new  SparseCustomDataSet.
+func NewSparseCustomDataSet() *SparseCustomDataSet {
+	return &SparseCustomDataSet{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseWebExtensionConfig) Identity() elemental.Identity {
+func (o *SparseCustomDataSet) Identity() elemental.Identity {
 
-	return WebExtensionConfigIdentity
+	return CustomDataSetIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseWebExtensionConfig) Identifier() string {
+func (o *SparseCustomDataSet) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -941,7 +957,7 @@ func (o *SparseWebExtensionConfig) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseWebExtensionConfig) SetIdentifier(id string) {
+func (o *SparseCustomDataSet) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -952,25 +968,28 @@ func (o *SparseWebExtensionConfig) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
+func (o *SparseCustomDataSet) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseWebExtensionConfig{}
+	s := &mongoAttributesSparseCustomDataSet{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.AllowProxySettings != nil {
-		s.AllowProxySettings = o.AllowProxySettings
-	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.DataTypes != nil {
+		s.DataTypes = o.DataTypes
+	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.FriendlyName != nil {
+		s.FriendlyName = o.FriendlyName
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -984,11 +1003,8 @@ func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.RefreshWebExtensionConfigInterval != nil {
-		s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
-	}
-	if o.ReportVisitedURLsInterval != nil {
-		s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1005,27 +1021,30 @@ func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
+func (o *SparseCustomDataSet) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseWebExtensionConfig{}
+	s := &mongoAttributesSparseCustomDataSet{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.AllowProxySettings != nil {
-		o.AllowProxySettings = s.AllowProxySettings
-	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.DataTypes != nil {
+		o.DataTypes = s.DataTypes
+	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.FriendlyName != nil {
+		o.FriendlyName = s.FriendlyName
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1039,11 +1058,8 @@ func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.RefreshWebExtensionConfigInterval != nil {
-		o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
-	}
-	if s.ReportVisitedURLsInterval != nil {
-		o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1059,26 +1075,29 @@ func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseWebExtensionConfig) Version() int {
+func (o *SparseCustomDataSet) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseCustomDataSet) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewWebExtensionConfig()
+	out := NewCustomDataSet()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.AllowProxySettings != nil {
-		out.AllowProxySettings = *o.AllowProxySettings
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
+	if o.DataTypes != nil {
+		out.DataTypes = *o.DataTypes
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.FriendlyName != nil {
+		out.FriendlyName = *o.FriendlyName
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1092,11 +1111,8 @@ func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.RefreshWebExtensionConfigInterval != nil {
-		out.RefreshWebExtensionConfigInterval = *o.RefreshWebExtensionConfigInterval
-	}
-	if o.ReportVisitedURLsInterval != nil {
-		out.ReportVisitedURLsInterval = *o.ReportVisitedURLsInterval
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1112,7 +1128,7 @@ func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseWebExtensionConfig) GetCreateTime() (out time.Time) {
+func (o *SparseCustomDataSet) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1122,13 +1138,13 @@ func (o *SparseWebExtensionConfig) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseWebExtensionConfig) SetCreateTime(createTime time.Time) {
+func (o *SparseCustomDataSet) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseWebExtensionConfig) GetImportHash() (out string) {
+func (o *SparseCustomDataSet) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1138,13 +1154,13 @@ func (o *SparseWebExtensionConfig) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseWebExtensionConfig) SetImportHash(importHash string) {
+func (o *SparseCustomDataSet) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseWebExtensionConfig) GetImportLabel() (out string) {
+func (o *SparseCustomDataSet) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1154,13 +1170,13 @@ func (o *SparseWebExtensionConfig) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseWebExtensionConfig) SetImportLabel(importLabel string) {
+func (o *SparseCustomDataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseWebExtensionConfig) GetNamespace() (out string) {
+func (o *SparseCustomDataSet) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1170,13 +1186,29 @@ func (o *SparseWebExtensionConfig) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseWebExtensionConfig) SetNamespace(namespace string) {
+func (o *SparseCustomDataSet) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseCustomDataSet) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseCustomDataSet) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseWebExtensionConfig) GetUpdateTime() (out time.Time) {
+func (o *SparseCustomDataSet) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1186,62 +1218,62 @@ func (o *SparseWebExtensionConfig) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseWebExtensionConfig) SetUpdateTime(updateTime time.Time) {
+func (o *SparseCustomDataSet) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseWebExtensionConfig.
-func (o *SparseWebExtensionConfig) DeepCopy() *SparseWebExtensionConfig {
+// DeepCopy returns a deep copy if the SparseCustomDataSet.
+func (o *SparseCustomDataSet) DeepCopy() *SparseCustomDataSet {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseWebExtensionConfig{}
+	out := &SparseCustomDataSet{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseWebExtensionConfig.
-func (o *SparseWebExtensionConfig) DeepCopyInto(out *SparseWebExtensionConfig) {
+// DeepCopyInto copies the receiver into the given *SparseCustomDataSet.
+func (o *SparseCustomDataSet) DeepCopyInto(out *SparseCustomDataSet) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseWebExtensionConfig: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseCustomDataSet: %s", err))
 	}
 
-	*out = *target.(*SparseWebExtensionConfig)
+	*out = *target.(*SparseCustomDataSet)
 }
 
-type mongoAttributesWebExtensionConfig struct {
-	ID                                bson.ObjectId `bson:"_id,omitempty"`
-	AllowProxySettings                bool          `bson:"allowproxysettings"`
-	CreateTime                        time.Time     `bson:"createtime"`
-	Description                       string        `bson:"description"`
-	ImportHash                        string        `bson:"importhash,omitempty"`
-	ImportLabel                       string        `bson:"importlabel,omitempty"`
-	Name                              string        `bson:"name"`
-	Namespace                         string        `bson:"namespace,omitempty"`
-	RefreshWebExtensionConfigInterval int           `bson:"refreshwebextensionconfiginterval"`
-	ReportVisitedURLsInterval         int           `bson:"reportvisitedurlsinterval"`
-	UpdateTime                        time.Time     `bson:"updatetime"`
-	ZHash                             int           `bson:"zhash"`
-	Zone                              int           `bson:"zone"`
+type mongoAttributesCustomDataSet struct {
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   time.Time     `bson:"createtime"`
+	DataTypes    []string      `bson:"datatypes"`
+	Description  string        `bson:"description"`
+	FriendlyName string        `bson:"friendlyname"`
+	ImportHash   string        `bson:"importhash,omitempty"`
+	ImportLabel  string        `bson:"importlabel,omitempty"`
+	Name         string        `bson:"name"`
+	Namespace    string        `bson:"namespace,omitempty"`
+	Propagate    bool          `bson:"propagate"`
+	UpdateTime   time.Time     `bson:"updatetime"`
+	ZHash        int           `bson:"zhash"`
+	Zone         int           `bson:"zone"`
 }
-type mongoAttributesSparseWebExtensionConfig struct {
-	ID                                bson.ObjectId `bson:"_id,omitempty"`
-	AllowProxySettings                *bool         `bson:"allowproxysettings,omitempty"`
-	CreateTime                        *time.Time    `bson:"createtime,omitempty"`
-	Description                       *string       `bson:"description,omitempty"`
-	ImportHash                        *string       `bson:"importhash,omitempty"`
-	ImportLabel                       *string       `bson:"importlabel,omitempty"`
-	Name                              *string       `bson:"name,omitempty"`
-	Namespace                         *string       `bson:"namespace,omitempty"`
-	RefreshWebExtensionConfigInterval *int          `bson:"refreshwebextensionconfiginterval,omitempty"`
-	ReportVisitedURLsInterval         *int          `bson:"reportvisitedurlsinterval,omitempty"`
-	UpdateTime                        *time.Time    `bson:"updatetime,omitempty"`
-	ZHash                             *int          `bson:"zhash,omitempty"`
-	Zone                              *int          `bson:"zone,omitempty"`
+type mongoAttributesSparseCustomDataSet struct {
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   *time.Time    `bson:"createtime,omitempty"`
+	DataTypes    *[]string     `bson:"datatypes,omitempty"`
+	Description  *string       `bson:"description,omitempty"`
+	FriendlyName *string       `bson:"friendlyname,omitempty"`
+	ImportHash   *string       `bson:"importhash,omitempty"`
+	ImportLabel  *string       `bson:"importlabel,omitempty"`
+	Name         *string       `bson:"name,omitempty"`
+	Namespace    *string       `bson:"namespace,omitempty"`
+	Propagate    *bool         `bson:"propagate,omitempty"`
+	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
+	ZHash        *int          `bson:"zhash,omitempty"`
+	Zone         *int          `bson:"zone,omitempty"`
 }

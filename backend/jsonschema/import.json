@@ -81,6 +81,15 @@
       "title": "contentPolicies",
       "type": "array"
     },
+    "customDataSets": {
+      "$friendlyName": "Custom Data Sets",
+      "description": "Custom Data Sets to import.",
+      "items": {
+        "$ref": "customdataset.json"
+      },
+      "title": "customDataSets",
+      "type": "array"
+    },
     "customDataTypes": {
       "$friendlyName": "Custom Data Types",
       "description": "Custom Data Types to import.",

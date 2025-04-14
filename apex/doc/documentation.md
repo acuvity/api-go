@@ -863,6 +863,12 @@ Represents the extracted information to log.
     "ssn": 0.8
   },
   "confidentiality": 0.9,
+  "customDataSets": {
+    "cds": {
+      "ct1": 1,
+      "ct2": 2
+    }
+  },
   "customDataTypes": {
     "my_cdt": 1
   },
@@ -938,6 +944,12 @@ The categories are remapping of the modalities in a more human friendly way.
 Type: `float`
 
 The level of general confidentiality of the input.
+
+##### `customDataSets`
+
+Type: `map[string]map[string]float64`
+
+The custom data sets found during classification.
 
 ##### `customDataTypes`
 
@@ -1261,6 +1273,18 @@ The PIIs found during classification.
 Type: `map[string]extractioninformation`
 
 The categories are remapping of the modalities in a more human friendly way.
+
+##### `customDataSets`
+
+Type: `map[string]extractioninformation`
+
+The data sets.
+
+##### `customDataTypes`
+
+Type: `map[string]extractioninformation`
+
+The data types.
 
 ##### `exploits`
 

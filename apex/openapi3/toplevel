@@ -247,6 +247,22 @@
             "example": 0.9,
             "type": "number"
           },
+          "customDataSets": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "description": "The custom data sets found during classification.",
+            "example": {
+              "cds": {
+                "ct1": 1,
+                "ct2": 2
+              }
+            },
+            "type": "object"
+          },
           "customDataTypes": {
             "additionalProperties": {
               "type": "number"
@@ -432,6 +448,16 @@
           "categories": {
             "additionalProperties": true,
             "description": "The categories are remapping of the modalities in a more human friendly way.",
+            "type": "object"
+          },
+          "customDataSets": {
+            "additionalProperties": true,
+            "description": "The data sets.",
+            "type": "object"
+          },
+          "customDataTypes": {
+            "additionalProperties": true,
+            "description": "The data types.",
             "type": "object"
           },
           "exploits": {

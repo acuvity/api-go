@@ -114,6 +114,12 @@
       },
       "type": "array"
     },
+    "customdatasets": {
+      "items": {
+        "$ref": "customdataset.json"
+      },
+      "type": "array"
+    },
     "customdatatypes": {
       "items": {
         "$ref": "customdatatype.json"

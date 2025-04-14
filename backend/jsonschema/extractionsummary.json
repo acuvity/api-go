@@ -23,6 +23,20 @@
       "title": "categories",
       "type": "object"
     },
+    "customDataSets": {
+      "$friendlyName": "Custom Data Sets",
+      "additionalProperties": true,
+      "description": "The data sets.",
+      "title": "customDataSets",
+      "type": "object"
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "additionalProperties": true,
+      "description": "The data types.",
+      "title": "customDataTypes",
+      "type": "object"
+    },
     "exploits": {
       "$friendlyName": "Exploits",
       "additionalProperties": true,

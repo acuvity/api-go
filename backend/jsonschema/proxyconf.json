@@ -63,6 +63,15 @@
         "null"
       ]
     },
+    "customDataSets": {
+      "$friendlyName": "Custom Data Sets",
+      "description": "List of custom data sets.",
+      "items": {
+        "$ref": "customdataset.json"
+      },
+      "title": "customDataSets",
+      "type": "array"
+    },
     "customDataTypes": {
       "$friendlyName": "Custom Data Types",
       "description": "List of custom data types.",

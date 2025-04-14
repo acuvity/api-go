@@ -101,6 +101,9 @@ type ProxyConf struct {
 	// The computed content policy.
 	ContentPolicy string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
+	// List of custom data sets.
+	CustomDataSets CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
+
 	// List of custom data types.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
@@ -244,6 +247,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AgentConfig:        o.AgentConfig,
 			AssignPolicy:       &o.AssignPolicy,
 			ContentPolicy:      &o.ContentPolicy,
+			CustomDataSets:     &o.CustomDataSets,
 			CustomDataTypes:    &o.CustomDataTypes,
 			Extractors:         &o.Extractors,
 			Namespace:          &o.Namespace,
@@ -269,6 +273,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AssignPolicy = &(o.AssignPolicy)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
+		case "customDataSets":
+			sp.CustomDataSets = &(o.CustomDataSets)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
 		case "extractors":
@@ -313,6 +319,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
+	}
+	if so.CustomDataSets != nil {
+		o.CustomDataSets = *so.CustomDataSets
 	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
@@ -380,6 +389,16 @@ func (o *ProxyConf) Validate() error {
 	if o.AgentConfig != nil {
 		elemental.ResetDefaultForZeroValues(o.AgentConfig)
 		if err := o.AgentConfig.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.CustomDataSets {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -474,6 +493,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.AssignPolicy
 	case "contentPolicy":
 		return o.ContentPolicy
+	case "customDataSets":
+		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
 	case "extractors":
@@ -551,6 +572,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "contentPolicy",
 		Type:           "string",
+	},
+	"CustomDataSets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataSets",
+		Description:    `List of custom data sets.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		SubType:        "customdataset",
+		Type:           "refList",
 	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
@@ -681,6 +711,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "contentPolicy",
 		Type:           "string",
+	},
+	"customdatasets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataSets",
+		Description:    `List of custom data sets.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		SubType:        "customdataset",
+		Type:           "refList",
 	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
@@ -834,6 +873,9 @@ type SparseProxyConf struct {
 	// The computed content policy.
 	ContentPolicy *string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
+	// List of custom data sets.
+	CustomDataSets *CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
+
 	// List of custom data types.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
@@ -957,6 +999,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
+	}
+	if o.CustomDataSets != nil {
+		out.CustomDataSets = *o.CustomDataSets
 	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes

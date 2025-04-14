@@ -59,6 +59,14 @@
       "title": "logHash",
       "type": "string"
     },
+    "logUnixNano": {
+      "$creationOnly": true,
+      "$friendlyName": "Log Unix Nano",
+      "$required": true,
+      "description": "The timestamp of the log.",
+      "title": "logUnixNano",
+      "type": "string"
+    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,
@@ -93,6 +101,19 @@
         "null"
       ]
     },
+    "status": {
+      "$defaultValue": "New",
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the feedback.",
+      "enum": [
+        "New",
+        "Investigating",
+        "Confirmed",
+        "Rejected"
+      ],
+      "title": "status"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -115,8 +136,10 @@
   "required": [
     "key",
     "logHash",
+    "logUnixNano",
     "principal",
     "provider",
+    "status",
     "value"
   ],
   "title": "Feedback",

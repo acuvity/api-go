@@ -107,6 +107,9 @@ type Import struct {
 	// Content policies to import.
 	ContentPolicies ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
 
+	// Custom Data Sets to import.
+	CustomDataSets CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
+
 	// Custom Data Types to import.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
@@ -163,6 +166,7 @@ func NewImport() *Import {
 		AlertDefinitions:    AlertDefinitionsList{},
 		Apps:                AppsList{},
 		ContentPolicies:     ContentPoliciesList{},
+		CustomDataSets:      CustomDataSetsList{},
 		CustomDataTypes:     CustomDataTypesList{},
 		Extractors:          ExtractorsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
@@ -268,6 +272,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AlertDefinitions:    &o.AlertDefinitions,
 			Apps:                &o.Apps,
 			ContentPolicies:     &o.ContentPolicies,
+			CustomDataSets:      &o.CustomDataSets,
 			CustomDataTypes:     &o.CustomDataTypes,
 			Extractors:          &o.Extractors,
 			IgnoredDomains:      &o.IgnoredDomains,
@@ -303,6 +308,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Apps = &(o.Apps)
 		case "contentPolicies":
 			sp.ContentPolicies = &(o.ContentPolicies)
+		case "customDataSets":
+			sp.CustomDataSets = &(o.CustomDataSets)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
 		case "extractors":
@@ -365,6 +372,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ContentPolicies != nil {
 		o.ContentPolicies = *so.ContentPolicies
+	}
+	if so.CustomDataSets != nil {
+		o.CustomDataSets = *so.CustomDataSets
 	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
@@ -508,6 +518,16 @@ func (o *Import) Validate() error {
 	}
 
 	for _, sub := range o.ContentPolicies {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.CustomDataSets {
 		if sub == nil {
 			continue
 		}
@@ -691,6 +711,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Apps
 	case "contentPolicies":
 		return o.ContentPolicies
+	case "customDataSets":
+		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
 	case "extractors":
@@ -794,6 +816,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "contentPolicies",
 		SubType:        "contentpolicy",
+		Type:           "refList",
+	},
+	"CustomDataSets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataSets",
+		Description:    `Custom Data Sets to import.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		SubType:        "customdataset",
 		Type:           "refList",
 	},
 	"CustomDataTypes": {
@@ -988,6 +1019,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "contentPolicies",
 		SubType:        "contentpolicy",
+		Type:           "refList",
+	},
+	"customdatasets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataSets",
+		Description:    `Custom Data Sets to import.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		SubType:        "customdataset",
 		Type:           "refList",
 	},
 	"customdatatypes": {
@@ -1197,6 +1237,9 @@ type SparseImport struct {
 	// Content policies to import.
 	ContentPolicies *ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
 
+	// Custom Data Sets to import.
+	CustomDataSets *CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
+
 	// Custom Data Types to import.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
@@ -1324,6 +1367,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ContentPolicies != nil {
 		out.ContentPolicies = *o.ContentPolicies
+	}
+	if o.CustomDataSets != nil {
+		out.CustomDataSets = *o.CustomDataSets
 	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes

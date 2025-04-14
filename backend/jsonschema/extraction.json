@@ -48,6 +48,18 @@
         "null"
       ]
     },
+    "customDataSets": {
+      "$friendlyName": "Custom Data Sets",
+      "description": "The custom data sets found during classification.",
+      "items": {
+        "items": {
+          "type": "float"
+        },
+        "type": "object"
+      },
+      "title": "customDataSets",
+      "type": "object"
+    },
     "customDataTypes": {
       "$friendlyName": "Custom Data Types",
       "description": "The custom data types found during classification.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",

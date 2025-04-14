@@ -40,6 +40,9 @@ type Extraction struct {
 	// The level of general confidentiality of the input.
 	Confidentiality float64 `json:"confidentiality,omitempty" msgpack:"confidentiality,omitempty" bson:"confidentiality,omitempty" mapstructure:"confidentiality,omitempty"`
 
+	// The custom data sets found during classification.
+	CustomDataSets map[string]map[string]float64 `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"customdatasets,omitempty" mapstructure:"customDataSets,omitempty"`
+
 	// The custom data types found during classification.
 	//
 	// If a key is not present in the map that implies that entity was not detected. If
@@ -257,6 +260,7 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.Annotations = o.Annotations
 	s.Categories = o.Categories
 	s.Confidentiality = o.Confidentiality
+	s.CustomDataSets = o.CustomDataSets
 	s.CustomDataTypes = o.CustomDataTypes
 	s.Data = o.Data
 	s.Detections = o.Detections
@@ -295,6 +299,7 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.Annotations = s.Annotations
 	o.Categories = s.Categories
 	o.Confidentiality = s.Confidentiality
+	o.CustomDataSets = s.CustomDataSets
 	o.CustomDataTypes = s.CustomDataTypes
 	o.Data = s.Data
 	o.Detections = s.Detections
@@ -418,6 +423,8 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.Categories
 	case "confidentiality":
 		return o.Confidentiality
+	case "customDataSets":
+		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
 	case "data":
@@ -518,6 +525,17 @@ scores:
 		Name:           "confidentiality",
 		Stored:         true,
 		Type:           "float",
+	},
+	"CustomDataSets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "customdatasets",
+		ConvertedName:  "CustomDataSets",
+		Description:    `The custom data sets found during classification.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		Stored:         true,
+		SubType:        "map[string]map[string]float64",
+		Type:           "external",
 	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
@@ -899,6 +917,17 @@ scores:
 		Stored:         true,
 		Type:           "float",
 	},
+	"customdatasets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "customdatasets",
+		ConvertedName:  "CustomDataSets",
+		Description:    `The custom data sets found during classification.`,
+		Exposed:        true,
+		Name:           "customDataSets",
+		Stored:         true,
+		SubType:        "map[string]map[string]float64",
+		Type:           "external",
+	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "customdatatypes",
@@ -1220,25 +1249,26 @@ scores:
 }
 
 type mongoAttributesExtraction struct {
-	PIIs            map[string]float64  `bson:"piis,omitempty"`
-	Annotations     map[string]string   `bson:"annotations,omitempty"`
-	Categories      []Modality          `bson:"categories,omitempty"`
-	Confidentiality float64             `bson:"confidentiality,omitempty"`
-	CustomDataTypes map[string]float64  `bson:"customdatatypes,omitempty"`
-	Data            string              `bson:"data"`
-	Detections      []*TextualDetection `bson:"detections,omitempty"`
-	Exploits        map[string]float64  `bson:"exploits,omitempty"`
-	Hash            string              `bson:"hash,omitempty"`
-	Intent          map[string]float64  `bson:"intent,omitempty"`
-	Internal        bool                `bson:"internal,omitempty"`
-	IsFile          bool                `bson:"isfile,omitempty"`
-	IsStored        bool                `bson:"isstored,omitempty"`
-	Keywords        map[string]float64  `bson:"keywords,omitempty"`
-	Label           string              `bson:"label,omitempty"`
-	Languages       map[string]float64  `bson:"languages,omitempty"`
-	Malcontents     map[string]float64  `bson:"malcontents,omitempty"`
-	Modalities      []Modality          `bson:"modalities,omitempty"`
-	Relevance       float64             `bson:"relevance,omitempty"`
-	Secrets         map[string]float64  `bson:"secrets,omitempty"`
-	Topics          map[string]float64  `bson:"topics,omitempty"`
+	PIIs            map[string]float64            `bson:"piis,omitempty"`
+	Annotations     map[string]string             `bson:"annotations,omitempty"`
+	Categories      []Modality                    `bson:"categories,omitempty"`
+	Confidentiality float64                       `bson:"confidentiality,omitempty"`
+	CustomDataSets  map[string]map[string]float64 `bson:"customdatasets,omitempty"`
+	CustomDataTypes map[string]float64            `bson:"customdatatypes,omitempty"`
+	Data            string                        `bson:"data"`
+	Detections      []*TextualDetection           `bson:"detections,omitempty"`
+	Exploits        map[string]float64            `bson:"exploits,omitempty"`
+	Hash            string                        `bson:"hash,omitempty"`
+	Intent          map[string]float64            `bson:"intent,omitempty"`
+	Internal        bool                          `bson:"internal,omitempty"`
+	IsFile          bool                          `bson:"isfile,omitempty"`
+	IsStored        bool                          `bson:"isstored,omitempty"`
+	Keywords        map[string]float64            `bson:"keywords,omitempty"`
+	Label           string                        `bson:"label,omitempty"`
+	Languages       map[string]float64            `bson:"languages,omitempty"`
+	Malcontents     map[string]float64            `bson:"malcontents,omitempty"`
+	Modalities      []Modality                    `bson:"modalities,omitempty"`
+	Relevance       float64                       `bson:"relevance,omitempty"`
+	Secrets         map[string]float64            `bson:"secrets,omitempty"`
+	Topics          map[string]float64            `bson:"topics,omitempty"`
 }

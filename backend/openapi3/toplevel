@@ -313,10 +313,6 @@
             "description": "Description of the agent configuration.",
             "type": "string"
           },
-          "disableAutoStart": {
-            "description": "If disabled, the agent needs to be restarted manually.",
-            "type": "boolean"
-          },
           "disableManagedCA": {
             "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
             "type": "boolean"
@@ -1274,6 +1270,76 @@
         ],
         "type": "object"
       },
+      "customdataset": {
+        "description": "Allows to create a custom data set.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataTypes": {
+            "description": "A list of all the data types which are associated to this data set.",
+            "example": [
+              "ssn",
+              "person",
+              "location"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "Description of the custom data set.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName"
+        ],
+        "type": "object"
+      },
       "customdatatype": {
         "description": "Allows to create custom data detectors.",
         "properties": {
@@ -1590,6 +1656,22 @@
             "example": 0.9,
             "type": "number"
           },
+          "customDataSets": {
+            "description": "The custom data sets found during classification.",
+            "example": {
+              "cds": {
+                "ct1": 1,
+                "ct2": 2
+              }
+            },
+            "items": {
+              "items": {
+                "type": "float"
+              },
+              "type": "object"
+            },
+            "type": "object"
+          },
           "customDataTypes": {
             "description": "The custom data types found during classification.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
@@ -1753,6 +1835,16 @@
           "categories": {
             "additionalProperties": true,
             "description": "The categories are remapping of the modalities in a more human friendly way.",
+            "type": "object"
+          },
+          "customDataSets": {
+            "additionalProperties": true,
+            "description": "The data sets.",
+            "type": "object"
+          },
+          "customDataTypes": {
+            "additionalProperties": true,
+            "description": "The data types.",
             "type": "object"
           },
           "exploits": {
@@ -1998,6 +2090,11 @@
             "example": 4449147649844796362,
             "type": "string"
           },
+          "logUnixNano": {
+            "description": "The timestamp of the log.",
+            "example": 1741797027131412000,
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -2015,6 +2112,16 @@
             "description": "The feedback score (+1 for upvote, -1 for downvote).",
             "type": "integer"
           },
+          "status": {
+            "default": "New",
+            "description": "The status of the feedback.",
+            "enum": [
+              "New",
+              "Investigating",
+              "Confirmed",
+              "Rejected"
+            ]
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -2030,8 +2137,10 @@
         "required": [
           "key",
           "logHash",
+          "logUnixNano",
           "principal",
           "provider",
+          "status",
           "value"
         ],
         "type": "object"
@@ -2179,6 +2288,13 @@
             "description": "Content policies to import.",
             "items": {
               "$ref": "#/components/schemas/contentpolicy"
+            },
+            "type": "array"
+          },
+          "customDataSets": {
+            "description": "Custom Data Sets to import.",
+            "items": {
+              "$ref": "#/components/schemas/customdataset"
             },
             "type": "array"
           },
@@ -3829,6 +3945,13 @@
           "contentPolicy": {
             "description": "The computed content policy.",
             "type": "string"
+          },
+          "customDataSets": {
+            "description": "List of custom data sets.",
+            "items": {
+              "$ref": "#/components/schemas/customdataset"
+            },
+            "type": "array"
           },
           "customDataTypes": {
             "description": "List of custom data types.",
@@ -6638,6 +6761,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/contentpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/customdatasets": {
+      "get": {
+        "description": "List all custom data sets.",
+        "operationId": "get-all-CustomDataSets",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/customdataset"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new custom data set.",
+        "operationId": "create-CustomDataSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/customdataset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/customdatasets/{id}": {
+      "delete": {
+        "description": "Delete a custom data set given its identifier.",
+        "operationId": "delete-CustomDataSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a custom data set given its identifier.",
+        "operationId": "get-CustomDataSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a custom data set given its identifier.",
+        "operationId": "update-CustomDataSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/customdataset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdataset"
                 }
               }
             },

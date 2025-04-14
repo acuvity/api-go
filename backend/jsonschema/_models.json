@@ -57,6 +57,9 @@
     "contentpolicy": {
       "$ref": "contentpolicy.json"
     },
+    "customdataset": {
+      "$ref": "customdataset.json"
+    },
     "customdatatype": {
       "$ref": "customdatatype.json"
     },

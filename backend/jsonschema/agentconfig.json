@@ -53,15 +53,6 @@
         "null"
       ]
     },
-    "disableAutoStart": {
-      "$friendlyName": "Disable auto-start agent",
-      "description": "If disabled, the agent needs to be restarted manually.",
-      "title": "disableAutoStart",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
     "disableManagedCA": {
       "$friendlyName": "Disable Managed CA",
       "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",

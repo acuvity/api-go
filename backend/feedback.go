@@ -12,6 +12,23 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// FeedbackStatusValue represents the possible values for attribute "status".
+type FeedbackStatusValue string
+
+const (
+	// FeedbackStatusConfirmed represents the value Confirmed.
+	FeedbackStatusConfirmed FeedbackStatusValue = "Confirmed"
+
+	// FeedbackStatusInvestigating represents the value Investigating.
+	FeedbackStatusInvestigating FeedbackStatusValue = "Investigating"
+
+	// FeedbackStatusNew represents the value New.
+	FeedbackStatusNew FeedbackStatusValue = "New"
+
+	// FeedbackStatusRejected represents the value Rejected.
+	FeedbackStatusRejected FeedbackStatusValue = "Rejected"
+)
+
 // FeedbackIdentity represents the Identity of the object.
 var FeedbackIdentity = elemental.Identity{
 	Name:     "feedback",
@@ -99,6 +116,9 @@ type Feedback struct {
 	// The hash of the log.
 	LogHash string `json:"logHash" msgpack:"logHash" bson:"loghash" mapstructure:"logHash,omitempty"`
 
+	// The timestamp of the log.
+	LogUnixNano string `json:"logUnixNano" msgpack:"logUnixNano" bson:"logunixnano" mapstructure:"logUnixNano,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -110,6 +130,9 @@ type Feedback struct {
 
 	// The feedback score (+1 for upvote, -1 for downvote).
 	Score int `json:"score" msgpack:"score" bson:"score" mapstructure:"score,omitempty"`
+
+	// The status of the feedback.
+	Status FeedbackStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -132,6 +155,7 @@ func NewFeedback() *Feedback {
 	return &Feedback{
 		ModelVersion: 1,
 		Principal:    NewPrincipal(),
+		Status:       FeedbackStatusNew,
 	}
 }
 
@@ -170,10 +194,12 @@ func (o *Feedback) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Key = o.Key
 	s.LogHash = o.LogHash
+	s.LogUnixNano = o.LogUnixNano
 	s.Namespace = o.Namespace
 	s.Principal = o.Principal
 	s.Provider = o.Provider
 	s.Score = o.Score
+	s.Status = o.Status
 	s.UpdateTime = o.UpdateTime
 	s.Value = o.Value
 	s.ZHash = o.ZHash
@@ -200,10 +226,12 @@ func (o *Feedback) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Key = s.Key
 	o.LogHash = s.LogHash
+	o.LogUnixNano = s.LogUnixNano
 	o.Namespace = s.Namespace
 	o.Principal = s.Principal
 	o.Provider = s.Provider
 	o.Score = s.Score
+	o.Status = s.Status
 	o.UpdateTime = s.UpdateTime
 	o.Value = s.Value
 	o.ZHash = s.ZHash
@@ -284,19 +312,21 @@ func (o *Feedback) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseFeedback{
-			ID:         &o.ID,
-			Comment:    &o.Comment,
-			CreateTime: &o.CreateTime,
-			Key:        &o.Key,
-			LogHash:    &o.LogHash,
-			Namespace:  &o.Namespace,
-			Principal:  o.Principal,
-			Provider:   &o.Provider,
-			Score:      &o.Score,
-			UpdateTime: &o.UpdateTime,
-			Value:      &o.Value,
-			ZHash:      &o.ZHash,
-			Zone:       &o.Zone,
+			ID:          &o.ID,
+			Comment:     &o.Comment,
+			CreateTime:  &o.CreateTime,
+			Key:         &o.Key,
+			LogHash:     &o.LogHash,
+			LogUnixNano: &o.LogUnixNano,
+			Namespace:   &o.Namespace,
+			Principal:   o.Principal,
+			Provider:    &o.Provider,
+			Score:       &o.Score,
+			Status:      &o.Status,
+			UpdateTime:  &o.UpdateTime,
+			Value:       &o.Value,
+			ZHash:       &o.ZHash,
+			Zone:        &o.Zone,
 		}
 	}
 
@@ -313,6 +343,8 @@ func (o *Feedback) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Key = &(o.Key)
 		case "logHash":
 			sp.LogHash = &(o.LogHash)
+		case "logUnixNano":
+			sp.LogUnixNano = &(o.LogUnixNano)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "principal":
@@ -321,6 +353,8 @@ func (o *Feedback) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Provider = &(o.Provider)
 		case "score":
 			sp.Score = &(o.Score)
+		case "status":
+			sp.Status = &(o.Status)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "value":
@@ -357,6 +391,9 @@ func (o *Feedback) Patch(sparse elemental.SparseIdentifiable) {
 	if so.LogHash != nil {
 		o.LogHash = *so.LogHash
 	}
+	if so.LogUnixNano != nil {
+		o.LogUnixNano = *so.LogUnixNano
+	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
@@ -368,6 +405,9 @@ func (o *Feedback) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Score != nil {
 		o.Score = *so.Score
+	}
+	if so.Status != nil {
+		o.Status = *so.Status
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -421,6 +461,10 @@ func (o *Feedback) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("logUnixNano", o.LogUnixNano); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
 	if o.Principal != nil {
 		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
@@ -430,6 +474,14 @@ func (o *Feedback) Validate() error {
 
 	if err := elemental.ValidateRequiredString("provider", o.Provider); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("status", string(o.Status)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"New", "Investigating", "Confirmed", "Rejected"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("value", o.Value); err != nil {
@@ -480,6 +532,8 @@ func (o *Feedback) ValueForAttribute(name string) any {
 		return o.Key
 	case "logHash":
 		return o.LogHash
+	case "logUnixNano":
+		return o.LogUnixNano
 	case "namespace":
 		return o.Namespace
 	case "principal":
@@ -488,6 +542,8 @@ func (o *Feedback) ValueForAttribute(name string) any {
 		return o.Provider
 	case "score":
 		return o.Score
+	case "status":
+		return o.Status
 	case "updateTime":
 		return o.UpdateTime
 	case "value":
@@ -567,6 +623,18 @@ var FeedbackAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"LogUnixNano": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "logunixnano",
+		ConvertedName:  "LogUnixNano",
+		CreationOnly:   true,
+		Description:    `The timestamp of the log.`,
+		Exposed:        true,
+		Name:           "logUnixNano",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"Namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -615,6 +683,18 @@ var FeedbackAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "score",
 		Stored:         true,
 		Type:           "integer",
+	},
+	"Status": {
+		AllowedChoices: []string{"New", "Investigating", "Confirmed", "Rejected"},
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   FeedbackStatusNew,
+		Description:    `The status of the feedback.`,
+		Exposed:        true,
+		Name:           "status",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -711,6 +791,18 @@ var FeedbackLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
+	"logunixnano": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "logunixnano",
+		ConvertedName:  "LogUnixNano",
+		CreationOnly:   true,
+		Description:    `The timestamp of the log.`,
+		Exposed:        true,
+		Name:           "logUnixNano",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -759,6 +851,18 @@ var FeedbackLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "score",
 		Stored:         true,
 		Type:           "integer",
+	},
+	"status": {
+		AllowedChoices: []string{"New", "Investigating", "Confirmed", "Rejected"},
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   FeedbackStatusNew,
+		Description:    `The status of the feedback.`,
+		Exposed:        true,
+		Name:           "status",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -867,6 +971,9 @@ type SparseFeedback struct {
 	// The hash of the log.
 	LogHash *string `json:"logHash,omitempty" msgpack:"logHash,omitempty" bson:"loghash,omitempty" mapstructure:"logHash,omitempty"`
 
+	// The timestamp of the log.
+	LogUnixNano *string `json:"logUnixNano,omitempty" msgpack:"logUnixNano,omitempty" bson:"logunixnano,omitempty" mapstructure:"logUnixNano,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -878,6 +985,9 @@ type SparseFeedback struct {
 
 	// The feedback score (+1 for upvote, -1 for downvote).
 	Score *int `json:"score,omitempty" msgpack:"score,omitempty" bson:"score,omitempty" mapstructure:"score,omitempty"`
+
+	// The status of the feedback.
+	Status *FeedbackStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -949,6 +1059,9 @@ func (o *SparseFeedback) GetBSON() (any, error) {
 	if o.LogHash != nil {
 		s.LogHash = o.LogHash
 	}
+	if o.LogUnixNano != nil {
+		s.LogUnixNano = o.LogUnixNano
+	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
@@ -960,6 +1073,9 @@ func (o *SparseFeedback) GetBSON() (any, error) {
 	}
 	if o.Score != nil {
 		s.Score = o.Score
+	}
+	if o.Status != nil {
+		s.Status = o.Status
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1004,6 +1120,9 @@ func (o *SparseFeedback) SetBSON(raw bson.Raw) error {
 	if s.LogHash != nil {
 		o.LogHash = s.LogHash
 	}
+	if s.LogUnixNano != nil {
+		o.LogUnixNano = s.LogUnixNano
+	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
@@ -1015,6 +1134,9 @@ func (o *SparseFeedback) SetBSON(raw bson.Raw) error {
 	}
 	if s.Score != nil {
 		o.Score = s.Score
+	}
+	if s.Status != nil {
+		o.Status = s.Status
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1057,6 +1179,9 @@ func (o *SparseFeedback) ToPlain() elemental.PlainIdentifiable {
 	if o.LogHash != nil {
 		out.LogHash = *o.LogHash
 	}
+	if o.LogUnixNano != nil {
+		out.LogUnixNano = *o.LogUnixNano
+	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
@@ -1068,6 +1193,9 @@ func (o *SparseFeedback) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Score != nil {
 		out.Score = *o.Score
+	}
+	if o.Status != nil {
+		out.Status = *o.Status
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1158,32 +1286,36 @@ func (o *SparseFeedback) DeepCopyInto(out *SparseFeedback) {
 }
 
 type mongoAttributesFeedback struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	Comment    string        `bson:"comment"`
-	CreateTime time.Time     `bson:"createtime"`
-	Key        string        `bson:"key"`
-	LogHash    string        `bson:"loghash"`
-	Namespace  string        `bson:"namespace,omitempty"`
-	Principal  *Principal    `bson:"principal"`
-	Provider   string        `bson:"provider"`
-	Score      int           `bson:"score"`
-	UpdateTime time.Time     `bson:"updatetime"`
-	Value      string        `bson:"value"`
-	ZHash      int           `bson:"zhash"`
-	Zone       int           `bson:"zone"`
+	ID          bson.ObjectId       `bson:"_id,omitempty"`
+	Comment     string              `bson:"comment"`
+	CreateTime  time.Time           `bson:"createtime"`
+	Key         string              `bson:"key"`
+	LogHash     string              `bson:"loghash"`
+	LogUnixNano string              `bson:"logunixnano"`
+	Namespace   string              `bson:"namespace,omitempty"`
+	Principal   *Principal          `bson:"principal"`
+	Provider    string              `bson:"provider"`
+	Score       int                 `bson:"score"`
+	Status      FeedbackStatusValue `bson:"status"`
+	UpdateTime  time.Time           `bson:"updatetime"`
+	Value       string              `bson:"value"`
+	ZHash       int                 `bson:"zhash"`
+	Zone        int                 `bson:"zone"`
 }
 type mongoAttributesSparseFeedback struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	Comment    *string       `bson:"comment,omitempty"`
-	CreateTime *time.Time    `bson:"createtime,omitempty"`
-	Key        *string       `bson:"key,omitempty"`
-	LogHash    *string       `bson:"loghash,omitempty"`
-	Namespace  *string       `bson:"namespace,omitempty"`
-	Principal  *Principal    `bson:"principal,omitempty"`
-	Provider   *string       `bson:"provider,omitempty"`
-	Score      *int          `bson:"score,omitempty"`
-	UpdateTime *time.Time    `bson:"updatetime,omitempty"`
-	Value      *string       `bson:"value,omitempty"`
-	ZHash      *int          `bson:"zhash,omitempty"`
-	Zone       *int          `bson:"zone,omitempty"`
+	ID          bson.ObjectId        `bson:"_id,omitempty"`
+	Comment     *string              `bson:"comment,omitempty"`
+	CreateTime  *time.Time           `bson:"createtime,omitempty"`
+	Key         *string              `bson:"key,omitempty"`
+	LogHash     *string              `bson:"loghash,omitempty"`
+	LogUnixNano *string              `bson:"logunixnano,omitempty"`
+	Namespace   *string              `bson:"namespace,omitempty"`
+	Principal   *Principal           `bson:"principal,omitempty"`
+	Provider    *string              `bson:"provider,omitempty"`
+	Score       *int                 `bson:"score,omitempty"`
+	Status      *FeedbackStatusValue `bson:"status,omitempty"`
+	UpdateTime  *time.Time           `bson:"updatetime,omitempty"`
+	Value       *string              `bson:"value,omitempty"`
+	ZHash       *int                 `bson:"zhash,omitempty"`
+	Zone        *int                 `bson:"zone,omitempty"`
 }

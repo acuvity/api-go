@@ -25,6 +25,7 @@ var (
 		"apptoken":         AppTokenIdentity,
 		"authsettings":     AuthSettingsIdentity,
 		"contentpolicy":    ContentPolicyIdentity,
+		"customdataset":    CustomDataSetIdentity,
 		"customdatatype":   CustomDataTypeIdentity,
 
 		"errortransformer": ErrorTransformerIdentity,
@@ -108,6 +109,7 @@ var (
 		"apptokens":         AppTokenIdentity,
 		"authsettings":      AuthSettingsIdentity,
 		"contentpolicies":   ContentPolicyIdentity,
+		"customdatasets":    CustomDataSetIdentity,
 		"customdatatypes":   CustomDataTypeIdentity,
 
 		"errortransformers": ErrorTransformerIdentity,
@@ -223,6 +225,11 @@ var (
 		},
 		"authsettings": nil,
 		"contentpolicy": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"customdataset": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
@@ -415,6 +422,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthSettings()
 	case ContentPolicyIdentity:
 		return NewContentPolicy()
+	case CustomDataSetIdentity:
+		return NewCustomDataSet()
 	case CustomDataTypeIdentity:
 		return NewCustomDataType()
 	case ErrorTransformerIdentity:
@@ -552,6 +561,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthSettings()
 	case ContentPolicyIdentity:
 		return NewSparseContentPolicy()
+	case CustomDataSetIdentity:
+		return NewSparseCustomDataSet()
 	case CustomDataTypeIdentity:
 		return NewSparseCustomDataType()
 	case ErrorTransformerIdentity:
@@ -697,6 +708,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &ContentPoliciesList{}
+	case CustomDataSetIdentity:
+		return &CustomDataSetsList{}
 	case CustomDataTypeIdentity:
 		return &CustomDataTypesList{}
 	case ErrorTransformerIdentity:
@@ -832,6 +845,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &SparseContentPoliciesList{}
+	case CustomDataSetIdentity:
+		return &SparseCustomDataSetsList{}
 	case CustomDataTypeIdentity:
 		return &SparseCustomDataTypesList{}
 	case ErrorTransformerIdentity:
@@ -972,6 +987,7 @@ func AllIdentities() []elemental.Identity {
 		AppTokenIdentity,
 		AuthSettingsIdentity,
 		ContentPolicyIdentity,
+		CustomDataSetIdentity,
 		CustomDataTypeIdentity,
 		ErrorTransformerIdentity,
 		ExtractorIdentity,
@@ -1056,6 +1072,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AuthSettingsIdentity:
 		return []string{}
 	case ContentPolicyIdentity:
+		return []string{}
+	case CustomDataSetIdentity:
 		return []string{}
 	case CustomDataTypeIdentity:
 		return []string{}
