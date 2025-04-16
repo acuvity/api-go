@@ -4230,6 +4230,19 @@ Default value:
 true
 ```
 
+##### `providersWithoutConsent`
+
+Type: `[]string`
+
+The providers which do not request employees' consent.
+
+##### `safeUsageURL`
+
+Type: `string`
+
+A link to the AI Safe Usage Document for the organization.
+If provided, it is presented in the consent banner to the employees.
+
 ##### `storeInputFiles`
 
 Type: `boolean`

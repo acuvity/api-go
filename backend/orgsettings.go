@@ -153,6 +153,13 @@ type OrgSettings struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
+	// The providers which do not request employees' consent.
+	ProvidersWithoutConsent []string `json:"providersWithoutConsent" msgpack:"providersWithoutConsent" bson:"providerswithoutconsent" mapstructure:"providersWithoutConsent,omitempty"`
+
+	// A link to the AI Safe Usage Document for the organization.
+	// If provided, it is presented in the consent banner to the employees.
+	SafeUsageURL string `json:"safeUsageURL" msgpack:"safeUsageURL" bson:"safeusageurl" mapstructure:"safeUsageURL,omitempty"`
+
 	// If set, files uploaded by the users will be stored.
 	StoreInputFiles bool `json:"storeInputFiles" msgpack:"storeInputFiles" bson:"storeinputfiles" mapstructure:"storeInputFiles,omitempty"`
 
@@ -182,11 +189,12 @@ type OrgSettings struct {
 func NewOrgSettings() *OrgSettings {
 
 	return &OrgSettings{
-		ModelVersion:  1,
-		CACommonNames: []string{},
-		Fingerprints:  []string{},
-		Propagate:     true,
-		SubjectKeyIDs: []string{},
+		ModelVersion:            1,
+		CACommonNames:           []string{},
+		Fingerprints:            []string{},
+		Propagate:               true,
+		ProvidersWithoutConsent: []string{},
+		SubjectKeyIDs:           []string{},
 	}
 }
 
@@ -236,6 +244,8 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.Profile = o.Profile
 	s.Propagate = o.Propagate
+	s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
+	s.SafeUsageURL = o.SafeUsageURL
 	s.StoreInputFiles = o.StoreInputFiles
 	s.StoreOutputFiles = o.StoreOutputFiles
 	s.SubjectKeyIDs = o.SubjectKeyIDs
@@ -276,6 +286,8 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.Profile = s.Profile
 	o.Propagate = s.Propagate
+	o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
+	o.SafeUsageURL = s.SafeUsageURL
 	o.StoreInputFiles = s.StoreInputFiles
 	o.StoreOutputFiles = s.StoreOutputFiles
 	o.SubjectKeyIDs = s.SubjectKeyIDs
@@ -395,29 +407,31 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseOrgSettings{
-			CA:                  &o.CA,
-			CACommonNames:       &o.CACommonNames,
-			ID:                  &o.ID,
-			AccessPolicy:        &o.AccessPolicy,
-			AllowSupportAccess:  &o.AllowSupportAccess,
-			AskConsent:          &o.AskConsent,
-			AssignPolicy:        &o.AssignPolicy,
-			ContentPolicy:       &o.ContentPolicy,
-			CreateTime:          &o.CreateTime,
-			DisableURLDiscovery: &o.DisableURLDiscovery,
-			Fingerprints:        &o.Fingerprints,
-			ImportHash:          &o.ImportHash,
-			ImportLabel:         &o.ImportLabel,
-			Namespace:           &o.Namespace,
-			Profile:             &o.Profile,
-			Propagate:           &o.Propagate,
-			StoreInputFiles:     &o.StoreInputFiles,
-			StoreOutputFiles:    &o.StoreOutputFiles,
-			SubjectKeyIDs:       &o.SubjectKeyIDs,
-			UpdateTime:          &o.UpdateTime,
-			UseRegoCodeOnly:     &o.UseRegoCodeOnly,
-			ZHash:               &o.ZHash,
-			Zone:                &o.Zone,
+			CA:                      &o.CA,
+			CACommonNames:           &o.CACommonNames,
+			ID:                      &o.ID,
+			AccessPolicy:            &o.AccessPolicy,
+			AllowSupportAccess:      &o.AllowSupportAccess,
+			AskConsent:              &o.AskConsent,
+			AssignPolicy:            &o.AssignPolicy,
+			ContentPolicy:           &o.ContentPolicy,
+			CreateTime:              &o.CreateTime,
+			DisableURLDiscovery:     &o.DisableURLDiscovery,
+			Fingerprints:            &o.Fingerprints,
+			ImportHash:              &o.ImportHash,
+			ImportLabel:             &o.ImportLabel,
+			Namespace:               &o.Namespace,
+			Profile:                 &o.Profile,
+			Propagate:               &o.Propagate,
+			ProvidersWithoutConsent: &o.ProvidersWithoutConsent,
+			SafeUsageURL:            &o.SafeUsageURL,
+			StoreInputFiles:         &o.StoreInputFiles,
+			StoreOutputFiles:        &o.StoreOutputFiles,
+			SubjectKeyIDs:           &o.SubjectKeyIDs,
+			UpdateTime:              &o.UpdateTime,
+			UseRegoCodeOnly:         &o.UseRegoCodeOnly,
+			ZHash:                   &o.ZHash,
+			Zone:                    &o.Zone,
 		}
 	}
 
@@ -456,6 +470,10 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Profile = &(o.Profile)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "providersWithoutConsent":
+			sp.ProvidersWithoutConsent = &(o.ProvidersWithoutConsent)
+		case "safeUsageURL":
+			sp.SafeUsageURL = &(o.SafeUsageURL)
 		case "storeInputFiles":
 			sp.StoreInputFiles = &(o.StoreInputFiles)
 		case "storeOutputFiles":
@@ -530,6 +548,12 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
+	}
+	if so.ProvidersWithoutConsent != nil {
+		o.ProvidersWithoutConsent = *so.ProvidersWithoutConsent
+	}
+	if so.SafeUsageURL != nil {
+		o.SafeUsageURL = *so.SafeUsageURL
 	}
 	if so.StoreInputFiles != nil {
 		o.StoreInputFiles = *so.StoreInputFiles
@@ -666,6 +690,10 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.Profile
 	case "propagate":
 		return o.Propagate
+	case "providersWithoutConsent":
+		return o.ProvidersWithoutConsent
+	case "safeUsageURL":
+		return o.SafeUsageURL
 	case "storeInputFiles":
 		return o.StoreInputFiles
 	case "storeOutputFiles":
@@ -899,6 +927,28 @@ sent by the users are relevant to your company.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"ProvidersWithoutConsent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerswithoutconsent",
+		ConvertedName:  "ProvidersWithoutConsent",
+		Description:    `The providers which do not request employees' consent.`,
+		Exposed:        true,
+		Name:           "providersWithoutConsent",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"SafeUsageURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "safeusageurl",
+		ConvertedName:  "SafeUsageURL",
+		Description: `A link to the AI Safe Usage Document for the organization. 
+If provided, it is presented in the consent banner to the employees.`,
+		Exposed: true,
+		Name:    "safeUsageURL",
+		Stored:  true,
+		Type:    "string",
 	},
 	"StoreInputFiles": {
 		AllowedChoices: []string{},
@@ -1176,6 +1226,28 @@ sent by the users are relevant to your company.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"providerswithoutconsent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerswithoutconsent",
+		ConvertedName:  "ProvidersWithoutConsent",
+		Description:    `The providers which do not request employees' consent.`,
+		Exposed:        true,
+		Name:           "providersWithoutConsent",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"safeusageurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "safeusageurl",
+		ConvertedName:  "SafeUsageURL",
+		Description: `A link to the AI Safe Usage Document for the organization. 
+If provided, it is presented in the consent banner to the employees.`,
+		Exposed: true,
+		Name:    "safeUsageURL",
+		Stored:  true,
+		Type:    "string",
+	},
 	"storeinputfiles": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "storeinputfiles",
@@ -1369,6 +1441,13 @@ type SparseOrgSettings struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
+	// The providers which do not request employees' consent.
+	ProvidersWithoutConsent *[]string `json:"providersWithoutConsent,omitempty" msgpack:"providersWithoutConsent,omitempty" bson:"providerswithoutconsent,omitempty" mapstructure:"providersWithoutConsent,omitempty"`
+
+	// A link to the AI Safe Usage Document for the organization.
+	// If provided, it is presented in the consent banner to the employees.
+	SafeUsageURL *string `json:"safeUsageURL,omitempty" msgpack:"safeUsageURL,omitempty" bson:"safeusageurl,omitempty" mapstructure:"safeUsageURL,omitempty"`
+
 	// If set, files uploaded by the users will be stored.
 	StoreInputFiles *bool `json:"storeInputFiles,omitempty" msgpack:"storeInputFiles,omitempty" bson:"storeinputfiles,omitempty" mapstructure:"storeInputFiles,omitempty"`
 
@@ -1482,6 +1561,12 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
+	if o.ProvidersWithoutConsent != nil {
+		s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
+	}
+	if o.SafeUsageURL != nil {
+		s.SafeUsageURL = o.SafeUsageURL
+	}
 	if o.StoreInputFiles != nil {
 		s.StoreInputFiles = o.StoreInputFiles
 	}
@@ -1567,6 +1652,12 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
+	if s.ProvidersWithoutConsent != nil {
+		o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
+	}
+	if s.SafeUsageURL != nil {
+		o.SafeUsageURL = s.SafeUsageURL
+	}
 	if s.StoreInputFiles != nil {
 		o.StoreInputFiles = s.StoreInputFiles
 	}
@@ -1649,6 +1740,12 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
+	}
+	if o.ProvidersWithoutConsent != nil {
+		out.ProvidersWithoutConsent = *o.ProvidersWithoutConsent
+	}
+	if o.SafeUsageURL != nil {
+		out.SafeUsageURL = *o.SafeUsageURL
 	}
 	if o.StoreInputFiles != nil {
 		out.StoreInputFiles = *o.StoreInputFiles
@@ -1796,52 +1893,56 @@ func (o *SparseOrgSettings) DeepCopyInto(out *SparseOrgSettings) {
 }
 
 type mongoAttributesOrgSettings struct {
-	CA                  string        `bson:"ca"`
-	CACommonNames       []string      `bson:"cacommonnames"`
-	ID                  bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy        string        `bson:"accesspolicy"`
-	AllowSupportAccess  bool          `bson:"allowsupportaccess"`
-	AskConsent          bool          `bson:"askconsent"`
-	AssignPolicy        string        `bson:"assignpolicy"`
-	ContentPolicy       string        `bson:"contentpolicy"`
-	CreateTime          time.Time     `bson:"createtime"`
-	DisableURLDiscovery bool          `bson:"disableurldiscovery"`
-	Fingerprints        []string      `bson:"fingerprints"`
-	ImportHash          string        `bson:"importhash,omitempty"`
-	ImportLabel         string        `bson:"importlabel,omitempty"`
-	Namespace           string        `bson:"namespace,omitempty"`
-	Profile             string        `bson:"profile"`
-	Propagate           bool          `bson:"propagate"`
-	StoreInputFiles     bool          `bson:"storeinputfiles"`
-	StoreOutputFiles    bool          `bson:"storeoutputfiles"`
-	SubjectKeyIDs       []string      `bson:"subjectkeyids"`
-	UpdateTime          time.Time     `bson:"updatetime"`
-	UseRegoCodeOnly     bool          `bson:"useregocodeonly"`
-	ZHash               int           `bson:"zhash"`
-	Zone                int           `bson:"zone"`
+	CA                      string        `bson:"ca"`
+	CACommonNames           []string      `bson:"cacommonnames"`
+	ID                      bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy            string        `bson:"accesspolicy"`
+	AllowSupportAccess      bool          `bson:"allowsupportaccess"`
+	AskConsent              bool          `bson:"askconsent"`
+	AssignPolicy            string        `bson:"assignpolicy"`
+	ContentPolicy           string        `bson:"contentpolicy"`
+	CreateTime              time.Time     `bson:"createtime"`
+	DisableURLDiscovery     bool          `bson:"disableurldiscovery"`
+	Fingerprints            []string      `bson:"fingerprints"`
+	ImportHash              string        `bson:"importhash,omitempty"`
+	ImportLabel             string        `bson:"importlabel,omitempty"`
+	Namespace               string        `bson:"namespace,omitempty"`
+	Profile                 string        `bson:"profile"`
+	Propagate               bool          `bson:"propagate"`
+	ProvidersWithoutConsent []string      `bson:"providerswithoutconsent"`
+	SafeUsageURL            string        `bson:"safeusageurl"`
+	StoreInputFiles         bool          `bson:"storeinputfiles"`
+	StoreOutputFiles        bool          `bson:"storeoutputfiles"`
+	SubjectKeyIDs           []string      `bson:"subjectkeyids"`
+	UpdateTime              time.Time     `bson:"updatetime"`
+	UseRegoCodeOnly         bool          `bson:"useregocodeonly"`
+	ZHash                   int           `bson:"zhash"`
+	Zone                    int           `bson:"zone"`
 }
 type mongoAttributesSparseOrgSettings struct {
-	CA                  *string       `bson:"ca,omitempty"`
-	CACommonNames       *[]string     `bson:"cacommonnames,omitempty"`
-	ID                  bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy        *string       `bson:"accesspolicy,omitempty"`
-	AllowSupportAccess  *bool         `bson:"allowsupportaccess,omitempty"`
-	AskConsent          *bool         `bson:"askconsent,omitempty"`
-	AssignPolicy        *string       `bson:"assignpolicy,omitempty"`
-	ContentPolicy       *string       `bson:"contentpolicy,omitempty"`
-	CreateTime          *time.Time    `bson:"createtime,omitempty"`
-	DisableURLDiscovery *bool         `bson:"disableurldiscovery,omitempty"`
-	Fingerprints        *[]string     `bson:"fingerprints,omitempty"`
-	ImportHash          *string       `bson:"importhash,omitempty"`
-	ImportLabel         *string       `bson:"importlabel,omitempty"`
-	Namespace           *string       `bson:"namespace,omitempty"`
-	Profile             *string       `bson:"profile,omitempty"`
-	Propagate           *bool         `bson:"propagate,omitempty"`
-	StoreInputFiles     *bool         `bson:"storeinputfiles,omitempty"`
-	StoreOutputFiles    *bool         `bson:"storeoutputfiles,omitempty"`
-	SubjectKeyIDs       *[]string     `bson:"subjectkeyids,omitempty"`
-	UpdateTime          *time.Time    `bson:"updatetime,omitempty"`
-	UseRegoCodeOnly     *bool         `bson:"useregocodeonly,omitempty"`
-	ZHash               *int          `bson:"zhash,omitempty"`
-	Zone                *int          `bson:"zone,omitempty"`
+	CA                      *string       `bson:"ca,omitempty"`
+	CACommonNames           *[]string     `bson:"cacommonnames,omitempty"`
+	ID                      bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy            *string       `bson:"accesspolicy,omitempty"`
+	AllowSupportAccess      *bool         `bson:"allowsupportaccess,omitempty"`
+	AskConsent              *bool         `bson:"askconsent,omitempty"`
+	AssignPolicy            *string       `bson:"assignpolicy,omitempty"`
+	ContentPolicy           *string       `bson:"contentpolicy,omitempty"`
+	CreateTime              *time.Time    `bson:"createtime,omitempty"`
+	DisableURLDiscovery     *bool         `bson:"disableurldiscovery,omitempty"`
+	Fingerprints            *[]string     `bson:"fingerprints,omitempty"`
+	ImportHash              *string       `bson:"importhash,omitempty"`
+	ImportLabel             *string       `bson:"importlabel,omitempty"`
+	Namespace               *string       `bson:"namespace,omitempty"`
+	Profile                 *string       `bson:"profile,omitempty"`
+	Propagate               *bool         `bson:"propagate,omitempty"`
+	ProvidersWithoutConsent *[]string     `bson:"providerswithoutconsent,omitempty"`
+	SafeUsageURL            *string       `bson:"safeusageurl,omitempty"`
+	StoreInputFiles         *bool         `bson:"storeinputfiles,omitempty"`
+	StoreOutputFiles        *bool         `bson:"storeoutputfiles,omitempty"`
+	SubjectKeyIDs           *[]string     `bson:"subjectkeyids,omitempty"`
+	UpdateTime              *time.Time    `bson:"updatetime,omitempty"`
+	UseRegoCodeOnly         *bool         `bson:"useregocodeonly,omitempty"`
+	ZHash                   *int          `bson:"zhash,omitempty"`
+	Zone                    *int          `bson:"zone,omitempty"`
 }

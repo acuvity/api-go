@@ -3032,6 +3032,17 @@
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
           },
+          "providersWithoutConsent": {
+            "description": "The providers which do not request employees' consent.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "safeUsageURL": {
+            "description": "A link to the AI Safe Usage Document for the organization. \nIf provided, it is presented in the consent banner to the employees.",
+            "type": "string"
+          },
           "storeInputFiles": {
             "description": "If set, files uploaded by the users will be stored.",
             "type": "boolean"

@@ -173,6 +173,27 @@
         "null"
       ]
     },
+    "providersWithoutConsent": {
+      "$friendlyName": "Providers exceptions",
+      "description": "The providers which do not request employees' consent.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providersWithoutConsent",
+      "type": "array"
+    },
+    "safeUsageURL": {
+      "$friendlyName": "AI Safe Usage URL",
+      "description": "A link to the AI Safe Usage Document for the organization.  If provided, it is presented in the consent banner to the employees.",
+      "title": "safeUsageURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "storeInputFiles": {
       "$friendlyName": "Store Input Files",
       "description": "If set, files uploaded by the users will be stored.",
