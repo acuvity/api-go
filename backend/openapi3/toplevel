@@ -313,6 +313,10 @@
             "description": "Description of the agent configuration.",
             "type": "string"
           },
+          "disableDNSMonitor": {
+            "description": "If disabled, the agent will not monitor DNS.",
+            "type": "boolean"
+          },
           "disableManagedCA": {
             "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
             "type": "boolean"

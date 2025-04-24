@@ -425,6 +425,7 @@ AgentConfig stores the configuration information for the acushield agent.
 ```json
 {
   "allowedPauseInterval": "60m",
+  "disableDNSMonitor": false,
   "disableManagedCA": false,
   "disableSystemProxyManagement": false,
   "disableURLDiscovery": false,
@@ -495,6 +496,12 @@ Creation date of the object.
 Type: `string`
 
 Description of the agent configuration.
+
+##### `disableDNSMonitor`
+
+Type: `boolean`
+
+If disabled, the agent will not monitor DNS.
 
 ##### `disableManagedCA`
 

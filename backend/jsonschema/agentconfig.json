@@ -53,6 +53,15 @@
         "null"
       ]
     },
+    "disableDNSMonitor": {
+      "$friendlyName": "Disable DNS Monitor",
+      "description": "If disabled, the agent will not monitor DNS.",
+      "title": "disableDNSMonitor",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "disableManagedCA": {
       "$friendlyName": "Disable Managed CA",
       "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",
