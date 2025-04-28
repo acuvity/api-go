@@ -292,6 +292,18 @@
       "agentconfig": {
         "description": "AgentConfig stores the configuration information for the acushield agent.",
         "properties": {
+          "DNSMonitorEnabled": {
+            "description": "If enabled, the agent will monitor DNS traffic.",
+            "type": "boolean"
+          },
+          "DNSMonitorPolicy": {
+            "default": "Warn",
+            "description": "What action to take if the DNS monitor cannot start when enabled. Enforce will\nstop the agent with an error, while Warn will post a log and continue on.",
+            "enum": [
+              "Warn",
+              "Enforce"
+            ]
+          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -312,10 +324,6 @@
           "description": {
             "description": "Description of the agent configuration.",
             "type": "string"
-          },
-          "disableDNSMonitor": {
-            "description": "If disabled, the agent will not monitor DNS.",
-            "type": "boolean"
           },
           "disableManagedCA": {
             "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",

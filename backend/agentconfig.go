@@ -12,6 +12,17 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AgentConfigDNSMonitorPolicyValue represents the possible values for attribute "DNSMonitorPolicy".
+type AgentConfigDNSMonitorPolicyValue string
+
+const (
+	// AgentConfigDNSMonitorPolicyEnforce represents the value Enforce.
+	AgentConfigDNSMonitorPolicyEnforce AgentConfigDNSMonitorPolicyValue = "Enforce"
+
+	// AgentConfigDNSMonitorPolicyWarn represents the value Warn.
+	AgentConfigDNSMonitorPolicyWarn AgentConfigDNSMonitorPolicyValue = "Warn"
+)
+
 // AgentConfigIdentity represents the Identity of the object.
 var AgentConfigIdentity = elemental.Identity{
 	Name:     "agentconfig",
@@ -84,6 +95,13 @@ func (o AgentConfigsList) Version() int {
 
 // AgentConfig represents the model of a agentconfig
 type AgentConfig struct {
+	// If enabled, the agent will monitor DNS traffic.
+	DNSMonitorEnabled bool `json:"DNSMonitorEnabled" msgpack:"DNSMonitorEnabled" bson:"dnsmonitorenabled" mapstructure:"DNSMonitorEnabled,omitempty"`
+
+	// What action to take if the DNS monitor cannot start when enabled. Enforce will
+	// stop the agent with an error, while Warn will post a log and continue on.
+	DNSMonitorPolicy AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy" msgpack:"DNSMonitorPolicy" bson:"dnsmonitorpolicy" mapstructure:"DNSMonitorPolicy,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -96,9 +114,6 @@ type AgentConfig struct {
 
 	// Description of the agent configuration.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
-
-	// If disabled, the agent will not monitor DNS.
-	DisableDNSMonitor bool `json:"disableDNSMonitor" msgpack:"disableDNSMonitor" bson:"disablednsmonitor" mapstructure:"disableDNSMonitor,omitempty"`
 
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
@@ -156,6 +171,7 @@ func NewAgentConfig() *AgentConfig {
 
 	return &AgentConfig{
 		ModelVersion:         1,
+		DNSMonitorPolicy:     AgentConfigDNSMonitorPolicyWarn,
 		AllowedPauseInterval: "0s",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
@@ -190,13 +206,14 @@ func (o *AgentConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesAgentConfig{}
 
+	s.DNSMonitorEnabled = o.DNSMonitorEnabled
+	s.DNSMonitorPolicy = o.DNSMonitorPolicy
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.AllowedPauseInterval = o.AllowedPauseInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.DisableDNSMonitor = o.DisableDNSMonitor
 	s.DisableManagedCA = o.DisableManagedCA
 	s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
 	s.DisableURLDiscovery = o.DisableURLDiscovery
@@ -229,11 +246,12 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.DNSMonitorEnabled = s.DNSMonitorEnabled
+	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
 	o.AllowedPauseInterval = s.AllowedPauseInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.DisableDNSMonitor = s.DisableDNSMonitor
 	o.DisableManagedCA = s.DisableManagedCA
 	o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
 	o.DisableURLDiscovery = s.DisableURLDiscovery
@@ -349,11 +367,12 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAgentConfig{
+			DNSMonitorEnabled:            &o.DNSMonitorEnabled,
+			DNSMonitorPolicy:             &o.DNSMonitorPolicy,
 			ID:                           &o.ID,
 			AllowedPauseInterval:         &o.AllowedPauseInterval,
 			CreateTime:                   &o.CreateTime,
 			Description:                  &o.Description,
-			DisableDNSMonitor:            &o.DisableDNSMonitor,
 			DisableManagedCA:             &o.DisableManagedCA,
 			DisableSystemProxyManagement: &o.DisableSystemProxyManagement,
 			DisableURLDiscovery:          &o.DisableURLDiscovery,
@@ -375,6 +394,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseAgentConfig{}
 	for _, f := range fields {
 		switch f {
+		case "DNSMonitorEnabled":
+			sp.DNSMonitorEnabled = &(o.DNSMonitorEnabled)
+		case "DNSMonitorPolicy":
+			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "allowedPauseInterval":
@@ -383,8 +406,6 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "disableDNSMonitor":
-			sp.DisableDNSMonitor = &(o.DisableDNSMonitor)
 		case "disableManagedCA":
 			sp.DisableManagedCA = &(o.DisableManagedCA)
 		case "disableSystemProxyManagement":
@@ -428,6 +449,12 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseAgentConfig)
+	if so.DNSMonitorEnabled != nil {
+		o.DNSMonitorEnabled = *so.DNSMonitorEnabled
+	}
+	if so.DNSMonitorPolicy != nil {
+		o.DNSMonitorPolicy = *so.DNSMonitorPolicy
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -439,9 +466,6 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.DisableDNSMonitor != nil {
-		o.DisableDNSMonitor = *so.DisableDNSMonitor
 	}
 	if so.DisableManagedCA != nil {
 		o.DisableManagedCA = *so.DisableManagedCA
@@ -520,6 +544,10 @@ func (o *AgentConfig) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("DNSMonitorPolicy", string(o.DNSMonitorPolicy), []string{"Warn", "Enforce"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("listeningPort", o.ListeningPort); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -567,6 +595,10 @@ func (*AgentConfig) AttributeSpecifications() map[string]elemental.AttributeSpec
 func (o *AgentConfig) ValueForAttribute(name string) any {
 
 	switch name {
+	case "DNSMonitorEnabled":
+		return o.DNSMonitorEnabled
+	case "DNSMonitorPolicy":
+		return o.DNSMonitorPolicy
 	case "ID":
 		return o.ID
 	case "allowedPauseInterval":
@@ -575,8 +607,6 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "disableDNSMonitor":
-		return o.DisableDNSMonitor
 	case "disableManagedCA":
 		return o.DisableManagedCA
 	case "disableSystemProxyManagement":
@@ -614,6 +644,28 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 
 // AgentConfigAttributesMap represents the map of attribute for AgentConfig.
 var AgentConfigAttributesMap = map[string]elemental.AttributeSpecification{
+	"DNSMonitorEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dnsmonitorenabled",
+		ConvertedName:  "DNSMonitorEnabled",
+		Description:    `If enabled, the agent will monitor DNS traffic.`,
+		Exposed:        true,
+		Name:           "DNSMonitorEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"DNSMonitorPolicy": {
+		AllowedChoices: []string{"Warn", "Enforce"},
+		BSONFieldName:  "dnsmonitorpolicy",
+		ConvertedName:  "DNSMonitorPolicy",
+		DefaultValue:   AgentConfigDNSMonitorPolicyWarn,
+		Description: `What action to take if the DNS monitor cannot start when enabled. Enforce will
+stop the agent with an error, while Warn will post a log and continue on.`,
+		Exposed: true,
+		Name:    "DNSMonitorPolicy",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -665,16 +717,6 @@ A value of 0s means that users are not allowed to pause the enforcement.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"DisableDNSMonitor": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disablednsmonitor",
-		ConvertedName:  "DisableDNSMonitor",
-		Description:    `If disabled, the agent will not monitor DNS.`,
-		Exposed:        true,
-		Name:           "disableDNSMonitor",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"DisableManagedCA": {
 		AllowedChoices: []string{},
@@ -834,6 +876,28 @@ can take another port, different that the listeningPort.`,
 
 // AgentConfigLowerCaseAttributesMap represents the map of attribute for AgentConfig.
 var AgentConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"dnsmonitorenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dnsmonitorenabled",
+		ConvertedName:  "DNSMonitorEnabled",
+		Description:    `If enabled, the agent will monitor DNS traffic.`,
+		Exposed:        true,
+		Name:           "DNSMonitorEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"dnsmonitorpolicy": {
+		AllowedChoices: []string{"Warn", "Enforce"},
+		BSONFieldName:  "dnsmonitorpolicy",
+		ConvertedName:  "DNSMonitorPolicy",
+		DefaultValue:   AgentConfigDNSMonitorPolicyWarn,
+		Description: `What action to take if the DNS monitor cannot start when enabled. Enforce will
+stop the agent with an error, while Warn will post a log and continue on.`,
+		Exposed: true,
+		Name:    "DNSMonitorPolicy",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -885,16 +949,6 @@ A value of 0s means that users are not allowed to pause the enforcement.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"disablednsmonitor": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disablednsmonitor",
-		ConvertedName:  "DisableDNSMonitor",
-		Description:    `If disabled, the agent will not monitor DNS.`,
-		Exposed:        true,
-		Name:           "disableDNSMonitor",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"disablemanagedca": {
 		AllowedChoices: []string{},
@@ -1115,6 +1169,13 @@ func (o SparseAgentConfigsList) Version() int {
 
 // SparseAgentConfig represents the sparse version of a agentconfig.
 type SparseAgentConfig struct {
+	// If enabled, the agent will monitor DNS traffic.
+	DNSMonitorEnabled *bool `json:"DNSMonitorEnabled,omitempty" msgpack:"DNSMonitorEnabled,omitempty" bson:"dnsmonitorenabled,omitempty" mapstructure:"DNSMonitorEnabled,omitempty"`
+
+	// What action to take if the DNS monitor cannot start when enabled. Enforce will
+	// stop the agent with an error, while Warn will post a log and continue on.
+	DNSMonitorPolicy *AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy,omitempty" msgpack:"DNSMonitorPolicy,omitempty" bson:"dnsmonitorpolicy,omitempty" mapstructure:"DNSMonitorPolicy,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1127,9 +1188,6 @@ type SparseAgentConfig struct {
 
 	// Description of the agent configuration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// If disabled, the agent will not monitor DNS.
-	DisableDNSMonitor *bool `json:"disableDNSMonitor,omitempty" msgpack:"disableDNSMonitor,omitempty" bson:"disablednsmonitor,omitempty" mapstructure:"disableDNSMonitor,omitempty"`
 
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
@@ -1222,6 +1280,12 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseAgentConfig{}
 
+	if o.DNSMonitorEnabled != nil {
+		s.DNSMonitorEnabled = o.DNSMonitorEnabled
+	}
+	if o.DNSMonitorPolicy != nil {
+		s.DNSMonitorPolicy = o.DNSMonitorPolicy
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
@@ -1233,9 +1297,6 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	}
 	if o.Description != nil {
 		s.Description = o.Description
-	}
-	if o.DisableDNSMonitor != nil {
-		s.DisableDNSMonitor = o.DisableDNSMonitor
 	}
 	if o.DisableManagedCA != nil {
 		s.DisableManagedCA = o.DisableManagedCA
@@ -1299,6 +1360,12 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.DNSMonitorEnabled != nil {
+		o.DNSMonitorEnabled = s.DNSMonitorEnabled
+	}
+	if s.DNSMonitorPolicy != nil {
+		o.DNSMonitorPolicy = s.DNSMonitorPolicy
+	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.AllowedPauseInterval != nil {
@@ -1309,9 +1376,6 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.Description != nil {
 		o.Description = s.Description
-	}
-	if s.DisableDNSMonitor != nil {
-		o.DisableDNSMonitor = s.DisableDNSMonitor
 	}
 	if s.DisableManagedCA != nil {
 		o.DisableManagedCA = s.DisableManagedCA
@@ -1372,6 +1436,12 @@ func (o *SparseAgentConfig) Version() int {
 func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewAgentConfig()
+	if o.DNSMonitorEnabled != nil {
+		out.DNSMonitorEnabled = *o.DNSMonitorEnabled
+	}
+	if o.DNSMonitorPolicy != nil {
+		out.DNSMonitorPolicy = *o.DNSMonitorPolicy
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1383,9 +1453,6 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.DisableDNSMonitor != nil {
-		out.DisableDNSMonitor = *o.DisableDNSMonitor
 	}
 	if o.DisableManagedCA != nil {
 		out.DisableManagedCA = *o.DisableManagedCA
@@ -1541,46 +1608,48 @@ func (o *SparseAgentConfig) DeepCopyInto(out *SparseAgentConfig) {
 }
 
 type mongoAttributesAgentConfig struct {
-	ID                           bson.ObjectId `bson:"_id,omitempty"`
-	AllowedPauseInterval         string        `bson:"allowedpauseinterval"`
-	CreateTime                   time.Time     `bson:"createtime"`
-	Description                  string        `bson:"description"`
-	DisableDNSMonitor            bool          `bson:"disablednsmonitor"`
-	DisableManagedCA             bool          `bson:"disablemanagedca"`
-	DisableSystemProxyManagement bool          `bson:"disablesystemproxymanagement"`
-	DisableURLDiscovery          bool          `bson:"disableurldiscovery"`
-	EnablePause                  bool          `bson:"enablepause"`
-	ImportHash                   string        `bson:"importhash,omitempty"`
-	ImportLabel                  string        `bson:"importlabel,omitempty"`
-	ListeningPort                string        `bson:"listeningport"`
-	Name                         string        `bson:"name"`
-	Namespace                    string        `bson:"namespace,omitempty"`
-	PacName                      string        `bson:"pacname"`
-	PingInterval                 string        `bson:"pinginterval"`
-	UpdateTime                   time.Time     `bson:"updatetime"`
-	UseDynamicPort               bool          `bson:"usedynamicport"`
-	ZHash                        int           `bson:"zhash"`
-	Zone                         int           `bson:"zone"`
+	DNSMonitorEnabled            bool                             `bson:"dnsmonitorenabled"`
+	DNSMonitorPolicy             AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
+	ID                           bson.ObjectId                    `bson:"_id,omitempty"`
+	AllowedPauseInterval         string                           `bson:"allowedpauseinterval"`
+	CreateTime                   time.Time                        `bson:"createtime"`
+	Description                  string                           `bson:"description"`
+	DisableManagedCA             bool                             `bson:"disablemanagedca"`
+	DisableSystemProxyManagement bool                             `bson:"disablesystemproxymanagement"`
+	DisableURLDiscovery          bool                             `bson:"disableurldiscovery"`
+	EnablePause                  bool                             `bson:"enablepause"`
+	ImportHash                   string                           `bson:"importhash,omitempty"`
+	ImportLabel                  string                           `bson:"importlabel,omitempty"`
+	ListeningPort                string                           `bson:"listeningport"`
+	Name                         string                           `bson:"name"`
+	Namespace                    string                           `bson:"namespace,omitempty"`
+	PacName                      string                           `bson:"pacname"`
+	PingInterval                 string                           `bson:"pinginterval"`
+	UpdateTime                   time.Time                        `bson:"updatetime"`
+	UseDynamicPort               bool                             `bson:"usedynamicport"`
+	ZHash                        int                              `bson:"zhash"`
+	Zone                         int                              `bson:"zone"`
 }
 type mongoAttributesSparseAgentConfig struct {
-	ID                           bson.ObjectId `bson:"_id,omitempty"`
-	AllowedPauseInterval         *string       `bson:"allowedpauseinterval,omitempty"`
-	CreateTime                   *time.Time    `bson:"createtime,omitempty"`
-	Description                  *string       `bson:"description,omitempty"`
-	DisableDNSMonitor            *bool         `bson:"disablednsmonitor,omitempty"`
-	DisableManagedCA             *bool         `bson:"disablemanagedca,omitempty"`
-	DisableSystemProxyManagement *bool         `bson:"disablesystemproxymanagement,omitempty"`
-	DisableURLDiscovery          *bool         `bson:"disableurldiscovery,omitempty"`
-	EnablePause                  *bool         `bson:"enablepause,omitempty"`
-	ImportHash                   *string       `bson:"importhash,omitempty"`
-	ImportLabel                  *string       `bson:"importlabel,omitempty"`
-	ListeningPort                *string       `bson:"listeningport,omitempty"`
-	Name                         *string       `bson:"name,omitempty"`
-	Namespace                    *string       `bson:"namespace,omitempty"`
-	PacName                      *string       `bson:"pacname,omitempty"`
-	PingInterval                 *string       `bson:"pinginterval,omitempty"`
-	UpdateTime                   *time.Time    `bson:"updatetime,omitempty"`
-	UseDynamicPort               *bool         `bson:"usedynamicport,omitempty"`
-	ZHash                        *int          `bson:"zhash,omitempty"`
-	Zone                         *int          `bson:"zone,omitempty"`
+	DNSMonitorEnabled            *bool                             `bson:"dnsmonitorenabled,omitempty"`
+	DNSMonitorPolicy             *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
+	ID                           bson.ObjectId                     `bson:"_id,omitempty"`
+	AllowedPauseInterval         *string                           `bson:"allowedpauseinterval,omitempty"`
+	CreateTime                   *time.Time                        `bson:"createtime,omitempty"`
+	Description                  *string                           `bson:"description,omitempty"`
+	DisableManagedCA             *bool                             `bson:"disablemanagedca,omitempty"`
+	DisableSystemProxyManagement *bool                             `bson:"disablesystemproxymanagement,omitempty"`
+	DisableURLDiscovery          *bool                             `bson:"disableurldiscovery,omitempty"`
+	EnablePause                  *bool                             `bson:"enablepause,omitempty"`
+	ImportHash                   *string                           `bson:"importhash,omitempty"`
+	ImportLabel                  *string                           `bson:"importlabel,omitempty"`
+	ListeningPort                *string                           `bson:"listeningport,omitempty"`
+	Name                         *string                           `bson:"name,omitempty"`
+	Namespace                    *string                           `bson:"namespace,omitempty"`
+	PacName                      *string                           `bson:"pacname,omitempty"`
+	PingInterval                 *string                           `bson:"pinginterval,omitempty"`
+	UpdateTime                   *time.Time                        `bson:"updatetime,omitempty"`
+	UseDynamicPort               *bool                             `bson:"usedynamicport,omitempty"`
+	ZHash                        *int                              `bson:"zhash,omitempty"`
+	Zone                         *int                              `bson:"zone,omitempty"`
 }
