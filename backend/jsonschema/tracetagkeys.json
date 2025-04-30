@@ -3,14 +3,14 @@
     "@identifiable",
     "@timerangeable"
   ],
-  "$friendlyName": "Trace Search",
-  "$friendlyNamePlural": "Trace Searches",
-  "$modelName": "TraceSearch",
+  "$friendlyName": "Trace Tag Keys",
+  "$friendlyNamePlural": "Trace Tag Keys",
+  "$modelName": "TraceTagKeys",
   "$modelPackage": "snitch",
-  "$modelResourceName": "tracesearches",
-  "$modelRestName": "tracesearch",
+  "$modelResourceName": "tracetagkeys",
+  "$modelRestName": "tracetagkeys",
   "additionalProperties": false,
-  "description": "This is a OTEL TraceQL query wrapper.",
+  "description": "This is a OTEL TraceQL query wrapper for searching tags keys.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -41,10 +41,18 @@
       ]
     },
     "limit": {
-      "$defaultValue": 20,
       "$friendlyName": "Limit",
       "description": "Limit the number of search result.",
       "title": "limit",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "maxStaleValues": {
+      "$friendlyName": "Max Stale Values",
+      "description": "Limits the search for tag values. The search stops if the number of stale (already known) values reaches or exceeds this limit.",
+      "title": "maxStaleValues",
       "type": [
         "integer",
         "null"
@@ -62,30 +70,30 @@
     },
     "query": {
       "$friendlyName": "Query",
-      "$required": true,
       "description": "The query in TraceQL format.",
       "title": "query",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "result": {
       "$friendlyName": "Result",
       "description": "The result of the request.",
-      "items": {
-        "type": "object"
-      },
       "title": "result",
       "type": "array"
     },
-    "spansPerSpanSet": {
-      "$defaultValue": 3,
-      "$friendlyName": "Spans Per Span Set",
-      "description": "The max number of spans to return per span set. If set to -1, it means no span at all. 0 will use the default value (3).",
-      "minimum": -1,
-      "title": "spansPerSpanSet",
-      "type": [
-        "integer",
-        "null"
-      ]
+    "scope": {
+      "$defaultValue": "All",
+      "$friendlyName": "Scope",
+      "description": "Specifies the scope of the tags.",
+      "enum": [
+        "All",
+        "Resource",
+        "Span",
+        "Intrinsic"
+      ],
+      "title": "scope"
     },
     "start": {
       "$friendlyName": "Start",
@@ -106,9 +114,7 @@
       ]
     }
   },
-  "required": [
-    "query"
-  ],
-  "title": "TraceSearch",
+  "required": [],
+  "title": "TraceTagKeys",
   "type": "object"
 }

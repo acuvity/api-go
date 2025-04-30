@@ -510,6 +510,18 @@
       },
       "type": "array"
     },
+    "tracetagkeys": {
+      "items": {
+        "$ref": "tracetagkeys.json"
+      },
+      "type": "array"
+    },
+    "tracetagvalues": {
+      "items": {
+        "$ref": "tracetagvalues.json"
+      },
+      "type": "array"
+    },
     "usertokens": {
       "items": {
         "$ref": "usertoken.json"

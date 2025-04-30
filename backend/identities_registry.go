@@ -84,6 +84,8 @@ var (
 		"trace":              TraceIdentity,
 		"traceref":           TraceRefIdentity,
 		"tracesearch":        TraceSearchIdentity,
+		"tracetagkeys":       TraceTagKeysIdentity,
+		"tracetagvalues":     TraceTagValuesIdentity,
 		"usertoken":          UserTokenIdentity,
 		"visitedurl":         VisitedURLIdentity,
 		"watchedorg":         WatchedOrgIdentity,
@@ -168,6 +170,8 @@ var (
 		"traces":              TraceIdentity,
 		"tracerefs":           TraceRefIdentity,
 		"tracesearches":       TraceSearchIdentity,
+		"tracetagkeys":        TraceTagKeysIdentity,
+		"tracetagvalues":      TraceTagValuesIdentity,
 		"usertokens":          UserTokenIdentity,
 		"visitedurls":         VisitedURLIdentity,
 		"watchedorgs":         WatchedOrgIdentity,
@@ -337,9 +341,11 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"trace":       nil,
-		"traceref":    nil,
-		"tracesearch": nil,
+		"trace":          nil,
+		"traceref":       nil,
+		"tracesearch":    nil,
+		"tracetagkeys":   nil,
+		"tracetagvalues": nil,
 		"usertoken": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -516,6 +522,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewTraceRef()
 	case TraceSearchIdentity:
 		return NewTraceSearch()
+	case TraceTagKeysIdentity:
+		return NewTraceTagKeys()
+	case TraceTagValuesIdentity:
+		return NewTraceTagValues()
 	case UserTokenIdentity:
 		return NewUserToken()
 	case VisitedURLIdentity:
@@ -653,6 +663,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseTraceRef()
 	case TraceSearchIdentity:
 		return NewSparseTraceSearch()
+	case TraceTagKeysIdentity:
+		return NewSparseTraceTagKeys()
+	case TraceTagValuesIdentity:
+		return NewSparseTraceTagValues()
 	case UserTokenIdentity:
 		return NewSparseUserToken()
 	case VisitedURLIdentity:
@@ -800,6 +814,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &TraceRefsList{}
 	case TraceSearchIdentity:
 		return &TraceSearchesList{}
+	case TraceTagKeysIdentity:
+		return &TraceTagKeysList{}
+	case TraceTagValuesIdentity:
+		return &TraceTagValuesList{}
 	case UserTokenIdentity:
 		return &UserTokensList{}
 	case VisitedURLIdentity:
@@ -937,6 +955,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseTraceRefsList{}
 	case TraceSearchIdentity:
 		return &SparseTraceSearchesList{}
+	case TraceTagKeysIdentity:
+		return &SparseTraceTagKeysList{}
+	case TraceTagValuesIdentity:
+		return &SparseTraceTagValuesList{}
 	case UserTokenIdentity:
 		return &SparseUserTokensList{}
 	case VisitedURLIdentity:
@@ -1034,6 +1056,8 @@ func AllIdentities() []elemental.Identity {
 		TraceIdentity,
 		TraceRefIdentity,
 		TraceSearchIdentity,
+		TraceTagKeysIdentity,
+		TraceTagValuesIdentity,
 		UserTokenIdentity,
 		VisitedURLIdentity,
 		WatchedOrgIdentity,
@@ -1166,6 +1190,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case TraceRefIdentity:
 		return []string{}
 	case TraceSearchIdentity:
+		return []string{}
+	case TraceTagKeysIdentity:
+		return []string{}
+	case TraceTagValuesIdentity:
 		return []string{}
 	case UserTokenIdentity:
 		return []string{}

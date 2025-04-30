@@ -11,43 +11,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// TraceSearchIdentity represents the Identity of the object.
-var TraceSearchIdentity = elemental.Identity{
-	Name:     "tracesearch",
-	Category: "tracesearches",
+// TraceTagValuesIdentity represents the Identity of the object.
+var TraceTagValuesIdentity = elemental.Identity{
+	Name:     "tracetagvalues",
+	Category: "tracetagvalues",
 	Package:  "snitch",
 	Private:  false,
 }
 
-// TraceSearchesList represents a list of TraceSearches
-type TraceSearchesList []*TraceSearch
+// TraceTagValuesList represents a list of TraceTagValues
+type TraceTagValuesList []*TraceTagValues
 
 // Identity returns the identity of the objects in the list.
-func (o TraceSearchesList) Identity() elemental.Identity {
+func (o TraceTagValuesList) Identity() elemental.Identity {
 
-	return TraceSearchIdentity
+	return TraceTagValuesIdentity
 }
 
-// Copy returns a pointer to a copy the TraceSearchesList.
-func (o TraceSearchesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the TraceTagValuesList.
+func (o TraceTagValuesList) Copy() elemental.Identifiables {
 
-	out := append(TraceSearchesList{}, o...)
+	out := append(TraceTagValuesList{}, o...)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the TraceSearchesList.
-func (o TraceSearchesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the TraceTagValuesList.
+func (o TraceTagValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(TraceSearchesList{}, o...)
+	out := append(TraceTagValuesList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*TraceSearch))
+		out = append(out, obj.(*TraceTagValues))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o TraceSearchesList) List() elemental.IdentifiablesList {
+func (o TraceTagValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -58,31 +58,31 @@ func (o TraceSearchesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o TraceSearchesList) DefaultOrder() []string {
+func (o TraceTagValuesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the TraceSearchesList converted to SparseTraceSearchesList.
+// ToSparse returns the TraceTagValuesList converted to SparseTraceTagValuesList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o TraceSearchesList) ToSparse(fields ...string) elemental.Identifiables {
+func (o TraceTagValuesList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseTraceSearchesList, len(o))
+	out := make(SparseTraceTagValuesList, len(o))
 	for i := 0; i < len(o); i++ {
-		out[i] = o[i].ToSparse(fields...).(*SparseTraceSearch)
+		out[i] = o[i].ToSparse(fields...).(*SparseTraceTagValues)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o TraceSearchesList) Version() int {
+func (o TraceTagValuesList) Version() int {
 
 	return 1
 }
 
-// TraceSearch represents the model of a tracesearch
-type TraceSearch struct {
+// TraceTagValues represents the model of a tracetagvalues
+type TraceTagValues struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -96,6 +96,10 @@ type TraceSearch struct {
 	// Limit the number of search result.
 	Limit int `json:"limit,omitempty" msgpack:"limit,omitempty" bson:"-" mapstructure:"limit,omitempty"`
 
+	// Limits the search for tag values. The search stops if the number of stale
+	// (already known) values reaches or exceeds this limit.
+	MaxStaleValues int `json:"maxStaleValues" msgpack:"maxStaleValues" bson:"-" mapstructure:"maxStaleValues,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -103,11 +107,7 @@ type TraceSearch struct {
 	Query string `json:"query" msgpack:"query" bson:"-" mapstructure:"query,omitempty"`
 
 	// The result of the request.
-	Result []map[string]any `json:"result" msgpack:"result" bson:"-" mapstructure:"result,omitempty"`
-
-	// The max number of spans to return per span set. If set to -1, it means no span
-	// at all. 0 will use the default value (3).
-	SpansPerSpanSet int `json:"spansPerSpanSet,omitempty" msgpack:"spansPerSpanSet,omitempty" bson:"-" mapstructure:"spansPerSpanSet,omitempty"`
+	Result []any `json:"result" msgpack:"result" bson:"-" mapstructure:"result,omitempty"`
 
 	// The start of the time window in any format supported by
 	// https://github.com/araddon/dateparse.
@@ -116,47 +116,48 @@ type TraceSearch struct {
 	// The relative start of the time window as time.Duration.
 	StartRelative string `json:"startRelative,omitempty" msgpack:"startRelative,omitempty" bson:"-" mapstructure:"startRelative,omitempty"`
 
+	// The tag key to use for searching associated values.
+	TagKey string `json:"tagKey" msgpack:"tagKey" bson:"-" mapstructure:"tagKey,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewTraceSearch returns a new *TraceSearch
-func NewTraceSearch() *TraceSearch {
+// NewTraceTagValues returns a new *TraceTagValues
+func NewTraceTagValues() *TraceTagValues {
 
-	return &TraceSearch{
-		ModelVersion:    1,
-		Limit:           20,
-		Result:          []map[string]any{},
-		SpansPerSpanSet: 3,
+	return &TraceTagValues{
+		ModelVersion: 1,
+		Result:       []any{},
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *TraceSearch) Identity() elemental.Identity {
+func (o *TraceTagValues) Identity() elemental.Identity {
 
-	return TraceSearchIdentity
+	return TraceTagValuesIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *TraceSearch) Identifier() string {
+func (o *TraceTagValues) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *TraceSearch) SetIdentifier(id string) {
+func (o *TraceTagValues) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *TraceSearch) GetBSON() (any, error) {
+func (o *TraceTagValues) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesTraceSearch{}
+	s := &mongoAttributesTraceTagValues{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
@@ -168,13 +169,13 @@ func (o *TraceSearch) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *TraceSearch) SetBSON(raw bson.Raw) error {
+func (o *TraceTagValues) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesTraceSearch{}
+	s := &mongoAttributesTraceTagValues{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -186,103 +187,104 @@ func (o *TraceSearch) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *TraceSearch) Version() int {
+func (o *TraceTagValues) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *TraceSearch) BleveType() string {
+func (o *TraceTagValues) BleveType() string {
 
-	return "tracesearch"
+	return "tracetagvalues"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *TraceSearch) DefaultOrder() []string {
+func (o *TraceTagValues) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *TraceSearch) Doc() string {
+func (o *TraceTagValues) Doc() string {
 
-	return `This is a OTEL TraceQL query wrapper.`
+	return `This is a OTEL TraceQL query wrapper for searching tags values.`
 }
 
-func (o *TraceSearch) String() string {
+func (o *TraceTagValues) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetEnd returns the End of the receiver.
-func (o *TraceSearch) GetEnd() string {
+func (o *TraceTagValues) GetEnd() string {
 
 	return o.End
 }
 
 // SetEnd sets the property End of the receiver using the given value.
-func (o *TraceSearch) SetEnd(end string) {
+func (o *TraceTagValues) SetEnd(end string) {
 
 	o.End = end
 }
 
 // GetEndRelative returns the EndRelative of the receiver.
-func (o *TraceSearch) GetEndRelative() string {
+func (o *TraceTagValues) GetEndRelative() string {
 
 	return o.EndRelative
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *TraceSearch) GetNamespace() string {
+func (o *TraceTagValues) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *TraceSearch) SetNamespace(namespace string) {
+func (o *TraceTagValues) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetStart returns the Start of the receiver.
-func (o *TraceSearch) GetStart() string {
+func (o *TraceTagValues) GetStart() string {
 
 	return o.Start
 }
 
 // SetStart sets the property Start of the receiver using the given value.
-func (o *TraceSearch) SetStart(start string) {
+func (o *TraceTagValues) SetStart(start string) {
 
 	o.Start = start
 }
 
 // GetStartRelative returns the StartRelative of the receiver.
-func (o *TraceSearch) GetStartRelative() string {
+func (o *TraceTagValues) GetStartRelative() string {
 
 	return o.StartRelative
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *TraceSearch) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *TraceTagValues) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseTraceSearch{
-			ID:              &o.ID,
-			End:             &o.End,
-			EndRelative:     &o.EndRelative,
-			Limit:           &o.Limit,
-			Namespace:       &o.Namespace,
-			Query:           &o.Query,
-			Result:          &o.Result,
-			SpansPerSpanSet: &o.SpansPerSpanSet,
-			Start:           &o.Start,
-			StartRelative:   &o.StartRelative,
+		return &SparseTraceTagValues{
+			ID:             &o.ID,
+			End:            &o.End,
+			EndRelative:    &o.EndRelative,
+			Limit:          &o.Limit,
+			MaxStaleValues: &o.MaxStaleValues,
+			Namespace:      &o.Namespace,
+			Query:          &o.Query,
+			Result:         &o.Result,
+			Start:          &o.Start,
+			StartRelative:  &o.StartRelative,
+			TagKey:         &o.TagKey,
 		}
 	}
 
-	sp := &SparseTraceSearch{}
+	sp := &SparseTraceTagValues{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -293,31 +295,33 @@ func (o *TraceSearch) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.EndRelative = &(o.EndRelative)
 		case "limit":
 			sp.Limit = &(o.Limit)
+		case "maxStaleValues":
+			sp.MaxStaleValues = &(o.MaxStaleValues)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "query":
 			sp.Query = &(o.Query)
 		case "result":
 			sp.Result = &(o.Result)
-		case "spansPerSpanSet":
-			sp.SpansPerSpanSet = &(o.SpansPerSpanSet)
 		case "start":
 			sp.Start = &(o.Start)
 		case "startRelative":
 			sp.StartRelative = &(o.StartRelative)
+		case "tagKey":
+			sp.TagKey = &(o.TagKey)
 		}
 	}
 
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseTraceSearch to the object.
-func (o *TraceSearch) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseTraceTagValues to the object.
+func (o *TraceTagValues) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseTraceSearch)
+	so := sparse.(*SparseTraceTagValues)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -330,6 +334,9 @@ func (o *TraceSearch) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Limit != nil {
 		o.Limit = *so.Limit
 	}
+	if so.MaxStaleValues != nil {
+		o.MaxStaleValues = *so.MaxStaleValues
+	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
@@ -339,43 +346,43 @@ func (o *TraceSearch) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Result != nil {
 		o.Result = *so.Result
 	}
-	if so.SpansPerSpanSet != nil {
-		o.SpansPerSpanSet = *so.SpansPerSpanSet
-	}
 	if so.Start != nil {
 		o.Start = *so.Start
 	}
 	if so.StartRelative != nil {
 		o.StartRelative = *so.StartRelative
 	}
+	if so.TagKey != nil {
+		o.TagKey = *so.TagKey
+	}
 }
 
-// DeepCopy returns a deep copy if the TraceSearch.
-func (o *TraceSearch) DeepCopy() *TraceSearch {
+// DeepCopy returns a deep copy if the TraceTagValues.
+func (o *TraceTagValues) DeepCopy() *TraceTagValues {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &TraceSearch{}
+	out := &TraceTagValues{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *TraceSearch.
-func (o *TraceSearch) DeepCopyInto(out *TraceSearch) {
+// DeepCopyInto copies the receiver into the given *TraceTagValues.
+func (o *TraceTagValues) DeepCopyInto(out *TraceTagValues) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy TraceSearch: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy TraceTagValues: %s", err))
 	}
 
-	*out = *target.(*TraceSearch)
+	*out = *target.(*TraceTagValues)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *TraceSearch) Validate() error {
+func (o *TraceTagValues) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -384,12 +391,12 @@ func (o *TraceSearch) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("query", o.Query); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := ValidateDuration("startRelative", o.StartRelative); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("tagKey", o.TagKey); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -404,26 +411,26 @@ func (o *TraceSearch) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*TraceSearch) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*TraceTagValues) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := TraceSearchAttributesMap[name]; ok {
+	if v, ok := TraceTagValuesAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return TraceSearchLowerCaseAttributesMap[name]
+	return TraceTagValuesLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*TraceSearch) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*TraceTagValues) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return TraceSearchAttributesMap
+	return TraceTagValuesAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *TraceSearch) ValueForAttribute(name string) any {
+func (o *TraceTagValues) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -434,25 +441,27 @@ func (o *TraceSearch) ValueForAttribute(name string) any {
 		return o.EndRelative
 	case "limit":
 		return o.Limit
+	case "maxStaleValues":
+		return o.MaxStaleValues
 	case "namespace":
 		return o.Namespace
 	case "query":
 		return o.Query
 	case "result":
 		return o.Result
-	case "spansPerSpanSet":
-		return o.SpansPerSpanSet
 	case "start":
 		return o.Start
 	case "startRelative":
 		return o.StartRelative
+	case "tagKey":
+		return o.TagKey
 	}
 
 	return nil
 }
 
-// TraceSearchAttributesMap represents the map of attribute for TraceSearch.
-var TraceSearchAttributesMap = map[string]elemental.AttributeSpecification{
+// TraceTagValuesAttributesMap represents the map of attribute for TraceTagValues.
+var TraceTagValuesAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -491,11 +500,19 @@ https://github.com/araddon/dateparse.`,
 	"Limit": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Limit",
-		DefaultValue:   20,
 		Description:    `Limit the number of search result.`,
 		Exposed:        true,
 		Name:           "limit",
 		Type:           "integer",
+	},
+	"MaxStaleValues": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MaxStaleValues",
+		Description: `Limits the search for tag values. The search stops if the number of stale
+(already known) values reaches or exceeds this limit.`,
+		Exposed: true,
+		Name:    "maxStaleValues",
+		Type:    "integer",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -518,7 +535,6 @@ https://github.com/araddon/dateparse.`,
 		Description:    `The query in TraceQL format.`,
 		Exposed:        true,
 		Name:           "query",
-		Required:       true,
 		Type:           "string",
 	},
 	"Result": {
@@ -527,19 +543,8 @@ https://github.com/araddon/dateparse.`,
 		Description:    `The result of the request.`,
 		Exposed:        true,
 		Name:           "result",
-		SubType:        "[]map[string]any",
+		SubType:        "[]any",
 		Type:           "external",
-	},
-	"SpansPerSpanSet": {
-		AllowedChoices: []string{},
-		ConvertedName:  "SpansPerSpanSet",
-		DefaultValue:   3,
-		Description: `The max number of spans to return per span set. If set to -1, it means no span
-at all. 0 will use the default value (3).`,
-		Exposed:  true,
-		MinValue: -1,
-		Name:     "spansPerSpanSet",
-		Type:     "integer",
 	},
 	"Start": {
 		AllowedChoices: []string{},
@@ -561,10 +566,19 @@ https://github.com/araddon/dateparse.`,
 		Name:           "startRelative",
 		Type:           "string",
 	},
+	"TagKey": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TagKey",
+		Description:    `The tag key to use for searching associated values.`,
+		Exposed:        true,
+		Name:           "tagKey",
+		Required:       true,
+		Type:           "string",
+	},
 }
 
-// TraceSearchLowerCaseAttributesMap represents the map of attribute for TraceSearch.
-var TraceSearchLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// TraceTagValuesLowerCaseAttributesMap represents the map of attribute for TraceTagValues.
+var TraceTagValuesLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -603,11 +617,19 @@ https://github.com/araddon/dateparse.`,
 	"limit": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Limit",
-		DefaultValue:   20,
 		Description:    `Limit the number of search result.`,
 		Exposed:        true,
 		Name:           "limit",
 		Type:           "integer",
+	},
+	"maxstalevalues": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MaxStaleValues",
+		Description: `Limits the search for tag values. The search stops if the number of stale
+(already known) values reaches or exceeds this limit.`,
+		Exposed: true,
+		Name:    "maxStaleValues",
+		Type:    "integer",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -630,7 +652,6 @@ https://github.com/araddon/dateparse.`,
 		Description:    `The query in TraceQL format.`,
 		Exposed:        true,
 		Name:           "query",
-		Required:       true,
 		Type:           "string",
 	},
 	"result": {
@@ -639,19 +660,8 @@ https://github.com/araddon/dateparse.`,
 		Description:    `The result of the request.`,
 		Exposed:        true,
 		Name:           "result",
-		SubType:        "[]map[string]any",
+		SubType:        "[]any",
 		Type:           "external",
-	},
-	"spansperspanset": {
-		AllowedChoices: []string{},
-		ConvertedName:  "SpansPerSpanSet",
-		DefaultValue:   3,
-		Description: `The max number of spans to return per span set. If set to -1, it means no span
-at all. 0 will use the default value (3).`,
-		Exposed:  true,
-		MinValue: -1,
-		Name:     "spansPerSpanSet",
-		Type:     "integer",
 	},
 	"start": {
 		AllowedChoices: []string{},
@@ -673,37 +683,46 @@ https://github.com/araddon/dateparse.`,
 		Name:           "startRelative",
 		Type:           "string",
 	},
+	"tagkey": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TagKey",
+		Description:    `The tag key to use for searching associated values.`,
+		Exposed:        true,
+		Name:           "tagKey",
+		Required:       true,
+		Type:           "string",
+	},
 }
 
-// SparseTraceSearchesList represents a list of SparseTraceSearches
-type SparseTraceSearchesList []*SparseTraceSearch
+// SparseTraceTagValuesList represents a list of SparseTraceTagValues
+type SparseTraceTagValuesList []*SparseTraceTagValues
 
 // Identity returns the identity of the objects in the list.
-func (o SparseTraceSearchesList) Identity() elemental.Identity {
+func (o SparseTraceTagValuesList) Identity() elemental.Identity {
 
-	return TraceSearchIdentity
+	return TraceTagValuesIdentity
 }
 
-// Copy returns a pointer to a copy the SparseTraceSearchesList.
-func (o SparseTraceSearchesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseTraceTagValuesList.
+func (o SparseTraceTagValuesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseTraceSearchesList{}, o...)
+	copy := append(SparseTraceTagValuesList{}, o...)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseTraceSearchesList.
-func (o SparseTraceSearchesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseTraceTagValuesList.
+func (o SparseTraceTagValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseTraceSearchesList{}, o...)
+	out := append(SparseTraceTagValuesList{}, o...)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseTraceSearch))
+		out = append(out, obj.(*SparseTraceTagValues))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseTraceSearchesList) List() elemental.IdentifiablesList {
+func (o SparseTraceTagValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -714,13 +733,13 @@ func (o SparseTraceSearchesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseTraceSearchesList) DefaultOrder() []string {
+func (o SparseTraceTagValuesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseTraceSearchesList converted to TraceSearchesList.
-func (o SparseTraceSearchesList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseTraceTagValuesList converted to TraceTagValuesList.
+func (o SparseTraceTagValuesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := 0; i < len(o); i++ {
@@ -731,13 +750,13 @@ func (o SparseTraceSearchesList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseTraceSearchesList) Version() int {
+func (o SparseTraceTagValuesList) Version() int {
 
 	return 1
 }
 
-// SparseTraceSearch represents the sparse version of a tracesearch.
-type SparseTraceSearch struct {
+// SparseTraceTagValues represents the sparse version of a tracetagvalues.
+type SparseTraceTagValues struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -751,6 +770,10 @@ type SparseTraceSearch struct {
 	// Limit the number of search result.
 	Limit *int `json:"limit,omitempty" msgpack:"limit,omitempty" bson:"-" mapstructure:"limit,omitempty"`
 
+	// Limits the search for tag values. The search stops if the number of stale
+	// (already known) values reaches or exceeds this limit.
+	MaxStaleValues *int `json:"maxStaleValues,omitempty" msgpack:"maxStaleValues,omitempty" bson:"-" mapstructure:"maxStaleValues,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -758,11 +781,7 @@ type SparseTraceSearch struct {
 	Query *string `json:"query,omitempty" msgpack:"query,omitempty" bson:"-" mapstructure:"query,omitempty"`
 
 	// The result of the request.
-	Result *[]map[string]any `json:"result,omitempty" msgpack:"result,omitempty" bson:"-" mapstructure:"result,omitempty"`
-
-	// The max number of spans to return per span set. If set to -1, it means no span
-	// at all. 0 will use the default value (3).
-	SpansPerSpanSet *int `json:"spansPerSpanSet,omitempty" msgpack:"spansPerSpanSet,omitempty" bson:"-" mapstructure:"spansPerSpanSet,omitempty"`
+	Result *[]any `json:"result,omitempty" msgpack:"result,omitempty" bson:"-" mapstructure:"result,omitempty"`
 
 	// The start of the time window in any format supported by
 	// https://github.com/araddon/dateparse.
@@ -771,22 +790,25 @@ type SparseTraceSearch struct {
 	// The relative start of the time window as time.Duration.
 	StartRelative *string `json:"startRelative,omitempty" msgpack:"startRelative,omitempty" bson:"-" mapstructure:"startRelative,omitempty"`
 
+	// The tag key to use for searching associated values.
+	TagKey *string `json:"tagKey,omitempty" msgpack:"tagKey,omitempty" bson:"-" mapstructure:"tagKey,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseTraceSearch returns a new  SparseTraceSearch.
-func NewSparseTraceSearch() *SparseTraceSearch {
-	return &SparseTraceSearch{}
+// NewSparseTraceTagValues returns a new  SparseTraceTagValues.
+func NewSparseTraceTagValues() *SparseTraceTagValues {
+	return &SparseTraceTagValues{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseTraceSearch) Identity() elemental.Identity {
+func (o *SparseTraceTagValues) Identity() elemental.Identity {
 
-	return TraceSearchIdentity
+	return TraceTagValuesIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseTraceSearch) Identifier() string {
+func (o *SparseTraceTagValues) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -795,7 +817,7 @@ func (o *SparseTraceSearch) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseTraceSearch) SetIdentifier(id string) {
+func (o *SparseTraceTagValues) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -806,13 +828,13 @@ func (o *SparseTraceSearch) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseTraceSearch) GetBSON() (any, error) {
+func (o *SparseTraceTagValues) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseTraceSearch{}
+	s := &mongoAttributesSparseTraceTagValues{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -826,13 +848,13 @@ func (o *SparseTraceSearch) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseTraceSearch) SetBSON(raw bson.Raw) error {
+func (o *SparseTraceTagValues) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseTraceSearch{}
+	s := &mongoAttributesSparseTraceTagValues{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -847,15 +869,15 @@ func (o *SparseTraceSearch) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseTraceSearch) Version() int {
+func (o *SparseTraceTagValues) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseTraceSearch) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseTraceTagValues) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewTraceSearch()
+	out := NewTraceTagValues()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -868,6 +890,9 @@ func (o *SparseTraceSearch) ToPlain() elemental.PlainIdentifiable {
 	if o.Limit != nil {
 		out.Limit = *o.Limit
 	}
+	if o.MaxStaleValues != nil {
+		out.MaxStaleValues = *o.MaxStaleValues
+	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
@@ -877,21 +902,21 @@ func (o *SparseTraceSearch) ToPlain() elemental.PlainIdentifiable {
 	if o.Result != nil {
 		out.Result = *o.Result
 	}
-	if o.SpansPerSpanSet != nil {
-		out.SpansPerSpanSet = *o.SpansPerSpanSet
-	}
 	if o.Start != nil {
 		out.Start = *o.Start
 	}
 	if o.StartRelative != nil {
 		out.StartRelative = *o.StartRelative
 	}
+	if o.TagKey != nil {
+		out.TagKey = *o.TagKey
+	}
 
 	return out
 }
 
 // GetEnd returns the End of the receiver.
-func (o *SparseTraceSearch) GetEnd() (out string) {
+func (o *SparseTraceTagValues) GetEnd() (out string) {
 
 	if o.End == nil {
 		return
@@ -901,13 +926,13 @@ func (o *SparseTraceSearch) GetEnd() (out string) {
 }
 
 // SetEnd sets the property End of the receiver using the address of the given value.
-func (o *SparseTraceSearch) SetEnd(end string) {
+func (o *SparseTraceTagValues) SetEnd(end string) {
 
 	o.End = &end
 }
 
 // GetEndRelative returns the EndRelative of the receiver.
-func (o *SparseTraceSearch) GetEndRelative() (out string) {
+func (o *SparseTraceTagValues) GetEndRelative() (out string) {
 
 	if o.EndRelative == nil {
 		return
@@ -917,7 +942,7 @@ func (o *SparseTraceSearch) GetEndRelative() (out string) {
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseTraceSearch) GetNamespace() (out string) {
+func (o *SparseTraceTagValues) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -927,13 +952,13 @@ func (o *SparseTraceSearch) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseTraceSearch) SetNamespace(namespace string) {
+func (o *SparseTraceTagValues) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetStart returns the Start of the receiver.
-func (o *SparseTraceSearch) GetStart() (out string) {
+func (o *SparseTraceTagValues) GetStart() (out string) {
 
 	if o.Start == nil {
 		return
@@ -943,13 +968,13 @@ func (o *SparseTraceSearch) GetStart() (out string) {
 }
 
 // SetStart sets the property Start of the receiver using the address of the given value.
-func (o *SparseTraceSearch) SetStart(start string) {
+func (o *SparseTraceTagValues) SetStart(start string) {
 
 	o.Start = &start
 }
 
 // GetStartRelative returns the StartRelative of the receiver.
-func (o *SparseTraceSearch) GetStartRelative() (out string) {
+func (o *SparseTraceTagValues) GetStartRelative() (out string) {
 
 	if o.StartRelative == nil {
 		return
@@ -958,35 +983,35 @@ func (o *SparseTraceSearch) GetStartRelative() (out string) {
 	return *o.StartRelative
 }
 
-// DeepCopy returns a deep copy if the SparseTraceSearch.
-func (o *SparseTraceSearch) DeepCopy() *SparseTraceSearch {
+// DeepCopy returns a deep copy if the SparseTraceTagValues.
+func (o *SparseTraceTagValues) DeepCopy() *SparseTraceTagValues {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseTraceSearch{}
+	out := &SparseTraceTagValues{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseTraceSearch.
-func (o *SparseTraceSearch) DeepCopyInto(out *SparseTraceSearch) {
+// DeepCopyInto copies the receiver into the given *SparseTraceTagValues.
+func (o *SparseTraceTagValues) DeepCopyInto(out *SparseTraceTagValues) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseTraceSearch: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseTraceTagValues: %s", err))
 	}
 
-	*out = *target.(*SparseTraceSearch)
+	*out = *target.(*SparseTraceTagValues)
 }
 
-type mongoAttributesTraceSearch struct {
+type mongoAttributesTraceTagValues struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Namespace string        `bson:"namespace,omitempty"`
 }
-type mongoAttributesSparseTraceSearch struct {
+type mongoAttributesSparseTraceTagValues struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Namespace *string       `bson:"namespace,omitempty"`
 }

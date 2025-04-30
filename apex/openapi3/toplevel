@@ -626,6 +626,9 @@
             "example": "openai",
             "type": "string"
           },
+          "trace": {
+            "$ref": "#/components/schemas/traceref"
+          },
           "type": {
             "description": "The type of text.",
             "enum": [

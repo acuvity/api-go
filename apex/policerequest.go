@@ -127,6 +127,9 @@ type PoliceRequest struct {
 	// default to the principal name (the application itself).
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
+
 	// The type of text.
 	Type PoliceRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
@@ -176,6 +179,7 @@ func (o *PoliceRequest) GetBSON() (any, error) {
 
 	s.Anonymization = o.Anonymization
 	s.BypassHash = o.BypassHash
+	s.Trace = o.Trace
 	s.Type = o.Type
 
 	return s, nil
@@ -196,6 +200,7 @@ func (o *PoliceRequest) SetBSON(raw bson.Raw) error {
 
 	o.Anonymization = s.Anonymization
 	o.BypassHash = s.BypassHash
+	o.Trace = s.Trace
 	o.Type = s.Type
 
 	return nil
@@ -243,6 +248,7 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			Extractions:   &o.Extractions,
 			Messages:      &o.Messages,
 			Provider:      &o.Provider,
+			Trace:         o.Trace,
 			Type:          &o.Type,
 			User:          o.User,
 		}
@@ -263,6 +269,8 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.Messages = &(o.Messages)
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "trace":
+			sp.Trace = o.Trace
 		case "type":
 			sp.Type = &(o.Type)
 		case "user":
@@ -297,6 +305,9 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.Trace != nil {
+		o.Trace = so.Trace
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -346,6 +357,13 @@ func (o *PoliceRequest) Validate() error {
 		}
 		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.Trace != nil {
+		elemental.ResetDefaultForZeroValues(o.Trace)
+		if err := o.Trace.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -407,6 +425,8 @@ func (o *PoliceRequest) ValueForAttribute(name string) any {
 		return o.Messages
 	case "provider":
 		return o.Provider
+	case "trace":
+		return o.Trace
 	case "type":
 		return o.Type
 	case "user":
@@ -477,6 +497,17 @@ default to the principal name (the application itself).`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"Trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -561,6 +592,17 @@ default to the principal name (the application itself).`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -669,6 +711,9 @@ type SparsePoliceRequest struct {
 	// default to the principal name (the application itself).
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
+
 	// The type of text.
 	Type *PoliceRequestTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
@@ -717,6 +762,9 @@ func (o *SparsePoliceRequest) GetBSON() (any, error) {
 	if o.BypassHash != nil {
 		s.BypassHash = o.BypassHash
 	}
+	if o.Trace != nil {
+		s.Trace = o.Trace
+	}
 	if o.Type != nil {
 		s.Type = o.Type
 	}
@@ -742,6 +790,9 @@ func (o *SparsePoliceRequest) SetBSON(raw bson.Raw) error {
 	}
 	if s.BypassHash != nil {
 		o.BypassHash = s.BypassHash
+	}
+	if s.Trace != nil {
+		o.Trace = s.Trace
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -777,6 +828,9 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.Trace != nil {
+		out.Trace = o.Trace
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -815,10 +869,12 @@ func (o *SparsePoliceRequest) DeepCopyInto(out *SparsePoliceRequest) {
 type mongoAttributesPoliceRequest struct {
 	Anonymization PoliceRequestAnonymizationValue `bson:"anonymization"`
 	BypassHash    string                          `bson:"bypasshash,omitempty"`
+	Trace         *TraceRef                       `bson:"trace"`
 	Type          PoliceRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparsePoliceRequest struct {
 	Anonymization *PoliceRequestAnonymizationValue `bson:"anonymization,omitempty"`
 	BypassHash    *string                          `bson:"bypasshash,omitempty"`
+	Trace         *TraceRef                        `bson:"trace,omitempty"`
 	Type          *PoliceRequestTypeValue          `bson:"type,omitempty"`
 }

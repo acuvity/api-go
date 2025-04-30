@@ -199,6 +199,12 @@ Type: `string`
 The name of the provider to use for policy resolutions. If not set, it will
 default to the principal name (the application itself).
 
+##### `trace`
+
+Type: [`traceref`](#traceref)
+
+References to the trace of the request.
+
 ##### `type`
 
 Type: `enum(Input | Output)`

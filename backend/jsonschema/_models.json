@@ -255,6 +255,12 @@
     "tracesearch": {
       "$ref": "tracesearch.json"
     },
+    "tracetagkeys": {
+      "$ref": "tracetagkeys.json"
+    },
+    "tracetagvalues": {
+      "$ref": "tracetagvalues.json"
+    },
     "usertoken": {
       "$ref": "usertoken.json"
     },

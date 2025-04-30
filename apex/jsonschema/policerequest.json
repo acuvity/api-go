@@ -2,7 +2,8 @@
   "$extends": [
     "@anonymizationable",
     "@pipelinepasstype",
-    "@scanrequestcore"
+    "@scanrequestcore",
+    "@traceable"
   ],
   "$friendlyName": "PoliceRequest",
   "$friendlyNamePlural": "PoliceRequests",
@@ -70,6 +71,12 @@
         "string",
         "null"
       ]
+    },
+    "trace": {
+      "$friendlyName": "Trace",
+      "$ref": "traceref.json",
+      "description": "References to the trace of the request.",
+      "title": "trace"
     },
     "type": {
       "$friendlyName": "Type",
