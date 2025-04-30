@@ -5206,7 +5206,7 @@
       }
     },
     "securitySchemes": {
-      "APIKeyHeader": {
+      "AuthorizationHeader": {
         "in": "header",
         "name": "Authorization",
         "type": "apiKey "
@@ -10362,6 +10362,12 @@
       }
     }
   },
+  "security": [
+    {
+      "AuthorizationHeader": [],
+      "NamespaceHeader": []
+    }
+  ],
   "servers": [
     {
       "url": "https://api.acuvity.ai"
