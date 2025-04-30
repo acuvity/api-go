@@ -5206,15 +5206,14 @@
       }
     },
     "securitySchemes": {
-      "AuthorizationHeader": {
-        "in": "header",
-        "name": "Authorization",
-        "type": "apiKey "
+      "BearerAuth": {
+        "scheme": "bearer",
+        "type": "http"
       },
       "NamespaceHeader": {
         "in": "header",
         "name": "X-Namespace",
-        "type": "namespace "
+        "type": "apiKey"
       }
     }
   },
