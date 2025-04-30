@@ -5207,8 +5207,9 @@
     },
     "securitySchemes": {
       "BearerAuth": {
-        "scheme": "bearer",
-        "type": "http"
+        "in": "header",
+        "scheme": "Authorization",
+        "type": "apiKey"
       },
       "NamespaceHeader": {
         "in": "header",
