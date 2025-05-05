@@ -12,6 +12,20 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AppTracingValue represents the possible values for attribute "tracing".
+type AppTracingValue string
+
+const (
+	// AppTracingDisabled represents the value Disabled.
+	AppTracingDisabled AppTracingValue = "Disabled"
+
+	// AppTracingRecording represents the value Recording.
+	AppTracingRecording AppTracingValue = "Recording"
+
+	// AppTracingTransparent represents the value Transparent.
+	AppTracingTransparent AppTracingValue = "Transparent"
+)
+
 // AppIdentity represents the Identity of the object.
 var AppIdentity = elemental.Identity{
 	Name:     "app",
@@ -109,12 +123,44 @@ type App struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The OpenTelemetry exporter configuration for this application. This can only be
+	// used when the tracing behavior is set to Recording. When the Apex is recording
+	// spans of its own, then it will send them to this endpoint. Use this to ensure
+	// that the traces of your applications are complete in your own tracing system and
+	// don't contain holes that were created by the Apex.
+	OtelExporter *OTLPEndpoint `json:"otelExporter,omitempty" msgpack:"otelExporter,omitempty" bson:"otelexporter,omitempty" mapstructure:"otelExporter,omitempty"`
+
+	// The OpenTelemetry receiver endpoints to run for this application. This can only
+	// be used when the tracing behavior is set to Transparent or Recording. If
+	// non-empty, the Apex will run OTLP receivers on the provided OTLP receivers to
+	// receive spans from the application within all component workloads of this
+	// application. This is optional as there are alternative methods for receiving
+	// spans for the application.
+	OtelReceivers []OTLPReceiver `json:"otelReceivers,omitempty" msgpack:"otelReceivers,omitempty" bson:"otelreceivers,omitempty" mapstructure:"otelReceivers,omitempty"`
+
 	// A tag expression that identify an application based on downstream labels.
 	Selector [][]string `json:"selector" msgpack:"selector" bson:"selector" mapstructure:"selector,omitempty"`
 
 	// Only bearers with claims matching the subject will be allowed to access the
 	// appcomponent tokens.
 	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
+
+	// Configure the OpenTelemetry tracing behavior for this application. By default no
+	// tracing will be facilitated. If you set this to Transparent, then the Apex will
+	// record traces within Acuvity as they are being passed by the application in the
+	// respective traceparent HTTP header or other OpenInference related trace context
+	// transport methods. Note that with the Transparent mode, you might lose some
+	// spans that belong to a trace as the Apex can sit before your application itself.
+	// If you want to ensure you capture the full trace, you need to set this value to
+	// Recording. When the Apex is acting in Recording mode, it will record its own
+	// interactions as spans of its own. This ensures that all spans for a trace are
+	// captured. However, if you rely on complete tracing data in your own tracing
+	// system, then you should configure the otelExporter to ensure that the Apex is
+	// exporting its spans to your tracing system. Additionally, for both Transparent
+	// and Recording modes, you should ensure that the application is reporting its
+	// spans to Acuvity as well. This can be realized by running OTLP receivers within
+	// your application components by configuring the otelReceivers setting.
+	Tracing AppTracingValue `json:"tracing" msgpack:"tracing" bson:"tracing" mapstructure:"tracing,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -136,6 +182,7 @@ func NewApp() *App {
 		Components:   AppComponentsList{},
 		Selector:     [][]string{},
 		Subject:      [][]string{},
+		Tracing:      AppTracingDisabled,
 	}
 }
 
@@ -177,8 +224,11 @@ func (o *App) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.OtelExporter = o.OtelExporter
+	s.OtelReceivers = o.OtelReceivers
 	s.Selector = o.Selector
 	s.Subject = o.Subject
+	s.Tracing = o.Tracing
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -207,8 +257,11 @@ func (o *App) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.OtelExporter = s.OtelExporter
+	o.OtelReceivers = s.OtelReceivers
 	o.Selector = s.Selector
 	o.Subject = s.Subject
+	o.Tracing = s.Tracing
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -312,19 +365,22 @@ func (o *App) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseApp{
-			ID:          &o.ID,
-			Components:  &o.Components,
-			CreateTime:  &o.CreateTime,
-			Description: &o.Description,
-			ImportHash:  &o.ImportHash,
-			ImportLabel: &o.ImportLabel,
-			Name:        &o.Name,
-			Namespace:   &o.Namespace,
-			Selector:    &o.Selector,
-			Subject:     &o.Subject,
-			UpdateTime:  &o.UpdateTime,
-			ZHash:       &o.ZHash,
-			Zone:        &o.Zone,
+			ID:            &o.ID,
+			Components:    &o.Components,
+			CreateTime:    &o.CreateTime,
+			Description:   &o.Description,
+			ImportHash:    &o.ImportHash,
+			ImportLabel:   &o.ImportLabel,
+			Name:          &o.Name,
+			Namespace:     &o.Namespace,
+			OtelExporter:  o.OtelExporter,
+			OtelReceivers: &o.OtelReceivers,
+			Selector:      &o.Selector,
+			Subject:       &o.Subject,
+			Tracing:       &o.Tracing,
+			UpdateTime:    &o.UpdateTime,
+			ZHash:         &o.ZHash,
+			Zone:          &o.Zone,
 		}
 	}
 
@@ -347,10 +403,16 @@ func (o *App) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "otelExporter":
+			sp.OtelExporter = o.OtelExporter
+		case "otelReceivers":
+			sp.OtelReceivers = &(o.OtelReceivers)
 		case "selector":
 			sp.Selector = &(o.Selector)
 		case "subject":
 			sp.Subject = &(o.Subject)
+		case "tracing":
+			sp.Tracing = &(o.Tracing)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -394,11 +456,20 @@ func (o *App) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.OtelExporter != nil {
+		o.OtelExporter = so.OtelExporter
+	}
+	if so.OtelReceivers != nil {
+		o.OtelReceivers = *so.OtelReceivers
+	}
 	if so.Selector != nil {
 		o.Selector = *so.Selector
 	}
 	if so.Subject != nil {
 		o.Subject = *so.Subject
+	}
+	if so.Tracing != nil {
+		o.Tracing = *so.Tracing
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -459,6 +530,20 @@ func (o *App) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.OtelExporter != nil {
+		elemental.ResetDefaultForZeroValues(o.OtelExporter)
+		if err := o.OtelExporter.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.OtelReceivers {
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := ValidateTagsExpression("selector", o.Selector); err != nil {
 		errors = errors.Append(err)
 	}
@@ -467,6 +552,10 @@ func (o *App) Validate() error {
 		errors = errors.Append(err)
 	}
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("tracing", string(o.Tracing), []string{"Disabled", "Transparent", "Recording"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -525,10 +614,16 @@ func (o *App) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "otelExporter":
+		return o.OtelExporter
+	case "otelReceivers":
+		return o.OtelReceivers
 	case "selector":
 		return o.Selector
 	case "subject":
 		return o.Subject
+	case "tracing":
+		return o.Tracing
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -650,6 +745,37 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"OtelExporter": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "otelexporter",
+		ConvertedName:  "OtelExporter",
+		Description: `The OpenTelemetry exporter configuration for this application. This can only be
+used when the tracing behavior is set to Recording. When the Apex is recording
+spans of its own, then it will send them to this endpoint. Use this to ensure
+that the traces of your applications are complete in your own tracing system and
+don't contain holes that were created by the Apex.`,
+		Exposed: true,
+		Name:    "otelExporter",
+		Stored:  true,
+		SubType: "otlpendpoint",
+		Type:    "ref",
+	},
+	"OtelReceivers": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "otelreceivers",
+		ConvertedName:  "OtelReceivers",
+		Description: `The OpenTelemetry receiver endpoints to run for this application. This can only
+be used when the tracing behavior is set to Transparent or Recording. If
+non-empty, the Apex will run OTLP receivers on the provided OTLP receivers to
+receive spans from the application within all component workloads of this
+application. This is optional as there are alternative methods for receiving
+spans for the application.`,
+		Exposed: true,
+		Name:    "otelReceivers",
+		Stored:  true,
+		SubType: "otlpreceiver",
+		Type:    "refList",
+	},
 	"Selector": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
@@ -672,6 +798,31 @@ appcomponent tokens.`,
 		Stored:  true,
 		SubType: "[][]string",
 		Type:    "external",
+	},
+	"Tracing": {
+		AllowedChoices: []string{"Disabled", "Transparent", "Recording"},
+		BSONFieldName:  "tracing",
+		ConvertedName:  "Tracing",
+		DefaultValue:   AppTracingDisabled,
+		Description: `Configure the OpenTelemetry tracing behavior for this application. By default no
+tracing will be facilitated. If you set this to Transparent, then the Apex will
+record traces within Acuvity as they are being passed by the application in the
+respective traceparent HTTP header or other OpenInference related trace context
+transport methods. Note that with the Transparent mode, you might lose some
+spans that belong to a trace as the Apex can sit before your application itself.
+If you want to ensure you capture the full trace, you need to set this value to
+Recording. When the Apex is acting in Recording mode, it will record its own
+interactions as spans of its own. This ensures that all spans for a trace are
+captured. However, if you rely on complete tracing data in your own tracing
+system, then you should configure the otelExporter to ensure that the Apex is
+exporting its spans to your tracing system. Additionally, for both Transparent
+and Recording modes, you should ensure that the application is reporting its
+spans to Acuvity as well. This can be realized by running OTLP receivers within
+your application components by configuring the otelReceivers setting.`,
+		Exposed: true,
+		Name:    "tracing",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -800,6 +951,37 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"otelexporter": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "otelexporter",
+		ConvertedName:  "OtelExporter",
+		Description: `The OpenTelemetry exporter configuration for this application. This can only be
+used when the tracing behavior is set to Recording. When the Apex is recording
+spans of its own, then it will send them to this endpoint. Use this to ensure
+that the traces of your applications are complete in your own tracing system and
+don't contain holes that were created by the Apex.`,
+		Exposed: true,
+		Name:    "otelExporter",
+		Stored:  true,
+		SubType: "otlpendpoint",
+		Type:    "ref",
+	},
+	"otelreceivers": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "otelreceivers",
+		ConvertedName:  "OtelReceivers",
+		Description: `The OpenTelemetry receiver endpoints to run for this application. This can only
+be used when the tracing behavior is set to Transparent or Recording. If
+non-empty, the Apex will run OTLP receivers on the provided OTLP receivers to
+receive spans from the application within all component workloads of this
+application. This is optional as there are alternative methods for receiving
+spans for the application.`,
+		Exposed: true,
+		Name:    "otelReceivers",
+		Stored:  true,
+		SubType: "otlpreceiver",
+		Type:    "refList",
+	},
 	"selector": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
@@ -822,6 +1004,31 @@ appcomponent tokens.`,
 		Stored:  true,
 		SubType: "[][]string",
 		Type:    "external",
+	},
+	"tracing": {
+		AllowedChoices: []string{"Disabled", "Transparent", "Recording"},
+		BSONFieldName:  "tracing",
+		ConvertedName:  "Tracing",
+		DefaultValue:   AppTracingDisabled,
+		Description: `Configure the OpenTelemetry tracing behavior for this application. By default no
+tracing will be facilitated. If you set this to Transparent, then the Apex will
+record traces within Acuvity as they are being passed by the application in the
+respective traceparent HTTP header or other OpenInference related trace context
+transport methods. Note that with the Transparent mode, you might lose some
+spans that belong to a trace as the Apex can sit before your application itself.
+If you want to ensure you capture the full trace, you need to set this value to
+Recording. When the Apex is acting in Recording mode, it will record its own
+interactions as spans of its own. This ensures that all spans for a trace are
+captured. However, if you rely on complete tracing data in your own tracing
+system, then you should configure the otelExporter to ensure that the Apex is
+exporting its spans to your tracing system. Additionally, for both Transparent
+and Recording modes, you should ensure that the application is reporting its
+spans to Acuvity as well. This can be realized by running OTLP receivers within
+your application components by configuring the otelReceivers setting.`,
+		Exposed: true,
+		Name:    "tracing",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -928,12 +1135,44 @@ type SparseApp struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The OpenTelemetry exporter configuration for this application. This can only be
+	// used when the tracing behavior is set to Recording. When the Apex is recording
+	// spans of its own, then it will send them to this endpoint. Use this to ensure
+	// that the traces of your applications are complete in your own tracing system and
+	// don't contain holes that were created by the Apex.
+	OtelExporter *OTLPEndpoint `json:"otelExporter,omitempty" msgpack:"otelExporter,omitempty" bson:"otelexporter,omitempty" mapstructure:"otelExporter,omitempty"`
+
+	// The OpenTelemetry receiver endpoints to run for this application. This can only
+	// be used when the tracing behavior is set to Transparent or Recording. If
+	// non-empty, the Apex will run OTLP receivers on the provided OTLP receivers to
+	// receive spans from the application within all component workloads of this
+	// application. This is optional as there are alternative methods for receiving
+	// spans for the application.
+	OtelReceivers *[]OTLPReceiver `json:"otelReceivers,omitempty" msgpack:"otelReceivers,omitempty" bson:"otelreceivers,omitempty" mapstructure:"otelReceivers,omitempty"`
+
 	// A tag expression that identify an application based on downstream labels.
 	Selector *[][]string `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
 
 	// Only bearers with claims matching the subject will be allowed to access the
 	// appcomponent tokens.
 	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
+
+	// Configure the OpenTelemetry tracing behavior for this application. By default no
+	// tracing will be facilitated. If you set this to Transparent, then the Apex will
+	// record traces within Acuvity as they are being passed by the application in the
+	// respective traceparent HTTP header or other OpenInference related trace context
+	// transport methods. Note that with the Transparent mode, you might lose some
+	// spans that belong to a trace as the Apex can sit before your application itself.
+	// If you want to ensure you capture the full trace, you need to set this value to
+	// Recording. When the Apex is acting in Recording mode, it will record its own
+	// interactions as spans of its own. This ensures that all spans for a trace are
+	// captured. However, if you rely on complete tracing data in your own tracing
+	// system, then you should configure the otelExporter to ensure that the Apex is
+	// exporting its spans to your tracing system. Additionally, for both Transparent
+	// and Recording modes, you should ensure that the application is reporting its
+	// spans to Acuvity as well. This can be realized by running OTLP receivers within
+	// your application components by configuring the otelReceivers setting.
+	Tracing *AppTracingValue `json:"tracing,omitempty" msgpack:"tracing,omitempty" bson:"tracing,omitempty" mapstructure:"tracing,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1011,11 +1250,20 @@ func (o *SparseApp) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.OtelExporter != nil {
+		s.OtelExporter = o.OtelExporter
+	}
+	if o.OtelReceivers != nil {
+		s.OtelReceivers = o.OtelReceivers
+	}
 	if o.Selector != nil {
 		s.Selector = o.Selector
 	}
 	if o.Subject != nil {
 		s.Subject = o.Subject
+	}
+	if o.Tracing != nil {
+		s.Tracing = o.Tracing
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1066,11 +1314,20 @@ func (o *SparseApp) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.OtelExporter != nil {
+		o.OtelExporter = s.OtelExporter
+	}
+	if s.OtelReceivers != nil {
+		o.OtelReceivers = s.OtelReceivers
+	}
 	if s.Selector != nil {
 		o.Selector = s.Selector
 	}
 	if s.Subject != nil {
 		o.Subject = s.Subject
+	}
+	if s.Tracing != nil {
+		o.Tracing = s.Tracing
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1119,11 +1376,20 @@ func (o *SparseApp) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.OtelExporter != nil {
+		out.OtelExporter = o.OtelExporter
+	}
+	if o.OtelReceivers != nil {
+		out.OtelReceivers = *o.OtelReceivers
+	}
 	if o.Selector != nil {
 		out.Selector = *o.Selector
 	}
 	if o.Subject != nil {
 		out.Subject = *o.Subject
+	}
+	if o.Tracing != nil {
+		out.Tracing = *o.Tracing
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1243,32 +1509,38 @@ func (o *SparseApp) DeepCopyInto(out *SparseApp) {
 }
 
 type mongoAttributesApp struct {
-	ID          bson.ObjectId     `bson:"_id,omitempty"`
-	Components  AppComponentsList `bson:"components"`
-	CreateTime  time.Time         `bson:"createtime"`
-	Description string            `bson:"description"`
-	ImportHash  string            `bson:"importhash,omitempty"`
-	ImportLabel string            `bson:"importlabel,omitempty"`
-	Name        string            `bson:"name"`
-	Namespace   string            `bson:"namespace,omitempty"`
-	Selector    [][]string        `bson:"selector"`
-	Subject     [][]string        `bson:"subject"`
-	UpdateTime  time.Time         `bson:"updatetime"`
-	ZHash       int               `bson:"zhash"`
-	Zone        int               `bson:"zone"`
+	ID            bson.ObjectId     `bson:"_id,omitempty"`
+	Components    AppComponentsList `bson:"components"`
+	CreateTime    time.Time         `bson:"createtime"`
+	Description   string            `bson:"description"`
+	ImportHash    string            `bson:"importhash,omitempty"`
+	ImportLabel   string            `bson:"importlabel,omitempty"`
+	Name          string            `bson:"name"`
+	Namespace     string            `bson:"namespace,omitempty"`
+	OtelExporter  *OTLPEndpoint     `bson:"otelexporter,omitempty"`
+	OtelReceivers []OTLPReceiver    `bson:"otelreceivers,omitempty"`
+	Selector      [][]string        `bson:"selector"`
+	Subject       [][]string        `bson:"subject"`
+	Tracing       AppTracingValue   `bson:"tracing"`
+	UpdateTime    time.Time         `bson:"updatetime"`
+	ZHash         int               `bson:"zhash"`
+	Zone          int               `bson:"zone"`
 }
 type mongoAttributesSparseApp struct {
-	ID          bson.ObjectId      `bson:"_id,omitempty"`
-	Components  *AppComponentsList `bson:"components,omitempty"`
-	CreateTime  *time.Time         `bson:"createtime,omitempty"`
-	Description *string            `bson:"description,omitempty"`
-	ImportHash  *string            `bson:"importhash,omitempty"`
-	ImportLabel *string            `bson:"importlabel,omitempty"`
-	Name        *string            `bson:"name,omitempty"`
-	Namespace   *string            `bson:"namespace,omitempty"`
-	Selector    *[][]string        `bson:"selector,omitempty"`
-	Subject     *[][]string        `bson:"subject,omitempty"`
-	UpdateTime  *time.Time         `bson:"updatetime,omitempty"`
-	ZHash       *int               `bson:"zhash,omitempty"`
-	Zone        *int               `bson:"zone,omitempty"`
+	ID            bson.ObjectId      `bson:"_id,omitempty"`
+	Components    *AppComponentsList `bson:"components,omitempty"`
+	CreateTime    *time.Time         `bson:"createtime,omitempty"`
+	Description   *string            `bson:"description,omitempty"`
+	ImportHash    *string            `bson:"importhash,omitempty"`
+	ImportLabel   *string            `bson:"importlabel,omitempty"`
+	Name          *string            `bson:"name,omitempty"`
+	Namespace     *string            `bson:"namespace,omitempty"`
+	OtelExporter  *OTLPEndpoint      `bson:"otelexporter,omitempty"`
+	OtelReceivers *[]OTLPReceiver    `bson:"otelreceivers,omitempty"`
+	Selector      *[][]string        `bson:"selector,omitempty"`
+	Subject       *[][]string        `bson:"subject,omitempty"`
+	Tracing       *AppTracingValue   `bson:"tracing,omitempty"`
+	UpdateTime    *time.Time         `bson:"updatetime,omitempty"`
+	ZHash         *int               `bson:"zhash,omitempty"`
+	Zone          *int               `bson:"zone,omitempty"`
 }

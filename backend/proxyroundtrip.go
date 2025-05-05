@@ -155,6 +155,9 @@ type ProxyRoundtrip struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// The model used by the request.
+	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -164,7 +167,7 @@ type ProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
-	// the provider to use.
+	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -175,6 +178,9 @@ type ProxyRoundtrip struct {
 
 	// Set the time of the message request.
 	Time time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// The various tools used by the request.
+	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
 	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
@@ -237,12 +243,14 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Latency = o.Latency
+	s.Model = o.Model
 	s.Namespace = o.Namespace
 	s.PipelineName = o.PipelineName
 	s.Principal = o.Principal
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
+	s.Tools = o.Tools
 	s.Trace = o.Trace
 	s.Type = o.Type
 
@@ -274,12 +282,14 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Latency = s.Latency
+	o.Model = s.Model
 	o.Namespace = s.Namespace
 	o.PipelineName = s.PipelineName
 	o.Principal = s.Principal
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
+	o.Tools = s.Tools
 	o.Trace = s.Trace
 	o.Type = s.Type
 
@@ -370,6 +380,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			ImportHash:    &o.ImportHash,
 			ImportLabel:   &o.ImportLabel,
 			Latency:       o.Latency,
+			Model:         &o.Model,
 			Namespace:     &o.Namespace,
 			PipelineName:  &o.PipelineName,
 			Principal:     o.Principal,
@@ -377,6 +388,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
+			Tools:         &o.Tools,
 			Trace:         o.Trace,
 			Type:          &o.Type,
 		}
@@ -409,6 +421,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ImportLabel = &(o.ImportLabel)
 		case "latency":
 			sp.Latency = o.Latency
+		case "model":
+			sp.Model = &(o.Model)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "pipelineName":
@@ -423,6 +437,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Summary = o.Summary
 		case "time":
 			sp.Time = &(o.Time)
+		case "tools":
+			sp.Tools = &(o.Tools)
 		case "trace":
 			sp.Trace = o.Trace
 		case "type":
@@ -476,6 +492,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Latency != nil {
 		o.Latency = so.Latency
 	}
+	if so.Model != nil {
+		o.Model = *so.Model
+	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
@@ -496,6 +515,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Time != nil {
 		o.Time = *so.Time
+	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
 	}
 	if so.Trace != nil {
 		o.Trace = so.Trace
@@ -587,6 +609,16 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.Trace != nil {
 		elemental.ResetDefaultForZeroValues(o.Trace)
 		if err := o.Trace.Validate(); err != nil {
@@ -656,6 +688,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "latency":
 		return o.Latency
+	case "model":
+		return o.Model
 	case "namespace":
 		return o.Namespace
 	case "pipelineName":
@@ -670,6 +704,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Summary
 	case "time":
 		return o.Time
+	case "tools":
+		return o.Tools
 	case "trace":
 		return o.Trace
 	case "type":
@@ -819,6 +855,16 @@ same import operation.`,
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"Model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -860,7 +906,7 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `the provider to use.`,
+		Description:    `The provider to use.`,
 		Exposed:        true,
 		Name:           "provider",
 		Stored:         true,
@@ -895,6 +941,17 @@ same import operation.`,
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"Trace": {
 		AllowedChoices: []string{},
@@ -1059,6 +1116,16 @@ same import operation.`,
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1100,7 +1167,7 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `the provider to use.`,
+		Description:    `The provider to use.`,
 		Exposed:        true,
 		Name:           "provider",
 		Stored:         true,
@@ -1135,6 +1202,17 @@ same import operation.`,
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"trace": {
 		AllowedChoices: []string{},
@@ -1259,6 +1337,9 @@ type SparseProxyRoundtrip struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// The model used by the request.
+	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -1268,7 +1349,7 @@ type SparseProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
-	// the provider to use.
+	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -1279,6 +1360,9 @@ type SparseProxyRoundtrip struct {
 
 	// Set the time of the message request.
 	Time *time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// The various tools used by the request.
+	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
 	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
@@ -1365,6 +1449,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Latency != nil {
 		s.Latency = o.Latency
 	}
+	if o.Model != nil {
+		s.Model = o.Model
+	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
@@ -1382,6 +1469,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	}
 	if o.Summary != nil {
 		s.Summary = o.Summary
+	}
+	if o.Tools != nil {
+		s.Tools = o.Tools
 	}
 	if o.Trace != nil {
 		s.Trace = o.Trace
@@ -1441,6 +1531,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Latency != nil {
 		o.Latency = s.Latency
 	}
+	if s.Model != nil {
+		o.Model = s.Model
+	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
@@ -1458,6 +1551,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
+	}
+	if s.Tools != nil {
+		o.Tools = s.Tools
 	}
 	if s.Trace != nil {
 		o.Trace = s.Trace
@@ -1515,6 +1611,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.Latency != nil {
 		out.Latency = o.Latency
 	}
+	if o.Model != nil {
+		out.Model = *o.Model
+	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
@@ -1535,6 +1634,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Time != nil {
 		out.Time = *o.Time
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
 	}
 	if o.Trace != nil {
 		out.Trace = o.Trace
@@ -1631,12 +1733,14 @@ type mongoAttributesProxyRoundtrip struct {
 	ImportHash    string                      `bson:"importhash,omitempty"`
 	ImportLabel   string                      `bson:"importlabel,omitempty"`
 	Latency       *Latency                    `bson:"latency,omitempty"`
+	Model         string                      `bson:"model"`
 	Namespace     string                      `bson:"namespace,omitempty"`
 	PipelineName  string                      `bson:"pipelinename"`
 	Principal     *Principal                  `bson:"principal"`
 	Provider      string                      `bson:"provider"`
 	Reasons       []string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
+	Tools         map[string]*Tool            `bson:"tools,omitempty"`
 	Trace         *TraceRef                   `bson:"trace"`
 	Type          ProxyRoundtripTypeValue     `bson:"type"`
 }
@@ -1653,12 +1757,14 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	ImportHash    *string                      `bson:"importhash,omitempty"`
 	ImportLabel   *string                      `bson:"importlabel,omitempty"`
 	Latency       *Latency                     `bson:"latency,omitempty"`
+	Model         *string                      `bson:"model,omitempty"`
 	Namespace     *string                      `bson:"namespace,omitempty"`
 	PipelineName  *string                      `bson:"pipelinename,omitempty"`
 	Principal     *Principal                   `bson:"principal,omitempty"`
 	Provider      *string                      `bson:"provider,omitempty"`
 	Reasons       *[]string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
+	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
 	Trace         *TraceRef                    `bson:"trace,omitempty"`
 	Type          *ProxyRoundtripTypeValue     `bson:"type,omitempty"`
 }

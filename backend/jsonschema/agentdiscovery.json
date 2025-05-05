@@ -1,0 +1,108 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@importable",
+    "@principalable"
+  ],
+  "$friendlyName": "Agent Discovery",
+  "$friendlyNamePlural": "Agent Discoveries",
+  "$modelName": "AgentDiscovery",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "agentdiscoveries",
+  "$modelRestName": "agentdiscovery",
+  "additionalProperties": false,
+  "description": "This holds the various discoveries an agent finds, such as genAI processes, applications and plugins.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "description": "The hostname where the discovery took place.",
+      "title": "hostname",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "installedApps": {
+      "$friendlyName": "Installed Apps",
+      "description": "List of installed applications found based on the list set in agent config.",
+      "items": {
+        "$ref": "agentdiscoveredapp.json"
+      },
+      "title": "installedApps",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "runningProcesses": {
+      "$friendlyName": "Running Processes",
+      "description": "The list of running processes found based on the list set in agent config.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "runningProcesses",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The username that owns the processes and applications.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "principal"
+  ],
+  "title": "AgentDiscovery",
+  "type": "object"
+}

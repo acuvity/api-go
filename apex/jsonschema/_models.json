@@ -63,6 +63,9 @@
     "textualdetection": {
       "$ref": "textualdetection.json"
     },
+    "tool": {
+      "$ref": "tool.json"
+    },
     "traceref": {
       "$ref": "traceref.json"
     }

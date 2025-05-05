@@ -6,7 +6,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/mitchellh/copystructure v1.2.0
-	go.acuvity.ai/elemental v0.0.0-20250416135043-bd666177eb03
+	go.acuvity.ai/elemental v0.0.0-20250430230636-ac931152934a
 )
 
 require (

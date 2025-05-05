@@ -123,9 +123,15 @@ type PoliceRequest struct {
 	// processing binary data.
 	Messages []string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
+	// The model used by the request.
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The name of the provider to use for policy resolutions. If not set, it will
 	// default to the principal name (the application itself).
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// The various tools used by the request.
+	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
 	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
@@ -179,6 +185,8 @@ func (o *PoliceRequest) GetBSON() (any, error) {
 
 	s.Anonymization = o.Anonymization
 	s.BypassHash = o.BypassHash
+	s.Model = o.Model
+	s.Tools = o.Tools
 	s.Trace = o.Trace
 	s.Type = o.Type
 
@@ -200,6 +208,8 @@ func (o *PoliceRequest) SetBSON(raw bson.Raw) error {
 
 	o.Anonymization = s.Anonymization
 	o.BypassHash = s.BypassHash
+	o.Model = s.Model
+	o.Tools = s.Tools
 	o.Trace = s.Trace
 	o.Type = s.Type
 
@@ -247,7 +257,9 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			BypassHash:    &o.BypassHash,
 			Extractions:   &o.Extractions,
 			Messages:      &o.Messages,
+			Model:         &o.Model,
 			Provider:      &o.Provider,
+			Tools:         &o.Tools,
 			Trace:         o.Trace,
 			Type:          &o.Type,
 			User:          o.User,
@@ -267,8 +279,12 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.Extractions = &(o.Extractions)
 		case "messages":
 			sp.Messages = &(o.Messages)
+		case "model":
+			sp.Model = &(o.Model)
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "tools":
+			sp.Tools = &(o.Tools)
 		case "trace":
 			sp.Trace = o.Trace
 		case "type":
@@ -303,8 +319,14 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Messages != nil {
 		o.Messages = *so.Messages
 	}
+	if so.Model != nil {
+		o.Model = *so.Model
+	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
 	}
 	if so.Trace != nil {
 		o.Trace = so.Trace
@@ -352,6 +374,16 @@ func (o *PoliceRequest) Validate() error {
 	}
 
 	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
@@ -423,8 +455,12 @@ func (o *PoliceRequest) ValueForAttribute(name string) any {
 		return o.Extractions
 	case "messages":
 		return o.Messages
+	case "model":
+		return o.Model
 	case "provider":
 		return o.Provider
+	case "tools":
+		return o.Tools
 	case "trace":
 		return o.Trace
 	case "type":
@@ -489,6 +525,16 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"Model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
@@ -497,6 +543,17 @@ default to the principal name (the application itself).`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"Trace": {
 		AllowedChoices: []string{},
@@ -584,6 +641,16 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
@@ -592,6 +659,17 @@ default to the principal name (the application itself).`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"trace": {
 		AllowedChoices: []string{},
@@ -707,9 +785,15 @@ type SparsePoliceRequest struct {
 	// processing binary data.
 	Messages *[]string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
+	// The model used by the request.
+	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The name of the provider to use for policy resolutions. If not set, it will
 	// default to the principal name (the application itself).
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// The various tools used by the request.
+	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
 	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
@@ -762,6 +846,12 @@ func (o *SparsePoliceRequest) GetBSON() (any, error) {
 	if o.BypassHash != nil {
 		s.BypassHash = o.BypassHash
 	}
+	if o.Model != nil {
+		s.Model = o.Model
+	}
+	if o.Tools != nil {
+		s.Tools = o.Tools
+	}
 	if o.Trace != nil {
 		s.Trace = o.Trace
 	}
@@ -790,6 +880,12 @@ func (o *SparsePoliceRequest) SetBSON(raw bson.Raw) error {
 	}
 	if s.BypassHash != nil {
 		o.BypassHash = s.BypassHash
+	}
+	if s.Model != nil {
+		o.Model = s.Model
+	}
+	if s.Tools != nil {
+		o.Tools = s.Tools
 	}
 	if s.Trace != nil {
 		o.Trace = s.Trace
@@ -826,8 +922,14 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Messages != nil {
 		out.Messages = *o.Messages
 	}
+	if o.Model != nil {
+		out.Model = *o.Model
+	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
 	}
 	if o.Trace != nil {
 		out.Trace = o.Trace
@@ -869,12 +971,16 @@ func (o *SparsePoliceRequest) DeepCopyInto(out *SparsePoliceRequest) {
 type mongoAttributesPoliceRequest struct {
 	Anonymization PoliceRequestAnonymizationValue `bson:"anonymization"`
 	BypassHash    string                          `bson:"bypasshash,omitempty"`
+	Model         string                          `bson:"model,omitempty"`
+	Tools         map[string]*Tool                `bson:"tools,omitempty"`
 	Trace         *TraceRef                       `bson:"trace"`
 	Type          PoliceRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparsePoliceRequest struct {
 	Anonymization *PoliceRequestAnonymizationValue `bson:"anonymization,omitempty"`
 	BypassHash    *string                          `bson:"bypasshash,omitempty"`
+	Model         *string                          `bson:"model,omitempty"`
+	Tools         *map[string]*Tool                `bson:"tools,omitempty"`
 	Trace         *TraceRef                        `bson:"trace,omitempty"`
 	Type          *PoliceRequestTypeValue          `bson:"type,omitempty"`
 }

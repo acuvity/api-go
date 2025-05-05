@@ -145,6 +145,9 @@ type PoliceResponse struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// The model used by the request.
+	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -154,7 +157,7 @@ type PoliceResponse struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
-	// the provider to use.
+	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -165,6 +168,9 @@ type PoliceResponse struct {
 
 	// Set the time of the message request.
 	Time time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// The various tools used by the request.
+	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// The type of text.
 	Type PoliceResponseTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -221,12 +227,14 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
 	s.Latency = o.Latency
+	s.Model = o.Model
 	s.Namespace = o.Namespace
 	s.PipelineName = o.PipelineName
 	s.Principal = o.Principal
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
+	s.Tools = o.Tools
 	s.Type = o.Type
 
 	return s, nil
@@ -254,12 +262,14 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
 	o.Latency = s.Latency
+	o.Model = s.Model
 	o.Namespace = s.Namespace
 	o.PipelineName = s.PipelineName
 	o.Principal = s.Principal
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
+	o.Tools = s.Tools
 	o.Type = s.Type
 
 	return nil
@@ -322,6 +332,7 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Extractions:   &o.Extractions,
 			Hash:          &o.Hash,
 			Latency:       o.Latency,
+			Model:         &o.Model,
 			Namespace:     &o.Namespace,
 			PipelineName:  &o.PipelineName,
 			Principal:     o.Principal,
@@ -329,6 +340,7 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
+			Tools:         &o.Tools,
 			Type:          &o.Type,
 		}
 	}
@@ -354,6 +366,8 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Hash = &(o.Hash)
 		case "latency":
 			sp.Latency = o.Latency
+		case "model":
+			sp.Model = &(o.Model)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "pipelineName":
@@ -368,6 +382,8 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Summary = o.Summary
 		case "time":
 			sp.Time = &(o.Time)
+		case "tools":
+			sp.Tools = &(o.Tools)
 		case "type":
 			sp.Type = &(o.Type)
 		}
@@ -410,6 +426,9 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Latency != nil {
 		o.Latency = so.Latency
 	}
+	if so.Model != nil {
+		o.Model = *so.Model
+	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
@@ -430,6 +449,9 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Time != nil {
 		o.Time = *so.Time
+	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -511,6 +533,16 @@ func (o *PoliceResponse) Validate() error {
 		}
 	}
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -567,6 +599,8 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Hash
 	case "latency":
 		return o.Latency
+	case "model":
+		return o.Model
 	case "namespace":
 		return o.Namespace
 	case "pipelineName":
@@ -581,6 +615,8 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Summary
 	case "time":
 		return o.Time
+	case "tools":
+		return o.Tools
 	case "type":
 		return o.Type
 	}
@@ -689,6 +725,16 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"Model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -730,7 +776,7 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `the provider to use.`,
+		Description:    `The provider to use.`,
 		Exposed:        true,
 		Name:           "provider",
 		Stored:         true,
@@ -765,6 +811,17 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -879,6 +936,16 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -920,7 +987,7 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `the provider to use.`,
+		Description:    `The provider to use.`,
 		Exposed:        true,
 		Name:           "provider",
 		Stored:         true,
@@ -955,6 +1022,17 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1058,6 +1136,9 @@ type SparsePoliceResponse struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// The model used by the request.
+	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -1067,7 +1148,7 @@ type SparsePoliceResponse struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
-	// the provider to use.
+	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -1078,6 +1159,9 @@ type SparsePoliceResponse struct {
 
 	// Set the time of the message request.
 	Time *time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// The various tools used by the request.
+	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// The type of text.
 	Type *PoliceResponseTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
@@ -1152,6 +1236,9 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	if o.Latency != nil {
 		s.Latency = o.Latency
 	}
+	if o.Model != nil {
+		s.Model = o.Model
+	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
@@ -1169,6 +1256,9 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	}
 	if o.Summary != nil {
 		s.Summary = o.Summary
+	}
+	if o.Tools != nil {
+		s.Tools = o.Tools
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1216,6 +1306,9 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	if s.Latency != nil {
 		o.Latency = s.Latency
 	}
+	if s.Model != nil {
+		o.Model = s.Model
+	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
@@ -1233,6 +1326,9 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
+	}
+	if s.Tools != nil {
+		o.Tools = s.Tools
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1278,6 +1374,9 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Latency != nil {
 		out.Latency = o.Latency
 	}
+	if o.Model != nil {
+		out.Model = *o.Model
+	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
@@ -1298,6 +1397,9 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Time != nil {
 		out.Time = *o.Time
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -1356,12 +1458,14 @@ type mongoAttributesPoliceResponse struct {
 	Extractions   []*Extraction               `bson:"extractions,omitempty"`
 	Hash          string                      `bson:"hash"`
 	Latency       *Latency                    `bson:"latency,omitempty"`
+	Model         string                      `bson:"model"`
 	Namespace     string                      `bson:"namespace,omitempty"`
 	PipelineName  string                      `bson:"pipelinename"`
 	Principal     *Principal                  `bson:"principal"`
 	Provider      string                      `bson:"provider"`
 	Reasons       []string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
+	Tools         map[string]*Tool            `bson:"tools,omitempty"`
 	Type          PoliceResponseTypeValue     `bson:"type"`
 }
 type mongoAttributesSparsePoliceResponse struct {
@@ -1374,11 +1478,13 @@ type mongoAttributesSparsePoliceResponse struct {
 	Extractions   *[]*Extraction               `bson:"extractions,omitempty"`
 	Hash          *string                      `bson:"hash,omitempty"`
 	Latency       *Latency                     `bson:"latency,omitempty"`
+	Model         *string                      `bson:"model,omitempty"`
 	Namespace     *string                      `bson:"namespace,omitempty"`
 	PipelineName  *string                      `bson:"pipelinename,omitempty"`
 	Principal     *Principal                   `bson:"principal,omitempty"`
 	Provider      *string                      `bson:"provider,omitempty"`
 	Reasons       *[]string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
+	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
 	Type          *PoliceResponseTypeValue     `bson:"type,omitempty"`
 }

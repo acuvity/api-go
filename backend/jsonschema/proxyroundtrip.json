@@ -126,6 +126,15 @@
       "description": "Information about latency of various stage of request and response.",
       "title": "latency"
     },
+    "model": {
+      "$friendlyName": "Model",
+      "description": "The model used by the request.",
+      "title": "model",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,
@@ -154,7 +163,7 @@
     },
     "provider": {
       "$friendlyName": "Provider",
-      "description": "the provider to use.",
+      "description": "The provider to use.",
       "title": "provider",
       "type": [
         "string",
@@ -187,6 +196,15 @@
         "string",
         "null"
       ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "additionalProperties": {
+        "$ref": "tool.json"
+      },
+      "description": "The various tools used by the request.",
+      "title": "tools",
+      "type": "object"
     },
     "trace": {
       "$friendlyName": "Trace",

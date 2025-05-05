@@ -150,6 +150,18 @@ type AgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
+	// If disabled, the agent will not scan for genAI applications or plugins.
+	ScanDisabled bool `json:"scanDisabled" msgpack:"scanDisabled" bson:"scandisabled" mapstructure:"scanDisabled,omitempty"`
+
+	// The list of installed applications the scanner will look for.
+	ScanInstalledApps []*AgentDiscoveredApp `json:"scanInstalledApps" msgpack:"scanInstalledApps" bson:"scaninstalledapps" mapstructure:"scanInstalledApps,omitempty"`
+
+	// The interval in which scans take place by the agent.
+	ScanInterval string `json:"scanInterval" msgpack:"scanInterval" bson:"scaninterval" mapstructure:"scanInterval,omitempty"`
+
+	// The list of running processes the scanner will look for.
+	ScanRunningProcesses []string `json:"scanRunningProcesses" msgpack:"scanRunningProcesses" bson:"scanrunningprocesses" mapstructure:"scanRunningProcesses,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -175,6 +187,9 @@ func NewAgentConfig() *AgentConfig {
 		AllowedPauseInterval: "0s",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
+		ScanInstalledApps:    []*AgentDiscoveredApp{},
+		ScanInterval:         "1m",
+		ScanRunningProcesses: []string{},
 	}
 }
 
@@ -225,6 +240,10 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.PacName = o.PacName
 	s.PingInterval = o.PingInterval
+	s.ScanDisabled = o.ScanDisabled
+	s.ScanInstalledApps = o.ScanInstalledApps
+	s.ScanInterval = o.ScanInterval
+	s.ScanRunningProcesses = o.ScanRunningProcesses
 	s.UpdateTime = o.UpdateTime
 	s.UseDynamicPort = o.UseDynamicPort
 	s.ZHash = o.ZHash
@@ -263,6 +282,10 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.PacName = s.PacName
 	o.PingInterval = s.PingInterval
+	o.ScanDisabled = s.ScanDisabled
+	o.ScanInstalledApps = s.ScanInstalledApps
+	o.ScanInterval = s.ScanInterval
+	o.ScanRunningProcesses = s.ScanRunningProcesses
 	o.UpdateTime = s.UpdateTime
 	o.UseDynamicPort = s.UseDynamicPort
 	o.ZHash = s.ZHash
@@ -384,6 +407,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:                    &o.Namespace,
 			PacName:                      &o.PacName,
 			PingInterval:                 &o.PingInterval,
+			ScanDisabled:                 &o.ScanDisabled,
+			ScanInstalledApps:            &o.ScanInstalledApps,
+			ScanInterval:                 &o.ScanInterval,
+			ScanRunningProcesses:         &o.ScanRunningProcesses,
 			UpdateTime:                   &o.UpdateTime,
 			UseDynamicPort:               &o.UseDynamicPort,
 			ZHash:                        &o.ZHash,
@@ -428,6 +455,14 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PacName = &(o.PacName)
 		case "pingInterval":
 			sp.PingInterval = &(o.PingInterval)
+		case "scanDisabled":
+			sp.ScanDisabled = &(o.ScanDisabled)
+		case "scanInstalledApps":
+			sp.ScanInstalledApps = &(o.ScanInstalledApps)
+		case "scanInterval":
+			sp.ScanInterval = &(o.ScanInterval)
+		case "scanRunningProcesses":
+			sp.ScanRunningProcesses = &(o.ScanRunningProcesses)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "useDynamicPort":
@@ -500,6 +535,18 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.PingInterval != nil {
 		o.PingInterval = *so.PingInterval
 	}
+	if so.ScanDisabled != nil {
+		o.ScanDisabled = *so.ScanDisabled
+	}
+	if so.ScanInstalledApps != nil {
+		o.ScanInstalledApps = *so.ScanInstalledApps
+	}
+	if so.ScanInterval != nil {
+		o.ScanInterval = *so.ScanInterval
+	}
+	if so.ScanRunningProcesses != nil {
+		o.ScanRunningProcesses = *so.ScanRunningProcesses
+	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
 	}
@@ -554,6 +601,16 @@ func (o *AgentConfig) Validate() error {
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	for _, sub := range o.ScanInstalledApps {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
 	}
 
 	// Custom object validation.
@@ -629,6 +686,14 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.PacName
 	case "pingInterval":
 		return o.PingInterval
+	case "scanDisabled":
+		return o.ScanDisabled
+	case "scanInstalledApps":
+		return o.ScanInstalledApps
+	case "scanInterval":
+		return o.ScanInterval
+	case "scanRunningProcesses":
+		return o.ScanRunningProcesses
 	case "updateTime":
 		return o.UpdateTime
 	case "useDynamicPort":
@@ -845,6 +910,49 @@ same import operation.`,
 		Name:           "pingInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"ScanDisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scandisabled",
+		ConvertedName:  "ScanDisabled",
+		Description:    `If disabled, the agent will not scan for genAI applications or plugins.`,
+		Exposed:        true,
+		Name:           "scanDisabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"ScanInstalledApps": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scaninstalledapps",
+		ConvertedName:  "ScanInstalledApps",
+		Description:    `The list of installed applications the scanner will look for.`,
+		Exposed:        true,
+		Name:           "scanInstalledApps",
+		Stored:         true,
+		SubType:        "agentdiscoveredapp",
+		Type:           "refList",
+	},
+	"ScanInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scaninterval",
+		ConvertedName:  "ScanInterval",
+		DefaultValue:   "1m",
+		Description:    `The interval in which scans take place by the agent.`,
+		Exposed:        true,
+		Name:           "scanInterval",
+		Stored:         true,
+		Type:           "string",
+	},
+	"ScanRunningProcesses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanrunningprocesses",
+		ConvertedName:  "ScanRunningProcesses",
+		Description:    `The list of running processes the scanner will look for.`,
+		Exposed:        true,
+		Name:           "scanRunningProcesses",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -1078,6 +1186,49 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"scandisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scandisabled",
+		ConvertedName:  "ScanDisabled",
+		Description:    `If disabled, the agent will not scan for genAI applications or plugins.`,
+		Exposed:        true,
+		Name:           "scanDisabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"scaninstalledapps": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scaninstalledapps",
+		ConvertedName:  "ScanInstalledApps",
+		Description:    `The list of installed applications the scanner will look for.`,
+		Exposed:        true,
+		Name:           "scanInstalledApps",
+		Stored:         true,
+		SubType:        "agentdiscoveredapp",
+		Type:           "refList",
+	},
+	"scaninterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scaninterval",
+		ConvertedName:  "ScanInterval",
+		DefaultValue:   "1m",
+		Description:    `The interval in which scans take place by the agent.`,
+		Exposed:        true,
+		Name:           "scanInterval",
+		Stored:         true,
+		Type:           "string",
+	},
+	"scanrunningprocesses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanrunningprocesses",
+		ConvertedName:  "ScanRunningProcesses",
+		Description:    `The list of running processes the scanner will look for.`,
+		Exposed:        true,
+		Name:           "scanRunningProcesses",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1224,6 +1375,18 @@ type SparseAgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
 
+	// If disabled, the agent will not scan for genAI applications or plugins.
+	ScanDisabled *bool `json:"scanDisabled,omitempty" msgpack:"scanDisabled,omitempty" bson:"scandisabled,omitempty" mapstructure:"scanDisabled,omitempty"`
+
+	// The list of installed applications the scanner will look for.
+	ScanInstalledApps *[]*AgentDiscoveredApp `json:"scanInstalledApps,omitempty" msgpack:"scanInstalledApps,omitempty" bson:"scaninstalledapps,omitempty" mapstructure:"scanInstalledApps,omitempty"`
+
+	// The interval in which scans take place by the agent.
+	ScanInterval *string `json:"scanInterval,omitempty" msgpack:"scanInterval,omitempty" bson:"scaninterval,omitempty" mapstructure:"scanInterval,omitempty"`
+
+	// The list of running processes the scanner will look for.
+	ScanRunningProcesses *[]string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"scanrunningprocesses,omitempty" mapstructure:"scanRunningProcesses,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
@@ -1331,6 +1494,18 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.PingInterval != nil {
 		s.PingInterval = o.PingInterval
 	}
+	if o.ScanDisabled != nil {
+		s.ScanDisabled = o.ScanDisabled
+	}
+	if o.ScanInstalledApps != nil {
+		s.ScanInstalledApps = o.ScanInstalledApps
+	}
+	if o.ScanInterval != nil {
+		s.ScanInterval = o.ScanInterval
+	}
+	if o.ScanRunningProcesses != nil {
+		s.ScanRunningProcesses = o.ScanRunningProcesses
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1410,6 +1585,18 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.PingInterval != nil {
 		o.PingInterval = s.PingInterval
 	}
+	if s.ScanDisabled != nil {
+		o.ScanDisabled = s.ScanDisabled
+	}
+	if s.ScanInstalledApps != nil {
+		o.ScanInstalledApps = s.ScanInstalledApps
+	}
+	if s.ScanInterval != nil {
+		o.ScanInterval = s.ScanInterval
+	}
+	if s.ScanRunningProcesses != nil {
+		o.ScanRunningProcesses = s.ScanRunningProcesses
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1486,6 +1673,18 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.PingInterval != nil {
 		out.PingInterval = *o.PingInterval
+	}
+	if o.ScanDisabled != nil {
+		out.ScanDisabled = *o.ScanDisabled
+	}
+	if o.ScanInstalledApps != nil {
+		out.ScanInstalledApps = *o.ScanInstalledApps
+	}
+	if o.ScanInterval != nil {
+		out.ScanInterval = *o.ScanInterval
+	}
+	if o.ScanRunningProcesses != nil {
+		out.ScanRunningProcesses = *o.ScanRunningProcesses
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1625,6 +1824,10 @@ type mongoAttributesAgentConfig struct {
 	Namespace                    string                           `bson:"namespace,omitempty"`
 	PacName                      string                           `bson:"pacname"`
 	PingInterval                 string                           `bson:"pinginterval"`
+	ScanDisabled                 bool                             `bson:"scandisabled"`
+	ScanInstalledApps            []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
+	ScanInterval                 string                           `bson:"scaninterval"`
+	ScanRunningProcesses         []string                         `bson:"scanrunningprocesses"`
 	UpdateTime                   time.Time                        `bson:"updatetime"`
 	UseDynamicPort               bool                             `bson:"usedynamicport"`
 	ZHash                        int                              `bson:"zhash"`
@@ -1648,6 +1851,10 @@ type mongoAttributesSparseAgentConfig struct {
 	Namespace                    *string                           `bson:"namespace,omitempty"`
 	PacName                      *string                           `bson:"pacname,omitempty"`
 	PingInterval                 *string                           `bson:"pinginterval,omitempty"`
+	ScanDisabled                 *bool                             `bson:"scandisabled,omitempty"`
+	ScanInstalledApps            *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
+	ScanInterval                 *string                           `bson:"scaninterval,omitempty"`
+	ScanRunningProcesses         *[]string                         `bson:"scanrunningprocesses,omitempty"`
 	UpdateTime                   *time.Time                        `bson:"updatetime,omitempty"`
 	UseDynamicPort               *bool                             `bson:"usedynamicport,omitempty"`
 	ZHash                        *int                              `bson:"zhash,omitempty"`

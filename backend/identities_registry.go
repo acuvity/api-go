@@ -9,8 +9,10 @@ var (
 	identityNamesMap = map[string]elemental.Identity{
 		"accesspolicy": AccessPolicyIdentity,
 
-		"agent":           AgentIdentity,
-		"agentconfig":     AgentConfigIdentity,
+		"agent":       AgentIdentity,
+		"agentconfig": AgentConfigIdentity,
+
+		"agentdiscovery":  AgentDiscoveryIdentity,
 		"aidomain":        AIDomainIdentity,
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
@@ -48,8 +50,9 @@ var (
 		"metricrange":      MetricRangeIdentity,
 		"metricserie":      MetricSerieIdentity,
 
-		"orgsettings":  OrgSettingsIdentity,
-		"orgstorage":   OrgStorageIdentity,
+		"orgsettings": OrgSettingsIdentity,
+		"orgstorage":  OrgStorageIdentity,
+
 		"pacconfig":    PACConfigIdentity,
 		"pagedataview": PageDataViewIdentity,
 
@@ -95,8 +98,10 @@ var (
 	identitycategoriesMap = map[string]elemental.Identity{
 		"accesspolicies": AccessPolicyIdentity,
 
-		"agents":           AgentIdentity,
-		"agentconfigs":     AgentConfigIdentity,
+		"agents":       AgentIdentity,
+		"agentconfigs": AgentConfigIdentity,
+
+		"agentdiscoveries": AgentDiscoveryIdentity,
 		"aidomains":        AIDomainIdentity,
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
@@ -134,8 +139,9 @@ var (
 		"metricranges":      MetricRangeIdentity,
 		"metricseries":      MetricSerieIdentity,
 
-		"orgsettings":   OrgSettingsIdentity,
-		"orgstorages":   OrgStorageIdentity,
+		"orgsettings": OrgSettingsIdentity,
+		"orgstorages": OrgStorageIdentity,
+
 		"pacconfigs":    PACConfigIdentity,
 		"pagedataviews": PageDataViewIdentity,
 
@@ -194,6 +200,9 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+		},
+		"agentdiscovery": {
+			{"namespace", "importLabel"},
 		},
 		"aidomain": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -406,6 +415,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgent()
 	case AgentConfigIdentity:
 		return NewAgentConfig()
+	case AgentDiscoveryIdentity:
+		return NewAgentDiscovery()
 	case AIDomainIdentity:
 		return NewAIDomain()
 	case AlertIdentity:
@@ -549,6 +560,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgent()
 	case AgentConfigIdentity:
 		return NewSparseAgentConfig()
+	case AgentDiscoveryIdentity:
+		return NewSparseAgentDiscovery()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
 	case AlertIdentity:
@@ -700,6 +713,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentsList{}
 	case AgentConfigIdentity:
 		return &AgentConfigsList{}
+	case AgentDiscoveryIdentity:
+		return &AgentDiscoveriesList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
 	case AlertIdentity:
@@ -841,6 +856,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentsList{}
 	case AgentConfigIdentity:
 		return &SparseAgentConfigsList{}
+	case AgentDiscoveryIdentity:
+		return &SparseAgentDiscoveriesList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
 	case AlertIdentity:
@@ -998,6 +1015,7 @@ func AllIdentities() []elemental.Identity {
 		AccessPolicyIdentity,
 		AgentIdentity,
 		AgentConfigIdentity,
+		AgentDiscoveryIdentity,
 		AIDomainIdentity,
 		AlertIdentity,
 		AlertDefinitionIdentity,
@@ -1074,6 +1092,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AgentIdentity:
 		return []string{}
 	case AgentConfigIdentity:
+		return []string{}
+	case AgentDiscoveryIdentity:
 		return []string{}
 	case AIDomainIdentity:
 		return []string{}

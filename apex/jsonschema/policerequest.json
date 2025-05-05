@@ -63,6 +63,15 @@
       "title": "messages",
       "type": "array"
     },
+    "model": {
+      "$friendlyName": "Model",
+      "description": "The model used by the request.",
+      "title": "model",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "provider": {
       "$friendlyName": "Provider",
       "description": "The name of the provider to use for policy resolutions. If not set, it will default to the principal name (the application itself).",
@@ -71,6 +80,15 @@
         "string",
         "null"
       ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "additionalProperties": {
+        "$ref": "tool.json"
+      },
+      "description": "The various tools used by the request.",
+      "title": "tools",
+      "type": "object"
     },
     "trace": {
       "$friendlyName": "Trace",

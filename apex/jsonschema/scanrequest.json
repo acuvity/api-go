@@ -113,6 +113,15 @@
         "null"
       ]
     },
+    "model": {
+      "$friendlyName": "Model",
+      "description": "The model used by the request.",
+      "title": "model",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "redactions": {
       "$friendlyName": "Redactions",
       "description": "The redactions to perform if they are detected.",
@@ -124,6 +133,15 @@
       },
       "title": "redactions",
       "type": "array"
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "additionalProperties": {
+        "$ref": "tool.json"
+      },
+      "description": "The various tools used by the request.",
+      "title": "tools",
+      "type": "object"
     },
     "type": {
       "$friendlyName": "Type",

@@ -91,6 +91,21 @@
         "null"
       ]
     },
+    "otelExporter": {
+      "$friendlyName": "OpenTelemetry Exporter Configuration",
+      "$ref": "otlpendpoint.json",
+      "description": "The OpenTelemetry exporter configuration for this application. This can only be used when the tracing behavior is set to Recording. When the Apex is recording spans of its own, then it will send them to this endpoint. Use this to ensure that the traces of your applications are complete in your own tracing system and don't contain holes that were created by the Apex.",
+      "title": "otelExporter"
+    },
+    "otelReceivers": {
+      "$friendlyName": "OpenTelemetry Receiver Configurations",
+      "description": "The OpenTelemetry receiver endpoints to run for this application. This can only be used when the tracing behavior is set to Transparent or Recording. If non-empty, the Apex will run OTLP receivers on the provided OTLP receivers to receive spans from the application within all component workloads of this application. This is optional as there are alternative methods for receiving spans for the application.",
+      "items": {
+        "$ref": "otlpreceiver.json"
+      },
+      "title": "otelReceivers",
+      "type": "array"
+    },
     "selector": {
       "$friendlyName": "Selector",
       "description": "A tag expression that identify an application based on downstream labels.",
@@ -114,6 +129,17 @@
       },
       "title": "subject",
       "type": "array"
+    },
+    "tracing": {
+      "$defaultValue": "Disabled",
+      "$friendlyName": "OpenTelemetry Tracing Behavior",
+      "description": "Configure the OpenTelemetry tracing behavior for this application. By default no tracing will be facilitated. If you set this to Transparent, then the Apex will record traces within Acuvity as they are being passed by the application in the respective traceparent HTTP header or other OpenInference related trace context transport methods. Note that with the Transparent mode, you might lose some spans that belong to a trace as the Apex can sit before your application itself. If you want to ensure you capture the full trace, you need to set this value to Recording. When the Apex is acting in Recording mode, it will record its own interactions as spans of its own. This ensures that all spans for a trace are captured. However, if you rely on complete tracing data in your own tracing system, then you should configure the otelExporter to ensure that the Apex is exporting its spans to your tracing system. Additionally, for both Transparent and Recording modes, you should ensure that the application is reporting its spans to Acuvity as well. This can be realized by running OTLP receivers within your application components by configuring the otelReceivers setting.",
+      "enum": [
+        "Disabled",
+        "Transparent",
+        "Recording"
+      ],
+      "title": "tracing"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",

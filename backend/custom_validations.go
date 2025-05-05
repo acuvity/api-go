@@ -1147,6 +1147,43 @@ func ValidateRegexps(attribute string, r []string) error {
 	return nil
 }
 
+// ValidateIPPort validate the given input is a valid IP:Port pair.
+// The port must be in the range 0-65535 and the host must be a valid IP address.
+// If the IP is empty, the any address (0.0.0.0) will be assumed.
+// The IP must be an IP address, hostnames are not allowed.
+func ValidateIPPort(attribute string, ipPort string) error {
+	// we should be able to split the IP:Port pair
+	host, portStr, err := net.SplitHostPort(ipPort)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("Invalid IP:Port pair '%s': %s", ipPort, err))
+	}
+
+	if host == "" {
+		host = "0.0.0.0"
+	}
+
+	if portStr == "" {
+		return makeErr(attribute, fmt.Sprintf("Invalid IP:Port pair '%s': port is empty", ipPort))
+	}
+
+	// ensure the port is indeed a number and is within range
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("Invalid port '%s': %s", portStr, err))
+	}
+	if port <= 0 || port >= 65535 {
+		return makeErr(attribute, fmt.Sprintf("Invalid port '%d': must be within range of 0 and 65535", port))
+	}
+
+	// ensure the host is indeed an IP address: hostnames are not allowed
+	ip := net.ParseIP(host)
+	if ip == nil {
+		return makeErr(attribute, fmt.Sprintf("Invalid IP address '%s': %s", host, err))
+	}
+
+	return nil
+}
+
 func makeErr(attribute string, message string) elemental.Error {
 
 	err := elemental.NewError(

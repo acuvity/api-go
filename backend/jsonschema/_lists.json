@@ -24,6 +24,18 @@
       },
       "type": "array"
     },
+    "agentdiscoveredapps": {
+      "items": {
+        "$ref": "agentdiscoveredapp.json"
+      },
+      "type": "array"
+    },
+    "agentdiscoveries": {
+      "items": {
+        "$ref": "agentdiscovery.json"
+      },
+      "type": "array"
+    },
     "agents": {
       "items": {
         "$ref": "agent.json"
@@ -306,6 +318,18 @@
       },
       "type": "array"
     },
+    "otlpendpoints": {
+      "items": {
+        "$ref": "otlpendpoint.json"
+      },
+      "type": "array"
+    },
+    "otlpreceivers": {
+      "items": {
+        "$ref": "otlpreceiver.json"
+      },
+      "type": "array"
+    },
     "pacconfigs": {
       "items": {
         "$ref": "pacconfig.json"
@@ -489,6 +513,12 @@
     "textualdetections": {
       "items": {
         "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    },
+    "tools": {
+      "items": {
+        "$ref": "tool.json"
       },
       "type": "array"
     },

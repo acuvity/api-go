@@ -126,6 +126,12 @@
       },
       "type": "array"
     },
+    "tools": {
+      "items": {
+        "$ref": "tool.json"
+      },
+      "type": "array"
+    },
     "tracerefs": {
       "items": {
         "$ref": "traceref.json"

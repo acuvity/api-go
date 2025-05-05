@@ -1,0 +1,67 @@
+{
+  "$extends": [],
+  "$friendlyName": "OTLP Endpoint",
+  "$friendlyNamePlural": "OTLP Endpoints",
+  "$modelName": "OTLPEndpoint",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "otlpendpoints",
+  "$modelRestName": "otlpendpoint",
+  "additionalProperties": false,
+  "description": "Represents an OTLP endpoint.",
+  "properties": {
+    "endpoint": {
+      "$friendlyName": "Endpoint",
+      "$required": true,
+      "description": "Endpoint URL for trace data, with an optionally-specified port number. Typically ends with v1/traces when using OTLP/HTTP.",
+      "title": "endpoint",
+      "type": "string"
+    },
+    "headers": {
+      "$friendlyName": "Headers",
+      "description": "A list of headers to apply to all outgoing traces.",
+      "items": {
+        "type": "string"
+      },
+      "title": "headers",
+      "type": "object"
+    },
+    "protocol": {
+      "$friendlyName": "Protocol",
+      "$required": true,
+      "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this depends on the OTLP receiver being used.",
+      "enum": [
+        "GRPC",
+        "HTTPProtobuf",
+        "HTTPJSON"
+      ],
+      "title": "protocol"
+    },
+    "timeout": {
+      "$defaultValue": 10000,
+      "$friendlyName": "Timeout",
+      "description": "The timeout value for all outgoing traces in milliseconds.",
+      "maximum": 60000,
+      "minimum": 10,
+      "title": "timeout",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "trustedCA": {
+      "$friendlyName": "Trusted CA",
+      "description": "If set, additionally trust the Certificate Authorities from the PEM data when connecting to the endpoint over https.",
+      "title": "trustedCA",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "endpoint",
+    "protocol"
+  ],
+  "title": "OTLPEndpoint",
+  "type": "object"
+}

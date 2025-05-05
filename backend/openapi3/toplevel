@@ -375,6 +375,30 @@
             "example": "30m",
             "type": "string"
           },
+          "scanDisabled": {
+            "description": "If disabled, the agent will not scan for genAI applications or plugins.",
+            "type": "boolean"
+          },
+          "scanInstalledApps": {
+            "description": "The list of installed applications the scanner will look for.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscoveredapp"
+            },
+            "type": "array"
+          },
+          "scanInterval": {
+            "default": "1m",
+            "description": "The interval in which scans take place by the agent.",
+            "example": "10m",
+            "type": "string"
+          },
+          "scanRunningProcesses": {
+            "description": "The list of running processes the scanner will look for.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -389,6 +413,75 @@
         "required": [
           "listeningPort",
           "name"
+        ],
+        "type": "object"
+      },
+      "agentdiscoveredapp": {
+        "description": "Represents an application that the agent discovered.",
+        "properties": {
+          "name": {
+            "description": "The name of the application.",
+            "type": "string"
+          },
+          "plugins": {
+            "description": "The list of installed genAI plugins/extensions for the application.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "agentdiscovery": {
+        "description": "This holds the various discoveries an agent finds, such as genAI processes,\napplications and plugins.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "hostname": {
+            "description": "The hostname where the discovery took place.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "installedApps": {
+            "description": "List of installed applications found based on the list set in agent config.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscoveredapp"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          },
+          "runningProcesses": {
+            "description": "The list of running processes found based on the list set in agent config.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The username that owns the processes and applications.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "principal"
         ],
         "type": "object"
       },
@@ -1012,6 +1105,16 @@
             "readOnly": true,
             "type": "string"
           },
+          "otelExporter": {
+            "$ref": "#/components/schemas/otlpendpoint"
+          },
+          "otelReceivers": {
+            "description": "The OpenTelemetry receiver endpoints to run for this application. This can only\nbe used when the tracing behavior is set to Transparent or Recording. If\nnon-empty, the Apex will run OTLP receivers on the provided OTLP receivers to\nreceive spans from the application within all component workloads of this\napplication. This is optional as there are alternative methods for receiving\nspans for the application.",
+            "items": {
+              "$ref": "#/components/schemas/otlpreceiver"
+            },
+            "type": "array"
+          },
           "selector": {
             "description": "A tag expression that identify an application based on downstream labels.",
             "example": [
@@ -1037,6 +1140,16 @@
               "type": "array"
             },
             "type": "array"
+          },
+          "tracing": {
+            "default": "Disabled",
+            "description": "Configure the OpenTelemetry tracing behavior for this application. By default no\ntracing will be facilitated. If you set this to Transparent, then the Apex will\nrecord traces within Acuvity as they are being passed by the application in the\nrespective traceparent HTTP header or other OpenInference related trace context\ntransport methods. Note that with the Transparent mode, you might lose some\nspans that belong to a trace as the Apex can sit before your application itself.\nIf you want to ensure you capture the full trace, you need to set this value to\nRecording. When the Apex is acting in Recording mode, it will record its own\ninteractions as spans of its own. This ensures that all spans for a trace are\ncaptured. However, if you rely on complete tracing data in your own tracing\nsystem, then you should configure the otelExporter to ensure that the Apex is\nexporting its spans to your tracing system. Additionally, for both Transparent\nand Recording modes, you should ensure that the application is reporting its\nspans to Acuvity as well. This can be realized by running OTLP receivers within\nyour application components by configuring the otelReceivers setting.",
+            "enum": [
+              "Disabled",
+              "Transparent",
+              "Recording"
+            ],
+            "example": "Recording"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -3134,6 +3247,79 @@
         ],
         "type": "object"
       },
+      "otlpendpoint": {
+        "description": "Represents an OTLP endpoint.",
+        "properties": {
+          "endpoint": {
+            "description": "Endpoint URL for trace data, with an optionally-specified port number. Typically\nends with v1/traces when using OTLP/HTTP.",
+            "example": "http://my-otlp-receiver.example.com/v1/traces",
+            "type": "string"
+          },
+          "headers": {
+            "description": "A list of headers to apply to all outgoing traces.",
+            "items": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "protocol": {
+            "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this\ndepends on the OTLP receiver being used.",
+            "enum": [
+              "GRPC",
+              "HTTPProtobuf",
+              "HTTPJSON"
+            ],
+            "example": "HTTPProtobuf"
+          },
+          "timeout": {
+            "default": 10000,
+            "description": "The timeout value for all outgoing traces in milliseconds.",
+            "type": "integer"
+          },
+          "trustedCA": {
+            "description": "If set, additionally trust the Certificate Authorities from the PEM data when\nconnecting to the endpoint over https.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "endpoint",
+          "protocol"
+        ],
+        "type": "object"
+      },
+      "otlpreceiver": {
+        "description": "Represents an OTLP receiver.",
+        "properties": {
+          "endpoint": {
+            "description": "Endpoint configures the listening address for the server.",
+            "example": "127.0.0.1:4318",
+            "type": "string"
+          },
+          "listenTLSCert": {
+            "description": "Optional PEM encoded X509v3 certificate to use for the listener for this OTLP\nreceiver. This setting is required if listenTLSKey is set.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIF...\n...\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "listenTLSKey": {
+            "description": "Optional PEM encoded key pair to use for the listener for this OTLP receiver.\nThis setting is required if listenTLSCert is set.",
+            "example": "-----BEGIN EC PRIVATE KEY-----\nMHcCA...\n...\n-----END EC PRIVATE KEY-----",
+            "type": "string"
+          },
+          "protocol": {
+            "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this\ndepends on the OTLP receiver being used.",
+            "enum": [
+              "GRPC",
+              "HTTP"
+            ],
+            "example": "HTTP"
+          }
+        },
+        "required": [
+          "endpoint",
+          "protocol"
+        ],
+        "type": "object"
+      },
       "pacconfig": {
         "description": "PAC Config allows to create a custom PAC, with a selection of services enabled.",
         "properties": {
@@ -4093,6 +4279,11 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "model": {
+            "description": "The model used by the request.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -4106,7 +4297,7 @@
             "$ref": "#/components/schemas/principal"
           },
           "provider": {
-            "description": "the provider to use.",
+            "description": "The provider to use.",
             "example": "openai",
             "type": "string"
           },
@@ -4124,6 +4315,14 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "tools": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "description": "The various tools used by the request.",
+            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "type": "object"
           },
           "trace": {
             "$ref": "#/components/schemas/traceref"
@@ -4676,6 +4875,20 @@
               "Secret",
               "CDT"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "tool": {
+        "description": "Represents a tool that can enhance a genAI model's capabilities.",
+        "properties": {
+          "description": {
+            "description": "The description of the tool.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the tool.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5669,6 +5882,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/agentconfig"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/agentdiscoveries": {
+      "post": {
+        "description": "Creates a new agent discovery.",
+        "operationId": "create-AgentDiscovery",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentdiscovery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentdiscovery"
                 }
               }
             },

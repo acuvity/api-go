@@ -172,6 +172,46 @@
         "null"
       ]
     },
+    "scanDisabled": {
+      "$friendlyName": "Scan Disabled",
+      "description": "If disabled, the agent will not scan for genAI applications or plugins.",
+      "title": "scanDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "scanInstalledApps": {
+      "$friendlyName": "Scan Installed Apps",
+      "description": "The list of installed applications the scanner will look for.",
+      "items": {
+        "$ref": "agentdiscoveredapp.json"
+      },
+      "title": "scanInstalledApps",
+      "type": "array"
+    },
+    "scanInterval": {
+      "$defaultValue": "1m",
+      "$friendlyName": "Scan Interval",
+      "description": "The interval in which scans take place by the agent.",
+      "title": "scanInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scanRunningProcesses": {
+      "$friendlyName": "Scan Running Processes",
+      "description": "The list of running processes the scanner will look for.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "scanRunningProcesses",
+      "type": "array"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,

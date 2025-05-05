@@ -621,10 +621,23 @@
             },
             "type": "array"
           },
+          "model": {
+            "description": "The model used by the request.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "provider": {
             "description": "The name of the provider to use for policy resolutions. If not set, it will\ndefault to the principal name (the application itself).",
             "example": "openai",
             "type": "string"
+          },
+          "tools": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "description": "The various tools used by the request.",
+            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "type": "object"
           },
           "trace": {
             "$ref": "#/components/schemas/traceref"
@@ -699,6 +712,11 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "model": {
+            "description": "The model used by the request.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -712,7 +730,7 @@
             "$ref": "#/components/schemas/principal"
           },
           "provider": {
-            "description": "the provider to use.",
+            "description": "The provider to use.",
             "example": "openai",
             "type": "string"
           },
@@ -730,6 +748,14 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "tools": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "description": "The various tools used by the request.",
+            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "type": "object"
           },
           "type": {
             "description": "The type of text.",
@@ -921,6 +947,11 @@
             "description": "If true, the system will not log the contents that were scanned.",
             "type": "boolean"
           },
+          "model": {
+            "description": "The model used by the request.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "redactions": {
             "description": "The redactions to perform if they are detected.",
             "example": [
@@ -932,6 +963,14 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "tools": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "description": "The various tools used by the request.",
+            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "type": "object"
           },
           "type": {
             "description": "The type of text.",
@@ -1000,6 +1039,11 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "model": {
+            "description": "The model used by the request.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -1013,7 +1057,7 @@
             "$ref": "#/components/schemas/principal"
           },
           "provider": {
-            "description": "the provider to use.",
+            "description": "The provider to use.",
             "example": "openai",
             "type": "string"
           },
@@ -1031,6 +1075,14 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "tools": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "description": "The various tools used by the request.",
+            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "type": "object"
           },
           "trace": {
             "$ref": "#/components/schemas/traceref"
@@ -1091,6 +1143,20 @@
               "Secret",
               "CDT"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "tool": {
+        "description": "Represents a tool that can enhance a genAI model's capabilities.",
+        "properties": {
+          "description": {
+            "description": "The description of the tool.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the tool.",
+            "type": "string"
           }
         },
         "type": "object"

@@ -1,0 +1,37 @@
+{
+  "$extends": [],
+  "$friendlyName": "Agent Discovered App",
+  "$friendlyNamePlural": "Agent Discovered Apps",
+  "$modelName": "AgentDiscoveredApp",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "agentdiscoveredapps",
+  "$modelRestName": "agentdiscoveredapp",
+  "additionalProperties": false,
+  "description": "Represents an application that the agent discovered.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the application.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "plugins": {
+      "$friendlyName": "Plugins",
+      "description": "The list of installed genAI plugins/extensions for the application.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "plugins",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "AgentDiscoveredApp",
+  "type": "object"
+}

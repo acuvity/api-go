@@ -1,0 +1,54 @@
+{
+  "$extends": [],
+  "$friendlyName": "OTLP Receiver",
+  "$friendlyNamePlural": "OTLP Receivers",
+  "$modelName": "OTLPReceiver",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "otlpreceivers",
+  "$modelRestName": "otlpreceiver",
+  "additionalProperties": false,
+  "description": "Represents an OTLP receiver.",
+  "properties": {
+    "endpoint": {
+      "$friendlyName": "Endpoint",
+      "$required": true,
+      "description": "Endpoint configures the listening address for the server.",
+      "title": "endpoint",
+      "type": "string"
+    },
+    "listenTLSCert": {
+      "$friendlyName": "Listen TLS Certificate",
+      "description": "Optional PEM encoded X509v3 certificate to use for the listener for this OTLP receiver. This setting is required if listenTLSKey is set.",
+      "title": "listenTLSCert",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "listenTLSKey": {
+      "$friendlyName": "Listen TLS Key",
+      "description": "Optional PEM encoded key pair to use for the listener for this OTLP receiver. This setting is required if listenTLSCert is set.",
+      "title": "listenTLSKey",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "protocol": {
+      "$friendlyName": "Protocol",
+      "$required": true,
+      "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this depends on the OTLP receiver being used.",
+      "enum": [
+        "GRPC",
+        "HTTP"
+      ],
+      "title": "protocol"
+    }
+  },
+  "required": [
+    "endpoint",
+    "protocol"
+  ],
+  "title": "OTLPReceiver",
+  "type": "object"
+}

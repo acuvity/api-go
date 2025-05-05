@@ -217,6 +217,12 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[AgentDiscoveryIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[AlertIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},

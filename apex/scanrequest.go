@@ -171,8 +171,14 @@ type ScanRequest struct {
 	// If true, the system will not log the contents that were scanned.
 	MinimalLogging bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
 
+	// The model used by the request.
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The redactions to perform if they are detected.
 	Redactions []string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
+
+	// The various tools used by the request.
+	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// The type of text.
 	Type ScanRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -220,7 +226,9 @@ func (o *ScanRequest) GetBSON() (any, error) {
 
 	s.Anonymization = o.Anonymization
 	s.BypassHash = o.BypassHash
+	s.Model = o.Model
 	s.Redactions = o.Redactions
+	s.Tools = o.Tools
 	s.Type = o.Type
 
 	return s, nil
@@ -241,7 +249,9 @@ func (o *ScanRequest) SetBSON(raw bson.Raw) error {
 
 	o.Anonymization = s.Anonymization
 	o.BypassHash = s.BypassHash
+	o.Model = s.Model
 	o.Redactions = s.Redactions
+	o.Tools = s.Tools
 	o.Type = s.Type
 
 	return nil
@@ -293,7 +303,9 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Keywords:       &o.Keywords,
 			Messages:       &o.Messages,
 			MinimalLogging: &o.MinimalLogging,
+			Model:          &o.Model,
 			Redactions:     &o.Redactions,
+			Tools:          &o.Tools,
 			Type:           &o.Type,
 		}
 	}
@@ -321,8 +333,12 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Messages = &(o.Messages)
 		case "minimalLogging":
 			sp.MinimalLogging = &(o.MinimalLogging)
+		case "model":
+			sp.Model = &(o.Model)
 		case "redactions":
 			sp.Redactions = &(o.Redactions)
+		case "tools":
+			sp.Tools = &(o.Tools)
 		case "type":
 			sp.Type = &(o.Type)
 		}
@@ -368,8 +384,14 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.MinimalLogging != nil {
 		o.MinimalLogging = *so.MinimalLogging
 	}
+	if so.Model != nil {
+		o.Model = *so.Model
+	}
 	if so.Redactions != nil {
 		o.Redactions = *so.Redactions
+	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -419,6 +441,16 @@ func (o *ScanRequest) Validate() error {
 	}
 
 	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
@@ -486,8 +518,12 @@ func (o *ScanRequest) ValueForAttribute(name string) any {
 		return o.Messages
 	case "minimalLogging":
 		return o.MinimalLogging
+	case "model":
+		return o.Model
 	case "redactions":
 		return o.Redactions
+	case "tools":
+		return o.Tools
 	case "type":
 		return o.Type
 	}
@@ -623,6 +659,16 @@ processing binary data.`,
 		Name:           "minimalLogging",
 		Type:           "boolean",
 	},
+	"Model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Redactions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "redactions",
@@ -633,6 +679,17 @@ processing binary data.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -774,6 +831,16 @@ processing binary data.`,
 		Name:           "minimalLogging",
 		Type:           "boolean",
 	},
+	"model": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "model",
+		ConvertedName:  "Model",
+		Description:    `The model used by the request.`,
+		Exposed:        true,
+		Name:           "model",
+		Stored:         true,
+		Type:           "string",
+	},
 	"redactions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "redactions",
@@ -784,6 +851,17 @@ processing binary data.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The various tools used by the request.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refMap",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -926,8 +1004,14 @@ type SparseScanRequest struct {
 	// If true, the system will not log the contents that were scanned.
 	MinimalLogging *bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
 
+	// The model used by the request.
+	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
 	// The redactions to perform if they are detected.
 	Redactions *[]string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
+
+	// The various tools used by the request.
+	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// The type of text.
 	Type *ScanRequestTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
@@ -973,8 +1057,14 @@ func (o *SparseScanRequest) GetBSON() (any, error) {
 	if o.BypassHash != nil {
 		s.BypassHash = o.BypassHash
 	}
+	if o.Model != nil {
+		s.Model = o.Model
+	}
 	if o.Redactions != nil {
 		s.Redactions = o.Redactions
+	}
+	if o.Tools != nil {
+		s.Tools = o.Tools
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1002,8 +1092,14 @@ func (o *SparseScanRequest) SetBSON(raw bson.Raw) error {
 	if s.BypassHash != nil {
 		o.BypassHash = s.BypassHash
 	}
+	if s.Model != nil {
+		o.Model = s.Model
+	}
 	if s.Redactions != nil {
 		o.Redactions = s.Redactions
+	}
+	if s.Tools != nil {
+		o.Tools = s.Tools
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1052,8 +1148,14 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.MinimalLogging != nil {
 		out.MinimalLogging = *o.MinimalLogging
 	}
+	if o.Model != nil {
+		out.Model = *o.Model
+	}
 	if o.Redactions != nil {
 		out.Redactions = *o.Redactions
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -1089,12 +1191,16 @@ func (o *SparseScanRequest) DeepCopyInto(out *SparseScanRequest) {
 type mongoAttributesScanRequest struct {
 	Anonymization ScanRequestAnonymizationValue `bson:"anonymization"`
 	BypassHash    string                        `bson:"bypasshash,omitempty"`
+	Model         string                        `bson:"model,omitempty"`
 	Redactions    []string                      `bson:"redactions,omitempty"`
+	Tools         map[string]*Tool              `bson:"tools,omitempty"`
 	Type          ScanRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparseScanRequest struct {
 	Anonymization *ScanRequestAnonymizationValue `bson:"anonymization,omitempty"`
 	BypassHash    *string                        `bson:"bypasshash,omitempty"`
+	Model         *string                        `bson:"model,omitempty"`
 	Redactions    *[]string                      `bson:"redactions,omitempty"`
+	Tools         *map[string]*Tool              `bson:"tools,omitempty"`
 	Type          *ScanRequestTypeValue          `bson:"type,omitempty"`
 }
