@@ -159,6 +159,9 @@ type AgentConfig struct {
 	// The interval in which scans take place by the agent.
 	ScanInterval string `json:"scanInterval" msgpack:"scanInterval" bson:"scaninterval" mapstructure:"scanInterval,omitempty"`
 
+	// The interval in which scan reports are sent to the backend.
+	ScanReportInterval string `json:"scanReportInterval" msgpack:"scanReportInterval" bson:"scanreportinterval" mapstructure:"scanReportInterval,omitempty"`
+
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses []string `json:"scanRunningProcesses" msgpack:"scanRunningProcesses" bson:"scanrunningprocesses" mapstructure:"scanRunningProcesses,omitempty"`
 
@@ -189,6 +192,7 @@ func NewAgentConfig() *AgentConfig {
 		PingInterval:         "10m",
 		ScanInstalledApps:    []*AgentDiscoveredApp{},
 		ScanInterval:         "1m",
+		ScanReportInterval:   "1h",
 		ScanRunningProcesses: []string{},
 	}
 }
@@ -243,6 +247,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ScanDisabled = o.ScanDisabled
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
+	s.ScanReportInterval = o.ScanReportInterval
 	s.ScanRunningProcesses = o.ScanRunningProcesses
 	s.UpdateTime = o.UpdateTime
 	s.UseDynamicPort = o.UseDynamicPort
@@ -285,6 +290,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ScanDisabled = s.ScanDisabled
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
+	o.ScanReportInterval = s.ScanReportInterval
 	o.ScanRunningProcesses = s.ScanRunningProcesses
 	o.UpdateTime = s.UpdateTime
 	o.UseDynamicPort = s.UseDynamicPort
@@ -410,6 +416,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ScanDisabled:                 &o.ScanDisabled,
 			ScanInstalledApps:            &o.ScanInstalledApps,
 			ScanInterval:                 &o.ScanInterval,
+			ScanReportInterval:           &o.ScanReportInterval,
 			ScanRunningProcesses:         &o.ScanRunningProcesses,
 			UpdateTime:                   &o.UpdateTime,
 			UseDynamicPort:               &o.UseDynamicPort,
@@ -461,6 +468,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ScanInstalledApps = &(o.ScanInstalledApps)
 		case "scanInterval":
 			sp.ScanInterval = &(o.ScanInterval)
+		case "scanReportInterval":
+			sp.ScanReportInterval = &(o.ScanReportInterval)
 		case "scanRunningProcesses":
 			sp.ScanRunningProcesses = &(o.ScanRunningProcesses)
 		case "updateTime":
@@ -543,6 +552,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ScanInterval != nil {
 		o.ScanInterval = *so.ScanInterval
+	}
+	if so.ScanReportInterval != nil {
+		o.ScanReportInterval = *so.ScanReportInterval
 	}
 	if so.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = *so.ScanRunningProcesses
@@ -692,6 +704,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ScanInstalledApps
 	case "scanInterval":
 		return o.ScanInterval
+	case "scanReportInterval":
+		return o.ScanReportInterval
 	case "scanRunningProcesses":
 		return o.ScanRunningProcesses
 	case "updateTime":
@@ -940,6 +954,17 @@ same import operation.`,
 		Description:    `The interval in which scans take place by the agent.`,
 		Exposed:        true,
 		Name:           "scanInterval",
+		Stored:         true,
+		Type:           "string",
+	},
+	"ScanReportInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanreportinterval",
+		ConvertedName:  "ScanReportInterval",
+		DefaultValue:   "1h",
+		Description:    `The interval in which scan reports are sent to the backend.`,
+		Exposed:        true,
+		Name:           "scanReportInterval",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1218,6 +1243,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"scanreportinterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanreportinterval",
+		ConvertedName:  "ScanReportInterval",
+		DefaultValue:   "1h",
+		Description:    `The interval in which scan reports are sent to the backend.`,
+		Exposed:        true,
+		Name:           "scanReportInterval",
+		Stored:         true,
+		Type:           "string",
+	},
 	"scanrunningprocesses": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "scanrunningprocesses",
@@ -1384,6 +1420,9 @@ type SparseAgentConfig struct {
 	// The interval in which scans take place by the agent.
 	ScanInterval *string `json:"scanInterval,omitempty" msgpack:"scanInterval,omitempty" bson:"scaninterval,omitempty" mapstructure:"scanInterval,omitempty"`
 
+	// The interval in which scan reports are sent to the backend.
+	ScanReportInterval *string `json:"scanReportInterval,omitempty" msgpack:"scanReportInterval,omitempty" bson:"scanreportinterval,omitempty" mapstructure:"scanReportInterval,omitempty"`
+
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses *[]string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"scanrunningprocesses,omitempty" mapstructure:"scanRunningProcesses,omitempty"`
 
@@ -1503,6 +1542,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ScanInterval != nil {
 		s.ScanInterval = o.ScanInterval
 	}
+	if o.ScanReportInterval != nil {
+		s.ScanReportInterval = o.ScanReportInterval
+	}
 	if o.ScanRunningProcesses != nil {
 		s.ScanRunningProcesses = o.ScanRunningProcesses
 	}
@@ -1594,6 +1636,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ScanInterval != nil {
 		o.ScanInterval = s.ScanInterval
 	}
+	if s.ScanReportInterval != nil {
+		o.ScanReportInterval = s.ScanReportInterval
+	}
 	if s.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = s.ScanRunningProcesses
 	}
@@ -1682,6 +1727,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ScanInterval != nil {
 		out.ScanInterval = *o.ScanInterval
+	}
+	if o.ScanReportInterval != nil {
+		out.ScanReportInterval = *o.ScanReportInterval
 	}
 	if o.ScanRunningProcesses != nil {
 		out.ScanRunningProcesses = *o.ScanRunningProcesses
@@ -1827,6 +1875,7 @@ type mongoAttributesAgentConfig struct {
 	ScanDisabled                 bool                             `bson:"scandisabled"`
 	ScanInstalledApps            []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
 	ScanInterval                 string                           `bson:"scaninterval"`
+	ScanReportInterval           string                           `bson:"scanreportinterval"`
 	ScanRunningProcesses         []string                         `bson:"scanrunningprocesses"`
 	UpdateTime                   time.Time                        `bson:"updatetime"`
 	UseDynamicPort               bool                             `bson:"usedynamicport"`
@@ -1854,6 +1903,7 @@ type mongoAttributesSparseAgentConfig struct {
 	ScanDisabled                 *bool                             `bson:"scandisabled,omitempty"`
 	ScanInstalledApps            *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
 	ScanInterval                 *string                           `bson:"scaninterval,omitempty"`
+	ScanReportInterval           *string                           `bson:"scanreportinterval,omitempty"`
 	ScanRunningProcesses         *[]string                         `bson:"scanrunningprocesses,omitempty"`
 	UpdateTime                   *time.Time                        `bson:"updatetime,omitempty"`
 	UseDynamicPort               *bool                             `bson:"usedynamicport,omitempty"`

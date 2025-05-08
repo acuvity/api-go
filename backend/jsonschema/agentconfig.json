@@ -200,6 +200,16 @@
         "null"
       ]
     },
+    "scanReportInterval": {
+      "$defaultValue": "1h",
+      "$friendlyName": "Scan Report Interval",
+      "description": "The interval in which scan reports are sent to the backend.",
+      "title": "scanReportInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "scanRunningProcesses": {
       "$friendlyName": "Scan Running Processes",
       "description": "The list of running processes the scanner will look for.",

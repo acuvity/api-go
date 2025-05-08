@@ -437,6 +437,7 @@ AgentConfig stores the configuration information for the acushield agent.
   "pingInterval": "30m",
   "scanDisabled": false,
   "scanInterval": "10m",
+  "scanReportInterval": "30m",
   "useDynamicPort": false
 }
 ```
@@ -621,6 +622,18 @@ Default value:
 
 ```json
 "1m"
+```
+
+##### `scanReportInterval`
+
+Type: `string`
+
+The interval in which scan reports are sent to the backend.
+
+Default value:
+
+```json
+"1h"
 ```
 
 ##### `scanRunningProcesses`
