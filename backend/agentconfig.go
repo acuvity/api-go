@@ -125,6 +125,9 @@ type AgentConfig struct {
 	// If disabled, the agent will stop reporting the visited domains.
 	DisableURLDiscovery bool `json:"disableURLDiscovery" msgpack:"disableURLDiscovery" bson:"disableurldiscovery" mapstructure:"disableURLDiscovery,omitempty"`
 
+	// If enabled, all agents pointing to this config will be paused.
+	EmergencyPauseEnabled bool `json:"emergencyPauseEnabled" msgpack:"emergencyPauseEnabled" bson:"emergencypauseenabled" mapstructure:"emergencyPauseEnabled,omitempty"`
+
 	// If enabled, the agent will have the ability to pause enforcement.
 	EnablePause bool `json:"enablePause" msgpack:"enablePause" bson:"enablepause" mapstructure:"enablePause,omitempty"`
 
@@ -190,7 +193,6 @@ func NewAgentConfig() *AgentConfig {
 		AllowedPauseInterval: "0s",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
-		ScanInstalledApps:    []*AgentDiscoveredApp{},
 		ScanInterval:         "1m",
 		ScanReportInterval:   "1h",
 		ScanRunningProcesses: []string{},
@@ -236,6 +238,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.DisableManagedCA = o.DisableManagedCA
 	s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
 	s.DisableURLDiscovery = o.DisableURLDiscovery
+	s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
 	s.EnablePause = o.EnablePause
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -279,6 +282,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DisableManagedCA = s.DisableManagedCA
 	o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
 	o.DisableURLDiscovery = s.DisableURLDiscovery
+	o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
 	o.EnablePause = s.EnablePause
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -405,6 +409,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DisableManagedCA:             &o.DisableManagedCA,
 			DisableSystemProxyManagement: &o.DisableSystemProxyManagement,
 			DisableURLDiscovery:          &o.DisableURLDiscovery,
+			EmergencyPauseEnabled:        &o.EmergencyPauseEnabled,
 			EnablePause:                  &o.EnablePause,
 			ImportHash:                   &o.ImportHash,
 			ImportLabel:                  &o.ImportLabel,
@@ -446,6 +451,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DisableSystemProxyManagement = &(o.DisableSystemProxyManagement)
 		case "disableURLDiscovery":
 			sp.DisableURLDiscovery = &(o.DisableURLDiscovery)
+		case "emergencyPauseEnabled":
+			sp.EmergencyPauseEnabled = &(o.EmergencyPauseEnabled)
 		case "enablePause":
 			sp.EnablePause = &(o.EnablePause)
 		case "importHash":
@@ -519,6 +526,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = *so.DisableURLDiscovery
+	}
+	if so.EmergencyPauseEnabled != nil {
+		o.EmergencyPauseEnabled = *so.EmergencyPauseEnabled
 	}
 	if so.EnablePause != nil {
 		o.EnablePause = *so.EnablePause
@@ -607,12 +617,20 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateDuration("allowedPauseInterval", o.AllowedPauseInterval); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("listeningPort", o.ListeningPort); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateDuration("pingInterval", o.PingInterval); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for _, sub := range o.ScanInstalledApps {
@@ -623,6 +641,14 @@ func (o *AgentConfig) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
+	}
+
+	if err := ValidateDuration("scanInterval", o.ScanInterval); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateDuration("scanReportInterval", o.ScanReportInterval); err != nil {
+		errors = errors.Append(err)
 	}
 
 	// Custom object validation.
@@ -682,6 +708,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DisableSystemProxyManagement
 	case "disableURLDiscovery":
 		return o.DisableURLDiscovery
+	case "emergencyPauseEnabled":
+		return o.EmergencyPauseEnabled
 	case "enablePause":
 		return o.EnablePause
 	case "importHash":
@@ -825,6 +853,16 @@ system.`,
 		Description:    `If disabled, the agent will stop reporting the visited domains.`,
 		Exposed:        true,
 		Name:           "disableURLDiscovery",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"EmergencyPauseEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "emergencypauseenabled",
+		ConvertedName:  "EmergencyPauseEnabled",
+		Description:    `If enabled, all agents pointing to this config will be paused.`,
+		Exposed:        true,
+		Name:           "emergencyPauseEnabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1114,6 +1152,16 @@ system.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"emergencypauseenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "emergencypauseenabled",
+		ConvertedName:  "EmergencyPauseEnabled",
+		Description:    `If enabled, all agents pointing to this config will be paused.`,
+		Exposed:        true,
+		Name:           "emergencyPauseEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"enablepause": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "enablepause",
@@ -1386,6 +1434,9 @@ type SparseAgentConfig struct {
 	// If disabled, the agent will stop reporting the visited domains.
 	DisableURLDiscovery *bool `json:"disableURLDiscovery,omitempty" msgpack:"disableURLDiscovery,omitempty" bson:"disableurldiscovery,omitempty" mapstructure:"disableURLDiscovery,omitempty"`
 
+	// If enabled, all agents pointing to this config will be paused.
+	EmergencyPauseEnabled *bool `json:"emergencyPauseEnabled,omitempty" msgpack:"emergencyPauseEnabled,omitempty" bson:"emergencypauseenabled,omitempty" mapstructure:"emergencyPauseEnabled,omitempty"`
+
 	// If enabled, the agent will have the ability to pause enforcement.
 	EnablePause *bool `json:"enablePause,omitempty" msgpack:"enablePause,omitempty" bson:"enablepause,omitempty" mapstructure:"enablePause,omitempty"`
 
@@ -1509,6 +1560,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DisableURLDiscovery != nil {
 		s.DisableURLDiscovery = o.DisableURLDiscovery
 	}
+	if o.EmergencyPauseEnabled != nil {
+		s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
+	}
 	if o.EnablePause != nil {
 		s.EnablePause = o.EnablePause
 	}
@@ -1603,6 +1657,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = s.DisableURLDiscovery
 	}
+	if s.EmergencyPauseEnabled != nil {
+		o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
+	}
 	if s.EnablePause != nil {
 		o.EnablePause = s.EnablePause
 	}
@@ -1694,6 +1751,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DisableURLDiscovery != nil {
 		out.DisableURLDiscovery = *o.DisableURLDiscovery
+	}
+	if o.EmergencyPauseEnabled != nil {
+		out.EmergencyPauseEnabled = *o.EmergencyPauseEnabled
 	}
 	if o.EnablePause != nil {
 		out.EnablePause = *o.EnablePause
@@ -1864,6 +1924,7 @@ type mongoAttributesAgentConfig struct {
 	DisableManagedCA             bool                             `bson:"disablemanagedca"`
 	DisableSystemProxyManagement bool                             `bson:"disablesystemproxymanagement"`
 	DisableURLDiscovery          bool                             `bson:"disableurldiscovery"`
+	EmergencyPauseEnabled        bool                             `bson:"emergencypauseenabled"`
 	EnablePause                  bool                             `bson:"enablepause"`
 	ImportHash                   string                           `bson:"importhash,omitempty"`
 	ImportLabel                  string                           `bson:"importlabel,omitempty"`
@@ -1892,6 +1953,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DisableManagedCA             *bool                             `bson:"disablemanagedca,omitempty"`
 	DisableSystemProxyManagement *bool                             `bson:"disablesystemproxymanagement,omitempty"`
 	DisableURLDiscovery          *bool                             `bson:"disableurldiscovery,omitempty"`
+	EmergencyPauseEnabled        *bool                             `bson:"emergencypauseenabled,omitempty"`
 	EnablePause                  *bool                             `bson:"enablepause,omitempty"`
 	ImportHash                   *string                           `bson:"importhash,omitempty"`
 	ImportLabel                  *string                           `bson:"importlabel,omitempty"`

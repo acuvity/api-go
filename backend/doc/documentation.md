@@ -406,7 +406,7 @@ The start time for the agent.
 
 ##### `status` [`required`]
 
-Type: `enum(Alive | Stopped)`
+Type: `enum(Alive | Paused | Stopped)`
 
 The status of the agent.
 
@@ -430,6 +430,7 @@ AgentConfig stores the configuration information for the acushield agent.
   "disableManagedCA": false,
   "disableSystemProxyManagement": false,
   "disableURLDiscovery": false,
+  "emergencyPauseEnabled": false,
   "enablePause": false,
   "listeningPort": "8081",
   "name": "default",
@@ -538,6 +539,12 @@ If disabled, the system proxy needs to be configured manually.
 Type: `boolean`
 
 If disabled, the agent will stop reporting the visited domains.
+
+##### `emergencyPauseEnabled`
+
+Type: `boolean`
+
+If enabled, all agents pointing to this config will be paused.
 
 ##### `enablePause`
 

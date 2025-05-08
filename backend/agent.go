@@ -19,6 +19,9 @@ const (
 	// AgentStatusAlive represents the value Alive.
 	AgentStatusAlive AgentStatusValue = "Alive"
 
+	// AgentStatusPaused represents the value Paused.
+	AgentStatusPaused AgentStatusValue = "Paused"
+
 	// AgentStatusStopped represents the value Stopped.
 	AgentStatusStopped AgentStatusValue = "Stopped"
 )
@@ -515,7 +518,7 @@ func (o *Agent) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Stopped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Paused", "Stopped"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -763,7 +766,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"Status": {
-		AllowedChoices: []string{"Alive", "Stopped"},
+		AllowedChoices: []string{"Alive", "Paused", "Stopped"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the agent.`,
@@ -954,7 +957,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"status": {
-		AllowedChoices: []string{"Alive", "Stopped"},
+		AllowedChoices: []string{"Alive", "Paused", "Stopped"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the agent.`,

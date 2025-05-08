@@ -270,6 +270,7 @@
             "description": "The status of the agent.",
             "enum": [
               "Alive",
+              "Paused",
               "Stopped"
             ],
             "example": "Alive"
@@ -335,6 +336,10 @@
           },
           "disableURLDiscovery": {
             "description": "If disabled, the agent will stop reporting the visited domains.",
+            "type": "boolean"
+          },
+          "emergencyPauseEnabled": {
+            "description": "If enabled, all agents pointing to this config will be paused.",
             "type": "boolean"
           },
           "enablePause": {

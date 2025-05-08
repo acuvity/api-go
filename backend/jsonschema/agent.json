@@ -140,6 +140,7 @@
       "description": "The status of the agent.",
       "enum": [
         "Alive",
+        "Paused",
         "Stopped"
       ],
       "title": "status"

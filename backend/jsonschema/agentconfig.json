@@ -99,6 +99,15 @@
         "null"
       ]
     },
+    "emergencyPauseEnabled": {
+      "$friendlyName": "Emergency Pause Enabled",
+      "description": "If enabled, all agents pointing to this config will be paused.",
+      "title": "emergencyPauseEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "enablePause": {
       "$friendlyName": "Enable Pause",
       "description": "If enabled, the agent will have the ability to pause enforcement.",
