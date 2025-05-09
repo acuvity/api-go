@@ -12,7 +12,7 @@
   "$modelResourceName": "agentconfigs",
   "$modelRestName": "agentconfig",
   "additionalProperties": false,
-  "description": "AgentConfig stores the configuration information for the acushield agent.",
+  "description": "Stores the configuration information for the acushield agent.",
   "properties": {
     "DNSMonitorEnabled": {
       "$friendlyName": "DNS Monitor Enabled",
@@ -43,11 +43,11 @@
         "null"
       ]
     },
-    "allowedPauseInterval": {
-      "$defaultValue": "0s",
-      "$friendlyName": "Allowed Pause Interval",
-      "description": "An administrator can set this for users to pause enforcement for this interval. A value of 0s means that users are not allowed to pause the enforcement.",
-      "title": "allowedPauseInterval",
+    "configPullInterval": {
+      "$defaultValue": "1h",
+      "$friendlyName": "Config Pull Interval",
+      "description": "The interval in which configuration will be pulled from backend.",
+      "title": "configPullInterval",
       "type": [
         "string",
         "null"
@@ -141,7 +141,7 @@
       "$defaultValue": "8081",
       "$friendlyName": "Listening Port",
       "$required": true,
-      "description": "The port use by the agent to proxy the traffic.",
+      "description": "The port used by the agent to proxy the traffic.",
       "title": "listeningPort",
       "type": "string"
     },
@@ -242,8 +242,8 @@
       ]
     },
     "useDynamicPort": {
-      "$friendlyName": "Use dynamic port",
-      "description": "If system proxy management is enabled and this flag is enabled, the system can take another port, different that the listeningPort.",
+      "$friendlyName": "Use Dynamic Port",
+      "description": "If system proxy management is enabled and this flag is enabled, the system can take another port, different than the listeningPort.",
       "title": "useDynamicPort",
       "type": [
         "boolean",

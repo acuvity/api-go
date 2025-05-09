@@ -105,9 +105,8 @@ type AgentConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// An administrator can set this for users to pause enforcement for this interval.
-	// A value of 0s means that users are not allowed to pause the enforcement.
-	AllowedPauseInterval string `json:"allowedPauseInterval" msgpack:"allowedPauseInterval" bson:"allowedpauseinterval" mapstructure:"allowedPauseInterval,omitempty"`
+	// The interval in which configuration will be pulled from backend.
+	ConfigPullInterval string `json:"configPullInterval" msgpack:"configPullInterval" bson:"configpullinterval" mapstructure:"configPullInterval,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
@@ -138,7 +137,7 @@ type AgentConfig struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The port use by the agent to proxy the traffic.
+	// The port used by the agent to proxy the traffic.
 	ListeningPort string `json:"listeningPort" msgpack:"listeningPort" bson:"listeningport" mapstructure:"listeningPort,omitempty"`
 
 	// The name of the agent configuration.
@@ -172,7 +171,7 @@ type AgentConfig struct {
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// If system proxy management is enabled and this flag is enabled, the system
-	// can take another port, different that the listeningPort.
+	// can take another port, different than the listeningPort.
 	UseDynamicPort bool `json:"useDynamicPort" msgpack:"useDynamicPort" bson:"usedynamicport" mapstructure:"useDynamicPort,omitempty"`
 
 	// Hash of the object used to shard the data.
@@ -190,7 +189,7 @@ func NewAgentConfig() *AgentConfig {
 	return &AgentConfig{
 		ModelVersion:         1,
 		DNSMonitorPolicy:     AgentConfigDNSMonitorPolicyWarn,
-		AllowedPauseInterval: "0s",
+		ConfigPullInterval:   "1h",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
 		ScanInterval:         "1m",
@@ -232,7 +231,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.AllowedPauseInterval = o.AllowedPauseInterval
+	s.ConfigPullInterval = o.ConfigPullInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.DisableManagedCA = o.DisableManagedCA
@@ -276,7 +275,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DNSMonitorEnabled = s.DNSMonitorEnabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
-	o.AllowedPauseInterval = s.AllowedPauseInterval
+	o.ConfigPullInterval = s.ConfigPullInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.DisableManagedCA = s.DisableManagedCA
@@ -325,7 +324,7 @@ func (o *AgentConfig) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AgentConfig) Doc() string {
 
-	return `AgentConfig stores the configuration information for the acushield agent.`
+	return `Stores the configuration information for the acushield agent.`
 }
 
 func (o *AgentConfig) String() string {
@@ -403,7 +402,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DNSMonitorEnabled:            &o.DNSMonitorEnabled,
 			DNSMonitorPolicy:             &o.DNSMonitorPolicy,
 			ID:                           &o.ID,
-			AllowedPauseInterval:         &o.AllowedPauseInterval,
+			ConfigPullInterval:           &o.ConfigPullInterval,
 			CreateTime:                   &o.CreateTime,
 			Description:                  &o.Description,
 			DisableManagedCA:             &o.DisableManagedCA,
@@ -439,8 +438,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
 		case "ID":
 			sp.ID = &(o.ID)
-		case "allowedPauseInterval":
-			sp.AllowedPauseInterval = &(o.AllowedPauseInterval)
+		case "configPullInterval":
+			sp.ConfigPullInterval = &(o.ConfigPullInterval)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
@@ -509,8 +508,8 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.AllowedPauseInterval != nil {
-		o.AllowedPauseInterval = *so.AllowedPauseInterval
+	if so.ConfigPullInterval != nil {
+		o.ConfigPullInterval = *so.ConfigPullInterval
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -617,7 +616,7 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateDuration("allowedPauseInterval", o.AllowedPauseInterval); err != nil {
+	if err := ValidateDuration("configPullInterval", o.ConfigPullInterval); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -696,8 +695,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DNSMonitorPolicy
 	case "ID":
 		return o.ID
-	case "allowedPauseInterval":
-		return o.AllowedPauseInterval
+	case "configPullInterval":
+		return o.ConfigPullInterval
 	case "createTime":
 		return o.CreateTime
 	case "description":
@@ -788,17 +787,16 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"AllowedPauseInterval": {
+	"ConfigPullInterval": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "allowedpauseinterval",
-		ConvertedName:  "AllowedPauseInterval",
-		DefaultValue:   "0s",
-		Description: `An administrator can set this for users to pause enforcement for this interval.
-A value of 0s means that users are not allowed to pause the enforcement.`,
-		Exposed: true,
-		Name:    "allowedPauseInterval",
-		Stored:  true,
-		Type:    "string",
+		BSONFieldName:  "configpullinterval",
+		ConvertedName:  "ConfigPullInterval",
+		DefaultValue:   "1h",
+		Description:    `The interval in which configuration will be pulled from backend.`,
+		Exposed:        true,
+		Name:           "configPullInterval",
+		Stored:         true,
+		Type:           "string",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -909,7 +907,7 @@ same import operation.`,
 		BSONFieldName:  "listeningport",
 		ConvertedName:  "ListeningPort",
 		DefaultValue:   "8081",
-		Description:    `The port use by the agent to proxy the traffic.`,
+		Description:    `The port used by the agent to proxy the traffic.`,
 		Exposed:        true,
 		Name:           "listeningPort",
 		Required:       true,
@@ -1037,7 +1035,7 @@ same import operation.`,
 		BSONFieldName:  "usedynamicport",
 		ConvertedName:  "UseDynamicPort",
 		Description: `If system proxy management is enabled and this flag is enabled, the system
-can take another port, different that the listeningPort.`,
+can take another port, different than the listeningPort.`,
 		Exposed: true,
 		Name:    "useDynamicPort",
 		Stored:  true,
@@ -1084,17 +1082,16 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"allowedpauseinterval": {
+	"configpullinterval": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "allowedpauseinterval",
-		ConvertedName:  "AllowedPauseInterval",
-		DefaultValue:   "0s",
-		Description: `An administrator can set this for users to pause enforcement for this interval.
-A value of 0s means that users are not allowed to pause the enforcement.`,
-		Exposed: true,
-		Name:    "allowedPauseInterval",
-		Stored:  true,
-		Type:    "string",
+		BSONFieldName:  "configpullinterval",
+		ConvertedName:  "ConfigPullInterval",
+		DefaultValue:   "1h",
+		Description:    `The interval in which configuration will be pulled from backend.`,
+		Exposed:        true,
+		Name:           "configPullInterval",
+		Stored:         true,
+		Type:           "string",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -1205,7 +1202,7 @@ same import operation.`,
 		BSONFieldName:  "listeningport",
 		ConvertedName:  "ListeningPort",
 		DefaultValue:   "8081",
-		Description:    `The port use by the agent to proxy the traffic.`,
+		Description:    `The port used by the agent to proxy the traffic.`,
 		Exposed:        true,
 		Name:           "listeningPort",
 		Required:       true,
@@ -1333,7 +1330,7 @@ same import operation.`,
 		BSONFieldName:  "usedynamicport",
 		ConvertedName:  "UseDynamicPort",
 		Description: `If system proxy management is enabled and this flag is enabled, the system
-can take another port, different that the listeningPort.`,
+can take another port, different than the listeningPort.`,
 		Exposed: true,
 		Name:    "useDynamicPort",
 		Stored:  true,
@@ -1414,9 +1411,8 @@ type SparseAgentConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// An administrator can set this for users to pause enforcement for this interval.
-	// A value of 0s means that users are not allowed to pause the enforcement.
-	AllowedPauseInterval *string `json:"allowedPauseInterval,omitempty" msgpack:"allowedPauseInterval,omitempty" bson:"allowedpauseinterval,omitempty" mapstructure:"allowedPauseInterval,omitempty"`
+	// The interval in which configuration will be pulled from backend.
+	ConfigPullInterval *string `json:"configPullInterval,omitempty" msgpack:"configPullInterval,omitempty" bson:"configpullinterval,omitempty" mapstructure:"configPullInterval,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
@@ -1447,7 +1443,7 @@ type SparseAgentConfig struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The port use by the agent to proxy the traffic.
+	// The port used by the agent to proxy the traffic.
 	ListeningPort *string `json:"listeningPort,omitempty" msgpack:"listeningPort,omitempty" bson:"listeningport,omitempty" mapstructure:"listeningPort,omitempty"`
 
 	// The name of the agent configuration.
@@ -1481,7 +1477,7 @@ type SparseAgentConfig struct {
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// If system proxy management is enabled and this flag is enabled, the system
-	// can take another port, different that the listeningPort.
+	// can take another port, different than the listeningPort.
 	UseDynamicPort *bool `json:"useDynamicPort,omitempty" msgpack:"useDynamicPort,omitempty" bson:"usedynamicport,omitempty" mapstructure:"useDynamicPort,omitempty"`
 
 	// Hash of the object used to shard the data.
@@ -1542,8 +1538,8 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.AllowedPauseInterval != nil {
-		s.AllowedPauseInterval = o.AllowedPauseInterval
+	if o.ConfigPullInterval != nil {
+		s.ConfigPullInterval = o.ConfigPullInterval
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -1639,8 +1635,8 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.AllowedPauseInterval != nil {
-		o.AllowedPauseInterval = s.AllowedPauseInterval
+	if s.ConfigPullInterval != nil {
+		o.ConfigPullInterval = s.ConfigPullInterval
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
@@ -1734,8 +1730,8 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.AllowedPauseInterval != nil {
-		out.AllowedPauseInterval = *o.AllowedPauseInterval
+	if o.ConfigPullInterval != nil {
+		out.ConfigPullInterval = *o.ConfigPullInterval
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1918,7 +1914,7 @@ type mongoAttributesAgentConfig struct {
 	DNSMonitorEnabled            bool                             `bson:"dnsmonitorenabled"`
 	DNSMonitorPolicy             AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
 	ID                           bson.ObjectId                    `bson:"_id,omitempty"`
-	AllowedPauseInterval         string                           `bson:"allowedpauseinterval"`
+	ConfigPullInterval           string                           `bson:"configpullinterval"`
 	CreateTime                   time.Time                        `bson:"createtime"`
 	Description                  string                           `bson:"description"`
 	DisableManagedCA             bool                             `bson:"disablemanagedca"`
@@ -1947,7 +1943,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorEnabled            *bool                             `bson:"dnsmonitorenabled,omitempty"`
 	DNSMonitorPolicy             *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
 	ID                           bson.ObjectId                     `bson:"_id,omitempty"`
-	AllowedPauseInterval         *string                           `bson:"allowedpauseinterval,omitempty"`
+	ConfigPullInterval           *string                           `bson:"configpullinterval,omitempty"`
 	CreateTime                   *time.Time                        `bson:"createtime,omitempty"`
 	Description                  *string                           `bson:"description,omitempty"`
 	DisableManagedCA             *bool                             `bson:"disablemanagedca,omitempty"`

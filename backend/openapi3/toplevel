@@ -291,7 +291,7 @@
         "type": "object"
       },
       "agentconfig": {
-        "description": "AgentConfig stores the configuration information for the acushield agent.",
+        "description": "Stores the configuration information for the acushield agent.",
         "properties": {
           "DNSMonitorEnabled": {
             "description": "If enabled, the agent will monitor DNS traffic.",
@@ -310,10 +310,10 @@
             "readOnly": true,
             "type": "string"
           },
-          "allowedPauseInterval": {
-            "default": "0s",
-            "description": "An administrator can set this for users to pause enforcement for this interval.\nA value of 0s means that users are not allowed to pause the enforcement.",
-            "example": "60m",
+          "configPullInterval": {
+            "default": "1h",
+            "description": "The interval in which configuration will be pulled from backend.",
+            "example": "30m",
             "type": "string"
           },
           "createTime": {
@@ -356,7 +356,7 @@
           },
           "listeningPort": {
             "default": "8081",
-            "description": "The port use by the agent to proxy the traffic.",
+            "description": "The port used by the agent to proxy the traffic.",
             "type": "string"
           },
           "name": {
@@ -417,7 +417,7 @@
             "type": "string"
           },
           "useDynamicPort": {
-            "description": "If system proxy management is enabled and this flag is enabled, the system\ncan take another port, different that the listeningPort.",
+            "description": "If system proxy management is enabled and this flag is enabled, the system\ncan take another port, different than the listeningPort.",
             "type": "boolean"
           }
         },

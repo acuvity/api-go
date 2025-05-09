@@ -1091,14 +1091,21 @@ func ValidatePEM(attribute string, pemdata string) error {
 // ValidateAgentConfig validates the agent configuration object.
 func ValidateAgentConfig(agentConfig *AgentConfig) error {
 
-	// Ping interval
-	d, err := time.ParseDuration(agentConfig.PingInterval)
-	if err != nil {
-		return makeErr("pingInterval", "'PingInterval' must be a valid duration (ex: 10m or 1h).")
+	// Duration validation is already done prior to this
+	if d, _ := time.ParseDuration(agentConfig.ConfigPullInterval); d < 5*time.Minute {
+		return makeErr("configPullInterval", "'ConfigPullInterval' cannot be lower than 5m")
 	}
 
-	if d < 5*time.Minute {
-		return makeErr("pingInterval", "'PingInterval' can not be lower than 5m")
+	if d, _ := time.ParseDuration(agentConfig.PingInterval); d < 5*time.Minute {
+		return makeErr("pingInterval", "'PingInterval' cannot be lower than 5m")
+	}
+
+	if d, _ := time.ParseDuration(agentConfig.ScanInterval); d < 30*time.Second {
+		return makeErr("scanInterval", "'ScanInterval' cannot be lower than 30s")
+	}
+
+	if d, _ := time.ParseDuration(agentConfig.ScanReportInterval); d < 5*time.Minute {
+		return makeErr("scanReportInterval", "'ScanReportInterval' cannot be lower than 5m")
 	}
 
 	// Port
