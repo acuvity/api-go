@@ -33,6 +33,16 @@
       ],
       "title": "DNSMonitorPolicy"
     },
+    "DomainReportInterval": {
+      "$defaultValue": "10m",
+      "$friendlyName": "Domain Report Interval",
+      "description": "The interval in which domains (through visited URLs or DNS) are reported to backend.",
+      "title": "DomainReportInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,
@@ -181,10 +191,10 @@
         "null"
       ]
     },
-    "scanDisabled": {
-      "$friendlyName": "Scan Disabled",
-      "description": "If disabled, the agent will not scan for genAI applications or plugins.",
-      "title": "scanDisabled",
+    "scanEnabled": {
+      "$friendlyName": "Scan Enabled",
+      "description": "If enabled, the agent will scan for genAI applications and plugins.",
+      "title": "scanEnabled",
       "type": [
         "boolean",
         "null"
