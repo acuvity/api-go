@@ -102,6 +102,10 @@ type AgentConfig struct {
 	// stop the agent with an error, while Warn will post a log and continue on.
 	DNSMonitorPolicy AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy" msgpack:"DNSMonitorPolicy" bson:"dnsmonitorpolicy" mapstructure:"DNSMonitorPolicy,omitempty"`
 
+	// The interval in which domains (through visited URLs or DNS) are reported to
+	// backend.
+	DomainReportInterval string `json:"DomainReportInterval" msgpack:"DomainReportInterval" bson:"domainreportinterval" mapstructure:"DomainReportInterval,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -152,8 +156,8 @@ type AgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
-	// If disabled, the agent will not scan for genAI applications or plugins.
-	ScanDisabled bool `json:"scanDisabled" msgpack:"scanDisabled" bson:"scandisabled" mapstructure:"scanDisabled,omitempty"`
+	// If enabled, the agent will scan for genAI applications and plugins.
+	ScanEnabled bool `json:"scanEnabled" msgpack:"scanEnabled" bson:"scanenabled" mapstructure:"scanEnabled,omitempty"`
 
 	// The list of installed applications the scanner will look for.
 	ScanInstalledApps []*AgentDiscoveredApp `json:"scanInstalledApps" msgpack:"scanInstalledApps" bson:"scaninstalledapps" mapstructure:"scanInstalledApps,omitempty"`
@@ -189,6 +193,7 @@ func NewAgentConfig() *AgentConfig {
 	return &AgentConfig{
 		ModelVersion:         1,
 		DNSMonitorPolicy:     AgentConfigDNSMonitorPolicyWarn,
+		DomainReportInterval: "10m",
 		ConfigPullInterval:   "1h",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
@@ -228,6 +233,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 
 	s.DNSMonitorEnabled = o.DNSMonitorEnabled
 	s.DNSMonitorPolicy = o.DNSMonitorPolicy
+	s.DomainReportInterval = o.DomainReportInterval
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
@@ -246,7 +252,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.PacName = o.PacName
 	s.PingInterval = o.PingInterval
-	s.ScanDisabled = o.ScanDisabled
+	s.ScanEnabled = o.ScanEnabled
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
 	s.ScanReportInterval = o.ScanReportInterval
@@ -274,6 +280,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 
 	o.DNSMonitorEnabled = s.DNSMonitorEnabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
+	o.DomainReportInterval = s.DomainReportInterval
 	o.ID = s.ID.Hex()
 	o.ConfigPullInterval = s.ConfigPullInterval
 	o.CreateTime = s.CreateTime
@@ -290,7 +297,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.PacName = s.PacName
 	o.PingInterval = s.PingInterval
-	o.ScanDisabled = s.ScanDisabled
+	o.ScanEnabled = s.ScanEnabled
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
 	o.ScanReportInterval = s.ScanReportInterval
@@ -401,6 +408,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseAgentConfig{
 			DNSMonitorEnabled:            &o.DNSMonitorEnabled,
 			DNSMonitorPolicy:             &o.DNSMonitorPolicy,
+			DomainReportInterval:         &o.DomainReportInterval,
 			ID:                           &o.ID,
 			ConfigPullInterval:           &o.ConfigPullInterval,
 			CreateTime:                   &o.CreateTime,
@@ -417,7 +425,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:                    &o.Namespace,
 			PacName:                      &o.PacName,
 			PingInterval:                 &o.PingInterval,
-			ScanDisabled:                 &o.ScanDisabled,
+			ScanEnabled:                  &o.ScanEnabled,
 			ScanInstalledApps:            &o.ScanInstalledApps,
 			ScanInterval:                 &o.ScanInterval,
 			ScanReportInterval:           &o.ScanReportInterval,
@@ -436,6 +444,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DNSMonitorEnabled = &(o.DNSMonitorEnabled)
 		case "DNSMonitorPolicy":
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
+		case "DomainReportInterval":
+			sp.DomainReportInterval = &(o.DomainReportInterval)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "configPullInterval":
@@ -468,8 +478,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PacName = &(o.PacName)
 		case "pingInterval":
 			sp.PingInterval = &(o.PingInterval)
-		case "scanDisabled":
-			sp.ScanDisabled = &(o.ScanDisabled)
+		case "scanEnabled":
+			sp.ScanEnabled = &(o.ScanEnabled)
 		case "scanInstalledApps":
 			sp.ScanInstalledApps = &(o.ScanInstalledApps)
 		case "scanInterval":
@@ -504,6 +514,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = *so.DNSMonitorPolicy
+	}
+	if so.DomainReportInterval != nil {
+		o.DomainReportInterval = *so.DomainReportInterval
 	}
 	if so.ID != nil {
 		o.ID = *so.ID
@@ -553,8 +566,8 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.PingInterval != nil {
 		o.PingInterval = *so.PingInterval
 	}
-	if so.ScanDisabled != nil {
-		o.ScanDisabled = *so.ScanDisabled
+	if so.ScanEnabled != nil {
+		o.ScanEnabled = *so.ScanEnabled
 	}
 	if so.ScanInstalledApps != nil {
 		o.ScanInstalledApps = *so.ScanInstalledApps
@@ -613,6 +626,10 @@ func (o *AgentConfig) Validate() error {
 	requiredErrors := elemental.Errors{}
 
 	if err := elemental.ValidateStringInList("DNSMonitorPolicy", string(o.DNSMonitorPolicy), []string{"Warn", "Enforce"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateDuration("DomainReportInterval", o.DomainReportInterval); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -693,6 +710,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DNSMonitorEnabled
 	case "DNSMonitorPolicy":
 		return o.DNSMonitorPolicy
+	case "DomainReportInterval":
+		return o.DomainReportInterval
 	case "ID":
 		return o.ID
 	case "configPullInterval":
@@ -725,8 +744,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.PacName
 	case "pingInterval":
 		return o.PingInterval
-	case "scanDisabled":
-		return o.ScanDisabled
+	case "scanEnabled":
+		return o.ScanEnabled
 	case "scanInstalledApps":
 		return o.ScanInstalledApps
 	case "scanInterval":
@@ -771,6 +790,18 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Name:    "DNSMonitorPolicy",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"DomainReportInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domainreportinterval",
+		ConvertedName:  "DomainReportInterval",
+		DefaultValue:   "10m",
+		Description: `The interval in which domains (through visited URLs or DNS) are reported to
+backend.`,
+		Exposed: true,
+		Name:    "DomainReportInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ID": {
 		AllowedChoices: []string{},
@@ -961,13 +992,13 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"ScanDisabled": {
+	"ScanEnabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "scandisabled",
-		ConvertedName:  "ScanDisabled",
-		Description:    `If disabled, the agent will not scan for genAI applications or plugins.`,
+		BSONFieldName:  "scanenabled",
+		ConvertedName:  "ScanEnabled",
+		Description:    `If enabled, the agent will scan for genAI applications and plugins.`,
 		Exposed:        true,
-		Name:           "scanDisabled",
+		Name:           "scanEnabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1066,6 +1097,18 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Name:    "DNSMonitorPolicy",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"domainreportinterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domainreportinterval",
+		ConvertedName:  "DomainReportInterval",
+		DefaultValue:   "10m",
+		Description: `The interval in which domains (through visited URLs or DNS) are reported to
+backend.`,
+		Exposed: true,
+		Name:    "DomainReportInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"id": {
 		AllowedChoices: []string{},
@@ -1256,13 +1299,13 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"scandisabled": {
+	"scanenabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "scandisabled",
-		ConvertedName:  "ScanDisabled",
-		Description:    `If disabled, the agent will not scan for genAI applications or plugins.`,
+		BSONFieldName:  "scanenabled",
+		ConvertedName:  "ScanEnabled",
+		Description:    `If enabled, the agent will scan for genAI applications and plugins.`,
 		Exposed:        true,
-		Name:           "scanDisabled",
+		Name:           "scanEnabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1408,6 +1451,10 @@ type SparseAgentConfig struct {
 	// stop the agent with an error, while Warn will post a log and continue on.
 	DNSMonitorPolicy *AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy,omitempty" msgpack:"DNSMonitorPolicy,omitempty" bson:"dnsmonitorpolicy,omitempty" mapstructure:"DNSMonitorPolicy,omitempty"`
 
+	// The interval in which domains (through visited URLs or DNS) are reported to
+	// backend.
+	DomainReportInterval *string `json:"DomainReportInterval,omitempty" msgpack:"DomainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"DomainReportInterval,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1458,8 +1505,8 @@ type SparseAgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
 
-	// If disabled, the agent will not scan for genAI applications or plugins.
-	ScanDisabled *bool `json:"scanDisabled,omitempty" msgpack:"scanDisabled,omitempty" bson:"scandisabled,omitempty" mapstructure:"scanDisabled,omitempty"`
+	// If enabled, the agent will scan for genAI applications and plugins.
+	ScanEnabled *bool `json:"scanEnabled,omitempty" msgpack:"scanEnabled,omitempty" bson:"scanenabled,omitempty" mapstructure:"scanEnabled,omitempty"`
 
 	// The list of installed applications the scanner will look for.
 	ScanInstalledApps *[]*AgentDiscoveredApp `json:"scanInstalledApps,omitempty" msgpack:"scanInstalledApps,omitempty" bson:"scaninstalledapps,omitempty" mapstructure:"scanInstalledApps,omitempty"`
@@ -1535,6 +1582,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DNSMonitorPolicy != nil {
 		s.DNSMonitorPolicy = o.DNSMonitorPolicy
 	}
+	if o.DomainReportInterval != nil {
+		s.DomainReportInterval = o.DomainReportInterval
+	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
@@ -1583,8 +1633,8 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.PingInterval != nil {
 		s.PingInterval = o.PingInterval
 	}
-	if o.ScanDisabled != nil {
-		s.ScanDisabled = o.ScanDisabled
+	if o.ScanEnabled != nil {
+		s.ScanEnabled = o.ScanEnabled
 	}
 	if o.ScanInstalledApps != nil {
 		s.ScanInstalledApps = o.ScanInstalledApps
@@ -1633,6 +1683,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	}
+	if s.DomainReportInterval != nil {
+		o.DomainReportInterval = s.DomainReportInterval
+	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.ConfigPullInterval != nil {
@@ -1680,8 +1733,8 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.PingInterval != nil {
 		o.PingInterval = s.PingInterval
 	}
-	if s.ScanDisabled != nil {
-		o.ScanDisabled = s.ScanDisabled
+	if s.ScanEnabled != nil {
+		o.ScanEnabled = s.ScanEnabled
 	}
 	if s.ScanInstalledApps != nil {
 		o.ScanInstalledApps = s.ScanInstalledApps
@@ -1726,6 +1779,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DNSMonitorPolicy != nil {
 		out.DNSMonitorPolicy = *o.DNSMonitorPolicy
+	}
+	if o.DomainReportInterval != nil {
+		out.DomainReportInterval = *o.DomainReportInterval
 	}
 	if o.ID != nil {
 		out.ID = *o.ID
@@ -1775,8 +1831,8 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.PingInterval != nil {
 		out.PingInterval = *o.PingInterval
 	}
-	if o.ScanDisabled != nil {
-		out.ScanDisabled = *o.ScanDisabled
+	if o.ScanEnabled != nil {
+		out.ScanEnabled = *o.ScanEnabled
 	}
 	if o.ScanInstalledApps != nil {
 		out.ScanInstalledApps = *o.ScanInstalledApps
@@ -1913,6 +1969,7 @@ func (o *SparseAgentConfig) DeepCopyInto(out *SparseAgentConfig) {
 type mongoAttributesAgentConfig struct {
 	DNSMonitorEnabled            bool                             `bson:"dnsmonitorenabled"`
 	DNSMonitorPolicy             AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
+	DomainReportInterval         string                           `bson:"domainreportinterval"`
 	ID                           bson.ObjectId                    `bson:"_id,omitempty"`
 	ConfigPullInterval           string                           `bson:"configpullinterval"`
 	CreateTime                   time.Time                        `bson:"createtime"`
@@ -1929,7 +1986,7 @@ type mongoAttributesAgentConfig struct {
 	Namespace                    string                           `bson:"namespace,omitempty"`
 	PacName                      string                           `bson:"pacname"`
 	PingInterval                 string                           `bson:"pinginterval"`
-	ScanDisabled                 bool                             `bson:"scandisabled"`
+	ScanEnabled                  bool                             `bson:"scanenabled"`
 	ScanInstalledApps            []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
 	ScanInterval                 string                           `bson:"scaninterval"`
 	ScanReportInterval           string                           `bson:"scanreportinterval"`
@@ -1942,6 +1999,7 @@ type mongoAttributesAgentConfig struct {
 type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorEnabled            *bool                             `bson:"dnsmonitorenabled,omitempty"`
 	DNSMonitorPolicy             *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
+	DomainReportInterval         *string                           `bson:"domainreportinterval,omitempty"`
 	ID                           bson.ObjectId                     `bson:"_id,omitempty"`
 	ConfigPullInterval           *string                           `bson:"configpullinterval,omitempty"`
 	CreateTime                   *time.Time                        `bson:"createtime,omitempty"`
@@ -1958,7 +2016,7 @@ type mongoAttributesSparseAgentConfig struct {
 	Namespace                    *string                           `bson:"namespace,omitempty"`
 	PacName                      *string                           `bson:"pacname,omitempty"`
 	PingInterval                 *string                           `bson:"pinginterval,omitempty"`
-	ScanDisabled                 *bool                             `bson:"scandisabled,omitempty"`
+	ScanEnabled                  *bool                             `bson:"scanenabled,omitempty"`
 	ScanInstalledApps            *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
 	ScanInterval                 *string                           `bson:"scaninterval,omitempty"`
 	ScanReportInterval           *string                           `bson:"scanreportinterval,omitempty"`

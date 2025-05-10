@@ -305,6 +305,12 @@
               "Enforce"
             ]
           },
+          "DomainReportInterval": {
+            "default": "10m",
+            "description": "The interval in which domains (through visited URLs or DNS) are reported to\nbackend.",
+            "example": "30m",
+            "type": "string"
+          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -380,8 +386,8 @@
             "example": "30m",
             "type": "string"
           },
-          "scanDisabled": {
-            "description": "If disabled, the agent will not scan for genAI applications or plugins.",
+          "scanEnabled": {
+            "description": "If enabled, the agent will scan for genAI applications and plugins.",
             "type": "boolean"
           },
           "scanInstalledApps": {
