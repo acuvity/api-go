@@ -1096,6 +1096,10 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		return makeErr("configPullInterval", "'ConfigPullInterval' cannot be lower than 5m")
 	}
 
+	if d, _ := time.ParseDuration(agentConfig.DomainReportInterval); d < 5*time.Minute {
+		return makeErr("domainReportInterval", "'DomainReportInterval' cannot be lower than 5m")
+	}
+
 	if d, _ := time.ParseDuration(agentConfig.PingInterval); d < 5*time.Minute {
 		return makeErr("pingInterval", "'PingInterval' cannot be lower than 5m")
 	}

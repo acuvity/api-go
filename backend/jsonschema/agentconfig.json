@@ -33,16 +33,6 @@
       ],
       "title": "DNSMonitorPolicy"
     },
-    "DomainReportInterval": {
-      "$defaultValue": "10m",
-      "$friendlyName": "Domain Report Interval",
-      "description": "The interval in which domains (through visited URLs or DNS) are reported to backend.",
-      "title": "DomainReportInterval",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,
@@ -106,6 +96,16 @@
       "title": "disableURLDiscovery",
       "type": [
         "boolean",
+        "null"
+      ]
+    },
+    "domainReportInterval": {
+      "$defaultValue": "10m",
+      "$friendlyName": "Domain Report Interval",
+      "description": "The interval in which domains (through visited URLs or DNS) are reported to backend.",
+      "title": "domainReportInterval",
+      "type": [
+        "string",
         "null"
       ]
     },

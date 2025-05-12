@@ -102,10 +102,6 @@ type AgentConfig struct {
 	// stop the agent with an error, while Warn will post a log and continue on.
 	DNSMonitorPolicy AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy" msgpack:"DNSMonitorPolicy" bson:"dnsmonitorpolicy" mapstructure:"DNSMonitorPolicy,omitempty"`
 
-	// The interval in which domains (through visited URLs or DNS) are reported to
-	// backend.
-	DomainReportInterval string `json:"DomainReportInterval" msgpack:"DomainReportInterval" bson:"domainreportinterval" mapstructure:"DomainReportInterval,omitempty"`
-
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -127,6 +123,10 @@ type AgentConfig struct {
 
 	// If disabled, the agent will stop reporting the visited domains.
 	DisableURLDiscovery bool `json:"disableURLDiscovery" msgpack:"disableURLDiscovery" bson:"disableurldiscovery" mapstructure:"disableURLDiscovery,omitempty"`
+
+	// The interval in which domains (through visited URLs or DNS) are reported to
+	// backend.
+	DomainReportInterval string `json:"domainReportInterval" msgpack:"domainReportInterval" bson:"domainreportinterval" mapstructure:"domainReportInterval,omitempty"`
 
 	// If enabled, all agents pointing to this config will be paused.
 	EmergencyPauseEnabled bool `json:"emergencyPauseEnabled" msgpack:"emergencyPauseEnabled" bson:"emergencypauseenabled" mapstructure:"emergencyPauseEnabled,omitempty"`
@@ -193,8 +193,8 @@ func NewAgentConfig() *AgentConfig {
 	return &AgentConfig{
 		ModelVersion:         1,
 		DNSMonitorPolicy:     AgentConfigDNSMonitorPolicyWarn,
-		DomainReportInterval: "10m",
 		ConfigPullInterval:   "1h",
+		DomainReportInterval: "10m",
 		ListeningPort:        "8081",
 		PingInterval:         "10m",
 		ScanInterval:         "1m",
@@ -233,7 +233,6 @@ func (o *AgentConfig) GetBSON() (any, error) {
 
 	s.DNSMonitorEnabled = o.DNSMonitorEnabled
 	s.DNSMonitorPolicy = o.DNSMonitorPolicy
-	s.DomainReportInterval = o.DomainReportInterval
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
@@ -243,6 +242,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.DisableManagedCA = o.DisableManagedCA
 	s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
 	s.DisableURLDiscovery = o.DisableURLDiscovery
+	s.DomainReportInterval = o.DomainReportInterval
 	s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
 	s.EnablePause = o.EnablePause
 	s.ImportHash = o.ImportHash
@@ -280,7 +280,6 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 
 	o.DNSMonitorEnabled = s.DNSMonitorEnabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
-	o.DomainReportInterval = s.DomainReportInterval
 	o.ID = s.ID.Hex()
 	o.ConfigPullInterval = s.ConfigPullInterval
 	o.CreateTime = s.CreateTime
@@ -288,6 +287,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DisableManagedCA = s.DisableManagedCA
 	o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
 	o.DisableURLDiscovery = s.DisableURLDiscovery
+	o.DomainReportInterval = s.DomainReportInterval
 	o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
 	o.EnablePause = s.EnablePause
 	o.ImportHash = s.ImportHash
@@ -408,7 +408,6 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseAgentConfig{
 			DNSMonitorEnabled:            &o.DNSMonitorEnabled,
 			DNSMonitorPolicy:             &o.DNSMonitorPolicy,
-			DomainReportInterval:         &o.DomainReportInterval,
 			ID:                           &o.ID,
 			ConfigPullInterval:           &o.ConfigPullInterval,
 			CreateTime:                   &o.CreateTime,
@@ -416,6 +415,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DisableManagedCA:             &o.DisableManagedCA,
 			DisableSystemProxyManagement: &o.DisableSystemProxyManagement,
 			DisableURLDiscovery:          &o.DisableURLDiscovery,
+			DomainReportInterval:         &o.DomainReportInterval,
 			EmergencyPauseEnabled:        &o.EmergencyPauseEnabled,
 			EnablePause:                  &o.EnablePause,
 			ImportHash:                   &o.ImportHash,
@@ -444,8 +444,6 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DNSMonitorEnabled = &(o.DNSMonitorEnabled)
 		case "DNSMonitorPolicy":
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
-		case "DomainReportInterval":
-			sp.DomainReportInterval = &(o.DomainReportInterval)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "configPullInterval":
@@ -460,6 +458,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DisableSystemProxyManagement = &(o.DisableSystemProxyManagement)
 		case "disableURLDiscovery":
 			sp.DisableURLDiscovery = &(o.DisableURLDiscovery)
+		case "domainReportInterval":
+			sp.DomainReportInterval = &(o.DomainReportInterval)
 		case "emergencyPauseEnabled":
 			sp.EmergencyPauseEnabled = &(o.EmergencyPauseEnabled)
 		case "enablePause":
@@ -515,9 +515,6 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = *so.DNSMonitorPolicy
 	}
-	if so.DomainReportInterval != nil {
-		o.DomainReportInterval = *so.DomainReportInterval
-	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -538,6 +535,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = *so.DisableURLDiscovery
+	}
+	if so.DomainReportInterval != nil {
+		o.DomainReportInterval = *so.DomainReportInterval
 	}
 	if so.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = *so.EmergencyPauseEnabled
@@ -629,11 +629,11 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateDuration("DomainReportInterval", o.DomainReportInterval); err != nil {
+	if err := ValidateDuration("configPullInterval", o.ConfigPullInterval); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateDuration("configPullInterval", o.ConfigPullInterval); err != nil {
+	if err := ValidateDuration("domainReportInterval", o.DomainReportInterval); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -710,8 +710,6 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DNSMonitorEnabled
 	case "DNSMonitorPolicy":
 		return o.DNSMonitorPolicy
-	case "DomainReportInterval":
-		return o.DomainReportInterval
 	case "ID":
 		return o.ID
 	case "configPullInterval":
@@ -726,6 +724,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DisableSystemProxyManagement
 	case "disableURLDiscovery":
 		return o.DisableURLDiscovery
+	case "domainReportInterval":
+		return o.DomainReportInterval
 	case "emergencyPauseEnabled":
 		return o.EmergencyPauseEnabled
 	case "enablePause":
@@ -790,18 +790,6 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Name:    "DNSMonitorPolicy",
 		Stored:  true,
 		Type:    "enum",
-	},
-	"DomainReportInterval": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "domainreportinterval",
-		ConvertedName:  "DomainReportInterval",
-		DefaultValue:   "10m",
-		Description: `The interval in which domains (through visited URLs or DNS) are reported to
-backend.`,
-		Exposed: true,
-		Name:    "DomainReportInterval",
-		Stored:  true,
-		Type:    "string",
 	},
 	"ID": {
 		AllowedChoices: []string{},
@@ -884,6 +872,18 @@ system.`,
 		Name:           "disableURLDiscovery",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"DomainReportInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domainreportinterval",
+		ConvertedName:  "DomainReportInterval",
+		DefaultValue:   "10m",
+		Description: `The interval in which domains (through visited URLs or DNS) are reported to
+backend.`,
+		Exposed: true,
+		Name:    "domainReportInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"EmergencyPauseEnabled": {
 		AllowedChoices: []string{},
@@ -1098,18 +1098,6 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:  true,
 		Type:    "enum",
 	},
-	"domainreportinterval": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "domainreportinterval",
-		ConvertedName:  "DomainReportInterval",
-		DefaultValue:   "10m",
-		Description: `The interval in which domains (through visited URLs or DNS) are reported to
-backend.`,
-		Exposed: true,
-		Name:    "DomainReportInterval",
-		Stored:  true,
-		Type:    "string",
-	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1191,6 +1179,18 @@ system.`,
 		Name:           "disableURLDiscovery",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"domainreportinterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domainreportinterval",
+		ConvertedName:  "DomainReportInterval",
+		DefaultValue:   "10m",
+		Description: `The interval in which domains (through visited URLs or DNS) are reported to
+backend.`,
+		Exposed: true,
+		Name:    "domainReportInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"emergencypauseenabled": {
 		AllowedChoices: []string{},
@@ -1451,10 +1451,6 @@ type SparseAgentConfig struct {
 	// stop the agent with an error, while Warn will post a log and continue on.
 	DNSMonitorPolicy *AgentConfigDNSMonitorPolicyValue `json:"DNSMonitorPolicy,omitempty" msgpack:"DNSMonitorPolicy,omitempty" bson:"dnsmonitorpolicy,omitempty" mapstructure:"DNSMonitorPolicy,omitempty"`
 
-	// The interval in which domains (through visited URLs or DNS) are reported to
-	// backend.
-	DomainReportInterval *string `json:"DomainReportInterval,omitempty" msgpack:"DomainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"DomainReportInterval,omitempty"`
-
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1476,6 +1472,10 @@ type SparseAgentConfig struct {
 
 	// If disabled, the agent will stop reporting the visited domains.
 	DisableURLDiscovery *bool `json:"disableURLDiscovery,omitempty" msgpack:"disableURLDiscovery,omitempty" bson:"disableurldiscovery,omitempty" mapstructure:"disableURLDiscovery,omitempty"`
+
+	// The interval in which domains (through visited URLs or DNS) are reported to
+	// backend.
+	DomainReportInterval *string `json:"domainReportInterval,omitempty" msgpack:"domainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"domainReportInterval,omitempty"`
 
 	// If enabled, all agents pointing to this config will be paused.
 	EmergencyPauseEnabled *bool `json:"emergencyPauseEnabled,omitempty" msgpack:"emergencyPauseEnabled,omitempty" bson:"emergencypauseenabled,omitempty" mapstructure:"emergencyPauseEnabled,omitempty"`
@@ -1582,9 +1582,6 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DNSMonitorPolicy != nil {
 		s.DNSMonitorPolicy = o.DNSMonitorPolicy
 	}
-	if o.DomainReportInterval != nil {
-		s.DomainReportInterval = o.DomainReportInterval
-	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
@@ -1605,6 +1602,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	}
 	if o.DisableURLDiscovery != nil {
 		s.DisableURLDiscovery = o.DisableURLDiscovery
+	}
+	if o.DomainReportInterval != nil {
+		s.DomainReportInterval = o.DomainReportInterval
 	}
 	if o.EmergencyPauseEnabled != nil {
 		s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
@@ -1683,9 +1683,6 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	}
-	if s.DomainReportInterval != nil {
-		o.DomainReportInterval = s.DomainReportInterval
-	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.ConfigPullInterval != nil {
@@ -1705,6 +1702,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = s.DisableURLDiscovery
+	}
+	if s.DomainReportInterval != nil {
+		o.DomainReportInterval = s.DomainReportInterval
 	}
 	if s.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
@@ -1780,9 +1780,6 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.DNSMonitorPolicy != nil {
 		out.DNSMonitorPolicy = *o.DNSMonitorPolicy
 	}
-	if o.DomainReportInterval != nil {
-		out.DomainReportInterval = *o.DomainReportInterval
-	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1803,6 +1800,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DisableURLDiscovery != nil {
 		out.DisableURLDiscovery = *o.DisableURLDiscovery
+	}
+	if o.DomainReportInterval != nil {
+		out.DomainReportInterval = *o.DomainReportInterval
 	}
 	if o.EmergencyPauseEnabled != nil {
 		out.EmergencyPauseEnabled = *o.EmergencyPauseEnabled
@@ -1969,7 +1969,6 @@ func (o *SparseAgentConfig) DeepCopyInto(out *SparseAgentConfig) {
 type mongoAttributesAgentConfig struct {
 	DNSMonitorEnabled            bool                             `bson:"dnsmonitorenabled"`
 	DNSMonitorPolicy             AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
-	DomainReportInterval         string                           `bson:"domainreportinterval"`
 	ID                           bson.ObjectId                    `bson:"_id,omitempty"`
 	ConfigPullInterval           string                           `bson:"configpullinterval"`
 	CreateTime                   time.Time                        `bson:"createtime"`
@@ -1977,6 +1976,7 @@ type mongoAttributesAgentConfig struct {
 	DisableManagedCA             bool                             `bson:"disablemanagedca"`
 	DisableSystemProxyManagement bool                             `bson:"disablesystemproxymanagement"`
 	DisableURLDiscovery          bool                             `bson:"disableurldiscovery"`
+	DomainReportInterval         string                           `bson:"domainreportinterval"`
 	EmergencyPauseEnabled        bool                             `bson:"emergencypauseenabled"`
 	EnablePause                  bool                             `bson:"enablepause"`
 	ImportHash                   string                           `bson:"importhash,omitempty"`
@@ -1999,7 +1999,6 @@ type mongoAttributesAgentConfig struct {
 type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorEnabled            *bool                             `bson:"dnsmonitorenabled,omitempty"`
 	DNSMonitorPolicy             *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
-	DomainReportInterval         *string                           `bson:"domainreportinterval,omitempty"`
 	ID                           bson.ObjectId                     `bson:"_id,omitempty"`
 	ConfigPullInterval           *string                           `bson:"configpullinterval,omitempty"`
 	CreateTime                   *time.Time                        `bson:"createtime,omitempty"`
@@ -2007,6 +2006,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DisableManagedCA             *bool                             `bson:"disablemanagedca,omitempty"`
 	DisableSystemProxyManagement *bool                             `bson:"disablesystemproxymanagement,omitempty"`
 	DisableURLDiscovery          *bool                             `bson:"disableurldiscovery,omitempty"`
+	DomainReportInterval         *string                           `bson:"domainreportinterval,omitempty"`
 	EmergencyPauseEnabled        *bool                             `bson:"emergencypauseenabled,omitempty"`
 	EnablePause                  *bool                             `bson:"enablepause,omitempty"`
 	ImportHash                   *string                           `bson:"importhash,omitempty"`

@@ -305,12 +305,6 @@
               "Enforce"
             ]
           },
-          "DomainReportInterval": {
-            "default": "10m",
-            "description": "The interval in which domains (through visited URLs or DNS) are reported to\nbackend.",
-            "example": "30m",
-            "type": "string"
-          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -343,6 +337,12 @@
           "disableURLDiscovery": {
             "description": "If disabled, the agent will stop reporting the visited domains.",
             "type": "boolean"
+          },
+          "domainReportInterval": {
+            "default": "10m",
+            "description": "The interval in which domains (through visited URLs or DNS) are reported to\nbackend.",
+            "example": "30m",
+            "type": "string"
           },
           "emergencyPauseEnabled": {
             "description": "If enabled, all agents pointing to this config will be paused.",
