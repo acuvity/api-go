@@ -412,6 +412,11 @@ func (o *OrgStorage) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	// Custom object validation.
+	if err := ValidateOrgStorage(o); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}

@@ -14,10 +14,10 @@
   "additionalProperties": false,
   "description": "Stores the configuration information for the acushield agent.",
   "properties": {
-    "DNSMonitorEnabled": {
-      "$friendlyName": "DNS Monitor Enabled",
-      "description": "If enabled, the agent will monitor DNS traffic.",
-      "title": "DNSMonitorEnabled",
+    "DNSMonitorDisabled": {
+      "$friendlyName": "DNS Monitor Disabled",
+      "description": "If disabled, the agent will not monitor DNS traffic.",
+      "title": "DNSMonitorDisabled",
       "type": [
         "boolean",
         "null"
@@ -43,11 +43,11 @@
         "null"
       ]
     },
-    "configPullInterval": {
+    "configRefreshInterval": {
       "$defaultValue": "1h",
-      "$friendlyName": "Config Pull Interval",
-      "description": "The interval in which configuration will be pulled from backend.",
-      "title": "configPullInterval",
+      "$friendlyName": "Configuration Refresh Interval",
+      "description": "Defines the refresh interval for the configuration of the deployed agents (i.e: 30m, 6h).",
+      "title": "configRefreshInterval",
       "type": [
         "string",
         "null"
@@ -72,28 +72,10 @@
         "null"
       ]
     },
-    "disableManagedCA": {
-      "$friendlyName": "Disable Managed CA",
-      "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",
-      "title": "disableManagedCA",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "disableSystemProxyManagement": {
-      "$friendlyName": "Disable System Proxy management",
-      "description": "If disabled, the system proxy needs to be configured manually.",
-      "title": "disableSystemProxyManagement",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "disableURLDiscovery": {
-      "$friendlyName": "Disable URLs discovery",
-      "description": "If disabled, the agent will stop reporting the visited domains.",
-      "title": "disableURLDiscovery",
+    "domainDiscoveryDisabled": {
+      "$friendlyName": "Domain Discovery Disabled",
+      "description": "If disabled, the agent will stop reporting the discovered domains.",
+      "title": "domainDiscoveryDisabled",
       "type": [
         "boolean",
         "null"
@@ -102,7 +84,7 @@
     "domainReportInterval": {
       "$defaultValue": "10m",
       "$friendlyName": "Domain Report Interval",
-      "description": "The interval in which domains (through visited URLs or DNS) are reported to backend.",
+      "description": "The interval in which domains (visited URLs or DNS) are reported.",
       "title": "domainReportInterval",
       "type": [
         "string",
@@ -111,17 +93,8 @@
     },
     "emergencyPauseEnabled": {
       "$friendlyName": "Emergency Pause Enabled",
-      "description": "If enabled, all agents pointing to this config will be paused.",
+      "description": "Use this option in emergencies if your users are being blocked. When enabled, it will force all agents to pause at the next refresh of their configuration or when the user clicks “Reload” on their laptop. When paused, agents are not enforcing security rules.",
       "title": "emergencyPauseEnabled",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "enablePause": {
-      "$friendlyName": "Enable Pause",
-      "description": "If enabled, the agent will have the ability to pause enforcement.",
-      "title": "enablePause",
       "type": [
         "boolean",
         "null"
@@ -155,6 +128,15 @@
       "title": "listeningPort",
       "type": "string"
     },
+    "managedCADisabled": {
+      "$friendlyName": "Managed CA Disabled",
+      "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",
+      "title": "managedCADisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "name": {
       "$friendlyName": "Name",
       "$required": true,
@@ -181,6 +163,15 @@
         "null"
       ]
     },
+    "pauseEnabled": {
+      "$friendlyName": "Pause Enabled",
+      "description": "If enabled, the agent will have the ability to pause enforcement.",
+      "title": "pauseEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "pingInterval": {
       "$defaultValue": "10m",
       "$friendlyName": "Ping Interval",
@@ -191,10 +182,10 @@
         "null"
       ]
     },
-    "scanEnabled": {
-      "$friendlyName": "Scan Enabled",
-      "description": "If enabled, the agent will scan for genAI applications and plugins.",
-      "title": "scanEnabled",
+    "scanDisabled": {
+      "$friendlyName": "Scan Disabled",
+      "description": "If disabled, the agent will not scan for genAI applications and plugins.",
+      "title": "scanDisabled",
       "type": [
         "boolean",
         "null"
@@ -240,6 +231,15 @@
       },
       "title": "scanRunningProcesses",
       "type": "array"
+    },
+    "systemProxyManagementDisabled": {
+      "$friendlyName": "System Proxy Management Disabled",
+      "description": "If disabled, the system proxy needs to be configured manually.",
+      "title": "systemProxyManagementDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",

@@ -293,8 +293,8 @@
       "agentconfig": {
         "description": "Stores the configuration information for the acushield agent.",
         "properties": {
-          "DNSMonitorEnabled": {
-            "description": "If enabled, the agent will monitor DNS traffic.",
+          "DNSMonitorDisabled": {
+            "description": "If disabled, the agent will not monitor DNS traffic.",
             "type": "boolean"
           },
           "DNSMonitorPolicy": {
@@ -310,9 +310,9 @@
             "readOnly": true,
             "type": "string"
           },
-          "configPullInterval": {
+          "configRefreshInterval": {
             "default": "1h",
-            "description": "The interval in which configuration will be pulled from backend.",
+            "description": "Defines the refresh interval for the configuration of the deployed agents (i.e:\n30m, 6h).",
             "example": "30m",
             "type": "string"
           },
@@ -326,30 +326,18 @@
             "description": "Description of the agent configuration.",
             "type": "string"
           },
-          "disableManagedCA": {
-            "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
-            "type": "boolean"
-          },
-          "disableSystemProxyManagement": {
-            "description": "If disabled, the system proxy needs to be configured manually.",
-            "type": "boolean"
-          },
-          "disableURLDiscovery": {
-            "description": "If disabled, the agent will stop reporting the visited domains.",
+          "domainDiscoveryDisabled": {
+            "description": "If disabled, the agent will stop reporting the discovered domains.",
             "type": "boolean"
           },
           "domainReportInterval": {
             "default": "10m",
-            "description": "The interval in which domains (through visited URLs or DNS) are reported to\nbackend.",
+            "description": "The interval in which domains (visited URLs or DNS) are reported.",
             "example": "30m",
             "type": "string"
           },
           "emergencyPauseEnabled": {
-            "description": "If enabled, all agents pointing to this config will be paused.",
-            "type": "boolean"
-          },
-          "enablePause": {
-            "description": "If enabled, the agent will have the ability to pause enforcement.",
+            "description": "Use this option in emergencies if your users are being blocked.\nWhen enabled, it will force all agents to pause at the next refresh of their\nconfiguration or when the user clicks “Reload” on their laptop.\nWhen paused, agents are not enforcing security rules.",
             "type": "boolean"
           },
           "importHash": {
@@ -364,6 +352,10 @@
             "default": "8081",
             "description": "The port used by the agent to proxy the traffic.",
             "type": "string"
+          },
+          "managedCADisabled": {
+            "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
+            "type": "boolean"
           },
           "name": {
             "description": "The name of the agent configuration.",
@@ -380,14 +372,18 @@
             "example": "default",
             "type": "string"
           },
+          "pauseEnabled": {
+            "description": "If enabled, the agent will have the ability to pause enforcement.",
+            "type": "boolean"
+          },
           "pingInterval": {
             "default": "10m",
             "description": "The ping interval at which acushield should check in with the backend.",
             "example": "30m",
             "type": "string"
           },
-          "scanEnabled": {
-            "description": "If enabled, the agent will scan for genAI applications and plugins.",
+          "scanDisabled": {
+            "description": "If disabled, the agent will not scan for genAI applications and plugins.",
             "type": "boolean"
           },
           "scanInstalledApps": {
@@ -415,6 +411,10 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "systemProxyManagementDisabled": {
+            "description": "If disabled, the system proxy needs to be configured manually.",
+            "type": "boolean"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -1469,6 +1469,15 @@
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "sensitivity": {
+            "default": "High",
+            "description": "Describe the sensitity of the dataset.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
           },
           "updateTime": {
             "description": "Last update date of the object.",

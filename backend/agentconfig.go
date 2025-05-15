@@ -95,8 +95,8 @@ func (o AgentConfigsList) Version() int {
 
 // AgentConfig represents the model of a agentconfig
 type AgentConfig struct {
-	// If enabled, the agent will monitor DNS traffic.
-	DNSMonitorEnabled bool `json:"DNSMonitorEnabled" msgpack:"DNSMonitorEnabled" bson:"dnsmonitorenabled" mapstructure:"DNSMonitorEnabled,omitempty"`
+	// If disabled, the agent will not monitor DNS traffic.
+	DNSMonitorDisabled bool `json:"DNSMonitorDisabled" msgpack:"DNSMonitorDisabled" bson:"dnsmonitordisabled" mapstructure:"DNSMonitorDisabled,omitempty"`
 
 	// What action to take if the DNS monitor cannot start when enabled. Enforce will
 	// stop the agent with an error, while Warn will post a log and continue on.
@@ -105,8 +105,9 @@ type AgentConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The interval in which configuration will be pulled from backend.
-	ConfigPullInterval string `json:"configPullInterval" msgpack:"configPullInterval" bson:"configpullinterval" mapstructure:"configPullInterval,omitempty"`
+	// Defines the refresh interval for the configuration of the deployed agents (i.e:
+	// 30m, 6h).
+	ConfigRefreshInterval string `json:"configRefreshInterval" msgpack:"configRefreshInterval" bson:"configrefreshinterval" mapstructure:"configRefreshInterval,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
@@ -114,25 +115,17 @@ type AgentConfig struct {
 	// Description of the agent configuration.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
-	// If disabled, the agent will rely on the CA already installed and trusted on the
-	// system.
-	DisableManagedCA bool `json:"disableManagedCA" msgpack:"disableManagedCA" bson:"disablemanagedca" mapstructure:"disableManagedCA,omitempty"`
+	// If disabled, the agent will stop reporting the discovered domains.
+	DomainDiscoveryDisabled bool `json:"domainDiscoveryDisabled" msgpack:"domainDiscoveryDisabled" bson:"domaindiscoverydisabled" mapstructure:"domainDiscoveryDisabled,omitempty"`
 
-	// If disabled, the system proxy needs to be configured manually.
-	DisableSystemProxyManagement bool `json:"disableSystemProxyManagement" msgpack:"disableSystemProxyManagement" bson:"disablesystemproxymanagement" mapstructure:"disableSystemProxyManagement,omitempty"`
-
-	// If disabled, the agent will stop reporting the visited domains.
-	DisableURLDiscovery bool `json:"disableURLDiscovery" msgpack:"disableURLDiscovery" bson:"disableurldiscovery" mapstructure:"disableURLDiscovery,omitempty"`
-
-	// The interval in which domains (through visited URLs or DNS) are reported to
-	// backend.
+	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval string `json:"domainReportInterval" msgpack:"domainReportInterval" bson:"domainreportinterval" mapstructure:"domainReportInterval,omitempty"`
 
-	// If enabled, all agents pointing to this config will be paused.
+	// Use this option in emergencies if your users are being blocked.
+	// When enabled, it will force all agents to pause at the next refresh of their
+	// configuration or when the user clicks “Reload” on their laptop.
+	// When paused, agents are not enforcing security rules.
 	EmergencyPauseEnabled bool `json:"emergencyPauseEnabled" msgpack:"emergencyPauseEnabled" bson:"emergencypauseenabled" mapstructure:"emergencyPauseEnabled,omitempty"`
-
-	// If enabled, the agent will have the ability to pause enforcement.
-	EnablePause bool `json:"enablePause" msgpack:"enablePause" bson:"enablepause" mapstructure:"enablePause,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -144,6 +137,10 @@ type AgentConfig struct {
 	// The port used by the agent to proxy the traffic.
 	ListeningPort string `json:"listeningPort" msgpack:"listeningPort" bson:"listeningport" mapstructure:"listeningPort,omitempty"`
 
+	// If disabled, the agent will rely on the CA already installed and trusted on the
+	// system.
+	ManagedCADisabled bool `json:"managedCADisabled" msgpack:"managedCADisabled" bson:"managedcadisabled" mapstructure:"managedCADisabled,omitempty"`
+
 	// The name of the agent configuration.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -153,11 +150,14 @@ type AgentConfig struct {
 	// The name of the PAC configuration to use.
 	PacName string `json:"pacName" msgpack:"pacName" bson:"pacname" mapstructure:"pacName,omitempty"`
 
+	// If enabled, the agent will have the ability to pause enforcement.
+	PauseEnabled bool `json:"pauseEnabled" msgpack:"pauseEnabled" bson:"pauseenabled" mapstructure:"pauseEnabled,omitempty"`
+
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
-	// If enabled, the agent will scan for genAI applications and plugins.
-	ScanEnabled bool `json:"scanEnabled" msgpack:"scanEnabled" bson:"scanenabled" mapstructure:"scanEnabled,omitempty"`
+	// If disabled, the agent will not scan for genAI applications and plugins.
+	ScanDisabled bool `json:"scanDisabled" msgpack:"scanDisabled" bson:"scandisabled" mapstructure:"scanDisabled,omitempty"`
 
 	// The list of installed applications the scanner will look for.
 	ScanInstalledApps []*AgentDiscoveredApp `json:"scanInstalledApps" msgpack:"scanInstalledApps" bson:"scaninstalledapps" mapstructure:"scanInstalledApps,omitempty"`
@@ -170,6 +170,9 @@ type AgentConfig struct {
 
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses []string `json:"scanRunningProcesses" msgpack:"scanRunningProcesses" bson:"scanrunningprocesses" mapstructure:"scanRunningProcesses,omitempty"`
+
+	// If disabled, the system proxy needs to be configured manually.
+	SystemProxyManagementDisabled bool `json:"systemProxyManagementDisabled" msgpack:"systemProxyManagementDisabled" bson:"systemproxymanagementdisabled" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -191,15 +194,15 @@ type AgentConfig struct {
 func NewAgentConfig() *AgentConfig {
 
 	return &AgentConfig{
-		ModelVersion:         1,
-		DNSMonitorPolicy:     AgentConfigDNSMonitorPolicyWarn,
-		ConfigPullInterval:   "1h",
-		DomainReportInterval: "10m",
-		ListeningPort:        "8081",
-		PingInterval:         "10m",
-		ScanInterval:         "1m",
-		ScanReportInterval:   "1h",
-		ScanRunningProcesses: []string{},
+		ModelVersion:          1,
+		DNSMonitorPolicy:      AgentConfigDNSMonitorPolicyWarn,
+		ConfigRefreshInterval: "1h",
+		DomainReportInterval:  "10m",
+		ListeningPort:         "8081",
+		PingInterval:          "10m",
+		ScanInterval:          "1m",
+		ScanReportInterval:    "1h",
+		ScanRunningProcesses:  []string{},
 	}
 }
 
@@ -231,32 +234,32 @@ func (o *AgentConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesAgentConfig{}
 
-	s.DNSMonitorEnabled = o.DNSMonitorEnabled
+	s.DNSMonitorDisabled = o.DNSMonitorDisabled
 	s.DNSMonitorPolicy = o.DNSMonitorPolicy
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.ConfigPullInterval = o.ConfigPullInterval
+	s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.DisableManagedCA = o.DisableManagedCA
-	s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
-	s.DisableURLDiscovery = o.DisableURLDiscovery
+	s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	s.DomainReportInterval = o.DomainReportInterval
 	s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
-	s.EnablePause = o.EnablePause
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.ListeningPort = o.ListeningPort
+	s.ManagedCADisabled = o.ManagedCADisabled
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.PacName = o.PacName
+	s.PauseEnabled = o.PauseEnabled
 	s.PingInterval = o.PingInterval
-	s.ScanEnabled = o.ScanEnabled
+	s.ScanDisabled = o.ScanDisabled
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
 	s.ScanReportInterval = o.ScanReportInterval
 	s.ScanRunningProcesses = o.ScanRunningProcesses
+	s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	s.UpdateTime = o.UpdateTime
 	s.UseDynamicPort = o.UseDynamicPort
 	s.ZHash = o.ZHash
@@ -278,30 +281,30 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.DNSMonitorEnabled = s.DNSMonitorEnabled
+	o.DNSMonitorDisabled = s.DNSMonitorDisabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
-	o.ConfigPullInterval = s.ConfigPullInterval
+	o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.DisableManagedCA = s.DisableManagedCA
-	o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
-	o.DisableURLDiscovery = s.DisableURLDiscovery
+	o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	o.DomainReportInterval = s.DomainReportInterval
 	o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
-	o.EnablePause = s.EnablePause
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.ListeningPort = s.ListeningPort
+	o.ManagedCADisabled = s.ManagedCADisabled
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.PacName = s.PacName
+	o.PauseEnabled = s.PauseEnabled
 	o.PingInterval = s.PingInterval
-	o.ScanEnabled = s.ScanEnabled
+	o.ScanDisabled = s.ScanDisabled
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
 	o.ScanReportInterval = s.ScanReportInterval
 	o.ScanRunningProcesses = s.ScanRunningProcesses
+	o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	o.UpdateTime = s.UpdateTime
 	o.UseDynamicPort = s.UseDynamicPort
 	o.ZHash = s.ZHash
@@ -406,80 +409,78 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAgentConfig{
-			DNSMonitorEnabled:            &o.DNSMonitorEnabled,
-			DNSMonitorPolicy:             &o.DNSMonitorPolicy,
-			ID:                           &o.ID,
-			ConfigPullInterval:           &o.ConfigPullInterval,
-			CreateTime:                   &o.CreateTime,
-			Description:                  &o.Description,
-			DisableManagedCA:             &o.DisableManagedCA,
-			DisableSystemProxyManagement: &o.DisableSystemProxyManagement,
-			DisableURLDiscovery:          &o.DisableURLDiscovery,
-			DomainReportInterval:         &o.DomainReportInterval,
-			EmergencyPauseEnabled:        &o.EmergencyPauseEnabled,
-			EnablePause:                  &o.EnablePause,
-			ImportHash:                   &o.ImportHash,
-			ImportLabel:                  &o.ImportLabel,
-			ListeningPort:                &o.ListeningPort,
-			Name:                         &o.Name,
-			Namespace:                    &o.Namespace,
-			PacName:                      &o.PacName,
-			PingInterval:                 &o.PingInterval,
-			ScanEnabled:                  &o.ScanEnabled,
-			ScanInstalledApps:            &o.ScanInstalledApps,
-			ScanInterval:                 &o.ScanInterval,
-			ScanReportInterval:           &o.ScanReportInterval,
-			ScanRunningProcesses:         &o.ScanRunningProcesses,
-			UpdateTime:                   &o.UpdateTime,
-			UseDynamicPort:               &o.UseDynamicPort,
-			ZHash:                        &o.ZHash,
-			Zone:                         &o.Zone,
+			DNSMonitorDisabled:            &o.DNSMonitorDisabled,
+			DNSMonitorPolicy:              &o.DNSMonitorPolicy,
+			ID:                            &o.ID,
+			ConfigRefreshInterval:         &o.ConfigRefreshInterval,
+			CreateTime:                    &o.CreateTime,
+			Description:                   &o.Description,
+			DomainDiscoveryDisabled:       &o.DomainDiscoveryDisabled,
+			DomainReportInterval:          &o.DomainReportInterval,
+			EmergencyPauseEnabled:         &o.EmergencyPauseEnabled,
+			ImportHash:                    &o.ImportHash,
+			ImportLabel:                   &o.ImportLabel,
+			ListeningPort:                 &o.ListeningPort,
+			ManagedCADisabled:             &o.ManagedCADisabled,
+			Name:                          &o.Name,
+			Namespace:                     &o.Namespace,
+			PacName:                       &o.PacName,
+			PauseEnabled:                  &o.PauseEnabled,
+			PingInterval:                  &o.PingInterval,
+			ScanDisabled:                  &o.ScanDisabled,
+			ScanInstalledApps:             &o.ScanInstalledApps,
+			ScanInterval:                  &o.ScanInterval,
+			ScanReportInterval:            &o.ScanReportInterval,
+			ScanRunningProcesses:          &o.ScanRunningProcesses,
+			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
+			UpdateTime:                    &o.UpdateTime,
+			UseDynamicPort:                &o.UseDynamicPort,
+			ZHash:                         &o.ZHash,
+			Zone:                          &o.Zone,
 		}
 	}
 
 	sp := &SparseAgentConfig{}
 	for _, f := range fields {
 		switch f {
-		case "DNSMonitorEnabled":
-			sp.DNSMonitorEnabled = &(o.DNSMonitorEnabled)
+		case "DNSMonitorDisabled":
+			sp.DNSMonitorDisabled = &(o.DNSMonitorDisabled)
 		case "DNSMonitorPolicy":
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
 		case "ID":
 			sp.ID = &(o.ID)
-		case "configPullInterval":
-			sp.ConfigPullInterval = &(o.ConfigPullInterval)
+		case "configRefreshInterval":
+			sp.ConfigRefreshInterval = &(o.ConfigRefreshInterval)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "disableManagedCA":
-			sp.DisableManagedCA = &(o.DisableManagedCA)
-		case "disableSystemProxyManagement":
-			sp.DisableSystemProxyManagement = &(o.DisableSystemProxyManagement)
-		case "disableURLDiscovery":
-			sp.DisableURLDiscovery = &(o.DisableURLDiscovery)
+		case "domainDiscoveryDisabled":
+			sp.DomainDiscoveryDisabled = &(o.DomainDiscoveryDisabled)
 		case "domainReportInterval":
 			sp.DomainReportInterval = &(o.DomainReportInterval)
 		case "emergencyPauseEnabled":
 			sp.EmergencyPauseEnabled = &(o.EmergencyPauseEnabled)
-		case "enablePause":
-			sp.EnablePause = &(o.EnablePause)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
 		case "listeningPort":
 			sp.ListeningPort = &(o.ListeningPort)
+		case "managedCADisabled":
+			sp.ManagedCADisabled = &(o.ManagedCADisabled)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "pacName":
 			sp.PacName = &(o.PacName)
+		case "pauseEnabled":
+			sp.PauseEnabled = &(o.PauseEnabled)
 		case "pingInterval":
 			sp.PingInterval = &(o.PingInterval)
-		case "scanEnabled":
-			sp.ScanEnabled = &(o.ScanEnabled)
+		case "scanDisabled":
+			sp.ScanDisabled = &(o.ScanDisabled)
 		case "scanInstalledApps":
 			sp.ScanInstalledApps = &(o.ScanInstalledApps)
 		case "scanInterval":
@@ -488,6 +489,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ScanReportInterval = &(o.ScanReportInterval)
 		case "scanRunningProcesses":
 			sp.ScanRunningProcesses = &(o.ScanRunningProcesses)
+		case "systemProxyManagementDisabled":
+			sp.SystemProxyManagementDisabled = &(o.SystemProxyManagementDisabled)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "useDynamicPort":
@@ -509,8 +512,8 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseAgentConfig)
-	if so.DNSMonitorEnabled != nil {
-		o.DNSMonitorEnabled = *so.DNSMonitorEnabled
+	if so.DNSMonitorDisabled != nil {
+		o.DNSMonitorDisabled = *so.DNSMonitorDisabled
 	}
 	if so.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = *so.DNSMonitorPolicy
@@ -518,8 +521,8 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.ConfigPullInterval != nil {
-		o.ConfigPullInterval = *so.ConfigPullInterval
+	if so.ConfigRefreshInterval != nil {
+		o.ConfigRefreshInterval = *so.ConfigRefreshInterval
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -527,23 +530,14 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
-	if so.DisableManagedCA != nil {
-		o.DisableManagedCA = *so.DisableManagedCA
-	}
-	if so.DisableSystemProxyManagement != nil {
-		o.DisableSystemProxyManagement = *so.DisableSystemProxyManagement
-	}
-	if so.DisableURLDiscovery != nil {
-		o.DisableURLDiscovery = *so.DisableURLDiscovery
+	if so.DomainDiscoveryDisabled != nil {
+		o.DomainDiscoveryDisabled = *so.DomainDiscoveryDisabled
 	}
 	if so.DomainReportInterval != nil {
 		o.DomainReportInterval = *so.DomainReportInterval
 	}
 	if so.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = *so.EmergencyPauseEnabled
-	}
-	if so.EnablePause != nil {
-		o.EnablePause = *so.EnablePause
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -554,6 +548,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ListeningPort != nil {
 		o.ListeningPort = *so.ListeningPort
 	}
+	if so.ManagedCADisabled != nil {
+		o.ManagedCADisabled = *so.ManagedCADisabled
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -563,11 +560,14 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.PacName != nil {
 		o.PacName = *so.PacName
 	}
+	if so.PauseEnabled != nil {
+		o.PauseEnabled = *so.PauseEnabled
+	}
 	if so.PingInterval != nil {
 		o.PingInterval = *so.PingInterval
 	}
-	if so.ScanEnabled != nil {
-		o.ScanEnabled = *so.ScanEnabled
+	if so.ScanDisabled != nil {
+		o.ScanDisabled = *so.ScanDisabled
 	}
 	if so.ScanInstalledApps != nil {
 		o.ScanInstalledApps = *so.ScanInstalledApps
@@ -580,6 +580,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = *so.ScanRunningProcesses
+	}
+	if so.SystemProxyManagementDisabled != nil {
+		o.SystemProxyManagementDisabled = *so.SystemProxyManagementDisabled
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -629,7 +632,7 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateDuration("configPullInterval", o.ConfigPullInterval); err != nil {
+	if err := ValidateDuration("configRefreshInterval", o.ConfigRefreshInterval); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -706,46 +709,44 @@ func (*AgentConfig) AttributeSpecifications() map[string]elemental.AttributeSpec
 func (o *AgentConfig) ValueForAttribute(name string) any {
 
 	switch name {
-	case "DNSMonitorEnabled":
-		return o.DNSMonitorEnabled
+	case "DNSMonitorDisabled":
+		return o.DNSMonitorDisabled
 	case "DNSMonitorPolicy":
 		return o.DNSMonitorPolicy
 	case "ID":
 		return o.ID
-	case "configPullInterval":
-		return o.ConfigPullInterval
+	case "configRefreshInterval":
+		return o.ConfigRefreshInterval
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "disableManagedCA":
-		return o.DisableManagedCA
-	case "disableSystemProxyManagement":
-		return o.DisableSystemProxyManagement
-	case "disableURLDiscovery":
-		return o.DisableURLDiscovery
+	case "domainDiscoveryDisabled":
+		return o.DomainDiscoveryDisabled
 	case "domainReportInterval":
 		return o.DomainReportInterval
 	case "emergencyPauseEnabled":
 		return o.EmergencyPauseEnabled
-	case "enablePause":
-		return o.EnablePause
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
 	case "listeningPort":
 		return o.ListeningPort
+	case "managedCADisabled":
+		return o.ManagedCADisabled
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
 	case "pacName":
 		return o.PacName
+	case "pauseEnabled":
+		return o.PauseEnabled
 	case "pingInterval":
 		return o.PingInterval
-	case "scanEnabled":
-		return o.ScanEnabled
+	case "scanDisabled":
+		return o.ScanDisabled
 	case "scanInstalledApps":
 		return o.ScanInstalledApps
 	case "scanInterval":
@@ -754,6 +755,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ScanReportInterval
 	case "scanRunningProcesses":
 		return o.ScanRunningProcesses
+	case "systemProxyManagementDisabled":
+		return o.SystemProxyManagementDisabled
 	case "updateTime":
 		return o.UpdateTime
 	case "useDynamicPort":
@@ -769,13 +772,13 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 
 // AgentConfigAttributesMap represents the map of attribute for AgentConfig.
 var AgentConfigAttributesMap = map[string]elemental.AttributeSpecification{
-	"DNSMonitorEnabled": {
+	"DNSMonitorDisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "dnsmonitorenabled",
-		ConvertedName:  "DNSMonitorEnabled",
-		Description:    `If enabled, the agent will monitor DNS traffic.`,
+		BSONFieldName:  "dnsmonitordisabled",
+		ConvertedName:  "DNSMonitorDisabled",
+		Description:    `If disabled, the agent will not monitor DNS traffic.`,
 		Exposed:        true,
-		Name:           "DNSMonitorEnabled",
+		Name:           "DNSMonitorDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -806,16 +809,17 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"ConfigPullInterval": {
+	"ConfigRefreshInterval": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "configpullinterval",
-		ConvertedName:  "ConfigPullInterval",
+		BSONFieldName:  "configrefreshinterval",
+		ConvertedName:  "ConfigRefreshInterval",
 		DefaultValue:   "1h",
-		Description:    `The interval in which configuration will be pulled from backend.`,
-		Exposed:        true,
-		Name:           "configPullInterval",
-		Stored:         true,
-		Type:           "string",
+		Description: `Defines the refresh interval for the configuration of the deployed agents (i.e:
+30m, 6h).`,
+		Exposed: true,
+		Name:    "configRefreshInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -842,34 +846,13 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"DisableManagedCA": {
+	"DomainDiscoveryDisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "disablemanagedca",
-		ConvertedName:  "DisableManagedCA",
-		Description: `If disabled, the agent will rely on the CA already installed and trusted on the
-system.`,
-		Exposed: true,
-		Name:    "disableManagedCA",
-		Stored:  true,
-		Type:    "boolean",
-	},
-	"DisableSystemProxyManagement": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disablesystemproxymanagement",
-		ConvertedName:  "DisableSystemProxyManagement",
-		Description:    `If disabled, the system proxy needs to be configured manually.`,
+		BSONFieldName:  "domaindiscoverydisabled",
+		ConvertedName:  "DomainDiscoveryDisabled",
+		Description:    `If disabled, the agent will stop reporting the discovered domains.`,
 		Exposed:        true,
-		Name:           "disableSystemProxyManagement",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"DisableURLDiscovery": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disableurldiscovery",
-		ConvertedName:  "DisableURLDiscovery",
-		Description:    `If disabled, the agent will stop reporting the visited domains.`,
-		Exposed:        true,
-		Name:           "disableURLDiscovery",
+		Name:           "domainDiscoveryDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -878,32 +861,24 @@ system.`,
 		BSONFieldName:  "domainreportinterval",
 		ConvertedName:  "DomainReportInterval",
 		DefaultValue:   "10m",
-		Description: `The interval in which domains (through visited URLs or DNS) are reported to
-backend.`,
-		Exposed: true,
-		Name:    "domainReportInterval",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The interval in which domains (visited URLs or DNS) are reported.`,
+		Exposed:        true,
+		Name:           "domainReportInterval",
+		Stored:         true,
+		Type:           "string",
 	},
 	"EmergencyPauseEnabled": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "emergencypauseenabled",
 		ConvertedName:  "EmergencyPauseEnabled",
-		Description:    `If enabled, all agents pointing to this config will be paused.`,
-		Exposed:        true,
-		Name:           "emergencyPauseEnabled",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"EnablePause": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "enablepause",
-		ConvertedName:  "EnablePause",
-		Description:    `If enabled, the agent will have the ability to pause enforcement.`,
-		Exposed:        true,
-		Name:           "enablePause",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `Use this option in emergencies if your users are being blocked.
+When enabled, it will force all agents to pause at the next refresh of their
+configuration or when the user clicks “Reload” on their laptop.
+When paused, agents are not enforcing security rules.`,
+		Exposed: true,
+		Name:    "emergencyPauseEnabled",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -945,6 +920,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"ManagedCADisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "managedcadisabled",
+		ConvertedName:  "ManagedCADisabled",
+		Description: `If disabled, the agent will rely on the CA already installed and trusted on the
+system.`,
+		Exposed: true,
+		Name:    "managedCADisabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -981,6 +967,16 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"PauseEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pauseenabled",
+		ConvertedName:  "PauseEnabled",
+		Description:    `If enabled, the agent will have the ability to pause enforcement.`,
+		Exposed:        true,
+		Name:           "pauseEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"PingInterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "pinginterval",
@@ -992,13 +988,13 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"ScanEnabled": {
+	"ScanDisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "scanenabled",
-		ConvertedName:  "ScanEnabled",
-		Description:    `If enabled, the agent will scan for genAI applications and plugins.`,
+		BSONFieldName:  "scandisabled",
+		ConvertedName:  "ScanDisabled",
+		Description:    `If disabled, the agent will not scan for genAI applications and plugins.`,
 		Exposed:        true,
-		Name:           "scanEnabled",
+		Name:           "scanDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1046,6 +1042,16 @@ same import operation.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"SystemProxyManagementDisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "systemproxymanagementdisabled",
+		ConvertedName:  "SystemProxyManagementDisabled",
+		Description:    `If disabled, the system proxy needs to be configured manually.`,
+		Exposed:        true,
+		Name:           "systemProxyManagementDisabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1076,13 +1082,13 @@ can take another port, different than the listeningPort.`,
 
 // AgentConfigLowerCaseAttributesMap represents the map of attribute for AgentConfig.
 var AgentConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"dnsmonitorenabled": {
+	"dnsmonitordisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "dnsmonitorenabled",
-		ConvertedName:  "DNSMonitorEnabled",
-		Description:    `If enabled, the agent will monitor DNS traffic.`,
+		BSONFieldName:  "dnsmonitordisabled",
+		ConvertedName:  "DNSMonitorDisabled",
+		Description:    `If disabled, the agent will not monitor DNS traffic.`,
 		Exposed:        true,
-		Name:           "DNSMonitorEnabled",
+		Name:           "DNSMonitorDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1113,16 +1119,17 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"configpullinterval": {
+	"configrefreshinterval": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "configpullinterval",
-		ConvertedName:  "ConfigPullInterval",
+		BSONFieldName:  "configrefreshinterval",
+		ConvertedName:  "ConfigRefreshInterval",
 		DefaultValue:   "1h",
-		Description:    `The interval in which configuration will be pulled from backend.`,
-		Exposed:        true,
-		Name:           "configPullInterval",
-		Stored:         true,
-		Type:           "string",
+		Description: `Defines the refresh interval for the configuration of the deployed agents (i.e:
+30m, 6h).`,
+		Exposed: true,
+		Name:    "configRefreshInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -1149,34 +1156,13 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"disablemanagedca": {
+	"domaindiscoverydisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "disablemanagedca",
-		ConvertedName:  "DisableManagedCA",
-		Description: `If disabled, the agent will rely on the CA already installed and trusted on the
-system.`,
-		Exposed: true,
-		Name:    "disableManagedCA",
-		Stored:  true,
-		Type:    "boolean",
-	},
-	"disablesystemproxymanagement": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disablesystemproxymanagement",
-		ConvertedName:  "DisableSystemProxyManagement",
-		Description:    `If disabled, the system proxy needs to be configured manually.`,
+		BSONFieldName:  "domaindiscoverydisabled",
+		ConvertedName:  "DomainDiscoveryDisabled",
+		Description:    `If disabled, the agent will stop reporting the discovered domains.`,
 		Exposed:        true,
-		Name:           "disableSystemProxyManagement",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"disableurldiscovery": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disableurldiscovery",
-		ConvertedName:  "DisableURLDiscovery",
-		Description:    `If disabled, the agent will stop reporting the visited domains.`,
-		Exposed:        true,
-		Name:           "disableURLDiscovery",
+		Name:           "domainDiscoveryDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1185,32 +1171,24 @@ system.`,
 		BSONFieldName:  "domainreportinterval",
 		ConvertedName:  "DomainReportInterval",
 		DefaultValue:   "10m",
-		Description: `The interval in which domains (through visited URLs or DNS) are reported to
-backend.`,
-		Exposed: true,
-		Name:    "domainReportInterval",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The interval in which domains (visited URLs or DNS) are reported.`,
+		Exposed:        true,
+		Name:           "domainReportInterval",
+		Stored:         true,
+		Type:           "string",
 	},
 	"emergencypauseenabled": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "emergencypauseenabled",
 		ConvertedName:  "EmergencyPauseEnabled",
-		Description:    `If enabled, all agents pointing to this config will be paused.`,
-		Exposed:        true,
-		Name:           "emergencyPauseEnabled",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"enablepause": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "enablepause",
-		ConvertedName:  "EnablePause",
-		Description:    `If enabled, the agent will have the ability to pause enforcement.`,
-		Exposed:        true,
-		Name:           "enablePause",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `Use this option in emergencies if your users are being blocked.
+When enabled, it will force all agents to pause at the next refresh of their
+configuration or when the user clicks “Reload” on their laptop.
+When paused, agents are not enforcing security rules.`,
+		Exposed: true,
+		Name:    "emergencyPauseEnabled",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -1252,6 +1230,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"managedcadisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "managedcadisabled",
+		ConvertedName:  "ManagedCADisabled",
+		Description: `If disabled, the agent will rely on the CA already installed and trusted on the
+system.`,
+		Exposed: true,
+		Name:    "managedCADisabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -1288,6 +1277,16 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"pauseenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pauseenabled",
+		ConvertedName:  "PauseEnabled",
+		Description:    `If enabled, the agent will have the ability to pause enforcement.`,
+		Exposed:        true,
+		Name:           "pauseEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"pinginterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "pinginterval",
@@ -1299,13 +1298,13 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"scanenabled": {
+	"scandisabled": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "scanenabled",
-		ConvertedName:  "ScanEnabled",
-		Description:    `If enabled, the agent will scan for genAI applications and plugins.`,
+		BSONFieldName:  "scandisabled",
+		ConvertedName:  "ScanDisabled",
+		Description:    `If disabled, the agent will not scan for genAI applications and plugins.`,
 		Exposed:        true,
-		Name:           "scanEnabled",
+		Name:           "scanDisabled",
 		Stored:         true,
 		Type:           "boolean",
 	},
@@ -1352,6 +1351,16 @@ same import operation.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"systemproxymanagementdisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "systemproxymanagementdisabled",
+		ConvertedName:  "SystemProxyManagementDisabled",
+		Description:    `If disabled, the system proxy needs to be configured manually.`,
+		Exposed:        true,
+		Name:           "systemProxyManagementDisabled",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1444,8 +1453,8 @@ func (o SparseAgentConfigsList) Version() int {
 
 // SparseAgentConfig represents the sparse version of a agentconfig.
 type SparseAgentConfig struct {
-	// If enabled, the agent will monitor DNS traffic.
-	DNSMonitorEnabled *bool `json:"DNSMonitorEnabled,omitempty" msgpack:"DNSMonitorEnabled,omitempty" bson:"dnsmonitorenabled,omitempty" mapstructure:"DNSMonitorEnabled,omitempty"`
+	// If disabled, the agent will not monitor DNS traffic.
+	DNSMonitorDisabled *bool `json:"DNSMonitorDisabled,omitempty" msgpack:"DNSMonitorDisabled,omitempty" bson:"dnsmonitordisabled,omitempty" mapstructure:"DNSMonitorDisabled,omitempty"`
 
 	// What action to take if the DNS monitor cannot start when enabled. Enforce will
 	// stop the agent with an error, while Warn will post a log and continue on.
@@ -1454,8 +1463,9 @@ type SparseAgentConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The interval in which configuration will be pulled from backend.
-	ConfigPullInterval *string `json:"configPullInterval,omitempty" msgpack:"configPullInterval,omitempty" bson:"configpullinterval,omitempty" mapstructure:"configPullInterval,omitempty"`
+	// Defines the refresh interval for the configuration of the deployed agents (i.e:
+	// 30m, 6h).
+	ConfigRefreshInterval *string `json:"configRefreshInterval,omitempty" msgpack:"configRefreshInterval,omitempty" bson:"configrefreshinterval,omitempty" mapstructure:"configRefreshInterval,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
@@ -1463,25 +1473,17 @@ type SparseAgentConfig struct {
 	// Description of the agent configuration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// If disabled, the agent will rely on the CA already installed and trusted on the
-	// system.
-	DisableManagedCA *bool `json:"disableManagedCA,omitempty" msgpack:"disableManagedCA,omitempty" bson:"disablemanagedca,omitempty" mapstructure:"disableManagedCA,omitempty"`
+	// If disabled, the agent will stop reporting the discovered domains.
+	DomainDiscoveryDisabled *bool `json:"domainDiscoveryDisabled,omitempty" msgpack:"domainDiscoveryDisabled,omitempty" bson:"domaindiscoverydisabled,omitempty" mapstructure:"domainDiscoveryDisabled,omitempty"`
 
-	// If disabled, the system proxy needs to be configured manually.
-	DisableSystemProxyManagement *bool `json:"disableSystemProxyManagement,omitempty" msgpack:"disableSystemProxyManagement,omitempty" bson:"disablesystemproxymanagement,omitempty" mapstructure:"disableSystemProxyManagement,omitempty"`
-
-	// If disabled, the agent will stop reporting the visited domains.
-	DisableURLDiscovery *bool `json:"disableURLDiscovery,omitempty" msgpack:"disableURLDiscovery,omitempty" bson:"disableurldiscovery,omitempty" mapstructure:"disableURLDiscovery,omitempty"`
-
-	// The interval in which domains (through visited URLs or DNS) are reported to
-	// backend.
+	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval *string `json:"domainReportInterval,omitempty" msgpack:"domainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"domainReportInterval,omitempty"`
 
-	// If enabled, all agents pointing to this config will be paused.
+	// Use this option in emergencies if your users are being blocked.
+	// When enabled, it will force all agents to pause at the next refresh of their
+	// configuration or when the user clicks “Reload” on their laptop.
+	// When paused, agents are not enforcing security rules.
 	EmergencyPauseEnabled *bool `json:"emergencyPauseEnabled,omitempty" msgpack:"emergencyPauseEnabled,omitempty" bson:"emergencypauseenabled,omitempty" mapstructure:"emergencyPauseEnabled,omitempty"`
-
-	// If enabled, the agent will have the ability to pause enforcement.
-	EnablePause *bool `json:"enablePause,omitempty" msgpack:"enablePause,omitempty" bson:"enablepause,omitempty" mapstructure:"enablePause,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1493,6 +1495,10 @@ type SparseAgentConfig struct {
 	// The port used by the agent to proxy the traffic.
 	ListeningPort *string `json:"listeningPort,omitempty" msgpack:"listeningPort,omitempty" bson:"listeningport,omitempty" mapstructure:"listeningPort,omitempty"`
 
+	// If disabled, the agent will rely on the CA already installed and trusted on the
+	// system.
+	ManagedCADisabled *bool `json:"managedCADisabled,omitempty" msgpack:"managedCADisabled,omitempty" bson:"managedcadisabled,omitempty" mapstructure:"managedCADisabled,omitempty"`
+
 	// The name of the agent configuration.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -1502,11 +1508,14 @@ type SparseAgentConfig struct {
 	// The name of the PAC configuration to use.
 	PacName *string `json:"pacName,omitempty" msgpack:"pacName,omitempty" bson:"pacname,omitempty" mapstructure:"pacName,omitempty"`
 
+	// If enabled, the agent will have the ability to pause enforcement.
+	PauseEnabled *bool `json:"pauseEnabled,omitempty" msgpack:"pauseEnabled,omitempty" bson:"pauseenabled,omitempty" mapstructure:"pauseEnabled,omitempty"`
+
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
 
-	// If enabled, the agent will scan for genAI applications and plugins.
-	ScanEnabled *bool `json:"scanEnabled,omitempty" msgpack:"scanEnabled,omitempty" bson:"scanenabled,omitempty" mapstructure:"scanEnabled,omitempty"`
+	// If disabled, the agent will not scan for genAI applications and plugins.
+	ScanDisabled *bool `json:"scanDisabled,omitempty" msgpack:"scanDisabled,omitempty" bson:"scandisabled,omitempty" mapstructure:"scanDisabled,omitempty"`
 
 	// The list of installed applications the scanner will look for.
 	ScanInstalledApps *[]*AgentDiscoveredApp `json:"scanInstalledApps,omitempty" msgpack:"scanInstalledApps,omitempty" bson:"scaninstalledapps,omitempty" mapstructure:"scanInstalledApps,omitempty"`
@@ -1519,6 +1528,9 @@ type SparseAgentConfig struct {
 
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses *[]string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"scanrunningprocesses,omitempty" mapstructure:"scanRunningProcesses,omitempty"`
+
+	// If disabled, the system proxy needs to be configured manually.
+	SystemProxyManagementDisabled *bool `json:"systemProxyManagementDisabled,omitempty" msgpack:"systemProxyManagementDisabled,omitempty" bson:"systemproxymanagementdisabled,omitempty" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1576,8 +1588,8 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseAgentConfig{}
 
-	if o.DNSMonitorEnabled != nil {
-		s.DNSMonitorEnabled = o.DNSMonitorEnabled
+	if o.DNSMonitorDisabled != nil {
+		s.DNSMonitorDisabled = o.DNSMonitorDisabled
 	}
 	if o.DNSMonitorPolicy != nil {
 		s.DNSMonitorPolicy = o.DNSMonitorPolicy
@@ -1585,8 +1597,8 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.ConfigPullInterval != nil {
-		s.ConfigPullInterval = o.ConfigPullInterval
+	if o.ConfigRefreshInterval != nil {
+		s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -1594,23 +1606,14 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
-	if o.DisableManagedCA != nil {
-		s.DisableManagedCA = o.DisableManagedCA
-	}
-	if o.DisableSystemProxyManagement != nil {
-		s.DisableSystemProxyManagement = o.DisableSystemProxyManagement
-	}
-	if o.DisableURLDiscovery != nil {
-		s.DisableURLDiscovery = o.DisableURLDiscovery
+	if o.DomainDiscoveryDisabled != nil {
+		s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	}
 	if o.DomainReportInterval != nil {
 		s.DomainReportInterval = o.DomainReportInterval
 	}
 	if o.EmergencyPauseEnabled != nil {
 		s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
-	}
-	if o.EnablePause != nil {
-		s.EnablePause = o.EnablePause
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -1621,6 +1624,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ListeningPort != nil {
 		s.ListeningPort = o.ListeningPort
 	}
+	if o.ManagedCADisabled != nil {
+		s.ManagedCADisabled = o.ManagedCADisabled
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1630,11 +1636,14 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.PacName != nil {
 		s.PacName = o.PacName
 	}
+	if o.PauseEnabled != nil {
+		s.PauseEnabled = o.PauseEnabled
+	}
 	if o.PingInterval != nil {
 		s.PingInterval = o.PingInterval
 	}
-	if o.ScanEnabled != nil {
-		s.ScanEnabled = o.ScanEnabled
+	if o.ScanDisabled != nil {
+		s.ScanDisabled = o.ScanDisabled
 	}
 	if o.ScanInstalledApps != nil {
 		s.ScanInstalledApps = o.ScanInstalledApps
@@ -1647,6 +1656,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	}
 	if o.ScanRunningProcesses != nil {
 		s.ScanRunningProcesses = o.ScanRunningProcesses
+	}
+	if o.SystemProxyManagementDisabled != nil {
+		s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1677,16 +1689,16 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	if s.DNSMonitorEnabled != nil {
-		o.DNSMonitorEnabled = s.DNSMonitorEnabled
+	if s.DNSMonitorDisabled != nil {
+		o.DNSMonitorDisabled = s.DNSMonitorDisabled
 	}
 	if s.DNSMonitorPolicy != nil {
 		o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	}
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.ConfigPullInterval != nil {
-		o.ConfigPullInterval = s.ConfigPullInterval
+	if s.ConfigRefreshInterval != nil {
+		o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
@@ -1694,23 +1706,14 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
-	if s.DisableManagedCA != nil {
-		o.DisableManagedCA = s.DisableManagedCA
-	}
-	if s.DisableSystemProxyManagement != nil {
-		o.DisableSystemProxyManagement = s.DisableSystemProxyManagement
-	}
-	if s.DisableURLDiscovery != nil {
-		o.DisableURLDiscovery = s.DisableURLDiscovery
+	if s.DomainDiscoveryDisabled != nil {
+		o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	}
 	if s.DomainReportInterval != nil {
 		o.DomainReportInterval = s.DomainReportInterval
 	}
 	if s.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
-	}
-	if s.EnablePause != nil {
-		o.EnablePause = s.EnablePause
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1721,6 +1724,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ListeningPort != nil {
 		o.ListeningPort = s.ListeningPort
 	}
+	if s.ManagedCADisabled != nil {
+		o.ManagedCADisabled = s.ManagedCADisabled
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -1730,11 +1736,14 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.PacName != nil {
 		o.PacName = s.PacName
 	}
+	if s.PauseEnabled != nil {
+		o.PauseEnabled = s.PauseEnabled
+	}
 	if s.PingInterval != nil {
 		o.PingInterval = s.PingInterval
 	}
-	if s.ScanEnabled != nil {
-		o.ScanEnabled = s.ScanEnabled
+	if s.ScanDisabled != nil {
+		o.ScanDisabled = s.ScanDisabled
 	}
 	if s.ScanInstalledApps != nil {
 		o.ScanInstalledApps = s.ScanInstalledApps
@@ -1747,6 +1756,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = s.ScanRunningProcesses
+	}
+	if s.SystemProxyManagementDisabled != nil {
+		o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1774,8 +1786,8 @@ func (o *SparseAgentConfig) Version() int {
 func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewAgentConfig()
-	if o.DNSMonitorEnabled != nil {
-		out.DNSMonitorEnabled = *o.DNSMonitorEnabled
+	if o.DNSMonitorDisabled != nil {
+		out.DNSMonitorDisabled = *o.DNSMonitorDisabled
 	}
 	if o.DNSMonitorPolicy != nil {
 		out.DNSMonitorPolicy = *o.DNSMonitorPolicy
@@ -1783,8 +1795,8 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.ConfigPullInterval != nil {
-		out.ConfigPullInterval = *o.ConfigPullInterval
+	if o.ConfigRefreshInterval != nil {
+		out.ConfigRefreshInterval = *o.ConfigRefreshInterval
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1792,23 +1804,14 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
-	if o.DisableManagedCA != nil {
-		out.DisableManagedCA = *o.DisableManagedCA
-	}
-	if o.DisableSystemProxyManagement != nil {
-		out.DisableSystemProxyManagement = *o.DisableSystemProxyManagement
-	}
-	if o.DisableURLDiscovery != nil {
-		out.DisableURLDiscovery = *o.DisableURLDiscovery
+	if o.DomainDiscoveryDisabled != nil {
+		out.DomainDiscoveryDisabled = *o.DomainDiscoveryDisabled
 	}
 	if o.DomainReportInterval != nil {
 		out.DomainReportInterval = *o.DomainReportInterval
 	}
 	if o.EmergencyPauseEnabled != nil {
 		out.EmergencyPauseEnabled = *o.EmergencyPauseEnabled
-	}
-	if o.EnablePause != nil {
-		out.EnablePause = *o.EnablePause
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1819,6 +1822,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ListeningPort != nil {
 		out.ListeningPort = *o.ListeningPort
 	}
+	if o.ManagedCADisabled != nil {
+		out.ManagedCADisabled = *o.ManagedCADisabled
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -1828,11 +1834,14 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.PacName != nil {
 		out.PacName = *o.PacName
 	}
+	if o.PauseEnabled != nil {
+		out.PauseEnabled = *o.PauseEnabled
+	}
 	if o.PingInterval != nil {
 		out.PingInterval = *o.PingInterval
 	}
-	if o.ScanEnabled != nil {
-		out.ScanEnabled = *o.ScanEnabled
+	if o.ScanDisabled != nil {
+		out.ScanDisabled = *o.ScanDisabled
 	}
 	if o.ScanInstalledApps != nil {
 		out.ScanInstalledApps = *o.ScanInstalledApps
@@ -1845,6 +1854,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ScanRunningProcesses != nil {
 		out.ScanRunningProcesses = *o.ScanRunningProcesses
+	}
+	if o.SystemProxyManagementDisabled != nil {
+		out.SystemProxyManagementDisabled = *o.SystemProxyManagementDisabled
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1967,62 +1979,62 @@ func (o *SparseAgentConfig) DeepCopyInto(out *SparseAgentConfig) {
 }
 
 type mongoAttributesAgentConfig struct {
-	DNSMonitorEnabled            bool                             `bson:"dnsmonitorenabled"`
-	DNSMonitorPolicy             AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
-	ID                           bson.ObjectId                    `bson:"_id,omitempty"`
-	ConfigPullInterval           string                           `bson:"configpullinterval"`
-	CreateTime                   time.Time                        `bson:"createtime"`
-	Description                  string                           `bson:"description"`
-	DisableManagedCA             bool                             `bson:"disablemanagedca"`
-	DisableSystemProxyManagement bool                             `bson:"disablesystemproxymanagement"`
-	DisableURLDiscovery          bool                             `bson:"disableurldiscovery"`
-	DomainReportInterval         string                           `bson:"domainreportinterval"`
-	EmergencyPauseEnabled        bool                             `bson:"emergencypauseenabled"`
-	EnablePause                  bool                             `bson:"enablepause"`
-	ImportHash                   string                           `bson:"importhash,omitempty"`
-	ImportLabel                  string                           `bson:"importlabel,omitempty"`
-	ListeningPort                string                           `bson:"listeningport"`
-	Name                         string                           `bson:"name"`
-	Namespace                    string                           `bson:"namespace,omitempty"`
-	PacName                      string                           `bson:"pacname"`
-	PingInterval                 string                           `bson:"pinginterval"`
-	ScanEnabled                  bool                             `bson:"scanenabled"`
-	ScanInstalledApps            []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
-	ScanInterval                 string                           `bson:"scaninterval"`
-	ScanReportInterval           string                           `bson:"scanreportinterval"`
-	ScanRunningProcesses         []string                         `bson:"scanrunningprocesses"`
-	UpdateTime                   time.Time                        `bson:"updatetime"`
-	UseDynamicPort               bool                             `bson:"usedynamicport"`
-	ZHash                        int                              `bson:"zhash"`
-	Zone                         int                              `bson:"zone"`
+	DNSMonitorDisabled            bool                             `bson:"dnsmonitordisabled"`
+	DNSMonitorPolicy              AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
+	ID                            bson.ObjectId                    `bson:"_id,omitempty"`
+	ConfigRefreshInterval         string                           `bson:"configrefreshinterval"`
+	CreateTime                    time.Time                        `bson:"createtime"`
+	Description                   string                           `bson:"description"`
+	DomainDiscoveryDisabled       bool                             `bson:"domaindiscoverydisabled"`
+	DomainReportInterval          string                           `bson:"domainreportinterval"`
+	EmergencyPauseEnabled         bool                             `bson:"emergencypauseenabled"`
+	ImportHash                    string                           `bson:"importhash,omitempty"`
+	ImportLabel                   string                           `bson:"importlabel,omitempty"`
+	ListeningPort                 string                           `bson:"listeningport"`
+	ManagedCADisabled             bool                             `bson:"managedcadisabled"`
+	Name                          string                           `bson:"name"`
+	Namespace                     string                           `bson:"namespace,omitempty"`
+	PacName                       string                           `bson:"pacname"`
+	PauseEnabled                  bool                             `bson:"pauseenabled"`
+	PingInterval                  string                           `bson:"pinginterval"`
+	ScanDisabled                  bool                             `bson:"scandisabled"`
+	ScanInstalledApps             []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
+	ScanInterval                  string                           `bson:"scaninterval"`
+	ScanReportInterval            string                           `bson:"scanreportinterval"`
+	ScanRunningProcesses          []string                         `bson:"scanrunningprocesses"`
+	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
+	UpdateTime                    time.Time                        `bson:"updatetime"`
+	UseDynamicPort                bool                             `bson:"usedynamicport"`
+	ZHash                         int                              `bson:"zhash"`
+	Zone                          int                              `bson:"zone"`
 }
 type mongoAttributesSparseAgentConfig struct {
-	DNSMonitorEnabled            *bool                             `bson:"dnsmonitorenabled,omitempty"`
-	DNSMonitorPolicy             *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
-	ID                           bson.ObjectId                     `bson:"_id,omitempty"`
-	ConfigPullInterval           *string                           `bson:"configpullinterval,omitempty"`
-	CreateTime                   *time.Time                        `bson:"createtime,omitempty"`
-	Description                  *string                           `bson:"description,omitempty"`
-	DisableManagedCA             *bool                             `bson:"disablemanagedca,omitempty"`
-	DisableSystemProxyManagement *bool                             `bson:"disablesystemproxymanagement,omitempty"`
-	DisableURLDiscovery          *bool                             `bson:"disableurldiscovery,omitempty"`
-	DomainReportInterval         *string                           `bson:"domainreportinterval,omitempty"`
-	EmergencyPauseEnabled        *bool                             `bson:"emergencypauseenabled,omitempty"`
-	EnablePause                  *bool                             `bson:"enablepause,omitempty"`
-	ImportHash                   *string                           `bson:"importhash,omitempty"`
-	ImportLabel                  *string                           `bson:"importlabel,omitempty"`
-	ListeningPort                *string                           `bson:"listeningport,omitempty"`
-	Name                         *string                           `bson:"name,omitempty"`
-	Namespace                    *string                           `bson:"namespace,omitempty"`
-	PacName                      *string                           `bson:"pacname,omitempty"`
-	PingInterval                 *string                           `bson:"pinginterval,omitempty"`
-	ScanEnabled                  *bool                             `bson:"scanenabled,omitempty"`
-	ScanInstalledApps            *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
-	ScanInterval                 *string                           `bson:"scaninterval,omitempty"`
-	ScanReportInterval           *string                           `bson:"scanreportinterval,omitempty"`
-	ScanRunningProcesses         *[]string                         `bson:"scanrunningprocesses,omitempty"`
-	UpdateTime                   *time.Time                        `bson:"updatetime,omitempty"`
-	UseDynamicPort               *bool                             `bson:"usedynamicport,omitempty"`
-	ZHash                        *int                              `bson:"zhash,omitempty"`
-	Zone                         *int                              `bson:"zone,omitempty"`
+	DNSMonitorDisabled            *bool                             `bson:"dnsmonitordisabled,omitempty"`
+	DNSMonitorPolicy              *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
+	ID                            bson.ObjectId                     `bson:"_id,omitempty"`
+	ConfigRefreshInterval         *string                           `bson:"configrefreshinterval,omitempty"`
+	CreateTime                    *time.Time                        `bson:"createtime,omitempty"`
+	Description                   *string                           `bson:"description,omitempty"`
+	DomainDiscoveryDisabled       *bool                             `bson:"domaindiscoverydisabled,omitempty"`
+	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
+	EmergencyPauseEnabled         *bool                             `bson:"emergencypauseenabled,omitempty"`
+	ImportHash                    *string                           `bson:"importhash,omitempty"`
+	ImportLabel                   *string                           `bson:"importlabel,omitempty"`
+	ListeningPort                 *string                           `bson:"listeningport,omitempty"`
+	ManagedCADisabled             *bool                             `bson:"managedcadisabled,omitempty"`
+	Name                          *string                           `bson:"name,omitempty"`
+	Namespace                     *string                           `bson:"namespace,omitempty"`
+	PacName                       *string                           `bson:"pacname,omitempty"`
+	PauseEnabled                  *bool                             `bson:"pauseenabled,omitempty"`
+	PingInterval                  *string                           `bson:"pinginterval,omitempty"`
+	ScanDisabled                  *bool                             `bson:"scandisabled,omitempty"`
+	ScanInstalledApps             *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
+	ScanInterval                  *string                           `bson:"scaninterval,omitempty"`
+	ScanReportInterval            *string                           `bson:"scanreportinterval,omitempty"`
+	ScanRunningProcesses          *[]string                         `bson:"scanrunningprocesses,omitempty"`
+	SystemProxyManagementDisabled *bool                             `bson:"systemproxymanagementdisabled,omitempty"`
+	UpdateTime                    *time.Time                        `bson:"updatetime,omitempty"`
+	UseDynamicPort                *bool                             `bson:"usedynamicport,omitempty"`
+	ZHash                         *int                              `bson:"zhash,omitempty"`
+	Zone                          *int                              `bson:"zone,omitempty"`
 }

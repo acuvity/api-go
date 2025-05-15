@@ -1092,8 +1092,8 @@ func ValidatePEM(attribute string, pemdata string) error {
 func ValidateAgentConfig(agentConfig *AgentConfig) error {
 
 	// Duration validation is already done prior to this
-	if d, _ := time.ParseDuration(agentConfig.ConfigPullInterval); d < 5*time.Minute {
-		return makeErr("configPullInterval", "'ConfigPullInterval' cannot be lower than 5m")
+	if d, _ := time.ParseDuration(agentConfig.ConfigRefreshInterval); d < 5*time.Minute {
+		return makeErr("configRefreshInterval", "'ConfigRefreshInterval' cannot be lower than 5m")
 	}
 
 	if d, _ := time.ParseDuration(agentConfig.DomainReportInterval); d < 5*time.Minute {
@@ -1190,6 +1190,19 @@ func ValidateIPPort(attribute string, ipPort string) error {
 	ip := net.ParseIP(host)
 	if ip == nil {
 		return makeErr(attribute, fmt.Sprintf("Invalid IP address '%s': %s", host, err))
+	}
+
+	return nil
+}
+
+// ValidateAgentConfig validates the agent configuration object.
+func ValidateOrgStorage(orgStorage *OrgStorage) error {
+
+	byteCount := len(orgStorage.Value)
+	sizeKB := float64(byteCount) / 1e3
+
+	if sizeKB > 200 {
+		return makeErr("value", "The value is limited to 200KB")
 	}
 
 	return nil
