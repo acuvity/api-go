@@ -1,0 +1,40 @@
+{
+  "$extends": [],
+  "$friendlyName": "Tool Choice",
+  "$friendlyNamePlural": "Tool Choices",
+  "$modelName": "ToolChoice",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "toolchoices",
+  "$modelRestName": "toolchoice",
+  "additionalProperties": false,
+  "description": "Represents the tool choice that can be passed along together with tools.",
+  "properties": {
+    "choice": {
+      "$defaultValue": "Auto",
+      "$friendlyName": "Choice",
+      "$required": true,
+      "description": "Model instructions on tool choice.",
+      "enum": [
+        "Auto",
+        "Any",
+        "None",
+        "Tool"
+      ],
+      "title": "choice"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "If choice is Tool, this will be set to the name of the tool to use.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "choice"
+  ],
+  "title": "ToolChoice",
+  "type": "object"
+}

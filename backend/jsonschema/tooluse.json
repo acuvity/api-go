@@ -1,0 +1,51 @@
+{
+  "$extends": [],
+  "$friendlyName": "Tool Use",
+  "$friendlyNamePlural": "Tool Uses",
+  "$modelName": "ToolUse",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "tooluses",
+  "$modelRestName": "tooluse",
+  "additionalProperties": false,
+  "description": "Represents the tool use which are instructions by a model on what tool to call and how.",
+  "properties": {
+    "callID": {
+      "$friendlyName": "Call ID",
+      "$required": true,
+      "description": "The ID of the tool use which the user or application must pass when posting back the tool call results.",
+      "title": "callID",
+      "type": "string"
+    },
+    "input": {
+      "$friendlyName": "Input",
+      "description": "The input to the tool call. This should be a JSON object which must conform to the JSON schema as was previously defined for the tool.",
+      "title": "input",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the tool to call.",
+      "title": "name",
+      "type": "string"
+    },
+    "serverName": {
+      "$friendlyName": "Server Name",
+      "description": "The name of the remote MCP server that will execute this call.",
+      "title": "serverName",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "callID",
+    "name"
+  ],
+  "title": "ToolUse",
+  "type": "object"
+}

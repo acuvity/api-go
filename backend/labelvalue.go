@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o LabelValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the LabelValuesList.
 func (o LabelValuesList) Copy() elemental.Identifiables {
 
-	out := append(LabelValuesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the LabelValuesList.
 func (o LabelValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(LabelValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*LabelValue))
 	}
@@ -50,7 +51,7 @@ func (o LabelValuesList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o LabelValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o LabelValuesList) DefaultOrder() []string {
 func (o LabelValuesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseLabelValuesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseLabelValue)
 	}
 
@@ -652,14 +653,14 @@ func (o SparseLabelValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseLabelValuesList.
 func (o SparseLabelValuesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseLabelValuesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseLabelValuesList.
 func (o SparseLabelValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseLabelValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseLabelValue))
 	}
@@ -671,7 +672,7 @@ func (o SparseLabelValuesList) Append(objects ...elemental.Identifiable) element
 func (o SparseLabelValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -688,7 +689,7 @@ func (o SparseLabelValuesList) DefaultOrder() []string {
 func (o SparseLabelValuesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

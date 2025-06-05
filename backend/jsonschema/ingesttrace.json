@@ -1,0 +1,66 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@principalable"
+  ],
+  "$friendlyName": "Ingest Traces",
+  "$friendlyNamePlural": "Ingest Traces",
+  "$modelName": "IngestTrace",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "ingesttraces",
+  "$modelRestName": "ingesttrace",
+  "additionalProperties": false,
+  "description": "Ingest Traces allows to import OTLP traces into the system.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "raw": {
+      "$friendlyName": "Raw",
+      "description": "The raw OTLP traces in JSON encoded format. If this is set, you must not set the traces field. This will ingest everything about this trace and make it available to Acuvity.",
+      "title": "raw",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "traces": {
+      "$friendlyName": "Traces",
+      "description": "The traces to ingest. If this is set, the raw input field must not be set. This is the recommended way on how to ingest trace data into Acuvity. This will ingest only the necessary core data of a trace.",
+      "items": {
+        "$ref": "traceref.json"
+      },
+      "title": "traces",
+      "type": "array"
+    }
+  },
+  "required": [
+    "principal"
+  ],
+  "title": "IngestTrace",
+  "type": "object"
+}

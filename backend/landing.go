@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -45,14 +46,14 @@ func (o LandingsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the LandingsList.
 func (o LandingsList) Copy() elemental.Identifiables {
 
-	out := append(LandingsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the LandingsList.
 func (o LandingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(LandingsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Landing))
 	}
@@ -64,7 +65,7 @@ func (o LandingsList) Append(objects ...elemental.Identifiable) elemental.Identi
 func (o LandingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -82,7 +83,7 @@ func (o LandingsList) DefaultOrder() []string {
 func (o LandingsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseLandingsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseLanding)
 	}
 
@@ -388,14 +389,14 @@ func (o SparseLandingsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseLandingsList.
 func (o SparseLandingsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseLandingsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseLandingsList.
 func (o SparseLandingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseLandingsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseLanding))
 	}
@@ -407,7 +408,7 @@ func (o SparseLandingsList) Append(objects ...elemental.Identifiable) elemental.
 func (o SparseLandingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -424,7 +425,7 @@ func (o SparseLandingsList) DefaultOrder() []string {
 func (o SparseLandingsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

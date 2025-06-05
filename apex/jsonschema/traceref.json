@@ -7,11 +7,25 @@
   "$modelResourceName": "tracerefs",
   "$modelRestName": "traceref",
   "additionalProperties": false,
-  "description": "Holds all references to a trace.",
+  "description": "Holds all references to a trace which are also the essentials of the span data.",
   "properties": {
+    "kind": {
+      "$defaultValue": "Unspecified",
+      "$friendlyName": "Kind",
+      "description": "The kind of the span.",
+      "enum": [
+        "Unspecified",
+        "Internal",
+        "Server",
+        "Client",
+        "Producer",
+        "Consumer"
+      ],
+      "title": "kind"
+    },
     "parentSpanID": {
       "$friendlyName": "Parent Span ID",
-      "description": "The parent span ID that is being referenced.",
+      "description": "The parent span ID that is being referenced as hex encoded string.",
       "title": "parentSpanID",
       "type": [
         "string",
@@ -46,10 +60,30 @@
       "title": "spanStart",
       "type": "string"
     },
+    "statusCode": {
+      "$defaultValue": "Unset",
+      "$friendlyName": "Status Code",
+      "description": "Status Code of a span.",
+      "enum": [
+        "Unset",
+        "OK",
+        "Error"
+      ],
+      "title": "statusCode"
+    },
+    "statusMessage": {
+      "$friendlyName": "Status Message",
+      "description": "A developer-facing human readable error message.",
+      "title": "statusMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "traceID": {
       "$friendlyName": "ID",
       "$required": true,
-      "description": "The Trace ID that is being referenced.",
+      "description": "The Trace ID that is being referenced as hex encoded string.",
       "title": "traceID",
       "type": "string"
     }

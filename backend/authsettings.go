@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -45,14 +46,14 @@ func (o AuthSettingsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AuthSettingsList.
 func (o AuthSettingsList) Copy() elemental.Identifiables {
 
-	out := append(AuthSettingsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AuthSettingsList.
 func (o AuthSettingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AuthSettingsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AuthSettings))
 	}
@@ -64,7 +65,7 @@ func (o AuthSettingsList) Append(objects ...elemental.Identifiable) elemental.Id
 func (o AuthSettingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -82,7 +83,7 @@ func (o AuthSettingsList) DefaultOrder() []string {
 func (o AuthSettingsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAuthSettingsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAuthSettings)
 	}
 
@@ -361,14 +362,14 @@ func (o SparseAuthSettingsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAuthSettingsList.
 func (o SparseAuthSettingsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAuthSettingsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAuthSettingsList.
 func (o SparseAuthSettingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAuthSettingsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAuthSettings))
 	}
@@ -380,7 +381,7 @@ func (o SparseAuthSettingsList) Append(objects ...elemental.Identifiable) elemen
 func (o SparseAuthSettingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -397,7 +398,7 @@ func (o SparseAuthSettingsList) DefaultOrder() []string {
 func (o SparseAuthSettingsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

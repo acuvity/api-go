@@ -11,13 +11,40 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// ToolCategoryValue represents the possible values for attribute "category".
+type ToolCategoryValue string
+
+const (
+	// ToolCategoryClient represents the value Client.
+	ToolCategoryClient ToolCategoryValue = "Client"
+
+	// ToolCategoryRemoteMCP represents the value RemoteMCP.
+	ToolCategoryRemoteMCP ToolCategoryValue = "RemoteMCP"
+
+	// ToolCategoryServer represents the value Server.
+	ToolCategoryServer ToolCategoryValue = "Server"
+)
+
 // Tool represents the model of a tool
 type Tool struct {
+	// For MCP tools these represent optional hints about tool behavior.
+	MCPAnnotations *MCPToolAnnotations `json:"MCPAnnotations,omitempty" msgpack:"MCPAnnotations,omitempty" bson:"mcpannotations,omitempty" mapstructure:"MCPAnnotations,omitempty"`
+
+	// If category is RemoteMCP, then this describes the remote MCP server.
+	MCPServer *MCPServer `json:"MCPServer,omitempty" msgpack:"MCPServer,omitempty" bson:"mcpserver,omitempty" mapstructure:"MCPServer,omitempty"`
+
+	// The category of the tool. This relays information about where the tool is being
+	// used. This can be empty if unknown or if this is a tool listing of MCP servers.
+	Category ToolCategoryValue `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
+
 	// The description of the tool.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// The name of the tool.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The type of the tool as can be optionally passed by the provider.
+	Type string `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -40,8 +67,12 @@ func (o *Tool) GetBSON() (any, error) {
 
 	s := &mongoAttributesTool{}
 
+	s.MCPAnnotations = o.MCPAnnotations
+	s.MCPServer = o.MCPServer
+	s.Category = o.Category
 	s.Description = o.Description
 	s.Name = o.Name
+	s.Type = o.Type
 
 	return s, nil
 }
@@ -59,8 +90,12 @@ func (o *Tool) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.MCPAnnotations = s.MCPAnnotations
+	o.MCPServer = s.MCPServer
+	o.Category = s.Category
 	o.Description = s.Description
 	o.Name = s.Name
+	o.Type = s.Type
 
 	return nil
 }
@@ -101,6 +136,24 @@ func (o *Tool) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.MCPAnnotations != nil {
+		elemental.ResetDefaultForZeroValues(o.MCPAnnotations)
+		if err := o.MCPAnnotations.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.MCPServer != nil {
+		elemental.ResetDefaultForZeroValues(o.MCPServer)
+		if err := o.MCPServer.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("category", string(o.Category), []string{"Client", "Server", "RemoteMCP"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -135,10 +188,18 @@ func (*Tool) AttributeSpecifications() map[string]elemental.AttributeSpecificati
 func (o *Tool) ValueForAttribute(name string) any {
 
 	switch name {
+	case "MCPAnnotations":
+		return o.MCPAnnotations
+	case "MCPServer":
+		return o.MCPServer
+	case "category":
+		return o.Category
 	case "description":
 		return o.Description
 	case "name":
 		return o.Name
+	case "type":
+		return o.Type
 	}
 
 	return nil
@@ -146,6 +207,39 @@ func (o *Tool) ValueForAttribute(name string) any {
 
 // ToolAttributesMap represents the map of attribute for Tool.
 var ToolAttributesMap = map[string]elemental.AttributeSpecification{
+	"MCPAnnotations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpannotations",
+		ConvertedName:  "MCPAnnotations",
+		Description:    `For MCP tools these represent optional hints about tool behavior.`,
+		Exposed:        true,
+		Name:           "MCPAnnotations",
+		Stored:         true,
+		SubType:        "mcptoolannotations",
+		Type:           "ref",
+	},
+	"MCPServer": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpserver",
+		ConvertedName:  "MCPServer",
+		Description:    `If category is RemoteMCP, then this describes the remote MCP server.`,
+		Exposed:        true,
+		Name:           "MCPServer",
+		Stored:         true,
+		SubType:        "mcpserver",
+		Type:           "ref",
+	},
+	"Category": {
+		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
+		BSONFieldName:  "category",
+		ConvertedName:  "Category",
+		Description: `The category of the tool. This relays information about where the tool is being
+used. This can be empty if unknown or if this is a tool listing of MCP servers.`,
+		Exposed: true,
+		Name:    "category",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -166,10 +260,53 @@ var ToolAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Type": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of the tool as can be optionally passed by the provider.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // ToolLowerCaseAttributesMap represents the map of attribute for Tool.
 var ToolLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"mcpannotations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpannotations",
+		ConvertedName:  "MCPAnnotations",
+		Description:    `For MCP tools these represent optional hints about tool behavior.`,
+		Exposed:        true,
+		Name:           "MCPAnnotations",
+		Stored:         true,
+		SubType:        "mcptoolannotations",
+		Type:           "ref",
+	},
+	"mcpserver": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpserver",
+		ConvertedName:  "MCPServer",
+		Description:    `If category is RemoteMCP, then this describes the remote MCP server.`,
+		Exposed:        true,
+		Name:           "MCPServer",
+		Stored:         true,
+		SubType:        "mcpserver",
+		Type:           "ref",
+	},
+	"category": {
+		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
+		BSONFieldName:  "category",
+		ConvertedName:  "Category",
+		Description: `The category of the tool. This relays information about where the tool is being
+used. This can be empty if unknown or if this is a tool listing of MCP servers.`,
+		Exposed: true,
+		Name:    "category",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -190,9 +327,23 @@ var ToolLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"type": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of the tool as can be optionally passed by the provider.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 type mongoAttributesTool struct {
-	Description string `bson:"description,omitempty"`
-	Name        string `bson:"name,omitempty"`
+	MCPAnnotations *MCPToolAnnotations `bson:"mcpannotations,omitempty"`
+	MCPServer      *MCPServer          `bson:"mcpserver,omitempty"`
+	Category       ToolCategoryValue   `bson:"category,omitempty"`
+	Description    string              `bson:"description,omitempty"`
+	Name           string              `bson:"name,omitempty"`
+	Type           string              `bson:"type,omitempty"`
 }

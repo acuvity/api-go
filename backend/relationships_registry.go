@@ -707,6 +707,12 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[IngestTraceIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[IngressProviderConfigIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[LabelValueIdentity] = &elemental.Relationship{

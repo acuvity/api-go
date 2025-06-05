@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -66,14 +67,14 @@ func (o ScanResponsesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ScanResponsesList.
 func (o ScanResponsesList) Copy() elemental.Identifiables {
 
-	out := append(ScanResponsesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ScanResponsesList.
 func (o ScanResponsesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ScanResponsesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ScanResponse))
 	}
@@ -85,7 +86,7 @@ func (o ScanResponsesList) Append(objects ...elemental.Identifiable) elemental.I
 func (o ScanResponsesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -103,7 +104,7 @@ func (o ScanResponsesList) DefaultOrder() []string {
 func (o ScanResponsesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseScanResponsesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseScanResponse)
 	}
 
@@ -145,6 +146,9 @@ type ScanResponse struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// If this is an MCP message, then the MCP message details will be set here.
+	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
+
 	// The model used by the request.
 	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
 
@@ -168,6 +172,9 @@ type ScanResponse struct {
 
 	// Set the time of the message request.
 	Time time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// Tool choice instructions for the model of a request.
+	ToolChoice *ToolChoice `json:"toolChoice,omitempty" msgpack:"toolChoice,omitempty" bson:"toolchoice,omitempty" mapstructure:"toolChoice,omitempty"`
 
 	// The various tools used by the request.
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
@@ -230,6 +237,7 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
 	s.Latency = o.Latency
+	s.McpMessage = o.McpMessage
 	s.Model = o.Model
 	s.Namespace = o.Namespace
 	s.PipelineName = o.PipelineName
@@ -237,6 +245,7 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
+	s.ToolChoice = o.ToolChoice
 	s.Tools = o.Tools
 	s.Trace = o.Trace
 	s.Type = o.Type
@@ -266,6 +275,7 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
 	o.Latency = s.Latency
+	o.McpMessage = s.McpMessage
 	o.Model = s.Model
 	o.Namespace = s.Namespace
 	o.PipelineName = s.PipelineName
@@ -273,6 +283,7 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
+	o.ToolChoice = s.ToolChoice
 	o.Tools = s.Tools
 	o.Trace = s.Trace
 	o.Type = s.Type
@@ -337,6 +348,7 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Extractions:   &o.Extractions,
 			Hash:          &o.Hash,
 			Latency:       o.Latency,
+			McpMessage:    o.McpMessage,
 			Model:         &o.Model,
 			Namespace:     &o.Namespace,
 			PipelineName:  &o.PipelineName,
@@ -345,6 +357,7 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
+			ToolChoice:    o.ToolChoice,
 			Tools:         &o.Tools,
 			Trace:         o.Trace,
 			Type:          &o.Type,
@@ -372,6 +385,8 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Hash = &(o.Hash)
 		case "latency":
 			sp.Latency = o.Latency
+		case "mcpMessage":
+			sp.McpMessage = o.McpMessage
 		case "model":
 			sp.Model = &(o.Model)
 		case "namespace":
@@ -388,6 +403,8 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Summary = o.Summary
 		case "time":
 			sp.Time = &(o.Time)
+		case "toolChoice":
+			sp.ToolChoice = o.ToolChoice
 		case "tools":
 			sp.Tools = &(o.Tools)
 		case "trace":
@@ -434,6 +451,9 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Latency != nil {
 		o.Latency = so.Latency
 	}
+	if so.McpMessage != nil {
+		o.McpMessage = so.McpMessage
+	}
 	if so.Model != nil {
 		o.Model = *so.Model
 	}
@@ -457,6 +477,9 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Time != nil {
 		o.Time = *so.Time
+	}
+	if so.ToolChoice != nil {
+		o.ToolChoice = so.ToolChoice
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
@@ -530,6 +553,13 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
+	if o.McpMessage != nil {
+		elemental.ResetDefaultForZeroValues(o.McpMessage)
+		if err := o.McpMessage.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.Principal != nil {
 		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
@@ -540,6 +570,13 @@ func (o *ScanResponse) Validate() error {
 	if o.Summary != nil {
 		elemental.ResetDefaultForZeroValues(o.Summary)
 		if err := o.Summary.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		elemental.ResetDefaultForZeroValues(o.ToolChoice)
+		if err := o.ToolChoice.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -617,6 +654,8 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 		return o.Hash
 	case "latency":
 		return o.Latency
+	case "mcpMessage":
+		return o.McpMessage
 	case "model":
 		return o.Model
 	case "namespace":
@@ -633,6 +672,8 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 		return o.Summary
 	case "time":
 		return o.Time
+	case "toolChoice":
+		return o.ToolChoice
 	case "tools":
 		return o.Tools
 	case "trace":
@@ -745,6 +786,17 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"McpMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpmessage",
+		ConvertedName:  "McpMessage",
+		Description:    `If this is an MCP message, then the MCP message details will be set here.`,
+		Exposed:        true,
+		Name:           "mcpMessage",
+		Stored:         true,
+		SubType:        "mcpmessage",
+		Type:           "ref",
+	},
 	"Model": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "model",
@@ -831,6 +883,17 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"ToolChoice": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolchoice",
+		ConvertedName:  "ToolChoice",
+		Description:    `Tool choice instructions for the model of a request.`,
+		Exposed:        true,
+		Name:           "toolChoice",
+		Stored:         true,
+		SubType:        "toolchoice",
+		Type:           "ref",
 	},
 	"Tools": {
 		AllowedChoices: []string{},
@@ -967,6 +1030,17 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"mcpmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpmessage",
+		ConvertedName:  "McpMessage",
+		Description:    `If this is an MCP message, then the MCP message details will be set here.`,
+		Exposed:        true,
+		Name:           "mcpMessage",
+		Stored:         true,
+		SubType:        "mcpmessage",
+		Type:           "ref",
+	},
 	"model": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "model",
@@ -1054,6 +1128,17 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Name:           "time",
 		Type:           "time",
 	},
+	"toolchoice": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolchoice",
+		ConvertedName:  "ToolChoice",
+		Description:    `Tool choice instructions for the model of a request.`,
+		Exposed:        true,
+		Name:           "toolChoice",
+		Stored:         true,
+		SubType:        "toolchoice",
+		Type:           "ref",
+	},
 	"tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -1100,14 +1185,14 @@ func (o SparseScanResponsesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseScanResponsesList.
 func (o SparseScanResponsesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseScanResponsesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseScanResponsesList.
 func (o SparseScanResponsesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseScanResponsesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseScanResponse))
 	}
@@ -1119,7 +1204,7 @@ func (o SparseScanResponsesList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseScanResponsesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1136,7 +1221,7 @@ func (o SparseScanResponsesList) DefaultOrder() []string {
 func (o SparseScanResponsesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -1178,6 +1263,9 @@ type SparseScanResponse struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// If this is an MCP message, then the MCP message details will be set here.
+	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
+
 	// The model used by the request.
 	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
@@ -1201,6 +1289,9 @@ type SparseScanResponse struct {
 
 	// Set the time of the message request.
 	Time *time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// Tool choice instructions for the model of a request.
+	ToolChoice *ToolChoice `json:"toolChoice,omitempty" msgpack:"toolChoice,omitempty" bson:"toolchoice,omitempty" mapstructure:"toolChoice,omitempty"`
 
 	// The various tools used by the request.
 	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
@@ -1281,6 +1372,9 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 	if o.Latency != nil {
 		s.Latency = o.Latency
 	}
+	if o.McpMessage != nil {
+		s.McpMessage = o.McpMessage
+	}
 	if o.Model != nil {
 		s.Model = o.Model
 	}
@@ -1301,6 +1395,9 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 	}
 	if o.Summary != nil {
 		s.Summary = o.Summary
+	}
+	if o.ToolChoice != nil {
+		s.ToolChoice = o.ToolChoice
 	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
@@ -1354,6 +1451,9 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 	if s.Latency != nil {
 		o.Latency = s.Latency
 	}
+	if s.McpMessage != nil {
+		o.McpMessage = s.McpMessage
+	}
 	if s.Model != nil {
 		o.Model = s.Model
 	}
@@ -1374,6 +1474,9 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
+	}
+	if s.ToolChoice != nil {
+		o.ToolChoice = s.ToolChoice
 	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
@@ -1425,6 +1528,9 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Latency != nil {
 		out.Latency = o.Latency
 	}
+	if o.McpMessage != nil {
+		out.McpMessage = o.McpMessage
+	}
 	if o.Model != nil {
 		out.Model = *o.Model
 	}
@@ -1448,6 +1554,9 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Time != nil {
 		out.Time = *o.Time
+	}
+	if o.ToolChoice != nil {
+		out.ToolChoice = o.ToolChoice
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
@@ -1512,6 +1621,7 @@ type mongoAttributesScanResponse struct {
 	Extractions   []*Extraction             `bson:"extractions,omitempty"`
 	Hash          string                    `bson:"hash"`
 	Latency       *Latency                  `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage               `bson:"mcpmessage,omitempty"`
 	Model         string                    `bson:"model"`
 	Namespace     string                    `bson:"namespace,omitempty"`
 	PipelineName  string                    `bson:"pipelinename"`
@@ -1519,6 +1629,7 @@ type mongoAttributesScanResponse struct {
 	Provider      string                    `bson:"provider"`
 	Reasons       []string                  `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary        `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice               `bson:"toolchoice,omitempty"`
 	Tools         map[string]*Tool          `bson:"tools,omitempty"`
 	Trace         *TraceRef                 `bson:"trace"`
 	Type          ScanResponseTypeValue     `bson:"type"`
@@ -1533,6 +1644,7 @@ type mongoAttributesSparseScanResponse struct {
 	Extractions   *[]*Extraction             `bson:"extractions,omitempty"`
 	Hash          *string                    `bson:"hash,omitempty"`
 	Latency       *Latency                   `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage                `bson:"mcpmessage,omitempty"`
 	Model         *string                    `bson:"model,omitempty"`
 	Namespace     *string                    `bson:"namespace,omitempty"`
 	PipelineName  *string                    `bson:"pipelinename,omitempty"`
@@ -1540,6 +1652,7 @@ type mongoAttributesSparseScanResponse struct {
 	Provider      *string                    `bson:"provider,omitempty"`
 	Reasons       *[]string                  `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary         `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice                `bson:"toolchoice,omitempty"`
 	Tools         *map[string]*Tool          `bson:"tools,omitempty"`
 	Trace         *TraceRef                  `bson:"trace,omitempty"`
 	Type          *ScanResponseTypeValue     `bson:"type,omitempty"`

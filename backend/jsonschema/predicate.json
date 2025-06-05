@@ -62,6 +62,15 @@
       ],
       "title": "operator"
     },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The minimum (including) score the detection must have in order to make the predicate true.",
+      "title": "score",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
     "values": {
       "$friendlyName": "Values",
       "description": "The values of the predicate.",

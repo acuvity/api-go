@@ -36,6 +36,12 @@ type ExtractionRequest struct {
 	// This is an internal field and has no api meaning.
 	OriginalData string `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
+	// Tool call results which are passed in to this request.
+	ToolResults []ToolResult `json:"toolResults,omitempty" msgpack:"toolResults,omitempty" bson:"toolresults,omitempty" mapstructure:"toolResults,omitempty"`
+
+	// Tool uses as requested by a model.
+	ToolUses []ToolUse `json:"toolUses,omitempty" msgpack:"toolUses,omitempty" bson:"tooluses,omitempty" mapstructure:"toolUses,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -64,6 +70,8 @@ func (o *ExtractionRequest) GetBSON() (any, error) {
 	s.IsFile = o.IsFile
 	s.IsStored = o.IsStored
 	s.Label = o.Label
+	s.ToolResults = o.ToolResults
+	s.ToolUses = o.ToolUses
 
 	return s, nil
 }
@@ -86,6 +94,8 @@ func (o *ExtractionRequest) SetBSON(raw bson.Raw) error {
 	o.IsFile = s.IsFile
 	o.IsStored = s.IsStored
 	o.Label = s.Label
+	o.ToolResults = s.ToolResults
+	o.ToolUses = s.ToolUses
 
 	return nil
 }
@@ -125,6 +135,20 @@ func (o *ExtractionRequest) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for _, sub := range o.ToolResults {
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors
@@ -174,6 +198,10 @@ func (o *ExtractionRequest) ValueForAttribute(name string) any {
 		return o.Label
 	case "originalData":
 		return o.OriginalData
+	case "toolResults":
+		return o.ToolResults
+	case "toolUses":
+		return o.ToolUses
 	}
 
 	return nil
@@ -243,6 +271,29 @@ code.`,
 		Stored:  true,
 		Type:    "string",
 	},
+
+	"ToolResults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"ToolUses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
+	},
 }
 
 // ExtractionRequestLowerCaseAttributesMap represents the map of attribute for ExtractionRequest.
@@ -309,6 +360,29 @@ code.`,
 		Stored:  true,
 		Type:    "string",
 	},
+
+	"toolresults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"tooluses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
+	},
 }
 
 type mongoAttributesExtractionRequest struct {
@@ -317,4 +391,6 @@ type mongoAttributesExtractionRequest struct {
 	IsFile      bool              `bson:"isfile,omitempty"`
 	IsStored    bool              `bson:"isstored,omitempty"`
 	Label       string            `bson:"label,omitempty"`
+	ToolResults []ToolResult      `bson:"toolresults,omitempty"`
+	ToolUses    []ToolUse         `bson:"tooluses,omitempty"`
 }

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o MetricRangesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the MetricRangesList.
 func (o MetricRangesList) Copy() elemental.Identifiables {
 
-	out := append(MetricRangesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the MetricRangesList.
 func (o MetricRangesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(MetricRangesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*MetricRange))
 	}
@@ -50,7 +51,7 @@ func (o MetricRangesList) Append(objects ...elemental.Identifiable) elemental.Id
 func (o MetricRangesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o MetricRangesList) DefaultOrder() []string {
 func (o MetricRangesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseMetricRangesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseMetricRange)
 	}
 
@@ -683,14 +684,14 @@ func (o SparseMetricRangesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseMetricRangesList.
 func (o SparseMetricRangesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseMetricRangesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseMetricRangesList.
 func (o SparseMetricRangesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseMetricRangesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseMetricRange))
 	}
@@ -702,7 +703,7 @@ func (o SparseMetricRangesList) Append(objects ...elemental.Identifiable) elemen
 func (o SparseMetricRangesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -719,7 +720,7 @@ func (o SparseMetricRangesList) DefaultOrder() []string {
 func (o SparseMetricRangesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -46,14 +47,14 @@ func (o CustomDataSetsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the CustomDataSetsList.
 func (o CustomDataSetsList) Copy() elemental.Identifiables {
 
-	out := append(CustomDataSetsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the CustomDataSetsList.
 func (o CustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(CustomDataSetsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*CustomDataSet))
 	}
@@ -65,7 +66,7 @@ func (o CustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.
 func (o CustomDataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -83,7 +84,7 @@ func (o CustomDataSetsList) DefaultOrder() []string {
 func (o CustomDataSetsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseCustomDataSetsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseCustomDataSet)
 	}
 
@@ -895,14 +896,14 @@ func (o SparseCustomDataSetsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseCustomDataSetsList.
 func (o SparseCustomDataSetsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseCustomDataSetsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseCustomDataSetsList.
 func (o SparseCustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseCustomDataSetsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseCustomDataSet))
 	}
@@ -914,7 +915,7 @@ func (o SparseCustomDataSetsList) Append(objects ...elemental.Identifiable) elem
 func (o SparseCustomDataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -931,7 +932,7 @@ func (o SparseCustomDataSetsList) DefaultOrder() []string {
 func (o SparseCustomDataSetsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o OrgStoragesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the OrgStoragesList.
 func (o OrgStoragesList) Copy() elemental.Identifiables {
 
-	out := append(OrgStoragesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the OrgStoragesList.
 func (o OrgStoragesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(OrgStoragesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*OrgStorage))
 	}
@@ -51,7 +52,7 @@ func (o OrgStoragesList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o OrgStoragesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o OrgStoragesList) DefaultOrder() []string {
 func (o OrgStoragesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseOrgStoragesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseOrgStorage)
 	}
 
@@ -716,14 +717,14 @@ func (o SparseOrgStoragesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseOrgStoragesList.
 func (o SparseOrgStoragesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseOrgStoragesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseOrgStoragesList.
 func (o SparseOrgStoragesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseOrgStoragesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseOrgStorage))
 	}
@@ -735,7 +736,7 @@ func (o SparseOrgStoragesList) Append(objects ...elemental.Identifiable) element
 func (o SparseOrgStoragesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -752,7 +753,7 @@ func (o SparseOrgStoragesList) DefaultOrder() []string {
 func (o SparseOrgStoragesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

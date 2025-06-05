@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o PrincipalUsersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PrincipalUsersList.
 func (o PrincipalUsersList) Copy() elemental.Identifiables {
 
-	out := append(PrincipalUsersList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PrincipalUsersList.
 func (o PrincipalUsersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PrincipalUsersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PrincipalUser))
 	}
@@ -50,7 +51,7 @@ func (o PrincipalUsersList) Append(objects ...elemental.Identifiable) elemental.
 func (o PrincipalUsersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o PrincipalUsersList) DefaultOrder() []string {
 func (o PrincipalUsersList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePrincipalUsersList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePrincipalUser)
 	}
 
@@ -321,14 +322,14 @@ func (o SparsePrincipalUsersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePrincipalUsersList.
 func (o SparsePrincipalUsersList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePrincipalUsersList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePrincipalUsersList.
 func (o SparsePrincipalUsersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePrincipalUsersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePrincipalUser))
 	}
@@ -340,7 +341,7 @@ func (o SparsePrincipalUsersList) Append(objects ...elemental.Identifiable) elem
 func (o SparsePrincipalUsersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -357,7 +358,7 @@ func (o SparsePrincipalUsersList) DefaultOrder() []string {
 func (o SparsePrincipalUsersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

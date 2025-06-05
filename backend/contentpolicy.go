@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o ContentPoliciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ContentPoliciesList.
 func (o ContentPoliciesList) Copy() elemental.Identifiables {
 
-	out := append(ContentPoliciesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ContentPoliciesList.
 func (o ContentPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ContentPoliciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ContentPolicy))
 	}
@@ -51,7 +52,7 @@ func (o ContentPoliciesList) Append(objects ...elemental.Identifiable) elemental
 func (o ContentPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o ContentPoliciesList) DefaultOrder() []string {
 func (o ContentPoliciesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseContentPoliciesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseContentPolicy)
 	}
 
@@ -855,14 +856,14 @@ func (o SparseContentPoliciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseContentPoliciesList.
 func (o SparseContentPoliciesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseContentPoliciesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseContentPoliciesList.
 func (o SparseContentPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseContentPoliciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseContentPolicy))
 	}
@@ -874,7 +875,7 @@ func (o SparseContentPoliciesList) Append(objects ...elemental.Identifiable) ele
 func (o SparseContentPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -891,7 +892,7 @@ func (o SparseContentPoliciesList) DefaultOrder() []string {
 func (o SparseContentPoliciesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

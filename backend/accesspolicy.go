@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -43,14 +44,14 @@ func (o AccessPoliciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AccessPoliciesList.
 func (o AccessPoliciesList) Copy() elemental.Identifiables {
 
-	out := append(AccessPoliciesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AccessPoliciesList.
 func (o AccessPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AccessPoliciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AccessPolicy))
 	}
@@ -62,7 +63,7 @@ func (o AccessPoliciesList) Append(objects ...elemental.Identifiable) elemental.
 func (o AccessPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -80,7 +81,7 @@ func (o AccessPoliciesList) DefaultOrder() []string {
 func (o AccessPoliciesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAccessPoliciesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAccessPolicy)
 	}
 
@@ -1065,14 +1066,14 @@ func (o SparseAccessPoliciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAccessPoliciesList.
 func (o SparseAccessPoliciesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAccessPoliciesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAccessPoliciesList.
 func (o SparseAccessPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAccessPoliciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAccessPolicy))
 	}
@@ -1084,7 +1085,7 @@ func (o SparseAccessPoliciesList) Append(objects ...elemental.Identifiable) elem
 func (o SparseAccessPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1101,7 +1102,7 @@ func (o SparseAccessPoliciesList) DefaultOrder() []string {
 func (o SparseAccessPoliciesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

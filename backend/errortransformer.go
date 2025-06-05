@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o ErrorTransformersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ErrorTransformersList.
 func (o ErrorTransformersList) Copy() elemental.Identifiables {
 
-	out := append(ErrorTransformersList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ErrorTransformersList.
 func (o ErrorTransformersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ErrorTransformersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ErrorTransformer))
 	}
@@ -50,7 +51,7 @@ func (o ErrorTransformersList) Append(objects ...elemental.Identifiable) element
 func (o ErrorTransformersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o ErrorTransformersList) DefaultOrder() []string {
 func (o ErrorTransformersList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseErrorTransformersList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseErrorTransformer)
 	}
 
@@ -417,14 +418,14 @@ func (o SparseErrorTransformersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseErrorTransformersList.
 func (o SparseErrorTransformersList) Copy() elemental.Identifiables {
 
-	copy := append(SparseErrorTransformersList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseErrorTransformersList.
 func (o SparseErrorTransformersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseErrorTransformersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseErrorTransformer))
 	}
@@ -436,7 +437,7 @@ func (o SparseErrorTransformersList) Append(objects ...elemental.Identifiable) e
 func (o SparseErrorTransformersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -453,7 +454,7 @@ func (o SparseErrorTransformersList) DefaultOrder() []string {
 func (o SparseErrorTransformersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

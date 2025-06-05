@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o AnalyzersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AnalyzersList.
 func (o AnalyzersList) Copy() elemental.Identifiables {
 
-	out := append(AnalyzersList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AnalyzersList.
 func (o AnalyzersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AnalyzersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Analyzer))
 	}
@@ -50,7 +51,7 @@ func (o AnalyzersList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o AnalyzersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o AnalyzersList) DefaultOrder() []string {
 func (o AnalyzersList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAnalyzersList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAnalyzer)
 	}
 
@@ -604,14 +605,14 @@ func (o SparseAnalyzersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAnalyzersList.
 func (o SparseAnalyzersList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAnalyzersList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAnalyzersList.
 func (o SparseAnalyzersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAnalyzersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAnalyzer))
 	}
@@ -623,7 +624,7 @@ func (o SparseAnalyzersList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseAnalyzersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -640,7 +641,7 @@ func (o SparseAnalyzersList) DefaultOrder() []string {
 func (o SparseAnalyzersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

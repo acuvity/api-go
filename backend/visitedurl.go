@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -42,14 +43,14 @@ func (o VisitedURLsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the VisitedURLsList.
 func (o VisitedURLsList) Copy() elemental.Identifiables {
 
-	out := append(VisitedURLsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the VisitedURLsList.
 func (o VisitedURLsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(VisitedURLsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*VisitedURL))
 	}
@@ -61,7 +62,7 @@ func (o VisitedURLsList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o VisitedURLsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -79,7 +80,7 @@ func (o VisitedURLsList) DefaultOrder() []string {
 func (o VisitedURLsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseVisitedURLsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseVisitedURL)
 	}
 
@@ -633,14 +634,14 @@ func (o SparseVisitedURLsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseVisitedURLsList.
 func (o SparseVisitedURLsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseVisitedURLsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseVisitedURLsList.
 func (o SparseVisitedURLsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseVisitedURLsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseVisitedURL))
 	}
@@ -652,7 +653,7 @@ func (o SparseVisitedURLsList) Append(objects ...elemental.Identifiable) element
 func (o SparseVisitedURLsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -669,7 +670,7 @@ func (o SparseVisitedURLsList) DefaultOrder() []string {
 func (o SparseVisitedURLsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

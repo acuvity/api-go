@@ -140,6 +140,10 @@ type Predicate struct {
 	// The operator of the predicate.
 	Operator PredicateOperatorValue `json:"operator" msgpack:"operator" bson:"operator" mapstructure:"operator,omitempty"`
 
+	// The minimum (including) score the detection must have in order to make the
+	// predicate true.
+	Score float64 `json:"score" msgpack:"score" bson:"score" mapstructure:"score,omitempty"`
+
 	// The values of the predicate.
 	Values []any `json:"values" msgpack:"values" bson:"values" mapstructure:"values,omitempty"`
 
@@ -167,6 +171,7 @@ func (o *Predicate) GetBSON() (any, error) {
 
 	s.Key = o.Key
 	s.Operator = o.Operator
+	s.Score = o.Score
 	s.Values = o.Values
 
 	return s, nil
@@ -187,6 +192,7 @@ func (o *Predicate) SetBSON(raw bson.Raw) error {
 
 	o.Key = s.Key
 	o.Operator = s.Operator
+	o.Score = s.Score
 	o.Values = s.Values
 
 	return nil
@@ -287,6 +293,8 @@ func (o *Predicate) ValueForAttribute(name string) any {
 		return o.Key
 	case "operator":
 		return o.Operator
+	case "score":
+		return o.Score
 	case "values":
 		return o.Values
 	}
@@ -317,6 +325,17 @@ var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"Score": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "score",
+		ConvertedName:  "Score",
+		Description: `The minimum (including) score the detection must have in order to make the
+predicate true.`,
+		Exposed: true,
+		Name:    "score",
+		Stored:  true,
+		Type:    "float",
 	},
 	"Values": {
 		AllowedChoices: []string{},
@@ -355,6 +374,17 @@ var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "enum",
 	},
+	"score": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "score",
+		ConvertedName:  "Score",
+		Description: `The minimum (including) score the detection must have in order to make the
+predicate true.`,
+		Exposed: true,
+		Name:    "score",
+		Stored:  true,
+		Type:    "float",
+	},
 	"values": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "values",
@@ -371,5 +401,6 @@ var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 type mongoAttributesPredicate struct {
 	Key      PredicateKeyValue      `bson:"key"`
 	Operator PredicateOperatorValue `bson:"operator"`
+	Score    float64                `bson:"score"`
 	Values   []any                  `bson:"values"`
 }

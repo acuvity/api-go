@@ -324,6 +324,12 @@ Type: [`latency`](#latency)
 
 Information about latency of various stage of request and response.
 
+##### `mcpMessage`
+
+Type: [`mcpmessage`](#mcpmessage)
+
+If this is an MCP message, then the MCP message details will be set here.
+
 ##### `model`
 
 Type: `string`
@@ -371,6 +377,12 @@ The summary of the extractions.
 Type: `time`
 
 Set the time of the message request.
+
+##### `toolChoice`
+
+Type: [`toolchoice`](#toolchoice)
+
+Tool choice instructions for the model of a request.
 
 ##### `tools`
 
@@ -648,6 +660,12 @@ Type: [`latency`](#latency)
 
 Information about latency of various stage of request and response.
 
+##### `mcpMessage`
+
+Type: [`mcpmessage`](#mcpmessage)
+
+If this is an MCP message, then the MCP message details will be set here.
+
 ##### `model`
 
 Type: `string`
@@ -695,6 +713,12 @@ The summary of the extractions.
 Type: `time`
 
 Set the time of the message request.
+
+##### `toolChoice`
+
+Type: [`toolchoice`](#toolchoice)
+
+Tool choice instructions for the model of a request.
 
 ##### `tools`
 
@@ -1227,6 +1251,18 @@ scores:
   - confidence: 'medium', 0.33 <= score < 0.66
   - confidence: 'high', 0.66 <= score <= 1.
 
+##### `toolResults`
+
+Type: [`[]toolresult`](#toolresult)
+
+Tool call results which are passed in to this request.
+
+##### `toolUses`
+
+Type: [`[]tooluse`](#tooluse)
+
+Tool uses as requested by a model.
+
 ##### `topics`
 
 Type: `map[string]float64`
@@ -1337,6 +1373,18 @@ Type: `string`
 
 A means of distinguishing what was extracted, such as prompt, input file or
 code.
+
+##### `toolResults`
+
+Type: [`[]toolresult`](#toolresult)
+
+Tool call results which are passed in to this request.
+
+##### `toolUses`
+
+Type: [`[]tooluse`](#tooluse)
+
+Tool uses as requested by a model.
 
 ### ExtractionSummary
 
@@ -1451,6 +1499,156 @@ How much time it took to run content policy in nanoseconds.
 Type: `integer`
 
 How much time it took to run input or output extraction in nanoseconds.
+
+### MCPMessage
+
+Represents MCP message details.
+
+#### Example
+
+```json
+{
+  "direction": "Client2Server",
+  "isError": false,
+  "method": "tools/call",
+  "requestID": "2",
+  "sessionID": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
+  "type": "Request"
+}
+```
+
+#### Attributes
+
+##### `direction` [`required`]
+
+Type: `enum(Client2Server | Server2Client)`
+
+The communication direction of the MCP message which can be from client to
+server, or from server to client.
+
+##### `isError`
+
+Type: `boolean`
+
+IsError is true in case if a response is an error response as opposed to a
+result. Note that this is not the same as a result which has isError set to true
+within the result. This is a protocol level error. This will always be false for
+requests and notifications, and false for reponses when the response has a
+result.
+
+##### `method`
+
+Type: `string`
+
+This is the method name of the request or notification. Contrary to MCP this is
+set on responses as well if possible in which case the format will be of the
+form method/params.name.
+
+##### `requestID`
+
+Type: `string`
+
+The ID of a request or a response. We always extract this as a string even
+though this can be a string or number in MCP. It is derived from the id field of
+a request or a response.
+
+##### `sessionID`
+
+Type: `string`
+
+The session ID that this MCP message belongs to. This is strictly speaking not
+part of MCP, and this can be empty.
+
+##### `type` [`required`]
+
+Type: `enum(Request | Response | Notification)`
+
+The MCP message type which can be Request, Response or Notification.
+
+### MCPServer
+
+Represents an MCP server object.
+
+#### Example
+
+```json
+{
+  "allowedTools": [
+    "deepwiki_search",
+    "deepwiki_fetch"
+  ],
+  "name": "deepwiki",
+  "url": "https://mcp.deepwiki.com/mcp"
+}
+```
+
+#### Attributes
+
+##### `allowedTools`
+
+Type: `[]string`
+
+The allowed tools that the caller has access to. If empty, this means that the
+caller has access to all tools provided by this MCP server.
+
+##### `name`
+
+Type: `string`
+
+The name of the MCP server.
+
+##### `url` [`required`]
+
+Type: `string`
+
+The URL of the MCP server.
+
+### MCPToolAnnotations
+
+Represents the tool annotations as they can be optionally defined for MCP tools.
+
+#### Example
+
+```json
+{
+  "destructiveHint": false,
+  "idempotentHint": false,
+  "openWorldHint": false,
+  "readOnlyHint": false
+}
+```
+
+#### Attributes
+
+##### `destructiveHint`
+
+Type: `boolean`
+
+If true, the tool may perform destructive updates.
+
+##### `idempotentHint`
+
+Type: `boolean`
+
+If true, repeated calls with same args have no additional effect.
+
+##### `openWorldHint`
+
+Type: `boolean`
+
+If true, tool interacts with external entities.
+
+##### `readOnlyHint`
+
+Type: `boolean`
+
+If true, the tool does not modify its environment.
+
+##### `title`
+
+Type: `string`
+
+Human-readable title for the tool.
 
 ### Modality
 
@@ -1711,7 +1909,37 @@ The type of detection.
 
 Represents a tool that can enhance a genAI model's capabilities.
 
+#### Example
+
+```json
+{
+  "category": "Client",
+  "description": "Get the current weather in a given location",
+  "name": "get_weather",
+  "type": "computer_20250124"
+}
+```
+
 #### Attributes
+
+##### `MCPAnnotations`
+
+Type: [`mcptoolannotations`](#mcptoolannotations)
+
+For MCP tools these represent optional hints about tool behavior.
+
+##### `MCPServer`
+
+Type: [`mcpserver`](#mcpserver)
+
+If category is RemoteMCP, then this describes the remote MCP server.
+
+##### `category`
+
+Type: `enum(Client | Server | RemoteMCP)`
+
+The category of the tool. This relays information about where the tool is being
+used. This can be empty if unknown or if this is a tool listing of MCP servers.
 
 ##### `description`
 
@@ -1725,30 +1953,166 @@ Type: `string`
 
 The name of the tool.
 
-### TraceRef
+##### `type`
 
-Holds all references to a trace.
+Type: `string`
+
+The type of the tool as can be optionally passed by the provider.
+
+### ToolChoice
+
+Represents the tool choice that can be passed along together with tools.
 
 #### Example
 
 ```json
 {
+  "choice": "Auto"
+}
+```
+
+#### Attributes
+
+##### `choice` [`required`]
+
+Type: `enum(Auto | Any | None | Tool)`
+
+Model instructions on tool choice.
+
+Default value:
+
+```json
+"Auto"
+```
+
+##### `name`
+
+Type: `string`
+
+If choice is Tool, this will be set to the name of the tool to use.
+
+### ToolResult
+
+Represents the tool result as passed in by the user or application after calling
+a tool.
+
+#### Example
+
+```json
+{
+  "callID": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+  "isError": false
+}
+```
+
+#### Attributes
+
+##### `callID` [`required`]
+
+Type: `string`
+
+The ID of the tool use as previously returned by a models tool use response.
+
+##### `content`
+
+Type: `string`
+
+The content of the tool call results.
+
+##### `isError`
+
+Type: `boolean`
+
+Indicates if the tool call failed.
+
+Default value:
+
+```json
+false
+```
+
+### ToolUse
+
+Represents the tool use which are instructions by a model on what tool to call
+and how.
+
+#### Example
+
+```json
+{
+  "callID": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+  "name": "get_weather",
+  "serverName": "deepwiki"
+}
+```
+
+#### Attributes
+
+##### `callID` [`required`]
+
+Type: `string`
+
+The ID of the tool use which the user or application must pass when posting back
+the tool call results.
+
+##### `input`
+
+Type: `string`
+
+The input to the tool call. This should be a JSON object which must conform to
+the JSON schema as was previously defined for the tool.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the tool to call.
+
+##### `serverName`
+
+Type: `string`
+
+The name of the remote MCP server that will execute this call.
+
+### TraceRef
+
+Holds all references to a trace which are also the essentials of the span data.
+
+#### Example
+
+```json
+{
+  "kind": "Server",
   "parentSpanID": "00f067aa0ba902b7",
   "spanEnd": "2025-03-22T14:35:00.123456789Z",
   "spanID": "6ba80aaa3b2f43d8",
   "spanName": "acuvity_prompt_input_analysis",
   "spanStart": "2025-03-22T14:35:00.123456789Z",
+  "statusCode": "OK",
+  "statusMessage": "Failed to make API call to service Foo.",
   "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
 }
 ```
 
 #### Attributes
 
+##### `kind`
+
+Type: `enum(Unspecified | Internal | Server | Client | Producer | Consumer)`
+
+The kind of the span.
+
+Default value:
+
+```json
+"Unspecified"
+```
+
 ##### `parentSpanID`
 
 Type: `string`
 
-The parent span ID that is being referenced.
+The parent span ID that is being referenced as hex encoded string.
 
 ##### `spanEnd` [`required`]
 
@@ -1774,8 +2138,26 @@ Type: `time`
 
 When the span started.
 
+##### `statusCode`
+
+Type: `enum(Unset | OK | Error)`
+
+Status Code of a span.
+
+Default value:
+
+```json
+"Unset"
+```
+
+##### `statusMessage`
+
+Type: `string`
+
+A developer-facing human readable error message.
+
 ##### `traceID` [`required`]
 
 Type: `string`
 
-The Trace ID that is being referenced.
+The Trace ID that is being referenced as hex encoded string.

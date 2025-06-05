@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o WatchedOrgsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the WatchedOrgsList.
 func (o WatchedOrgsList) Copy() elemental.Identifiables {
 
-	out := append(WatchedOrgsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the WatchedOrgsList.
 func (o WatchedOrgsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(WatchedOrgsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*WatchedOrg))
 	}
@@ -50,7 +51,7 @@ func (o WatchedOrgsList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o WatchedOrgsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o WatchedOrgsList) DefaultOrder() []string {
 func (o WatchedOrgsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseWatchedOrgsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseWatchedOrg)
 	}
 
@@ -443,14 +444,14 @@ func (o SparseWatchedOrgsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseWatchedOrgsList.
 func (o SparseWatchedOrgsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseWatchedOrgsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseWatchedOrgsList.
 func (o SparseWatchedOrgsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseWatchedOrgsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseWatchedOrg))
 	}
@@ -462,7 +463,7 @@ func (o SparseWatchedOrgsList) Append(objects ...elemental.Identifiable) element
 func (o SparseWatchedOrgsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -479,7 +480,7 @@ func (o SparseWatchedOrgsList) DefaultOrder() []string {
 func (o SparseWatchedOrgsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

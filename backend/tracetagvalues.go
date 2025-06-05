@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o TraceTagValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the TraceTagValuesList.
 func (o TraceTagValuesList) Copy() elemental.Identifiables {
 
-	out := append(TraceTagValuesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the TraceTagValuesList.
 func (o TraceTagValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(TraceTagValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*TraceTagValues))
 	}
@@ -50,7 +51,7 @@ func (o TraceTagValuesList) Append(objects ...elemental.Identifiable) elemental.
 func (o TraceTagValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o TraceTagValuesList) DefaultOrder() []string {
 func (o TraceTagValuesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseTraceTagValuesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseTraceTagValues)
 	}
 
@@ -706,14 +707,14 @@ func (o SparseTraceTagValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseTraceTagValuesList.
 func (o SparseTraceTagValuesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseTraceTagValuesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseTraceTagValuesList.
 func (o SparseTraceTagValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseTraceTagValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseTraceTagValues))
 	}
@@ -725,7 +726,7 @@ func (o SparseTraceTagValuesList) Append(objects ...elemental.Identifiable) elem
 func (o SparseTraceTagValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -742,7 +743,7 @@ func (o SparseTraceTagValuesList) DefaultOrder() []string {
 func (o SparseTraceTagValuesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

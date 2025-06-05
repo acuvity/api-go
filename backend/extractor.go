@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -130,14 +131,14 @@ func (o ExtractorsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ExtractorsList.
 func (o ExtractorsList) Copy() elemental.Identifiables {
 
-	out := append(ExtractorsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ExtractorsList.
 func (o ExtractorsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ExtractorsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Extractor))
 	}
@@ -149,7 +150,7 @@ func (o ExtractorsList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o ExtractorsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -167,7 +168,7 @@ func (o ExtractorsList) DefaultOrder() []string {
 func (o ExtractorsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseExtractorsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseExtractor)
 	}
 
@@ -1453,14 +1454,14 @@ func (o SparseExtractorsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseExtractorsList.
 func (o SparseExtractorsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseExtractorsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseExtractorsList.
 func (o SparseExtractorsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseExtractorsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseExtractor))
 	}
@@ -1472,7 +1473,7 @@ func (o SparseExtractorsList) Append(objects ...elemental.Identifiable) elementa
 func (o SparseExtractorsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1489,7 +1490,7 @@ func (o SparseExtractorsList) DefaultOrder() []string {
 func (o SparseExtractorsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

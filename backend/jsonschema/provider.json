@@ -141,6 +141,15 @@
       "title": "injectors",
       "type": "array"
     },
+    "lib": {
+      "$friendlyName": "Lib",
+      "description": "If set, this snippet of lua will available in all extractors of the provider, acting as an effective library. It must be a valid lua module. It will be available to all extractor by doing local plib = require('plib').",
+      "title": "lib",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "mappers": {
       "$friendlyName": "Mappers",
       "description": "List of user mappers.",

@@ -234,6 +234,51 @@ func (f modelManager) AllIdentities() []elemental.Identity {
 	return AllIdentities()
 }
 
+func (f modelManager) DetachedFromString(name string) any {
+
+	switch name {
+
+	case "alertevent", "AlertEvent":
+		return NewAlertEvent()
+	case "analyzermodel", "AnalyzerModel":
+		return NewAnalyzerModel()
+	case "detectionmatcher", "DetectionMatcher":
+		return NewDetectionMatcher()
+	case "detector", "Detector":
+		return NewDetector()
+	case "extraction", "Extraction":
+		return NewExtraction()
+	case "extractioninformation", "ExtractionInformation":
+		return NewExtractionInformation()
+	case "extractionrequest", "ExtractionRequest":
+		return NewExtractionRequest()
+	case "extractionsummary", "ExtractionSummary":
+		return NewExtractionSummary()
+	case "mcpmessage", "MCPMessage":
+		return NewMCPMessage()
+	case "mcpserver", "MCPServer":
+		return NewMCPServer()
+	case "mcptoolannotations", "MCPToolAnnotations":
+		return NewMCPToolAnnotations()
+	case "modality", "Modality":
+		return NewModality()
+	case "policeexternaluser", "PoliceExternalUser":
+		return NewPoliceExternalUser()
+	case "textualdetection", "TextualDetection":
+		return NewTextualDetection()
+	case "tool", "Tool":
+		return NewTool()
+	case "toolchoice", "ToolChoice":
+		return NewToolChoice()
+	case "toolresult", "ToolResult":
+		return NewToolResult()
+	case "tooluse", "ToolUse":
+		return NewToolUse()
+	default:
+		return nil
+	}
+}
+
 var manager = modelManager{}
 
 // Manager returns the model elemental.ModelManager.

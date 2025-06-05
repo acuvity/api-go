@@ -98,6 +98,12 @@
       "description": "Information about latency of various stage of request and response.",
       "title": "latency"
     },
+    "mcpMessage": {
+      "$friendlyName": "MCP Message",
+      "$ref": "mcpmessage.json",
+      "description": "If this is an MCP message, then the MCP message details will be set here.",
+      "title": "mcpMessage"
+    },
     "model": {
       "$friendlyName": "Model",
       "description": "The model used by the request.",
@@ -168,6 +174,12 @@
         "string",
         "null"
       ]
+    },
+    "toolChoice": {
+      "$friendlyName": "Tool Choice",
+      "$ref": "toolchoice.json",
+      "description": "Tool choice instructions for the model of a request.",
+      "title": "toolChoice"
     },
     "tools": {
       "$friendlyName": "Tools",

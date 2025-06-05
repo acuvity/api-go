@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o ProjectsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProjectsList.
 func (o ProjectsList) Copy() elemental.Identifiables {
 
-	out := append(ProjectsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProjectsList.
 func (o ProjectsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProjectsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Project))
 	}
@@ -51,7 +52,7 @@ func (o ProjectsList) Append(objects ...elemental.Identifiable) elemental.Identi
 func (o ProjectsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o ProjectsList) DefaultOrder() []string {
 func (o ProjectsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProjectsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProject)
 	}
 
@@ -717,14 +718,14 @@ func (o SparseProjectsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProjectsList.
 func (o SparseProjectsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProjectsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProjectsList.
 func (o SparseProjectsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProjectsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProject))
 	}
@@ -736,7 +737,7 @@ func (o SparseProjectsList) Append(objects ...elemental.Identifiable) elemental.
 func (o SparseProjectsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -753,7 +754,7 @@ func (o SparseProjectsList) DefaultOrder() []string {
 func (o SparseProjectsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

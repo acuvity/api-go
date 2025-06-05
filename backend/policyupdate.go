@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o PolicyUpdatesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PolicyUpdatesList.
 func (o PolicyUpdatesList) Copy() elemental.Identifiables {
 
-	out := append(PolicyUpdatesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PolicyUpdatesList.
 func (o PolicyUpdatesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PolicyUpdatesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PolicyUpdate))
 	}
@@ -50,7 +51,7 @@ func (o PolicyUpdatesList) Append(objects ...elemental.Identifiable) elemental.I
 func (o PolicyUpdatesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o PolicyUpdatesList) DefaultOrder() []string {
 func (o PolicyUpdatesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePolicyUpdatesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePolicyUpdate)
 	}
 
@@ -389,14 +390,14 @@ func (o SparsePolicyUpdatesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePolicyUpdatesList.
 func (o SparsePolicyUpdatesList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePolicyUpdatesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePolicyUpdatesList.
 func (o SparsePolicyUpdatesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePolicyUpdatesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePolicyUpdate))
 	}
@@ -408,7 +409,7 @@ func (o SparsePolicyUpdatesList) Append(objects ...elemental.Identifiable) eleme
 func (o SparsePolicyUpdatesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -425,7 +426,7 @@ func (o SparsePolicyUpdatesList) DefaultOrder() []string {
 func (o SparsePolicyUpdatesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

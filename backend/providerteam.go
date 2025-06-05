@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o ProviderTeamsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProviderTeamsList.
 func (o ProviderTeamsList) Copy() elemental.Identifiables {
 
-	out := append(ProviderTeamsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProviderTeamsList.
 func (o ProviderTeamsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProviderTeamsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ProviderTeam))
 	}
@@ -51,7 +52,7 @@ func (o ProviderTeamsList) Append(objects ...elemental.Identifiable) elemental.I
 func (o ProviderTeamsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o ProviderTeamsList) DefaultOrder() []string {
 func (o ProviderTeamsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProviderTeamsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProviderTeam)
 	}
 
@@ -845,14 +846,14 @@ func (o SparseProviderTeamsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProviderTeamsList.
 func (o SparseProviderTeamsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProviderTeamsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProviderTeamsList.
 func (o SparseProviderTeamsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProviderTeamsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProviderTeam))
 	}
@@ -864,7 +865,7 @@ func (o SparseProviderTeamsList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseProviderTeamsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -881,7 +882,7 @@ func (o SparseProviderTeamsList) DefaultOrder() []string {
 func (o SparseProviderTeamsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

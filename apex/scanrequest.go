@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -53,14 +54,14 @@ func (o ScanRequestsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ScanRequestsList.
 func (o ScanRequestsList) Copy() elemental.Identifiables {
 
-	out := append(ScanRequestsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ScanRequestsList.
 func (o ScanRequestsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ScanRequestsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ScanRequest))
 	}
@@ -72,7 +73,7 @@ func (o ScanRequestsList) Append(objects ...elemental.Identifiable) elemental.Id
 func (o ScanRequestsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -90,7 +91,7 @@ func (o ScanRequestsList) DefaultOrder() []string {
 func (o ScanRequestsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseScanRequestsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseScanRequest)
 	}
 
@@ -887,14 +888,14 @@ func (o SparseScanRequestsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseScanRequestsList.
 func (o SparseScanRequestsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseScanRequestsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseScanRequestsList.
 func (o SparseScanRequestsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseScanRequestsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseScanRequest))
 	}
@@ -906,7 +907,7 @@ func (o SparseScanRequestsList) Append(objects ...elemental.Identifiable) elemen
 func (o SparseScanRequestsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -923,7 +924,7 @@ func (o SparseScanRequestsList) DefaultOrder() []string {
 func (o SparseScanRequestsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

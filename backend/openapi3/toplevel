@@ -394,21 +394,37 @@
             "type": "array"
           },
           "scanInterval": {
-            "default": "1m",
+            "default": "5m",
             "description": "The interval in which scans take place by the agent.",
             "example": "10m",
             "type": "string"
           },
           "scanReportInterval": {
-            "default": "1h",
+            "default": "12h",
             "description": "The interval in which scan reports are sent to the backend.",
-            "example": "30m",
+            "example": "1h",
             "type": "string"
           },
           "scanRunningProcesses": {
             "description": "The list of running processes the scanner will look for.",
             "items": {
               "type": "string"
+            },
+            "type": "array"
+          },
+          "subject": {
+            "description": "A tag expression that identifies the user(s) tied to this config.",
+            "example": [
+              [
+                "@scope=employees",
+                "@org=acuvity.ai"
+              ]
+            ],
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
             },
             "type": "array"
           },
@@ -429,7 +445,8 @@
         },
         "required": [
           "listeningPort",
-          "name"
+          "name",
+          "subject"
         ],
         "type": "object"
       },
@@ -1032,7 +1049,6 @@
             "type": "array"
           },
           "role": {
-            "default": "Employee",
             "description": "The role for the subjects.",
             "enum": [
               "Administrator",
@@ -1043,7 +1059,8 @@
               "Proxy",
               "Trial",
               "Viewer"
-            ]
+            ],
+            "example": "Employee"
           },
           "subject": {
             "description": "A tag expression that identifies the authorized user(s).",
@@ -1071,7 +1088,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "role"
         ],
         "type": "object"
       },
@@ -1742,10 +1760,6 @@
             "description": "The number of hits for this report.",
             "example": 12,
             "type": "integer"
-          },
-          "suspicious": {
-            "description": "Suspicious is true if the service might be a Shadow AI.",
-            "type": "boolean"
           }
         },
         "required": [
@@ -1946,6 +1960,20 @@
               "type": "number"
             },
             "type": "object"
+          },
+          "toolResults": {
+            "description": "Tool call results which are passed in to this request.",
+            "items": {
+              "$ref": "#/components/schemas/toolresult"
+            },
+            "type": "array"
+          },
+          "toolUses": {
+            "description": "Tool uses as requested by a model.",
+            "items": {
+              "$ref": "#/components/schemas/tooluse"
+            },
+            "type": "array"
           },
           "topics": {
             "description": "The topic of the classification.\n\nThe current list can be obtained through the analyzers API, with the following\nconditions:\n  1. Includes all analyzers EXCEPT those in the 'Modality' group\n  2. Includes all analyzer detectors EXCEPT those in these groups:\n    - 'Secrets'\n    - 'Exploits'\n    - 'Intent'\n    - 'PIIs'\n    - 'Malcontents'\n\nExample of topics: category/enterprise, category/healthcare, category/medical,\ncategory/personal, contains/blank_image, contains/certificate_signing_request,\ncontains/database_url, contains/handwritten_text, contains/printed_text,\ncontains/public_key, contains/ssh_public_key, contains/web_url,\ndecoded/base32_data, decoded/base58_data, decoded/base64_data,\ndecoded/base64_url_data, decoded/base85_data, decoded/hexadecimal_data,\ndecoded/puny_code_data, decoded/quoted_printable_data,\ndecoded/url_encoding_data, department/compliance, department/cybersecurity,\ndepartment/finance, department/human_resources,\ndepartment/information_technology, department/legal, department/logistics,\ndepartment/marketing, department/performance_evaluation,\ndepartment/product_management, department/project_management, department/sales,\ndepartment/strategy, department/support, depict/check, depict/code,\ndepict/document, depict/unclassified, depict/whiteboard, domain/commercial,\ndomain/development, domain/financial, domain/general, domain/regulatory,\ndomain/workforce, extracted/csv_cell_content, extracted/document_text_content,\nextracted/handwritten_text_content, extracted/pdf_text_content,\nextracted/pptx_text_content, extracted/spreadsheet_text_content,\nextracted/typed_text_content, timeframe/current_year, timeframe/future,\ntimeframe/last_year, timeframe/next_year, timeframe/past,\ntranscribed/audio_text_content.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
@@ -2544,6 +2572,40 @@
         ],
         "type": "object"
       },
+      "ingesttrace": {
+        "description": "Ingest Traces allows to import OTLP traces into the system.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          },
+          "raw": {
+            "description": "The raw OTLP traces in JSON encoded format. If this is set, you must not set the\ntraces field. This will ingest everything about this trace and make it available\nto Acuvity.",
+            "example": "{\n  \"resourceSpans\": [\n    {\n      \"resource\": {\n        \"attributes\": [\n          {\n            \"key\": \"service.name\",\n            \"value\": {\n              \"stringValue\": \"my.service\"\n            }\n          }\n        ]\n      },\n      \"scopeSpans\": [\n        {\n          \"scope\": {\n            \"name\": \"my.library\",\n            \"version\": \"1.0.0\",\n            \"attributes\": [\n              {\n                \"key\": \"my.scope.attribute\",\n                \"value\": {\n                  \"stringValue\": \"some scope attribute\"\n                }\n              }\n            ]\n          },\n          \"spans\": [\n            {\n              \"traceId\": \"5B8EFFF798038103D269B633813FC60C\",\n              \"spanId\": \"EEE19B7EC3C1B174\",\n              \"parentSpanId\": \"EEE19B7EC3C1B173\",\n              \"name\": \"I'm a server span\",\n              \"startTimeUnixNano\": \"1544712660000000000\",\n              \"endTimeUnixNano\": \"1544712661000000000\",\n              \"kind\": 2,\n              \"attributes\": [\n                {\n                  \"key\": \"my.span.attr\",\n                  \"value\": {\n                    \"stringValue\": \"some value\"\n                  }\n                }\n              ]\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}",
+            "type": "string"
+          },
+          "traces": {
+            "description": "The traces to ingest. If this is set, the raw input field must not be set. This\nis the recommended way on how to ingest trace data into Acuvity. This will\ningest\nonly the necessary core data of a trace.",
+            "items": {
+              "$ref": "#/components/schemas/traceref"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "principal"
+        ],
+        "type": "object"
+      },
       "ingressproviderconfig": {
         "description": "Represents the configuration if an apex is to act as an ingress for a provider.",
         "properties": {
@@ -2604,6 +2666,10 @@
         "properties": {
           "delayXHRPatching": {
             "description": "Since JS world is the mess we all know, there are some cases when we must delay\nthe monkey patching of the XHR request.",
+            "type": "boolean"
+          },
+          "disableBodyReplacement": {
+            "description": "If this is true, the acuvity popup will be shown on top the existing body of the\nprovider, instead of replacing it. It usually causes a lot of issue, but on some\nweirdos (microsoft),\nit's the opposite.",
             "type": "boolean"
           },
           "hosts": {
@@ -2806,6 +2872,108 @@
           "method",
           "path"
         ],
+        "type": "object"
+      },
+      "mcpmessage": {
+        "description": "Represents MCP message details.",
+        "properties": {
+          "direction": {
+            "description": "The communication direction of the MCP message which can be from client to\nserver, or from server to client.",
+            "enum": [
+              "Client2Server",
+              "Server2Client"
+            ],
+            "example": "Client2Server"
+          },
+          "isError": {
+            "description": "IsError is true in case if a response is an error response as opposed to a\nresult. Note that this is not the same as a result which has isError set to true\nwithin the result. This is a protocol level error. This will always be false for\nrequests and notifications, and false for reponses when the response has a\nresult.",
+            "type": "boolean"
+          },
+          "method": {
+            "description": "This is the method name of the request or notification. Contrary to MCP this is\nset on responses as well if possible in which case the format will be of the\nform method/params.name.",
+            "example": "tools/call",
+            "type": "string"
+          },
+          "requestID": {
+            "description": "The ID of a request or a response. We always extract this as a string even\nthough this can be a string or number in MCP. It is derived from the id field of\na request or a response.",
+            "example": "2",
+            "type": "string"
+          },
+          "sessionID": {
+            "description": "The session ID that this MCP message belongs to. This is strictly speaking not\npart of MCP, and this can be empty.",
+            "example": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
+            "type": "string"
+          },
+          "type": {
+            "description": "The MCP message type which can be Request, Response or Notification.",
+            "enum": [
+              "Request",
+              "Response",
+              "Notification"
+            ],
+            "example": "Request"
+          }
+        },
+        "required": [
+          "direction",
+          "type"
+        ],
+        "type": "object"
+      },
+      "mcpserver": {
+        "description": "Represents an MCP server object.",
+        "properties": {
+          "allowedTools": {
+            "description": "The allowed tools that the caller has access to. If empty, this means that the\ncaller has access to all tools provided by this MCP server.",
+            "example": [
+              "deepwiki_search",
+              "deepwiki_fetch"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the MCP server.",
+            "example": "deepwiki",
+            "type": "string"
+          },
+          "url": {
+            "description": "The URL of the MCP server.",
+            "example": "https://mcp.deepwiki.com/mcp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "mcptoolannotations": {
+        "description": "Represents the tool annotations as they can be optionally defined for MCP tools.",
+        "properties": {
+          "destructiveHint": {
+            "description": "If true, the tool may perform destructive updates.",
+            "type": "boolean"
+          },
+          "idempotentHint": {
+            "description": "If true, repeated calls with same args have no additional effect.",
+            "type": "boolean"
+          },
+          "openWorldHint": {
+            "description": "If true, tool interacts with external entities.",
+            "type": "boolean"
+          },
+          "readOnlyHint": {
+            "description": "If true, the tool does not modify its environment.",
+            "type": "boolean"
+          },
+          "title": {
+            "description": "Human-readable title for the tool.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "metric": {
@@ -3560,6 +3728,11 @@
             ],
             "example": "Equals"
           },
+          "score": {
+            "description": "The minimum (including) score the detection must have in order to make the\npredicate true.",
+            "example": 0.8,
+            "type": "number"
+          },
           "values": {
             "description": "The values of the predicate.",
             "example": "xxx-xxx-xxx-xxx",
@@ -3795,6 +3968,11 @@
               "$ref": "#/components/schemas/injector"
             },
             "type": "array"
+          },
+          "lib": {
+            "description": "If set, this snippet of lua will available in all extractors of the provider,\nacting as an effective library. It must be a valid lua module. It will be\navailable to all extractor by doing local plib = require('plib').",
+            "example": "local M = {}\nfunction M.hello_world()\n  return \"hello world\"\nend\nreturn M",
+            "type": "string"
           },
           "mappers": {
             "description": "List of user mappers.",
@@ -4170,8 +4348,12 @@
             "description": "The computed access policy.",
             "type": "string"
           },
-          "agentConfig": {
-            "$ref": "#/components/schemas/agentconfig"
+          "agentConfigs": {
+            "description": "The agent configurations.",
+            "items": {
+              "$ref": "#/components/schemas/agentconfig"
+            },
+            "type": "array"
           },
           "assignPolicy": {
             "description": "The computed assign policy.",
@@ -4231,8 +4413,12 @@
             },
             "type": "object"
           },
-          "webExtensionConfig": {
-            "$ref": "#/components/schemas/webextensionconfig"
+          "webExtensionConfigs": {
+            "description": "The web extension configurations.",
+            "items": {
+              "$ref": "#/components/schemas/webextensionconfig"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -4305,6 +4491,9 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "mcpMessage": {
+            "$ref": "#/components/schemas/mcpmessage"
+          },
           "model": {
             "description": "The model used by the request.",
             "example": "claude-3-7-sonnet",
@@ -4341,6 +4530,9 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "toolChoice": {
+            "$ref": "#/components/schemas/toolchoice"
           },
           "tools": {
             "additionalProperties": {
@@ -4908,15 +5100,112 @@
       "tool": {
         "description": "Represents a tool that can enhance a genAI model's capabilities.",
         "properties": {
+          "MCPAnnotations": {
+            "$ref": "#/components/schemas/mcptoolannotations"
+          },
+          "MCPServer": {
+            "$ref": "#/components/schemas/mcpserver"
+          },
+          "category": {
+            "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
+            "enum": [
+              "Client",
+              "Server",
+              "RemoteMCP"
+            ],
+            "example": "Client"
+          },
           "description": {
             "description": "The description of the tool.",
+            "example": "Get the current weather in a given location",
             "type": "string"
           },
           "name": {
             "description": "The name of the tool.",
+            "example": "get_weather",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of the tool as can be optionally passed by the provider.",
+            "example": "computer_20250124",
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "toolchoice": {
+        "description": "Represents the tool choice that can be passed along together with tools.",
+        "properties": {
+          "choice": {
+            "default": "Auto",
+            "description": "Model instructions on tool choice.",
+            "enum": [
+              "Auto",
+              "Any",
+              "None",
+              "Tool"
+            ]
+          },
+          "name": {
+            "description": "If choice is Tool, this will be set to the name of the tool to use.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "choice"
+        ],
+        "type": "object"
+      },
+      "toolresult": {
+        "description": "Represents the tool result as passed in by the user or application after calling\na tool.",
+        "properties": {
+          "callID": {
+            "description": "The ID of the tool use as previously returned by a models tool use response.",
+            "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+            "type": "string"
+          },
+          "content": {
+            "description": "The content of the tool call results.",
+            "type": "string"
+          },
+          "isError": {
+            "default": false,
+            "description": "Indicates if the tool call failed.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "callID"
+        ],
+        "type": "object"
+      },
+      "tooluse": {
+        "description": "Represents the tool use which are instructions by a model on what tool to call\nand how.",
+        "properties": {
+          "callID": {
+            "description": "The ID of the tool use which the user or application must pass when posting back\nthe tool call results.",
+            "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+            "type": "string"
+          },
+          "input": {
+            "description": "The input to the tool call. This should be a JSON object which must conform to\nthe JSON schema as was previously defined for the tool.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the tool to call.",
+            "example": "get_weather",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "The name of the remote MCP server that will execute this call.",
+            "example": "deepwiki",
+            "type": "string"
+          }
+        },
+        "required": [
+          "callID",
+          "name"
+        ],
         "type": "object"
       },
       "trace": {
@@ -4970,10 +5259,23 @@
         "type": "object"
       },
       "traceref": {
-        "description": "Holds all references to a trace.",
+        "description": "Holds all references to a trace which are also the essentials of the span data.",
         "properties": {
+          "kind": {
+            "default": "Unspecified",
+            "description": "The kind of the span.",
+            "enum": [
+              "Unspecified",
+              "Internal",
+              "Server",
+              "Client",
+              "Producer",
+              "Consumer"
+            ],
+            "example": "Server"
+          },
           "parentSpanID": {
-            "description": "The parent span ID that is being referenced.",
+            "description": "The parent span ID that is being referenced as hex encoded string.",
             "example": "00f067aa0ba902b7",
             "type": "string"
           },
@@ -4999,8 +5301,23 @@
             "format": "date-time",
             "type": "string"
           },
+          "statusCode": {
+            "default": "Unset",
+            "description": "Status Code of a span.",
+            "enum": [
+              "Unset",
+              "OK",
+              "Error"
+            ],
+            "example": "OK"
+          },
+          "statusMessage": {
+            "description": "A developer-facing human readable error message.",
+            "example": "Failed to make API call to service Foo.",
+            "type": "string"
+          },
           "traceID": {
-            "description": "The Trace ID that is being referenced.",
+            "description": "The Trace ID that is being referenced as hex encoded string.",
             "example": "4bf92f3577b34da6a3ce929d0e0e4736",
             "type": "string"
           }
@@ -5431,6 +5748,22 @@
             "description": "Define the interval in minutes between two reports of the visited URLs.",
             "type": "integer"
           },
+          "subject": {
+            "description": "A tag expression that identifies the user(s) tied to this config.",
+            "example": [
+              [
+                "@scope=employees",
+                "@org=acuvity.ai"
+              ]
+            ],
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -5439,7 +5772,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "subject"
         ],
         "type": "object"
       }
@@ -7963,6 +8297,37 @@
         },
         "tags": [
           "core/import"
+        ]
+      }
+    },
+    "/ingesttraces": {
+      "post": {
+        "description": "Imports OpenTelemetry traces.",
+        "operationId": "create-IngestTrace",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ingesttrace"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ingesttrace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
         ]
       }
     },

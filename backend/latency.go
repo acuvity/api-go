@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o LatenciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the LatenciesList.
 func (o LatenciesList) Copy() elemental.Identifiables {
 
-	out := append(LatenciesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the LatenciesList.
 func (o LatenciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(LatenciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Latency))
 	}
@@ -50,7 +51,7 @@ func (o LatenciesList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o LatenciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o LatenciesList) DefaultOrder() []string {
 func (o LatenciesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseLatenciesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseLatency)
 	}
 
@@ -453,14 +454,14 @@ func (o SparseLatenciesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseLatenciesList.
 func (o SparseLatenciesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseLatenciesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseLatenciesList.
 func (o SparseLatenciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseLatenciesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseLatency))
 	}
@@ -472,7 +473,7 @@ func (o SparseLatenciesList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseLatenciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -489,7 +490,7 @@ func (o SparseLatenciesList) DefaultOrder() []string {
 func (o SparseLatenciesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

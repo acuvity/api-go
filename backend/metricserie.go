@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o MetricSeriesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the MetricSeriesList.
 func (o MetricSeriesList) Copy() elemental.Identifiables {
 
-	out := append(MetricSeriesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the MetricSeriesList.
 func (o MetricSeriesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(MetricSeriesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*MetricSerie))
 	}
@@ -50,7 +51,7 @@ func (o MetricSeriesList) Append(objects ...elemental.Identifiable) elemental.Id
 func (o MetricSeriesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o MetricSeriesList) DefaultOrder() []string {
 func (o MetricSeriesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseMetricSeriesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseMetricSerie)
 	}
 
@@ -652,14 +653,14 @@ func (o SparseMetricSeriesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseMetricSeriesList.
 func (o SparseMetricSeriesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseMetricSeriesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseMetricSeriesList.
 func (o SparseMetricSeriesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseMetricSeriesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseMetricSerie))
 	}
@@ -671,7 +672,7 @@ func (o SparseMetricSeriesList) Append(objects ...elemental.Identifiable) elemen
 func (o SparseMetricSeriesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -688,7 +689,7 @@ func (o SparseMetricSeriesList) DefaultOrder() []string {
 func (o SparseMetricSeriesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

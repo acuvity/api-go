@@ -43,6 +43,12 @@ type Injector struct {
 	// the monkey patching of the XHR request.
 	DelayXHRPatching bool `json:"delayXHRPatching,omitempty" msgpack:"delayXHRPatching,omitempty" bson:"delayxhrpatching,omitempty" mapstructure:"delayXHRPatching,omitempty"`
 
+	// If this is true, the acuvity popup will be shown on top the existing body of the
+	// provider, instead of replacing it. It usually causes a lot of issue, but on some
+	// weirdos (microsoft),
+	// it's the opposite.
+	DisableBodyReplacement bool `json:"disableBodyReplacement,omitempty" msgpack:"disableBodyReplacement,omitempty" bson:"disablebodyreplacement,omitempty" mapstructure:"disableBodyReplacement,omitempty"`
+
 	// Optional hosts to match. This is useful in case the provider has multiple hosts
 	// to discriminate which logger to use.
 	Hosts []string `json:"hosts,omitempty" msgpack:"hosts,omitempty" bson:"hosts,omitempty" mapstructure:"hosts,omitempty"`
@@ -76,6 +82,7 @@ func (o *Injector) GetBSON() (any, error) {
 	s := &mongoAttributesInjector{}
 
 	s.DelayXHRPatching = o.DelayXHRPatching
+	s.DisableBodyReplacement = o.DisableBodyReplacement
 	s.Hosts = o.Hosts
 	s.Method = o.Method
 	s.Path = o.Path
@@ -97,6 +104,7 @@ func (o *Injector) SetBSON(raw bson.Raw) error {
 	}
 
 	o.DelayXHRPatching = s.DelayXHRPatching
+	o.DisableBodyReplacement = s.DisableBodyReplacement
 	o.Hosts = s.Hosts
 	o.Method = s.Method
 	o.Path = s.Path
@@ -194,6 +202,8 @@ func (o *Injector) ValueForAttribute(name string) any {
 	switch name {
 	case "delayXHRPatching":
 		return o.DelayXHRPatching
+	case "disableBodyReplacement":
+		return o.DisableBodyReplacement
 	case "hosts":
 		return o.Hosts
 	case "method":
@@ -215,6 +225,19 @@ var InjectorAttributesMap = map[string]elemental.AttributeSpecification{
 the monkey patching of the XHR request.`,
 		Exposed: true,
 		Name:    "delayXHRPatching",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"DisableBodyReplacement": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "disablebodyreplacement",
+		ConvertedName:  "DisableBodyReplacement",
+		Description: `If this is true, the acuvity popup will be shown on top the existing body of the
+provider, instead of replacing it. It usually causes a lot of issue, but on some
+weirdos (microsoft),
+it's the opposite.`,
+		Exposed: true,
+		Name:    "disableBodyReplacement",
 		Stored:  true,
 		Type:    "boolean",
 	},
@@ -269,6 +292,19 @@ the monkey patching of the XHR request.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"disablebodyreplacement": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "disablebodyreplacement",
+		ConvertedName:  "DisableBodyReplacement",
+		Description: `If this is true, the acuvity popup will be shown on top the existing body of the
+provider, instead of replacing it. It usually causes a lot of issue, but on some
+weirdos (microsoft),
+it's the opposite.`,
+		Exposed: true,
+		Name:    "disableBodyReplacement",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"hosts": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hosts",
@@ -308,8 +344,9 @@ to discriminate which logger to use.`,
 }
 
 type mongoAttributesInjector struct {
-	DelayXHRPatching bool                `bson:"delayxhrpatching,omitempty"`
-	Hosts            []string            `bson:"hosts,omitempty"`
-	Method           InjectorMethodValue `bson:"method"`
-	Path             string              `bson:"path"`
+	DelayXHRPatching       bool                `bson:"delayxhrpatching,omitempty"`
+	DisableBodyReplacement bool                `bson:"disablebodyreplacement,omitempty"`
+	Hosts                  []string            `bson:"hosts,omitempty"`
+	Method                 InjectorMethodValue `bson:"method"`
+	Path                   string              `bson:"path"`
 }

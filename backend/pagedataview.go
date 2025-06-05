@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o PageDataViewsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PageDataViewsList.
 func (o PageDataViewsList) Copy() elemental.Identifiables {
 
-	out := append(PageDataViewsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PageDataViewsList.
 func (o PageDataViewsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PageDataViewsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PageDataView))
 	}
@@ -51,7 +52,7 @@ func (o PageDataViewsList) Append(objects ...elemental.Identifiable) elemental.I
 func (o PageDataViewsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o PageDataViewsList) DefaultOrder() []string {
 func (o PageDataViewsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePageDataViewsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePageDataView)
 	}
 
@@ -649,14 +650,14 @@ func (o SparsePageDataViewsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePageDataViewsList.
 func (o SparsePageDataViewsList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePageDataViewsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePageDataViewsList.
 func (o SparsePageDataViewsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePageDataViewsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePageDataView))
 	}
@@ -668,7 +669,7 @@ func (o SparsePageDataViewsList) Append(objects ...elemental.Identifiable) eleme
 func (o SparsePageDataViewsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -685,7 +686,7 @@ func (o SparsePageDataViewsList) DefaultOrder() []string {
 func (o SparsePageDataViewsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

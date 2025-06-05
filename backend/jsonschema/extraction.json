@@ -213,6 +213,24 @@
       "title": "secrets",
       "type": "object"
     },
+    "toolResults": {
+      "$friendlyName": "Tool Results",
+      "description": "Tool call results which are passed in to this request.",
+      "items": {
+        "$ref": "toolresult.json"
+      },
+      "title": "toolResults",
+      "type": "array"
+    },
+    "toolUses": {
+      "$friendlyName": "Tool Uses",
+      "description": "Tool uses as requested by a model.",
+      "items": {
+        "$ref": "tooluse.json"
+      },
+      "title": "toolUses",
+      "type": "array"
+    },
     "topics": {
       "$friendlyName": "Topics",
       "description": "The topic of the classification.  The current list can be obtained through the analyzers API, with the following conditions:   1. Includes all analyzers EXCEPT those in the 'Modality' group   2. Includes all analyzer detectors EXCEPT those in these groups:     - 'Secrets'     - 'Exploits'     - 'Intent'     - 'PIIs'     - 'Malcontents'  Example of topics: category/enterprise, category/healthcare, category/medical, category/personal, contains/blank_image, contains/certificate_signing_request, contains/database_url, contains/handwritten_text, contains/printed_text, contains/public_key, contains/ssh_public_key, contains/web_url, decoded/base32_data, decoded/base58_data, decoded/base64_data, decoded/base64_url_data, decoded/base85_data, decoded/hexadecimal_data, decoded/puny_code_data, decoded/quoted_printable_data, decoded/url_encoding_data, department/compliance, department/cybersecurity, department/finance, department/human_resources, department/information_technology, department/legal, department/logistics, department/marketing, department/performance_evaluation, department/product_management, department/project_management, department/sales, department/strategy, department/support, depict/check, depict/code, depict/document, depict/unclassified, depict/whiteboard, domain/commercial, domain/development, domain/financial, domain/general, domain/regulatory, domain/workforce, extracted/csv_cell_content, extracted/document_text_content, extracted/handwritten_text_content, extracted/pdf_text_content, extracted/pptx_text_content, extracted/spreadsheet_text_content, extracted/typed_text_content, timeframe/current_year, timeframe/future, timeframe/last_year, timeframe/next_year, timeframe/past, transcribed/audio_text_content.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",

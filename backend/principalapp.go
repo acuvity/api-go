@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o PrincipalAppsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PrincipalAppsList.
 func (o PrincipalAppsList) Copy() elemental.Identifiables {
 
-	out := append(PrincipalAppsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PrincipalAppsList.
 func (o PrincipalAppsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PrincipalAppsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PrincipalApp))
 	}
@@ -50,7 +51,7 @@ func (o PrincipalAppsList) Append(objects ...elemental.Identifiable) elemental.I
 func (o PrincipalAppsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o PrincipalAppsList) DefaultOrder() []string {
 func (o PrincipalAppsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePrincipalAppsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePrincipalApp)
 	}
 
@@ -390,14 +391,14 @@ func (o SparsePrincipalAppsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePrincipalAppsList.
 func (o SparsePrincipalAppsList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePrincipalAppsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePrincipalAppsList.
 func (o SparsePrincipalAppsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePrincipalAppsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePrincipalApp))
 	}
@@ -409,7 +410,7 @@ func (o SparsePrincipalAppsList) Append(objects ...elemental.Identifiable) eleme
 func (o SparsePrincipalAppsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -426,7 +427,7 @@ func (o SparsePrincipalAppsList) DefaultOrder() []string {
 func (o SparsePrincipalAppsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

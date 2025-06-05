@@ -234,6 +234,12 @@
       },
       "type": "array"
     },
+    "ingesttraces": {
+      "items": {
+        "$ref": "ingesttrace.json"
+      },
+      "type": "array"
+    },
     "ingressproviderconfigs": {
       "items": {
         "$ref": "ingressproviderconfig.json"
@@ -267,6 +273,24 @@
     "mappers": {
       "items": {
         "$ref": "mapper.json"
+      },
+      "type": "array"
+    },
+    "mcpmessages": {
+      "items": {
+        "$ref": "mcpmessage.json"
+      },
+      "type": "array"
+    },
+    "mcpservers": {
+      "items": {
+        "$ref": "mcpserver.json"
+      },
+      "type": "array"
+    },
+    "mcptoolannotations": {
+      "items": {
+        "$ref": "mcptoolannotations.json"
       },
       "type": "array"
     },
@@ -516,9 +540,27 @@
       },
       "type": "array"
     },
+    "toolchoices": {
+      "items": {
+        "$ref": "toolchoice.json"
+      },
+      "type": "array"
+    },
+    "toolresults": {
+      "items": {
+        "$ref": "toolresult.json"
+      },
+      "type": "array"
+    },
     "tools": {
       "items": {
         "$ref": "tool.json"
+      },
+      "type": "array"
+    },
+    "tooluses": {
+      "items": {
+        "$ref": "tooluse.json"
       },
       "type": "array"
     },

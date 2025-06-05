@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -49,14 +50,14 @@ func (o FeedbacksList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the FeedbacksList.
 func (o FeedbacksList) Copy() elemental.Identifiables {
 
-	out := append(FeedbacksList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the FeedbacksList.
 func (o FeedbacksList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(FeedbacksList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Feedback))
 	}
@@ -68,7 +69,7 @@ func (o FeedbacksList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o FeedbacksList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -86,7 +87,7 @@ func (o FeedbacksList) DefaultOrder() []string {
 func (o FeedbacksList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseFeedbacksList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseFeedback)
 	}
 
@@ -905,14 +906,14 @@ func (o SparseFeedbacksList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseFeedbacksList.
 func (o SparseFeedbacksList) Copy() elemental.Identifiables {
 
-	copy := append(SparseFeedbacksList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseFeedbacksList.
 func (o SparseFeedbacksList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseFeedbacksList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseFeedback))
 	}
@@ -924,7 +925,7 @@ func (o SparseFeedbacksList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseFeedbacksList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -941,7 +942,7 @@ func (o SparseFeedbacksList) DefaultOrder() []string {
 func (o SparseFeedbacksList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

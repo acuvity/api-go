@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -66,14 +67,14 @@ func (o ProxyRoundtripsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProxyRoundtripsList.
 func (o ProxyRoundtripsList) Copy() elemental.Identifiables {
 
-	out := append(ProxyRoundtripsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProxyRoundtripsList.
 func (o ProxyRoundtripsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProxyRoundtripsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ProxyRoundtrip))
 	}
@@ -85,7 +86,7 @@ func (o ProxyRoundtripsList) Append(objects ...elemental.Identifiable) elemental
 func (o ProxyRoundtripsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -103,7 +104,7 @@ func (o ProxyRoundtripsList) DefaultOrder() []string {
 func (o ProxyRoundtripsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProxyRoundtripsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProxyRoundtrip)
 	}
 
@@ -155,6 +156,9 @@ type ProxyRoundtrip struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// If this is an MCP message, then the MCP message details will be set here.
+	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
+
 	// The model used by the request.
 	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
 
@@ -178,6 +182,9 @@ type ProxyRoundtrip struct {
 
 	// Set the time of the message request.
 	Time time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// Tool choice instructions for the model of a request.
+	ToolChoice *ToolChoice `json:"toolChoice,omitempty" msgpack:"toolChoice,omitempty" bson:"toolchoice,omitempty" mapstructure:"toolChoice,omitempty"`
 
 	// The various tools used by the request.
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
@@ -243,6 +250,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Latency = o.Latency
+	s.McpMessage = o.McpMessage
 	s.Model = o.Model
 	s.Namespace = o.Namespace
 	s.PipelineName = o.PipelineName
@@ -250,6 +258,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
+	s.ToolChoice = o.ToolChoice
 	s.Tools = o.Tools
 	s.Trace = o.Trace
 	s.Type = o.Type
@@ -282,6 +291,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Latency = s.Latency
+	o.McpMessage = s.McpMessage
 	o.Model = s.Model
 	o.Namespace = s.Namespace
 	o.PipelineName = s.PipelineName
@@ -289,6 +299,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
+	o.ToolChoice = s.ToolChoice
 	o.Tools = s.Tools
 	o.Trace = s.Trace
 	o.Type = s.Type
@@ -380,6 +391,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			ImportHash:    &o.ImportHash,
 			ImportLabel:   &o.ImportLabel,
 			Latency:       o.Latency,
+			McpMessage:    o.McpMessage,
 			Model:         &o.Model,
 			Namespace:     &o.Namespace,
 			PipelineName:  &o.PipelineName,
@@ -388,6 +400,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
+			ToolChoice:    o.ToolChoice,
 			Tools:         &o.Tools,
 			Trace:         o.Trace,
 			Type:          &o.Type,
@@ -421,6 +434,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ImportLabel = &(o.ImportLabel)
 		case "latency":
 			sp.Latency = o.Latency
+		case "mcpMessage":
+			sp.McpMessage = o.McpMessage
 		case "model":
 			sp.Model = &(o.Model)
 		case "namespace":
@@ -437,6 +452,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Summary = o.Summary
 		case "time":
 			sp.Time = &(o.Time)
+		case "toolChoice":
+			sp.ToolChoice = o.ToolChoice
 		case "tools":
 			sp.Tools = &(o.Tools)
 		case "trace":
@@ -492,6 +509,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Latency != nil {
 		o.Latency = so.Latency
 	}
+	if so.McpMessage != nil {
+		o.McpMessage = so.McpMessage
+	}
 	if so.Model != nil {
 		o.Model = *so.Model
 	}
@@ -515,6 +535,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Time != nil {
 		o.Time = *so.Time
+	}
+	if so.ToolChoice != nil {
+		o.ToolChoice = so.ToolChoice
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
@@ -595,6 +618,13 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
+	if o.McpMessage != nil {
+		elemental.ResetDefaultForZeroValues(o.McpMessage)
+		if err := o.McpMessage.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.Principal != nil {
 		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
@@ -605,6 +635,13 @@ func (o *ProxyRoundtrip) Validate() error {
 	if o.Summary != nil {
 		elemental.ResetDefaultForZeroValues(o.Summary)
 		if err := o.Summary.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		elemental.ResetDefaultForZeroValues(o.ToolChoice)
+		if err := o.ToolChoice.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -688,6 +725,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "latency":
 		return o.Latency
+	case "mcpMessage":
+		return o.McpMessage
 	case "model":
 		return o.Model
 	case "namespace":
@@ -704,6 +743,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Summary
 	case "time":
 		return o.Time
+	case "toolChoice":
+		return o.ToolChoice
 	case "tools":
 		return o.Tools
 	case "trace":
@@ -855,6 +896,17 @@ same import operation.`,
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"McpMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpmessage",
+		ConvertedName:  "McpMessage",
+		Description:    `If this is an MCP message, then the MCP message details will be set here.`,
+		Exposed:        true,
+		Name:           "mcpMessage",
+		Stored:         true,
+		SubType:        "mcpmessage",
+		Type:           "ref",
+	},
 	"Model": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "model",
@@ -941,6 +993,17 @@ same import operation.`,
 		Exposed:        true,
 		Name:           "time",
 		Type:           "time",
+	},
+	"ToolChoice": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolchoice",
+		ConvertedName:  "ToolChoice",
+		Description:    `Tool choice instructions for the model of a request.`,
+		Exposed:        true,
+		Name:           "toolChoice",
+		Stored:         true,
+		SubType:        "toolchoice",
+		Type:           "ref",
 	},
 	"Tools": {
 		AllowedChoices: []string{},
@@ -1116,6 +1179,17 @@ same import operation.`,
 		SubType:        "latency",
 		Type:           "ref",
 	},
+	"mcpmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpmessage",
+		ConvertedName:  "McpMessage",
+		Description:    `If this is an MCP message, then the MCP message details will be set here.`,
+		Exposed:        true,
+		Name:           "mcpMessage",
+		Stored:         true,
+		SubType:        "mcpmessage",
+		Type:           "ref",
+	},
 	"model": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "model",
@@ -1203,6 +1277,17 @@ same import operation.`,
 		Name:           "time",
 		Type:           "time",
 	},
+	"toolchoice": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolchoice",
+		ConvertedName:  "ToolChoice",
+		Description:    `Tool choice instructions for the model of a request.`,
+		Exposed:        true,
+		Name:           "toolChoice",
+		Stored:         true,
+		SubType:        "toolchoice",
+		Type:           "ref",
+	},
 	"tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -1249,14 +1334,14 @@ func (o SparseProxyRoundtripsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProxyRoundtripsList.
 func (o SparseProxyRoundtripsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProxyRoundtripsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProxyRoundtripsList.
 func (o SparseProxyRoundtripsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProxyRoundtripsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProxyRoundtrip))
 	}
@@ -1268,7 +1353,7 @@ func (o SparseProxyRoundtripsList) Append(objects ...elemental.Identifiable) ele
 func (o SparseProxyRoundtripsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1285,7 +1370,7 @@ func (o SparseProxyRoundtripsList) DefaultOrder() []string {
 func (o SparseProxyRoundtripsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -1337,6 +1422,9 @@ type SparseProxyRoundtrip struct {
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
+	// If this is an MCP message, then the MCP message details will be set here.
+	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
+
 	// The model used by the request.
 	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
@@ -1360,6 +1448,9 @@ type SparseProxyRoundtrip struct {
 
 	// Set the time of the message request.
 	Time *time.Time `json:"time,omitempty" msgpack:"time,omitempty" bson:"-" mapstructure:"time,omitempty"`
+
+	// Tool choice instructions for the model of a request.
+	ToolChoice *ToolChoice `json:"toolChoice,omitempty" msgpack:"toolChoice,omitempty" bson:"toolchoice,omitempty" mapstructure:"toolChoice,omitempty"`
 
 	// The various tools used by the request.
 	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
@@ -1449,6 +1540,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Latency != nil {
 		s.Latency = o.Latency
 	}
+	if o.McpMessage != nil {
+		s.McpMessage = o.McpMessage
+	}
 	if o.Model != nil {
 		s.Model = o.Model
 	}
@@ -1469,6 +1563,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	}
 	if o.Summary != nil {
 		s.Summary = o.Summary
+	}
+	if o.ToolChoice != nil {
+		s.ToolChoice = o.ToolChoice
 	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
@@ -1531,6 +1628,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Latency != nil {
 		o.Latency = s.Latency
 	}
+	if s.McpMessage != nil {
+		o.McpMessage = s.McpMessage
+	}
 	if s.Model != nil {
 		o.Model = s.Model
 	}
@@ -1551,6 +1651,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
+	}
+	if s.ToolChoice != nil {
+		o.ToolChoice = s.ToolChoice
 	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
@@ -1611,6 +1714,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.Latency != nil {
 		out.Latency = o.Latency
 	}
+	if o.McpMessage != nil {
+		out.McpMessage = o.McpMessage
+	}
 	if o.Model != nil {
 		out.Model = *o.Model
 	}
@@ -1634,6 +1740,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Time != nil {
 		out.Time = *o.Time
+	}
+	if o.ToolChoice != nil {
+		out.ToolChoice = o.ToolChoice
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
@@ -1733,6 +1842,7 @@ type mongoAttributesProxyRoundtrip struct {
 	ImportHash    string                      `bson:"importhash,omitempty"`
 	ImportLabel   string                      `bson:"importlabel,omitempty"`
 	Latency       *Latency                    `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage                 `bson:"mcpmessage,omitempty"`
 	Model         string                      `bson:"model"`
 	Namespace     string                      `bson:"namespace,omitempty"`
 	PipelineName  string                      `bson:"pipelinename"`
@@ -1740,6 +1850,7 @@ type mongoAttributesProxyRoundtrip struct {
 	Provider      string                      `bson:"provider"`
 	Reasons       []string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice                 `bson:"toolchoice,omitempty"`
 	Tools         map[string]*Tool            `bson:"tools,omitempty"`
 	Trace         *TraceRef                   `bson:"trace"`
 	Type          ProxyRoundtripTypeValue     `bson:"type"`
@@ -1757,6 +1868,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	ImportHash    *string                      `bson:"importhash,omitempty"`
 	ImportLabel   *string                      `bson:"importlabel,omitempty"`
 	Latency       *Latency                     `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage                  `bson:"mcpmessage,omitempty"`
 	Model         *string                      `bson:"model,omitempty"`
 	Namespace     *string                      `bson:"namespace,omitempty"`
 	PipelineName  *string                      `bson:"pipelinename,omitempty"`
@@ -1764,6 +1876,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Provider      *string                      `bson:"provider,omitempty"`
 	Reasons       *[]string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice                  `bson:"toolchoice,omitempty"`
 	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
 	Trace         *TraceRef                    `bson:"trace,omitempty"`
 	Type          *ProxyRoundtripTypeValue     `bson:"type,omitempty"`

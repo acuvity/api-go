@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -71,14 +72,14 @@ func (o PrincipalsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PrincipalsList.
 func (o PrincipalsList) Copy() elemental.Identifiables {
 
-	out := append(PrincipalsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PrincipalsList.
 func (o PrincipalsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PrincipalsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Principal))
 	}
@@ -90,7 +91,7 @@ func (o PrincipalsList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o PrincipalsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -108,7 +109,7 @@ func (o PrincipalsList) DefaultOrder() []string {
 func (o PrincipalsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePrincipalsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePrincipal)
 	}
 
@@ -632,14 +633,14 @@ func (o SparsePrincipalsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePrincipalsList.
 func (o SparsePrincipalsList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePrincipalsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePrincipalsList.
 func (o SparsePrincipalsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePrincipalsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePrincipal))
 	}
@@ -651,7 +652,7 @@ func (o SparsePrincipalsList) Append(objects ...elemental.Identifiable) elementa
 func (o SparsePrincipalsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -668,7 +669,7 @@ func (o SparsePrincipalsList) DefaultOrder() []string {
 func (o SparsePrincipalsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

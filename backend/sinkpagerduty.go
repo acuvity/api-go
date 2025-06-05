@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o SinkPagerDutiesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SinkPagerDutiesList.
 func (o SinkPagerDutiesList) Copy() elemental.Identifiables {
 
-	out := append(SinkPagerDutiesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the SinkPagerDutiesList.
 func (o SinkPagerDutiesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SinkPagerDutiesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SinkPagerDuty))
 	}
@@ -50,7 +51,7 @@ func (o SinkPagerDutiesList) Append(objects ...elemental.Identifiable) elemental
 func (o SinkPagerDutiesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o SinkPagerDutiesList) DefaultOrder() []string {
 func (o SinkPagerDutiesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseSinkPagerDutiesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseSinkPagerDuty)
 	}
 
@@ -349,14 +350,14 @@ func (o SparseSinkPagerDutiesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseSinkPagerDutiesList.
 func (o SparseSinkPagerDutiesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseSinkPagerDutiesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseSinkPagerDutiesList.
 func (o SparseSinkPagerDutiesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseSinkPagerDutiesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseSinkPagerDuty))
 	}
@@ -368,7 +369,7 @@ func (o SparseSinkPagerDutiesList) Append(objects ...elemental.Identifiable) ele
 func (o SparseSinkPagerDutiesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -385,7 +386,7 @@ func (o SparseSinkPagerDutiesList) DefaultOrder() []string {
 func (o SparseSinkPagerDutiesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

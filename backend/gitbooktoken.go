@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o GitbookTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the GitbookTokensList.
 func (o GitbookTokensList) Copy() elemental.Identifiables {
 
-	out := append(GitbookTokensList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the GitbookTokensList.
 func (o GitbookTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(GitbookTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*GitbookToken))
 	}
@@ -50,7 +51,7 @@ func (o GitbookTokensList) Append(objects ...elemental.Identifiable) elemental.I
 func (o GitbookTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o GitbookTokensList) DefaultOrder() []string {
 func (o GitbookTokensList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseGitbookTokensList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseGitbookToken)
 	}
 
@@ -319,14 +320,14 @@ func (o SparseGitbookTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseGitbookTokensList.
 func (o SparseGitbookTokensList) Copy() elemental.Identifiables {
 
-	copy := append(SparseGitbookTokensList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseGitbookTokensList.
 func (o SparseGitbookTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseGitbookTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseGitbookToken))
 	}
@@ -338,7 +339,7 @@ func (o SparseGitbookTokensList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseGitbookTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -355,7 +356,7 @@ func (o SparseGitbookTokensList) DefaultOrder() []string {
 func (o SparseGitbookTokensList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -46,14 +47,14 @@ func (o AlertDefinitionsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AlertDefinitionsList.
 func (o AlertDefinitionsList) Copy() elemental.Identifiables {
 
-	out := append(AlertDefinitionsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AlertDefinitionsList.
 func (o AlertDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AlertDefinitionsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AlertDefinition))
 	}
@@ -65,7 +66,7 @@ func (o AlertDefinitionsList) Append(objects ...elemental.Identifiable) elementa
 func (o AlertDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -83,7 +84,7 @@ func (o AlertDefinitionsList) DefaultOrder() []string {
 func (o AlertDefinitionsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAlertDefinitionsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAlertDefinition)
 	}
 
@@ -1021,14 +1022,14 @@ func (o SparseAlertDefinitionsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAlertDefinitionsList.
 func (o SparseAlertDefinitionsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAlertDefinitionsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAlertDefinitionsList.
 func (o SparseAlertDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAlertDefinitionsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAlertDefinition))
 	}
@@ -1040,7 +1041,7 @@ func (o SparseAlertDefinitionsList) Append(objects ...elemental.Identifiable) el
 func (o SparseAlertDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1057,7 +1058,7 @@ func (o SparseAlertDefinitionsList) DefaultOrder() []string {
 func (o SparseAlertDefinitionsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o ProviderTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProviderTokensList.
 func (o ProviderTokensList) Copy() elemental.Identifiables {
 
-	out := append(ProviderTokensList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProviderTokensList.
 func (o ProviderTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProviderTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ProviderToken))
 	}
@@ -51,7 +52,7 @@ func (o ProviderTokensList) Append(objects ...elemental.Identifiable) elemental.
 func (o ProviderTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o ProviderTokensList) DefaultOrder() []string {
 func (o ProviderTokensList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProviderTokensList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProviderToken)
 	}
 
@@ -776,14 +777,14 @@ func (o SparseProviderTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProviderTokensList.
 func (o SparseProviderTokensList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProviderTokensList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProviderTokensList.
 func (o SparseProviderTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProviderTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProviderToken))
 	}
@@ -795,7 +796,7 @@ func (o SparseProviderTokensList) Append(objects ...elemental.Identifiable) elem
 func (o SparseProviderTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -812,7 +813,7 @@ func (o SparseProviderTokensList) DefaultOrder() []string {
 func (o SparseProviderTokensList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

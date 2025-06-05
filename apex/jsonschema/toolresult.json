@@ -1,0 +1,44 @@
+{
+  "$extends": [],
+  "$friendlyName": "Tool Result",
+  "$friendlyNamePlural": "Tool Results",
+  "$modelName": "ToolResult",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "toolresults",
+  "$modelRestName": "toolresult",
+  "additionalProperties": false,
+  "description": "Represents the tool result as passed in by the user or application after calling a tool.",
+  "properties": {
+    "callID": {
+      "$friendlyName": "Call ID",
+      "$required": true,
+      "description": "The ID of the tool use as previously returned by a models tool use response.",
+      "title": "callID",
+      "type": "string"
+    },
+    "content": {
+      "$friendlyName": "Content",
+      "description": "The content of the tool call results.",
+      "title": "content",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isError": {
+      "$defaultValue": false,
+      "$friendlyName": "Is Error",
+      "description": "Indicates if the tool call failed.",
+      "title": "isError",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "callID"
+  ],
+  "title": "ToolResult",
+  "type": "object"
+}

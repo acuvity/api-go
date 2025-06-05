@@ -41,15 +41,6 @@
       "minimum": 1,
       "title": "hits",
       "type": "integer"
-    },
-    "suspicious": {
-      "$friendlyName": "Suspicious",
-      "description": "Suspicious is true if the service might be a Shadow AI.",
-      "title": "suspicious",
-      "type": [
-        "boolean",
-        "null"
-      ]
     }
   },
   "required": [

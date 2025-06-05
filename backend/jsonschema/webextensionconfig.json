@@ -111,6 +111,19 @@
         "null"
       ]
     },
+    "subject": {
+      "$friendlyName": "Subject",
+      "$required": true,
+      "description": "A tag expression that identifies the user(s) tied to this config.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "subject",
+      "type": "array"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -123,7 +136,8 @@
     }
   },
   "required": [
-    "name"
+    "name",
+    "subject"
   ],
   "title": "WebExtensionConfig",
   "type": "object"

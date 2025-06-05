@@ -30,6 +30,15 @@
     "latency": {
       "$ref": "latency.json"
     },
+    "mcpmessage": {
+      "$ref": "mcpmessage.json"
+    },
+    "mcpserver": {
+      "$ref": "mcpserver.json"
+    },
+    "mcptoolannotations": {
+      "$ref": "mcptoolannotations.json"
+    },
     "modality": {
       "$ref": "modality.json"
     },
@@ -65,6 +74,15 @@
     },
     "tool": {
       "$ref": "tool.json"
+    },
+    "toolchoice": {
+      "$ref": "toolchoice.json"
+    },
+    "toolresult": {
+      "$ref": "toolresult.json"
+    },
+    "tooluse": {
+      "$ref": "tooluse.json"
     },
     "traceref": {
       "$ref": "traceref.json"

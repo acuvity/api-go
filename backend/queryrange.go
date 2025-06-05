@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -42,14 +43,14 @@ func (o QueryRangesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the QueryRangesList.
 func (o QueryRangesList) Copy() elemental.Identifiables {
 
-	out := append(QueryRangesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the QueryRangesList.
 func (o QueryRangesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(QueryRangesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*QueryRange))
 	}
@@ -61,7 +62,7 @@ func (o QueryRangesList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o QueryRangesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -79,7 +80,7 @@ func (o QueryRangesList) DefaultOrder() []string {
 func (o QueryRangesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseQueryRangesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseQueryRange)
 	}
 
@@ -724,14 +725,14 @@ func (o SparseQueryRangesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseQueryRangesList.
 func (o SparseQueryRangesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseQueryRangesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseQueryRangesList.
 func (o SparseQueryRangesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseQueryRangesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseQueryRange))
 	}
@@ -743,7 +744,7 @@ func (o SparseQueryRangesList) Append(objects ...elemental.Identifiable) element
 func (o SparseQueryRangesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -760,7 +761,7 @@ func (o SparseQueryRangesList) DefaultOrder() []string {
 func (o SparseQueryRangesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

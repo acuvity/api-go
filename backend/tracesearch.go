@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o TraceSearchesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the TraceSearchesList.
 func (o TraceSearchesList) Copy() elemental.Identifiables {
 
-	out := append(TraceSearchesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the TraceSearchesList.
 func (o TraceSearchesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(TraceSearchesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*TraceSearch))
 	}
@@ -50,7 +51,7 @@ func (o TraceSearchesList) Append(objects ...elemental.Identifiable) elemental.I
 func (o TraceSearchesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o TraceSearchesList) DefaultOrder() []string {
 func (o TraceSearchesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseTraceSearchesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseTraceSearch)
 	}
 
@@ -687,14 +688,14 @@ func (o SparseTraceSearchesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseTraceSearchesList.
 func (o SparseTraceSearchesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseTraceSearchesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseTraceSearchesList.
 func (o SparseTraceSearchesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseTraceSearchesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseTraceSearch))
 	}
@@ -706,7 +707,7 @@ func (o SparseTraceSearchesList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseTraceSearchesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -723,7 +724,7 @@ func (o SparseTraceSearchesList) DefaultOrder() []string {
 func (o SparseTraceSearchesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

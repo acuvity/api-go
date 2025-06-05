@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o CustomDataTypesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the CustomDataTypesList.
 func (o CustomDataTypesList) Copy() elemental.Identifiables {
 
-	out := append(CustomDataTypesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the CustomDataTypesList.
 func (o CustomDataTypesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(CustomDataTypesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*CustomDataType))
 	}
@@ -51,7 +52,7 @@ func (o CustomDataTypesList) Append(objects ...elemental.Identifiable) elemental
 func (o CustomDataTypesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o CustomDataTypesList) DefaultOrder() []string {
 func (o CustomDataTypesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseCustomDataTypesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseCustomDataType)
 	}
 
@@ -866,14 +867,14 @@ func (o SparseCustomDataTypesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseCustomDataTypesList.
 func (o SparseCustomDataTypesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseCustomDataTypesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseCustomDataTypesList.
 func (o SparseCustomDataTypesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseCustomDataTypesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseCustomDataType))
 	}
@@ -885,7 +886,7 @@ func (o SparseCustomDataTypesList) Append(objects ...elemental.Identifiable) ele
 func (o SparseCustomDataTypesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -902,7 +903,7 @@ func (o SparseCustomDataTypesList) DefaultOrder() []string {
 func (o SparseCustomDataTypesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

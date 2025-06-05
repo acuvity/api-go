@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"net"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"go.acuvity.ai/elemental"
+
+	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
 // ValidateURL validates the given value is a correct url.
@@ -1178,18 +1181,53 @@ func ValidateIPPort(attribute string, ipPort string) error {
 	}
 
 	// ensure the port is indeed a number and is within range
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		return makeErr(attribute, fmt.Sprintf("Invalid port '%s': %s", portStr, err))
-	}
-	if port <= 0 || port >= 65535 {
-		return makeErr(attribute, fmt.Sprintf("Invalid port '%d': must be within range of 0 and 65535", port))
+	if err = ValidatePort(attribute, portStr); err != nil {
+		return err
 	}
 
 	// ensure the host is indeed an IP address: hostnames are not allowed
 	ip := net.ParseIP(host)
 	if ip == nil {
 		return makeErr(attribute, fmt.Sprintf("Invalid IP address '%s': %s", host, err))
+	}
+
+	return nil
+}
+
+// ValidatePort checks that the port is a valid number in the range 0-65535.
+func ValidatePort(attribute string, portStr string) error {
+
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("Invalid port '%s': %s", portStr, err))
+	}
+
+	if port <= 0 || port >= 65535 {
+		return makeErr(attribute, fmt.Sprintf("Invalid port '%d': must be within range of 0 and 65535", port))
+	}
+
+	return nil
+}
+
+// ValidateDomain checks that string sent is actually a domain.
+func ValidateDomain(attribute string, domain string) error {
+
+	if u, err := url.Parse(domain); err == nil && u.Scheme != "" {
+		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not be a full URL", domain))
+	}
+
+	if strings.ContainsAny(domain, "/?#") {
+		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not contain slashes, query, or fragment", domain))
+	}
+
+	if strings.HasPrefix(domain, "www.") {
+		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not have 'www.' prefix", domain))
+	}
+
+	// TODO: remove the localhost check when we stop reporting this
+	// from acushield and webext.
+	if !strings.Contains(domain, ".") && domain != "localhost" {
+		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must contain at least one dot", domain))
 	}
 
 	return nil
@@ -1203,6 +1241,70 @@ func ValidateOrgStorage(orgStorage *OrgStorage) error {
 
 	if sizeKB > 200 {
 		return makeErr("value", "The value is limited to 200KB")
+	}
+
+	return nil
+}
+
+// ValidateIngestTrace validates an ingest trace object.
+func ValidateIngestTrace(ingestTrace *IngestTrace) error {
+
+	if len(ingestTrace.Traces) == 0 && ingestTrace.Raw == "" {
+		return makeErr("spans", "You must provide either at least one trace or a raw ingestion value")
+	}
+
+	if len(ingestTrace.Traces) > 0 && ingestTrace.Raw != "" {
+		return makeErr("spans", "You cannot provide both traces and a raw ingestion value")
+	}
+
+	return nil
+}
+
+// ValidateOTLPJSON validates the given input is a valid OTLP JSON string.
+func ValidateOTLPJSON(attribute, otlpJSON string) error {
+
+	if otlpJSON == "" {
+		return nil
+	}
+
+	if _, err := (&ptrace.JSONUnmarshaler{}).UnmarshalTraces([]byte(otlpJSON)); err != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' is invalid OTLP JSON: %s", attribute, err))
+	}
+
+	return nil
+}
+
+// ValidateSpanID validates the span ID. It must be a hex encoded string and must be 8 bytes long.
+func ValidateSpanID(attribute, spanID string) error {
+
+	if spanID == "" {
+		return nil
+	}
+
+	b, err := hex.DecodeString(spanID)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' must be a valid hex string: %s", attribute, err))
+	}
+	if len(b) != 8 {
+		return makeErr(attribute, fmt.Sprintf("'%s' must be exactly 8 bytes long.", attribute))
+	}
+
+	return nil
+}
+
+// ValidateTraceID validates the trace ID. It must be a hex encoded string and must be 16 bytes long.
+func ValidateTraceID(attribute, traceID string) error {
+
+	if traceID == "" {
+		return nil
+	}
+
+	b, err := hex.DecodeString(traceID)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' must be a valid hex string: %s", attribute, err))
+	}
+	if len(b) != 16 {
+		return makeErr(attribute, fmt.Sprintf("'%s' must be exactly 16 bytes long.", attribute))
 	}
 
 	return nil

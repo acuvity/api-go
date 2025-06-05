@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o AppTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AppTokensList.
 func (o AppTokensList) Copy() elemental.Identifiables {
 
-	out := append(AppTokensList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AppTokensList.
 func (o AppTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AppTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AppToken))
 	}
@@ -51,7 +52,7 @@ func (o AppTokensList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o AppTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o AppTokensList) DefaultOrder() []string {
 func (o AppTokensList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAppTokensList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAppToken)
 	}
 
@@ -901,14 +902,14 @@ func (o SparseAppTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAppTokensList.
 func (o SparseAppTokensList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAppTokensList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAppTokensList.
 func (o SparseAppTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAppTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAppToken))
 	}
@@ -920,7 +921,7 @@ func (o SparseAppTokensList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseAppTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -937,7 +938,7 @@ func (o SparseAppTokensList) DefaultOrder() []string {
 func (o SparseAppTokensList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

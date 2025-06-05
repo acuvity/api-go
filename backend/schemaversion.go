@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o SchemaVersionsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SchemaVersionsList.
 func (o SchemaVersionsList) Copy() elemental.Identifiables {
 
-	out := append(SchemaVersionsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the SchemaVersionsList.
 func (o SchemaVersionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SchemaVersionsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SchemaVersion))
 	}
@@ -51,7 +52,7 @@ func (o SchemaVersionsList) Append(objects ...elemental.Identifiable) elemental.
 func (o SchemaVersionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o SchemaVersionsList) DefaultOrder() []string {
 func (o SchemaVersionsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseSchemaVersionsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseSchemaVersion)
 	}
 
@@ -326,14 +327,14 @@ func (o SparseSchemaVersionsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseSchemaVersionsList.
 func (o SparseSchemaVersionsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseSchemaVersionsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseSchemaVersionsList.
 func (o SparseSchemaVersionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseSchemaVersionsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseSchemaVersion))
 	}
@@ -345,7 +346,7 @@ func (o SparseSchemaVersionsList) Append(objects ...elemental.Identifiable) elem
 func (o SparseSchemaVersionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -362,7 +363,7 @@ func (o SparseSchemaVersionsList) DefaultOrder() []string {
 func (o SparseSchemaVersionsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

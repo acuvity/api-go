@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -76,14 +77,14 @@ func (o IngressProviderConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the IngressProviderConfigsList.
 func (o IngressProviderConfigsList) Copy() elemental.Identifiables {
 
-	out := append(IngressProviderConfigsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the IngressProviderConfigsList.
 func (o IngressProviderConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(IngressProviderConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*IngressProviderConfig))
 	}
@@ -95,7 +96,7 @@ func (o IngressProviderConfigsList) Append(objects ...elemental.Identifiable) el
 func (o IngressProviderConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -113,7 +114,7 @@ func (o IngressProviderConfigsList) DefaultOrder() []string {
 func (o IngressProviderConfigsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseIngressProviderConfigsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseIngressProviderConfig)
 	}
 
@@ -674,14 +675,14 @@ func (o SparseIngressProviderConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseIngressProviderConfigsList.
 func (o SparseIngressProviderConfigsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseIngressProviderConfigsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseIngressProviderConfigsList.
 func (o SparseIngressProviderConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseIngressProviderConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseIngressProviderConfig))
 	}
@@ -693,7 +694,7 @@ func (o SparseIngressProviderConfigsList) Append(objects ...elemental.Identifiab
 func (o SparseIngressProviderConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -710,7 +711,7 @@ func (o SparseIngressProviderConfigsList) DefaultOrder() []string {
 func (o SparseIngressProviderConfigsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

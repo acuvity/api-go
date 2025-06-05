@@ -192,6 +192,12 @@ type Extraction struct {
 	//   - confidence: 'high', 0.66 <= score <= 1.
 	Secrets map[string]float64 `json:"secrets,omitempty" msgpack:"secrets,omitempty" bson:"secrets,omitempty" mapstructure:"secrets,omitempty"`
 
+	// Tool call results which are passed in to this request.
+	ToolResults []ToolResult `json:"toolResults,omitempty" msgpack:"toolResults,omitempty" bson:"toolresults,omitempty" mapstructure:"toolResults,omitempty"`
+
+	// Tool uses as requested by a model.
+	ToolUses []ToolUse `json:"toolUses,omitempty" msgpack:"toolUses,omitempty" bson:"tooluses,omitempty" mapstructure:"toolUses,omitempty"`
+
 	// The topic of the classification.
 	//
 	// The current list can be obtained through the analyzers API, with the following
@@ -277,6 +283,8 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.Modalities = o.Modalities
 	s.Relevance = o.Relevance
 	s.Secrets = o.Secrets
+	s.ToolResults = o.ToolResults
+	s.ToolUses = o.ToolUses
 	s.Topics = o.Topics
 
 	return s, nil
@@ -316,6 +324,8 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.Modalities = s.Modalities
 	o.Relevance = s.Relevance
 	o.Secrets = s.Secrets
+	o.ToolResults = s.ToolResults
+	o.ToolUses = s.ToolUses
 	o.Topics = s.Topics
 
 	return nil
@@ -375,6 +385,20 @@ func (o *Extraction) Validate() error {
 	}
 
 	for _, sub := range o.Modalities {
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.ToolResults {
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
 		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
@@ -459,6 +483,10 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.Relevance
 	case "secrets":
 		return o.Secrets
+	case "toolResults":
+		return o.ToolResults
+	case "toolUses":
+		return o.ToolUses
 	case "topics":
 		return o.Topics
 	}
@@ -804,6 +832,28 @@ scores:
 		Stored:  true,
 		SubType: "map[string]float64",
 		Type:    "external",
+	},
+	"ToolResults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"ToolUses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
 	},
 	"Topics": {
 		AllowedChoices: []string{},
@@ -1196,6 +1246,28 @@ scores:
 		SubType: "map[string]float64",
 		Type:    "external",
 	},
+	"toolresults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"tooluses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
+	},
 	"topics": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "topics",
@@ -1270,5 +1342,7 @@ type mongoAttributesExtraction struct {
 	Modalities      []Modality                    `bson:"modalities,omitempty"`
 	Relevance       float64                       `bson:"relevance,omitempty"`
 	Secrets         map[string]float64            `bson:"secrets,omitempty"`
+	ToolResults     []ToolResult                  `bson:"toolresults,omitempty"`
+	ToolUses        []ToolUse                     `bson:"tooluses,omitempty"`
 	Topics          map[string]float64            `bson:"topics,omitempty"`
 }

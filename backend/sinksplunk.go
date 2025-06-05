@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o SinkSplunksList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SinkSplunksList.
 func (o SinkSplunksList) Copy() elemental.Identifiables {
 
-	out := append(SinkSplunksList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the SinkSplunksList.
 func (o SinkSplunksList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SinkSplunksList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SinkSplunk))
 	}
@@ -50,7 +51,7 @@ func (o SinkSplunksList) Append(objects ...elemental.Identifiable) elemental.Ide
 func (o SinkSplunksList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o SinkSplunksList) DefaultOrder() []string {
 func (o SinkSplunksList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseSinkSplunksList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseSinkSplunk)
 	}
 
@@ -462,14 +463,14 @@ func (o SparseSinkSplunksList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseSinkSplunksList.
 func (o SparseSinkSplunksList) Copy() elemental.Identifiables {
 
-	copy := append(SparseSinkSplunksList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseSinkSplunksList.
 func (o SparseSinkSplunksList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseSinkSplunksList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseSinkSplunk))
 	}
@@ -481,7 +482,7 @@ func (o SparseSinkSplunksList) Append(objects ...elemental.Identifiable) element
 func (o SparseSinkSplunksList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -498,7 +499,7 @@ func (o SparseSinkSplunksList) DefaultOrder() []string {
 func (o SparseSinkSplunksList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

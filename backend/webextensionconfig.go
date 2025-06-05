@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o WebExtensionConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the WebExtensionConfigsList.
 func (o WebExtensionConfigsList) Copy() elemental.Identifiables {
 
-	out := append(WebExtensionConfigsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the WebExtensionConfigsList.
 func (o WebExtensionConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(WebExtensionConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*WebExtensionConfig))
 	}
@@ -51,7 +52,7 @@ func (o WebExtensionConfigsList) Append(objects ...elemental.Identifiable) eleme
 func (o WebExtensionConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o WebExtensionConfigsList) DefaultOrder() []string {
 func (o WebExtensionConfigsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseWebExtensionConfigsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseWebExtensionConfig)
 	}
 
@@ -116,6 +117,9 @@ type WebExtensionConfig struct {
 	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval int `json:"reportVisitedURLsInterval" msgpack:"reportVisitedURLsInterval" bson:"reportvisitedurlsinterval" mapstructure:"reportVisitedURLsInterval,omitempty"`
 
+	// A tag expression that identifies the user(s) tied to this config.
+	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -135,6 +139,7 @@ func NewWebExtensionConfig() *WebExtensionConfig {
 		ModelVersion:                      1,
 		RefreshWebExtensionConfigInterval: 120,
 		ReportVisitedURLsInterval:         60,
+		Subject:                           [][]string{},
 	}
 }
 
@@ -178,6 +183,7 @@ func (o *WebExtensionConfig) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
 	s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
+	s.Subject = o.Subject
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -208,6 +214,7 @@ func (o *WebExtensionConfig) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
 	o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
+	o.Subject = s.Subject
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -321,6 +328,7 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			Namespace:                         &o.Namespace,
 			RefreshWebExtensionConfigInterval: &o.RefreshWebExtensionConfigInterval,
 			ReportVisitedURLsInterval:         &o.ReportVisitedURLsInterval,
+			Subject:                           &o.Subject,
 			UpdateTime:                        &o.UpdateTime,
 			ZHash:                             &o.ZHash,
 			Zone:                              &o.Zone,
@@ -350,6 +358,8 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.RefreshWebExtensionConfigInterval = &(o.RefreshWebExtensionConfigInterval)
 		case "reportVisitedURLsInterval":
 			sp.ReportVisitedURLsInterval = &(o.ReportVisitedURLsInterval)
+		case "subject":
+			sp.Subject = &(o.Subject)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -398,6 +408,9 @@ func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ReportVisitedURLsInterval != nil {
 		o.ReportVisitedURLsInterval = *so.ReportVisitedURLsInterval
+	}
+	if so.Subject != nil {
+		o.Subject = *so.Subject
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -449,6 +462,14 @@ func (o *WebExtensionConfig) Validate() error {
 	}
 
 	if err := elemental.ValidateMinimumInt("reportVisitedURLsInterval", o.ReportVisitedURLsInterval, int(1), false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredExternal("subject", o.Subject); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -506,6 +527,8 @@ func (o *WebExtensionConfig) ValueForAttribute(name string) any {
 		return o.RefreshWebExtensionConfigInterval
 	case "reportVisitedURLsInterval":
 		return o.ReportVisitedURLsInterval
+	case "subject":
+		return o.Subject
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -647,6 +670,19 @@ web extensions.`,
 		Name:           "reportVisitedURLsInterval",
 		Stored:         true,
 		Type:           "integer",
+	},
+	"Subject": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "subject",
+		ConvertedName:  "Subject",
+		Description:    `A tag expression that identifies the user(s) tied to this config.`,
+		Exposed:        true,
+		Name:           "subject",
+		Orderable:      true,
+		Required:       true,
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -796,6 +832,19 @@ web extensions.`,
 		Stored:         true,
 		Type:           "integer",
 	},
+	"subject": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "subject",
+		ConvertedName:  "Subject",
+		Description:    `A tag expression that identifies the user(s) tied to this config.`,
+		Exposed:        true,
+		Name:           "subject",
+		Orderable:      true,
+		Required:       true,
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -825,14 +874,14 @@ func (o SparseWebExtensionConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseWebExtensionConfigsList.
 func (o SparseWebExtensionConfigsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseWebExtensionConfigsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseWebExtensionConfigsList.
 func (o SparseWebExtensionConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseWebExtensionConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseWebExtensionConfig))
 	}
@@ -844,7 +893,7 @@ func (o SparseWebExtensionConfigsList) Append(objects ...elemental.Identifiable)
 func (o SparseWebExtensionConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -861,7 +910,7 @@ func (o SparseWebExtensionConfigsList) DefaultOrder() []string {
 func (o SparseWebExtensionConfigsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -907,6 +956,9 @@ type SparseWebExtensionConfig struct {
 
 	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval *int `json:"reportVisitedURLsInterval,omitempty" msgpack:"reportVisitedURLsInterval,omitempty" bson:"reportvisitedurlsinterval,omitempty" mapstructure:"reportVisitedURLsInterval,omitempty"`
+
+	// A tag expression that identifies the user(s) tied to this config.
+	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -990,6 +1042,9 @@ func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
 	if o.ReportVisitedURLsInterval != nil {
 		s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
 	}
+	if o.Subject != nil {
+		s.Subject = o.Subject
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1045,6 +1100,9 @@ func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
 	if s.ReportVisitedURLsInterval != nil {
 		o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
 	}
+	if s.Subject != nil {
+		o.Subject = s.Subject
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1097,6 +1155,9 @@ func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ReportVisitedURLsInterval != nil {
 		out.ReportVisitedURLsInterval = *o.ReportVisitedURLsInterval
+	}
+	if o.Subject != nil {
+		out.Subject = *o.Subject
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1226,6 +1287,7 @@ type mongoAttributesWebExtensionConfig struct {
 	Namespace                         string        `bson:"namespace,omitempty"`
 	RefreshWebExtensionConfigInterval int           `bson:"refreshwebextensionconfiginterval"`
 	ReportVisitedURLsInterval         int           `bson:"reportvisitedurlsinterval"`
+	Subject                           [][]string    `bson:"subject"`
 	UpdateTime                        time.Time     `bson:"updatetime"`
 	ZHash                             int           `bson:"zhash"`
 	Zone                              int           `bson:"zone"`
@@ -1241,6 +1303,7 @@ type mongoAttributesSparseWebExtensionConfig struct {
 	Namespace                         *string       `bson:"namespace,omitempty"`
 	RefreshWebExtensionConfigInterval *int          `bson:"refreshwebextensionconfiginterval,omitempty"`
 	ReportVisitedURLsInterval         *int          `bson:"reportvisitedurlsinterval,omitempty"`
+	Subject                           *[][]string   `bson:"subject,omitempty"`
 	UpdateTime                        *time.Time    `bson:"updatetime,omitempty"`
 	ZHash                             *int          `bson:"zhash,omitempty"`
 	Zone                              *int          `bson:"zone,omitempty"`

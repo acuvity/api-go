@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -53,14 +54,14 @@ func (o PoliceRequestsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PoliceRequestsList.
 func (o PoliceRequestsList) Copy() elemental.Identifiables {
 
-	out := append(PoliceRequestsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PoliceRequestsList.
 func (o PoliceRequestsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PoliceRequestsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PoliceRequest))
 	}
@@ -72,7 +73,7 @@ func (o PoliceRequestsList) Append(objects ...elemental.Identifiable) elemental.
 func (o PoliceRequestsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -90,7 +91,7 @@ func (o PoliceRequestsList) DefaultOrder() []string {
 func (o PoliceRequestsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePoliceRequestsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePoliceRequest)
 	}
 
@@ -716,14 +717,14 @@ func (o SparsePoliceRequestsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePoliceRequestsList.
 func (o SparsePoliceRequestsList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePoliceRequestsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePoliceRequestsList.
 func (o SparsePoliceRequestsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePoliceRequestsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePoliceRequest))
 	}
@@ -735,7 +736,7 @@ func (o SparsePoliceRequestsList) Append(objects ...elemental.Identifiable) elem
 func (o SparsePoliceRequestsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -752,7 +753,7 @@ func (o SparsePoliceRequestsList) DefaultOrder() []string {
 func (o SparsePoliceRequestsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

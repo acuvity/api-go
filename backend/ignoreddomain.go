@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o IgnoredDomainsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the IgnoredDomainsList.
 func (o IgnoredDomainsList) Copy() elemental.Identifiables {
 
-	out := append(IgnoredDomainsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the IgnoredDomainsList.
 func (o IgnoredDomainsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(IgnoredDomainsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*IgnoredDomain))
 	}
@@ -51,7 +52,7 @@ func (o IgnoredDomainsList) Append(objects ...elemental.Identifiable) elemental.
 func (o IgnoredDomainsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o IgnoredDomainsList) DefaultOrder() []string {
 func (o IgnoredDomainsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseIgnoredDomainsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseIgnoredDomain)
 	}
 
@@ -726,14 +727,14 @@ func (o SparseIgnoredDomainsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseIgnoredDomainsList.
 func (o SparseIgnoredDomainsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseIgnoredDomainsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseIgnoredDomainsList.
 func (o SparseIgnoredDomainsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseIgnoredDomainsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseIgnoredDomain))
 	}
@@ -745,7 +746,7 @@ func (o SparseIgnoredDomainsList) Append(objects ...elemental.Identifiable) elem
 func (o SparseIgnoredDomainsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -762,7 +763,7 @@ func (o SparseIgnoredDomainsList) DefaultOrder() []string {
 func (o SparseIgnoredDomainsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

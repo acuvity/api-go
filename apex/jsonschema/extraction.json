@@ -204,6 +204,24 @@
       "title": "secrets",
       "type": "object"
     },
+    "toolResults": {
+      "$friendlyName": "Tool Results",
+      "description": "Tool call results which are passed in to this request.",
+      "items": {
+        "$ref": "toolresult.json"
+      },
+      "title": "toolResults",
+      "type": "array"
+    },
+    "toolUses": {
+      "$friendlyName": "Tool Uses",
+      "description": "Tool uses as requested by a model.",
+      "items": {
+        "$ref": "tooluse.json"
+      },
+      "title": "toolUses",
+      "type": "array"
+    },
     "topics": {
       "$friendlyName": "Topics",
       "additionalProperties": {

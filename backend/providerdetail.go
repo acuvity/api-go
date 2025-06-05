@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o ProviderDetailsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProviderDetailsList.
 func (o ProviderDetailsList) Copy() elemental.Identifiables {
 
-	out := append(ProviderDetailsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProviderDetailsList.
 func (o ProviderDetailsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProviderDetailsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ProviderDetail))
 	}
@@ -50,7 +51,7 @@ func (o ProviderDetailsList) Append(objects ...elemental.Identifiable) elemental
 func (o ProviderDetailsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o ProviderDetailsList) DefaultOrder() []string {
 func (o ProviderDetailsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProviderDetailsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProviderDetail)
 	}
 
@@ -873,14 +874,14 @@ func (o SparseProviderDetailsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProviderDetailsList.
 func (o SparseProviderDetailsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProviderDetailsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProviderDetailsList.
 func (o SparseProviderDetailsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProviderDetailsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProviderDetail))
 	}
@@ -892,7 +893,7 @@ func (o SparseProviderDetailsList) Append(objects ...elemental.Identifiable) ele
 func (o SparseProviderDetailsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -909,7 +910,7 @@ func (o SparseProviderDetailsList) DefaultOrder() []string {
 func (o SparseProviderDetailsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o AIDomainsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AIDomainsList.
 func (o AIDomainsList) Copy() elemental.Identifiables {
 
-	out := append(AIDomainsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AIDomainsList.
 func (o AIDomainsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AIDomainsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AIDomain))
 	}
@@ -51,7 +52,7 @@ func (o AIDomainsList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o AIDomainsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o AIDomainsList) DefaultOrder() []string {
 func (o AIDomainsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAIDomainsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAIDomain)
 	}
 
@@ -1201,14 +1202,14 @@ func (o SparseAIDomainsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAIDomainsList.
 func (o SparseAIDomainsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAIDomainsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAIDomainsList.
 func (o SparseAIDomainsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAIDomainsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAIDomain))
 	}
@@ -1220,7 +1221,7 @@ func (o SparseAIDomainsList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseAIDomainsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1237,7 +1238,7 @@ func (o SparseAIDomainsList) DefaultOrder() []string {
 func (o SparseAIDomainsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

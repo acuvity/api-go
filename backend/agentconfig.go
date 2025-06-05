@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -43,14 +44,14 @@ func (o AgentConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AgentConfigsList.
 func (o AgentConfigsList) Copy() elemental.Identifiables {
 
-	out := append(AgentConfigsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AgentConfigsList.
 func (o AgentConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AgentConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AgentConfig))
 	}
@@ -62,7 +63,7 @@ func (o AgentConfigsList) Append(objects ...elemental.Identifiable) elemental.Id
 func (o AgentConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -80,7 +81,7 @@ func (o AgentConfigsList) DefaultOrder() []string {
 func (o AgentConfigsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAgentConfigsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAgentConfig)
 	}
 
@@ -171,6 +172,9 @@ type AgentConfig struct {
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses []string `json:"scanRunningProcesses" msgpack:"scanRunningProcesses" bson:"scanrunningprocesses" mapstructure:"scanRunningProcesses,omitempty"`
 
+	// A tag expression that identifies the user(s) tied to this config.
+	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
+
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled bool `json:"systemProxyManagementDisabled" msgpack:"systemProxyManagementDisabled" bson:"systemproxymanagementdisabled" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
@@ -200,9 +204,10 @@ func NewAgentConfig() *AgentConfig {
 		DomainReportInterval:  "10m",
 		ListeningPort:         "8081",
 		PingInterval:          "10m",
-		ScanInterval:          "1m",
-		ScanReportInterval:    "1h",
+		ScanInterval:          "5m",
+		ScanReportInterval:    "12h",
 		ScanRunningProcesses:  []string{},
+		Subject:               [][]string{},
 	}
 }
 
@@ -259,6 +264,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ScanInterval = o.ScanInterval
 	s.ScanReportInterval = o.ScanReportInterval
 	s.ScanRunningProcesses = o.ScanRunningProcesses
+	s.Subject = o.Subject
 	s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	s.UpdateTime = o.UpdateTime
 	s.UseDynamicPort = o.UseDynamicPort
@@ -304,6 +310,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ScanInterval = s.ScanInterval
 	o.ScanReportInterval = s.ScanReportInterval
 	o.ScanRunningProcesses = s.ScanRunningProcesses
+	o.Subject = s.Subject
 	o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	o.UpdateTime = s.UpdateTime
 	o.UseDynamicPort = s.UseDynamicPort
@@ -432,6 +439,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ScanInterval:                  &o.ScanInterval,
 			ScanReportInterval:            &o.ScanReportInterval,
 			ScanRunningProcesses:          &o.ScanRunningProcesses,
+			Subject:                       &o.Subject,
 			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
 			UpdateTime:                    &o.UpdateTime,
 			UseDynamicPort:                &o.UseDynamicPort,
@@ -489,6 +497,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ScanReportInterval = &(o.ScanReportInterval)
 		case "scanRunningProcesses":
 			sp.ScanRunningProcesses = &(o.ScanRunningProcesses)
+		case "subject":
+			sp.Subject = &(o.Subject)
 		case "systemProxyManagementDisabled":
 			sp.SystemProxyManagementDisabled = &(o.SystemProxyManagementDisabled)
 		case "updateTime":
@@ -581,6 +591,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = *so.ScanRunningProcesses
 	}
+	if so.Subject != nil {
+		o.Subject = *so.Subject
+	}
 	if so.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = *so.SystemProxyManagementDisabled
 	}
@@ -648,6 +661,14 @@ func (o *AgentConfig) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '@', '.' or space.`, true); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateName("name", o.Name); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := ValidateDuration("pingInterval", o.PingInterval); err != nil {
 		errors = errors.Append(err)
 	}
@@ -667,6 +688,14 @@ func (o *AgentConfig) Validate() error {
 	}
 
 	if err := ValidateDuration("scanReportInterval", o.ScanReportInterval); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredExternal("subject", o.Subject); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -755,6 +784,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ScanReportInterval
 	case "scanRunningProcesses":
 		return o.ScanRunningProcesses
+	case "subject":
+		return o.Subject
 	case "systemProxyManagementDisabled":
 		return o.SystemProxyManagementDisabled
 	case "updateTime":
@@ -932,6 +963,7 @@ system.`,
 		Type:    "boolean",
 	},
 	"Name": {
+		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
@@ -1013,7 +1045,7 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "scaninterval",
 		ConvertedName:  "ScanInterval",
-		DefaultValue:   "1m",
+		DefaultValue:   "5m",
 		Description:    `The interval in which scans take place by the agent.`,
 		Exposed:        true,
 		Name:           "scanInterval",
@@ -1024,7 +1056,7 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "scanreportinterval",
 		ConvertedName:  "ScanReportInterval",
-		DefaultValue:   "1h",
+		DefaultValue:   "12h",
 		Description:    `The interval in which scan reports are sent to the backend.`,
 		Exposed:        true,
 		Name:           "scanReportInterval",
@@ -1041,6 +1073,19 @@ system.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Subject": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "subject",
+		ConvertedName:  "Subject",
+		Description:    `A tag expression that identifies the user(s) tied to this config.`,
+		Exposed:        true,
+		Name:           "subject",
+		Orderable:      true,
+		Required:       true,
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
 	},
 	"SystemProxyManagementDisabled": {
 		AllowedChoices: []string{},
@@ -1242,6 +1287,7 @@ system.`,
 		Type:    "boolean",
 	},
 	"name": {
+		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
@@ -1323,7 +1369,7 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "scaninterval",
 		ConvertedName:  "ScanInterval",
-		DefaultValue:   "1m",
+		DefaultValue:   "5m",
 		Description:    `The interval in which scans take place by the agent.`,
 		Exposed:        true,
 		Name:           "scanInterval",
@@ -1334,7 +1380,7 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "scanreportinterval",
 		ConvertedName:  "ScanReportInterval",
-		DefaultValue:   "1h",
+		DefaultValue:   "12h",
 		Description:    `The interval in which scan reports are sent to the backend.`,
 		Exposed:        true,
 		Name:           "scanReportInterval",
@@ -1351,6 +1397,19 @@ system.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"subject": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "subject",
+		ConvertedName:  "Subject",
+		Description:    `A tag expression that identifies the user(s) tied to this config.`,
+		Exposed:        true,
+		Name:           "subject",
+		Orderable:      true,
+		Required:       true,
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
 	},
 	"systemproxymanagementdisabled": {
 		AllowedChoices: []string{},
@@ -1402,14 +1461,14 @@ func (o SparseAgentConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAgentConfigsList.
 func (o SparseAgentConfigsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAgentConfigsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAgentConfigsList.
 func (o SparseAgentConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAgentConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAgentConfig))
 	}
@@ -1421,7 +1480,7 @@ func (o SparseAgentConfigsList) Append(objects ...elemental.Identifiable) elemen
 func (o SparseAgentConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1438,7 +1497,7 @@ func (o SparseAgentConfigsList) DefaultOrder() []string {
 func (o SparseAgentConfigsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -1528,6 +1587,9 @@ type SparseAgentConfig struct {
 
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses *[]string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"scanrunningprocesses,omitempty" mapstructure:"scanRunningProcesses,omitempty"`
+
+	// A tag expression that identifies the user(s) tied to this config.
+	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
 
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled *bool `json:"systemProxyManagementDisabled,omitempty" msgpack:"systemProxyManagementDisabled,omitempty" bson:"systemproxymanagementdisabled,omitempty" mapstructure:"systemProxyManagementDisabled,omitempty"`
@@ -1657,6 +1719,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ScanRunningProcesses != nil {
 		s.ScanRunningProcesses = o.ScanRunningProcesses
 	}
+	if o.Subject != nil {
+		s.Subject = o.Subject
+	}
 	if o.SystemProxyManagementDisabled != nil {
 		s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	}
@@ -1757,6 +1822,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = s.ScanRunningProcesses
 	}
+	if s.Subject != nil {
+		o.Subject = s.Subject
+	}
 	if s.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	}
@@ -1854,6 +1922,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ScanRunningProcesses != nil {
 		out.ScanRunningProcesses = *o.ScanRunningProcesses
+	}
+	if o.Subject != nil {
+		out.Subject = *o.Subject
 	}
 	if o.SystemProxyManagementDisabled != nil {
 		out.SystemProxyManagementDisabled = *o.SystemProxyManagementDisabled
@@ -2002,6 +2073,7 @@ type mongoAttributesAgentConfig struct {
 	ScanInterval                  string                           `bson:"scaninterval"`
 	ScanReportInterval            string                           `bson:"scanreportinterval"`
 	ScanRunningProcesses          []string                         `bson:"scanrunningprocesses"`
+	Subject                       [][]string                       `bson:"subject"`
 	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
 	UpdateTime                    time.Time                        `bson:"updatetime"`
 	UseDynamicPort                bool                             `bson:"usedynamicport"`
@@ -2032,6 +2104,7 @@ type mongoAttributesSparseAgentConfig struct {
 	ScanInterval                  *string                           `bson:"scaninterval,omitempty"`
 	ScanReportInterval            *string                           `bson:"scanreportinterval,omitempty"`
 	ScanRunningProcesses          *[]string                         `bson:"scanrunningprocesses,omitempty"`
+	Subject                       *[][]string                       `bson:"subject,omitempty"`
 	SystemProxyManagementDisabled *bool                             `bson:"systemproxymanagementdisabled,omitempty"`
 	UpdateTime                    *time.Time                        `bson:"updatetime,omitempty"`
 	UseDynamicPort                *bool                             `bson:"usedynamicport,omitempty"`

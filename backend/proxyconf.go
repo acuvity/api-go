@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o ProxyConfsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProxyConfsList.
 func (o ProxyConfsList) Copy() elemental.Identifiables {
 
-	out := append(ProxyConfsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProxyConfsList.
 func (o ProxyConfsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProxyConfsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*ProxyConf))
 	}
@@ -50,7 +51,7 @@ func (o ProxyConfsList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o ProxyConfsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o ProxyConfsList) DefaultOrder() []string {
 func (o ProxyConfsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProxyConfsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProxyConf)
 	}
 
@@ -92,8 +93,8 @@ type ProxyConf struct {
 	// The computed access policy.
 	AccessPolicy string `json:"accessPolicy,omitempty" msgpack:"accessPolicy,omitempty" bson:"-" mapstructure:"accessPolicy,omitempty"`
 
-	// The agent configuration.
-	AgentConfig *AgentConfig `json:"agentConfig,omitempty" msgpack:"agentConfig,omitempty" bson:"-" mapstructure:"agentConfig,omitempty"`
+	// The agent configurations.
+	AgentConfigs AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
 	// The computed assign policy.
 	AssignPolicy string `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"-" mapstructure:"assignPolicy,omitempty"`
@@ -122,8 +123,8 @@ type ProxyConf struct {
 	// Tokens pool to authenticate with the provider.
 	Tokens map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
-	// The web extension configuration.
-	WebExtensionConfig *WebExtensionConfig `json:"webExtensionConfig,omitempty" msgpack:"webExtensionConfig,omitempty" bson:"-" mapstructure:"webExtensionConfig,omitempty"`
+	// The web extension configurations.
+	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -241,20 +242,20 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProxyConf{
-			ID:                 &o.ID,
-			PACConfigs:         &o.PACConfigs,
-			AccessPolicy:       &o.AccessPolicy,
-			AgentConfig:        o.AgentConfig,
-			AssignPolicy:       &o.AssignPolicy,
-			ContentPolicy:      &o.ContentPolicy,
-			CustomDataSets:     &o.CustomDataSets,
-			CustomDataTypes:    &o.CustomDataTypes,
-			Extractors:         &o.Extractors,
-			Namespace:          &o.Namespace,
-			OrgSettings:        o.OrgSettings,
-			Providers:          &o.Providers,
-			Tokens:             &o.Tokens,
-			WebExtensionConfig: o.WebExtensionConfig,
+			ID:                  &o.ID,
+			PACConfigs:          &o.PACConfigs,
+			AccessPolicy:        &o.AccessPolicy,
+			AgentConfigs:        &o.AgentConfigs,
+			AssignPolicy:        &o.AssignPolicy,
+			ContentPolicy:       &o.ContentPolicy,
+			CustomDataSets:      &o.CustomDataSets,
+			CustomDataTypes:     &o.CustomDataTypes,
+			Extractors:          &o.Extractors,
+			Namespace:           &o.Namespace,
+			OrgSettings:         o.OrgSettings,
+			Providers:           &o.Providers,
+			Tokens:              &o.Tokens,
+			WebExtensionConfigs: &o.WebExtensionConfigs,
 		}
 	}
 
@@ -267,8 +268,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PACConfigs = &(o.PACConfigs)
 		case "accessPolicy":
 			sp.AccessPolicy = &(o.AccessPolicy)
-		case "agentConfig":
-			sp.AgentConfig = o.AgentConfig
+		case "agentConfigs":
+			sp.AgentConfigs = &(o.AgentConfigs)
 		case "assignPolicy":
 			sp.AssignPolicy = &(o.AssignPolicy)
 		case "contentPolicy":
@@ -287,8 +288,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Providers = &(o.Providers)
 		case "tokens":
 			sp.Tokens = &(o.Tokens)
-		case "webExtensionConfig":
-			sp.WebExtensionConfig = o.WebExtensionConfig
+		case "webExtensionConfigs":
+			sp.WebExtensionConfigs = &(o.WebExtensionConfigs)
 		}
 	}
 
@@ -311,8 +312,8 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AccessPolicy != nil {
 		o.AccessPolicy = *so.AccessPolicy
 	}
-	if so.AgentConfig != nil {
-		o.AgentConfig = so.AgentConfig
+	if so.AgentConfigs != nil {
+		o.AgentConfigs = *so.AgentConfigs
 	}
 	if so.AssignPolicy != nil {
 		o.AssignPolicy = *so.AssignPolicy
@@ -341,8 +342,8 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Tokens != nil {
 		o.Tokens = *so.Tokens
 	}
-	if so.WebExtensionConfig != nil {
-		o.WebExtensionConfig = so.WebExtensionConfig
+	if so.WebExtensionConfigs != nil {
+		o.WebExtensionConfigs = *so.WebExtensionConfigs
 	}
 }
 
@@ -386,9 +387,12 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
-	if o.AgentConfig != nil {
-		elemental.ResetDefaultForZeroValues(o.AgentConfig)
-		if err := o.AgentConfig.Validate(); err != nil {
+	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -440,9 +444,12 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
-	if o.WebExtensionConfig != nil {
-		elemental.ResetDefaultForZeroValues(o.WebExtensionConfig)
-		if err := o.WebExtensionConfig.Validate(); err != nil {
+	for _, sub := range o.WebExtensionConfigs {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -487,8 +494,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.PACConfigs
 	case "accessPolicy":
 		return o.AccessPolicy
-	case "agentConfig":
-		return o.AgentConfig
+	case "agentConfigs":
+		return o.AgentConfigs
 	case "assignPolicy":
 		return o.AssignPolicy
 	case "contentPolicy":
@@ -507,8 +514,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.Providers
 	case "tokens":
 		return o.Tokens
-	case "webExtensionConfig":
-		return o.WebExtensionConfig
+	case "webExtensionConfigs":
+		return o.WebExtensionConfigs
 	}
 
 	return nil
@@ -548,14 +555,14 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "accessPolicy",
 		Type:           "string",
 	},
-	"AgentConfig": {
+	"AgentConfigs": {
 		AllowedChoices: []string{},
-		ConvertedName:  "AgentConfig",
-		Description:    `The agent configuration.`,
+		ConvertedName:  "AgentConfigs",
+		Description:    `The agent configurations.`,
 		Exposed:        true,
-		Name:           "agentConfig",
+		Name:           "agentConfigs",
 		SubType:        "agentconfig",
-		Type:           "ref",
+		Type:           "refList",
 	},
 	"AssignPolicy": {
 		AllowedChoices: []string{},
@@ -642,14 +649,14 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "map[string][]string",
 		Type:           "external",
 	},
-	"WebExtensionConfig": {
+	"WebExtensionConfigs": {
 		AllowedChoices: []string{},
-		ConvertedName:  "WebExtensionConfig",
-		Description:    `The web extension configuration.`,
+		ConvertedName:  "WebExtensionConfigs",
+		Description:    `The web extension configurations.`,
 		Exposed:        true,
-		Name:           "webExtensionConfig",
+		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
-		Type:           "ref",
+		Type:           "refList",
 	},
 }
 
@@ -687,14 +694,14 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Name:           "accessPolicy",
 		Type:           "string",
 	},
-	"agentconfig": {
+	"agentconfigs": {
 		AllowedChoices: []string{},
-		ConvertedName:  "AgentConfig",
-		Description:    `The agent configuration.`,
+		ConvertedName:  "AgentConfigs",
+		Description:    `The agent configurations.`,
 		Exposed:        true,
-		Name:           "agentConfig",
+		Name:           "agentConfigs",
 		SubType:        "agentconfig",
-		Type:           "ref",
+		Type:           "refList",
 	},
 	"assignpolicy": {
 		AllowedChoices: []string{},
@@ -781,14 +788,14 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		SubType:        "map[string][]string",
 		Type:           "external",
 	},
-	"webextensionconfig": {
+	"webextensionconfigs": {
 		AllowedChoices: []string{},
-		ConvertedName:  "WebExtensionConfig",
-		Description:    `The web extension configuration.`,
+		ConvertedName:  "WebExtensionConfigs",
+		Description:    `The web extension configurations.`,
 		Exposed:        true,
-		Name:           "webExtensionConfig",
+		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
-		Type:           "ref",
+		Type:           "refList",
 	},
 }
 
@@ -804,14 +811,14 @@ func (o SparseProxyConfsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProxyConfsList.
 func (o SparseProxyConfsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProxyConfsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProxyConfsList.
 func (o SparseProxyConfsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProxyConfsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProxyConf))
 	}
@@ -823,7 +830,7 @@ func (o SparseProxyConfsList) Append(objects ...elemental.Identifiable) elementa
 func (o SparseProxyConfsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -840,7 +847,7 @@ func (o SparseProxyConfsList) DefaultOrder() []string {
 func (o SparseProxyConfsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -864,8 +871,8 @@ type SparseProxyConf struct {
 	// The computed access policy.
 	AccessPolicy *string `json:"accessPolicy,omitempty" msgpack:"accessPolicy,omitempty" bson:"-" mapstructure:"accessPolicy,omitempty"`
 
-	// The agent configuration.
-	AgentConfig *AgentConfig `json:"agentConfig,omitempty" msgpack:"agentConfig,omitempty" bson:"-" mapstructure:"agentConfig,omitempty"`
+	// The agent configurations.
+	AgentConfigs *AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
 	// The computed assign policy.
 	AssignPolicy *string `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"-" mapstructure:"assignPolicy,omitempty"`
@@ -894,8 +901,8 @@ type SparseProxyConf struct {
 	// Tokens pool to authenticate with the provider.
 	Tokens *map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
-	// The web extension configuration.
-	WebExtensionConfig *WebExtensionConfig `json:"webExtensionConfig,omitempty" msgpack:"webExtensionConfig,omitempty" bson:"-" mapstructure:"webExtensionConfig,omitempty"`
+	// The web extension configurations.
+	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -991,8 +998,8 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.AccessPolicy != nil {
 		out.AccessPolicy = *o.AccessPolicy
 	}
-	if o.AgentConfig != nil {
-		out.AgentConfig = o.AgentConfig
+	if o.AgentConfigs != nil {
+		out.AgentConfigs = *o.AgentConfigs
 	}
 	if o.AssignPolicy != nil {
 		out.AssignPolicy = *o.AssignPolicy
@@ -1021,8 +1028,8 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.Tokens != nil {
 		out.Tokens = *o.Tokens
 	}
-	if o.WebExtensionConfig != nil {
-		out.WebExtensionConfig = o.WebExtensionConfig
+	if o.WebExtensionConfigs != nil {
+		out.WebExtensionConfigs = *o.WebExtensionConfigs
 	}
 
 	return out

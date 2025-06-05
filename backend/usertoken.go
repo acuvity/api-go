@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -49,14 +50,14 @@ func (o UserTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the UserTokensList.
 func (o UserTokensList) Copy() elemental.Identifiables {
 
-	out := append(UserTokensList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the UserTokensList.
 func (o UserTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(UserTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*UserToken))
 	}
@@ -68,7 +69,7 @@ func (o UserTokensList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o UserTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -86,7 +87,7 @@ func (o UserTokensList) DefaultOrder() []string {
 func (o UserTokensList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseUserTokensList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseUserToken)
 	}
 
@@ -955,14 +956,14 @@ func (o SparseUserTokensList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseUserTokensList.
 func (o SparseUserTokensList) Copy() elemental.Identifiables {
 
-	copy := append(SparseUserTokensList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseUserTokensList.
 func (o SparseUserTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseUserTokensList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseUserToken))
 	}
@@ -974,7 +975,7 @@ func (o SparseUserTokensList) Append(objects ...elemental.Identifiable) elementa
 func (o SparseUserTokensList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -991,7 +992,7 @@ func (o SparseUserTokensList) DefaultOrder() []string {
 func (o SparseUserTokensList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

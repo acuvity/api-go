@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -61,14 +62,14 @@ func (o APIAuthorizationsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the APIAuthorizationsList.
 func (o APIAuthorizationsList) Copy() elemental.Identifiables {
 
-	out := append(APIAuthorizationsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the APIAuthorizationsList.
 func (o APIAuthorizationsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(APIAuthorizationsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*APIAuthorization))
 	}
@@ -80,7 +81,7 @@ func (o APIAuthorizationsList) Append(objects ...elemental.Identifiable) element
 func (o APIAuthorizationsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -98,7 +99,7 @@ func (o APIAuthorizationsList) DefaultOrder() []string {
 func (o APIAuthorizationsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAPIAuthorizationsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAPIAuthorization)
 	}
 
@@ -169,7 +170,6 @@ func NewAPIAuthorization() *APIAuthorization {
 	return &APIAuthorization{
 		ModelVersion:     1,
 		Permissions:      []string{},
-		Role:             APIAuthorizationRoleEmployee,
 		Subject:          [][]string{},
 		TargetNamespaces: []string{},
 	}
@@ -497,6 +497,10 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("role", string(o.Role)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
 	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -698,10 +702,10 @@ same import operation.`,
 		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
-		DefaultValue:   APIAuthorizationRoleEmployee,
 		Description:    `The role for the subjects.`,
 		Exposed:        true,
 		Name:           "role",
+		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
@@ -867,10 +871,10 @@ same import operation.`,
 		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
-		DefaultValue:   APIAuthorizationRoleEmployee,
 		Description:    `The role for the subjects.`,
 		Exposed:        true,
 		Name:           "role",
+		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
@@ -927,14 +931,14 @@ func (o SparseAPIAuthorizationsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAPIAuthorizationsList.
 func (o SparseAPIAuthorizationsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAPIAuthorizationsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAPIAuthorizationsList.
 func (o SparseAPIAuthorizationsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAPIAuthorizationsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAPIAuthorization))
 	}
@@ -946,7 +950,7 @@ func (o SparseAPIAuthorizationsList) Append(objects ...elemental.Identifiable) e
 func (o SparseAPIAuthorizationsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -963,7 +967,7 @@ func (o SparseAPIAuthorizationsList) DefaultOrder() []string {
 func (o SparseAPIAuthorizationsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -42,14 +43,14 @@ func (o QueriesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the QueriesList.
 func (o QueriesList) Copy() elemental.Identifiables {
 
-	out := append(QueriesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the QueriesList.
 func (o QueriesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(QueriesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Query))
 	}
@@ -61,7 +62,7 @@ func (o QueriesList) Append(objects ...elemental.Identifiable) elemental.Identif
 func (o QueriesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -79,7 +80,7 @@ func (o QueriesList) DefaultOrder() []string {
 func (o QueriesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseQueriesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseQuery)
 	}
 
@@ -617,14 +618,14 @@ func (o SparseQueriesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseQueriesList.
 func (o SparseQueriesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseQueriesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseQueriesList.
 func (o SparseQueriesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseQueriesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseQuery))
 	}
@@ -636,7 +637,7 @@ func (o SparseQueriesList) Append(objects ...elemental.Identifiable) elemental.I
 func (o SparseQueriesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -653,7 +654,7 @@ func (o SparseQueriesList) DefaultOrder() []string {
 func (o SparseQueriesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

@@ -141,6 +141,7 @@
       "$friendlyName": "Name",
       "$required": true,
       "description": "The name of the agent configuration.",
+      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
       "title": "name",
       "type": "string"
     },
@@ -201,7 +202,7 @@
       "type": "array"
     },
     "scanInterval": {
-      "$defaultValue": "1m",
+      "$defaultValue": "5m",
       "$friendlyName": "Scan Interval",
       "description": "The interval in which scans take place by the agent.",
       "title": "scanInterval",
@@ -211,7 +212,7 @@
       ]
     },
     "scanReportInterval": {
-      "$defaultValue": "1h",
+      "$defaultValue": "12h",
       "$friendlyName": "Scan Report Interval",
       "description": "The interval in which scan reports are sent to the backend.",
       "title": "scanReportInterval",
@@ -230,6 +231,19 @@
         ]
       },
       "title": "scanRunningProcesses",
+      "type": "array"
+    },
+    "subject": {
+      "$friendlyName": "Subject",
+      "$required": true,
+      "description": "A tag expression that identifies the user(s) tied to this config.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "subject",
       "type": "array"
     },
     "systemProxyManagementDisabled": {
@@ -263,7 +277,8 @@
   },
   "required": [
     "listeningPort",
-    "name"
+    "name",
+    "subject"
   ],
   "title": "AgentConfig",
   "type": "object"

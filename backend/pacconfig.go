@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -32,14 +33,14 @@ func (o PACConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the PACConfigsList.
 func (o PACConfigsList) Copy() elemental.Identifiables {
 
-	out := append(PACConfigsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the PACConfigsList.
 func (o PACConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(PACConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*PACConfig))
 	}
@@ -51,7 +52,7 @@ func (o PACConfigsList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o PACConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +70,7 @@ func (o PACConfigsList) DefaultOrder() []string {
 func (o PACConfigsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparsePACConfigsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparsePACConfig)
 	}
 
@@ -717,14 +718,14 @@ func (o SparsePACConfigsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparsePACConfigsList.
 func (o SparsePACConfigsList) Copy() elemental.Identifiables {
 
-	copy := append(SparsePACConfigsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparsePACConfigsList.
 func (o SparsePACConfigsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparsePACConfigsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparsePACConfig))
 	}
@@ -736,7 +737,7 @@ func (o SparsePACConfigsList) Append(objects ...elemental.Identifiable) elementa
 func (o SparsePACConfigsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -753,7 +754,7 @@ func (o SparsePACConfigsList) DefaultOrder() []string {
 func (o SparsePACConfigsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

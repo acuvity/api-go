@@ -5,11 +5,49 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.acuvity.ai/elemental"
+)
+
+// TraceRefKindValue represents the possible values for attribute "kind".
+type TraceRefKindValue string
+
+const (
+	// TraceRefKindClient represents the value Client.
+	TraceRefKindClient TraceRefKindValue = "Client"
+
+	// TraceRefKindConsumer represents the value Consumer.
+	TraceRefKindConsumer TraceRefKindValue = "Consumer"
+
+	// TraceRefKindInternal represents the value Internal.
+	TraceRefKindInternal TraceRefKindValue = "Internal"
+
+	// TraceRefKindProducer represents the value Producer.
+	TraceRefKindProducer TraceRefKindValue = "Producer"
+
+	// TraceRefKindServer represents the value Server.
+	TraceRefKindServer TraceRefKindValue = "Server"
+
+	// TraceRefKindUnspecified represents the value Unspecified.
+	TraceRefKindUnspecified TraceRefKindValue = "Unspecified"
+)
+
+// TraceRefStatusCodeValue represents the possible values for attribute "statusCode".
+type TraceRefStatusCodeValue string
+
+const (
+	// TraceRefStatusCodeError represents the value Error.
+	TraceRefStatusCodeError TraceRefStatusCodeValue = "Error"
+
+	// TraceRefStatusCodeOK represents the value OK.
+	TraceRefStatusCodeOK TraceRefStatusCodeValue = "OK"
+
+	// TraceRefStatusCodeUnset represents the value Unset.
+	TraceRefStatusCodeUnset TraceRefStatusCodeValue = "Unset"
 )
 
 // TraceRefIdentity represents the Identity of the object.
@@ -32,14 +70,14 @@ func (o TraceRefsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the TraceRefsList.
 func (o TraceRefsList) Copy() elemental.Identifiables {
 
-	out := append(TraceRefsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the TraceRefsList.
 func (o TraceRefsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(TraceRefsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*TraceRef))
 	}
@@ -51,7 +89,7 @@ func (o TraceRefsList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o TraceRefsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -69,7 +107,7 @@ func (o TraceRefsList) DefaultOrder() []string {
 func (o TraceRefsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseTraceRefsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseTraceRef)
 	}
 
@@ -84,7 +122,10 @@ func (o TraceRefsList) Version() int {
 
 // TraceRef represents the model of a traceref
 type TraceRef struct {
-	// The parent span ID that is being referenced.
+	// The kind of the span.
+	Kind TraceRefKindValue `json:"kind" msgpack:"kind" bson:"kind" mapstructure:"kind,omitempty"`
+
+	// The parent span ID that is being referenced as hex encoded string.
 	ParentSpanID string `json:"parentSpanID,omitempty" msgpack:"parentSpanID,omitempty" bson:"parentspanid,omitempty" mapstructure:"parentSpanID,omitempty"`
 
 	// When the span ended.
@@ -99,7 +140,13 @@ type TraceRef struct {
 	// When the span started.
 	SpanStart time.Time `json:"spanStart" msgpack:"spanStart" bson:"spanstart" mapstructure:"spanStart,omitempty"`
 
-	// The Trace ID that is being referenced.
+	// Status Code of a span.
+	StatusCode TraceRefStatusCodeValue `json:"statusCode" msgpack:"statusCode" bson:"statuscode" mapstructure:"statusCode,omitempty"`
+
+	// A developer-facing human readable error message.
+	StatusMessage string `json:"statusMessage" msgpack:"statusMessage" bson:"statusmessage" mapstructure:"statusMessage,omitempty"`
+
+	// The Trace ID that is being referenced as hex encoded string.
 	TraceID string `json:"traceID" msgpack:"traceID" bson:"traceid" mapstructure:"traceID,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -110,6 +157,8 @@ func NewTraceRef() *TraceRef {
 
 	return &TraceRef{
 		ModelVersion: 1,
+		Kind:         TraceRefKindUnspecified,
+		StatusCode:   TraceRefStatusCodeUnset,
 	}
 }
 
@@ -140,11 +189,14 @@ func (o *TraceRef) GetBSON() (any, error) {
 
 	s := &mongoAttributesTraceRef{}
 
+	s.Kind = o.Kind
 	s.ParentSpanID = o.ParentSpanID
 	s.SpanEnd = o.SpanEnd
 	s.SpanID = o.SpanID
 	s.SpanName = o.SpanName
 	s.SpanStart = o.SpanStart
+	s.StatusCode = o.StatusCode
+	s.StatusMessage = o.StatusMessage
 	s.TraceID = o.TraceID
 
 	return s, nil
@@ -163,11 +215,14 @@ func (o *TraceRef) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.Kind = s.Kind
 	o.ParentSpanID = s.ParentSpanID
 	o.SpanEnd = s.SpanEnd
 	o.SpanID = s.SpanID
 	o.SpanName = s.SpanName
 	o.SpanStart = s.SpanStart
+	o.StatusCode = s.StatusCode
+	o.StatusMessage = s.StatusMessage
 	o.TraceID = s.TraceID
 
 	return nil
@@ -194,7 +249,7 @@ func (o *TraceRef) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *TraceRef) Doc() string {
 
-	return `Holds all references to a trace.`
+	return `Holds all references to a trace which are also the essentials of the span data.`
 }
 
 func (o *TraceRef) String() string {
@@ -209,18 +264,23 @@ func (o *TraceRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseTraceRef{
-			ParentSpanID: &o.ParentSpanID,
-			SpanEnd:      &o.SpanEnd,
-			SpanID:       &o.SpanID,
-			SpanName:     &o.SpanName,
-			SpanStart:    &o.SpanStart,
-			TraceID:      &o.TraceID,
+			Kind:          &o.Kind,
+			ParentSpanID:  &o.ParentSpanID,
+			SpanEnd:       &o.SpanEnd,
+			SpanID:        &o.SpanID,
+			SpanName:      &o.SpanName,
+			SpanStart:     &o.SpanStart,
+			StatusCode:    &o.StatusCode,
+			StatusMessage: &o.StatusMessage,
+			TraceID:       &o.TraceID,
 		}
 	}
 
 	sp := &SparseTraceRef{}
 	for _, f := range fields {
 		switch f {
+		case "kind":
+			sp.Kind = &(o.Kind)
 		case "parentSpanID":
 			sp.ParentSpanID = &(o.ParentSpanID)
 		case "spanEnd":
@@ -231,6 +291,10 @@ func (o *TraceRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.SpanName = &(o.SpanName)
 		case "spanStart":
 			sp.SpanStart = &(o.SpanStart)
+		case "statusCode":
+			sp.StatusCode = &(o.StatusCode)
+		case "statusMessage":
+			sp.StatusMessage = &(o.StatusMessage)
 		case "traceID":
 			sp.TraceID = &(o.TraceID)
 		}
@@ -246,6 +310,9 @@ func (o *TraceRef) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseTraceRef)
+	if so.Kind != nil {
+		o.Kind = *so.Kind
+	}
 	if so.ParentSpanID != nil {
 		o.ParentSpanID = *so.ParentSpanID
 	}
@@ -260,6 +327,12 @@ func (o *TraceRef) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SpanStart != nil {
 		o.SpanStart = *so.SpanStart
+	}
+	if so.StatusCode != nil {
+		o.StatusCode = *so.StatusCode
+	}
+	if so.StatusMessage != nil {
+		o.StatusMessage = *so.StatusMessage
 	}
 	if so.TraceID != nil {
 		o.TraceID = *so.TraceID
@@ -296,12 +369,24 @@ func (o *TraceRef) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("kind", string(o.Kind), []string{"Unspecified", "Internal", "Server", "Client", "Producer", "Consumer"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateSpanID("parentSpanID", o.ParentSpanID); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredTime("spanEnd", o.SpanEnd); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("spanID", o.SpanID); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateSpanID("spanID", o.SpanID); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("spanName", o.SpanName); err != nil {
@@ -312,8 +397,16 @@ func (o *TraceRef) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("statusCode", string(o.StatusCode), []string{"Unset", "OK", "Error"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("traceID", o.TraceID); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateTraceID("traceID", o.TraceID); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -350,6 +443,8 @@ func (*TraceRef) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 func (o *TraceRef) ValueForAttribute(name string) any {
 
 	switch name {
+	case "kind":
+		return o.Kind
 	case "parentSpanID":
 		return o.ParentSpanID
 	case "spanEnd":
@@ -360,6 +455,10 @@ func (o *TraceRef) ValueForAttribute(name string) any {
 		return o.SpanName
 	case "spanStart":
 		return o.SpanStart
+	case "statusCode":
+		return o.StatusCode
+	case "statusMessage":
+		return o.StatusMessage
 	case "traceID":
 		return o.TraceID
 	}
@@ -369,11 +468,22 @@ func (o *TraceRef) ValueForAttribute(name string) any {
 
 // TraceRefAttributesMap represents the map of attribute for TraceRef.
 var TraceRefAttributesMap = map[string]elemental.AttributeSpecification{
+	"Kind": {
+		AllowedChoices: []string{"Unspecified", "Internal", "Server", "Client", "Producer", "Consumer"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   TraceRefKindUnspecified,
+		Description:    `The kind of the span.`,
+		Exposed:        true,
+		Name:           "kind",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"ParentSpanID": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "parentspanid",
 		ConvertedName:  "ParentSpanID",
-		Description:    `The parent span ID that is being referenced.`,
+		Description:    `The parent span ID that is being referenced as hex encoded string.`,
 		Exposed:        true,
 		Name:           "parentSpanID",
 		Stored:         true,
@@ -423,11 +533,32 @@ var TraceRefAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"StatusCode": {
+		AllowedChoices: []string{"Unset", "OK", "Error"},
+		BSONFieldName:  "statuscode",
+		ConvertedName:  "StatusCode",
+		DefaultValue:   TraceRefStatusCodeUnset,
+		Description:    `Status Code of a span.`,
+		Exposed:        true,
+		Name:           "statusCode",
+		Stored:         true,
+		Type:           "enum",
+	},
+	"StatusMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "statusmessage",
+		ConvertedName:  "StatusMessage",
+		Description:    `A developer-facing human readable error message.`,
+		Exposed:        true,
+		Name:           "statusMessage",
+		Stored:         true,
+		Type:           "string",
+	},
 	"TraceID": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "traceid",
 		ConvertedName:  "TraceID",
-		Description:    `The Trace ID that is being referenced.`,
+		Description:    `The Trace ID that is being referenced as hex encoded string.`,
 		Exposed:        true,
 		Name:           "traceID",
 		Required:       true,
@@ -438,11 +569,22 @@ var TraceRefAttributesMap = map[string]elemental.AttributeSpecification{
 
 // TraceRefLowerCaseAttributesMap represents the map of attribute for TraceRef.
 var TraceRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"kind": {
+		AllowedChoices: []string{"Unspecified", "Internal", "Server", "Client", "Producer", "Consumer"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   TraceRefKindUnspecified,
+		Description:    `The kind of the span.`,
+		Exposed:        true,
+		Name:           "kind",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"parentspanid": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "parentspanid",
 		ConvertedName:  "ParentSpanID",
-		Description:    `The parent span ID that is being referenced.`,
+		Description:    `The parent span ID that is being referenced as hex encoded string.`,
 		Exposed:        true,
 		Name:           "parentSpanID",
 		Stored:         true,
@@ -492,11 +634,32 @@ var TraceRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "time",
 	},
+	"statuscode": {
+		AllowedChoices: []string{"Unset", "OK", "Error"},
+		BSONFieldName:  "statuscode",
+		ConvertedName:  "StatusCode",
+		DefaultValue:   TraceRefStatusCodeUnset,
+		Description:    `Status Code of a span.`,
+		Exposed:        true,
+		Name:           "statusCode",
+		Stored:         true,
+		Type:           "enum",
+	},
+	"statusmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "statusmessage",
+		ConvertedName:  "StatusMessage",
+		Description:    `A developer-facing human readable error message.`,
+		Exposed:        true,
+		Name:           "statusMessage",
+		Stored:         true,
+		Type:           "string",
+	},
 	"traceid": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "traceid",
 		ConvertedName:  "TraceID",
-		Description:    `The Trace ID that is being referenced.`,
+		Description:    `The Trace ID that is being referenced as hex encoded string.`,
 		Exposed:        true,
 		Name:           "traceID",
 		Required:       true,
@@ -517,14 +680,14 @@ func (o SparseTraceRefsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseTraceRefsList.
 func (o SparseTraceRefsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseTraceRefsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseTraceRefsList.
 func (o SparseTraceRefsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseTraceRefsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseTraceRef))
 	}
@@ -536,7 +699,7 @@ func (o SparseTraceRefsList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseTraceRefsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -553,7 +716,7 @@ func (o SparseTraceRefsList) DefaultOrder() []string {
 func (o SparseTraceRefsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -568,7 +731,10 @@ func (o SparseTraceRefsList) Version() int {
 
 // SparseTraceRef represents the sparse version of a traceref.
 type SparseTraceRef struct {
-	// The parent span ID that is being referenced.
+	// The kind of the span.
+	Kind *TraceRefKindValue `json:"kind,omitempty" msgpack:"kind,omitempty" bson:"kind,omitempty" mapstructure:"kind,omitempty"`
+
+	// The parent span ID that is being referenced as hex encoded string.
 	ParentSpanID *string `json:"parentSpanID,omitempty" msgpack:"parentSpanID,omitempty" bson:"parentspanid,omitempty" mapstructure:"parentSpanID,omitempty"`
 
 	// When the span ended.
@@ -583,7 +749,13 @@ type SparseTraceRef struct {
 	// When the span started.
 	SpanStart *time.Time `json:"spanStart,omitempty" msgpack:"spanStart,omitempty" bson:"spanstart,omitempty" mapstructure:"spanStart,omitempty"`
 
-	// The Trace ID that is being referenced.
+	// Status Code of a span.
+	StatusCode *TraceRefStatusCodeValue `json:"statusCode,omitempty" msgpack:"statusCode,omitempty" bson:"statuscode,omitempty" mapstructure:"statusCode,omitempty"`
+
+	// A developer-facing human readable error message.
+	StatusMessage *string `json:"statusMessage,omitempty" msgpack:"statusMessage,omitempty" bson:"statusmessage,omitempty" mapstructure:"statusMessage,omitempty"`
+
+	// The Trace ID that is being referenced as hex encoded string.
 	TraceID *string `json:"traceID,omitempty" msgpack:"traceID,omitempty" bson:"traceid,omitempty" mapstructure:"traceID,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -621,6 +793,9 @@ func (o *SparseTraceRef) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseTraceRef{}
 
+	if o.Kind != nil {
+		s.Kind = o.Kind
+	}
 	if o.ParentSpanID != nil {
 		s.ParentSpanID = o.ParentSpanID
 	}
@@ -635,6 +810,12 @@ func (o *SparseTraceRef) GetBSON() (any, error) {
 	}
 	if o.SpanStart != nil {
 		s.SpanStart = o.SpanStart
+	}
+	if o.StatusCode != nil {
+		s.StatusCode = o.StatusCode
+	}
+	if o.StatusMessage != nil {
+		s.StatusMessage = o.StatusMessage
 	}
 	if o.TraceID != nil {
 		s.TraceID = o.TraceID
@@ -656,6 +837,9 @@ func (o *SparseTraceRef) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.Kind != nil {
+		o.Kind = s.Kind
+	}
 	if s.ParentSpanID != nil {
 		o.ParentSpanID = s.ParentSpanID
 	}
@@ -670,6 +854,12 @@ func (o *SparseTraceRef) SetBSON(raw bson.Raw) error {
 	}
 	if s.SpanStart != nil {
 		o.SpanStart = s.SpanStart
+	}
+	if s.StatusCode != nil {
+		o.StatusCode = s.StatusCode
+	}
+	if s.StatusMessage != nil {
+		o.StatusMessage = s.StatusMessage
 	}
 	if s.TraceID != nil {
 		o.TraceID = s.TraceID
@@ -688,6 +878,9 @@ func (o *SparseTraceRef) Version() int {
 func (o *SparseTraceRef) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewTraceRef()
+	if o.Kind != nil {
+		out.Kind = *o.Kind
+	}
 	if o.ParentSpanID != nil {
 		out.ParentSpanID = *o.ParentSpanID
 	}
@@ -702,6 +895,12 @@ func (o *SparseTraceRef) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SpanStart != nil {
 		out.SpanStart = *o.SpanStart
+	}
+	if o.StatusCode != nil {
+		out.StatusCode = *o.StatusCode
+	}
+	if o.StatusMessage != nil {
+		out.StatusMessage = *o.StatusMessage
 	}
 	if o.TraceID != nil {
 		out.TraceID = *o.TraceID
@@ -735,18 +934,24 @@ func (o *SparseTraceRef) DeepCopyInto(out *SparseTraceRef) {
 }
 
 type mongoAttributesTraceRef struct {
-	ParentSpanID string    `bson:"parentspanid,omitempty"`
-	SpanEnd      time.Time `bson:"spanend"`
-	SpanID       string    `bson:"spanid"`
-	SpanName     string    `bson:"spanname"`
-	SpanStart    time.Time `bson:"spanstart"`
-	TraceID      string    `bson:"traceid"`
+	Kind          TraceRefKindValue       `bson:"kind"`
+	ParentSpanID  string                  `bson:"parentspanid,omitempty"`
+	SpanEnd       time.Time               `bson:"spanend"`
+	SpanID        string                  `bson:"spanid"`
+	SpanName      string                  `bson:"spanname"`
+	SpanStart     time.Time               `bson:"spanstart"`
+	StatusCode    TraceRefStatusCodeValue `bson:"statuscode"`
+	StatusMessage string                  `bson:"statusmessage"`
+	TraceID       string                  `bson:"traceid"`
 }
 type mongoAttributesSparseTraceRef struct {
-	ParentSpanID *string    `bson:"parentspanid,omitempty"`
-	SpanEnd      *time.Time `bson:"spanend,omitempty"`
-	SpanID       *string    `bson:"spanid,omitempty"`
-	SpanName     *string    `bson:"spanname,omitempty"`
-	SpanStart    *time.Time `bson:"spanstart,omitempty"`
-	TraceID      *string    `bson:"traceid,omitempty"`
+	Kind          *TraceRefKindValue       `bson:"kind,omitempty"`
+	ParentSpanID  *string                  `bson:"parentspanid,omitempty"`
+	SpanEnd       *time.Time               `bson:"spanend,omitempty"`
+	SpanID        *string                  `bson:"spanid,omitempty"`
+	SpanName      *string                  `bson:"spanname,omitempty"`
+	SpanStart     *time.Time               `bson:"spanstart,omitempty"`
+	StatusCode    *TraceRefStatusCodeValue `bson:"statuscode,omitempty"`
+	StatusMessage *string                  `bson:"statusmessage,omitempty"`
+	TraceID       *string                  `bson:"traceid,omitempty"`
 }

@@ -376,6 +376,20 @@
             },
             "type": "object"
           },
+          "toolResults": {
+            "description": "Tool call results which are passed in to this request.",
+            "items": {
+              "$ref": "#/components/schemas/toolresult"
+            },
+            "type": "array"
+          },
+          "toolUses": {
+            "description": "Tool uses as requested by a model.",
+            "items": {
+              "$ref": "#/components/schemas/tooluse"
+            },
+            "type": "array"
+          },
           "topics": {
             "additionalProperties": {
               "type": "number"
@@ -433,6 +447,20 @@
           "label": {
             "description": "A means of distinguishing what was extracted, such as prompt, input file or\ncode.",
             "type": "string"
+          },
+          "toolResults": {
+            "description": "Tool call results which are passed in to this request.",
+            "items": {
+              "$ref": "#/components/schemas/toolresult"
+            },
+            "type": "array"
+          },
+          "toolUses": {
+            "description": "Tool uses as requested by a model.",
+            "items": {
+              "$ref": "#/components/schemas/tooluse"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -525,6 +553,108 @@
           "extraction": {
             "description": "How much time it took to run input or output extraction in nanoseconds.",
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "mcpmessage": {
+        "description": "Represents MCP message details.",
+        "properties": {
+          "direction": {
+            "description": "The communication direction of the MCP message which can be from client to\nserver, or from server to client.",
+            "enum": [
+              "Client2Server",
+              "Server2Client"
+            ],
+            "example": "Client2Server"
+          },
+          "isError": {
+            "description": "IsError is true in case if a response is an error response as opposed to a\nresult. Note that this is not the same as a result which has isError set to true\nwithin the result. This is a protocol level error. This will always be false for\nrequests and notifications, and false for reponses when the response has a\nresult.",
+            "type": "boolean"
+          },
+          "method": {
+            "description": "This is the method name of the request or notification. Contrary to MCP this is\nset on responses as well if possible in which case the format will be of the\nform method/params.name.",
+            "example": "tools/call",
+            "type": "string"
+          },
+          "requestID": {
+            "description": "The ID of a request or a response. We always extract this as a string even\nthough this can be a string or number in MCP. It is derived from the id field of\na request or a response.",
+            "example": "2",
+            "type": "string"
+          },
+          "sessionID": {
+            "description": "The session ID that this MCP message belongs to. This is strictly speaking not\npart of MCP, and this can be empty.",
+            "example": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
+            "type": "string"
+          },
+          "type": {
+            "description": "The MCP message type which can be Request, Response or Notification.",
+            "enum": [
+              "Request",
+              "Response",
+              "Notification"
+            ],
+            "example": "Request"
+          }
+        },
+        "required": [
+          "direction",
+          "type"
+        ],
+        "type": "object"
+      },
+      "mcpserver": {
+        "description": "Represents an MCP server object.",
+        "properties": {
+          "allowedTools": {
+            "description": "The allowed tools that the caller has access to. If empty, this means that the\ncaller has access to all tools provided by this MCP server.",
+            "example": [
+              "deepwiki_search",
+              "deepwiki_fetch"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the MCP server.",
+            "example": "deepwiki",
+            "type": "string"
+          },
+          "url": {
+            "description": "The URL of the MCP server.",
+            "example": "https://mcp.deepwiki.com/mcp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "type": "object"
+      },
+      "mcptoolannotations": {
+        "description": "Represents the tool annotations as they can be optionally defined for MCP tools.",
+        "properties": {
+          "destructiveHint": {
+            "description": "If true, the tool may perform destructive updates.",
+            "type": "boolean"
+          },
+          "idempotentHint": {
+            "description": "If true, repeated calls with same args have no additional effect.",
+            "type": "boolean"
+          },
+          "openWorldHint": {
+            "description": "If true, tool interacts with external entities.",
+            "type": "boolean"
+          },
+          "readOnlyHint": {
+            "description": "If true, the tool does not modify its environment.",
+            "type": "boolean"
+          },
+          "title": {
+            "description": "Human-readable title for the tool.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -712,6 +842,9 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "mcpMessage": {
+            "$ref": "#/components/schemas/mcpmessage"
+          },
           "model": {
             "description": "The model used by the request.",
             "example": "claude-3-7-sonnet",
@@ -748,6 +881,9 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "toolChoice": {
+            "$ref": "#/components/schemas/toolchoice"
           },
           "tools": {
             "additionalProperties": {
@@ -1039,6 +1175,9 @@
           "latency": {
             "$ref": "#/components/schemas/latency"
           },
+          "mcpMessage": {
+            "$ref": "#/components/schemas/mcpmessage"
+          },
           "model": {
             "description": "The model used by the request.",
             "example": "claude-3-7-sonnet",
@@ -1075,6 +1214,9 @@
             "description": "Set the time of the message request.",
             "format": "date-time",
             "type": "string"
+          },
+          "toolChoice": {
+            "$ref": "#/components/schemas/toolchoice"
           },
           "tools": {
             "additionalProperties": {
@@ -1150,22 +1292,132 @@
       "tool": {
         "description": "Represents a tool that can enhance a genAI model's capabilities.",
         "properties": {
+          "MCPAnnotations": {
+            "$ref": "#/components/schemas/mcptoolannotations"
+          },
+          "MCPServer": {
+            "$ref": "#/components/schemas/mcpserver"
+          },
+          "category": {
+            "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
+            "enum": [
+              "Client",
+              "Server",
+              "RemoteMCP"
+            ],
+            "example": "Client"
+          },
           "description": {
             "description": "The description of the tool.",
+            "example": "Get the current weather in a given location",
             "type": "string"
           },
           "name": {
             "description": "The name of the tool.",
+            "example": "get_weather",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of the tool as can be optionally passed by the provider.",
+            "example": "computer_20250124",
             "type": "string"
           }
         },
         "type": "object"
       },
-      "traceref": {
-        "description": "Holds all references to a trace.",
+      "toolchoice": {
+        "description": "Represents the tool choice that can be passed along together with tools.",
         "properties": {
+          "choice": {
+            "default": "Auto",
+            "description": "Model instructions on tool choice.",
+            "enum": [
+              "Auto",
+              "Any",
+              "None",
+              "Tool"
+            ]
+          },
+          "name": {
+            "description": "If choice is Tool, this will be set to the name of the tool to use.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "choice"
+        ],
+        "type": "object"
+      },
+      "toolresult": {
+        "description": "Represents the tool result as passed in by the user or application after calling\na tool.",
+        "properties": {
+          "callID": {
+            "description": "The ID of the tool use as previously returned by a models tool use response.",
+            "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+            "type": "string"
+          },
+          "content": {
+            "description": "The content of the tool call results.",
+            "type": "string"
+          },
+          "isError": {
+            "default": false,
+            "description": "Indicates if the tool call failed.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "callID"
+        ],
+        "type": "object"
+      },
+      "tooluse": {
+        "description": "Represents the tool use which are instructions by a model on what tool to call\nand how.",
+        "properties": {
+          "callID": {
+            "description": "The ID of the tool use which the user or application must pass when posting back\nthe tool call results.",
+            "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
+            "type": "string"
+          },
+          "input": {
+            "description": "The input to the tool call. This should be a JSON object which must conform to\nthe JSON schema as was previously defined for the tool.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the tool to call.",
+            "example": "get_weather",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "The name of the remote MCP server that will execute this call.",
+            "example": "deepwiki",
+            "type": "string"
+          }
+        },
+        "required": [
+          "callID",
+          "name"
+        ],
+        "type": "object"
+      },
+      "traceref": {
+        "description": "Holds all references to a trace which are also the essentials of the span data.",
+        "properties": {
+          "kind": {
+            "default": "Unspecified",
+            "description": "The kind of the span.",
+            "enum": [
+              "Unspecified",
+              "Internal",
+              "Server",
+              "Client",
+              "Producer",
+              "Consumer"
+            ],
+            "example": "Server"
+          },
           "parentSpanID": {
-            "description": "The parent span ID that is being referenced.",
+            "description": "The parent span ID that is being referenced as hex encoded string.",
             "example": "00f067aa0ba902b7",
             "type": "string"
           },
@@ -1191,8 +1443,23 @@
             "format": "date-time",
             "type": "string"
           },
+          "statusCode": {
+            "default": "Unset",
+            "description": "Status Code of a span.",
+            "enum": [
+              "Unset",
+              "OK",
+              "Error"
+            ],
+            "example": "OK"
+          },
+          "statusMessage": {
+            "description": "A developer-facing human readable error message.",
+            "example": "Failed to make API call to service Foo.",
+            "type": "string"
+          },
           "traceID": {
-            "description": "The Trace ID that is being referenced.",
+            "description": "The Trace ID that is being referenced as hex encoded string.",
             "example": "4bf92f3577b34da6a3ce929d0e0e4736",
             "type": "string"
           }

@@ -39,6 +39,7 @@ var (
 
 		"ignoreddomain":         IgnoredDomainIdentity,
 		"import":                ImportIdentity,
+		"ingesttrace":           IngestTraceIdentity,
 		"ingressproviderconfig": IngressProviderConfigIdentity,
 
 		"labelvalue": LabelValueIdentity,
@@ -128,6 +129,7 @@ var (
 
 		"ignoreddomains":         IgnoredDomainIdentity,
 		"import":                 ImportIdentity,
+		"ingesttraces":           IngestTraceIdentity,
 		"ingressproviderconfigs": IngressProviderConfigIdentity,
 
 		"labelvalues": LabelValueIdentity,
@@ -208,6 +210,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
+			{"namespace", "isAIDomain"},
 			{"namespace", "providerName"},
 		},
 		"alert": {
@@ -269,6 +272,7 @@ var (
 			{"namespace", "importLabel"},
 		},
 		"import":                nil,
+		"ingesttrace":           nil,
 		"ingressproviderconfig": nil,
 		"labelvalue":            nil,
 		"landing":               nil,
@@ -455,6 +459,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewIgnoredDomain()
 	case ImportIdentity:
 		return NewImport()
+	case IngestTraceIdentity:
+		return NewIngestTrace()
 	case IngressProviderConfigIdentity:
 		return NewIngressProviderConfig()
 	case LabelValueIdentity:
@@ -600,6 +606,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseIgnoredDomain()
 	case ImportIdentity:
 		return NewSparseImport()
+	case IngestTraceIdentity:
+		return NewSparseIngestTrace()
 	case IngressProviderConfigIdentity:
 		return NewSparseIngressProviderConfig()
 	case LabelValueIdentity:
@@ -753,6 +761,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &IgnoredDomainsList{}
 	case ImportIdentity:
 		return &ImportsList{}
+	case IngestTraceIdentity:
+		return &IngestTracesList{}
 	case IngressProviderConfigIdentity:
 		return &IngressProviderConfigsList{}
 	case LabelValueIdentity:
@@ -896,6 +906,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseIgnoredDomainsList{}
 	case ImportIdentity:
 		return &SparseImportsList{}
+	case IngestTraceIdentity:
+		return &SparseIngestTracesList{}
 	case IngressProviderConfigIdentity:
 		return &SparseIngressProviderConfigsList{}
 	case LabelValueIdentity:
@@ -1003,6 +1015,79 @@ func (f modelManager) AllIdentities() []elemental.Identity {
 	return AllIdentities()
 }
 
+func (f modelManager) DetachedFromString(name string) any {
+
+	switch name {
+
+	case "agentdiscoveredapp", "AgentDiscoveredApp":
+		return NewAgentDiscoveredApp()
+	case "alertevent", "AlertEvent":
+		return NewAlertEvent()
+	case "analysis", "Analysis":
+		return NewAnalysis()
+	case "analyzermodel", "AnalyzerModel":
+		return NewAnalyzerModel()
+	case "destination", "Destination":
+		return NewDestination()
+	case "detection", "Detection":
+		return NewDetection()
+	case "detectionmatcher", "DetectionMatcher":
+		return NewDetectionMatcher()
+	case "detector", "Detector":
+		return NewDetector()
+	case "domainhits", "DomainHits":
+		return NewDomainHits()
+	case "extraction", "Extraction":
+		return NewExtraction()
+	case "extractioninformation", "ExtractionInformation":
+		return NewExtractionInformation()
+	case "extractionsummary", "ExtractionSummary":
+		return NewExtractionSummary()
+	case "extractorref", "ExtractorRef":
+		return NewExtractorRef()
+	case "host", "Host":
+		return NewHost()
+	case "injector", "Injector":
+		return NewInjector()
+	case "mapper", "Mapper":
+		return NewMapper()
+	case "mcpmessage", "MCPMessage":
+		return NewMCPMessage()
+	case "mcpserver", "MCPServer":
+		return NewMCPServer()
+	case "mcptoolannotations", "MCPToolAnnotations":
+		return NewMCPToolAnnotations()
+	case "modality", "Modality":
+		return NewModality()
+	case "moderation", "Moderation":
+		return NewModeration()
+	case "otlpendpoint", "OTLPEndpoint":
+		return NewOTLPEndpoint()
+	case "otlpreceiver", "OTLPReceiver":
+		return NewOTLPReceiver()
+	case "pagedataviewpredicate", "PageDataViewPredicate":
+		return NewPageDataViewPredicate()
+	case "predicate", "Predicate":
+		return NewPredicate()
+	case "providerretentionpolicy", "ProviderRetentionPolicy":
+		return NewProviderRetentionPolicy()
+	case "providertrainingpolicy", "ProviderTrainingPolicy":
+		return NewProviderTrainingPolicy()
+	case "textualdetection", "TextualDetection":
+		return NewTextualDetection()
+	case "tool", "Tool":
+		return NewTool()
+	case "toolchoice", "ToolChoice":
+		return NewToolChoice()
+	case "toolresult", "ToolResult":
+		return NewToolResult()
+	case "tooluse", "ToolUse":
+		return NewToolUse()
+	default:
+		return nil
+	}
+}
+
 var manager = modelManager{}
 
 // Manager returns the model elemental.ModelManager.
@@ -1035,6 +1120,7 @@ func AllIdentities() []elemental.Identity {
 		GitbookTokenIdentity,
 		IgnoredDomainIdentity,
 		ImportIdentity,
+		IngestTraceIdentity,
 		IngressProviderConfigIdentity,
 		LabelValueIdentity,
 		LandingIdentity,
@@ -1132,6 +1218,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case IgnoredDomainIdentity:
 		return []string{}
 	case ImportIdentity:
+		return []string{}
+	case IngestTraceIdentity:
 		return []string{}
 	case IngressProviderConfigIdentity:
 		return []string{}

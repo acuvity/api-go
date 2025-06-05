@@ -1,0 +1,46 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Server",
+  "$friendlyNamePlural": "MCP Servers",
+  "$modelName": "MCPServer",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "mcpservers",
+  "$modelRestName": "mcpserver",
+  "additionalProperties": false,
+  "description": "Represents an MCP server object.",
+  "properties": {
+    "allowedTools": {
+      "$friendlyName": "Allowed Tools",
+      "description": "The allowed tools that the caller has access to. If empty, this means that the caller has access to all tools provided by this MCP server.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "allowedTools",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the MCP server.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "url": {
+      "$friendlyName": "URL",
+      "$required": true,
+      "description": "The URL of the MCP server.",
+      "title": "url",
+      "type": "string"
+    }
+  },
+  "required": [
+    "url"
+  ],
+  "title": "MCPServer",
+  "type": "object"
+}

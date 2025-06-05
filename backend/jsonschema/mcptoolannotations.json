@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Tool Annotations",
+  "$friendlyNamePlural": "MCP Tool Annotations",
+  "$modelName": "MCPToolAnnotations",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "mcptoolannotations",
+  "$modelRestName": "mcptoolannotations",
+  "additionalProperties": false,
+  "description": "Represents the tool annotations as they can be optionally defined for MCP tools.",
+  "properties": {
+    "destructiveHint": {
+      "$friendlyName": "Destructive Hint",
+      "description": "If true, the tool may perform destructive updates.",
+      "title": "destructiveHint",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "idempotentHint": {
+      "$friendlyName": "Idempotent Hint",
+      "description": "If true, repeated calls with same args have no additional effect.",
+      "title": "idempotentHint",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "openWorldHint": {
+      "$friendlyName": "Open World Hint",
+      "description": "If true, tool interacts with external entities.",
+      "title": "openWorldHint",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "readOnlyHint": {
+      "$friendlyName": "Read Only Hint",
+      "description": "If true, the tool does not modify its environment.",
+      "title": "readOnlyHint",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "title": {
+      "$friendlyName": "Title",
+      "description": "Human-readable title for the tool.",
+      "title": "title",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "MCPToolAnnotations",
+  "type": "object"
+}

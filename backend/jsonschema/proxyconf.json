@@ -39,11 +39,14 @@
         "null"
       ]
     },
-    "agentConfig": {
-      "$friendlyName": "Agent Configuration",
-      "$ref": "agentconfig.json",
-      "description": "The agent configuration.",
-      "title": "agentConfig"
+    "agentConfigs": {
+      "$friendlyName": "Agent Configurations",
+      "description": "The agent configurations.",
+      "items": {
+        "$ref": "agentconfig.json"
+      },
+      "title": "agentConfigs",
+      "type": "array"
     },
     "assignPolicy": {
       "$friendlyName": "Assign Policy",
@@ -127,11 +130,14 @@
       "title": "tokens",
       "type": "object"
     },
-    "webExtensionConfig": {
-      "$friendlyName": "Web Extension Configuration",
-      "$ref": "webextensionconfig.json",
-      "description": "The web extension configuration.",
-      "title": "webExtensionConfig"
+    "webExtensionConfigs": {
+      "$friendlyName": "Web Extension Configurations",
+      "description": "The web extension configurations.",
+      "items": {
+        "$ref": "webextensionconfig.json"
+      },
+      "title": "webExtensionConfigs",
+      "type": "array"
     }
   },
   "required": [],

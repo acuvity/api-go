@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/globalsign/mgo/bson"
@@ -54,14 +55,14 @@ func (o ProvidersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the ProvidersList.
 func (o ProvidersList) Copy() elemental.Identifiables {
 
-	out := append(ProvidersList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the ProvidersList.
 func (o ProvidersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(ProvidersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*Provider))
 	}
@@ -73,7 +74,7 @@ func (o ProvidersList) Append(objects ...elemental.Identifiable) elemental.Ident
 func (o ProvidersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -91,7 +92,7 @@ func (o ProvidersList) DefaultOrder() []string {
 func (o ProvidersList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseProvidersList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseProvider)
 	}
 
@@ -150,6 +151,11 @@ type Provider struct {
 
 	// Defines injection point for javascript snippet.
 	Injectors []*Injector `json:"injectors,omitempty" msgpack:"injectors,omitempty" bson:"injectors,omitempty" mapstructure:"injectors,omitempty"`
+
+	// If set, this snippet of lua will available in all extractors of the provider,
+	// acting as an effective library. It must be a valid lua module. It will be
+	// available to all extractor by doing local plib = require('plib').
+	Lib string `json:"lib" msgpack:"lib" bson:"lib" mapstructure:"lib,omitempty"`
 
 	// List of user mappers.
 	Mappers []*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
@@ -248,6 +254,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Injectors = o.Injectors
+	s.Lib = o.Lib
 	s.Mappers = o.Mappers
 	s.Name = o.Name
 	s.Namespace = o.Namespace
@@ -291,6 +298,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Injectors = s.Injectors
+	o.Lib = s.Lib
 	o.Mappers = s.Mappers
 	o.Name = s.Name
 	o.Namespace = s.Namespace
@@ -431,6 +439,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportHash:       &o.ImportHash,
 			ImportLabel:      &o.ImportLabel,
 			Injectors:        &o.Injectors,
+			Lib:              &o.Lib,
 			Mappers:          &o.Mappers,
 			Name:             &o.Name,
 			Namespace:        &o.Namespace,
@@ -477,6 +486,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportLabel = &(o.ImportLabel)
 		case "injectors":
 			sp.Injectors = &(o.Injectors)
+		case "lib":
+			sp.Lib = &(o.Lib)
 		case "mappers":
 			sp.Mappers = &(o.Mappers)
 		case "name":
@@ -555,6 +566,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Injectors != nil {
 		o.Injectors = *so.Injectors
+	}
+	if so.Lib != nil {
+		o.Lib = *so.Lib
 	}
 	if so.Mappers != nil {
 		o.Mappers = *so.Mappers
@@ -766,6 +780,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "injectors":
 		return o.Injectors
+	case "lib":
+		return o.Lib
 	case "mappers":
 		return o.Mappers
 	case "name":
@@ -963,6 +979,18 @@ same import operation.`,
 		Stored:         true,
 		SubType:        "injector",
 		Type:           "refList",
+	},
+	"Lib": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "lib",
+		ConvertedName:  "Lib",
+		Description: `If set, this snippet of lua will available in all extractors of the provider,
+acting as an effective library. It must be a valid lua module. It will be
+available to all extractor by doing local plib = require('plib').`,
+		Exposed: true,
+		Name:    "lib",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Mappers": {
 		AllowedChoices: []string{},
@@ -1255,6 +1283,18 @@ same import operation.`,
 		SubType:        "injector",
 		Type:           "refList",
 	},
+	"lib": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "lib",
+		ConvertedName:  "Lib",
+		Description: `If set, this snippet of lua will available in all extractors of the provider,
+acting as an effective library. It must be a valid lua module. It will be
+available to all extractor by doing local plib = require('plib').`,
+		Exposed: true,
+		Name:    "lib",
+		Stored:  true,
+		Type:    "string",
+	},
 	"mappers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "mappers",
@@ -1389,14 +1429,14 @@ func (o SparseProvidersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseProvidersList.
 func (o SparseProvidersList) Copy() elemental.Identifiables {
 
-	copy := append(SparseProvidersList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseProvidersList.
 func (o SparseProvidersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseProvidersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseProvider))
 	}
@@ -1408,7 +1448,7 @@ func (o SparseProvidersList) Append(objects ...elemental.Identifiable) elemental
 func (o SparseProvidersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -1425,7 +1465,7 @@ func (o SparseProvidersList) DefaultOrder() []string {
 func (o SparseProvidersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
@@ -1484,6 +1524,11 @@ type SparseProvider struct {
 
 	// Defines injection point for javascript snippet.
 	Injectors *[]*Injector `json:"injectors,omitempty" msgpack:"injectors,omitempty" bson:"injectors,omitempty" mapstructure:"injectors,omitempty"`
+
+	// If set, this snippet of lua will available in all extractors of the provider,
+	// acting as an effective library. It must be a valid lua module. It will be
+	// available to all extractor by doing local plib = require('plib').
+	Lib *string `json:"lib,omitempty" msgpack:"lib,omitempty" bson:"lib,omitempty" mapstructure:"lib,omitempty"`
 
 	// List of user mappers.
 	Mappers *[]*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
@@ -1609,6 +1654,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Injectors != nil {
 		s.Injectors = o.Injectors
 	}
+	if o.Lib != nil {
+		s.Lib = o.Lib
+	}
 	if o.Mappers != nil {
 		s.Mappers = o.Mappers
 	}
@@ -1703,6 +1751,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Injectors != nil {
 		o.Injectors = s.Injectors
 	}
+	if s.Lib != nil {
+		o.Lib = s.Lib
+	}
 	if s.Mappers != nil {
 		o.Mappers = s.Mappers
 	}
@@ -1794,6 +1845,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Injectors != nil {
 		out.Injectors = *o.Injectors
+	}
+	if o.Lib != nil {
+		out.Lib = *o.Lib
 	}
 	if o.Mappers != nil {
 		out.Mappers = *o.Mappers
@@ -1970,6 +2024,7 @@ type mongoAttributesProvider struct {
 	ImportHash       string                `bson:"importhash,omitempty"`
 	ImportLabel      string                `bson:"importlabel,omitempty"`
 	Injectors        []*Injector           `bson:"injectors,omitempty"`
+	Lib              string                `bson:"lib"`
 	Mappers          []*Mapper             `bson:"mappers,omitempty"`
 	Name             string                `bson:"name"`
 	Namespace        string                `bson:"namespace,omitempty"`
@@ -1998,6 +2053,7 @@ type mongoAttributesSparseProvider struct {
 	ImportHash       *string                `bson:"importhash,omitempty"`
 	ImportLabel      *string                `bson:"importlabel,omitempty"`
 	Injectors        *[]*Injector           `bson:"injectors,omitempty"`
+	Lib              *string                `bson:"lib,omitempty"`
 	Mappers          *[]*Mapper             `bson:"mappers,omitempty"`
 	Name             *string                `bson:"name,omitempty"`
 	Namespace        *string                `bson:"namespace,omitempty"`

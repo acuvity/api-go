@@ -21,6 +21,15 @@
         "null"
       ]
     },
+    "disableBodyReplacement": {
+      "$friendlyName": "Disable Body Replacement",
+      "description": "If this is true, the acuvity popup will be shown on top the existing body of the provider, instead of replacing it. It usually causes a lot of issue, but on some weirdos (microsoft), it's the opposite.",
+      "title": "disableBodyReplacement",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "hosts": {
       "$friendlyName": "Hosts",
       "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",

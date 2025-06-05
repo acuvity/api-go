@@ -1,0 +1,76 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Message",
+  "$friendlyNamePlural": "MCP Messages",
+  "$modelName": "MCPMessage",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "mcpmessages",
+  "$modelRestName": "mcpmessage",
+  "additionalProperties": false,
+  "description": "Represents MCP message details.",
+  "properties": {
+    "direction": {
+      "$friendlyName": "Direction",
+      "$required": true,
+      "description": "The communication direction of the MCP message which can be from client to server, or from server to client.",
+      "enum": [
+        "Client2Server",
+        "Server2Client"
+      ],
+      "title": "direction"
+    },
+    "isError": {
+      "$friendlyName": "isError",
+      "description": "IsError is true in case if a response is an error response as opposed to a result. Note that this is not the same as a result which has isError set to true within the result. This is a protocol level error. This will always be false for requests and notifications, and false for reponses when the response has a result.",
+      "title": "isError",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "description": "This is the method name of the request or notification. Contrary to MCP this is set on responses as well if possible in which case the format will be of the form method/params.name.",
+      "title": "method",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requestID": {
+      "$friendlyName": "Request ID",
+      "description": "The ID of a request or a response. We always extract this as a string even though this can be a string or number in MCP. It is derived from the id field of a request or a response.",
+      "title": "requestID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sessionID": {
+      "$friendlyName": "Session ID",
+      "description": "The session ID that this MCP message belongs to. This is strictly speaking not part of MCP, and this can be empty.",
+      "title": "sessionID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The MCP message type which can be Request, Response or Notification.",
+      "enum": [
+        "Request",
+        "Response",
+        "Notification"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "direction",
+    "type"
+  ],
+  "title": "MCPMessage",
+  "type": "object"
+}

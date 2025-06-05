@@ -25,9 +25,6 @@ type DomainHits struct {
 	// The number of hits for this report.
 	Hits int `json:"hits" msgpack:"hits" bson:"-" mapstructure:"hits,omitempty"`
 
-	// Suspicious is true if the service might be a Shadow AI.
-	Suspicious bool `json:"suspicious" msgpack:"suspicious" bson:"-" mapstructure:"suspicious,omitempty"`
-
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -114,6 +111,10 @@ func (o *DomainHits) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := ValidateDomain("domain", o.Domain); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredInt("hits", o.Hits); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -164,8 +165,6 @@ func (o *DomainHits) ValueForAttribute(name string) any {
 		return o.Domain
 	case "hits":
 		return o.Hits
-	case "suspicious":
-		return o.Suspicious
 	}
 
 	return nil
@@ -212,14 +211,6 @@ var DomainHitsAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Type:           "integer",
 	},
-	"Suspicious": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Suspicious",
-		Description:    `Suspicious is true if the service might be a Shadow AI.`,
-		Exposed:        true,
-		Name:           "suspicious",
-		Type:           "boolean",
-	},
 }
 
 // DomainHitsLowerCaseAttributesMap represents the map of attribute for DomainHits.
@@ -262,14 +253,6 @@ var DomainHitsLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "hits",
 		Required:       true,
 		Type:           "integer",
-	},
-	"suspicious": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Suspicious",
-		Description:    `Suspicious is true if the service might be a Shadow AI.`,
-		Exposed:        true,
-		Name:           "suspicious",
-		Type:           "boolean",
 	},
 }
 

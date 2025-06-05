@@ -9,6 +9,28 @@
   "additionalProperties": false,
   "description": "Represents a tool that can enhance a genAI model's capabilities.",
   "properties": {
+    "MCPAnnotations": {
+      "$friendlyName": "MCP Annotations",
+      "$ref": "mcptoolannotations.json",
+      "description": "For MCP tools these represent optional hints about tool behavior.",
+      "title": "MCPAnnotations"
+    },
+    "MCPServer": {
+      "$friendlyName": "MCP Server",
+      "$ref": "mcpserver.json",
+      "description": "If category is RemoteMCP, then this describes the remote MCP server.",
+      "title": "MCPServer"
+    },
+    "category": {
+      "$friendlyName": "Category",
+      "description": "The category of the tool. This relays information about where the tool is being used. This can be empty if unknown or if this is a tool listing of MCP servers.",
+      "enum": [
+        "Client",
+        "Server",
+        "RemoteMCP"
+      ],
+      "title": "category"
+    },
     "description": {
       "$friendlyName": "Description",
       "description": "The description of the tool.",
@@ -22,6 +44,15 @@
       "$friendlyName": "Name",
       "description": "The name of the tool.",
       "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of the tool as can be optionally passed by the provider.",
+      "title": "type",
       "type": [
         "string",
         "null"

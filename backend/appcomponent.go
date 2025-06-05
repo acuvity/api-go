@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -45,14 +46,14 @@ func (o AppComponentsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AppComponentsList.
 func (o AppComponentsList) Copy() elemental.Identifiables {
 
-	out := append(AppComponentsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AppComponentsList.
 func (o AppComponentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AppComponentsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AppComponent))
 	}
@@ -64,7 +65,7 @@ func (o AppComponentsList) Append(objects ...elemental.Identifiable) elemental.I
 func (o AppComponentsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -82,7 +83,7 @@ func (o AppComponentsList) DefaultOrder() []string {
 func (o AppComponentsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAppComponentsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAppComponent)
 	}
 
@@ -658,14 +659,14 @@ func (o SparseAppComponentsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAppComponentsList.
 func (o SparseAppComponentsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAppComponentsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAppComponentsList.
 func (o SparseAppComponentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAppComponentsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAppComponent))
 	}
@@ -677,7 +678,7 @@ func (o SparseAppComponentsList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseAppComponentsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -694,7 +695,7 @@ func (o SparseAppComponentsList) DefaultOrder() []string {
 func (o SparseAppComponentsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

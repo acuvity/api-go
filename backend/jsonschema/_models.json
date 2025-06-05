@@ -117,6 +117,9 @@
     "import": {
       "$ref": "import.json"
     },
+    "ingesttrace": {
+      "$ref": "ingesttrace.json"
+    },
     "ingressproviderconfig": {
       "$ref": "ingressproviderconfig.json"
     },
@@ -134,6 +137,15 @@
     },
     "mapper": {
       "$ref": "mapper.json"
+    },
+    "mcpmessage": {
+      "$ref": "mcpmessage.json"
+    },
+    "mcpserver": {
+      "$ref": "mcpserver.json"
+    },
+    "mcptoolannotations": {
+      "$ref": "mcptoolannotations.json"
     },
     "metric": {
       "$ref": "metric.json"
@@ -260,6 +272,15 @@
     },
     "tool": {
       "$ref": "tool.json"
+    },
+    "toolchoice": {
+      "$ref": "toolchoice.json"
+    },
+    "toolresult": {
+      "$ref": "toolresult.json"
+    },
+    "tooluse": {
+      "$ref": "tooluse.json"
     },
     "trace": {
       "$ref": "trace.json"

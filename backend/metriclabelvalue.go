@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o MetricLabelValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the MetricLabelValuesList.
 func (o MetricLabelValuesList) Copy() elemental.Identifiables {
 
-	out := append(MetricLabelValuesList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the MetricLabelValuesList.
 func (o MetricLabelValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(MetricLabelValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*MetricLabelValue))
 	}
@@ -50,7 +51,7 @@ func (o MetricLabelValuesList) Append(objects ...elemental.Identifiable) element
 func (o MetricLabelValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o MetricLabelValuesList) DefaultOrder() []string {
 func (o MetricLabelValuesList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseMetricLabelValuesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseMetricLabelValue)
 	}
 
@@ -682,14 +683,14 @@ func (o SparseMetricLabelValuesList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseMetricLabelValuesList.
 func (o SparseMetricLabelValuesList) Copy() elemental.Identifiables {
 
-	copy := append(SparseMetricLabelValuesList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseMetricLabelValuesList.
 func (o SparseMetricLabelValuesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseMetricLabelValuesList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseMetricLabelValue))
 	}
@@ -701,7 +702,7 @@ func (o SparseMetricLabelValuesList) Append(objects ...elemental.Identifiable) e
 func (o SparseMetricLabelValuesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -718,7 +719,7 @@ func (o SparseMetricLabelValuesList) DefaultOrder() []string {
 func (o SparseMetricLabelValuesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

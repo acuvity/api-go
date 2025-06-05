@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o AlertTriggersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the AlertTriggersList.
 func (o AlertTriggersList) Copy() elemental.Identifiables {
 
-	out := append(AlertTriggersList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the AlertTriggersList.
 func (o AlertTriggersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(AlertTriggersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*AlertTrigger))
 	}
@@ -50,7 +51,7 @@ func (o AlertTriggersList) Append(objects ...elemental.Identifiable) elemental.I
 func (o AlertTriggersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o AlertTriggersList) DefaultOrder() []string {
 func (o AlertTriggersList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseAlertTriggersList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseAlertTrigger)
 	}
 
@@ -382,14 +383,14 @@ func (o SparseAlertTriggersList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseAlertTriggersList.
 func (o SparseAlertTriggersList) Copy() elemental.Identifiables {
 
-	copy := append(SparseAlertTriggersList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseAlertTriggersList.
 func (o SparseAlertTriggersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseAlertTriggersList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseAlertTrigger))
 	}
@@ -401,7 +402,7 @@ func (o SparseAlertTriggersList) Append(objects ...elemental.Identifiable) eleme
 func (o SparseAlertTriggersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -418,7 +419,7 @@ func (o SparseAlertTriggersList) DefaultOrder() []string {
 func (o SparseAlertTriggersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 

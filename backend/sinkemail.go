@@ -5,6 +5,7 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
@@ -31,14 +32,14 @@ func (o SinkEmailsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SinkEmailsList.
 func (o SinkEmailsList) Copy() elemental.Identifiables {
 
-	out := append(SinkEmailsList{}, o...)
+	out := slices.Clone(o)
 	return &out
 }
 
 // Append appends the objects to the a new copy of the SinkEmailsList.
 func (o SinkEmailsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SinkEmailsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SinkEmail))
 	}
@@ -50,7 +51,7 @@ func (o SinkEmailsList) Append(objects ...elemental.Identifiable) elemental.Iden
 func (o SinkEmailsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -68,7 +69,7 @@ func (o SinkEmailsList) DefaultOrder() []string {
 func (o SinkEmailsList) ToSparse(fields ...string) elemental.Identifiables {
 
 	out := make(SparseSinkEmailsList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToSparse(fields...).(*SparseSinkEmail)
 	}
 
@@ -334,14 +335,14 @@ func (o SparseSinkEmailsList) Identity() elemental.Identity {
 // Copy returns a pointer to a copy the SparseSinkEmailsList.
 func (o SparseSinkEmailsList) Copy() elemental.Identifiables {
 
-	copy := append(SparseSinkEmailsList{}, o...)
+	copy := slices.Clone(o)
 	return &copy
 }
 
 // Append appends the objects to the a new copy of the SparseSinkEmailsList.
 func (o SparseSinkEmailsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
-	out := append(SparseSinkEmailsList{}, o...)
+	out := slices.Clone(o)
 	for _, obj := range objects {
 		out = append(out, obj.(*SparseSinkEmail))
 	}
@@ -353,7 +354,7 @@ func (o SparseSinkEmailsList) Append(objects ...elemental.Identifiable) elementa
 func (o SparseSinkEmailsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i]
 	}
 
@@ -370,7 +371,7 @@ func (o SparseSinkEmailsList) DefaultOrder() []string {
 func (o SparseSinkEmailsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
-	for i := 0; i < len(o); i++ {
+	for i := range len(o) {
 		out[i] = o[i].ToPlain()
 	}
 
