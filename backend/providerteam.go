@@ -443,9 +443,6 @@ func (o *ProviderTeam) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidateAuthorizationSubject("excludedSubject", o.ExcludedSubject); err != nil {
-		errors = errors.Append(err)
-	}
 	if err := ValidateTagsExpression("excludedSubject", o.ExcludedSubject); err != nil {
 		errors = errors.Append(err)
 	}
@@ -462,9 +459,6 @@ func (o *ProviderTeam) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateAuthorizationSubject("subject", o.Subject); err != nil {
-		errors = errors.Append(err)
-	}
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}

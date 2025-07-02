@@ -63,11 +63,11 @@
     "contentpolicy": {
       "$ref": "contentpolicy.json"
     },
-    "customdataset": {
-      "$ref": "customdataset.json"
-    },
     "customdatatype": {
       "$ref": "customdatatype.json"
+    },
+    "dataset": {
+      "$ref": "dataset.json"
     },
     "destination": {
       "$ref": "destination.json"
@@ -80,6 +80,9 @@
     },
     "detector": {
       "$ref": "detector.json"
+    },
+    "digestreport": {
+      "$ref": "digestreport.json"
     },
     "domainhits": {
       "$ref": "domainhits.json"
@@ -186,6 +189,9 @@
     "pagedataviewpredicate": {
       "$ref": "pagedataviewpredicate.json"
     },
+    "policyref": {
+      "$ref": "policyref.json"
+    },
     "policyupdate": {
       "$ref": "policyupdate.json"
     },
@@ -197,6 +203,9 @@
     },
     "principalapp": {
       "$ref": "principalapp.json"
+    },
+    "principalappuser": {
+      "$ref": "principalappuser.json"
     },
     "principaluser": {
       "$ref": "principaluser.json"
@@ -270,6 +279,9 @@
     "textualdetection": {
       "$ref": "textualdetection.json"
     },
+    "tlsstate": {
+      "$ref": "tlsstate.json"
+    },
     "tool": {
       "$ref": "tool.json"
     },
@@ -305,6 +317,9 @@
     },
     "watchedorg": {
       "$ref": "watchedorg.json"
+    },
+    "webextension": {
+      "$ref": "webextension.json"
     },
     "webextensionconfig": {
       "$ref": "webextensionconfig.json"

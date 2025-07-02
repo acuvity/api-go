@@ -27,8 +27,10 @@ var (
 		"apptoken":         AppTokenIdentity,
 		"authsettings":     AuthSettingsIdentity,
 		"contentpolicy":    ContentPolicyIdentity,
-		"customdataset":    CustomDataSetIdentity,
 		"customdatatype":   CustomDataTypeIdentity,
+		"dataset":          DataSetIdentity,
+
+		"digestreport": DigestReportIdentity,
 
 		"errortransformer": ErrorTransformerIdentity,
 
@@ -57,14 +59,16 @@ var (
 		"pacconfig":    PACConfigIdentity,
 		"pagedataview": PageDataViewIdentity,
 
+		"policyref":    PolicyRefIdentity,
 		"policyupdate": PolicyUpdateIdentity,
 
-		"principal":      PrincipalIdentity,
-		"principalapp":   PrincipalAppIdentity,
-		"principaluser":  PrincipalUserIdentity,
-		"project":        ProjectIdentity,
-		"provider":       ProviderIdentity,
-		"providerdetail": ProviderDetailIdentity,
+		"principal":        PrincipalIdentity,
+		"principalapp":     PrincipalAppIdentity,
+		"principalappuser": PrincipalAppUserIdentity,
+		"principaluser":    PrincipalUserIdentity,
+		"project":          ProjectIdentity,
+		"provider":         ProviderIdentity,
+		"providerdetail":   ProviderDetailIdentity,
 
 		"providerteam":  ProviderTeamIdentity,
 		"providertoken": ProviderTokenIdentity,
@@ -93,6 +97,7 @@ var (
 		"usertoken":          UserTokenIdentity,
 		"visitedurl":         VisitedURLIdentity,
 		"watchedorg":         WatchedOrgIdentity,
+		"webextension":       WebExtensionIdentity,
 		"webextensionconfig": WebExtensionConfigIdentity,
 	}
 
@@ -117,8 +122,10 @@ var (
 		"apptokens":         AppTokenIdentity,
 		"authsettings":      AuthSettingsIdentity,
 		"contentpolicies":   ContentPolicyIdentity,
-		"customdatasets":    CustomDataSetIdentity,
 		"customdatatypes":   CustomDataTypeIdentity,
+		"datasets":          DataSetIdentity,
+
+		"digestreports": DigestReportIdentity,
 
 		"errortransformers": ErrorTransformerIdentity,
 
@@ -147,14 +154,16 @@ var (
 		"pacconfigs":    PACConfigIdentity,
 		"pagedataviews": PageDataViewIdentity,
 
+		"policyrefs":    PolicyRefIdentity,
 		"policyupdates": PolicyUpdateIdentity,
 
-		"principals":      PrincipalIdentity,
-		"principalapps":   PrincipalAppIdentity,
-		"principalusers":  PrincipalUserIdentity,
-		"projects":        ProjectIdentity,
-		"providers":       ProviderIdentity,
-		"providerdetails": ProviderDetailIdentity,
+		"principals":        PrincipalIdentity,
+		"principalapps":     PrincipalAppIdentity,
+		"principalappusers": PrincipalAppUserIdentity,
+		"principalusers":    PrincipalUserIdentity,
+		"projects":          ProjectIdentity,
+		"providers":         ProviderIdentity,
+		"providerdetails":   ProviderDetailIdentity,
 
 		"providerteams":  ProviderTeamIdentity,
 		"providertokens": ProviderTokenIdentity,
@@ -183,6 +192,7 @@ var (
 		"usertokens":          UserTokenIdentity,
 		"visitedurls":         VisitedURLIdentity,
 		"watchedorgs":         WatchedOrgIdentity,
+		"webextensions":       WebExtensionIdentity,
 		"webextensionconfigs": WebExtensionConfigIdentity,
 	}
 
@@ -196,6 +206,7 @@ var (
 		},
 		"agent": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "hostname"},
 			{"namespace", "importLabel"},
 		},
 		"agentconfig": {
@@ -245,15 +256,18 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"customdataset": {
-			{":shard", ":unique", "zone", "zHash"},
-			{"namespace", "importLabel"},
-			{"namespace", "name"},
-		},
 		"customdatatype": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+		},
+		"dataset": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"digestreport": {
+			{":shard", ":unique", "zone", "zHash"},
 		},
 		"errortransformer": nil,
 		"extractor": {
@@ -302,10 +316,12 @@ var (
 			{"namespace", "name"},
 			{"namespace", "pageID"},
 		},
-		"policyupdate":  nil,
-		"principal":     nil,
-		"principalapp":  nil,
-		"principaluser": nil,
+		"policyref":        nil,
+		"policyupdate":     nil,
+		"principal":        nil,
+		"principalapp":     nil,
+		"principalappuser": nil,
+		"principaluser":    nil,
 		"project": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
@@ -368,6 +384,11 @@ var (
 			{"namespace", "importLabel"},
 		},
 		"watchedorg": nil,
+		"webextension": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "installationID"},
+		},
 		"webextensionconfig": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
@@ -443,10 +464,12 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthSettings()
 	case ContentPolicyIdentity:
 		return NewContentPolicy()
-	case CustomDataSetIdentity:
-		return NewCustomDataSet()
 	case CustomDataTypeIdentity:
 		return NewCustomDataType()
+	case DataSetIdentity:
+		return NewDataSet()
+	case DigestReportIdentity:
+		return NewDigestReport()
 	case ErrorTransformerIdentity:
 		return NewErrorTransformer()
 	case ExtractorIdentity:
@@ -485,12 +508,16 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewPACConfig()
 	case PageDataViewIdentity:
 		return NewPageDataView()
+	case PolicyRefIdentity:
+		return NewPolicyRef()
 	case PolicyUpdateIdentity:
 		return NewPolicyUpdate()
 	case PrincipalIdentity:
 		return NewPrincipal()
 	case PrincipalAppIdentity:
 		return NewPrincipalApp()
+	case PrincipalAppUserIdentity:
+		return NewPrincipalAppUser()
 	case PrincipalUserIdentity:
 		return NewPrincipalUser()
 	case ProjectIdentity:
@@ -549,6 +576,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewVisitedURL()
 	case WatchedOrgIdentity:
 		return NewWatchedOrg()
+	case WebExtensionIdentity:
+		return NewWebExtension()
 	case WebExtensionConfigIdentity:
 		return NewWebExtensionConfig()
 	default:
@@ -590,10 +619,12 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthSettings()
 	case ContentPolicyIdentity:
 		return NewSparseContentPolicy()
-	case CustomDataSetIdentity:
-		return NewSparseCustomDataSet()
 	case CustomDataTypeIdentity:
 		return NewSparseCustomDataType()
+	case DataSetIdentity:
+		return NewSparseDataSet()
+	case DigestReportIdentity:
+		return NewSparseDigestReport()
 	case ErrorTransformerIdentity:
 		return NewSparseErrorTransformer()
 	case ExtractorIdentity:
@@ -632,12 +663,16 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparsePACConfig()
 	case PageDataViewIdentity:
 		return NewSparsePageDataView()
+	case PolicyRefIdentity:
+		return NewSparsePolicyRef()
 	case PolicyUpdateIdentity:
 		return NewSparsePolicyUpdate()
 	case PrincipalIdentity:
 		return NewSparsePrincipal()
 	case PrincipalAppIdentity:
 		return NewSparsePrincipalApp()
+	case PrincipalAppUserIdentity:
+		return NewSparsePrincipalAppUser()
 	case PrincipalUserIdentity:
 		return NewSparsePrincipalUser()
 	case ProjectIdentity:
@@ -694,6 +729,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseVisitedURL()
 	case WatchedOrgIdentity:
 		return NewSparseWatchedOrg()
+	case WebExtensionIdentity:
+		return NewSparseWebExtension()
 	case WebExtensionConfigIdentity:
 		return NewSparseWebExtensionConfig()
 	default:
@@ -745,10 +782,12 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &ContentPoliciesList{}
-	case CustomDataSetIdentity:
-		return &CustomDataSetsList{}
 	case CustomDataTypeIdentity:
 		return &CustomDataTypesList{}
+	case DataSetIdentity:
+		return &DataSetsList{}
+	case DigestReportIdentity:
+		return &DigestReportsList{}
 	case ErrorTransformerIdentity:
 		return &ErrorTransformersList{}
 	case ExtractorIdentity:
@@ -787,12 +826,16 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &PACConfigsList{}
 	case PageDataViewIdentity:
 		return &PageDataViewsList{}
+	case PolicyRefIdentity:
+		return &PolicyRefsList{}
 	case PolicyUpdateIdentity:
 		return &PolicyUpdatesList{}
 	case PrincipalIdentity:
 		return &PrincipalsList{}
 	case PrincipalAppIdentity:
 		return &PrincipalAppsList{}
+	case PrincipalAppUserIdentity:
+		return &PrincipalAppUsersList{}
 	case PrincipalUserIdentity:
 		return &PrincipalUsersList{}
 	case ProjectIdentity:
@@ -849,6 +892,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &VisitedURLsList{}
 	case WatchedOrgIdentity:
 		return &WatchedOrgsList{}
+	case WebExtensionIdentity:
+		return &WebExtensionsList{}
 	case WebExtensionConfigIdentity:
 		return &WebExtensionConfigsList{}
 	default:
@@ -890,10 +935,12 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &SparseContentPoliciesList{}
-	case CustomDataSetIdentity:
-		return &SparseCustomDataSetsList{}
 	case CustomDataTypeIdentity:
 		return &SparseCustomDataTypesList{}
+	case DataSetIdentity:
+		return &SparseDataSetsList{}
+	case DigestReportIdentity:
+		return &SparseDigestReportsList{}
 	case ErrorTransformerIdentity:
 		return &SparseErrorTransformersList{}
 	case ExtractorIdentity:
@@ -932,12 +979,16 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparsePACConfigsList{}
 	case PageDataViewIdentity:
 		return &SparsePageDataViewsList{}
+	case PolicyRefIdentity:
+		return &SparsePolicyRefsList{}
 	case PolicyUpdateIdentity:
 		return &SparsePolicyUpdatesList{}
 	case PrincipalIdentity:
 		return &SparsePrincipalsList{}
 	case PrincipalAppIdentity:
 		return &SparsePrincipalAppsList{}
+	case PrincipalAppUserIdentity:
+		return &SparsePrincipalAppUsersList{}
 	case PrincipalUserIdentity:
 		return &SparsePrincipalUsersList{}
 	case ProjectIdentity:
@@ -994,6 +1045,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseVisitedURLsList{}
 	case WatchedOrgIdentity:
 		return &SparseWatchedOrgsList{}
+	case WebExtensionIdentity:
+		return &SparseWebExtensionsList{}
 	case WebExtensionConfigIdentity:
 		return &SparseWebExtensionConfigsList{}
 	default:
@@ -1075,6 +1128,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewProviderTrainingPolicy()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
+	case "tlsstate", "TLSState":
+		return NewTLSState()
 	case "tool", "Tool":
 		return NewTool()
 	case "toolchoice", "ToolChoice":
@@ -1112,8 +1167,9 @@ func AllIdentities() []elemental.Identity {
 		AppTokenIdentity,
 		AuthSettingsIdentity,
 		ContentPolicyIdentity,
-		CustomDataSetIdentity,
 		CustomDataTypeIdentity,
+		DataSetIdentity,
+		DigestReportIdentity,
 		ErrorTransformerIdentity,
 		ExtractorIdentity,
 		FeedbackIdentity,
@@ -1133,9 +1189,11 @@ func AllIdentities() []elemental.Identity {
 		OrgStorageIdentity,
 		PACConfigIdentity,
 		PageDataViewIdentity,
+		PolicyRefIdentity,
 		PolicyUpdateIdentity,
 		PrincipalIdentity,
 		PrincipalAppIdentity,
+		PrincipalAppUserIdentity,
 		PrincipalUserIdentity,
 		ProjectIdentity,
 		ProviderIdentity,
@@ -1165,6 +1223,7 @@ func AllIdentities() []elemental.Identity {
 		UserTokenIdentity,
 		VisitedURLIdentity,
 		WatchedOrgIdentity,
+		WebExtensionIdentity,
 		WebExtensionConfigIdentity,
 	}
 }
@@ -1203,9 +1262,11 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case ContentPolicyIdentity:
 		return []string{}
-	case CustomDataSetIdentity:
-		return []string{}
 	case CustomDataTypeIdentity:
+		return []string{}
+	case DataSetIdentity:
+		return []string{}
+	case DigestReportIdentity:
 		return []string{}
 	case ErrorTransformerIdentity:
 		return []string{}
@@ -1245,11 +1306,15 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case PageDataViewIdentity:
 		return []string{}
+	case PolicyRefIdentity:
+		return []string{}
 	case PolicyUpdateIdentity:
 		return []string{}
 	case PrincipalIdentity:
 		return []string{}
 	case PrincipalAppIdentity:
+		return []string{}
+	case PrincipalAppUserIdentity:
 		return []string{}
 	case PrincipalUserIdentity:
 		return []string{}
@@ -1308,6 +1373,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case VisitedURLIdentity:
 		return []string{}
 	case WatchedOrgIdentity:
+		return []string{}
+	case WebExtensionIdentity:
 		return []string{}
 	case WebExtensionConfigIdentity:
 		return []string{}

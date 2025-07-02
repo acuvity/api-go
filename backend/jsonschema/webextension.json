@@ -1,0 +1,132 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@principalable"
+  ],
+  "$friendlyName": "WebExtension",
+  "$friendlyNamePlural": "WebExtensions",
+  "$modelName": "WebExtension",
+  "$modelPackage": "lain",
+  "$modelResourceName": "webextensions",
+  "$modelRestName": "webextension",
+  "additionalProperties": false,
+  "description": "Stores information about a known WebExtension.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "browserProxyManagementState": {
+      "$friendlyName": "System Proxy Management State",
+      "description": "The state of the system proxy management.",
+      "title": "browserProxyManagementState",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "currentVersion": {
+      "$friendlyName": "Current Version",
+      "$required": true,
+      "description": "The current version of the WebExtension.",
+      "title": "currentVersion",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "installationID": {
+      "$friendlyName": "Installation ID",
+      "$required": true,
+      "description": "The ID of the WebExtension installation.",
+      "title": "installationID",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "$required": true,
+      "description": "The last ping recorded for the WebExtension.",
+      "title": "ping",
+      "type": "string"
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "$required": true,
+      "description": "The start time for the WebExtension.",
+      "title": "start",
+      "type": "string"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the WebExtension.",
+      "enum": [
+        "Alive",
+        "Paused",
+        "Stopped"
+      ],
+      "title": "status"
+    },
+    "userAgent": {
+      "$friendlyName": "User Agent",
+      "description": "The browser user agent.",
+      "title": "userAgent",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "currentVersion",
+    "installationID",
+    "ping",
+    "principal",
+    "start",
+    "status"
+  ],
+  "title": "WebExtension",
+  "type": "object"
+}

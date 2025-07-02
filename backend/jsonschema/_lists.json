@@ -126,15 +126,15 @@
       },
       "type": "array"
     },
-    "customdatasets": {
-      "items": {
-        "$ref": "customdataset.json"
-      },
-      "type": "array"
-    },
     "customdatatypes": {
       "items": {
         "$ref": "customdatatype.json"
+      },
+      "type": "array"
+    },
+    "datasets": {
+      "items": {
+        "$ref": "dataset.json"
       },
       "type": "array"
     },
@@ -159,6 +159,12 @@
     "detectors": {
       "items": {
         "$ref": "detector.json"
+      },
+      "type": "array"
+    },
+    "digestreports": {
+      "items": {
+        "$ref": "digestreport.json"
       },
       "type": "array"
     },
@@ -372,6 +378,12 @@
       },
       "type": "array"
     },
+    "policyrefs": {
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "type": "array"
+    },
     "policyupdates": {
       "items": {
         "$ref": "policyupdate.json"
@@ -387,6 +399,12 @@
     "principalapps": {
       "items": {
         "$ref": "principalapp.json"
+      },
+      "type": "array"
+    },
+    "principalappusers": {
+      "items": {
+        "$ref": "principalappuser.json"
       },
       "type": "array"
     },
@@ -540,6 +558,12 @@
       },
       "type": "array"
     },
+    "tlsstates": {
+      "items": {
+        "$ref": "tlsstate.json"
+      },
+      "type": "array"
+    },
     "toolchoices": {
       "items": {
         "$ref": "toolchoice.json"
@@ -615,6 +639,12 @@
     "webextensionconfigs": {
       "items": {
         "$ref": "webextensionconfig.json"
+      },
+      "type": "array"
+    },
+    "webextensions": {
+      "items": {
+        "$ref": "webextension.json"
       },
       "type": "array"
     },

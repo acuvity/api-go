@@ -48,18 +48,6 @@
         "null"
       ]
     },
-    "customDataSets": {
-      "$friendlyName": "Custom Data Sets",
-      "additionalProperties": {
-        "additionalProperties": {
-          "type": "number"
-        },
-        "type": "object"
-      },
-      "description": "The custom data sets found during classification.",
-      "title": "customDataSets",
-      "type": "object"
-    },
     "customDataTypes": {
       "$friendlyName": "Custom Data Types",
       "additionalProperties": {
@@ -77,6 +65,18 @@
         "string",
         "null"
       ]
+    },
+    "dataSets": {
+      "$friendlyName": "Data Sets",
+      "additionalProperties": {
+        "additionalProperties": {
+          "type": "number"
+        },
+        "type": "object"
+      },
+      "description": "The data sets found during classification.",
+      "title": "dataSets",
+      "type": "object"
     },
     "detections": {
       "$friendlyName": "Detections",

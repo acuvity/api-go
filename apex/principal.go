@@ -136,8 +136,8 @@ type Principal struct {
 	// List of claims extracted from the user query.
 	Claims []string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"claims,omitempty" mapstructure:"claims,omitempty"`
 
-	// The team that was used to authorize the request.
-	Team string `json:"team,omitempty" msgpack:"team,omitempty" bson:"team,omitempty" mapstructure:"team,omitempty"`
+	// The teams that were used to authorize the request.
+	Teams []string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
 	// The name of the token, if any.
 	TokenName string `json:"tokenName" msgpack:"tokenName" bson:"tokenname" mapstructure:"tokenName,omitempty"`
@@ -157,6 +157,7 @@ func NewPrincipal() *Principal {
 	return &Principal{
 		ModelVersion: 1,
 		Claims:       []string{},
+		Teams:        []string{},
 	}
 }
 
@@ -191,7 +192,7 @@ func (o *Principal) GetBSON() (any, error) {
 	s.App = o.App
 	s.AuthType = o.AuthType
 	s.Claims = o.Claims
-	s.Team = o.Team
+	s.Teams = o.Teams
 	s.TokenName = o.TokenName
 	s.Type = o.Type
 	s.User = o.User
@@ -216,7 +217,7 @@ func (o *Principal) SetBSON(raw bson.Raw) error {
 	o.App = s.App
 	o.AuthType = s.AuthType
 	o.Claims = s.Claims
-	o.Team = s.Team
+	o.Teams = s.Teams
 	o.TokenName = s.TokenName
 	o.Type = s.Type
 	o.User = s.User
@@ -264,7 +265,7 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			App:       o.App,
 			AuthType:  &o.AuthType,
 			Claims:    &o.Claims,
-			Team:      &o.Team,
+			Teams:     &o.Teams,
 			TokenName: &o.TokenName,
 			Type:      &o.Type,
 			User:      o.User,
@@ -282,8 +283,8 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AuthType = &(o.AuthType)
 		case "claims":
 			sp.Claims = &(o.Claims)
-		case "team":
-			sp.Team = &(o.Team)
+		case "teams":
+			sp.Teams = &(o.Teams)
 		case "tokenName":
 			sp.TokenName = &(o.TokenName)
 		case "type":
@@ -315,8 +316,8 @@ func (o *Principal) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Claims != nil {
 		o.Claims = *so.Claims
 	}
-	if so.Team != nil {
-		o.Team = *so.Team
+	if so.Teams != nil {
+		o.Teams = *so.Teams
 	}
 	if so.TokenName != nil {
 		o.TokenName = *so.TokenName
@@ -432,8 +433,8 @@ func (o *Principal) ValueForAttribute(name string) any {
 		return o.AuthType
 	case "claims":
 		return o.Claims
-	case "team":
-		return o.Team
+	case "teams":
+		return o.Teams
 	case "tokenName":
 		return o.TokenName
 	case "type":
@@ -489,15 +490,16 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
-	"Team": {
+	"Teams": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "team",
-		ConvertedName:  "Team",
-		Description:    `The team that was used to authorize the request.`,
+		BSONFieldName:  "teams",
+		ConvertedName:  "Teams",
+		Description:    `The teams that were used to authorize the request.`,
 		Exposed:        true,
-		Name:           "team",
+		Name:           "teams",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "string",
+		Type:           "list",
 	},
 	"TokenName": {
 		AllowedChoices: []string{},
@@ -577,15 +579,16 @@ var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		SubType:        "string",
 		Type:           "list",
 	},
-	"team": {
+	"teams": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "team",
-		ConvertedName:  "Team",
-		Description:    `The team that was used to authorize the request.`,
+		BSONFieldName:  "teams",
+		ConvertedName:  "Teams",
+		Description:    `The teams that were used to authorize the request.`,
 		Exposed:        true,
-		Name:           "team",
+		Name:           "teams",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "string",
+		Type:           "list",
 	},
 	"tokenname": {
 		AllowedChoices: []string{},
@@ -696,8 +699,8 @@ type SparsePrincipal struct {
 	// List of claims extracted from the user query.
 	Claims *[]string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"claims,omitempty" mapstructure:"claims,omitempty"`
 
-	// The team that was used to authorize the request.
-	Team *string `json:"team,omitempty" msgpack:"team,omitempty" bson:"team,omitempty" mapstructure:"team,omitempty"`
+	// The teams that were used to authorize the request.
+	Teams *[]string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
 	// The name of the token, if any.
 	TokenName *string `json:"tokenName,omitempty" msgpack:"tokenName,omitempty" bson:"tokenname,omitempty" mapstructure:"tokenName,omitempty"`
@@ -755,8 +758,8 @@ func (o *SparsePrincipal) GetBSON() (any, error) {
 	if o.Claims != nil {
 		s.Claims = o.Claims
 	}
-	if o.Team != nil {
-		s.Team = o.Team
+	if o.Teams != nil {
+		s.Teams = o.Teams
 	}
 	if o.TokenName != nil {
 		s.TokenName = o.TokenName
@@ -796,8 +799,8 @@ func (o *SparsePrincipal) SetBSON(raw bson.Raw) error {
 	if s.Claims != nil {
 		o.Claims = s.Claims
 	}
-	if s.Team != nil {
-		o.Team = s.Team
+	if s.Teams != nil {
+		o.Teams = s.Teams
 	}
 	if s.TokenName != nil {
 		o.TokenName = s.TokenName
@@ -834,8 +837,8 @@ func (o *SparsePrincipal) ToPlain() elemental.PlainIdentifiable {
 	if o.Claims != nil {
 		out.Claims = *o.Claims
 	}
-	if o.Team != nil {
-		out.Team = *o.Team
+	if o.Teams != nil {
+		out.Teams = *o.Teams
 	}
 	if o.TokenName != nil {
 		out.TokenName = *o.TokenName
@@ -879,7 +882,7 @@ type mongoAttributesPrincipal struct {
 	App       *PrincipalApp          `bson:"app,omitempty"`
 	AuthType  PrincipalAuthTypeValue `bson:"authtype"`
 	Claims    []string               `bson:"claims,omitempty"`
-	Team      string                 `bson:"team,omitempty"`
+	Teams     []string               `bson:"teams,omitempty"`
 	TokenName string                 `bson:"tokenname"`
 	Type      PrincipalTypeValue     `bson:"type"`
 	User      *PrincipalUser         `bson:"user,omitempty"`
@@ -889,7 +892,7 @@ type mongoAttributesSparsePrincipal struct {
 	App       *PrincipalApp           `bson:"app,omitempty"`
 	AuthType  *PrincipalAuthTypeValue `bson:"authtype,omitempty"`
 	Claims    *[]string               `bson:"claims,omitempty"`
-	Team      *string                 `bson:"team,omitempty"`
+	Teams     *[]string               `bson:"teams,omitempty"`
 	TokenName *string                 `bson:"tokenname,omitempty"`
 	Type      *PrincipalTypeValue     `bson:"type,omitempty"`
 	User      *PrincipalUser          `bson:"user,omitempty"`

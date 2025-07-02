@@ -82,6 +82,18 @@
       "description": "Captures all details of the destination of the request.",
       "title": "destination"
     },
+    "encryptionEgress": {
+      "$friendlyName": "Encryption Egress",
+      "$ref": "tlsstate.json",
+      "description": "The encryption details of the connection from the proxy to the origin server.",
+      "title": "encryptionEgress"
+    },
+    "encryptionIngress": {
+      "$friendlyName": "Encryption Ingress",
+      "$ref": "tlsstate.json",
+      "description": "The encryption details of the connection from the client to the proxy.",
+      "title": "encryptionIngress"
+    },
     "extractions": {
       "$friendlyName": "Extractions",
       "description": "The extractions to log.",
@@ -151,6 +163,24 @@
         "null"
       ]
     },
+    "offband": {
+      "$friendlyName": "Offband",
+      "description": "If true, the analysis ran offband. That means that we extracted the data from the user request, assigned team and verified access permissions, but then we forwarded the request as is to the provider untouched immediately, while running the analysis and policies in the background, reporting what we would have done.",
+      "title": "offband",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "permissive": {
+      "$friendlyName": "Permissive",
+      "description": "If true, the policy has been applied in permissive mode.  That means that we extracted the data from the user request, assigned team, verified access permissions, run analysis, apply content policies and reported what we would have done, but ultimately let the request go to the provider untouched.",
+      "title": "permissive",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "pipelineName": {
       "$friendlyName": "Pipeline Name",
       "description": "The name of the particular pipeline that extracted the text.",
@@ -159,6 +189,15 @@
         "string",
         "null"
       ]
+    },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "List of references to the policies used to make this roundtrip.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
     },
     "principal": {
       "$friendlyName": "Principal",
@@ -175,6 +214,16 @@
         "string",
         "null"
       ]
+    },
+    "proxyFunction": {
+      "$defaultValue": "ForwardProxy",
+      "$friendlyName": "Proxy Function",
+      "description": "Denotes the function of this proxy in the chain of servers. By default the apex always sits on the egress side between a client or application and the origin server in which case the apex acts as a forwarding proxy. However, in the case of applications the proxy can also be located before the application as an ingress provider in which case the apex acts as a reverse proxy.",
+      "enum": [
+        "ForwardProxy",
+        "ReverseProxy"
+      ],
+      "title": "proxyFunction"
     },
     "reasons": {
       "$friendlyName": "Reasons",

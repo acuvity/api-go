@@ -499,7 +499,7 @@ func init() {
 		},
 	}
 
-	relationshipsRegistry[CustomDataSetIdentity] = &elemental.Relationship{
+	relationshipsRegistry[CustomDataTypeIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -537,7 +537,45 @@ func init() {
 		},
 	}
 
-	relationshipsRegistry[CustomDataTypeIdentity] = &elemental.Relationship{
+	relationshipsRegistry[DataSetIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[DigestReportIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -915,11 +953,15 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[PolicyRefIdentity] = &elemental.Relationship{}
+
 	relationshipsRegistry[PolicyUpdateIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalAppIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[PrincipalAppUserIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalUserIdentity] = &elemental.Relationship{}
 
@@ -1058,6 +1100,19 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name:     "claim",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
+						Name: "provider",
+						Type: "string",
+					},
+					{
+						Name: "resolve",
+						Type: "boolean",
+					},
+					{
 						Name: "q",
 						Type: "string",
 					},
@@ -1067,6 +1122,19 @@ func init() {
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "claim",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
+						Name: "provider",
+						Type: "string",
+					},
+					{
+						Name: "resolve",
+						Type: "boolean",
+					},
 					{
 						Name: "q",
 						Type: "string",
@@ -1452,6 +1520,38 @@ func init() {
 		},
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {},
+		},
+	}
+
+	relationshipsRegistry[WebExtensionIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
 		},
 	}
 
