@@ -24,6 +24,20 @@ const (
 	AgentConfigDNSMonitorPolicyWarn AgentConfigDNSMonitorPolicyValue = "Warn"
 )
 
+// AgentConfigReleaseTrainValue represents the possible values for attribute "releaseTrain".
+type AgentConfigReleaseTrainValue string
+
+const (
+	// AgentConfigReleaseTrainManual represents the value Manual.
+	AgentConfigReleaseTrainManual AgentConfigReleaseTrainValue = "Manual"
+
+	// AgentConfigReleaseTrainStable represents the value Stable.
+	AgentConfigReleaseTrainStable AgentConfigReleaseTrainValue = "Stable"
+
+	// AgentConfigReleaseTrainUnstable represents the value Unstable.
+	AgentConfigReleaseTrainUnstable AgentConfigReleaseTrainValue = "Unstable"
+)
+
 // AgentConfigIdentity represents the Identity of the object.
 var AgentConfigIdentity = elemental.Identity{
 	Name:     "agentconfig",
@@ -106,6 +120,9 @@ type AgentConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// If true, upgrades will only take place with user confirmation.
+	AttendedUpgrades bool `json:"attendedUpgrades" msgpack:"attendedUpgrades" bson:"attendedupgrades" mapstructure:"attendedUpgrades,omitempty"`
+
 	// Defines the refresh interval for the configuration of the deployed agents (i.e:
 	// 30m, 6h).
 	ConfigRefreshInterval string `json:"configRefreshInterval" msgpack:"configRefreshInterval" bson:"configrefreshinterval" mapstructure:"configRefreshInterval,omitempty"`
@@ -157,6 +174,10 @@ type AgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
+	// The release train to follow when updating. Manual means it will not auto-update,
+	// essentially pinning to a version.
+	ReleaseTrain AgentConfigReleaseTrainValue `json:"releaseTrain" msgpack:"releaseTrain" bson:"releasetrain" mapstructure:"releaseTrain,omitempty"`
+
 	// If disabled, the agent will not scan for genAI applications and plugins.
 	ScanDisabled bool `json:"scanDisabled" msgpack:"scanDisabled" bson:"scandisabled" mapstructure:"scanDisabled,omitempty"`
 
@@ -203,7 +224,8 @@ func NewAgentConfig() *AgentConfig {
 		ConfigRefreshInterval: "1h",
 		DomainReportInterval:  "10m",
 		ListeningPort:         "8081",
-		PingInterval:          "10m",
+		PingInterval:          "6h",
+		ReleaseTrain:          AgentConfigReleaseTrainStable,
 		ScanInterval:          "5m",
 		ScanReportInterval:    "12h",
 		ScanRunningProcesses:  []string{},
@@ -244,6 +266,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AttendedUpgrades = o.AttendedUpgrades
 	s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -259,6 +282,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.PacName = o.PacName
 	s.PauseEnabled = o.PauseEnabled
 	s.PingInterval = o.PingInterval
+	s.ReleaseTrain = o.ReleaseTrain
 	s.ScanDisabled = o.ScanDisabled
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
@@ -290,6 +314,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DNSMonitorDisabled = s.DNSMonitorDisabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
+	o.AttendedUpgrades = s.AttendedUpgrades
 	o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -305,6 +330,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.PacName = s.PacName
 	o.PauseEnabled = s.PauseEnabled
 	o.PingInterval = s.PingInterval
+	o.ReleaseTrain = s.ReleaseTrain
 	o.ScanDisabled = s.ScanDisabled
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
@@ -419,6 +445,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DNSMonitorDisabled:            &o.DNSMonitorDisabled,
 			DNSMonitorPolicy:              &o.DNSMonitorPolicy,
 			ID:                            &o.ID,
+			AttendedUpgrades:              &o.AttendedUpgrades,
 			ConfigRefreshInterval:         &o.ConfigRefreshInterval,
 			CreateTime:                    &o.CreateTime,
 			Description:                   &o.Description,
@@ -434,6 +461,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PacName:                       &o.PacName,
 			PauseEnabled:                  &o.PauseEnabled,
 			PingInterval:                  &o.PingInterval,
+			ReleaseTrain:                  &o.ReleaseTrain,
 			ScanDisabled:                  &o.ScanDisabled,
 			ScanInstalledApps:             &o.ScanInstalledApps,
 			ScanInterval:                  &o.ScanInterval,
@@ -457,6 +485,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
 		case "ID":
 			sp.ID = &(o.ID)
+		case "attendedUpgrades":
+			sp.AttendedUpgrades = &(o.AttendedUpgrades)
 		case "configRefreshInterval":
 			sp.ConfigRefreshInterval = &(o.ConfigRefreshInterval)
 		case "createTime":
@@ -487,6 +517,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PauseEnabled = &(o.PauseEnabled)
 		case "pingInterval":
 			sp.PingInterval = &(o.PingInterval)
+		case "releaseTrain":
+			sp.ReleaseTrain = &(o.ReleaseTrain)
 		case "scanDisabled":
 			sp.ScanDisabled = &(o.ScanDisabled)
 		case "scanInstalledApps":
@@ -530,6 +562,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AttendedUpgrades != nil {
+		o.AttendedUpgrades = *so.AttendedUpgrades
 	}
 	if so.ConfigRefreshInterval != nil {
 		o.ConfigRefreshInterval = *so.ConfigRefreshInterval
@@ -575,6 +610,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.PingInterval != nil {
 		o.PingInterval = *so.PingInterval
+	}
+	if so.ReleaseTrain != nil {
+		o.ReleaseTrain = *so.ReleaseTrain
 	}
 	if so.ScanDisabled != nil {
 		o.ScanDisabled = *so.ScanDisabled
@@ -673,6 +711,10 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("releaseTrain", string(o.ReleaseTrain), []string{"Manual", "Unstable", "Stable"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for _, sub := range o.ScanInstalledApps {
 		if sub == nil {
 			continue
@@ -744,6 +786,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DNSMonitorPolicy
 	case "ID":
 		return o.ID
+	case "attendedUpgrades":
+		return o.AttendedUpgrades
 	case "configRefreshInterval":
 		return o.ConfigRefreshInterval
 	case "createTime":
@@ -774,6 +818,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.PauseEnabled
 	case "pingInterval":
 		return o.PingInterval
+	case "releaseTrain":
+		return o.ReleaseTrain
 	case "scanDisabled":
 		return o.ScanDisabled
 	case "scanInstalledApps":
@@ -839,6 +885,16 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"AttendedUpgrades": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "attendedupgrades",
+		ConvertedName:  "AttendedUpgrades",
+		Description:    `If true, upgrades will only take place with user confirmation.`,
+		Exposed:        true,
+		Name:           "attendedUpgrades",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"ConfigRefreshInterval": {
 		AllowedChoices: []string{},
@@ -1013,12 +1069,24 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "pinginterval",
 		ConvertedName:  "PingInterval",
-		DefaultValue:   "10m",
+		DefaultValue:   "6h",
 		Description:    `The ping interval at which acushield should check in with the backend.`,
 		Exposed:        true,
 		Name:           "pingInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"ReleaseTrain": {
+		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
+		BSONFieldName:  "releasetrain",
+		ConvertedName:  "ReleaseTrain",
+		DefaultValue:   AgentConfigReleaseTrainStable,
+		Description: `The release train to follow when updating. Manual means it will not auto-update,
+essentially pinning to a version.`,
+		Exposed: true,
+		Name:    "releaseTrain",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"ScanDisabled": {
 		AllowedChoices: []string{},
@@ -1163,6 +1231,16 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"attendedupgrades": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "attendedupgrades",
+		ConvertedName:  "AttendedUpgrades",
+		Description:    `If true, upgrades will only take place with user confirmation.`,
+		Exposed:        true,
+		Name:           "attendedUpgrades",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"configrefreshinterval": {
 		AllowedChoices: []string{},
@@ -1337,12 +1415,24 @@ system.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "pinginterval",
 		ConvertedName:  "PingInterval",
-		DefaultValue:   "10m",
+		DefaultValue:   "6h",
 		Description:    `The ping interval at which acushield should check in with the backend.`,
 		Exposed:        true,
 		Name:           "pingInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"releasetrain": {
+		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
+		BSONFieldName:  "releasetrain",
+		ConvertedName:  "ReleaseTrain",
+		DefaultValue:   AgentConfigReleaseTrainStable,
+		Description: `The release train to follow when updating. Manual means it will not auto-update,
+essentially pinning to a version.`,
+		Exposed: true,
+		Name:    "releaseTrain",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"scandisabled": {
 		AllowedChoices: []string{},
@@ -1522,6 +1612,9 @@ type SparseAgentConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// If true, upgrades will only take place with user confirmation.
+	AttendedUpgrades *bool `json:"attendedUpgrades,omitempty" msgpack:"attendedUpgrades,omitempty" bson:"attendedupgrades,omitempty" mapstructure:"attendedUpgrades,omitempty"`
+
 	// Defines the refresh interval for the configuration of the deployed agents (i.e:
 	// 30m, 6h).
 	ConfigRefreshInterval *string `json:"configRefreshInterval,omitempty" msgpack:"configRefreshInterval,omitempty" bson:"configrefreshinterval,omitempty" mapstructure:"configRefreshInterval,omitempty"`
@@ -1572,6 +1665,10 @@ type SparseAgentConfig struct {
 
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
+
+	// The release train to follow when updating. Manual means it will not auto-update,
+	// essentially pinning to a version.
+	ReleaseTrain *AgentConfigReleaseTrainValue `json:"releaseTrain,omitempty" msgpack:"releaseTrain,omitempty" bson:"releasetrain,omitempty" mapstructure:"releaseTrain,omitempty"`
 
 	// If disabled, the agent will not scan for genAI applications and plugins.
 	ScanDisabled *bool `json:"scanDisabled,omitempty" msgpack:"scanDisabled,omitempty" bson:"scandisabled,omitempty" mapstructure:"scanDisabled,omitempty"`
@@ -1659,6 +1756,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.AttendedUpgrades != nil {
+		s.AttendedUpgrades = o.AttendedUpgrades
+	}
 	if o.ConfigRefreshInterval != nil {
 		s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	}
@@ -1703,6 +1803,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	}
 	if o.PingInterval != nil {
 		s.PingInterval = o.PingInterval
+	}
+	if o.ReleaseTrain != nil {
+		s.ReleaseTrain = o.ReleaseTrain
 	}
 	if o.ScanDisabled != nil {
 		s.ScanDisabled = o.ScanDisabled
@@ -1762,6 +1865,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AttendedUpgrades != nil {
+		o.AttendedUpgrades = s.AttendedUpgrades
+	}
 	if s.ConfigRefreshInterval != nil {
 		o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	}
@@ -1806,6 +1912,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.PingInterval != nil {
 		o.PingInterval = s.PingInterval
+	}
+	if s.ReleaseTrain != nil {
+		o.ReleaseTrain = s.ReleaseTrain
 	}
 	if s.ScanDisabled != nil {
 		o.ScanDisabled = s.ScanDisabled
@@ -1863,6 +1972,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.AttendedUpgrades != nil {
+		out.AttendedUpgrades = *o.AttendedUpgrades
+	}
 	if o.ConfigRefreshInterval != nil {
 		out.ConfigRefreshInterval = *o.ConfigRefreshInterval
 	}
@@ -1907,6 +2019,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.PingInterval != nil {
 		out.PingInterval = *o.PingInterval
+	}
+	if o.ReleaseTrain != nil {
+		out.ReleaseTrain = *o.ReleaseTrain
 	}
 	if o.ScanDisabled != nil {
 		out.ScanDisabled = *o.ScanDisabled
@@ -2053,6 +2168,7 @@ type mongoAttributesAgentConfig struct {
 	DNSMonitorDisabled            bool                             `bson:"dnsmonitordisabled"`
 	DNSMonitorPolicy              AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
 	ID                            bson.ObjectId                    `bson:"_id,omitempty"`
+	AttendedUpgrades              bool                             `bson:"attendedupgrades"`
 	ConfigRefreshInterval         string                           `bson:"configrefreshinterval"`
 	CreateTime                    time.Time                        `bson:"createtime"`
 	Description                   string                           `bson:"description"`
@@ -2068,6 +2184,7 @@ type mongoAttributesAgentConfig struct {
 	PacName                       string                           `bson:"pacname"`
 	PauseEnabled                  bool                             `bson:"pauseenabled"`
 	PingInterval                  string                           `bson:"pinginterval"`
+	ReleaseTrain                  AgentConfigReleaseTrainValue     `bson:"releasetrain"`
 	ScanDisabled                  bool                             `bson:"scandisabled"`
 	ScanInstalledApps             []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
 	ScanInterval                  string                           `bson:"scaninterval"`
@@ -2084,6 +2201,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorDisabled            *bool                             `bson:"dnsmonitordisabled,omitempty"`
 	DNSMonitorPolicy              *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
 	ID                            bson.ObjectId                     `bson:"_id,omitempty"`
+	AttendedUpgrades              *bool                             `bson:"attendedupgrades,omitempty"`
 	ConfigRefreshInterval         *string                           `bson:"configrefreshinterval,omitempty"`
 	CreateTime                    *time.Time                        `bson:"createtime,omitempty"`
 	Description                   *string                           `bson:"description,omitempty"`
@@ -2099,6 +2217,7 @@ type mongoAttributesSparseAgentConfig struct {
 	PacName                       *string                           `bson:"pacname,omitempty"`
 	PauseEnabled                  *bool                             `bson:"pauseenabled,omitempty"`
 	PingInterval                  *string                           `bson:"pinginterval,omitempty"`
+	ReleaseTrain                  *AgentConfigReleaseTrainValue     `bson:"releasetrain,omitempty"`
 	ScanDisabled                  *bool                             `bson:"scandisabled,omitempty"`
 	ScanInstalledApps             *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
 	ScanInterval                  *string                           `bson:"scaninterval,omitempty"`

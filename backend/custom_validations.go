@@ -14,8 +14,8 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/robfig/cron/v3"
 	"go.acuvity.ai/elemental"
-
 	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
@@ -115,19 +115,15 @@ func ValidateClientTokenValidity(attribute string, duration string) error {
 	return nil
 }
 
-// ValidateAuthorizationSubject makes sure api authorization subject is at least secured a bit.
-func ValidateAuthorizationSubject(attribute string, subject [][]string) error {
+// ValidateTagsExpression validates an [][]string is a valid tag expression.
+func ValidateTagsExpression(attribute string, expression [][]string) error {
 
-	for i, ands := range subject {
+	for _, tags := range expression {
 
-		for _, claim := range ands {
+		for _, tag := range tags {
 
-			parts := strings.SplitN(claim, "=", 2)
-			if len(parts) != 2 {
-				return makeErr(attribute, fmt.Sprintf("Subject claims '%s' on line %d is an invalid tag", claim, i+1))
-			}
-			if parts[1] == "" {
-				return makeErr(attribute, fmt.Sprintf("Subject claims '%s' on line %d has no value", claim, i+1))
+			if err := ValidateTag(attribute, tag); err != nil {
+				return err
 			}
 		}
 	}
@@ -137,21 +133,19 @@ func ValidateAuthorizationSubject(attribute string, subject [][]string) error {
 
 var tagRegex = regexp.MustCompile(`^[^= ]+=.+`)
 
-// ValidateTagsExpression validates an [][]string is a valid tag expression.
-func ValidateTagsExpression(attribute string, expression [][]string) error {
+// ValidateTag validates a single tag.
+func ValidateTag(attribute string, tag string) error {
 
-	for _, tags := range expression {
+	if strings.TrimSpace(tag) != tag {
+		return makeErr(attribute, fmt.Sprintf("'%s' must not contain any leading or trailing spaces", tag))
+	}
 
-		for _, tag := range tags {
+	if len([]byte(tag)) >= 1024 {
+		return makeErr(attribute, fmt.Sprintf("'%s' must be less than 1024 bytes", tag))
+	}
 
-			if len([]byte(tag)) >= 1024 {
-				return makeErr(attribute, fmt.Sprintf("'%s' must be less than 1024 bytes", tag))
-			}
-			if !tagRegex.MatchString(tag) {
-				return makeErr(attribute, fmt.Sprintf("'%s' must contain at least one '=' symbol separating two valid words", tag))
-			}
-
-		}
+	if !tagRegex.MatchString(tag) {
+		return makeErr(attribute, fmt.Sprintf("'%s' must contain at least one '=' symbol separating two valid words", tag))
 	}
 
 	return nil
@@ -1305,6 +1299,20 @@ func ValidateTraceID(attribute, traceID string) error {
 	}
 	if len(b) != 16 {
 		return makeErr(attribute, fmt.Sprintf("'%s' must be exactly 16 bytes long.", attribute))
+	}
+
+	return nil
+}
+
+// ValidateCron validates the expressions is a valid crontab string.
+func ValidateCron(attribute string, expr string) error {
+
+	if expr == "" {
+		return nil
+	}
+
+	if _, err := cron.ParseStandard(expr); err != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' is not a valid crontab expression: %s", expr, err))
 	}
 
 	return nil

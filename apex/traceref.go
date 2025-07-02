@@ -149,6 +149,11 @@ type TraceRef struct {
 	// The Trace ID that is being referenced as hex encoded string.
 	TraceID string `json:"traceID" msgpack:"traceID" bson:"traceid" mapstructure:"traceID,omitempty"`
 
+	// The transparent span ID that is being referenced. If the application operates in
+	// transparent tracing mode, then this field must be set to the span ID that this
+	// span is originally referencing.
+	TransparentSpanID string `json:"transparentSpanID" msgpack:"transparentSpanID" bson:"transparentspanid" mapstructure:"transparentSpanID,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -198,6 +203,7 @@ func (o *TraceRef) GetBSON() (any, error) {
 	s.StatusCode = o.StatusCode
 	s.StatusMessage = o.StatusMessage
 	s.TraceID = o.TraceID
+	s.TransparentSpanID = o.TransparentSpanID
 
 	return s, nil
 }
@@ -224,6 +230,7 @@ func (o *TraceRef) SetBSON(raw bson.Raw) error {
 	o.StatusCode = s.StatusCode
 	o.StatusMessage = s.StatusMessage
 	o.TraceID = s.TraceID
+	o.TransparentSpanID = s.TransparentSpanID
 
 	return nil
 }
@@ -264,15 +271,16 @@ func (o *TraceRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseTraceRef{
-			Kind:          &o.Kind,
-			ParentSpanID:  &o.ParentSpanID,
-			SpanEnd:       &o.SpanEnd,
-			SpanID:        &o.SpanID,
-			SpanName:      &o.SpanName,
-			SpanStart:     &o.SpanStart,
-			StatusCode:    &o.StatusCode,
-			StatusMessage: &o.StatusMessage,
-			TraceID:       &o.TraceID,
+			Kind:              &o.Kind,
+			ParentSpanID:      &o.ParentSpanID,
+			SpanEnd:           &o.SpanEnd,
+			SpanID:            &o.SpanID,
+			SpanName:          &o.SpanName,
+			SpanStart:         &o.SpanStart,
+			StatusCode:        &o.StatusCode,
+			StatusMessage:     &o.StatusMessage,
+			TraceID:           &o.TraceID,
+			TransparentSpanID: &o.TransparentSpanID,
 		}
 	}
 
@@ -297,6 +305,8 @@ func (o *TraceRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.StatusMessage = &(o.StatusMessage)
 		case "traceID":
 			sp.TraceID = &(o.TraceID)
+		case "transparentSpanID":
+			sp.TransparentSpanID = &(o.TransparentSpanID)
 		}
 	}
 
@@ -336,6 +346,9 @@ func (o *TraceRef) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.TraceID != nil {
 		o.TraceID = *so.TraceID
+	}
+	if so.TransparentSpanID != nil {
+		o.TransparentSpanID = *so.TransparentSpanID
 	}
 }
 
@@ -409,6 +422,10 @@ func (o *TraceRef) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateSpanID("transparentSpanID", o.TransparentSpanID); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -461,6 +478,8 @@ func (o *TraceRef) ValueForAttribute(name string) any {
 		return o.StatusMessage
 	case "traceID":
 		return o.TraceID
+	case "transparentSpanID":
+		return o.TransparentSpanID
 	}
 
 	return nil
@@ -565,6 +584,18 @@ var TraceRefAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"TransparentSpanID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "transparentspanid",
+		ConvertedName:  "TransparentSpanID",
+		Description: `The transparent span ID that is being referenced. If the application operates in
+transparent tracing mode, then this field must be set to the span ID that this
+span is originally referencing.`,
+		Exposed: true,
+		Name:    "transparentSpanID",
+		Stored:  true,
+		Type:    "string",
+	},
 }
 
 // TraceRefLowerCaseAttributesMap represents the map of attribute for TraceRef.
@@ -666,6 +697,18 @@ var TraceRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
+	"transparentspanid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "transparentspanid",
+		ConvertedName:  "TransparentSpanID",
+		Description: `The transparent span ID that is being referenced. If the application operates in
+transparent tracing mode, then this field must be set to the span ID that this
+span is originally referencing.`,
+		Exposed: true,
+		Name:    "transparentSpanID",
+		Stored:  true,
+		Type:    "string",
+	},
 }
 
 // SparseTraceRefsList represents a list of SparseTraceRefs
@@ -758,6 +801,11 @@ type SparseTraceRef struct {
 	// The Trace ID that is being referenced as hex encoded string.
 	TraceID *string `json:"traceID,omitempty" msgpack:"traceID,omitempty" bson:"traceid,omitempty" mapstructure:"traceID,omitempty"`
 
+	// The transparent span ID that is being referenced. If the application operates in
+	// transparent tracing mode, then this field must be set to the span ID that this
+	// span is originally referencing.
+	TransparentSpanID *string `json:"transparentSpanID,omitempty" msgpack:"transparentSpanID,omitempty" bson:"transparentspanid,omitempty" mapstructure:"transparentSpanID,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -820,6 +868,9 @@ func (o *SparseTraceRef) GetBSON() (any, error) {
 	if o.TraceID != nil {
 		s.TraceID = o.TraceID
 	}
+	if o.TransparentSpanID != nil {
+		s.TransparentSpanID = o.TransparentSpanID
+	}
 
 	return s, nil
 }
@@ -864,6 +915,9 @@ func (o *SparseTraceRef) SetBSON(raw bson.Raw) error {
 	if s.TraceID != nil {
 		o.TraceID = s.TraceID
 	}
+	if s.TransparentSpanID != nil {
+		o.TransparentSpanID = s.TransparentSpanID
+	}
 
 	return nil
 }
@@ -905,6 +959,9 @@ func (o *SparseTraceRef) ToPlain() elemental.PlainIdentifiable {
 	if o.TraceID != nil {
 		out.TraceID = *o.TraceID
 	}
+	if o.TransparentSpanID != nil {
+		out.TransparentSpanID = *o.TransparentSpanID
+	}
 
 	return out
 }
@@ -934,24 +991,26 @@ func (o *SparseTraceRef) DeepCopyInto(out *SparseTraceRef) {
 }
 
 type mongoAttributesTraceRef struct {
-	Kind          TraceRefKindValue       `bson:"kind"`
-	ParentSpanID  string                  `bson:"parentspanid,omitempty"`
-	SpanEnd       time.Time               `bson:"spanend"`
-	SpanID        string                  `bson:"spanid"`
-	SpanName      string                  `bson:"spanname"`
-	SpanStart     time.Time               `bson:"spanstart"`
-	StatusCode    TraceRefStatusCodeValue `bson:"statuscode"`
-	StatusMessage string                  `bson:"statusmessage"`
-	TraceID       string                  `bson:"traceid"`
+	Kind              TraceRefKindValue       `bson:"kind"`
+	ParentSpanID      string                  `bson:"parentspanid,omitempty"`
+	SpanEnd           time.Time               `bson:"spanend"`
+	SpanID            string                  `bson:"spanid"`
+	SpanName          string                  `bson:"spanname"`
+	SpanStart         time.Time               `bson:"spanstart"`
+	StatusCode        TraceRefStatusCodeValue `bson:"statuscode"`
+	StatusMessage     string                  `bson:"statusmessage"`
+	TraceID           string                  `bson:"traceid"`
+	TransparentSpanID string                  `bson:"transparentspanid"`
 }
 type mongoAttributesSparseTraceRef struct {
-	Kind          *TraceRefKindValue       `bson:"kind,omitempty"`
-	ParentSpanID  *string                  `bson:"parentspanid,omitempty"`
-	SpanEnd       *time.Time               `bson:"spanend,omitempty"`
-	SpanID        *string                  `bson:"spanid,omitempty"`
-	SpanName      *string                  `bson:"spanname,omitempty"`
-	SpanStart     *time.Time               `bson:"spanstart,omitempty"`
-	StatusCode    *TraceRefStatusCodeValue `bson:"statuscode,omitempty"`
-	StatusMessage *string                  `bson:"statusmessage,omitempty"`
-	TraceID       *string                  `bson:"traceid,omitempty"`
+	Kind              *TraceRefKindValue       `bson:"kind,omitempty"`
+	ParentSpanID      *string                  `bson:"parentspanid,omitempty"`
+	SpanEnd           *time.Time               `bson:"spanend,omitempty"`
+	SpanID            *string                  `bson:"spanid,omitempty"`
+	SpanName          *string                  `bson:"spanname,omitempty"`
+	SpanStart         *time.Time               `bson:"spanstart,omitempty"`
+	StatusCode        *TraceRefStatusCodeValue `bson:"statuscode,omitempty"`
+	StatusMessage     *string                  `bson:"statusmessage,omitempty"`
+	TraceID           *string                  `bson:"traceid,omitempty"`
+	TransparentSpanID *string                  `bson:"transparentspanid,omitempty"`
 }

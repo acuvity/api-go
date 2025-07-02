@@ -12,14 +12,15 @@ var (
 
 		"latency": LatencyIdentity,
 
-		"policerequest":  PoliceRequestIdentity,
-		"policeresponse": PoliceResponseIdentity,
-		"principal":      PrincipalIdentity,
-		"principalapp":   PrincipalAppIdentity,
-		"principaluser":  PrincipalUserIdentity,
-		"root":           RootIdentity,
-		"scanrequest":    ScanRequestIdentity,
-		"scanresponse":   ScanResponseIdentity,
+		"policerequest":    PoliceRequestIdentity,
+		"policeresponse":   PoliceResponseIdentity,
+		"principal":        PrincipalIdentity,
+		"principalapp":     PrincipalAppIdentity,
+		"principalappuser": PrincipalAppUserIdentity,
+		"principaluser":    PrincipalUserIdentity,
+		"root":             RootIdentity,
+		"scanrequest":      ScanRequestIdentity,
+		"scanresponse":     ScanResponseIdentity,
 
 		"traceref": TraceRefIdentity,
 	}
@@ -30,14 +31,15 @@ var (
 
 		"latencies": LatencyIdentity,
 
-		"policerequests":  PoliceRequestIdentity,
-		"policeresponses": PoliceResponseIdentity,
-		"principals":      PrincipalIdentity,
-		"principalapps":   PrincipalAppIdentity,
-		"principalusers":  PrincipalUserIdentity,
-		"root":            RootIdentity,
-		"scanrequests":    ScanRequestIdentity,
-		"scanresponses":   ScanResponseIdentity,
+		"policerequests":    PoliceRequestIdentity,
+		"policeresponses":   PoliceResponseIdentity,
+		"principals":        PrincipalIdentity,
+		"principalapps":     PrincipalAppIdentity,
+		"principalappusers": PrincipalAppUserIdentity,
+		"principalusers":    PrincipalUserIdentity,
+		"root":              RootIdentity,
+		"scanrequests":      ScanRequestIdentity,
+		"scanresponses":     ScanResponseIdentity,
 
 		"tracerefs": TraceRefIdentity,
 	}
@@ -45,17 +47,18 @@ var (
 	aliasesMap = map[string]elemental.Identity{}
 
 	indexesMap = map[string][][]string{
-		"analyzer":       nil,
-		"latency":        nil,
-		"policerequest":  nil,
-		"policeresponse": nil,
-		"principal":      nil,
-		"principalapp":   nil,
-		"principaluser":  nil,
-		"root":           nil,
-		"scanrequest":    nil,
-		"scanresponse":   nil,
-		"traceref":       nil,
+		"analyzer":         nil,
+		"latency":          nil,
+		"policerequest":    nil,
+		"policeresponse":   nil,
+		"principal":        nil,
+		"principalapp":     nil,
+		"principalappuser": nil,
+		"principaluser":    nil,
+		"root":             nil,
+		"scanrequest":      nil,
+		"scanresponse":     nil,
+		"traceref":         nil,
 	}
 )
 
@@ -108,6 +111,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewPrincipal()
 	case PrincipalAppIdentity:
 		return NewPrincipalApp()
+	case PrincipalAppUserIdentity:
+		return NewPrincipalAppUser()
 	case PrincipalUserIdentity:
 		return NewPrincipalUser()
 	case RootIdentity:
@@ -139,6 +144,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparsePrincipal()
 	case PrincipalAppIdentity:
 		return NewSparsePrincipalApp()
+	case PrincipalAppUserIdentity:
+		return NewSparsePrincipalAppUser()
 	case PrincipalUserIdentity:
 		return NewSparsePrincipalUser()
 	case ScanRequestIdentity:
@@ -178,6 +185,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &PrincipalsList{}
 	case PrincipalAppIdentity:
 		return &PrincipalAppsList{}
+	case PrincipalAppUserIdentity:
+		return &PrincipalAppUsersList{}
 	case PrincipalUserIdentity:
 		return &PrincipalUsersList{}
 	case ScanRequestIdentity:
@@ -207,6 +216,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparsePrincipalsList{}
 	case PrincipalAppIdentity:
 		return &SparsePrincipalAppsList{}
+	case PrincipalAppUserIdentity:
+		return &SparsePrincipalAppUsersList{}
 	case PrincipalUserIdentity:
 		return &SparsePrincipalUsersList{}
 	case ScanRequestIdentity:
@@ -294,6 +305,7 @@ func AllIdentities() []elemental.Identity {
 		PoliceResponseIdentity,
 		PrincipalIdentity,
 		PrincipalAppIdentity,
+		PrincipalAppUserIdentity,
 		PrincipalUserIdentity,
 		RootIdentity,
 		ScanRequestIdentity,
@@ -317,6 +329,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case PrincipalIdentity:
 		return []string{}
 	case PrincipalAppIdentity:
+		return []string{}
+	case PrincipalAppUserIdentity:
 		return []string{}
 	case PrincipalUserIdentity:
 		return []string{}

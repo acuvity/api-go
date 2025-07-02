@@ -1,0 +1,47 @@
+{
+  "$extends": [],
+  "$friendlyName": "TLS State",
+  "$friendlyNamePlural": "TLS States",
+  "$modelName": "TLSState",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "tlsstates",
+  "$modelRestName": "tlsstate",
+  "additionalProperties": false,
+  "description": "Represents the TLS state of a connection.",
+  "properties": {
+    "ALPNNegotiatedProtocol": {
+      "$friendlyName": "ALPN Negotiated Protocol",
+      "description": "The application protocol being used that was negotiated with ALPN for this connection.",
+      "title": "ALPNNegotiatedProtocol",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "cipherSuite": {
+      "$friendlyName": "Cipher Suite",
+      "$required": true,
+      "description": "The negotiated cipher suite of the connection.",
+      "title": "cipherSuite",
+      "type": "string"
+    },
+    "version": {
+      "$friendlyName": "Version",
+      "$required": true,
+      "description": "The TLS protocol version used for the connection.",
+      "enum": [
+        "TLS10",
+        "TLS11",
+        "TLS12",
+        "TLS13"
+      ],
+      "title": "version"
+    }
+  },
+  "required": [
+    "cipherSuite",
+    "version"
+  ],
+  "title": "TLSState",
+  "type": "object"
+}

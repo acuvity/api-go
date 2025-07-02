@@ -29,6 +29,9 @@ const (
 	// APIAuthorizationRoleEmployee represents the value Employee.
 	APIAuthorizationRoleEmployee APIAuthorizationRoleValue = "Employee"
 
+	// APIAuthorizationRoleOpenTelemetryCollector represents the value OpenTelemetryCollector.
+	APIAuthorizationRoleOpenTelemetryCollector APIAuthorizationRoleValue = "OpenTelemetryCollector"
+
 	// APIAuthorizationRoleOwner represents the value Owner.
 	APIAuthorizationRoleOwner APIAuthorizationRoleValue = "Owner"
 
@@ -501,13 +504,10 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"}, false); err != nil {
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateAuthorizationSubject("subject", o.Subject); err != nil {
-		errors = errors.Append(err)
-	}
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}
@@ -699,7 +699,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"Role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -868,7 +868,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "Owner", "Proxy", "Trial", "Viewer"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,

@@ -13,17 +13,17 @@ import (
 
 // ExtractionSummary represents the model of a extractionsummary
 type ExtractionSummary struct {
-	// The PIIs found during classification.
-	PIIs map[string]ExtractionInformation `json:"PIIs,omitempty" msgpack:"PIIs,omitempty" bson:"piis,omitempty" mapstructure:"PIIs,omitempty"`
-
 	// The categories are remapping of the modalities in a more human friendly way.
 	Categories map[string]ExtractionInformation `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
-	// The data sets.
-	CustomDataSets map[string]ExtractionInformation `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"customdatasets,omitempty" mapstructure:"customDataSets,omitempty"`
+	// The detected confidence levels.
+	ConfidenceLevels map[string]ExtractionInformation `json:"confidenceLevels,omitempty" msgpack:"confidenceLevels,omitempty" bson:"confidencelevels,omitempty" mapstructure:"confidenceLevels,omitempty"`
 
-	// The data types.
-	CustomDataTypes map[string]ExtractionInformation `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"customdatatypes,omitempty" mapstructure:"customDataTypes,omitempty"`
+	// The detected datasets.
+	DataSets map[string]ExtractionInformation `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
+
+	// The detected dataTypes.
+	DataTypes map[string]ExtractionInformation `json:"dataTypes,omitempty" msgpack:"dataTypes,omitempty" bson:"datatypes,omitempty" mapstructure:"dataTypes,omitempty"`
 
 	// The various exploits attempts.
 	Exploits map[string]ExtractionInformation `json:"exploits,omitempty" msgpack:"exploits,omitempty" bson:"exploits,omitempty" mapstructure:"exploits,omitempty"`
@@ -42,9 +42,6 @@ type ExtractionSummary struct {
 
 	// The modalities of data detected in the data.
 	Modalities map[string]ExtractionInformation `json:"modalities,omitempty" msgpack:"modalities,omitempty" bson:"modalities,omitempty" mapstructure:"modalities,omitempty"`
-
-	// The secrets found during classification.
-	Secrets map[string]ExtractionInformation `json:"secrets,omitempty" msgpack:"secrets,omitempty" bson:"secrets,omitempty" mapstructure:"secrets,omitempty"`
 
 	// The topic of the classification.
 	Topics map[string]ExtractionInformation `json:"topics,omitempty" msgpack:"topics,omitempty" bson:"topics,omitempty" mapstructure:"topics,omitempty"`
@@ -70,17 +67,16 @@ func (o *ExtractionSummary) GetBSON() (any, error) {
 
 	s := &mongoAttributesExtractionSummary{}
 
-	s.PIIs = o.PIIs
 	s.Categories = o.Categories
-	s.CustomDataSets = o.CustomDataSets
-	s.CustomDataTypes = o.CustomDataTypes
+	s.ConfidenceLevels = o.ConfidenceLevels
+	s.DataSets = o.DataSets
+	s.DataTypes = o.DataTypes
 	s.Exploits = o.Exploits
 	s.Intent = o.Intent
 	s.Keywords = o.Keywords
 	s.Languages = o.Languages
 	s.Malcontents = o.Malcontents
 	s.Modalities = o.Modalities
-	s.Secrets = o.Secrets
 	s.Topics = o.Topics
 
 	return s, nil
@@ -99,17 +95,16 @@ func (o *ExtractionSummary) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.PIIs = s.PIIs
 	o.Categories = s.Categories
-	o.CustomDataSets = s.CustomDataSets
-	o.CustomDataTypes = s.CustomDataTypes
+	o.ConfidenceLevels = s.ConfidenceLevels
+	o.DataSets = s.DataSets
+	o.DataTypes = s.DataTypes
 	o.Exploits = s.Exploits
 	o.Intent = s.Intent
 	o.Keywords = s.Keywords
 	o.Languages = s.Languages
 	o.Malcontents = s.Malcontents
 	o.Modalities = s.Modalities
-	o.Secrets = s.Secrets
 	o.Topics = s.Topics
 
 	return nil
@@ -185,14 +180,14 @@ func (*ExtractionSummary) AttributeSpecifications() map[string]elemental.Attribu
 func (o *ExtractionSummary) ValueForAttribute(name string) any {
 
 	switch name {
-	case "PIIs":
-		return o.PIIs
 	case "categories":
 		return o.Categories
-	case "customDataSets":
-		return o.CustomDataSets
-	case "customDataTypes":
-		return o.CustomDataTypes
+	case "confidenceLevels":
+		return o.ConfidenceLevels
+	case "dataSets":
+		return o.DataSets
+	case "dataTypes":
+		return o.DataTypes
 	case "exploits":
 		return o.Exploits
 	case "intent":
@@ -205,8 +200,6 @@ func (o *ExtractionSummary) ValueForAttribute(name string) any {
 		return o.Malcontents
 	case "modalities":
 		return o.Modalities
-	case "secrets":
-		return o.Secrets
 	case "topics":
 		return o.Topics
 	}
@@ -216,17 +209,6 @@ func (o *ExtractionSummary) ValueForAttribute(name string) any {
 
 // ExtractionSummaryAttributesMap represents the map of attribute for ExtractionSummary.
 var ExtractionSummaryAttributesMap = map[string]elemental.AttributeSpecification{
-	"PIIs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "piis",
-		ConvertedName:  "PIIs",
-		Description:    `The PIIs found during classification.`,
-		Exposed:        true,
-		Name:           "PIIs",
-		Stored:         true,
-		SubType:        "map[string]extractioninformation",
-		Type:           "external",
-	},
 	"Categories": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "categories",
@@ -238,24 +220,35 @@ var ExtractionSummaryAttributesMap = map[string]elemental.AttributeSpecification
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"CustomDataSets": {
+	"ConfidenceLevels": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "customdatasets",
-		ConvertedName:  "CustomDataSets",
-		Description:    `The data sets.`,
+		BSONFieldName:  "confidencelevels",
+		ConvertedName:  "ConfidenceLevels",
+		Description:    `The detected confidence levels.`,
 		Exposed:        true,
-		Name:           "customDataSets",
+		Name:           "confidenceLevels",
 		Stored:         true,
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"CustomDataTypes": {
+	"DataSets": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "customdatatypes",
-		ConvertedName:  "CustomDataTypes",
-		Description:    `The data types.`,
+		BSONFieldName:  "datasets",
+		ConvertedName:  "DataSets",
+		Description:    `The detected datasets.`,
 		Exposed:        true,
-		Name:           "customDataTypes",
+		Name:           "dataSets",
+		Stored:         true,
+		SubType:        "map[string]extractioninformation",
+		Type:           "external",
+	},
+	"DataTypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datatypes",
+		ConvertedName:  "DataTypes",
+		Description:    `The detected dataTypes.`,
+		Exposed:        true,
+		Name:           "dataTypes",
 		Stored:         true,
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
@@ -326,17 +319,6 @@ var ExtractionSummaryAttributesMap = map[string]elemental.AttributeSpecification
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"Secrets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "secrets",
-		ConvertedName:  "Secrets",
-		Description:    `The secrets found during classification.`,
-		Exposed:        true,
-		Name:           "secrets",
-		Stored:         true,
-		SubType:        "map[string]extractioninformation",
-		Type:           "external",
-	},
 	"Topics": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "topics",
@@ -352,17 +334,6 @@ var ExtractionSummaryAttributesMap = map[string]elemental.AttributeSpecification
 
 // ExtractionSummaryLowerCaseAttributesMap represents the map of attribute for ExtractionSummary.
 var ExtractionSummaryLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"piis": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "piis",
-		ConvertedName:  "PIIs",
-		Description:    `The PIIs found during classification.`,
-		Exposed:        true,
-		Name:           "PIIs",
-		Stored:         true,
-		SubType:        "map[string]extractioninformation",
-		Type:           "external",
-	},
 	"categories": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "categories",
@@ -374,24 +345,35 @@ var ExtractionSummaryLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"customdatasets": {
+	"confidencelevels": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "customdatasets",
-		ConvertedName:  "CustomDataSets",
-		Description:    `The data sets.`,
+		BSONFieldName:  "confidencelevels",
+		ConvertedName:  "ConfidenceLevels",
+		Description:    `The detected confidence levels.`,
 		Exposed:        true,
-		Name:           "customDataSets",
+		Name:           "confidenceLevels",
 		Stored:         true,
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"customdatatypes": {
+	"datasets": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "customdatatypes",
-		ConvertedName:  "CustomDataTypes",
-		Description:    `The data types.`,
+		BSONFieldName:  "datasets",
+		ConvertedName:  "DataSets",
+		Description:    `The detected datasets.`,
 		Exposed:        true,
-		Name:           "customDataTypes",
+		Name:           "dataSets",
+		Stored:         true,
+		SubType:        "map[string]extractioninformation",
+		Type:           "external",
+	},
+	"datatypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datatypes",
+		ConvertedName:  "DataTypes",
+		Description:    `The detected dataTypes.`,
+		Exposed:        true,
+		Name:           "dataTypes",
 		Stored:         true,
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
@@ -462,17 +444,6 @@ var ExtractionSummaryLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
-	"secrets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "secrets",
-		ConvertedName:  "Secrets",
-		Description:    `The secrets found during classification.`,
-		Exposed:        true,
-		Name:           "secrets",
-		Stored:         true,
-		SubType:        "map[string]extractioninformation",
-		Type:           "external",
-	},
 	"topics": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "topics",
@@ -487,16 +458,15 @@ var ExtractionSummaryLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 }
 
 type mongoAttributesExtractionSummary struct {
-	PIIs            map[string]ExtractionInformation `bson:"piis,omitempty"`
-	Categories      map[string]ExtractionInformation `bson:"categories,omitempty"`
-	CustomDataSets  map[string]ExtractionInformation `bson:"customdatasets,omitempty"`
-	CustomDataTypes map[string]ExtractionInformation `bson:"customdatatypes,omitempty"`
-	Exploits        map[string]ExtractionInformation `bson:"exploits,omitempty"`
-	Intent          map[string]ExtractionInformation `bson:"intent,omitempty"`
-	Keywords        map[string]ExtractionInformation `bson:"keywords,omitempty"`
-	Languages       map[string]ExtractionInformation `bson:"languages,omitempty"`
-	Malcontents     map[string]ExtractionInformation `bson:"malcontents,omitempty"`
-	Modalities      map[string]ExtractionInformation `bson:"modalities,omitempty"`
-	Secrets         map[string]ExtractionInformation `bson:"secrets,omitempty"`
-	Topics          map[string]ExtractionInformation `bson:"topics,omitempty"`
+	Categories       map[string]ExtractionInformation `bson:"categories,omitempty"`
+	ConfidenceLevels map[string]ExtractionInformation `bson:"confidencelevels,omitempty"`
+	DataSets         map[string]ExtractionInformation `bson:"datasets,omitempty"`
+	DataTypes        map[string]ExtractionInformation `bson:"datatypes,omitempty"`
+	Exploits         map[string]ExtractionInformation `bson:"exploits,omitempty"`
+	Intent           map[string]ExtractionInformation `bson:"intent,omitempty"`
+	Keywords         map[string]ExtractionInformation `bson:"keywords,omitempty"`
+	Languages        map[string]ExtractionInformation `bson:"languages,omitempty"`
+	Malcontents      map[string]ExtractionInformation `bson:"malcontents,omitempty"`
+	Modalities       map[string]ExtractionInformation `bson:"modalities,omitempty"`
+	Topics           map[string]ExtractionInformation `bson:"topics,omitempty"`
 }

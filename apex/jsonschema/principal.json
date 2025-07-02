@@ -50,14 +50,17 @@
       "title": "claims",
       "type": "array"
     },
-    "team": {
-      "$friendlyName": "Team",
-      "description": "The team that was used to authorize the request.",
-      "title": "team",
-      "type": [
-        "string",
-        "null"
-      ]
+    "teams": {
+      "$friendlyName": "Teams",
+      "description": "The teams that were used to authorize the request.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "teams",
+      "type": "array"
     },
     "tokenName": {
       "$friendlyName": "Token Name",

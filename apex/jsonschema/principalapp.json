@@ -38,6 +38,12 @@
         "string",
         "null"
       ]
+    },
+    "user": {
+      "$friendlyName": "User",
+      "$ref": "principalappuser.json",
+      "description": "The optional user information of the application request.",
+      "title": "user"
     }
   },
   "required": [],

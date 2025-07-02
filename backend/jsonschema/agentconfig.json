@@ -43,6 +43,15 @@
         "null"
       ]
     },
+    "attendedUpgrades": {
+      "$friendlyName": "Attended Upgrades",
+      "description": "If true, upgrades will only take place with user confirmation.",
+      "title": "attendedUpgrades",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "configRefreshInterval": {
       "$defaultValue": "1h",
       "$friendlyName": "Configuration Refresh Interval",
@@ -174,7 +183,7 @@
       ]
     },
     "pingInterval": {
-      "$defaultValue": "10m",
+      "$defaultValue": "6h",
       "$friendlyName": "Ping Interval",
       "description": "The ping interval at which acushield should check in with the backend.",
       "title": "pingInterval",
@@ -182,6 +191,17 @@
         "string",
         "null"
       ]
+    },
+    "releaseTrain": {
+      "$defaultValue": "Stable",
+      "$friendlyName": "Release Train",
+      "description": "The release train to follow when updating. Manual means it will not auto-update, essentially pinning to a version.",
+      "enum": [
+        "Manual",
+        "Unstable",
+        "Stable"
+      ],
+      "title": "releaseTrain"
     },
     "scanDisabled": {
       "$friendlyName": "Scan Disabled",

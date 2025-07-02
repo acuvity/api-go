@@ -102,11 +102,11 @@ type ProxyConf struct {
 	// The computed content policy.
 	ContentPolicy string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
-	// List of custom data sets.
-	CustomDataSets CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
-
 	// List of custom data types.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// List of DataSets.
+	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
 	// The extractors of the organization.
 	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -123,7 +123,7 @@ type ProxyConf struct {
 	// Tokens pool to authenticate with the provider.
 	Tokens map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
-	// The web extension configurations.
+	// The WebExtension configurations.
 	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -248,8 +248,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AgentConfigs:        &o.AgentConfigs,
 			AssignPolicy:        &o.AssignPolicy,
 			ContentPolicy:       &o.ContentPolicy,
-			CustomDataSets:      &o.CustomDataSets,
 			CustomDataTypes:     &o.CustomDataTypes,
+			DataSets:            &o.DataSets,
 			Extractors:          &o.Extractors,
 			Namespace:           &o.Namespace,
 			OrgSettings:         o.OrgSettings,
@@ -274,10 +274,10 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AssignPolicy = &(o.AssignPolicy)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
-		case "customDataSets":
-			sp.CustomDataSets = &(o.CustomDataSets)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "dataSets":
+			sp.DataSets = &(o.DataSets)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
 		case "namespace":
@@ -321,11 +321,11 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
 	}
-	if so.CustomDataSets != nil {
-		o.CustomDataSets = *so.CustomDataSets
-	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.DataSets != nil {
+		o.DataSets = *so.DataSets
 	}
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
@@ -397,7 +397,7 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
-	for _, sub := range o.CustomDataSets {
+	for _, sub := range o.CustomDataTypes {
 		if sub == nil {
 			continue
 		}
@@ -407,7 +407,7 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
-	for _, sub := range o.CustomDataTypes {
+	for _, sub := range o.DataSets {
 		if sub == nil {
 			continue
 		}
@@ -500,10 +500,10 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.AssignPolicy
 	case "contentPolicy":
 		return o.ContentPolicy
-	case "customDataSets":
-		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "dataSets":
+		return o.DataSets
 	case "extractors":
 		return o.Extractors
 	case "namespace":
@@ -580,15 +580,6 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "contentPolicy",
 		Type:           "string",
 	},
-	"CustomDataSets": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CustomDataSets",
-		Description:    `List of custom data sets.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		SubType:        "customdataset",
-		Type:           "refList",
-	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
 		ConvertedName:  "CustomDataTypes",
@@ -596,6 +587,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"DataSets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DataSets",
+		Description:    `List of DataSets.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"Extractors": {
@@ -652,7 +652,7 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 	"WebExtensionConfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "WebExtensionConfigs",
-		Description:    `The web extension configurations.`,
+		Description:    `The WebExtension configurations.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
@@ -719,15 +719,6 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Name:           "contentPolicy",
 		Type:           "string",
 	},
-	"customdatasets": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CustomDataSets",
-		Description:    `List of custom data sets.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		SubType:        "customdataset",
-		Type:           "refList",
-	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
 		ConvertedName:  "CustomDataTypes",
@@ -735,6 +726,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"datasets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DataSets",
+		Description:    `List of DataSets.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"extractors": {
@@ -791,7 +791,7 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 	"webextensionconfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "WebExtensionConfigs",
-		Description:    `The web extension configurations.`,
+		Description:    `The WebExtension configurations.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
@@ -880,11 +880,11 @@ type SparseProxyConf struct {
 	// The computed content policy.
 	ContentPolicy *string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
-	// List of custom data sets.
-	CustomDataSets *CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
-
 	// List of custom data types.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// List of DataSets.
+	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
 	// The extractors of the organization.
 	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -901,7 +901,7 @@ type SparseProxyConf struct {
 	// Tokens pool to authenticate with the provider.
 	Tokens *map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
-	// The web extension configurations.
+	// The WebExtension configurations.
 	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -1007,11 +1007,11 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
 	}
-	if o.CustomDataSets != nil {
-		out.CustomDataSets = *o.CustomDataSets
-	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.DataSets != nil {
+		out.DataSets = *o.DataSets
 	}
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors

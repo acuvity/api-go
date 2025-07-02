@@ -7,14 +7,14 @@
     "@auto-propagated",
     "@namelinkable"
   ],
-  "$friendlyName": "Custom Data Set",
-  "$friendlyNamePlural": "Custom Data Sets",
-  "$modelName": "CustomDataSet",
+  "$friendlyName": "DataSet",
+  "$friendlyNamePlural": "DataSets",
+  "$modelName": "DataSet",
   "$modelPackage": "lain",
-  "$modelResourceName": "customdatasets",
-  "$modelRestName": "customdataset",
+  "$modelResourceName": "datasets",
+  "$modelRestName": "dataset",
   "additionalProperties": false,
-  "description": "Allows to create a custom data set.",
+  "description": "Allows to create a dataSet.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -50,7 +50,7 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "Description of the custom data set.",
+      "description": "Description of the dataSet.",
       "title": "description",
       "type": [
         "string",
@@ -118,7 +118,7 @@
     "sensitivity": {
       "$defaultValue": "High",
       "$friendlyName": "Sensitivity",
-      "description": "Describe the sensitity of the dataset.",
+      "description": "Describe the sensitity of the dataSet.",
       "enum": [
         "Low",
         "Medium",
@@ -140,6 +140,6 @@
   "required": [
     "friendlyName"
   ],
-  "title": "CustomDataSet",
+  "title": "DataSet",
   "type": "object"
 }

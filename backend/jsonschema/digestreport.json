@@ -1,0 +1,86 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@sharded",
+    "@timed"
+  ],
+  "$friendlyName": "Digest Report",
+  "$friendlyNamePlural": "Digest Reports",
+  "$modelName": "DigestReport",
+  "$modelPackage": "relae",
+  "$modelResourceName": "digestreports",
+  "$modelRestName": "digestreport",
+  "additionalProperties": false,
+  "description": "Represents a digest report configuration.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the digest report.",
+      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "results": {
+      "$friendlyName": "Results",
+      "$readOnly": true,
+      "description": "The results of the queries ran.",
+      "items": {
+        "items": {
+          "additionalProperties": {
+            "type": "object"
+          },
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "title": "results",
+      "type": "object"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "DigestReport",
+  "type": "object"
+}

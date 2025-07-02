@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Policy Reference",
+  "$friendlyNamePlural": "Policy References",
+  "$modelName": "PolicyRef",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "policyrefs",
+  "$modelRestName": "policyref",
+  "additionalProperties": false,
+  "description": "Reference a policy.",
+  "properties": {
+    "matchingTeams": {
+      "$friendlyName": "Matching Teams",
+      "description": "Teams that were used to trigger this policy.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "matchingTeams",
+      "type": "array"
+    },
+    "policyID": {
+      "$friendlyName": "Policy ID",
+      "$required": true,
+      "description": "The ID of the referenced policy.",
+      "title": "policyID",
+      "type": "string"
+    },
+    "policyIdentity": {
+      "$friendlyName": "Policy Identity",
+      "$required": true,
+      "description": "The identity name of the referenced policy.",
+      "title": "policyIdentity",
+      "type": "string"
+    },
+    "policyName": {
+      "$friendlyName": "Policy Name",
+      "$required": true,
+      "description": "The name of the referenced policy.",
+      "title": "policyName",
+      "type": "string"
+    },
+    "policyNamespace": {
+      "$friendlyName": "Policy Namespasce",
+      "$required": true,
+      "description": "The namespace of the referenced policy.",
+      "title": "policyNamespace",
+      "type": "string"
+    }
+  },
+  "required": [
+    "policyID",
+    "policyIdentity",
+    "policyName",
+    "policyNamespace"
+  ],
+  "title": "PolicyRef",
+  "type": "object"
+}

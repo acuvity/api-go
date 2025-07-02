@@ -9,6 +9,7 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
+	"go.acuvity.ai/a3s/pkgs/api"
 	"go.acuvity.ai/elemental"
 )
 
@@ -90,8 +91,20 @@ type Import struct {
 	// APIAuthorizations to import.
 	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
 
+	// LDAP Sources to import.
+	LDAPSources api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"-" mapstructure:"LDAPSources,omitempty"`
+
+	// MTLS Sources to import.
+	MTLSSources api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"-" mapstructure:"MTLSSources,omitempty"`
+
+	// OIDC Sources to import.
+	OIDCSources api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"-" mapstructure:"OIDCSources,omitempty"`
+
 	// PACConfigs to import.
 	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
+
+	// SAML Sources to import.
+	SAMLSources api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"-" mapstructure:"SAMLSources,omitempty"`
 
 	// Access policies to import.
 	AccessPolicies AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"-" mapstructure:"accessPolicies,omitempty"`
@@ -108,11 +121,11 @@ type Import struct {
 	// Content policies to import.
 	ContentPolicies ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
 
-	// Custom Data Sets to import.
-	CustomDataSets CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
-
 	// Custom Data Types to import.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// DataSets to import.
+	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
 	// Extractors to import.
 	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -148,7 +161,7 @@ type Import struct {
 	// Visited URLs to import.
 	Visitedurls VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"-" mapstructure:"visitedurls,omitempty"`
 
-	// Web Extension configurations to import.
+	// WebExtension configurations to import.
 	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -161,14 +174,18 @@ func NewImport() *Import {
 		ModelVersion:        1,
 		AIDomains:           AIDomainsList{},
 		APIAuthorizations:   APIAuthorizationsList{},
+		LDAPSources:         api.LDAPSourcesList{},
+		MTLSSources:         api.MTLSSourcesList{},
+		OIDCSources:         api.OIDCSourcesList{},
 		PACConfigs:          PACConfigsList{},
+		SAMLSources:         api.SAMLSourcesList{},
 		AccessPolicies:      AccessPoliciesList{},
 		AgentConfigs:        AgentConfigsList{},
 		AlertDefinitions:    AlertDefinitionsList{},
 		Apps:                AppsList{},
 		ContentPolicies:     ContentPoliciesList{},
-		CustomDataSets:      CustomDataSetsList{},
 		CustomDataTypes:     CustomDataTypesList{},
+		DataSets:            DataSetsList{},
 		Extractors:          ExtractorsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
 		OrgSettings:         OrgSettingsList{},
@@ -267,14 +284,18 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseImport{
 			AIDomains:           &o.AIDomains,
 			APIAuthorizations:   &o.APIAuthorizations,
+			LDAPSources:         &o.LDAPSources,
+			MTLSSources:         &o.MTLSSources,
+			OIDCSources:         &o.OIDCSources,
 			PACConfigs:          &o.PACConfigs,
+			SAMLSources:         &o.SAMLSources,
 			AccessPolicies:      &o.AccessPolicies,
 			AgentConfigs:        &o.AgentConfigs,
 			AlertDefinitions:    &o.AlertDefinitions,
 			Apps:                &o.Apps,
 			ContentPolicies:     &o.ContentPolicies,
-			CustomDataSets:      &o.CustomDataSets,
 			CustomDataTypes:     &o.CustomDataTypes,
+			DataSets:            &o.DataSets,
 			Extractors:          &o.Extractors,
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
@@ -297,8 +318,16 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AIDomains = &(o.AIDomains)
 		case "APIAuthorizations":
 			sp.APIAuthorizations = &(o.APIAuthorizations)
+		case "LDAPSources":
+			sp.LDAPSources = &(o.LDAPSources)
+		case "MTLSSources":
+			sp.MTLSSources = &(o.MTLSSources)
+		case "OIDCSources":
+			sp.OIDCSources = &(o.OIDCSources)
 		case "PACConfigs":
 			sp.PACConfigs = &(o.PACConfigs)
+		case "SAMLSources":
+			sp.SAMLSources = &(o.SAMLSources)
 		case "accessPolicies":
 			sp.AccessPolicies = &(o.AccessPolicies)
 		case "agentConfigs":
@@ -309,10 +338,10 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Apps = &(o.Apps)
 		case "contentPolicies":
 			sp.ContentPolicies = &(o.ContentPolicies)
-		case "customDataSets":
-			sp.CustomDataSets = &(o.CustomDataSets)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "dataSets":
+			sp.DataSets = &(o.DataSets)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
 		case "ignoredDomains":
@@ -356,8 +385,20 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.APIAuthorizations != nil {
 		o.APIAuthorizations = *so.APIAuthorizations
 	}
+	if so.LDAPSources != nil {
+		o.LDAPSources = *so.LDAPSources
+	}
+	if so.MTLSSources != nil {
+		o.MTLSSources = *so.MTLSSources
+	}
+	if so.OIDCSources != nil {
+		o.OIDCSources = *so.OIDCSources
+	}
 	if so.PACConfigs != nil {
 		o.PACConfigs = *so.PACConfigs
+	}
+	if so.SAMLSources != nil {
+		o.SAMLSources = *so.SAMLSources
 	}
 	if so.AccessPolicies != nil {
 		o.AccessPolicies = *so.AccessPolicies
@@ -374,11 +415,11 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ContentPolicies != nil {
 		o.ContentPolicies = *so.ContentPolicies
 	}
-	if so.CustomDataSets != nil {
-		o.CustomDataSets = *so.CustomDataSets
-	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.DataSets != nil {
+		o.DataSets = *so.DataSets
 	}
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
@@ -528,7 +569,7 @@ func (o *Import) Validate() error {
 		}
 	}
 
-	for _, sub := range o.CustomDataSets {
+	for _, sub := range o.CustomDataTypes {
 		if sub == nil {
 			continue
 		}
@@ -538,7 +579,7 @@ func (o *Import) Validate() error {
 		}
 	}
 
-	for _, sub := range o.CustomDataTypes {
+	for _, sub := range o.DataSets {
 		if sub == nil {
 			continue
 		}
@@ -700,8 +741,16 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AIDomains
 	case "APIAuthorizations":
 		return o.APIAuthorizations
+	case "LDAPSources":
+		return o.LDAPSources
+	case "MTLSSources":
+		return o.MTLSSources
+	case "OIDCSources":
+		return o.OIDCSources
 	case "PACConfigs":
 		return o.PACConfigs
+	case "SAMLSources":
+		return o.SAMLSources
 	case "accessPolicies":
 		return o.AccessPolicies
 	case "agentConfigs":
@@ -712,10 +761,10 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Apps
 	case "contentPolicies":
 		return o.ContentPolicies
-	case "customDataSets":
-		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "dataSets":
+		return o.DataSets
 	case "extractors":
 		return o.Extractors
 	case "ignoredDomains":
@@ -765,6 +814,33 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "apiauthorization",
 		Type:           "refList",
 	},
+	"LDAPSources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "LDAPSources",
+		Description:    `LDAP Sources to import.`,
+		Exposed:        true,
+		Name:           "LDAPSources",
+		SubType:        "a3s.LDAPSources",
+		Type:           "external",
+	},
+	"MTLSSources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MTLSSources",
+		Description:    `MTLS Sources to import.`,
+		Exposed:        true,
+		Name:           "MTLSSources",
+		SubType:        "a3s.MTLSSources",
+		Type:           "external",
+	},
+	"OIDCSources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OIDCSources",
+		Description:    `OIDC Sources to import.`,
+		Exposed:        true,
+		Name:           "OIDCSources",
+		SubType:        "a3s.OIDCSources",
+		Type:           "external",
+	},
 	"PACConfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "PACConfigs",
@@ -773,6 +849,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "PACConfigs",
 		SubType:        "pacconfig",
 		Type:           "refList",
+	},
+	"SAMLSources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SAMLSources",
+		Description:    `SAML Sources to import.`,
+		Exposed:        true,
+		Name:           "SAMLSources",
+		SubType:        "a3s.SAMLSources",
+		Type:           "external",
 	},
 	"AccessPolicies": {
 		AllowedChoices: []string{},
@@ -819,15 +904,6 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "contentpolicy",
 		Type:           "refList",
 	},
-	"CustomDataSets": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CustomDataSets",
-		Description:    `Custom Data Sets to import.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		SubType:        "customdataset",
-		Type:           "refList",
-	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
 		ConvertedName:  "CustomDataTypes",
@@ -835,6 +911,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"DataSets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DataSets",
+		Description:    `DataSets to import.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"Extractors": {
@@ -940,7 +1025,7 @@ resource.`,
 	"WebExtensionConfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "WebExtensionConfigs",
-		Description:    `Web Extension configurations to import.`,
+		Description:    `WebExtension configurations to import.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
@@ -968,6 +1053,33 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "apiauthorization",
 		Type:           "refList",
 	},
+	"ldapsources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "LDAPSources",
+		Description:    `LDAP Sources to import.`,
+		Exposed:        true,
+		Name:           "LDAPSources",
+		SubType:        "a3s.LDAPSources",
+		Type:           "external",
+	},
+	"mtlssources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MTLSSources",
+		Description:    `MTLS Sources to import.`,
+		Exposed:        true,
+		Name:           "MTLSSources",
+		SubType:        "a3s.MTLSSources",
+		Type:           "external",
+	},
+	"oidcsources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OIDCSources",
+		Description:    `OIDC Sources to import.`,
+		Exposed:        true,
+		Name:           "OIDCSources",
+		SubType:        "a3s.OIDCSources",
+		Type:           "external",
+	},
 	"pacconfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "PACConfigs",
@@ -976,6 +1088,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "PACConfigs",
 		SubType:        "pacconfig",
 		Type:           "refList",
+	},
+	"samlsources": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SAMLSources",
+		Description:    `SAML Sources to import.`,
+		Exposed:        true,
+		Name:           "SAMLSources",
+		SubType:        "a3s.SAMLSources",
+		Type:           "external",
 	},
 	"accesspolicies": {
 		AllowedChoices: []string{},
@@ -1022,15 +1143,6 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "contentpolicy",
 		Type:           "refList",
 	},
-	"customdatasets": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CustomDataSets",
-		Description:    `Custom Data Sets to import.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		SubType:        "customdataset",
-		Type:           "refList",
-	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
 		ConvertedName:  "CustomDataTypes",
@@ -1038,6 +1150,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"datasets": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DataSets",
+		Description:    `DataSets to import.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"extractors": {
@@ -1143,7 +1264,7 @@ resource.`,
 	"webextensionconfigs": {
 		AllowedChoices: []string{},
 		ConvertedName:  "WebExtensionConfigs",
-		Description:    `Web Extension configurations to import.`,
+		Description:    `WebExtension configurations to import.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
 		SubType:        "webextensionconfig",
@@ -1220,8 +1341,20 @@ type SparseImport struct {
 	// APIAuthorizations to import.
 	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
 
+	// LDAP Sources to import.
+	LDAPSources *api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"-" mapstructure:"LDAPSources,omitempty"`
+
+	// MTLS Sources to import.
+	MTLSSources *api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"-" mapstructure:"MTLSSources,omitempty"`
+
+	// OIDC Sources to import.
+	OIDCSources *api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"-" mapstructure:"OIDCSources,omitempty"`
+
 	// PACConfigs to import.
 	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
+
+	// SAML Sources to import.
+	SAMLSources *api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"-" mapstructure:"SAMLSources,omitempty"`
 
 	// Access policies to import.
 	AccessPolicies *AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"-" mapstructure:"accessPolicies,omitempty"`
@@ -1238,11 +1371,11 @@ type SparseImport struct {
 	// Content policies to import.
 	ContentPolicies *ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
 
-	// Custom Data Sets to import.
-	CustomDataSets *CustomDataSetsList `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"-" mapstructure:"customDataSets,omitempty"`
-
 	// Custom Data Types to import.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// DataSets to import.
+	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
 	// Extractors to import.
 	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -1278,7 +1411,7 @@ type SparseImport struct {
 	// Visited URLs to import.
 	Visitedurls *VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"-" mapstructure:"visitedurls,omitempty"`
 
-	// Web Extension configurations to import.
+	// WebExtension configurations to import.
 	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -1351,8 +1484,20 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.APIAuthorizations != nil {
 		out.APIAuthorizations = *o.APIAuthorizations
 	}
+	if o.LDAPSources != nil {
+		out.LDAPSources = *o.LDAPSources
+	}
+	if o.MTLSSources != nil {
+		out.MTLSSources = *o.MTLSSources
+	}
+	if o.OIDCSources != nil {
+		out.OIDCSources = *o.OIDCSources
+	}
 	if o.PACConfigs != nil {
 		out.PACConfigs = *o.PACConfigs
+	}
+	if o.SAMLSources != nil {
+		out.SAMLSources = *o.SAMLSources
 	}
 	if o.AccessPolicies != nil {
 		out.AccessPolicies = *o.AccessPolicies
@@ -1369,11 +1514,11 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.ContentPolicies != nil {
 		out.ContentPolicies = *o.ContentPolicies
 	}
-	if o.CustomDataSets != nil {
-		out.CustomDataSets = *o.CustomDataSets
-	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.DataSets != nil {
+		out.DataSets = *o.DataSets
 	}
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors

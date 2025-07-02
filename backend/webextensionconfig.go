@@ -88,7 +88,7 @@ type WebExtensionConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Allows the web extension to set the proxy settings of the employee's browser.
+	// Allows the WebExtension to set the proxy settings of the employee's browser.
 	AllowProxySettings bool `json:"allowProxySettings" msgpack:"allowProxySettings" bson:"allowproxysettings" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
@@ -111,7 +111,7 @@ type WebExtensionConfig struct {
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// Defines the refresh interval in minutes for the configuration of the deployed
-	// web extensions.
+	// WebExtensions.
 	RefreshWebExtensionConfigInterval int `json:"refreshWebExtensionConfigInterval" msgpack:"refreshWebExtensionConfigInterval" bson:"refreshwebextensionconfiginterval" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
 	// Define the interval in minutes between two reports of the visited URLs.
@@ -561,7 +561,7 @@ var WebExtensionConfigAttributesMap = map[string]elemental.AttributeSpecificatio
 		AllowedChoices: []string{},
 		BSONFieldName:  "allowproxysettings",
 		ConvertedName:  "AllowProxySettings",
-		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
+		Description:    `Allows the WebExtension to set the proxy settings of the employee's browser.`,
 		Exposed:        true,
 		Name:           "allowProxySettings",
 		Stored:         true,
@@ -652,7 +652,7 @@ same import operation.`,
 		ConvertedName:  "RefreshWebExtensionConfigInterval",
 		DefaultValue:   120,
 		Description: `Defines the refresh interval in minutes for the configuration of the deployed
-web extensions.`,
+WebExtensions.`,
 		Exposed:  true,
 		MinValue: 1,
 		Name:     "refreshWebExtensionConfigInterval",
@@ -722,7 +722,7 @@ var WebExtensionConfigLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		AllowedChoices: []string{},
 		BSONFieldName:  "allowproxysettings",
 		ConvertedName:  "AllowProxySettings",
-		Description:    `Allows the web extension to set the proxy settings of the employee's browser.`,
+		Description:    `Allows the WebExtension to set the proxy settings of the employee's browser.`,
 		Exposed:        true,
 		Name:           "allowProxySettings",
 		Stored:         true,
@@ -813,7 +813,7 @@ same import operation.`,
 		ConvertedName:  "RefreshWebExtensionConfigInterval",
 		DefaultValue:   120,
 		Description: `Defines the refresh interval in minutes for the configuration of the deployed
-web extensions.`,
+WebExtensions.`,
 		Exposed:  true,
 		MinValue: 1,
 		Name:     "refreshWebExtensionConfigInterval",
@@ -928,7 +928,7 @@ type SparseWebExtensionConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Allows the web extension to set the proxy settings of the employee's browser.
+	// Allows the WebExtension to set the proxy settings of the employee's browser.
 	AllowProxySettings *bool `json:"allowProxySettings,omitempty" msgpack:"allowProxySettings,omitempty" bson:"allowproxysettings,omitempty" mapstructure:"allowProxySettings,omitempty"`
 
 	// Creation date of the object.
@@ -951,7 +951,7 @@ type SparseWebExtensionConfig struct {
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// Defines the refresh interval in minutes for the configuration of the deployed
-	// web extensions.
+	// WebExtensions.
 	RefreshWebExtensionConfigInterval *int `json:"refreshWebExtensionConfigInterval,omitempty" msgpack:"refreshWebExtensionConfigInterval,omitempty" bson:"refreshwebextensionconfiginterval,omitempty" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
 	// Define the interval in minutes between two reports of the visited URLs.

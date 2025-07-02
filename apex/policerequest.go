@@ -135,7 +135,7 @@ type PoliceRequest struct {
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
-	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type PoliceRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -974,7 +974,7 @@ type mongoAttributesPoliceRequest struct {
 	BypassHash    string                          `bson:"bypasshash,omitempty"`
 	Model         string                          `bson:"model,omitempty"`
 	Tools         map[string]*Tool                `bson:"tools,omitempty"`
-	Trace         *TraceRef                       `bson:"trace"`
+	Trace         *TraceRef                       `bson:"trace,omitempty"`
 	Type          PoliceRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparsePoliceRequest struct {

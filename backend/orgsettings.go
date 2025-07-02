@@ -157,6 +157,9 @@ type OrgSettings struct {
 	// The providers which do not request employees' consent.
 	ProvidersWithoutConsent []string `json:"providersWithoutConsent" msgpack:"providersWithoutConsent" bson:"providerswithoutconsent" mapstructure:"providersWithoutConsent,omitempty"`
 
+	// The list of email recipients where digest reports will be sent to.
+	ReportRecipientEmails []string `json:"reportRecipientEmails" msgpack:"reportRecipientEmails" bson:"reportrecipientemails" mapstructure:"reportRecipientEmails,omitempty"`
+
 	// A link to the AI Safe Usage Document for the organization.
 	// If provided, it is presented in the consent banner to the employees.
 	SafeUsageURL string `json:"safeUsageURL" msgpack:"safeUsageURL" bson:"safeusageurl" mapstructure:"safeUsageURL,omitempty"`
@@ -195,6 +198,7 @@ func NewOrgSettings() *OrgSettings {
 		Fingerprints:            []string{},
 		Propagate:               true,
 		ProvidersWithoutConsent: []string{},
+		ReportRecipientEmails:   []string{},
 		SubjectKeyIDs:           []string{},
 	}
 }
@@ -246,6 +250,7 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.Profile = o.Profile
 	s.Propagate = o.Propagate
 	s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
+	s.ReportRecipientEmails = o.ReportRecipientEmails
 	s.SafeUsageURL = o.SafeUsageURL
 	s.StoreInputFiles = o.StoreInputFiles
 	s.StoreOutputFiles = o.StoreOutputFiles
@@ -288,6 +293,7 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.Profile = s.Profile
 	o.Propagate = s.Propagate
 	o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
+	o.ReportRecipientEmails = s.ReportRecipientEmails
 	o.SafeUsageURL = s.SafeUsageURL
 	o.StoreInputFiles = s.StoreInputFiles
 	o.StoreOutputFiles = s.StoreOutputFiles
@@ -425,6 +431,7 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Profile:                 &o.Profile,
 			Propagate:               &o.Propagate,
 			ProvidersWithoutConsent: &o.ProvidersWithoutConsent,
+			ReportRecipientEmails:   &o.ReportRecipientEmails,
 			SafeUsageURL:            &o.SafeUsageURL,
 			StoreInputFiles:         &o.StoreInputFiles,
 			StoreOutputFiles:        &o.StoreOutputFiles,
@@ -473,6 +480,8 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Propagate = &(o.Propagate)
 		case "providersWithoutConsent":
 			sp.ProvidersWithoutConsent = &(o.ProvidersWithoutConsent)
+		case "reportRecipientEmails":
+			sp.ReportRecipientEmails = &(o.ReportRecipientEmails)
 		case "safeUsageURL":
 			sp.SafeUsageURL = &(o.SafeUsageURL)
 		case "storeInputFiles":
@@ -553,6 +562,9 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ProvidersWithoutConsent != nil {
 		o.ProvidersWithoutConsent = *so.ProvidersWithoutConsent
 	}
+	if so.ReportRecipientEmails != nil {
+		o.ReportRecipientEmails = *so.ReportRecipientEmails
+	}
 	if so.SafeUsageURL != nil {
 		o.SafeUsageURL = *so.SafeUsageURL
 	}
@@ -625,6 +637,10 @@ func (o *OrgSettings) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateEmails("reportRecipientEmails", o.ReportRecipientEmails); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -693,6 +709,8 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.Propagate
 	case "providersWithoutConsent":
 		return o.ProvidersWithoutConsent
+	case "reportRecipientEmails":
+		return o.ReportRecipientEmails
 	case "safeUsageURL":
 		return o.SafeUsageURL
 	case "storeInputFiles":
@@ -936,6 +954,17 @@ sent by the users are relevant to your company.`,
 		Description:    `The providers which do not request employees' consent.`,
 		Exposed:        true,
 		Name:           "providersWithoutConsent",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"ReportRecipientEmails": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "reportrecipientemails",
+		ConvertedName:  "ReportRecipientEmails",
+		Description:    `The list of email recipients where digest reports will be sent to.`,
+		Exposed:        true,
+		Name:           "reportRecipientEmails",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
@@ -1238,6 +1267,17 @@ sent by the users are relevant to your company.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"reportrecipientemails": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "reportrecipientemails",
+		ConvertedName:  "ReportRecipientEmails",
+		Description:    `The list of email recipients where digest reports will be sent to.`,
+		Exposed:        true,
+		Name:           "reportRecipientEmails",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
 	"safeusageurl": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "safeusageurl",
@@ -1445,6 +1485,9 @@ type SparseOrgSettings struct {
 	// The providers which do not request employees' consent.
 	ProvidersWithoutConsent *[]string `json:"providersWithoutConsent,omitempty" msgpack:"providersWithoutConsent,omitempty" bson:"providerswithoutconsent,omitempty" mapstructure:"providersWithoutConsent,omitempty"`
 
+	// The list of email recipients where digest reports will be sent to.
+	ReportRecipientEmails *[]string `json:"reportRecipientEmails,omitempty" msgpack:"reportRecipientEmails,omitempty" bson:"reportrecipientemails,omitempty" mapstructure:"reportRecipientEmails,omitempty"`
+
 	// A link to the AI Safe Usage Document for the organization.
 	// If provided, it is presented in the consent banner to the employees.
 	SafeUsageURL *string `json:"safeUsageURL,omitempty" msgpack:"safeUsageURL,omitempty" bson:"safeusageurl,omitempty" mapstructure:"safeUsageURL,omitempty"`
@@ -1565,6 +1608,9 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.ProvidersWithoutConsent != nil {
 		s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
 	}
+	if o.ReportRecipientEmails != nil {
+		s.ReportRecipientEmails = o.ReportRecipientEmails
+	}
 	if o.SafeUsageURL != nil {
 		s.SafeUsageURL = o.SafeUsageURL
 	}
@@ -1656,6 +1702,9 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.ProvidersWithoutConsent != nil {
 		o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
 	}
+	if s.ReportRecipientEmails != nil {
+		o.ReportRecipientEmails = s.ReportRecipientEmails
+	}
 	if s.SafeUsageURL != nil {
 		o.SafeUsageURL = s.SafeUsageURL
 	}
@@ -1744,6 +1793,9 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ProvidersWithoutConsent != nil {
 		out.ProvidersWithoutConsent = *o.ProvidersWithoutConsent
+	}
+	if o.ReportRecipientEmails != nil {
+		out.ReportRecipientEmails = *o.ReportRecipientEmails
 	}
 	if o.SafeUsageURL != nil {
 		out.SafeUsageURL = *o.SafeUsageURL
@@ -1911,6 +1963,7 @@ type mongoAttributesOrgSettings struct {
 	Profile                 string        `bson:"profile"`
 	Propagate               bool          `bson:"propagate"`
 	ProvidersWithoutConsent []string      `bson:"providerswithoutconsent"`
+	ReportRecipientEmails   []string      `bson:"reportrecipientemails"`
 	SafeUsageURL            string        `bson:"safeusageurl"`
 	StoreInputFiles         bool          `bson:"storeinputfiles"`
 	StoreOutputFiles        bool          `bson:"storeoutputfiles"`
@@ -1938,6 +1991,7 @@ type mongoAttributesSparseOrgSettings struct {
 	Profile                 *string       `bson:"profile,omitempty"`
 	Propagate               *bool         `bson:"propagate,omitempty"`
 	ProvidersWithoutConsent *[]string     `bson:"providerswithoutconsent,omitempty"`
+	ReportRecipientEmails   *[]string     `bson:"reportrecipientemails,omitempty"`
 	SafeUsageURL            *string       `bson:"safeusageurl,omitempty"`
 	StoreInputFiles         *bool         `bson:"storeinputfiles,omitempty"`
 	StoreOutputFiles        *bool         `bson:"storeoutputfiles,omitempty"`

@@ -310,6 +310,10 @@
             "readOnly": true,
             "type": "string"
           },
+          "attendedUpgrades": {
+            "description": "If true, upgrades will only take place with user confirmation.",
+            "type": "boolean"
+          },
           "configRefreshInterval": {
             "default": "1h",
             "description": "Defines the refresh interval for the configuration of the deployed agents (i.e:\n30m, 6h).",
@@ -377,10 +381,19 @@
             "type": "boolean"
           },
           "pingInterval": {
-            "default": "10m",
+            "default": "6h",
             "description": "The ping interval at which acushield should check in with the backend.",
-            "example": "30m",
+            "example": "6h",
             "type": "string"
+          },
+          "releaseTrain": {
+            "default": "Stable",
+            "description": "The release train to follow when updating. Manual means it will not auto-update,\nessentially pinning to a version.",
+            "enum": [
+              "Manual",
+              "Unstable",
+              "Stable"
+            ]
           },
           "scanDisabled": {
             "description": "If disabled, the agent will not scan for genAI applications and plugins.",
@@ -1055,6 +1068,7 @@
               "Application",
               "Custom",
               "Employee",
+              "OpenTelemetryCollector",
               "Owner",
               "Proxy",
               "Trial",
@@ -1430,85 +1444,6 @@
         ],
         "type": "object"
       },
-      "customdataset": {
-        "description": "Allows to create a custom data set.",
-        "properties": {
-          "ID": {
-            "description": "ID is the identifier of the object.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "createTime": {
-            "description": "Creation date of the object.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          },
-          "dataTypes": {
-            "description": "A list of all the data types which are associated to this data set.",
-            "example": [
-              "ssn",
-              "person",
-              "location"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "description": {
-            "description": "Description of the custom data set.",
-            "type": "string"
-          },
-          "friendlyName": {
-            "description": "Friendly name of the object.",
-            "example": "Simple name",
-            "type": "string"
-          },
-          "importHash": {
-            "description": "The hash of the structure used to compare with new import version.",
-            "type": "string"
-          },
-          "importLabel": {
-            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
-            "type": "string"
-          },
-          "name": {
-            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
-            "example": "my-simple-policy",
-            "type": "string"
-          },
-          "namespace": {
-            "description": "The namespace of the object.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "propagate": {
-            "default": true,
-            "description": "Propagates the object to all child namespaces. This is always true.",
-            "type": "boolean"
-          },
-          "sensitivity": {
-            "default": "High",
-            "description": "Describe the sensitity of the dataset.",
-            "enum": [
-              "Low",
-              "Medium",
-              "High"
-            ]
-          },
-          "updateTime": {
-            "description": "Last update date of the object.",
-            "format": "date-time",
-            "readOnly": true,
-            "type": "string"
-          }
-        },
-        "required": [
-          "friendlyName"
-        ],
-        "type": "object"
-      },
       "customdatatype": {
         "description": "Allows to create custom data detectors.",
         "properties": {
@@ -1561,6 +1496,85 @@
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName"
+        ],
+        "type": "object"
+      },
+      "dataset": {
+        "description": "Allows to create a dataSet.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataTypes": {
+            "description": "A list of all the data types which are associated to this data set.",
+            "example": [
+              "ssn",
+              "person",
+              "location"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "Description of the dataSet.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "sensitivity": {
+            "default": "High",
+            "description": "Describe the sensitity of the dataSet.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -1738,6 +1752,56 @@
         },
         "type": "object"
       },
+      "digestreport": {
+        "description": "Represents a digest report configuration.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the digest report.",
+            "example": "Provider Usage Statistics",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "results": {
+            "description": "The results of the queries ran.",
+            "items": {
+              "items": {
+                "additionalProperties": {
+                  "type": "object"
+                },
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "readOnly": true,
+            "type": "object"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "domainhits": {
         "description": "This is a domain hit.",
         "properties": {
@@ -1821,22 +1885,6 @@
             "example": 0.9,
             "type": "number"
           },
-          "customDataSets": {
-            "description": "The custom data sets found during classification.",
-            "example": {
-              "cds": {
-                "ct1": 1,
-                "ct2": 2
-              }
-            },
-            "items": {
-              "items": {
-                "type": "float"
-              },
-              "type": "object"
-            },
-            "type": "object"
-          },
           "customDataTypes": {
             "description": "The custom data types found during classification.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
@@ -1851,6 +1899,22 @@
           "data": {
             "description": "The data extracted.",
             "type": "string"
+          },
+          "dataSets": {
+            "description": "The data sets found during classification.",
+            "example": {
+              "cds": {
+                "ct1": 1,
+                "ct2": 2
+              }
+            },
+            "items": {
+              "items": {
+                "type": "float"
+              },
+              "type": "object"
+            },
+            "type": "object"
           },
           "detections": {
             "description": "The textual detections found while applying policies.",
@@ -2006,24 +2070,24 @@
       "extractionsummary": {
         "description": "Represents the summary of the extractions.",
         "properties": {
-          "PIIs": {
-            "additionalProperties": true,
-            "description": "The PIIs found during classification.",
-            "type": "object"
-          },
           "categories": {
             "additionalProperties": true,
             "description": "The categories are remapping of the modalities in a more human friendly way.",
             "type": "object"
           },
-          "customDataSets": {
+          "confidenceLevels": {
             "additionalProperties": true,
-            "description": "The data sets.",
+            "description": "The detected confidence levels.",
             "type": "object"
           },
-          "customDataTypes": {
+          "dataSets": {
             "additionalProperties": true,
-            "description": "The data types.",
+            "description": "The detected datasets.",
+            "type": "object"
+          },
+          "dataTypes": {
+            "additionalProperties": true,
+            "description": "The detected dataTypes.",
             "type": "object"
           },
           "exploits": {
@@ -2054,11 +2118,6 @@
           "modalities": {
             "additionalProperties": true,
             "description": "The modalities of data detected in the data.",
-            "type": "object"
-          },
-          "secrets": {
-            "additionalProperties": true,
-            "description": "The secrets found during classification.",
             "type": "object"
           },
           "topics": {
@@ -2428,12 +2487,28 @@
             },
             "type": "array"
           },
+          "LDAPSources": {
+            "description": "LDAP Sources to import.",
+            "type": "object"
+          },
+          "MTLSSources": {
+            "description": "MTLS Sources to import.",
+            "type": "object"
+          },
+          "OIDCSources": {
+            "description": "OIDC Sources to import.",
+            "type": "object"
+          },
           "PACConfigs": {
             "description": "PACConfigs to import.",
             "items": {
               "$ref": "#/components/schemas/pacconfig"
             },
             "type": "array"
+          },
+          "SAMLSources": {
+            "description": "SAML Sources to import.",
+            "type": "object"
           },
           "accessPolicies": {
             "description": "Access policies to import.",
@@ -2470,17 +2545,17 @@
             },
             "type": "array"
           },
-          "customDataSets": {
-            "description": "Custom Data Sets to import.",
-            "items": {
-              "$ref": "#/components/schemas/customdataset"
-            },
-            "type": "array"
-          },
           "customDataTypes": {
             "description": "Custom Data Types to import.",
             "items": {
               "$ref": "#/components/schemas/customdatatype"
+            },
+            "type": "array"
+          },
+          "dataSets": {
+            "description": "DataSets to import.",
+            "items": {
+              "$ref": "#/components/schemas/dataset"
             },
             "type": "array"
           },
@@ -2560,7 +2635,7 @@
             "type": "array"
           },
           "webExtensionConfigs": {
-            "description": "Web Extension configurations to import.",
+            "description": "WebExtension configurations to import.",
             "items": {
               "$ref": "#/components/schemas/webextensionconfig"
             },
@@ -3358,6 +3433,17 @@
             },
             "type": "array"
           },
+          "reportRecipientEmails": {
+            "description": "The list of email recipients where digest reports will be sent to.",
+            "example": [
+              "info@acuvity.ai",
+              "me@email.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "safeUsageURL": {
             "description": "A link to the AI Safe Usage Document for the organization. \nIf provided, it is presented in the consent banner to the employees.",
             "type": "string"
@@ -3660,6 +3746,49 @@
         ],
         "type": "object"
       },
+      "policyref": {
+        "description": "Reference a policy.",
+        "properties": {
+          "matchingTeams": {
+            "description": "Teams that were used to trigger this policy.",
+            "example": [
+              "team-a",
+              "team-b"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "policyID": {
+            "description": "The ID of the referenced policy.",
+            "example": "xxx-xxx-xxx-xxx",
+            "type": "string"
+          },
+          "policyIdentity": {
+            "description": "The identity name of the referenced policy.",
+            "example": "default",
+            "type": "string"
+          },
+          "policyName": {
+            "description": "The name of the referenced policy.",
+            "example": "frontend",
+            "type": "string"
+          },
+          "policyNamespace": {
+            "description": "The namespace of the referenced policy.",
+            "example": "frontend",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policyID",
+          "policyIdentity",
+          "policyName",
+          "policyNamespace"
+        ],
+        "type": "object"
+      },
       "policyupdate": {
         "description": "Object used to notify Apexes for policy changes.",
         "properties": {
@@ -3778,10 +3907,13 @@
             },
             "type": "array"
           },
-          "team": {
-            "description": "The team that was used to authorize the request.",
+          "teams": {
+            "description": "The teams that were used to authorize the request.",
             "example": "admins",
-            "type": "string"
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "tokenName": {
             "description": "The name of the token, if any.",
@@ -3831,6 +3963,30 @@
             "description": "The name of the application.",
             "example": "MyApp",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/principalappuser"
+          }
+        },
+        "type": "object"
+      },
+      "principalappuser": {
+        "description": "Describes the optional principal information of the user of an application which\nis being derived from a bearer token of a request.",
+        "properties": {
+          "email": {
+            "description": "The Email address of the user. This will be derived from the email claims of a\ntoken like email, emailAddress or upn.",
+            "example": "john.doe@acme.com",
+            "type": "string"
+          },
+          "name": {
+            "description": "The given name of the user. This will be derived from the common name claims of\na token like name or given_name.",
+            "example": "John Doe",
+            "type": "string"
+          },
+          "tokenValidated": {
+            "description": "This will be true if the apex was able to validate the token in the request.",
+            "example": false,
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -4363,17 +4519,17 @@
             "description": "The computed content policy.",
             "type": "string"
           },
-          "customDataSets": {
-            "description": "List of custom data sets.",
-            "items": {
-              "$ref": "#/components/schemas/customdataset"
-            },
-            "type": "array"
-          },
           "customDataTypes": {
             "description": "List of custom data types.",
             "items": {
               "$ref": "#/components/schemas/customdatatype"
+            },
+            "type": "array"
+          },
+          "dataSets": {
+            "description": "List of DataSets.",
+            "items": {
+              "$ref": "#/components/schemas/dataset"
             },
             "type": "array"
           },
@@ -4414,7 +4570,7 @@
             "type": "object"
           },
           "webExtensionConfigs": {
-            "description": "The web extension configurations.",
+            "description": "The WebExtension configurations.",
             "items": {
               "$ref": "#/components/schemas/webextensionconfig"
             },
@@ -4469,6 +4625,12 @@
           "destination": {
             "$ref": "#/components/schemas/destination"
           },
+          "encryptionEgress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
           "extractions": {
             "description": "The extractions to log.",
             "items": {
@@ -4504,9 +4666,24 @@
             "readOnly": true,
             "type": "string"
           },
+          "offband": {
+            "description": "If true, the analysis ran offband. That means that we extracted the data\nfrom the user request, assigned team and verified access permissions, but\nthen we forwarded the request as is to the provider untouched\nimmediately, while running the analysis and policies in the background,\nreporting what we would have done.",
+            "type": "boolean"
+          },
+          "permissive": {
+            "description": "If true, the policy has been applied in permissive mode.  That means that\nwe extracted the data from the user request, assigned team, verified\naccess permissions, run analysis, apply content policies and reported what\nwe would have done, but ultimately let the request go to the provider\nuntouched.",
+            "type": "boolean"
+          },
           "pipelineName": {
             "description": "The name of the particular pipeline that extracted the text.",
             "type": "string"
+          },
+          "policyRefs": {
+            "description": "List of references to the policies used to make this roundtrip.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
           },
           "principal": {
             "$ref": "#/components/schemas/principal"
@@ -4515,6 +4692,14 @@
             "description": "The provider to use.",
             "example": "openai",
             "type": "string"
+          },
+          "proxyFunction": {
+            "default": "ForwardProxy",
+            "description": "Denotes the function of this proxy in the chain of servers. By default the apex\nalways sits on the egress side between a client or application and the origin\nserver in which case the apex acts as a forwarding proxy. However, in the case\nof applications the proxy can also be located before the application as an\ningress provider in which case the apex acts as a reverse proxy.",
+            "enum": [
+              "ForwardProxy",
+              "ReverseProxy"
+            ]
           },
           "reasons": {
             "description": "The various reasons returned by the policy engine.",
@@ -5097,6 +5282,36 @@
         },
         "type": "object"
       },
+      "tlsstate": {
+        "description": "Represents the TLS state of a connection.",
+        "properties": {
+          "ALPNNegotiatedProtocol": {
+            "description": "The application protocol being used that was negotiated with ALPN for this\nconnection.",
+            "example": "h2",
+            "type": "string"
+          },
+          "cipherSuite": {
+            "description": "The negotiated cipher suite of the connection.",
+            "example": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "type": "string"
+          },
+          "version": {
+            "description": "The TLS protocol version used for the connection.",
+            "enum": [
+              "TLS10",
+              "TLS11",
+              "TLS12",
+              "TLS13"
+            ],
+            "example": "TLS12"
+          }
+        },
+        "required": [
+          "cipherSuite",
+          "version"
+        ],
+        "type": "object"
+      },
       "tool": {
         "description": "Represents a tool that can enhance a genAI model's capabilities.",
         "properties": {
@@ -5319,6 +5534,11 @@
           "traceID": {
             "description": "The Trace ID that is being referenced as hex encoded string.",
             "example": "4bf92f3577b34da6a3ce929d0e0e4736",
+            "type": "string"
+          },
+          "transparentSpanID": {
+            "description": "The transparent span ID that is being referenced. If the application operates in\ntransparent tracing mode, then this field must be set to the span ID that this\nspan is originally referencing.",
+            "example": "6ba80aaa3b2f43d8",
             "type": "string"
           }
         },
@@ -5698,6 +5918,81 @@
         },
         "type": "object"
       },
+      "webextension": {
+        "description": "Stores information about a known WebExtension.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "browserProxyManagementState": {
+            "description": "The state of the system proxy management.",
+            "type": "boolean"
+          },
+          "currentVersion": {
+            "description": "The current version of the WebExtension.",
+            "example": "0.1.0",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "installationID": {
+            "description": "The ID of the WebExtension installation.",
+            "example": "bob-webext",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ping": {
+            "description": "The last ping recorded for the WebExtension.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          },
+          "start": {
+            "description": "The start time for the WebExtension.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of the WebExtension.",
+            "enum": [
+              "Alive",
+              "Paused",
+              "Stopped"
+            ],
+            "example": "Alive"
+          },
+          "userAgent": {
+            "description": "The browser user agent.",
+            "example": "firefox",
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentVersion",
+          "installationID",
+          "ping",
+          "principal",
+          "start",
+          "status"
+        ],
+        "type": "object"
+      },
       "webextensionconfig": {
         "description": "WebExtensionConfig stores the configuration information for the webextension.",
         "properties": {
@@ -5707,7 +6002,7 @@
             "type": "string"
           },
           "allowProxySettings": {
-            "description": "Allows the web extension to set the proxy settings of the employee's browser.",
+            "description": "Allows the WebExtension to set the proxy settings of the employee's browser.",
             "type": "boolean"
           },
           "createTime": {
@@ -5740,7 +6035,7 @@
           },
           "refreshWebExtensionConfigInterval": {
             "default": 120,
-            "description": "Defines the refresh interval in minutes for the configuration of the deployed\nweb extensions.",
+            "description": "Defines the refresh interval in minutes for the configuration of the deployed\nWebExtensions.",
             "type": "integer"
           },
           "reportVisitedURLsInterval": {
@@ -7549,149 +7844,6 @@
         ]
       }
     },
-    "/customdatasets": {
-      "get": {
-        "description": "List all custom data sets.",
-        "operationId": "get-all-CustomDataSets",
-        "parameters": [
-          {
-            "description": "This is an example.",
-            "example": "hello == world",
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/customdataset"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      },
-      "post": {
-        "description": "Creates a new custom data set.",
-        "operationId": "create-CustomDataSet",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/customdataset"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/customdataset"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      }
-    },
-    "/customdatasets/{id}": {
-      "delete": {
-        "description": "Delete a custom data set given its identifier.",
-        "operationId": "delete-CustomDataSet",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/customdataset"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      },
-      "get": {
-        "description": "Retrieve a custom data set given its identifier.",
-        "operationId": "get-CustomDataSet",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/customdataset"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      },
-      "parameters": [
-        {
-          "in": "path",
-          "name": "id",
-          "required": true,
-          "schema": {
-            "type": "string"
-          }
-        }
-      ],
-      "put": {
-        "description": "Update a custom data set given its identifier.",
-        "operationId": "update-CustomDataSet",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/customdataset"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/customdataset"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      }
-    },
     "/customdatatypes": {
       "get": {
         "description": "List all custom data types.",
@@ -7834,6 +7986,215 @@
           "core"
         ]
       }
+    },
+    "/datasets": {
+      "get": {
+        "description": "List all DataSets.",
+        "operationId": "get-all-DataSets",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/dataset"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new DataSet.",
+        "operationId": "create-DataSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dataset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/datasets/{id}": {
+      "delete": {
+        "description": "Delete a dataSet given its identifier.",
+        "operationId": "delete-DataSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a dataSet given its identifier.",
+        "operationId": "get-DataSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a dataSet given its identifier.",
+        "operationId": "update-DataSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/dataset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/dataset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/digestreports": {
+      "get": {
+        "description": "List all existing digest reports.",
+        "operationId": "get-all-DigestReports",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/digestreport"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "reporter"
+        ]
+      }
+    },
+    "/digestreports/{id}": {
+      "get": {
+        "description": "Retrieve a digest report configuration given its identifier.",
+        "operationId": "get-DigestReport",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/digestreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "reporter"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/extractors": {
       "get": {
@@ -9436,12 +9797,38 @@
         "operationId": "get-all-ProviderTeams",
         "parameters": [
           {
+            "description": "When using 'resolve', defines the list of claims to use in policy resolution. If not set, the current token claims will be used.",
+            "example": "@org=acme.com",
+            "in": "query",
+            "name": "claim",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "When using 'resolve', defines the provider for which you want to check your assigned team.",
+            "example": "chatgpt",
+            "in": "query",
+            "name": "provider",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "This is an example.",
             "example": "hello == world",
             "in": "query",
             "name": "q",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "If set, return the list of assigned team for the given provider, using your claim to run an assignation policy.",
+            "in": "query",
+            "name": "resolve",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],
@@ -10854,7 +11241,7 @@
     },
     "/webextensionconfigs": {
       "get": {
-        "description": "List all web extension configurations.",
+        "description": "List all WebExtension configurations.",
         "operationId": "get-all-WebExtensionConfigs",
         "parameters": [
           {
@@ -10887,7 +11274,7 @@
         ]
       },
       "post": {
-        "description": "Creates a new web extension configuration.",
+        "description": "Creates a new WebExtension configuration.",
         "operationId": "create-WebExtensionConfig",
         "requestBody": {
           "content": {
@@ -10994,6 +11381,120 @@
           "core"
         ]
       }
+    },
+    "/webextensions": {
+      "get": {
+        "description": "List all WebExtensions.",
+        "operationId": "get-all-WebExtensions",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/webextension"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new WebExtension.",
+        "operationId": "create-WebExtension",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webextension"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webextension"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/webextensions/{id}": {
+      "delete": {
+        "description": "Delete an WebExtension given its identifier.",
+        "operationId": "delete-WebExtension",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webextension"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an WebExtension given its identifier.",
+        "operationId": "get-WebExtension",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webextension"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     }
   },
   "security": [
@@ -11031,6 +11532,10 @@
     {
       "description": "This tag is for group 'notification'",
       "name": "notification"
+    },
+    {
+      "description": "This tag is for group 'reporter'",
+      "name": "reporter"
     }
   ]
 }
