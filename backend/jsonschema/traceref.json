@@ -86,6 +86,15 @@
       "description": "The Trace ID that is being referenced as hex encoded string.",
       "title": "traceID",
       "type": "string"
+    },
+    "transparentSpanID": {
+      "$friendlyName": "Transparent Span ID",
+      "description": "The transparent span ID that is being referenced. If the application operates in transparent tracing mode, then this field must be set to the span ID that this span is originally referencing.",
+      "title": "transparentSpanID",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

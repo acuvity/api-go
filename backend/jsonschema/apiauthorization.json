@@ -110,6 +110,7 @@
         "Application",
         "Custom",
         "Employee",
+        "OpenTelemetryCollector",
         "Owner",
         "Proxy",
         "Trial",

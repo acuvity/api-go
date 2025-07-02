@@ -969,14 +969,14 @@ Represents the extracted information to log.
     "ssn": 0.8
   },
   "confidentiality": 0.9,
-  "customDataSets": {
+  "customDataTypes": {
+    "my_cdt": 1
+  },
+  "dataSets": {
     "cds": {
       "ct1": 1,
       "ct2": 2
     }
-  },
-  "customDataTypes": {
-    "my_cdt": 1
   },
   "exploits": {
     "prompt_injection": 0.8
@@ -1051,12 +1051,6 @@ Type: `float`
 
 The level of general confidentiality of the input.
 
-##### `customDataSets`
-
-Type: `map[string]map[string]float64`
-
-The custom data sets found during classification.
-
 ##### `customDataTypes`
 
 Type: `map[string]float64`
@@ -1075,6 +1069,12 @@ scores:
 Type: `string`
 
 The data extracted.
+
+##### `dataSets`
+
+Type: `map[string]map[string]float64`
+
+The data sets found during classification.
 
 ##### `detections`
 
@@ -1392,29 +1392,29 @@ Represents the summary of the extractions.
 
 #### Attributes
 
-##### `PIIs`
-
-Type: `map[string]extractioninformation`
-
-The PIIs found during classification.
-
 ##### `categories`
 
 Type: `map[string]extractioninformation`
 
 The categories are remapping of the modalities in a more human friendly way.
 
-##### `customDataSets`
+##### `confidenceLevels`
 
 Type: `map[string]extractioninformation`
 
-The data sets.
+The detected confidence levels.
 
-##### `customDataTypes`
+##### `dataSets`
 
 Type: `map[string]extractioninformation`
 
-The data types.
+The detected datasets.
+
+##### `dataTypes`
+
+Type: `map[string]extractioninformation`
+
+The detected dataTypes.
 
 ##### `exploits`
 
@@ -1451,12 +1451,6 @@ The various malcontents attempts.
 Type: `map[string]extractioninformation`
 
 The modalities of data detected in the data.
-
-##### `secrets`
-
-Type: `map[string]extractioninformation`
-
-The secrets found during classification.
 
 ##### `topics`
 
@@ -1721,7 +1715,7 @@ Describe the principal.
 {
   "IP": "192.0.2.42",
   "authType": "Certificate",
-  "team": "admins",
+  "teams": "admins",
   "tokenName": "my-user-token",
   "type": [
     "User"
@@ -1755,11 +1749,11 @@ Type: `[]string`
 
 List of claims extracted from the user query.
 
-##### `team`
+##### `teams`
 
-Type: `string`
+Type: `[]string`
 
-The team that was used to authorize the request.
+The teams that were used to authorize the request.
 
 ##### `tokenName`
 
@@ -1815,6 +1809,49 @@ The list of labels attached to an application request.
 Type: `string`
 
 The name of the application.
+
+##### `user`
+
+Type: [`principalappuser`](#principalappuser)
+
+The optional user information of the application request.
+
+### PrincipalAppUser
+
+Describes the optional principal information of the user of an application which
+is being derived from a bearer token of a request.
+
+#### Example
+
+```json
+{
+  "email": "john.doe@acme.com",
+  "name": "John Doe",
+  "tokenValidated": false
+}
+```
+
+#### Attributes
+
+##### `email`
+
+Type: `string`
+
+The Email address of the user. This will be derived from the email claims of a
+token like email, emailAddress or upn.
+
+##### `name`
+
+Type: `string`
+
+The given name of the user. This will be derived from the common name claims of
+a token like name or given_name.
+
+##### `tokenValidated`
+
+Type: `boolean`
+
+This will be true if the apex was able to validate the token in the request.
 
 ### PrincipalUser
 
@@ -2090,7 +2127,8 @@ Holds all references to a trace which are also the essentials of the span data.
   "spanStart": "2025-03-22T14:35:00.123456789Z",
   "statusCode": "OK",
   "statusMessage": "Failed to make API call to service Foo.",
-  "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+  "traceID": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "transparentSpanID": "6ba80aaa3b2f43d8"
 }
 ```
 
@@ -2161,3 +2199,11 @@ A developer-facing human readable error message.
 Type: `string`
 
 The Trace ID that is being referenced as hex encoded string.
+
+##### `transparentSpanID`
+
+Type: `string`
+
+The transparent span ID that is being referenced. If the application operates in
+transparent tracing mode, then this field must be set to the span ID that this
+span is originally referencing.

@@ -13,57 +13,57 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// CustomDataSetSensitivityValue represents the possible values for attribute "sensitivity".
-type CustomDataSetSensitivityValue string
+// DataSetSensitivityValue represents the possible values for attribute "sensitivity".
+type DataSetSensitivityValue string
 
 const (
-	// CustomDataSetSensitivityHigh represents the value High.
-	CustomDataSetSensitivityHigh CustomDataSetSensitivityValue = "High"
+	// DataSetSensitivityHigh represents the value High.
+	DataSetSensitivityHigh DataSetSensitivityValue = "High"
 
-	// CustomDataSetSensitivityLow represents the value Low.
-	CustomDataSetSensitivityLow CustomDataSetSensitivityValue = "Low"
+	// DataSetSensitivityLow represents the value Low.
+	DataSetSensitivityLow DataSetSensitivityValue = "Low"
 
-	// CustomDataSetSensitivityMedium represents the value Medium.
-	CustomDataSetSensitivityMedium CustomDataSetSensitivityValue = "Medium"
+	// DataSetSensitivityMedium represents the value Medium.
+	DataSetSensitivityMedium DataSetSensitivityValue = "Medium"
 )
 
-// CustomDataSetIdentity represents the Identity of the object.
-var CustomDataSetIdentity = elemental.Identity{
-	Name:     "customdataset",
-	Category: "customdatasets",
+// DataSetIdentity represents the Identity of the object.
+var DataSetIdentity = elemental.Identity{
+	Name:     "dataset",
+	Category: "datasets",
 	Package:  "lain",
 	Private:  false,
 }
 
-// CustomDataSetsList represents a list of CustomDataSets
-type CustomDataSetsList []*CustomDataSet
+// DataSetsList represents a list of DataSets
+type DataSetsList []*DataSet
 
 // Identity returns the identity of the objects in the list.
-func (o CustomDataSetsList) Identity() elemental.Identity {
+func (o DataSetsList) Identity() elemental.Identity {
 
-	return CustomDataSetIdentity
+	return DataSetIdentity
 }
 
-// Copy returns a pointer to a copy the CustomDataSetsList.
-func (o CustomDataSetsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the DataSetsList.
+func (o DataSetsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the CustomDataSetsList.
-func (o CustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the DataSetsList.
+func (o DataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*CustomDataSet))
+		out = append(out, obj.(*DataSet))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o CustomDataSetsList) List() elemental.IdentifiablesList {
+func (o DataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -74,31 +74,31 @@ func (o CustomDataSetsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o CustomDataSetsList) DefaultOrder() []string {
+func (o DataSetsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the CustomDataSetsList converted to SparseCustomDataSetsList.
+// ToSparse returns the DataSetsList converted to SparseDataSetsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o CustomDataSetsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o DataSetsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseCustomDataSetsList, len(o))
+	out := make(SparseDataSetsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseCustomDataSet)
+		out[i] = o[i].ToSparse(fields...).(*SparseDataSet)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o CustomDataSetsList) Version() int {
+func (o DataSetsList) Version() int {
 
 	return 1
 }
 
-// CustomDataSet represents the model of a customdataset
-type CustomDataSet struct {
+// DataSet represents the model of a dataset
+type DataSet struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -108,7 +108,7 @@ type CustomDataSet struct {
 	// A list of all the data types which are associated to this data set.
 	DataTypes []string `json:"dataTypes" msgpack:"dataTypes" bson:"datatypes" mapstructure:"dataTypes,omitempty"`
 
-	// Description of the custom data set.
+	// Description of the dataSet.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// Friendly name of the object.
@@ -131,8 +131,8 @@ type CustomDataSet struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// Describe the sensitity of the dataset.
-	Sensitivity CustomDataSetSensitivityValue `json:"sensitivity" msgpack:"sensitivity" bson:"sensitivity" mapstructure:"sensitivity,omitempty"`
+	// Describe the sensitity of the dataSet.
+	Sensitivity DataSetSensitivityValue `json:"sensitivity" msgpack:"sensitivity" bson:"sensitivity" mapstructure:"sensitivity,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -146,44 +146,44 @@ type CustomDataSet struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewCustomDataSet returns a new *CustomDataSet
-func NewCustomDataSet() *CustomDataSet {
+// NewDataSet returns a new *DataSet
+func NewDataSet() *DataSet {
 
-	return &CustomDataSet{
+	return &DataSet{
 		ModelVersion: 1,
 		DataTypes:    []string{},
 		Propagate:    true,
-		Sensitivity:  CustomDataSetSensitivityHigh,
+		Sensitivity:  DataSetSensitivityHigh,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *CustomDataSet) Identity() elemental.Identity {
+func (o *DataSet) Identity() elemental.Identity {
 
-	return CustomDataSetIdentity
+	return DataSetIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *CustomDataSet) Identifier() string {
+func (o *DataSet) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *CustomDataSet) SetIdentifier(id string) {
+func (o *DataSet) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *CustomDataSet) GetBSON() (any, error) {
+func (o *DataSet) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesCustomDataSet{}
+	s := &mongoAttributesDataSet{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
@@ -207,13 +207,13 @@ func (o *CustomDataSet) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *CustomDataSet) SetBSON(raw bson.Raw) error {
+func (o *DataSet) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesCustomDataSet{}
+	s := &mongoAttributesDataSet{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -237,113 +237,113 @@ func (o *CustomDataSet) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *CustomDataSet) Version() int {
+func (o *DataSet) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *CustomDataSet) BleveType() string {
+func (o *DataSet) BleveType() string {
 
-	return "customdataset"
+	return "dataset"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *CustomDataSet) DefaultOrder() []string {
+func (o *DataSet) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *CustomDataSet) Doc() string {
+func (o *DataSet) Doc() string {
 
-	return `Allows to create a custom data set.`
+	return `Allows to create a dataSet.`
 }
 
-func (o *CustomDataSet) String() string {
+func (o *DataSet) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *CustomDataSet) GetCreateTime() time.Time {
+func (o *DataSet) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *CustomDataSet) SetCreateTime(createTime time.Time) {
+func (o *DataSet) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *CustomDataSet) GetImportHash() string {
+func (o *DataSet) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *CustomDataSet) SetImportHash(importHash string) {
+func (o *DataSet) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *CustomDataSet) GetImportLabel() string {
+func (o *DataSet) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *CustomDataSet) SetImportLabel(importLabel string) {
+func (o *DataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *CustomDataSet) GetNamespace() string {
+func (o *DataSet) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *CustomDataSet) SetNamespace(namespace string) {
+func (o *DataSet) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *CustomDataSet) GetPropagate() bool {
+func (o *DataSet) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *CustomDataSet) SetPropagate(propagate bool) {
+func (o *DataSet) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *CustomDataSet) GetUpdateTime() time.Time {
+func (o *DataSet) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *CustomDataSet) SetUpdateTime(updateTime time.Time) {
+func (o *DataSet) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *CustomDataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *DataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseCustomDataSet{
+		return &SparseDataSet{
 			ID:           &o.ID,
 			CreateTime:   &o.CreateTime,
 			DataTypes:    &o.DataTypes,
@@ -361,7 +361,7 @@ func (o *CustomDataSet) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		}
 	}
 
-	sp := &SparseCustomDataSet{}
+	sp := &SparseDataSet{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -398,13 +398,13 @@ func (o *CustomDataSet) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseCustomDataSet to the object.
-func (o *CustomDataSet) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseDataSet to the object.
+func (o *DataSet) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseCustomDataSet)
+	so := sparse.(*SparseDataSet)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -449,32 +449,32 @@ func (o *CustomDataSet) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the CustomDataSet.
-func (o *CustomDataSet) DeepCopy() *CustomDataSet {
+// DeepCopy returns a deep copy if the DataSet.
+func (o *DataSet) DeepCopy() *DataSet {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &CustomDataSet{}
+	out := &DataSet{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *CustomDataSet.
-func (o *CustomDataSet) DeepCopyInto(out *CustomDataSet) {
+// DeepCopyInto copies the receiver into the given *DataSet.
+func (o *DataSet) DeepCopyInto(out *DataSet) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy CustomDataSet: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy DataSet: %s", err))
 	}
 
-	*out = *target.(*CustomDataSet)
+	*out = *target.(*DataSet)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *CustomDataSet) Validate() error {
+func (o *DataSet) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -507,26 +507,26 @@ func (o *CustomDataSet) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*CustomDataSet) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*DataSet) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := CustomDataSetAttributesMap[name]; ok {
+	if v, ok := DataSetAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return CustomDataSetLowerCaseAttributesMap[name]
+	return DataSetLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*CustomDataSet) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*DataSet) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return CustomDataSetAttributesMap
+	return DataSetAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *CustomDataSet) ValueForAttribute(name string) any {
+func (o *DataSet) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -562,8 +562,8 @@ func (o *CustomDataSet) ValueForAttribute(name string) any {
 	return nil
 }
 
-// CustomDataSetAttributesMap represents the map of attribute for CustomDataSet.
-var CustomDataSetAttributesMap = map[string]elemental.AttributeSpecification{
+// DataSetAttributesMap represents the map of attribute for DataSet.
+var DataSetAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -609,7 +609,7 @@ var CustomDataSetAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the custom data set.`,
+		Description:    `Description of the dataSet.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -699,8 +699,8 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High"},
 		BSONFieldName:  "sensitivity",
 		ConvertedName:  "Sensitivity",
-		DefaultValue:   CustomDataSetSensitivityHigh,
-		Description:    `Describe the sensitity of the dataset.`,
+		DefaultValue:   DataSetSensitivityHigh,
+		Description:    `Describe the sensitity of the dataSet.`,
 		Exposed:        true,
 		Name:           "sensitivity",
 		Stored:         true,
@@ -723,8 +723,8 @@ Name if empty.`,
 	},
 }
 
-// CustomDataSetLowerCaseAttributesMap represents the map of attribute for CustomDataSet.
-var CustomDataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// DataSetLowerCaseAttributesMap represents the map of attribute for DataSet.
+var DataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -770,7 +770,7 @@ var CustomDataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the custom data set.`,
+		Description:    `Description of the dataSet.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -860,8 +860,8 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High"},
 		BSONFieldName:  "sensitivity",
 		ConvertedName:  "Sensitivity",
-		DefaultValue:   CustomDataSetSensitivityHigh,
-		Description:    `Describe the sensitity of the dataset.`,
+		DefaultValue:   DataSetSensitivityHigh,
+		Description:    `Describe the sensitity of the dataSet.`,
 		Exposed:        true,
 		Name:           "sensitivity",
 		Stored:         true,
@@ -884,35 +884,35 @@ Name if empty.`,
 	},
 }
 
-// SparseCustomDataSetsList represents a list of SparseCustomDataSets
-type SparseCustomDataSetsList []*SparseCustomDataSet
+// SparseDataSetsList represents a list of SparseDataSets
+type SparseDataSetsList []*SparseDataSet
 
 // Identity returns the identity of the objects in the list.
-func (o SparseCustomDataSetsList) Identity() elemental.Identity {
+func (o SparseDataSetsList) Identity() elemental.Identity {
 
-	return CustomDataSetIdentity
+	return DataSetIdentity
 }
 
-// Copy returns a pointer to a copy the SparseCustomDataSetsList.
-func (o SparseCustomDataSetsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseDataSetsList.
+func (o SparseDataSetsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseCustomDataSetsList.
-func (o SparseCustomDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseDataSetsList.
+func (o SparseDataSetsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseCustomDataSet))
+		out = append(out, obj.(*SparseDataSet))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseCustomDataSetsList) List() elemental.IdentifiablesList {
+func (o SparseDataSetsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -923,13 +923,13 @@ func (o SparseCustomDataSetsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseCustomDataSetsList) DefaultOrder() []string {
+func (o SparseDataSetsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseCustomDataSetsList converted to CustomDataSetsList.
-func (o SparseCustomDataSetsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseDataSetsList converted to DataSetsList.
+func (o SparseDataSetsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -940,13 +940,13 @@ func (o SparseCustomDataSetsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseCustomDataSetsList) Version() int {
+func (o SparseDataSetsList) Version() int {
 
 	return 1
 }
 
-// SparseCustomDataSet represents the sparse version of a customdataset.
-type SparseCustomDataSet struct {
+// SparseDataSet represents the sparse version of a dataset.
+type SparseDataSet struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -956,7 +956,7 @@ type SparseCustomDataSet struct {
 	// A list of all the data types which are associated to this data set.
 	DataTypes *[]string `json:"dataTypes,omitempty" msgpack:"dataTypes,omitempty" bson:"datatypes,omitempty" mapstructure:"dataTypes,omitempty"`
 
-	// Description of the custom data set.
+	// Description of the dataSet.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// Friendly name of the object.
@@ -979,8 +979,8 @@ type SparseCustomDataSet struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// Describe the sensitity of the dataset.
-	Sensitivity *CustomDataSetSensitivityValue `json:"sensitivity,omitempty" msgpack:"sensitivity,omitempty" bson:"sensitivity,omitempty" mapstructure:"sensitivity,omitempty"`
+	// Describe the sensitity of the dataSet.
+	Sensitivity *DataSetSensitivityValue `json:"sensitivity,omitempty" msgpack:"sensitivity,omitempty" bson:"sensitivity,omitempty" mapstructure:"sensitivity,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -994,19 +994,19 @@ type SparseCustomDataSet struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseCustomDataSet returns a new  SparseCustomDataSet.
-func NewSparseCustomDataSet() *SparseCustomDataSet {
-	return &SparseCustomDataSet{}
+// NewSparseDataSet returns a new  SparseDataSet.
+func NewSparseDataSet() *SparseDataSet {
+	return &SparseDataSet{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseCustomDataSet) Identity() elemental.Identity {
+func (o *SparseDataSet) Identity() elemental.Identity {
 
-	return CustomDataSetIdentity
+	return DataSetIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseCustomDataSet) Identifier() string {
+func (o *SparseDataSet) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1015,7 +1015,7 @@ func (o *SparseCustomDataSet) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseCustomDataSet) SetIdentifier(id string) {
+func (o *SparseDataSet) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1026,13 +1026,13 @@ func (o *SparseCustomDataSet) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseCustomDataSet) GetBSON() (any, error) {
+func (o *SparseDataSet) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseCustomDataSet{}
+	s := &mongoAttributesSparseDataSet{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -1082,13 +1082,13 @@ func (o *SparseCustomDataSet) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseCustomDataSet) SetBSON(raw bson.Raw) error {
+func (o *SparseDataSet) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseCustomDataSet{}
+	s := &mongoAttributesSparseDataSet{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -1139,15 +1139,15 @@ func (o *SparseCustomDataSet) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseCustomDataSet) Version() int {
+func (o *SparseDataSet) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseCustomDataSet) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseDataSet) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewCustomDataSet()
+	out := NewDataSet()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1195,7 +1195,7 @@ func (o *SparseCustomDataSet) ToPlain() elemental.PlainIdentifiable {
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseCustomDataSet) GetCreateTime() (out time.Time) {
+func (o *SparseDataSet) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1205,13 +1205,13 @@ func (o *SparseCustomDataSet) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetCreateTime(createTime time.Time) {
+func (o *SparseDataSet) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseCustomDataSet) GetImportHash() (out string) {
+func (o *SparseDataSet) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1221,13 +1221,13 @@ func (o *SparseCustomDataSet) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetImportHash(importHash string) {
+func (o *SparseDataSet) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseCustomDataSet) GetImportLabel() (out string) {
+func (o *SparseDataSet) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1237,13 +1237,13 @@ func (o *SparseCustomDataSet) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetImportLabel(importLabel string) {
+func (o *SparseDataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseCustomDataSet) GetNamespace() (out string) {
+func (o *SparseDataSet) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1253,13 +1253,13 @@ func (o *SparseCustomDataSet) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetNamespace(namespace string) {
+func (o *SparseDataSet) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseCustomDataSet) GetPropagate() (out bool) {
+func (o *SparseDataSet) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1269,13 +1269,13 @@ func (o *SparseCustomDataSet) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetPropagate(propagate bool) {
+func (o *SparseDataSet) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseCustomDataSet) GetUpdateTime() (out time.Time) {
+func (o *SparseDataSet) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1285,64 +1285,64 @@ func (o *SparseCustomDataSet) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseCustomDataSet) SetUpdateTime(updateTime time.Time) {
+func (o *SparseDataSet) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseCustomDataSet.
-func (o *SparseCustomDataSet) DeepCopy() *SparseCustomDataSet {
+// DeepCopy returns a deep copy if the SparseDataSet.
+func (o *SparseDataSet) DeepCopy() *SparseDataSet {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseCustomDataSet{}
+	out := &SparseDataSet{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseCustomDataSet.
-func (o *SparseCustomDataSet) DeepCopyInto(out *SparseCustomDataSet) {
+// DeepCopyInto copies the receiver into the given *SparseDataSet.
+func (o *SparseDataSet) DeepCopyInto(out *SparseDataSet) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseCustomDataSet: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseDataSet: %s", err))
 	}
 
-	*out = *target.(*SparseCustomDataSet)
+	*out = *target.(*SparseDataSet)
 }
 
-type mongoAttributesCustomDataSet struct {
-	ID           bson.ObjectId                 `bson:"_id,omitempty"`
-	CreateTime   time.Time                     `bson:"createtime"`
-	DataTypes    []string                      `bson:"datatypes"`
-	Description  string                        `bson:"description"`
-	FriendlyName string                        `bson:"friendlyname"`
-	ImportHash   string                        `bson:"importhash,omitempty"`
-	ImportLabel  string                        `bson:"importlabel,omitempty"`
-	Name         string                        `bson:"name"`
-	Namespace    string                        `bson:"namespace,omitempty"`
-	Propagate    bool                          `bson:"propagate"`
-	Sensitivity  CustomDataSetSensitivityValue `bson:"sensitivity"`
-	UpdateTime   time.Time                     `bson:"updatetime"`
-	ZHash        int                           `bson:"zhash"`
-	Zone         int                           `bson:"zone"`
+type mongoAttributesDataSet struct {
+	ID           bson.ObjectId           `bson:"_id,omitempty"`
+	CreateTime   time.Time               `bson:"createtime"`
+	DataTypes    []string                `bson:"datatypes"`
+	Description  string                  `bson:"description"`
+	FriendlyName string                  `bson:"friendlyname"`
+	ImportHash   string                  `bson:"importhash,omitempty"`
+	ImportLabel  string                  `bson:"importlabel,omitempty"`
+	Name         string                  `bson:"name"`
+	Namespace    string                  `bson:"namespace,omitempty"`
+	Propagate    bool                    `bson:"propagate"`
+	Sensitivity  DataSetSensitivityValue `bson:"sensitivity"`
+	UpdateTime   time.Time               `bson:"updatetime"`
+	ZHash        int                     `bson:"zhash"`
+	Zone         int                     `bson:"zone"`
 }
-type mongoAttributesSparseCustomDataSet struct {
-	ID           bson.ObjectId                  `bson:"_id,omitempty"`
-	CreateTime   *time.Time                     `bson:"createtime,omitempty"`
-	DataTypes    *[]string                      `bson:"datatypes,omitempty"`
-	Description  *string                        `bson:"description,omitempty"`
-	FriendlyName *string                        `bson:"friendlyname,omitempty"`
-	ImportHash   *string                        `bson:"importhash,omitempty"`
-	ImportLabel  *string                        `bson:"importlabel,omitempty"`
-	Name         *string                        `bson:"name,omitempty"`
-	Namespace    *string                        `bson:"namespace,omitempty"`
-	Propagate    *bool                          `bson:"propagate,omitempty"`
-	Sensitivity  *CustomDataSetSensitivityValue `bson:"sensitivity,omitempty"`
-	UpdateTime   *time.Time                     `bson:"updatetime,omitempty"`
-	ZHash        *int                           `bson:"zhash,omitempty"`
-	Zone         *int                           `bson:"zone,omitempty"`
+type mongoAttributesSparseDataSet struct {
+	ID           bson.ObjectId            `bson:"_id,omitempty"`
+	CreateTime   *time.Time               `bson:"createtime,omitempty"`
+	DataTypes    *[]string                `bson:"datatypes,omitempty"`
+	Description  *string                  `bson:"description,omitempty"`
+	FriendlyName *string                  `bson:"friendlyname,omitempty"`
+	ImportHash   *string                  `bson:"importhash,omitempty"`
+	ImportLabel  *string                  `bson:"importlabel,omitempty"`
+	Name         *string                  `bson:"name,omitempty"`
+	Namespace    *string                  `bson:"namespace,omitempty"`
+	Propagate    *bool                    `bson:"propagate,omitempty"`
+	Sensitivity  *DataSetSensitivityValue `bson:"sensitivity,omitempty"`
+	UpdateTime   *time.Time               `bson:"updatetime,omitempty"`
+	ZHash        *int                     `bson:"zhash,omitempty"`
+	Zone         *int                     `bson:"zone,omitempty"`
 }

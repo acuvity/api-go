@@ -40,9 +40,6 @@ type Extraction struct {
 	// The level of general confidentiality of the input.
 	Confidentiality float64 `json:"confidentiality,omitempty" msgpack:"confidentiality,omitempty" bson:"confidentiality,omitempty" mapstructure:"confidentiality,omitempty"`
 
-	// The custom data sets found during classification.
-	CustomDataSets map[string]map[string]float64 `json:"customDataSets,omitempty" msgpack:"customDataSets,omitempty" bson:"customdatasets,omitempty" mapstructure:"customDataSets,omitempty"`
-
 	// The custom data types found during classification.
 	//
 	// If a key is not present in the map that implies that entity was not detected. If
@@ -55,6 +52,9 @@ type Extraction struct {
 
 	// The data extracted.
 	Data string `json:"data" msgpack:"data" bson:"data" mapstructure:"data,omitempty"`
+
+	// The data sets found during classification.
+	DataSets map[string]map[string]float64 `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
 
 	// The textual detections found while applying policies.
 	Detections []*TextualDetection `json:"detections,omitempty" msgpack:"detections,omitempty" bson:"detections,omitempty" mapstructure:"detections,omitempty"`
@@ -269,9 +269,9 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.Annotations = o.Annotations
 	s.Categories = o.Categories
 	s.Confidentiality = o.Confidentiality
-	s.CustomDataSets = o.CustomDataSets
 	s.CustomDataTypes = o.CustomDataTypes
 	s.Data = o.Data
+	s.DataSets = o.DataSets
 	s.Detections = o.Detections
 	s.Exploits = o.Exploits
 	s.Hash = o.Hash
@@ -310,9 +310,9 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.Annotations = s.Annotations
 	o.Categories = s.Categories
 	o.Confidentiality = s.Confidentiality
-	o.CustomDataSets = s.CustomDataSets
 	o.CustomDataTypes = s.CustomDataTypes
 	o.Data = s.Data
+	o.DataSets = s.DataSets
 	o.Detections = s.Detections
 	o.Exploits = s.Exploits
 	o.Hash = s.Hash
@@ -450,12 +450,12 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.Categories
 	case "confidentiality":
 		return o.Confidentiality
-	case "customDataSets":
-		return o.CustomDataSets
 	case "customDataTypes":
 		return o.CustomDataTypes
 	case "data":
 		return o.Data
+	case "dataSets":
+		return o.DataSets
 	case "detections":
 		return o.Detections
 	case "exploits":
@@ -559,17 +559,6 @@ scores:
 		Stored:         true,
 		Type:           "float",
 	},
-	"CustomDataSets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "customdatasets",
-		ConvertedName:  "CustomDataSets",
-		Description:    `The custom data sets found during classification.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		Stored:         true,
-		SubType:        "map[string]map[string]float64",
-		Type:           "external",
-	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "customdatatypes",
@@ -597,6 +586,17 @@ scores:
 		Name:           "data",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DataSets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasets",
+		ConvertedName:  "DataSets",
+		Description:    `The data sets found during classification.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		Stored:         true,
+		SubType:        "map[string]map[string]float64",
+		Type:           "external",
 	},
 	"Detections": {
 		AllowedChoices: []string{},
@@ -980,17 +980,6 @@ scores:
 		Stored:         true,
 		Type:           "float",
 	},
-	"customdatasets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "customdatasets",
-		ConvertedName:  "CustomDataSets",
-		Description:    `The custom data sets found during classification.`,
-		Exposed:        true,
-		Name:           "customDataSets",
-		Stored:         true,
-		SubType:        "map[string]map[string]float64",
-		Type:           "external",
-	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "customdatatypes",
@@ -1018,6 +1007,17 @@ scores:
 		Name:           "data",
 		Stored:         true,
 		Type:           "string",
+	},
+	"datasets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasets",
+		ConvertedName:  "DataSets",
+		Description:    `The data sets found during classification.`,
+		Exposed:        true,
+		Name:           "dataSets",
+		Stored:         true,
+		SubType:        "map[string]map[string]float64",
+		Type:           "external",
 	},
 	"detections": {
 		AllowedChoices: []string{},
@@ -1346,9 +1346,9 @@ type mongoAttributesExtraction struct {
 	Annotations     map[string]string             `bson:"annotations,omitempty"`
 	Categories      []Modality                    `bson:"categories,omitempty"`
 	Confidentiality float64                       `bson:"confidentiality,omitempty"`
-	CustomDataSets  map[string]map[string]float64 `bson:"customdatasets,omitempty"`
 	CustomDataTypes map[string]float64            `bson:"customdatatypes,omitempty"`
 	Data            string                        `bson:"data"`
+	DataSets        map[string]map[string]float64 `bson:"datasets,omitempty"`
 	Detections      []*TextualDetection           `bson:"detections,omitempty"`
 	Exploits        map[string]float64            `bson:"exploits,omitempty"`
 	Hash            string                        `bson:"hash,omitempty"`

@@ -108,6 +108,12 @@
       },
       "type": "array"
     },
+    "principalappusers": {
+      "items": {
+        "$ref": "principalappuser.json"
+      },
+      "type": "array"
+    },
     "principals": {
       "items": {
         "$ref": "principal.json"

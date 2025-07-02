@@ -5,8 +5,8 @@
     "@importable",
     "@timed"
   ],
-  "$friendlyName": "Web Extension Configuration",
-  "$friendlyNamePlural": "Web Extension Configurations",
+  "$friendlyName": "WebExtension Configuration",
+  "$friendlyNamePlural": "WebExtension Configurations",
   "$modelName": "WebExtensionConfig",
   "$modelPackage": "lain",
   "$modelResourceName": "webextensionconfigs",
@@ -26,7 +26,7 @@
     },
     "allowProxySettings": {
       "$friendlyName": "Manage Browser Proxy Settings",
-      "description": "Allows the web extension to set the proxy settings of the employee's browser.",
+      "description": "Allows the WebExtension to set the proxy settings of the employee's browser.",
       "title": "allowProxySettings",
       "type": [
         "boolean",
@@ -92,7 +92,7 @@
     "refreshWebExtensionConfigInterval": {
       "$defaultValue": 120,
       "$friendlyName": "Configuration Refresh Interval",
-      "description": "Defines the refresh interval in minutes for the configuration of the deployed web extensions.",
+      "description": "Defines the refresh interval in minutes for the configuration of the deployed WebExtensions.",
       "minimum": 1,
       "title": "refreshWebExtensionConfigInterval",
       "type": [

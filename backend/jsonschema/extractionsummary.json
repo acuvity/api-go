@@ -9,13 +9,6 @@
   "additionalProperties": false,
   "description": "Represents the summary of the extractions.",
   "properties": {
-    "PIIs": {
-      "$friendlyName": "PIIs",
-      "additionalProperties": true,
-      "description": "The PIIs found during classification.",
-      "title": "PIIs",
-      "type": "object"
-    },
     "categories": {
       "$friendlyName": "Categories",
       "additionalProperties": true,
@@ -23,18 +16,25 @@
       "title": "categories",
       "type": "object"
     },
-    "customDataSets": {
-      "$friendlyName": "Custom Data Sets",
+    "confidenceLevels": {
+      "$friendlyName": "Confidence Levels",
       "additionalProperties": true,
-      "description": "The data sets.",
-      "title": "customDataSets",
+      "description": "The detected confidence levels.",
+      "title": "confidenceLevels",
       "type": "object"
     },
-    "customDataTypes": {
+    "dataSets": {
+      "$friendlyName": "Data Sets",
+      "additionalProperties": true,
+      "description": "The detected datasets.",
+      "title": "dataSets",
+      "type": "object"
+    },
+    "dataTypes": {
       "$friendlyName": "Custom Data Types",
       "additionalProperties": true,
-      "description": "The data types.",
-      "title": "customDataTypes",
+      "description": "The detected dataTypes.",
+      "title": "dataTypes",
       "type": "object"
     },
     "exploits": {
@@ -77,13 +77,6 @@
       "additionalProperties": true,
       "description": "The modalities of data detected in the data.",
       "title": "modalities",
-      "type": "object"
-    },
-    "secrets": {
-      "$friendlyName": "Secrets",
-      "additionalProperties": true,
-      "description": "The secrets found during classification.",
-      "title": "secrets",
       "type": "object"
     },
     "topics": {

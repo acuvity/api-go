@@ -27,6 +27,24 @@
       "title": "APIAuthorizations",
       "type": "array"
     },
+    "LDAPSources": {
+      "$friendlyName": "LDAP Sources",
+      "description": "LDAP Sources to import.",
+      "title": "LDAPSources",
+      "type": "object"
+    },
+    "MTLSSources": {
+      "$friendlyName": "MTLS Sources",
+      "description": "MTLS Sources to import.",
+      "title": "MTLSSources",
+      "type": "object"
+    },
+    "OIDCSources": {
+      "$friendlyName": "OIDC Sources",
+      "description": "OIDC Sources to import.",
+      "title": "OIDCSources",
+      "type": "object"
+    },
     "PACConfigs": {
       "$friendlyName": "PAC Configs",
       "description": "PACConfigs to import.",
@@ -35,6 +53,12 @@
       },
       "title": "PACConfigs",
       "type": "array"
+    },
+    "SAMLSources": {
+      "$friendlyName": "SAML Sources",
+      "description": "SAML Sources to import.",
+      "title": "SAMLSources",
+      "type": "object"
     },
     "accessPolicies": {
       "$friendlyName": "Access Policies",
@@ -81,15 +105,6 @@
       "title": "contentPolicies",
       "type": "array"
     },
-    "customDataSets": {
-      "$friendlyName": "Custom Data Sets",
-      "description": "Custom Data Sets to import.",
-      "items": {
-        "$ref": "customdataset.json"
-      },
-      "title": "customDataSets",
-      "type": "array"
-    },
     "customDataTypes": {
       "$friendlyName": "Custom Data Types",
       "description": "Custom Data Types to import.",
@@ -97,6 +112,15 @@
         "$ref": "customdatatype.json"
       },
       "title": "customDataTypes",
+      "type": "array"
+    },
+    "dataSets": {
+      "$friendlyName": "DataSets",
+      "description": "DataSets to import.",
+      "items": {
+        "$ref": "dataset.json"
+      },
+      "title": "dataSets",
       "type": "array"
     },
     "extractors": {
@@ -197,8 +221,8 @@
       "type": "array"
     },
     "webExtensionConfigs": {
-      "$friendlyName": "Web Extension configurations",
-      "description": "Web Extension configurations to import.",
+      "$friendlyName": "WebExtension configurations",
+      "description": "WebExtension configurations to import.",
       "items": {
         "$ref": "webextensionconfig.json"
       },

@@ -36,6 +36,17 @@ const (
 	ProxyRoundtripDecisionSkipped ProxyRoundtripDecisionValue = "Skipped"
 )
 
+// ProxyRoundtripProxyFunctionValue represents the possible values for attribute "proxyFunction".
+type ProxyRoundtripProxyFunctionValue string
+
+const (
+	// ProxyRoundtripProxyFunctionForwardProxy represents the value ForwardProxy.
+	ProxyRoundtripProxyFunctionForwardProxy ProxyRoundtripProxyFunctionValue = "ForwardProxy"
+
+	// ProxyRoundtripProxyFunctionReverseProxy represents the value ReverseProxy.
+	ProxyRoundtripProxyFunctionReverseProxy ProxyRoundtripProxyFunctionValue = "ReverseProxy"
+)
+
 // ProxyRoundtripTypeValue represents the possible values for attribute "type".
 type ProxyRoundtripTypeValue string
 
@@ -140,6 +151,12 @@ type ProxyRoundtrip struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
 	// The extractions to log.
 	Extractions []*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
 
@@ -165,14 +182,38 @@ type ProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// If true, the analysis ran offband. That means that we extracted the data
+	// from the user request, assigned team and verified access permissions, but
+	// then we forwarded the request as is to the provider untouched
+	// immediately, while running the analysis and policies in the background,
+	// reporting what we would have done.
+	Offband bool `json:"offband" msgpack:"offband" bson:"offband" mapstructure:"offband,omitempty"`
+
+	// If true, the policy has been applied in permissive mode.  That means that
+	// we extracted the data from the user request, assigned team, verified
+	// access permissions, run analysis, apply content policies and reported what
+	// we would have done, but ultimately let the request go to the provider
+	// untouched.
+	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
+
 	// The name of the particular pipeline that extracted the text.
 	PipelineName string `json:"pipelineName" msgpack:"pipelineName" bson:"pipelinename" mapstructure:"pipelineName,omitempty"`
+
+	// List of references to the policies used to make this roundtrip.
+	PolicyRefs PolicyRefsList `json:"policyRefs" msgpack:"policyRefs" bson:"policyrefs" mapstructure:"policyRefs,omitempty"`
 
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
 	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
+
+	// Denotes the function of this proxy in the chain of servers. By default the apex
+	// always sits on the egress side between a client or application and the origin
+	// server in which case the apex acts as a forwarding proxy. However, in the case
+	// of applications the proxy can also be located before the application as an
+	// ingress provider in which case the apex acts as a reverse proxy.
+	ProxyFunction ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
 	Reasons []string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
@@ -190,7 +231,7 @@ type ProxyRoundtrip struct {
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
-	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type ProxyRoundtripTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -202,9 +243,11 @@ type ProxyRoundtrip struct {
 func NewProxyRoundtrip() *ProxyRoundtrip {
 
 	return &ProxyRoundtrip{
-		ModelVersion: 1,
-		Annotations:  map[string]string{},
-		Principal:    NewPrincipal(),
+		ModelVersion:  1,
+		Annotations:   map[string]string{},
+		PolicyRefs:    PolicyRefsList{},
+		Principal:     NewPrincipal(),
+		ProxyFunction: ProxyRoundtripProxyFunctionForwardProxy,
 	}
 }
 
@@ -245,6 +288,8 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.ClientVersion = o.ClientVersion
 	s.Decision = o.Decision
 	s.Destination = o.Destination
+	s.EncryptionEgress = o.EncryptionEgress
+	s.EncryptionIngress = o.EncryptionIngress
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
 	s.ImportHash = o.ImportHash
@@ -253,9 +298,13 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.McpMessage = o.McpMessage
 	s.Model = o.Model
 	s.Namespace = o.Namespace
+	s.Offband = o.Offband
+	s.Permissive = o.Permissive
 	s.PipelineName = o.PipelineName
+	s.PolicyRefs = o.PolicyRefs
 	s.Principal = o.Principal
 	s.Provider = o.Provider
+	s.ProxyFunction = o.ProxyFunction
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
 	s.ToolChoice = o.ToolChoice
@@ -286,6 +335,8 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.ClientVersion = s.ClientVersion
 	o.Decision = s.Decision
 	o.Destination = s.Destination
+	o.EncryptionEgress = s.EncryptionEgress
+	o.EncryptionIngress = s.EncryptionIngress
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
 	o.ImportHash = s.ImportHash
@@ -294,9 +345,13 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.McpMessage = s.McpMessage
 	o.Model = s.Model
 	o.Namespace = s.Namespace
+	o.Offband = s.Offband
+	o.Permissive = s.Permissive
 	o.PipelineName = s.PipelineName
+	o.PolicyRefs = s.PolicyRefs
 	o.Principal = s.Principal
 	o.Provider = s.Provider
+	o.ProxyFunction = s.ProxyFunction
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
 	o.ToolChoice = s.ToolChoice
@@ -379,31 +434,37 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProxyRoundtrip{
-			ID:            &o.ID,
-			Alerts:        &o.Alerts,
-			Annotations:   &o.Annotations,
-			Client:        &o.Client,
-			ClientVersion: &o.ClientVersion,
-			Decision:      &o.Decision,
-			Destination:   o.Destination,
-			Extractions:   &o.Extractions,
-			Hash:          &o.Hash,
-			ImportHash:    &o.ImportHash,
-			ImportLabel:   &o.ImportLabel,
-			Latency:       o.Latency,
-			McpMessage:    o.McpMessage,
-			Model:         &o.Model,
-			Namespace:     &o.Namespace,
-			PipelineName:  &o.PipelineName,
-			Principal:     o.Principal,
-			Provider:      &o.Provider,
-			Reasons:       &o.Reasons,
-			Summary:       o.Summary,
-			Time:          &o.Time,
-			ToolChoice:    o.ToolChoice,
-			Tools:         &o.Tools,
-			Trace:         o.Trace,
-			Type:          &o.Type,
+			ID:                &o.ID,
+			Alerts:            &o.Alerts,
+			Annotations:       &o.Annotations,
+			Client:            &o.Client,
+			ClientVersion:     &o.ClientVersion,
+			Decision:          &o.Decision,
+			Destination:       o.Destination,
+			EncryptionEgress:  o.EncryptionEgress,
+			EncryptionIngress: o.EncryptionIngress,
+			Extractions:       &o.Extractions,
+			Hash:              &o.Hash,
+			ImportHash:        &o.ImportHash,
+			ImportLabel:       &o.ImportLabel,
+			Latency:           o.Latency,
+			McpMessage:        o.McpMessage,
+			Model:             &o.Model,
+			Namespace:         &o.Namespace,
+			Offband:           &o.Offband,
+			Permissive:        &o.Permissive,
+			PipelineName:      &o.PipelineName,
+			PolicyRefs:        &o.PolicyRefs,
+			Principal:         o.Principal,
+			Provider:          &o.Provider,
+			ProxyFunction:     &o.ProxyFunction,
+			Reasons:           &o.Reasons,
+			Summary:           o.Summary,
+			Time:              &o.Time,
+			ToolChoice:        o.ToolChoice,
+			Tools:             &o.Tools,
+			Trace:             o.Trace,
+			Type:              &o.Type,
 		}
 	}
 
@@ -424,6 +485,10 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Decision = &(o.Decision)
 		case "destination":
 			sp.Destination = o.Destination
+		case "encryptionEgress":
+			sp.EncryptionEgress = o.EncryptionEgress
+		case "encryptionIngress":
+			sp.EncryptionIngress = o.EncryptionIngress
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "hash":
@@ -440,12 +505,20 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Model = &(o.Model)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "offband":
+			sp.Offband = &(o.Offband)
+		case "permissive":
+			sp.Permissive = &(o.Permissive)
 		case "pipelineName":
 			sp.PipelineName = &(o.PipelineName)
+		case "policyRefs":
+			sp.PolicyRefs = &(o.PolicyRefs)
 		case "principal":
 			sp.Principal = o.Principal
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "proxyFunction":
+			sp.ProxyFunction = &(o.ProxyFunction)
 		case "reasons":
 			sp.Reasons = &(o.Reasons)
 		case "summary":
@@ -494,6 +567,12 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Destination != nil {
 		o.Destination = so.Destination
 	}
+	if so.EncryptionEgress != nil {
+		o.EncryptionEgress = so.EncryptionEgress
+	}
+	if so.EncryptionIngress != nil {
+		o.EncryptionIngress = so.EncryptionIngress
+	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
 	}
@@ -518,14 +597,26 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.Offband != nil {
+		o.Offband = *so.Offband
+	}
+	if so.Permissive != nil {
+		o.Permissive = *so.Permissive
+	}
 	if so.PipelineName != nil {
 		o.PipelineName = *so.PipelineName
+	}
+	if so.PolicyRefs != nil {
+		o.PolicyRefs = *so.PolicyRefs
 	}
 	if so.Principal != nil {
 		o.Principal = so.Principal
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.ProxyFunction != nil {
+		o.ProxyFunction = *so.ProxyFunction
 	}
 	if so.Reasons != nil {
 		o.Reasons = *so.Reasons
@@ -601,6 +692,20 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
+	if o.EncryptionEgress != nil {
+		elemental.ResetDefaultForZeroValues(o.EncryptionEgress)
+		if err := o.EncryptionEgress.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		elemental.ResetDefaultForZeroValues(o.EncryptionIngress)
+		if err := o.EncryptionIngress.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	for _, sub := range o.Extractions {
 		if sub == nil {
 			continue
@@ -625,11 +730,25 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.Principal != nil {
 		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
+	}
+
+	if err := elemental.ValidateStringInList("proxyFunction", string(o.ProxyFunction), []string{"ForwardProxy", "ReverseProxy"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Summary != nil {
@@ -715,6 +834,10 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Decision
 	case "destination":
 		return o.Destination
+	case "encryptionEgress":
+		return o.EncryptionEgress
+	case "encryptionIngress":
+		return o.EncryptionIngress
 	case "extractions":
 		return o.Extractions
 	case "hash":
@@ -731,12 +854,20 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Model
 	case "namespace":
 		return o.Namespace
+	case "offband":
+		return o.Offband
+	case "permissive":
+		return o.Permissive
 	case "pipelineName":
 		return o.PipelineName
+	case "policyRefs":
+		return o.PolicyRefs
 	case "principal":
 		return o.Principal
 	case "provider":
 		return o.Provider
+	case "proxyFunction":
+		return o.ProxyFunction
 	case "reasons":
 		return o.Reasons
 	case "summary":
@@ -836,6 +967,28 @@ var ProxyRoundtripAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "destination",
 		Type:           "ref",
 	},
+	"EncryptionEgress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"EncryptionIngress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
 	"Extractions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "extractions",
@@ -932,6 +1085,34 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"Offband": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offband",
+		ConvertedName:  "Offband",
+		Description: `If true, the analysis ran offband. That means that we extracted the data
+from the user request, assigned team and verified access permissions, but
+then we forwarded the request as is to the provider untouched
+immediately, while running the analysis and policies in the background,
+reporting what we would have done.`,
+		Exposed: true,
+		Name:    "offband",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"Permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description: `If true, the policy has been applied in permissive mode.  That means that
+we extracted the data from the user request, assigned team, verified
+access permissions, run analysis, apply content policies and reported what
+we would have done, but ultimately let the request go to the provider
+untouched.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"PipelineName": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "pipelinename",
@@ -941,6 +1122,17 @@ same import operation.`,
 		Name:           "pipelineName",
 		Stored:         true,
 		Type:           "string",
+	},
+	"PolicyRefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this roundtrip.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
 	},
 	"Principal": {
 		AllowedChoices: []string{},
@@ -963,6 +1155,21 @@ same import operation.`,
 		Name:           "provider",
 		Stored:         true,
 		Type:           "string",
+	},
+	"ProxyFunction": {
+		AllowedChoices: []string{"ForwardProxy", "ReverseProxy"},
+		BSONFieldName:  "proxyfunction",
+		ConvertedName:  "ProxyFunction",
+		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
+		Description: `Denotes the function of this proxy in the chain of servers. By default the apex
+always sits on the egress side between a client or application and the origin
+server in which case the apex acts as a forwarding proxy. However, in the case
+of applications the proxy can also be located before the application as an
+ingress provider in which case the apex acts as a reverse proxy.`,
+		Exposed: true,
+		Name:    "proxyFunction",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Reasons": {
 		AllowedChoices: []string{},
@@ -1119,6 +1326,28 @@ var ProxyRoundtripLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		SubType:        "destination",
 		Type:           "ref",
 	},
+	"encryptionegress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"encryptioningress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
 	"extractions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "extractions",
@@ -1215,6 +1444,34 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"offband": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offband",
+		ConvertedName:  "Offband",
+		Description: `If true, the analysis ran offband. That means that we extracted the data
+from the user request, assigned team and verified access permissions, but
+then we forwarded the request as is to the provider untouched
+immediately, while running the analysis and policies in the background,
+reporting what we would have done.`,
+		Exposed: true,
+		Name:    "offband",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description: `If true, the policy has been applied in permissive mode.  That means that
+we extracted the data from the user request, assigned team, verified
+access permissions, run analysis, apply content policies and reported what
+we would have done, but ultimately let the request go to the provider
+untouched.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"pipelinename": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "pipelinename",
@@ -1224,6 +1481,17 @@ same import operation.`,
 		Name:           "pipelineName",
 		Stored:         true,
 		Type:           "string",
+	},
+	"policyrefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this roundtrip.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
 	},
 	"principal": {
 		AllowedChoices: []string{},
@@ -1246,6 +1514,21 @@ same import operation.`,
 		Name:           "provider",
 		Stored:         true,
 		Type:           "string",
+	},
+	"proxyfunction": {
+		AllowedChoices: []string{"ForwardProxy", "ReverseProxy"},
+		BSONFieldName:  "proxyfunction",
+		ConvertedName:  "ProxyFunction",
+		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
+		Description: `Denotes the function of this proxy in the chain of servers. By default the apex
+always sits on the egress side between a client or application and the origin
+server in which case the apex acts as a forwarding proxy. However, in the case
+of applications the proxy can also be located before the application as an
+ingress provider in which case the apex acts as a reverse proxy.`,
+		Exposed: true,
+		Name:    "proxyFunction",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"reasons": {
 		AllowedChoices: []string{},
@@ -1406,6 +1689,12 @@ type SparseProxyRoundtrip struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
 	// The extractions to log.
 	Extractions *[]*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
 
@@ -1431,14 +1720,38 @@ type SparseProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// If true, the analysis ran offband. That means that we extracted the data
+	// from the user request, assigned team and verified access permissions, but
+	// then we forwarded the request as is to the provider untouched
+	// immediately, while running the analysis and policies in the background,
+	// reporting what we would have done.
+	Offband *bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
+
+	// If true, the policy has been applied in permissive mode.  That means that
+	// we extracted the data from the user request, assigned team, verified
+	// access permissions, run analysis, apply content policies and reported what
+	// we would have done, but ultimately let the request go to the provider
+	// untouched.
+	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
+
 	// The name of the particular pipeline that extracted the text.
 	PipelineName *string `json:"pipelineName,omitempty" msgpack:"pipelineName,omitempty" bson:"pipelinename,omitempty" mapstructure:"pipelineName,omitempty"`
+
+	// List of references to the policies used to make this roundtrip.
+	PolicyRefs *PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
 
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
 	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
+
+	// Denotes the function of this proxy in the chain of servers. By default the apex
+	// always sits on the egress side between a client or application and the origin
+	// server in which case the apex acts as a forwarding proxy. However, in the case
+	// of applications the proxy can also be located before the application as an
+	// ingress provider in which case the apex acts as a reverse proxy.
+	ProxyFunction *ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
 	Reasons *[]string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
@@ -1525,6 +1838,12 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Destination != nil {
 		s.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		s.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionIngress != nil {
+		s.EncryptionIngress = o.EncryptionIngress
+	}
 	if o.Extractions != nil {
 		s.Extractions = o.Extractions
 	}
@@ -1549,14 +1868,26 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Offband != nil {
+		s.Offband = o.Offband
+	}
+	if o.Permissive != nil {
+		s.Permissive = o.Permissive
+	}
 	if o.PipelineName != nil {
 		s.PipelineName = o.PipelineName
+	}
+	if o.PolicyRefs != nil {
+		s.PolicyRefs = o.PolicyRefs
 	}
 	if o.Principal != nil {
 		s.Principal = o.Principal
 	}
 	if o.Provider != nil {
 		s.Provider = o.Provider
+	}
+	if o.ProxyFunction != nil {
+		s.ProxyFunction = o.ProxyFunction
 	}
 	if o.Reasons != nil {
 		s.Reasons = o.Reasons
@@ -1613,6 +1944,12 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Destination != nil {
 		o.Destination = s.Destination
 	}
+	if s.EncryptionEgress != nil {
+		o.EncryptionEgress = s.EncryptionEgress
+	}
+	if s.EncryptionIngress != nil {
+		o.EncryptionIngress = s.EncryptionIngress
+	}
 	if s.Extractions != nil {
 		o.Extractions = s.Extractions
 	}
@@ -1637,14 +1974,26 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Offband != nil {
+		o.Offband = s.Offband
+	}
+	if s.Permissive != nil {
+		o.Permissive = s.Permissive
+	}
 	if s.PipelineName != nil {
 		o.PipelineName = s.PipelineName
+	}
+	if s.PolicyRefs != nil {
+		o.PolicyRefs = s.PolicyRefs
 	}
 	if s.Principal != nil {
 		o.Principal = s.Principal
 	}
 	if s.Provider != nil {
 		o.Provider = s.Provider
+	}
+	if s.ProxyFunction != nil {
+		o.ProxyFunction = s.ProxyFunction
 	}
 	if s.Reasons != nil {
 		o.Reasons = s.Reasons
@@ -1699,6 +2048,12 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.Destination != nil {
 		out.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		out.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionIngress != nil {
+		out.EncryptionIngress = o.EncryptionIngress
+	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
 	}
@@ -1723,14 +2078,26 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.Offband != nil {
+		out.Offband = *o.Offband
+	}
+	if o.Permissive != nil {
+		out.Permissive = *o.Permissive
+	}
 	if o.PipelineName != nil {
 		out.PipelineName = *o.PipelineName
+	}
+	if o.PolicyRefs != nil {
+		out.PolicyRefs = *o.PolicyRefs
 	}
 	if o.Principal != nil {
 		out.Principal = o.Principal
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.ProxyFunction != nil {
+		out.ProxyFunction = *o.ProxyFunction
 	}
 	if o.Reasons != nil {
 		out.Reasons = *o.Reasons
@@ -1830,54 +2197,66 @@ func (o *SparseProxyRoundtrip) DeepCopyInto(out *SparseProxyRoundtrip) {
 }
 
 type mongoAttributesProxyRoundtrip struct {
-	ID            bson.ObjectId               `bson:"_id,omitempty"`
-	Alerts        []*AlertEvent               `bson:"alerts,omitempty"`
-	Annotations   map[string]string           `bson:"annotations,omitempty"`
-	Client        string                      `bson:"client,omitempty"`
-	ClientVersion string                      `bson:"clientversion,omitempty"`
-	Decision      ProxyRoundtripDecisionValue `bson:"decision"`
-	Destination   *Destination                `bson:"destination,omitempty"`
-	Extractions   []*Extraction               `bson:"extractions,omitempty"`
-	Hash          string                      `bson:"hash"`
-	ImportHash    string                      `bson:"importhash,omitempty"`
-	ImportLabel   string                      `bson:"importlabel,omitempty"`
-	Latency       *Latency                    `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                 `bson:"mcpmessage,omitempty"`
-	Model         string                      `bson:"model"`
-	Namespace     string                      `bson:"namespace,omitempty"`
-	PipelineName  string                      `bson:"pipelinename"`
-	Principal     *Principal                  `bson:"principal"`
-	Provider      string                      `bson:"provider"`
-	Reasons       []string                    `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                 `bson:"toolchoice,omitempty"`
-	Tools         map[string]*Tool            `bson:"tools,omitempty"`
-	Trace         *TraceRef                   `bson:"trace"`
-	Type          ProxyRoundtripTypeValue     `bson:"type"`
+	ID                bson.ObjectId                    `bson:"_id,omitempty"`
+	Alerts            []*AlertEvent                    `bson:"alerts,omitempty"`
+	Annotations       map[string]string                `bson:"annotations,omitempty"`
+	Client            string                           `bson:"client,omitempty"`
+	ClientVersion     string                           `bson:"clientversion,omitempty"`
+	Decision          ProxyRoundtripDecisionValue      `bson:"decision"`
+	Destination       *Destination                     `bson:"destination,omitempty"`
+	EncryptionEgress  *TLSState                        `bson:"encryptionegress,omitempty"`
+	EncryptionIngress *TLSState                        `bson:"encryptioningress,omitempty"`
+	Extractions       []*Extraction                    `bson:"extractions,omitempty"`
+	Hash              string                           `bson:"hash"`
+	ImportHash        string                           `bson:"importhash,omitempty"`
+	ImportLabel       string                           `bson:"importlabel,omitempty"`
+	Latency           *Latency                         `bson:"latency,omitempty"`
+	McpMessage        *MCPMessage                      `bson:"mcpmessage,omitempty"`
+	Model             string                           `bson:"model"`
+	Namespace         string                           `bson:"namespace,omitempty"`
+	Offband           bool                             `bson:"offband"`
+	Permissive        bool                             `bson:"permissive"`
+	PipelineName      string                           `bson:"pipelinename"`
+	PolicyRefs        PolicyRefsList                   `bson:"policyrefs"`
+	Principal         *Principal                       `bson:"principal"`
+	Provider          string                           `bson:"provider"`
+	ProxyFunction     ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
+	Reasons           []string                         `bson:"reasons,omitempty"`
+	Summary           *ExtractionSummary               `bson:"summary,omitempty"`
+	ToolChoice        *ToolChoice                      `bson:"toolchoice,omitempty"`
+	Tools             map[string]*Tool                 `bson:"tools,omitempty"`
+	Trace             *TraceRef                        `bson:"trace,omitempty"`
+	Type              ProxyRoundtripTypeValue          `bson:"type"`
 }
 type mongoAttributesSparseProxyRoundtrip struct {
-	ID            bson.ObjectId                `bson:"_id,omitempty"`
-	Alerts        *[]*AlertEvent               `bson:"alerts,omitempty"`
-	Annotations   *map[string]string           `bson:"annotations,omitempty"`
-	Client        *string                      `bson:"client,omitempty"`
-	ClientVersion *string                      `bson:"clientversion,omitempty"`
-	Decision      *ProxyRoundtripDecisionValue `bson:"decision,omitempty"`
-	Destination   *Destination                 `bson:"destination,omitempty"`
-	Extractions   *[]*Extraction               `bson:"extractions,omitempty"`
-	Hash          *string                      `bson:"hash,omitempty"`
-	ImportHash    *string                      `bson:"importhash,omitempty"`
-	ImportLabel   *string                      `bson:"importlabel,omitempty"`
-	Latency       *Latency                     `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                  `bson:"mcpmessage,omitempty"`
-	Model         *string                      `bson:"model,omitempty"`
-	Namespace     *string                      `bson:"namespace,omitempty"`
-	PipelineName  *string                      `bson:"pipelinename,omitempty"`
-	Principal     *Principal                   `bson:"principal,omitempty"`
-	Provider      *string                      `bson:"provider,omitempty"`
-	Reasons       *[]string                    `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                  `bson:"toolchoice,omitempty"`
-	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
-	Trace         *TraceRef                    `bson:"trace,omitempty"`
-	Type          *ProxyRoundtripTypeValue     `bson:"type,omitempty"`
+	ID                bson.ObjectId                     `bson:"_id,omitempty"`
+	Alerts            *[]*AlertEvent                    `bson:"alerts,omitempty"`
+	Annotations       *map[string]string                `bson:"annotations,omitempty"`
+	Client            *string                           `bson:"client,omitempty"`
+	ClientVersion     *string                           `bson:"clientversion,omitempty"`
+	Decision          *ProxyRoundtripDecisionValue      `bson:"decision,omitempty"`
+	Destination       *Destination                      `bson:"destination,omitempty"`
+	EncryptionEgress  *TLSState                         `bson:"encryptionegress,omitempty"`
+	EncryptionIngress *TLSState                         `bson:"encryptioningress,omitempty"`
+	Extractions       *[]*Extraction                    `bson:"extractions,omitempty"`
+	Hash              *string                           `bson:"hash,omitempty"`
+	ImportHash        *string                           `bson:"importhash,omitempty"`
+	ImportLabel       *string                           `bson:"importlabel,omitempty"`
+	Latency           *Latency                          `bson:"latency,omitempty"`
+	McpMessage        *MCPMessage                       `bson:"mcpmessage,omitempty"`
+	Model             *string                           `bson:"model,omitempty"`
+	Namespace         *string                           `bson:"namespace,omitempty"`
+	Offband           *bool                             `bson:"offband,omitempty"`
+	Permissive        *bool                             `bson:"permissive,omitempty"`
+	PipelineName      *string                           `bson:"pipelinename,omitempty"`
+	PolicyRefs        *PolicyRefsList                   `bson:"policyrefs,omitempty"`
+	Principal         *Principal                        `bson:"principal,omitempty"`
+	Provider          *string                           `bson:"provider,omitempty"`
+	ProxyFunction     *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
+	Reasons           *[]string                         `bson:"reasons,omitempty"`
+	Summary           *ExtractionSummary                `bson:"summary,omitempty"`
+	ToolChoice        *ToolChoice                       `bson:"toolchoice,omitempty"`
+	Tools             *map[string]*Tool                 `bson:"tools,omitempty"`
+	Trace             *TraceRef                         `bson:"trace,omitempty"`
+	Type              *ProxyRoundtripTypeValue          `bson:"type,omitempty"`
 }

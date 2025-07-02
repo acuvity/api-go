@@ -185,6 +185,18 @@
       "title": "providersWithoutConsent",
       "type": "array"
     },
+    "reportRecipientEmails": {
+      "$friendlyName": "Report Recipient Emails",
+      "description": "The list of email recipients where digest reports will be sent to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "reportRecipientEmails",
+      "type": "array"
+    },
     "safeUsageURL": {
       "$friendlyName": "AI Safe Usage URL",
       "description": "A link to the AI Safe Usage Document for the organization.  If provided, it is presented in the consent banner to the employees.",

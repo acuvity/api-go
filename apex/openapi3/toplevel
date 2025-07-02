@@ -247,22 +247,6 @@
             "example": 0.9,
             "type": "number"
           },
-          "customDataSets": {
-            "additionalProperties": {
-              "additionalProperties": {
-                "type": "number"
-              },
-              "type": "object"
-            },
-            "description": "The custom data sets found during classification.",
-            "example": {
-              "cds": {
-                "ct1": 1,
-                "ct2": 2
-              }
-            },
-            "type": "object"
-          },
           "customDataTypes": {
             "additionalProperties": {
               "type": "number"
@@ -276,6 +260,22 @@
           "data": {
             "description": "The data extracted.",
             "type": "string"
+          },
+          "dataSets": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "number"
+              },
+              "type": "object"
+            },
+            "description": "The data sets found during classification.",
+            "example": {
+              "cds": {
+                "ct1": 1,
+                "ct2": 2
+              }
+            },
+            "type": "object"
           },
           "detections": {
             "description": "The textual detections found while applying policies.",
@@ -468,24 +468,24 @@
       "extractionsummary": {
         "description": "Represents the summary of the extractions.",
         "properties": {
-          "PIIs": {
-            "additionalProperties": true,
-            "description": "The PIIs found during classification.",
-            "type": "object"
-          },
           "categories": {
             "additionalProperties": true,
             "description": "The categories are remapping of the modalities in a more human friendly way.",
             "type": "object"
           },
-          "customDataSets": {
+          "confidenceLevels": {
             "additionalProperties": true,
-            "description": "The data sets.",
+            "description": "The detected confidence levels.",
             "type": "object"
           },
-          "customDataTypes": {
+          "dataSets": {
             "additionalProperties": true,
-            "description": "The data types.",
+            "description": "The detected datasets.",
+            "type": "object"
+          },
+          "dataTypes": {
+            "additionalProperties": true,
+            "description": "The detected dataTypes.",
             "type": "object"
           },
           "exploits": {
@@ -516,11 +516,6 @@
           "modalities": {
             "additionalProperties": true,
             "description": "The modalities of data detected in the data.",
-            "type": "object"
-          },
-          "secrets": {
-            "additionalProperties": true,
-            "description": "The secrets found during classification.",
             "type": "object"
           },
           "topics": {
@@ -936,10 +931,13 @@
             },
             "type": "array"
           },
-          "team": {
-            "description": "The team that was used to authorize the request.",
+          "teams": {
+            "description": "The teams that were used to authorize the request.",
             "example": "admins",
-            "type": "string"
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "tokenName": {
             "description": "The name of the token, if any.",
@@ -989,6 +987,30 @@
             "description": "The name of the application.",
             "example": "MyApp",
             "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/principalappuser"
+          }
+        },
+        "type": "object"
+      },
+      "principalappuser": {
+        "description": "Describes the optional principal information of the user of an application which\nis being derived from a bearer token of a request.",
+        "properties": {
+          "email": {
+            "description": "The Email address of the user. This will be derived from the email claims of a\ntoken like email, emailAddress or upn.",
+            "example": "john.doe@acme.com",
+            "type": "string"
+          },
+          "name": {
+            "description": "The given name of the user. This will be derived from the common name claims of\na token like name or given_name.",
+            "example": "John Doe",
+            "type": "string"
+          },
+          "tokenValidated": {
+            "description": "This will be true if the apex was able to validate the token in the request.",
+            "example": false,
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -1461,6 +1483,11 @@
           "traceID": {
             "description": "The Trace ID that is being referenced as hex encoded string.",
             "example": "4bf92f3577b34da6a3ce929d0e0e4736",
+            "type": "string"
+          },
+          "transparentSpanID": {
+            "description": "The transparent span ID that is being referenced. If the application operates in\ntransparent tracing mode, then this field must be set to the span ID that this\nspan is originally referencing.",
+            "example": "6ba80aaa3b2f43d8",
             "type": "string"
           }
         },

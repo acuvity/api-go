@@ -180,7 +180,7 @@ type ScanResponse struct {
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
 	// References to the trace of the request.
-	Trace *TraceRef `json:"trace" msgpack:"trace" bson:"trace" mapstructure:"trace,omitempty"`
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type ScanResponseTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -1631,7 +1631,7 @@ type mongoAttributesScanResponse struct {
 	Summary       *ExtractionSummary        `bson:"summary,omitempty"`
 	ToolChoice    *ToolChoice               `bson:"toolchoice,omitempty"`
 	Tools         map[string]*Tool          `bson:"tools,omitempty"`
-	Trace         *TraceRef                 `bson:"trace"`
+	Trace         *TraceRef                 `bson:"trace,omitempty"`
 	Type          ScanResponseTypeValue     `bson:"type"`
 }
 type mongoAttributesSparseScanResponse struct {

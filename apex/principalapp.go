@@ -93,6 +93,9 @@ type PrincipalApp struct {
 	// The name of the application.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// The optional user information of the application request.
+	User *PrincipalAppUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"user,omitempty" mapstructure:"user,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -135,6 +138,7 @@ func (o *PrincipalApp) GetBSON() (any, error) {
 	s.Component = o.Component
 	s.Labels = o.Labels
 	s.Name = o.Name
+	s.User = o.User
 
 	return s, nil
 }
@@ -155,6 +159,7 @@ func (o *PrincipalApp) SetBSON(raw bson.Raw) error {
 	o.Component = s.Component
 	o.Labels = s.Labels
 	o.Name = s.Name
+	o.User = s.User
 
 	return nil
 }
@@ -198,6 +203,7 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Component: &o.Component,
 			Labels:    &o.Labels,
 			Name:      &o.Name,
+			User:      o.User,
 		}
 	}
 
@@ -210,6 +216,8 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Labels = &(o.Labels)
 		case "name":
 			sp.Name = &(o.Name)
+		case "user":
+			sp.User = o.User
 		}
 	}
 
@@ -231,6 +239,9 @@ func (o *PrincipalApp) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
+	}
+	if so.User != nil {
+		o.User = so.User
 	}
 }
 
@@ -263,6 +274,13 @@ func (o *PrincipalApp) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if o.User != nil {
+		elemental.ResetDefaultForZeroValues(o.User)
+		if err := o.User.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors
@@ -304,6 +322,8 @@ func (o *PrincipalApp) ValueForAttribute(name string) any {
 		return o.Labels
 	case "name":
 		return o.Name
+	case "user":
+		return o.User
 	}
 
 	return nil
@@ -342,6 +362,17 @@ var PrincipalAppAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"User": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "user",
+		ConvertedName:  "User",
+		Description:    `The optional user information of the application request.`,
+		Exposed:        true,
+		Name:           "user",
+		Stored:         true,
+		SubType:        "principalappuser",
+		Type:           "ref",
+	},
 }
 
 // PrincipalAppLowerCaseAttributesMap represents the map of attribute for PrincipalApp.
@@ -376,6 +407,17 @@ var PrincipalAppLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Name:           "name",
 		Stored:         true,
 		Type:           "string",
+	},
+	"user": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "user",
+		ConvertedName:  "User",
+		Description:    `The optional user information of the application request.`,
+		Exposed:        true,
+		Name:           "user",
+		Stored:         true,
+		SubType:        "principalappuser",
+		Type:           "ref",
 	},
 }
 
@@ -451,6 +493,9 @@ type SparsePrincipalApp struct {
 	// The name of the application.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// The optional user information of the application request.
+	User *PrincipalAppUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"user,omitempty" mapstructure:"user,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -495,6 +540,9 @@ func (o *SparsePrincipalApp) GetBSON() (any, error) {
 	if o.Name != nil {
 		s.Name = o.Name
 	}
+	if o.User != nil {
+		s.User = o.User
+	}
 
 	return s, nil
 }
@@ -521,6 +569,9 @@ func (o *SparsePrincipalApp) SetBSON(raw bson.Raw) error {
 	if s.Name != nil {
 		o.Name = s.Name
 	}
+	if s.User != nil {
+		o.User = s.User
+	}
 
 	return nil
 }
@@ -543,6 +594,9 @@ func (o *SparsePrincipalApp) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
+	}
+	if o.User != nil {
+		out.User = o.User
 	}
 
 	return out
@@ -573,12 +627,14 @@ func (o *SparsePrincipalApp) DeepCopyInto(out *SparsePrincipalApp) {
 }
 
 type mongoAttributesPrincipalApp struct {
-	Component string   `bson:"component,omitempty"`
-	Labels    []string `bson:"labels,omitempty"`
-	Name      string   `bson:"name,omitempty"`
+	Component string            `bson:"component,omitempty"`
+	Labels    []string          `bson:"labels,omitempty"`
+	Name      string            `bson:"name,omitempty"`
+	User      *PrincipalAppUser `bson:"user,omitempty"`
 }
 type mongoAttributesSparsePrincipalApp struct {
-	Component *string   `bson:"component,omitempty"`
-	Labels    *[]string `bson:"labels,omitempty"`
-	Name      *string   `bson:"name,omitempty"`
+	Component *string           `bson:"component,omitempty"`
+	Labels    *[]string         `bson:"labels,omitempty"`
+	Name      *string           `bson:"name,omitempty"`
+	User      *PrincipalAppUser `bson:"user,omitempty"`
 }

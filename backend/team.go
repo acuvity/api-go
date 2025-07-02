@@ -453,9 +453,6 @@ func (o *Team) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateAuthorizationSubject("subject", o.Subject); err != nil {
-		errors = errors.Append(err)
-	}
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}
