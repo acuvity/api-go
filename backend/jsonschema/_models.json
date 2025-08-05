@@ -24,6 +24,9 @@
     "aidomain": {
       "$ref": "aidomain.json"
     },
+    "aiplugin": {
+      "$ref": "aiplugin.json"
+    },
     "alert": {
       "$ref": "alert.json"
     },
@@ -84,6 +87,9 @@
     "digestreport": {
       "$ref": "digestreport.json"
     },
+    "digestreportrequest": {
+      "$ref": "digestreportrequest.json"
+    },
     "domainhits": {
       "$ref": "domainhits.json"
     },
@@ -101,6 +107,9 @@
     },
     "extractor": {
       "$ref": "extractor.json"
+    },
+    "extractorlib": {
+      "$ref": "extractorlib.json"
     },
     "extractorref": {
       "$ref": "extractorref.json"
@@ -204,8 +213,8 @@
     "principalapp": {
       "$ref": "principalapp.json"
     },
-    "principalappuser": {
-      "$ref": "principalappuser.json"
+    "principalexternal": {
+      "$ref": "principalexternal.json"
     },
     "principaluser": {
       "$ref": "principaluser.json"
@@ -308,6 +317,12 @@
     },
     "tracetagvalues": {
       "$ref": "tracetagvalues.json"
+    },
+    "tunnelproxyauth": {
+      "$ref": "tunnelproxyauth.json"
+    },
+    "tunnelproxyauthbasic": {
+      "$ref": "tunnelproxyauthbasic.json"
     },
     "usertoken": {
       "$ref": "usertoken.json"

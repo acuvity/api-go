@@ -282,7 +282,10 @@ func (o *AccessPolicy) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AccessPolicy) Doc() string {
 
-	return `Define which teams or individuals can access a provider.`
+	return `Access Policies define rules governing how users can interact with a provider.
+They control whether access is permitted or denied and can enforce additional
+behaviors, such as redacting sensitive data, issuing warnings for problematic
+queries, and other security or compliance measures by applying Content Policies.`
 }
 
 func (o *AccessPolicy) String() string {

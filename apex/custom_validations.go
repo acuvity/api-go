@@ -50,9 +50,22 @@ func ValidatePrincipal(principal *Principal) error {
 		if principal.App == nil {
 			return makeErr("app", "'App' must have its information defined.")
 		}
+		if principal.User != nil || principal.External != nil {
+			return makeErr("app", "'App' must not have 'User' or 'External' defined.")
+		}
 	case PrincipalTypeUser:
 		if principal.User == nil {
 			return makeErr("user", "'User' must have its information defined.")
+		}
+		if principal.App != nil || principal.External != nil {
+			return makeErr("user", "'User' must not have 'App' or 'External' defined.")
+		}
+	case PrincipalTypeExternal:
+		if principal.External == nil {
+			return makeErr("external", "'External' must have its information defined.")
+		}
+		if principal.User != nil || principal.App != nil {
+			return makeErr("external", "'External' must not have 'User' or 'App' defined.")
 		}
 	}
 

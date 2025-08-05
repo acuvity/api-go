@@ -1,0 +1,191 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@importable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "AI Plugin",
+  "$friendlyNamePlural": "AI Plugins",
+  "$modelName": "AIPlugin",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aiplugins",
+  "$modelRestName": "aiplugin",
+  "additionalProperties": false,
+  "description": "AI plugin provides an overview of a plugin.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "categories": {
+      "$friendlyName": "Categories",
+      "description": "The categories associated with the plugin.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "categories",
+      "type": "array"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "A brief description about the AI plugin and its purpose.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "displayName": {
+      "$friendlyName": "Display Name",
+      "$required": true,
+      "description": "The human-friendly name of the plugin.",
+      "title": "displayName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the plugin.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pluginID": {
+      "$friendlyName": "Plugin ID",
+      "$required": true,
+      "description": "The identifier of the plugin.",
+      "title": "pluginID",
+      "type": "string"
+    },
+    "pluginUUID": {
+      "$friendlyName": "Plugin UUID",
+      "$required": true,
+      "description": "The universally unique identifier of the plugin.",
+      "title": "pluginUUID",
+      "type": "string"
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "publishedDate": {
+      "$friendlyName": "Published Date",
+      "$required": true,
+      "description": "When the plugin was published.",
+      "title": "publishedDate",
+      "type": "string"
+    },
+    "publisherID": {
+      "$friendlyName": "Publisher ID",
+      "$required": true,
+      "description": "The publisher identifier of the plugin.",
+      "title": "publisherID",
+      "type": "string"
+    },
+    "publisherName": {
+      "$friendlyName": "Publisher Name",
+      "$required": true,
+      "description": "The publisher name of the plugin.",
+      "title": "publisherName",
+      "type": "string"
+    },
+    "tags": {
+      "$friendlyName": "Tags",
+      "description": "The tags associated with the plugin.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "tags",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "vetted": {
+      "$friendlyName": "Vetted",
+      "description": "Flag to say if the plugin has been vetted by Acuvity or not.",
+      "title": "vetted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "displayName",
+    "name",
+    "pluginID",
+    "pluginUUID",
+    "publishedDate",
+    "publisherID",
+    "publisherName"
+  ],
+  "title": "AIPlugin",
+  "type": "object"
+}

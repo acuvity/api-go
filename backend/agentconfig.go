@@ -199,6 +199,26 @@ type AgentConfig struct {
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled bool `json:"systemProxyManagementDisabled" msgpack:"systemProxyManagementDisabled" bson:"systemproxymanagementdisabled" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
+	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+	// apex will make its requests to the destination back through the agent over the
+	// same tunnel.
+	TunnelEnabled bool `json:"tunnelEnabled" msgpack:"tunnelEnabled" bson:"tunnelenabled" mapstructure:"tunnelEnabled,omitempty"`
+
+	// If the proxy server used by the tunnel requires authentication, this is then
+	// authentication information to use.
+	TunnelProxyAuth *TunnelProxyAuth `json:"tunnelProxyAuth,omitempty" msgpack:"tunnelProxyAuth,omitempty" bson:"tunnelproxyauth,omitempty" mapstructure:"tunnelProxyAuth,omitempty"`
+
+	// If you are using a proxy server for the tunnel connection, you can specify
+	// additional headers to be sent with the requests to the proxy.
+	TunnelProxyHeaders map[string]string `json:"tunnelProxyHeaders,omitempty" msgpack:"tunnelProxyHeaders,omitempty" bson:"tunnelproxyheaders,omitempty" mapstructure:"tunnelProxyHeaders,omitempty"`
+
+	// If tunnels are enabled, and the system requires the use of an HTTP proxy server,
+	// then this is the URL of the proxy server to use.
+	// It must be a full URL including the scheme (http or https) and optionally a
+	// port. The proxy will be used not only for the tunnel connection, but also for
+	// all requests to the final destination.
+	TunnelProxyURL string `json:"tunnelProxyURL,omitempty" msgpack:"tunnelProxyURL,omitempty" bson:"tunnelproxyurl,omitempty" mapstructure:"tunnelProxyURL,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -230,6 +250,7 @@ func NewAgentConfig() *AgentConfig {
 		ScanReportInterval:    "12h",
 		ScanRunningProcesses:  []string{},
 		Subject:               [][]string{},
+		TunnelProxyHeaders:    map[string]string{},
 	}
 }
 
@@ -290,6 +311,10 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ScanRunningProcesses = o.ScanRunningProcesses
 	s.Subject = o.Subject
 	s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
+	s.TunnelEnabled = o.TunnelEnabled
+	s.TunnelProxyAuth = o.TunnelProxyAuth
+	s.TunnelProxyHeaders = o.TunnelProxyHeaders
+	s.TunnelProxyURL = o.TunnelProxyURL
 	s.UpdateTime = o.UpdateTime
 	s.UseDynamicPort = o.UseDynamicPort
 	s.ZHash = o.ZHash
@@ -338,6 +363,10 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ScanRunningProcesses = s.ScanRunningProcesses
 	o.Subject = s.Subject
 	o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
+	o.TunnelEnabled = s.TunnelEnabled
+	o.TunnelProxyAuth = s.TunnelProxyAuth
+	o.TunnelProxyHeaders = s.TunnelProxyHeaders
+	o.TunnelProxyURL = s.TunnelProxyURL
 	o.UpdateTime = s.UpdateTime
 	o.UseDynamicPort = s.UseDynamicPort
 	o.ZHash = s.ZHash
@@ -469,6 +498,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ScanRunningProcesses:          &o.ScanRunningProcesses,
 			Subject:                       &o.Subject,
 			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
+			TunnelEnabled:                 &o.TunnelEnabled,
+			TunnelProxyAuth:               o.TunnelProxyAuth,
+			TunnelProxyHeaders:            &o.TunnelProxyHeaders,
+			TunnelProxyURL:                &o.TunnelProxyURL,
 			UpdateTime:                    &o.UpdateTime,
 			UseDynamicPort:                &o.UseDynamicPort,
 			ZHash:                         &o.ZHash,
@@ -533,6 +566,14 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Subject = &(o.Subject)
 		case "systemProxyManagementDisabled":
 			sp.SystemProxyManagementDisabled = &(o.SystemProxyManagementDisabled)
+		case "tunnelEnabled":
+			sp.TunnelEnabled = &(o.TunnelEnabled)
+		case "tunnelProxyAuth":
+			sp.TunnelProxyAuth = o.TunnelProxyAuth
+		case "tunnelProxyHeaders":
+			sp.TunnelProxyHeaders = &(o.TunnelProxyHeaders)
+		case "tunnelProxyURL":
+			sp.TunnelProxyURL = &(o.TunnelProxyURL)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "useDynamicPort":
@@ -634,6 +675,18 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = *so.SystemProxyManagementDisabled
+	}
+	if so.TunnelEnabled != nil {
+		o.TunnelEnabled = *so.TunnelEnabled
+	}
+	if so.TunnelProxyAuth != nil {
+		o.TunnelProxyAuth = so.TunnelProxyAuth
+	}
+	if so.TunnelProxyHeaders != nil {
+		o.TunnelProxyHeaders = *so.TunnelProxyHeaders
+	}
+	if so.TunnelProxyURL != nil {
+		o.TunnelProxyURL = *so.TunnelProxyURL
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -741,6 +794,17 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.TunnelProxyAuth != nil {
+		elemental.ResetDefaultForZeroValues(o.TunnelProxyAuth)
+		if err := o.TunnelProxyAuth.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := ValidateURL("tunnelProxyURL", o.TunnelProxyURL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	// Custom object validation.
 	if err := ValidateAgentConfig(o); err != nil {
 		errors = errors.Append(err)
@@ -834,6 +898,14 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.Subject
 	case "systemProxyManagementDisabled":
 		return o.SystemProxyManagementDisabled
+	case "tunnelEnabled":
+		return o.TunnelEnabled
+	case "tunnelProxyAuth":
+		return o.TunnelProxyAuth
+	case "tunnelProxyHeaders":
+		return o.TunnelProxyHeaders
+	case "tunnelProxyURL":
+		return o.TunnelProxyURL
 	case "updateTime":
 		return o.UpdateTime
 	case "useDynamicPort":
@@ -1164,6 +1236,56 @@ essentially pinning to a version.`,
 		Name:           "systemProxyManagementDisabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"TunnelEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelenabled",
+		ConvertedName:  "TunnelEnabled",
+		Description: `If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+apex will make its requests to the destination back through the agent over the
+same tunnel.`,
+		Exposed: true,
+		Name:    "tunnelEnabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"TunnelProxyAuth": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyauth",
+		ConvertedName:  "TunnelProxyAuth",
+		Description: `If the proxy server used by the tunnel requires authentication, this is then
+authentication information to use.`,
+		Exposed: true,
+		Name:    "tunnelProxyAuth",
+		Stored:  true,
+		SubType: "tunnelproxyauth",
+		Type:    "ref",
+	},
+	"TunnelProxyHeaders": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyheaders",
+		ConvertedName:  "TunnelProxyHeaders",
+		Description: `If you are using a proxy server for the tunnel connection, you can specify
+additional headers to be sent with the requests to the proxy.`,
+		Exposed: true,
+		Name:    "tunnelProxyHeaders",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
+	},
+	"TunnelProxyURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyurl",
+		ConvertedName:  "TunnelProxyURL",
+		Description: `If tunnels are enabled, and the system requires the use of an HTTP proxy server,
+then this is the URL of the proxy server to use.
+It must be a full URL including the scheme (http or https) and optionally a
+port. The proxy will be used not only for the tunnel connection, but also for
+all requests to the final destination.`,
+		Exposed: true,
+		Name:    "tunnelProxyURL",
+		Stored:  true,
+		Type:    "string",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -1511,6 +1633,56 @@ essentially pinning to a version.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"tunnelenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelenabled",
+		ConvertedName:  "TunnelEnabled",
+		Description: `If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+apex will make its requests to the destination back through the agent over the
+same tunnel.`,
+		Exposed: true,
+		Name:    "tunnelEnabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"tunnelproxyauth": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyauth",
+		ConvertedName:  "TunnelProxyAuth",
+		Description: `If the proxy server used by the tunnel requires authentication, this is then
+authentication information to use.`,
+		Exposed: true,
+		Name:    "tunnelProxyAuth",
+		Stored:  true,
+		SubType: "tunnelproxyauth",
+		Type:    "ref",
+	},
+	"tunnelproxyheaders": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyheaders",
+		ConvertedName:  "TunnelProxyHeaders",
+		Description: `If you are using a proxy server for the tunnel connection, you can specify
+additional headers to be sent with the requests to the proxy.`,
+		Exposed: true,
+		Name:    "tunnelProxyHeaders",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
+	},
+	"tunnelproxyurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tunnelproxyurl",
+		ConvertedName:  "TunnelProxyURL",
+		Description: `If tunnels are enabled, and the system requires the use of an HTTP proxy server,
+then this is the URL of the proxy server to use.
+It must be a full URL including the scheme (http or https) and optionally a
+port. The proxy will be used not only for the tunnel connection, but also for
+all requests to the final destination.`,
+		Exposed: true,
+		Name:    "tunnelProxyURL",
+		Stored:  true,
+		Type:    "string",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1691,6 +1863,26 @@ type SparseAgentConfig struct {
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled *bool `json:"systemProxyManagementDisabled,omitempty" msgpack:"systemProxyManagementDisabled,omitempty" bson:"systemproxymanagementdisabled,omitempty" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
+	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+	// apex will make its requests to the destination back through the agent over the
+	// same tunnel.
+	TunnelEnabled *bool `json:"tunnelEnabled,omitempty" msgpack:"tunnelEnabled,omitempty" bson:"tunnelenabled,omitempty" mapstructure:"tunnelEnabled,omitempty"`
+
+	// If the proxy server used by the tunnel requires authentication, this is then
+	// authentication information to use.
+	TunnelProxyAuth *TunnelProxyAuth `json:"tunnelProxyAuth,omitempty" msgpack:"tunnelProxyAuth,omitempty" bson:"tunnelproxyauth,omitempty" mapstructure:"tunnelProxyAuth,omitempty"`
+
+	// If you are using a proxy server for the tunnel connection, you can specify
+	// additional headers to be sent with the requests to the proxy.
+	TunnelProxyHeaders *map[string]string `json:"tunnelProxyHeaders,omitempty" msgpack:"tunnelProxyHeaders,omitempty" bson:"tunnelproxyheaders,omitempty" mapstructure:"tunnelProxyHeaders,omitempty"`
+
+	// If tunnels are enabled, and the system requires the use of an HTTP proxy server,
+	// then this is the URL of the proxy server to use.
+	// It must be a full URL including the scheme (http or https) and optionally a
+	// port. The proxy will be used not only for the tunnel connection, but also for
+	// all requests to the final destination.
+	TunnelProxyURL *string `json:"tunnelProxyURL,omitempty" msgpack:"tunnelProxyURL,omitempty" bson:"tunnelproxyurl,omitempty" mapstructure:"tunnelProxyURL,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
@@ -1828,6 +2020,18 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.SystemProxyManagementDisabled != nil {
 		s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	}
+	if o.TunnelEnabled != nil {
+		s.TunnelEnabled = o.TunnelEnabled
+	}
+	if o.TunnelProxyAuth != nil {
+		s.TunnelProxyAuth = o.TunnelProxyAuth
+	}
+	if o.TunnelProxyHeaders != nil {
+		s.TunnelProxyHeaders = o.TunnelProxyHeaders
+	}
+	if o.TunnelProxyURL != nil {
+		s.TunnelProxyURL = o.TunnelProxyURL
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1937,6 +2141,18 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	}
+	if s.TunnelEnabled != nil {
+		o.TunnelEnabled = s.TunnelEnabled
+	}
+	if s.TunnelProxyAuth != nil {
+		o.TunnelProxyAuth = s.TunnelProxyAuth
+	}
+	if s.TunnelProxyHeaders != nil {
+		o.TunnelProxyHeaders = s.TunnelProxyHeaders
+	}
+	if s.TunnelProxyURL != nil {
+		o.TunnelProxyURL = s.TunnelProxyURL
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -2043,6 +2259,18 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SystemProxyManagementDisabled != nil {
 		out.SystemProxyManagementDisabled = *o.SystemProxyManagementDisabled
+	}
+	if o.TunnelEnabled != nil {
+		out.TunnelEnabled = *o.TunnelEnabled
+	}
+	if o.TunnelProxyAuth != nil {
+		out.TunnelProxyAuth = o.TunnelProxyAuth
+	}
+	if o.TunnelProxyHeaders != nil {
+		out.TunnelProxyHeaders = *o.TunnelProxyHeaders
+	}
+	if o.TunnelProxyURL != nil {
+		out.TunnelProxyURL = *o.TunnelProxyURL
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -2192,6 +2420,10 @@ type mongoAttributesAgentConfig struct {
 	ScanRunningProcesses          []string                         `bson:"scanrunningprocesses"`
 	Subject                       [][]string                       `bson:"subject"`
 	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
+	TunnelEnabled                 bool                             `bson:"tunnelenabled"`
+	TunnelProxyAuth               *TunnelProxyAuth                 `bson:"tunnelproxyauth,omitempty"`
+	TunnelProxyHeaders            map[string]string                `bson:"tunnelproxyheaders,omitempty"`
+	TunnelProxyURL                string                           `bson:"tunnelproxyurl,omitempty"`
 	UpdateTime                    time.Time                        `bson:"updatetime"`
 	UseDynamicPort                bool                             `bson:"usedynamicport"`
 	ZHash                         int                              `bson:"zhash"`
@@ -2225,6 +2457,10 @@ type mongoAttributesSparseAgentConfig struct {
 	ScanRunningProcesses          *[]string                         `bson:"scanrunningprocesses,omitempty"`
 	Subject                       *[][]string                       `bson:"subject,omitempty"`
 	SystemProxyManagementDisabled *bool                             `bson:"systemproxymanagementdisabled,omitempty"`
+	TunnelEnabled                 *bool                             `bson:"tunnelenabled,omitempty"`
+	TunnelProxyAuth               *TunnelProxyAuth                  `bson:"tunnelproxyauth,omitempty"`
+	TunnelProxyHeaders            *map[string]string                `bson:"tunnelproxyheaders,omitempty"`
+	TunnelProxyURL                *string                           `bson:"tunnelproxyurl,omitempty"`
 	UpdateTime                    *time.Time                        `bson:"updatetime,omitempty"`
 	UseDynamicPort                *bool                             `bson:"usedynamicport,omitempty"`
 	ZHash                         *int                              `bson:"zhash,omitempty"`

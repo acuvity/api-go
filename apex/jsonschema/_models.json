@@ -57,8 +57,8 @@
     "principalapp": {
       "$ref": "principalapp.json"
     },
-    "principalappuser": {
-      "$ref": "principalappuser.json"
+    "principalexternal": {
+      "$ref": "principalexternal.json"
     },
     "principaluser": {
       "$ref": "principaluser.json"

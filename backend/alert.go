@@ -225,7 +225,8 @@ func (o *Alert) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *Alert) Doc() string {
 
-	return `Represents an alert.`
+	return `Displays all alerts generated according to the configured Content Policies,
+providing visibility into policy violations and related security events.`
 }
 
 func (o *Alert) String() string {

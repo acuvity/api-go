@@ -12,7 +12,7 @@
   "$modelResourceName": "accesspolicies",
   "$modelRestName": "accesspolicy",
   "additionalProperties": false,
-  "description": "Define which teams or individuals can access a provider.",
+  "description": "Access Policies define rules governing how users can interact with a provider. They control whether access is permitted or denied and can enforce additional behaviors, such as redacting sensitive data, issuing warnings for problematic queries, and other security or compliance measures by applying Content Policies.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

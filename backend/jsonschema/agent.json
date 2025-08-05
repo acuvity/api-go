@@ -12,7 +12,7 @@
   "$modelResourceName": "agents",
   "$modelRestName": "agent",
   "additionalProperties": false,
-  "description": "Stores information about a known agent.",
+  "description": "Displays the status of Acushield agents deployed on users’ machines, providing insights into their operational state and activity.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

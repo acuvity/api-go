@@ -12,7 +12,7 @@
   "$modelResourceName": "teams",
   "$modelRestName": "team",
   "additionalProperties": false,
-  "description": "Teams can be created to create groups of people, identified by their jwt claims that can be used when writing authorizations.",
+  "description": "Provider Teams are logical groupings of users, defined by their identity claims. These teams can be referenced in Access Policies to control user permissions, such as granting or restricting access to providers and other related resources or operations.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

@@ -108,6 +108,9 @@ type ProxyConf struct {
 	// List of DataSets.
 	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
+	// The extractor libs of the organization.
+	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
+
 	// The extractors of the organization.
 	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
 
@@ -250,6 +253,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ContentPolicy:       &o.ContentPolicy,
 			CustomDataTypes:     &o.CustomDataTypes,
 			DataSets:            &o.DataSets,
+			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
 			Namespace:           &o.Namespace,
 			OrgSettings:         o.OrgSettings,
@@ -278,6 +282,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CustomDataTypes = &(o.CustomDataTypes)
 		case "dataSets":
 			sp.DataSets = &(o.DataSets)
+		case "extractorLibs":
+			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
 		case "namespace":
@@ -326,6 +332,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DataSets != nil {
 		o.DataSets = *so.DataSets
+	}
+	if so.ExtractorLibs != nil {
+		o.ExtractorLibs = *so.ExtractorLibs
 	}
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
@@ -408,6 +417,16 @@ func (o *ProxyConf) Validate() error {
 	}
 
 	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
 		}
@@ -504,6 +523,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.CustomDataTypes
 	case "dataSets":
 		return o.DataSets
+	case "extractorLibs":
+		return o.ExtractorLibs
 	case "extractors":
 		return o.Extractors
 	case "namespace":
@@ -596,6 +617,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "dataSets",
 		SubType:        "dataset",
+		Type:           "refList",
+	},
+	"ExtractorLibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractorLibs",
+		Description:    `The extractor libs of the organization.`,
+		Exposed:        true,
+		Name:           "extractorLibs",
+		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"Extractors": {
@@ -735,6 +765,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "dataSets",
 		SubType:        "dataset",
+		Type:           "refList",
+	},
+	"extractorlibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractorLibs",
+		Description:    `The extractor libs of the organization.`,
+		Exposed:        true,
+		Name:           "extractorLibs",
+		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"extractors": {
@@ -886,6 +925,9 @@ type SparseProxyConf struct {
 	// List of DataSets.
 	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
 
+	// The extractor libs of the organization.
+	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
+
 	// The extractors of the organization.
 	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
 
@@ -1012,6 +1054,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DataSets != nil {
 		out.DataSets = *o.DataSets
+	}
+	if o.ExtractorLibs != nil {
+		out.ExtractorLibs = *o.ExtractorLibs
 	}
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors

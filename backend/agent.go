@@ -275,7 +275,8 @@ func (o *Agent) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *Agent) Doc() string {
 
-	return `Stores information about a known agent.`
+	return `Displays the status of Acushield agents deployed on users’ machines, providing
+insights into their operational state and activity.`
 }
 
 func (o *Agent) String() string {

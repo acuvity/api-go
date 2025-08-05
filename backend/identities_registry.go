@@ -14,6 +14,7 @@ var (
 
 		"agentdiscovery":  AgentDiscoveryIdentity,
 		"aidomain":        AIDomainIdentity,
+		"aiplugin":        AIPluginIdentity,
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
 
@@ -30,11 +31,13 @@ var (
 		"customdatatype":   CustomDataTypeIdentity,
 		"dataset":          DataSetIdentity,
 
-		"digestreport": DigestReportIdentity,
+		"digestreport":        DigestReportIdentity,
+		"digestreportrequest": DigestReportRequestIdentity,
 
 		"errortransformer": ErrorTransformerIdentity,
 
-		"extractor": ExtractorIdentity,
+		"extractor":    ExtractorIdentity,
+		"extractorlib": ExtractorLibIdentity,
 
 		"feedback":     FeedbackIdentity,
 		"gitbooktoken": GitbookTokenIdentity,
@@ -62,13 +65,13 @@ var (
 		"policyref":    PolicyRefIdentity,
 		"policyupdate": PolicyUpdateIdentity,
 
-		"principal":        PrincipalIdentity,
-		"principalapp":     PrincipalAppIdentity,
-		"principalappuser": PrincipalAppUserIdentity,
-		"principaluser":    PrincipalUserIdentity,
-		"project":          ProjectIdentity,
-		"provider":         ProviderIdentity,
-		"providerdetail":   ProviderDetailIdentity,
+		"principal":         PrincipalIdentity,
+		"principalapp":      PrincipalAppIdentity,
+		"principalexternal": PrincipalExternalIdentity,
+		"principaluser":     PrincipalUserIdentity,
+		"project":           ProjectIdentity,
+		"provider":          ProviderIdentity,
+		"providerdetail":    ProviderDetailIdentity,
 
 		"providerteam":  ProviderTeamIdentity,
 		"providertoken": ProviderTokenIdentity,
@@ -89,11 +92,12 @@ var (
 		"sinksplunk":     SinkSplunkIdentity,
 		"team":           TeamIdentity,
 
-		"trace":              TraceIdentity,
-		"traceref":           TraceRefIdentity,
-		"tracesearch":        TraceSearchIdentity,
-		"tracetagkeys":       TraceTagKeysIdentity,
-		"tracetagvalues":     TraceTagValuesIdentity,
+		"trace":          TraceIdentity,
+		"traceref":       TraceRefIdentity,
+		"tracesearch":    TraceSearchIdentity,
+		"tracetagkeys":   TraceTagKeysIdentity,
+		"tracetagvalues": TraceTagValuesIdentity,
+
 		"usertoken":          UserTokenIdentity,
 		"visitedurl":         VisitedURLIdentity,
 		"watchedorg":         WatchedOrgIdentity,
@@ -109,6 +113,7 @@ var (
 
 		"agentdiscoveries": AgentDiscoveryIdentity,
 		"aidomains":        AIDomainIdentity,
+		"aiplugins":        AIPluginIdentity,
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
 
@@ -125,11 +130,13 @@ var (
 		"customdatatypes":   CustomDataTypeIdentity,
 		"datasets":          DataSetIdentity,
 
-		"digestreports": DigestReportIdentity,
+		"digestreports":        DigestReportIdentity,
+		"digestreportrequests": DigestReportRequestIdentity,
 
 		"errortransformers": ErrorTransformerIdentity,
 
-		"extractors": ExtractorIdentity,
+		"extractors":    ExtractorIdentity,
+		"extractorlibs": ExtractorLibIdentity,
 
 		"feedbacks":     FeedbackIdentity,
 		"gitbooktokens": GitbookTokenIdentity,
@@ -157,13 +164,13 @@ var (
 		"policyrefs":    PolicyRefIdentity,
 		"policyupdates": PolicyUpdateIdentity,
 
-		"principals":        PrincipalIdentity,
-		"principalapps":     PrincipalAppIdentity,
-		"principalappusers": PrincipalAppUserIdentity,
-		"principalusers":    PrincipalUserIdentity,
-		"projects":          ProjectIdentity,
-		"providers":         ProviderIdentity,
-		"providerdetails":   ProviderDetailIdentity,
+		"principals":         PrincipalIdentity,
+		"principalapps":      PrincipalAppIdentity,
+		"principalexternals": PrincipalExternalIdentity,
+		"principalusers":     PrincipalUserIdentity,
+		"projects":           ProjectIdentity,
+		"providers":          ProviderIdentity,
+		"providerdetails":    ProviderDetailIdentity,
 
 		"providerteams":  ProviderTeamIdentity,
 		"providertokens": ProviderTokenIdentity,
@@ -184,11 +191,12 @@ var (
 		"sinksplunk":      SinkSplunkIdentity,
 		"teams":           TeamIdentity,
 
-		"traces":              TraceIdentity,
-		"tracerefs":           TraceRefIdentity,
-		"tracesearches":       TraceSearchIdentity,
-		"tracetagkeys":        TraceTagKeysIdentity,
-		"tracetagvalues":      TraceTagValuesIdentity,
+		"traces":         TraceIdentity,
+		"tracerefs":      TraceRefIdentity,
+		"tracesearches":  TraceSearchIdentity,
+		"tracetagkeys":   TraceTagKeysIdentity,
+		"tracetagvalues": TraceTagValuesIdentity,
+
 		"usertokens":          UserTokenIdentity,
 		"visitedurls":         VisitedURLIdentity,
 		"watchedorgs":         WatchedOrgIdentity,
@@ -223,6 +231,13 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "isAIDomain"},
 			{"namespace", "providerName"},
+		},
+		"aiplugin": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "pluginID"},
+			{"namespace", "vetted"},
 		},
 		"alert": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -269,8 +284,14 @@ var (
 		"digestreport": {
 			{":shard", ":unique", "zone", "zHash"},
 		},
-		"errortransformer": nil,
+		"digestreportrequest": nil,
+		"errortransformer":    nil,
 		"extractor": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"extractorlib": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
@@ -316,12 +337,12 @@ var (
 			{"namespace", "name"},
 			{"namespace", "pageID"},
 		},
-		"policyref":        nil,
-		"policyupdate":     nil,
-		"principal":        nil,
-		"principalapp":     nil,
-		"principalappuser": nil,
-		"principaluser":    nil,
+		"policyref":         nil,
+		"policyupdate":      nil,
+		"principal":         nil,
+		"principalapp":      nil,
+		"principalexternal": nil,
+		"principaluser":     nil,
 		"project": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
@@ -444,6 +465,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgentDiscovery()
 	case AIDomainIdentity:
 		return NewAIDomain()
+	case AIPluginIdentity:
+		return NewAIPlugin()
 	case AlertIdentity:
 		return NewAlert()
 	case AlertDefinitionIdentity:
@@ -470,10 +493,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewDataSet()
 	case DigestReportIdentity:
 		return NewDigestReport()
+	case DigestReportRequestIdentity:
+		return NewDigestReportRequest()
 	case ErrorTransformerIdentity:
 		return NewErrorTransformer()
 	case ExtractorIdentity:
 		return NewExtractor()
+	case ExtractorLibIdentity:
+		return NewExtractorLib()
 	case FeedbackIdentity:
 		return NewFeedback()
 	case GitbookTokenIdentity:
@@ -516,8 +543,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewPrincipal()
 	case PrincipalAppIdentity:
 		return NewPrincipalApp()
-	case PrincipalAppUserIdentity:
-		return NewPrincipalAppUser()
+	case PrincipalExternalIdentity:
+		return NewPrincipalExternal()
 	case PrincipalUserIdentity:
 		return NewPrincipalUser()
 	case ProjectIdentity:
@@ -599,6 +626,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgentDiscovery()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
+	case AIPluginIdentity:
+		return NewSparseAIPlugin()
 	case AlertIdentity:
 		return NewSparseAlert()
 	case AlertDefinitionIdentity:
@@ -625,10 +654,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseDataSet()
 	case DigestReportIdentity:
 		return NewSparseDigestReport()
+	case DigestReportRequestIdentity:
+		return NewSparseDigestReportRequest()
 	case ErrorTransformerIdentity:
 		return NewSparseErrorTransformer()
 	case ExtractorIdentity:
 		return NewSparseExtractor()
+	case ExtractorLibIdentity:
+		return NewSparseExtractorLib()
 	case FeedbackIdentity:
 		return NewSparseFeedback()
 	case GitbookTokenIdentity:
@@ -671,8 +704,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparsePrincipal()
 	case PrincipalAppIdentity:
 		return NewSparsePrincipalApp()
-	case PrincipalAppUserIdentity:
-		return NewSparsePrincipalAppUser()
+	case PrincipalExternalIdentity:
+		return NewSparsePrincipalExternal()
 	case PrincipalUserIdentity:
 		return NewSparsePrincipalUser()
 	case ProjectIdentity:
@@ -762,6 +795,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentDiscoveriesList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
+	case AIPluginIdentity:
+		return &AIPluginsList{}
 	case AlertIdentity:
 		return &AlertsList{}
 	case AlertDefinitionIdentity:
@@ -788,10 +823,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &DataSetsList{}
 	case DigestReportIdentity:
 		return &DigestReportsList{}
+	case DigestReportRequestIdentity:
+		return &DigestReportRequestsList{}
 	case ErrorTransformerIdentity:
 		return &ErrorTransformersList{}
 	case ExtractorIdentity:
 		return &ExtractorsList{}
+	case ExtractorLibIdentity:
+		return &ExtractorLibsList{}
 	case FeedbackIdentity:
 		return &FeedbacksList{}
 	case GitbookTokenIdentity:
@@ -834,8 +873,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &PrincipalsList{}
 	case PrincipalAppIdentity:
 		return &PrincipalAppsList{}
-	case PrincipalAppUserIdentity:
-		return &PrincipalAppUsersList{}
+	case PrincipalExternalIdentity:
+		return &PrincipalExternalsList{}
 	case PrincipalUserIdentity:
 		return &PrincipalUsersList{}
 	case ProjectIdentity:
@@ -915,6 +954,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentDiscoveriesList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
+	case AIPluginIdentity:
+		return &SparseAIPluginsList{}
 	case AlertIdentity:
 		return &SparseAlertsList{}
 	case AlertDefinitionIdentity:
@@ -941,10 +982,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseDataSetsList{}
 	case DigestReportIdentity:
 		return &SparseDigestReportsList{}
+	case DigestReportRequestIdentity:
+		return &SparseDigestReportRequestsList{}
 	case ErrorTransformerIdentity:
 		return &SparseErrorTransformersList{}
 	case ExtractorIdentity:
 		return &SparseExtractorsList{}
+	case ExtractorLibIdentity:
+		return &SparseExtractorLibsList{}
 	case FeedbackIdentity:
 		return &SparseFeedbacksList{}
 	case GitbookTokenIdentity:
@@ -987,8 +1032,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparsePrincipalsList{}
 	case PrincipalAppIdentity:
 		return &SparsePrincipalAppsList{}
-	case PrincipalAppUserIdentity:
-		return &SparsePrincipalAppUsersList{}
+	case PrincipalExternalIdentity:
+		return &SparsePrincipalExternalsList{}
 	case PrincipalUserIdentity:
 		return &SparsePrincipalUsersList{}
 	case ProjectIdentity:
@@ -1138,6 +1183,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewToolResult()
 	case "tooluse", "ToolUse":
 		return NewToolUse()
+	case "tunnelproxyauth", "TunnelProxyAuth":
+		return NewTunnelProxyAuth()
+	case "tunnelproxyauthbasic", "TunnelProxyAuthBasic":
+		return NewTunnelProxyAuthBasic()
 	default:
 		return nil
 	}
@@ -1157,6 +1206,7 @@ func AllIdentities() []elemental.Identity {
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
 		AIDomainIdentity,
+		AIPluginIdentity,
 		AlertIdentity,
 		AlertDefinitionIdentity,
 		AlertTriggerIdentity,
@@ -1170,8 +1220,10 @@ func AllIdentities() []elemental.Identity {
 		CustomDataTypeIdentity,
 		DataSetIdentity,
 		DigestReportIdentity,
+		DigestReportRequestIdentity,
 		ErrorTransformerIdentity,
 		ExtractorIdentity,
+		ExtractorLibIdentity,
 		FeedbackIdentity,
 		GitbookTokenIdentity,
 		IgnoredDomainIdentity,
@@ -1193,7 +1245,7 @@ func AllIdentities() []elemental.Identity {
 		PolicyUpdateIdentity,
 		PrincipalIdentity,
 		PrincipalAppIdentity,
-		PrincipalAppUserIdentity,
+		PrincipalExternalIdentity,
 		PrincipalUserIdentity,
 		ProjectIdentity,
 		ProviderIdentity,
@@ -1242,6 +1294,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AIDomainIdentity:
 		return []string{}
+	case AIPluginIdentity:
+		return []string{}
 	case AlertIdentity:
 		return []string{}
 	case AlertDefinitionIdentity:
@@ -1268,9 +1322,13 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case DigestReportIdentity:
 		return []string{}
+	case DigestReportRequestIdentity:
+		return []string{}
 	case ErrorTransformerIdentity:
 		return []string{}
 	case ExtractorIdentity:
+		return []string{}
+	case ExtractorLibIdentity:
 		return []string{}
 	case FeedbackIdentity:
 		return []string{}
@@ -1314,7 +1372,7 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case PrincipalAppIdentity:
 		return []string{}
-	case PrincipalAppUserIdentity:
+	case PrincipalExternalIdentity:
 		return []string{}
 	case PrincipalUserIdentity:
 		return []string{}

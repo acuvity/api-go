@@ -12,7 +12,7 @@
   "$modelResourceName": "webextensions",
   "$modelRestName": "webextension",
   "additionalProperties": false,
-  "description": "Stores information about a known WebExtension.",
+  "description": "Displays the status of Web Extensions deployed on users’ web browsers, providing insights into their operational state and activity.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

@@ -48,6 +48,12 @@
       },
       "type": "array"
     },
+    "aiplugins": {
+      "items": {
+        "$ref": "aiplugin.json"
+      },
+      "type": "array"
+    },
     "alertdefinitions": {
       "items": {
         "$ref": "alertdefinition.json"
@@ -162,6 +168,12 @@
       },
       "type": "array"
     },
+    "digestreportrequests": {
+      "items": {
+        "$ref": "digestreportrequest.json"
+      },
+      "type": "array"
+    },
     "digestreports": {
       "items": {
         "$ref": "digestreport.json"
@@ -195,6 +207,12 @@
     "extractionsummaries": {
       "items": {
         "$ref": "extractionsummary.json"
+      },
+      "type": "array"
+    },
+    "extractorlibs": {
+      "items": {
+        "$ref": "extractorlib.json"
       },
       "type": "array"
     },
@@ -402,9 +420,9 @@
       },
       "type": "array"
     },
-    "principalappusers": {
+    "principalexternals": {
       "items": {
-        "$ref": "principalappuser.json"
+        "$ref": "principalexternal.json"
       },
       "type": "array"
     },
@@ -615,6 +633,18 @@
     "tracetagvalues": {
       "items": {
         "$ref": "tracetagvalues.json"
+      },
+      "type": "array"
+    },
+    "tunnelproxyauthbasics": {
+      "items": {
+        "$ref": "tunnelproxyauthbasic.json"
+      },
+      "type": "array"
+    },
+    "tunnelproxyauths": {
+      "items": {
+        "$ref": "tunnelproxyauth.json"
       },
       "type": "array"
     },

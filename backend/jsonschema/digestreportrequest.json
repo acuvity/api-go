@@ -1,0 +1,47 @@
+{
+  "$extends": [],
+  "$friendlyName": "Digest Report Requesty",
+  "$friendlyNamePlural": "Digest Report Requesties",
+  "$modelName": "DigestReportRequest",
+  "$modelPackage": "relae",
+  "$modelResourceName": "digestreportrequests",
+  "$modelRestName": "digestreportrequest",
+  "additionalProperties": false,
+  "description": "Represents a request to create a digest report.",
+  "properties": {
+    "recipients": {
+      "$friendlyName": "Recipients",
+      "description": "The list of recipients to send the report to. If empty, the list from orgsettings will be used.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "recipients",
+      "type": "array"
+    },
+    "save": {
+      "$friendlyName": "Save",
+      "description": "If enabled, save the report into database. Note that this will make the report being considered the last auto generated report, and all the next one trends will be calculated from this one. This is mostly never what you want to do.",
+      "title": "save",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "timeWindow": {
+      "$defaultValue": "24h",
+      "$friendlyName": "Time Window",
+      "description": "The time window for the report. The report will span from `[now() - tw, now()]`. 24h is the minimum.",
+      "title": "timeWindow",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DigestReportRequest",
+  "type": "object"
+}

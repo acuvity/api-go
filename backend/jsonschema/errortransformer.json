@@ -9,29 +9,10 @@
   "additionalProperties": false,
   "description": "Used to transform errors before sending them back to the client.",
   "properties": {
-    "contentType": {
-      "$defaultValue": "application/json",
-      "$friendlyName": "Content Type",
-      "description": "The Content-Type to use when returning a formatted error.",
-      "title": "contentType",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "statusCode": {
-      "$friendlyName": "Status Code",
-      "description": "HTTP status code to return, instead of the classical one.",
-      "title": "statusCode",
-      "type": [
-        "integer",
-        "null"
-      ]
-    },
-    "template": {
-      "$friendlyName": "Template",
-      "description": "Go template to process and transform the error. The delimiters are \u003c\u003c and \u003e\u003e to prevent collision with acuctl templating. The template will be passed the following informations:  - `.Messages`: a list of string containing the messages to return. - `.Code`: The original status code. - `.TransformedCode`: The transformed status code. - `.Action`: The policy decision action (ask or deny).  All the sprig text function are available.",
-      "title": "template",
+    "script": {
+      "$friendlyName": "Script",
+      "description": "If set, run the lua code to transform the error. The script must contain a top level function called `transform()` that will take as parameters:  - `action`: The decision (`ask` or `deny`) - `messages`: a list containing table object with keys `reason` and `link`. - `code`: the original error code.  This function must return either nil, an empty table, or a table containing the following keys:  - `code`: the transformer HTTP code as a number. - `content_type`: the transformed Content-Type as a string. - `body`: The transformer body as a string.",
+      "title": "script",
       "type": [
         "string",
         "null"

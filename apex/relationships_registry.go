@@ -34,7 +34,7 @@ func init() {
 
 	relationshipsRegistry[PrincipalAppIdentity] = &elemental.Relationship{}
 
-	relationshipsRegistry[PrincipalAppUserIdentity] = &elemental.Relationship{}
+	relationshipsRegistry[PrincipalExternalIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalUserIdentity] = &elemental.Relationship{}
 

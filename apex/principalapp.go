@@ -93,8 +93,12 @@ type PrincipalApp struct {
 	// The name of the application.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
-	// The optional user information of the application request.
-	User *PrincipalAppUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"user,omitempty" mapstructure:"user,omitempty"`
+	// The optional user claims of the request. This can be an incomplete list, and
+	// claims can be mapped to different keys.
+	UserClaims []string `json:"userClaims,omitempty" msgpack:"userClaims,omitempty" bson:"userclaims,omitempty" mapstructure:"userClaims,omitempty"`
+
+	// The optional username of the request.
+	Username string `json:"username,omitempty" msgpack:"username,omitempty" bson:"username,omitempty" mapstructure:"username,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -105,6 +109,7 @@ func NewPrincipalApp() *PrincipalApp {
 	return &PrincipalApp{
 		ModelVersion: 1,
 		Labels:       []string{},
+		UserClaims:   []string{},
 	}
 }
 
@@ -138,7 +143,8 @@ func (o *PrincipalApp) GetBSON() (any, error) {
 	s.Component = o.Component
 	s.Labels = o.Labels
 	s.Name = o.Name
-	s.User = o.User
+	s.UserClaims = o.UserClaims
+	s.Username = o.Username
 
 	return s, nil
 }
@@ -159,7 +165,8 @@ func (o *PrincipalApp) SetBSON(raw bson.Raw) error {
 	o.Component = s.Component
 	o.Labels = s.Labels
 	o.Name = s.Name
-	o.User = s.User
+	o.UserClaims = s.UserClaims
+	o.Username = s.Username
 
 	return nil
 }
@@ -200,10 +207,11 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePrincipalApp{
-			Component: &o.Component,
-			Labels:    &o.Labels,
-			Name:      &o.Name,
-			User:      o.User,
+			Component:  &o.Component,
+			Labels:     &o.Labels,
+			Name:       &o.Name,
+			UserClaims: &o.UserClaims,
+			Username:   &o.Username,
 		}
 	}
 
@@ -216,8 +224,10 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Labels = &(o.Labels)
 		case "name":
 			sp.Name = &(o.Name)
-		case "user":
-			sp.User = o.User
+		case "userClaims":
+			sp.UserClaims = &(o.UserClaims)
+		case "username":
+			sp.Username = &(o.Username)
 		}
 	}
 
@@ -240,8 +250,11 @@ func (o *PrincipalApp) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
-	if so.User != nil {
-		o.User = so.User
+	if so.UserClaims != nil {
+		o.UserClaims = *so.UserClaims
+	}
+	if so.Username != nil {
+		o.Username = *so.Username
 	}
 }
 
@@ -274,13 +287,6 @@ func (o *PrincipalApp) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
-
-	if o.User != nil {
-		elemental.ResetDefaultForZeroValues(o.User)
-		if err := o.User.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
-	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors
@@ -322,8 +328,10 @@ func (o *PrincipalApp) ValueForAttribute(name string) any {
 		return o.Labels
 	case "name":
 		return o.Name
-	case "user":
-		return o.User
+	case "userClaims":
+		return o.UserClaims
+	case "username":
+		return o.Username
 	}
 
 	return nil
@@ -362,16 +370,27 @@ var PrincipalAppAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"User": {
+	"UserClaims": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "user",
-		ConvertedName:  "User",
-		Description:    `The optional user information of the application request.`,
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description: `The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.`,
+		Exposed: true,
+		Name:    "userClaims",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"Username": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "username",
+		ConvertedName:  "Username",
+		Description:    `The optional username of the request.`,
 		Exposed:        true,
-		Name:           "user",
+		Name:           "username",
 		Stored:         true,
-		SubType:        "principalappuser",
-		Type:           "ref",
+		Type:           "string",
 	},
 }
 
@@ -408,16 +427,27 @@ var PrincipalAppLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
-	"user": {
+	"userclaims": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "user",
-		ConvertedName:  "User",
-		Description:    `The optional user information of the application request.`,
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description: `The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.`,
+		Exposed: true,
+		Name:    "userClaims",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"username": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "username",
+		ConvertedName:  "Username",
+		Description:    `The optional username of the request.`,
 		Exposed:        true,
-		Name:           "user",
+		Name:           "username",
 		Stored:         true,
-		SubType:        "principalappuser",
-		Type:           "ref",
+		Type:           "string",
 	},
 }
 
@@ -493,8 +523,12 @@ type SparsePrincipalApp struct {
 	// The name of the application.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
-	// The optional user information of the application request.
-	User *PrincipalAppUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"user,omitempty" mapstructure:"user,omitempty"`
+	// The optional user claims of the request. This can be an incomplete list, and
+	// claims can be mapped to different keys.
+	UserClaims *[]string `json:"userClaims,omitempty" msgpack:"userClaims,omitempty" bson:"userclaims,omitempty" mapstructure:"userClaims,omitempty"`
+
+	// The optional username of the request.
+	Username *string `json:"username,omitempty" msgpack:"username,omitempty" bson:"username,omitempty" mapstructure:"username,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -540,8 +574,11 @@ func (o *SparsePrincipalApp) GetBSON() (any, error) {
 	if o.Name != nil {
 		s.Name = o.Name
 	}
-	if o.User != nil {
-		s.User = o.User
+	if o.UserClaims != nil {
+		s.UserClaims = o.UserClaims
+	}
+	if o.Username != nil {
+		s.Username = o.Username
 	}
 
 	return s, nil
@@ -569,8 +606,11 @@ func (o *SparsePrincipalApp) SetBSON(raw bson.Raw) error {
 	if s.Name != nil {
 		o.Name = s.Name
 	}
-	if s.User != nil {
-		o.User = s.User
+	if s.UserClaims != nil {
+		o.UserClaims = s.UserClaims
+	}
+	if s.Username != nil {
+		o.Username = s.Username
 	}
 
 	return nil
@@ -595,8 +635,11 @@ func (o *SparsePrincipalApp) ToPlain() elemental.PlainIdentifiable {
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
-	if o.User != nil {
-		out.User = o.User
+	if o.UserClaims != nil {
+		out.UserClaims = *o.UserClaims
+	}
+	if o.Username != nil {
+		out.Username = *o.Username
 	}
 
 	return out
@@ -627,14 +670,16 @@ func (o *SparsePrincipalApp) DeepCopyInto(out *SparsePrincipalApp) {
 }
 
 type mongoAttributesPrincipalApp struct {
-	Component string            `bson:"component,omitempty"`
-	Labels    []string          `bson:"labels,omitempty"`
-	Name      string            `bson:"name,omitempty"`
-	User      *PrincipalAppUser `bson:"user,omitempty"`
+	Component  string   `bson:"component,omitempty"`
+	Labels     []string `bson:"labels,omitempty"`
+	Name       string   `bson:"name,omitempty"`
+	UserClaims []string `bson:"userclaims,omitempty"`
+	Username   string   `bson:"username,omitempty"`
 }
 type mongoAttributesSparsePrincipalApp struct {
-	Component *string           `bson:"component,omitempty"`
-	Labels    *[]string         `bson:"labels,omitempty"`
-	Name      *string           `bson:"name,omitempty"`
-	User      *PrincipalAppUser `bson:"user,omitempty"`
+	Component  *string   `bson:"component,omitempty"`
+	Labels     *[]string `bson:"labels,omitempty"`
+	Name       *string   `bson:"name,omitempty"`
+	UserClaims *[]string `bson:"userclaims,omitempty"`
+	Username   *string   `bson:"username,omitempty"`
 }

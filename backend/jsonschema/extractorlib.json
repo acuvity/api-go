@@ -1,20 +1,19 @@
 {
   "$extends": [
     "@sharded",
-    "@identifiable",
     "@importable",
+    "@identifiable",
     "@timed",
-    "@namelinkable",
     "@auto-propagated"
   ],
-  "$friendlyName": "Content Policy",
-  "$friendlyNamePlural": "Content Policies",
-  "$modelName": "ContentPolicy",
+  "$friendlyName": "Extractor Lib",
+  "$friendlyNamePlural": "Extractor Libs",
+  "$modelName": "ExtractorLib",
   "$modelPackage": "lain",
-  "$modelResourceName": "contentpolicies",
-  "$modelRestName": "contentpolicy",
+  "$modelResourceName": "extractorlibs",
+  "$modelRestName": "extractorlib",
   "additionalProperties": false,
-  "description": "Content Policies are used in conjunction with Access Policies to determine how user input is handled. They define the system’s response to problematic or sensitive inputs and can enforce actions such as warning the user, redacting sensitive information, raising alerts, and other protective measures.",
+  "description": "Allows to store reusable lua modules that can be referenced in an extractor.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -38,19 +37,12 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "Description of the content policy.",
+      "description": "The description of the provider.",
       "title": "description",
       "type": [
         "string",
         "null"
       ]
-    },
-    "friendlyName": {
-      "$friendlyName": "Friendly Name",
-      "$required": true,
-      "description": "Friendly name of the object.",
-      "title": "friendlyName",
-      "type": "string"
     },
     "importHash": {
       "$creationOnly": true,
@@ -72,25 +64,14 @@
         "null"
       ]
     },
-    "moderations": {
-      "$friendlyName": "Moderations",
-      "description": "The list of moderations to take when the user has access to the provider.",
-      "items": {
-        "$ref": "moderation.json"
-      },
-      "title": "moderations",
-      "type": "array"
-    },
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",
-      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
-      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "$required": true,
+      "description": "The name of the library. This will be used to import the module in the main call.",
+      "pattern": "^[a-zA-Z0-9-_/]+$",
       "title": "name",
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -112,6 +93,15 @@
         "null"
       ]
     },
+    "script": {
+      "$friendlyName": "Script",
+      "description": "If not empty, use this lua code to run the extraction.",
+      "title": "script",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -124,8 +114,8 @@
     }
   },
   "required": [
-    "friendlyName"
+    "name"
   ],
-  "title": "ContentPolicy",
+  "title": "ExtractorLib",
   "type": "object"
 }

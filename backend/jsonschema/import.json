@@ -18,6 +18,15 @@
       "title": "AIDomains",
       "type": "array"
     },
+    "AIPlugins": {
+      "$friendlyName": "AI Plugins",
+      "description": "AI plugins to import.",
+      "items": {
+        "$ref": "aiplugin.json"
+      },
+      "title": "AIPlugins",
+      "type": "array"
+    },
     "APIAuthorizations": {
       "$friendlyName": "APIAuthorizations",
       "description": "APIAuthorizations to import.",
@@ -121,6 +130,15 @@
         "$ref": "dataset.json"
       },
       "title": "dataSets",
+      "type": "array"
+    },
+    "extractorLibs": {
+      "$friendlyName": "Extractor Libs",
+      "description": "Extractor Libs to import.",
+      "items": {
+        "$ref": "extractorlib.json"
+      },
+      "title": "extractorLibs",
       "type": "array"
     },
     "extractors": {

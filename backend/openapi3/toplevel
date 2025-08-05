@@ -2,7 +2,7 @@
   "components": {
     "schemas": {
       "accesspolicy": {
-        "description": "Define which teams or individuals can access a provider.",
+        "description": "Access Policies define rules governing how users can interact with a provider.\nThey control whether access is permitted or denied and can enforce additional\nbehaviors, such as redacting sensitive data, issuing warnings for problematic\nqueries, and other security or compliance measures by applying Content Policies.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -199,7 +199,7 @@
         "type": "object"
       },
       "agent": {
-        "description": "Stores information about a known agent.",
+        "description": "Displays the status of Acushield agents deployed on users’ machines, providing\ninsights into their operational state and activity.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -445,6 +445,25 @@
             "description": "If disabled, the system proxy needs to be configured manually.",
             "type": "boolean"
           },
+          "tunnelEnabled": {
+            "description": "If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the\napex will make its requests to the destination back through the agent over the\nsame tunnel.",
+            "type": "boolean"
+          },
+          "tunnelProxyAuth": {
+            "$ref": "#/components/schemas/tunnelproxyauth"
+          },
+          "tunnelProxyHeaders": {
+            "description": "If you are using a proxy server for the tunnel connection, you can specify\nadditional headers to be sent with the requests to the proxy.",
+            "items": {
+              "type": "string"
+            },
+            "type": "object"
+          },
+          "tunnelProxyURL": {
+            "description": "If tunnels are enabled, and the system requires the use of an HTTP proxy server,\nthen this is the URL of the proxy server to use.\nIt must be a full URL including the scheme (http or https) and optionally a\nport. The proxy will be used not only for the tunnel connection, but also for\nall requests to the final destination.",
+            "example": "http://proxy.example.com:8080",
+            "type": "string"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -674,8 +693,126 @@
         ],
         "type": "object"
       },
+      "aiplugin": {
+        "description": "AI plugin provides an overview of a plugin.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "categories": {
+            "description": "The categories associated with the plugin.",
+            "example": [
+              "AI",
+              "Programming Languages"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "A brief description about the AI plugin and its purpose.",
+            "example": "A description text",
+            "type": "string"
+          },
+          "displayName": {
+            "description": "The human-friendly name of the plugin.",
+            "example": "My Simple Plugin",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the plugin.",
+            "example": "my-simple-plugin",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "pluginID": {
+            "description": "The identifier of the plugin.",
+            "example": "acme.my-simple-plugin",
+            "type": "string"
+          },
+          "pluginUUID": {
+            "description": "The universally unique identifier of the plugin.",
+            "example": "8da828be-d9f0-4609-8367-925552169063",
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "publishedDate": {
+            "description": "When the plugin was published.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "publisherID": {
+            "description": "The publisher identifier of the plugin.",
+            "example": "8da828be-d9f0-4609-8367-925552169063",
+            "type": "string"
+          },
+          "publisherName": {
+            "description": "The publisher name of the plugin.",
+            "example": "ACME",
+            "type": "string"
+          },
+          "tags": {
+            "description": "The tags associated with the plugin.",
+            "example": [
+              "agent",
+              "ai",
+              "coding"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "vetted": {
+            "description": "Flag to say if the plugin has been vetted by Acuvity or not.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "displayName",
+          "name",
+          "pluginID",
+          "pluginUUID",
+          "publishedDate",
+          "publisherID",
+          "publisherName"
+        ],
+        "type": "object"
+      },
       "alert": {
-        "description": "Represents an alert.",
+        "description": "Displays all alerts generated according to the configured Content Policies,\nproviding visibility into policy violations and related security events.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -742,7 +879,7 @@
         "type": "object"
       },
       "alertdefinition": {
-        "description": "Represents a definition of an alert.",
+        "description": "Alert Definitions specify alerts that can be referenced within Content Policies.\nThey define the actions to take when an alert is triggered, including severity\nlevel, notification sinks, triggering conditions, and cooldown settings.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -1379,7 +1516,7 @@
         "type": "object"
       },
       "contentpolicy": {
-        "description": "The policy that decides how to handle the request content.",
+        "description": "Content Policies are used in conjunction with Access Policies to determine how\nuser input is handled. They define the system’s response to problematic or\nsensitive inputs and can enforce actions such as warning the user, redacting\nsensitive information, raising alerts, and other protective measures.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -1802,6 +1939,28 @@
         ],
         "type": "object"
       },
+      "digestreportrequest": {
+        "description": "Represents a request to create a digest report.",
+        "properties": {
+          "recipients": {
+            "description": "The list of recipients to send the report to. If empty, the list from\norgsettings will be used.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "save": {
+            "description": "If enabled, save the report into database. Note that this will make the report\nbeing considered the last auto generated report, and all the next one trends\nwill be calculated from this one. This is mostly never what you want to do.",
+            "type": "boolean"
+          },
+          "timeWindow": {
+            "default": "24h",
+            "description": "The time window for the report. The report will span from `[now() - tw, now()]`.\n24h is the minimum.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "domainhits": {
         "description": "This is a domain hit.",
         "properties": {
@@ -1835,18 +1994,9 @@
       "errortransformer": {
         "description": "Used to transform errors before sending them back to the client.",
         "properties": {
-          "contentType": {
-            "default": "application/json",
-            "description": "The Content-Type to use when returning a formatted error.",
-            "type": "string"
-          },
-          "statusCode": {
-            "description": "HTTP status code to return, instead of the classical one.",
-            "type": "integer"
-          },
-          "template": {
-            "description": "Go template to process and transform the error. The delimiters\nare \u003c\u003c and \u003e\u003e to prevent collision with acuctl templating.\nThe template will be passed the following informations:\n\n- `.Messages`: a list of string containing the messages to return.\n- `.Code`: The original status code.\n- `.TransformedCode`: The transformed status code.\n- `.Action`: The policy decision action (ask or deny).\n\nAll the sprig text function are available.",
-            "example": "{\"error\": \"\u003c\u003c .Messages | join \", \" \u003e\u003e\" }",
+          "script": {
+            "description": "If set, run the lua code to transform the error.\nThe script must contain a top level function called `transform()`\nthat will take as parameters:\n\n- `action`: The decision (`ask` or `deny`)\n- `messages`: a list containing table object with keys `reason` and `link`.\n- `code`: the original error code.\n\nThis function must return either nil, an empty table, or a table containing the\nfollowing keys:\n\n- `code`: the transformer HTTP code as a number.\n- `content_type`: the transformed Content-Type as a string.\n- `body`: The transformer body as a string.",
+            "example": "function transform(action, messages, code)\n  return json.encode({\n    code = 422,\n    content_type = \"text/plain\",\n    body = \"oh noes\",\n  })\nend\"",
             "type": "string"
           }
         },
@@ -2215,6 +2365,13 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
+          "libs": {
+            "description": "References existing extractorlibs by name to make them importable in the\nextractor script.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "method": {
             "description": "The method to match.",
             "enum": [
@@ -2277,6 +2434,63 @@
           "name",
           "path",
           "type"
+        ],
+        "type": "object"
+      },
+      "extractorlib": {
+        "description": "Allows to store reusable lua modules that can be referenced in an extractor.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the provider.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the library. This will be used to import the module in the main\ncall.",
+            "example": "awesome",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "script": {
+            "description": "If not empty, use this lua code to run the extraction.",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ],
         "type": "object"
       },
@@ -2480,6 +2694,13 @@
             },
             "type": "array"
           },
+          "AIPlugins": {
+            "description": "AI plugins to import.",
+            "items": {
+              "$ref": "#/components/schemas/aiplugin"
+            },
+            "type": "array"
+          },
           "APIAuthorizations": {
             "description": "APIAuthorizations to import.",
             "items": {
@@ -2556,6 +2777,13 @@
             "description": "DataSets to import.",
             "items": {
               "$ref": "#/components/schemas/dataset"
+            },
+            "type": "array"
+          },
+          "extractorLibs": {
+            "description": "Extractor Libs to import.",
+            "items": {
+              "$ref": "#/components/schemas/extractorlib"
             },
             "type": "array"
           },
@@ -3426,6 +3654,17 @@
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
           },
+          "providerWhitelist": {
+            "description": "List of provider that are white listed. Only has an effect if\nproviderWhitelistEnabled is true.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providerWhitelistEnabled": {
+            "description": "Enables using the provider whitelist. When this is enabled, only the provider\ndefined in the white list will be considered by Apex.",
+            "type": "boolean"
+          },
           "providersWithoutConsent": {
             "description": "The providers which do not request employees' consent.",
             "items": {
@@ -3907,6 +4146,9 @@
             },
             "type": "array"
           },
+          "external": {
+            "$ref": "#/components/schemas/principalexternal"
+          },
           "teams": {
             "description": "The teams that were used to authorize the request.",
             "example": "admins",
@@ -3964,29 +4206,45 @@
             "example": "MyApp",
             "type": "string"
           },
-          "user": {
-            "$ref": "#/components/schemas/principalappuser"
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
+            "example": "john.doe@acme.com",
+            "type": "string"
           }
         },
         "type": "object"
       },
-      "principalappuser": {
-        "description": "Describes the optional principal information of the user of an application which\nis being derived from a bearer token of a request.",
+      "principalexternal": {
+        "description": "Describes the principal information of an external request.",
         "properties": {
-          "email": {
-            "description": "The Email address of the user. This will be derived from the email claims of a\ntoken like email, emailAddress or upn.",
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
             "type": "string"
-          },
-          "name": {
-            "description": "The given name of the user. This will be derived from the common name claims of\na token like name or given_name.",
-            "example": "John Doe",
-            "type": "string"
-          },
-          "tokenValidated": {
-            "description": "This will be true if the apex was able to validate the token in the request.",
-            "example": false,
-            "type": "boolean"
           }
         },
         "type": "object"
@@ -4530,6 +4788,13 @@
             "description": "List of DataSets.",
             "items": {
               "$ref": "#/components/schemas/dataset"
+            },
+            "type": "array"
+          },
+          "extractorLibs": {
+            "description": "The extractor libs of the organization.",
+            "items": {
+              "$ref": "#/components/schemas/extractorlib"
             },
             "type": "array"
           },
@@ -5170,7 +5435,7 @@
         "type": "object"
       },
       "team": {
-        "description": "Teams can be created to create groups of people, identified by their jwt claims\nthat can be used when writing authorizations.",
+        "description": "Provider Teams are logical groupings of users, defined by their identity claims.\nThese teams can be referenced in Access Policies to control user permissions,\nsuch as granting or restricting access to providers and other related resources\nor operations.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -5748,6 +6013,35 @@
         ],
         "type": "object"
       },
+      "tunnelproxyauth": {
+        "description": "The authentication information for the HTTP proxy used by the tunnel of the\nagent.",
+        "properties": {
+          "basic": {
+            "$ref": "#/components/schemas/tunnelproxyauthbasic"
+          }
+        },
+        "type": "object"
+      },
+      "tunnelproxyauthbasic": {
+        "description": "The authentication information for HTTP Basic authentication used by the HTTP\nproxy used by the tunnel of the agent.",
+        "properties": {
+          "password": {
+            "description": "The password for HTTP Basic authentication.",
+            "example": "mypassword",
+            "type": "string"
+          },
+          "username": {
+            "description": "The username for HTTP Basic authentication.",
+            "example": "myuser",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
       "usertoken": {
         "description": "User Token are revocable long lived tokens for users.",
         "properties": {
@@ -5919,7 +6213,7 @@
         "type": "object"
       },
       "webextension": {
-        "description": "Stores information about a known WebExtension.",
+        "description": "Displays the status of Web Extensions deployed on users’ web browsers, providing\ninsights into their operational state and activity.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -6834,6 +7128,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/aidomain"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aiplugins": {
+      "get": {
+        "description": "List all AI plguins.",
+        "operationId": "get-all-AIPlugins",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aiplugin"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new AI plguin.",
+        "operationId": "create-AIPlugin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiplugin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiplugin"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aiplugins/{id}": {
+      "delete": {
+        "description": "Delete an AI plugin given its identifier.",
+        "operationId": "delete-AIPlugin",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiplugin"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI plugin given its identifier.",
+        "operationId": "get-AIPlugin",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiplugin"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI plugin given its identifier.",
+        "operationId": "update-AIPlugin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiplugin"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiplugin"
                 }
               }
             },
@@ -8130,6 +8567,37 @@
         ]
       }
     },
+    "/digestreportrequests": {
+      "post": {
+        "description": "Ask for a report generation immediately.",
+        "operationId": "create-DigestReportRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/digestreportrequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/digestreportrequest"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "reporter"
+        ]
+      }
+    },
     "/digestreports": {
       "get": {
         "description": "List all existing digest reports.",
@@ -8154,6 +8622,58 @@
                     "$ref": "#/components/schemas/digestreport"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "reporter"
+        ]
+      },
+      "post": {
+        "description": "Ask for a report generation immediately.",
+        "operationId": "create-DigestReport",
+        "parameters": [
+          {
+            "description": "List of recipients to send the email to.",
+            "example": [
+              "bob@acme.com",
+              "other.bob@acme.com"
+            ],
+            "in": "query",
+            "name": "rcpt",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "The time window of the report in go notation. The report is always for `[now() - tw, now()]`. Min value is 24h.",
+            "example": "24h",
+            "in": "query",
+            "name": "tw",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/digestreport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/digestreport"
                 }
               }
             },
@@ -8195,6 +8715,149 @@
           }
         }
       ]
+    },
+    "/extractorlibs": {
+      "get": {
+        "description": "List all extractor libs.",
+        "operationId": "get-all-ExtractorLibs",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/extractorlib"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new extractor lib.",
+        "operationId": "create-ExtractorLib",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extractorlib"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractorlib"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/extractorlibs/{id}": {
+      "delete": {
+        "description": "Delete an extractor given its identifier.",
+        "operationId": "delete-ExtractorLib",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractorlib"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an extractor given its identifier.",
+        "operationId": "get-ExtractorLib",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractorlib"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an extractor given its identifier.",
+        "operationId": "update-ExtractorLib",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/extractorlib"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/extractorlib"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     },
     "/extractors": {
       "get": {

@@ -154,6 +154,14 @@ type OrgSettings struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
+	// List of provider that are white listed. Only has an effect if
+	// providerWhitelistEnabled is true.
+	ProviderWhitelist []string `json:"providerWhitelist" msgpack:"providerWhitelist" bson:"providerwhitelist" mapstructure:"providerWhitelist,omitempty"`
+
+	// Enables using the provider whitelist. When this is enabled, only the provider
+	// defined in the white list will be considered by Apex.
+	ProviderWhitelistEnabled bool `json:"providerWhitelistEnabled" msgpack:"providerWhitelistEnabled" bson:"providerwhitelistenabled" mapstructure:"providerWhitelistEnabled,omitempty"`
+
 	// The providers which do not request employees' consent.
 	ProvidersWithoutConsent []string `json:"providersWithoutConsent" msgpack:"providersWithoutConsent" bson:"providerswithoutconsent" mapstructure:"providersWithoutConsent,omitempty"`
 
@@ -197,6 +205,7 @@ func NewOrgSettings() *OrgSettings {
 		CACommonNames:           []string{},
 		Fingerprints:            []string{},
 		Propagate:               true,
+		ProviderWhitelist:       []string{},
 		ProvidersWithoutConsent: []string{},
 		ReportRecipientEmails:   []string{},
 		SubjectKeyIDs:           []string{},
@@ -249,6 +258,8 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.Profile = o.Profile
 	s.Propagate = o.Propagate
+	s.ProviderWhitelist = o.ProviderWhitelist
+	s.ProviderWhitelistEnabled = o.ProviderWhitelistEnabled
 	s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
 	s.ReportRecipientEmails = o.ReportRecipientEmails
 	s.SafeUsageURL = o.SafeUsageURL
@@ -292,6 +303,8 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.Profile = s.Profile
 	o.Propagate = s.Propagate
+	o.ProviderWhitelist = s.ProviderWhitelist
+	o.ProviderWhitelistEnabled = s.ProviderWhitelistEnabled
 	o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
 	o.ReportRecipientEmails = s.ReportRecipientEmails
 	o.SafeUsageURL = s.SafeUsageURL
@@ -414,32 +427,34 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseOrgSettings{
-			CA:                      &o.CA,
-			CACommonNames:           &o.CACommonNames,
-			ID:                      &o.ID,
-			AccessPolicy:            &o.AccessPolicy,
-			AllowSupportAccess:      &o.AllowSupportAccess,
-			AskConsent:              &o.AskConsent,
-			AssignPolicy:            &o.AssignPolicy,
-			ContentPolicy:           &o.ContentPolicy,
-			CreateTime:              &o.CreateTime,
-			DisableURLDiscovery:     &o.DisableURLDiscovery,
-			Fingerprints:            &o.Fingerprints,
-			ImportHash:              &o.ImportHash,
-			ImportLabel:             &o.ImportLabel,
-			Namespace:               &o.Namespace,
-			Profile:                 &o.Profile,
-			Propagate:               &o.Propagate,
-			ProvidersWithoutConsent: &o.ProvidersWithoutConsent,
-			ReportRecipientEmails:   &o.ReportRecipientEmails,
-			SafeUsageURL:            &o.SafeUsageURL,
-			StoreInputFiles:         &o.StoreInputFiles,
-			StoreOutputFiles:        &o.StoreOutputFiles,
-			SubjectKeyIDs:           &o.SubjectKeyIDs,
-			UpdateTime:              &o.UpdateTime,
-			UseRegoCodeOnly:         &o.UseRegoCodeOnly,
-			ZHash:                   &o.ZHash,
-			Zone:                    &o.Zone,
+			CA:                       &o.CA,
+			CACommonNames:            &o.CACommonNames,
+			ID:                       &o.ID,
+			AccessPolicy:             &o.AccessPolicy,
+			AllowSupportAccess:       &o.AllowSupportAccess,
+			AskConsent:               &o.AskConsent,
+			AssignPolicy:             &o.AssignPolicy,
+			ContentPolicy:            &o.ContentPolicy,
+			CreateTime:               &o.CreateTime,
+			DisableURLDiscovery:      &o.DisableURLDiscovery,
+			Fingerprints:             &o.Fingerprints,
+			ImportHash:               &o.ImportHash,
+			ImportLabel:              &o.ImportLabel,
+			Namespace:                &o.Namespace,
+			Profile:                  &o.Profile,
+			Propagate:                &o.Propagate,
+			ProviderWhitelist:        &o.ProviderWhitelist,
+			ProviderWhitelistEnabled: &o.ProviderWhitelistEnabled,
+			ProvidersWithoutConsent:  &o.ProvidersWithoutConsent,
+			ReportRecipientEmails:    &o.ReportRecipientEmails,
+			SafeUsageURL:             &o.SafeUsageURL,
+			StoreInputFiles:          &o.StoreInputFiles,
+			StoreOutputFiles:         &o.StoreOutputFiles,
+			SubjectKeyIDs:            &o.SubjectKeyIDs,
+			UpdateTime:               &o.UpdateTime,
+			UseRegoCodeOnly:          &o.UseRegoCodeOnly,
+			ZHash:                    &o.ZHash,
+			Zone:                     &o.Zone,
 		}
 	}
 
@@ -478,6 +493,10 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Profile = &(o.Profile)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "providerWhitelist":
+			sp.ProviderWhitelist = &(o.ProviderWhitelist)
+		case "providerWhitelistEnabled":
+			sp.ProviderWhitelistEnabled = &(o.ProviderWhitelistEnabled)
 		case "providersWithoutConsent":
 			sp.ProvidersWithoutConsent = &(o.ProvidersWithoutConsent)
 		case "reportRecipientEmails":
@@ -558,6 +577,12 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
+	}
+	if so.ProviderWhitelist != nil {
+		o.ProviderWhitelist = *so.ProviderWhitelist
+	}
+	if so.ProviderWhitelistEnabled != nil {
+		o.ProviderWhitelistEnabled = *so.ProviderWhitelistEnabled
 	}
 	if so.ProvidersWithoutConsent != nil {
 		o.ProvidersWithoutConsent = *so.ProvidersWithoutConsent
@@ -707,6 +732,10 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.Profile
 	case "propagate":
 		return o.Propagate
+	case "providerWhitelist":
+		return o.ProviderWhitelist
+	case "providerWhitelistEnabled":
+		return o.ProviderWhitelistEnabled
 	case "providersWithoutConsent":
 		return o.ProvidersWithoutConsent
 	case "reportRecipientEmails":
@@ -946,6 +975,29 @@ sent by the users are relevant to your company.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"ProviderWhitelist": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerwhitelist",
+		ConvertedName:  "ProviderWhitelist",
+		Description: `List of provider that are white listed. Only has an effect if
+providerWhitelistEnabled is true.`,
+		Exposed: true,
+		Name:    "providerWhitelist",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"ProviderWhitelistEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerwhitelistenabled",
+		ConvertedName:  "ProviderWhitelistEnabled",
+		Description: `Enables using the provider whitelist. When this is enabled, only the provider
+defined in the white list will be considered by Apex.`,
+		Exposed: true,
+		Name:    "providerWhitelistEnabled",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"ProvidersWithoutConsent": {
 		AllowedChoices: []string{},
@@ -1256,6 +1308,29 @@ sent by the users are relevant to your company.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"providerwhitelist": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerwhitelist",
+		ConvertedName:  "ProviderWhitelist",
+		Description: `List of provider that are white listed. Only has an effect if
+providerWhitelistEnabled is true.`,
+		Exposed: true,
+		Name:    "providerWhitelist",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"providerwhitelistenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerwhitelistenabled",
+		ConvertedName:  "ProviderWhitelistEnabled",
+		Description: `Enables using the provider whitelist. When this is enabled, only the provider
+defined in the white list will be considered by Apex.`,
+		Exposed: true,
+		Name:    "providerWhitelistEnabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"providerswithoutconsent": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "providerswithoutconsent",
@@ -1482,6 +1557,14 @@ type SparseOrgSettings struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
+	// List of provider that are white listed. Only has an effect if
+	// providerWhitelistEnabled is true.
+	ProviderWhitelist *[]string `json:"providerWhitelist,omitempty" msgpack:"providerWhitelist,omitempty" bson:"providerwhitelist,omitempty" mapstructure:"providerWhitelist,omitempty"`
+
+	// Enables using the provider whitelist. When this is enabled, only the provider
+	// defined in the white list will be considered by Apex.
+	ProviderWhitelistEnabled *bool `json:"providerWhitelistEnabled,omitempty" msgpack:"providerWhitelistEnabled,omitempty" bson:"providerwhitelistenabled,omitempty" mapstructure:"providerWhitelistEnabled,omitempty"`
+
 	// The providers which do not request employees' consent.
 	ProvidersWithoutConsent *[]string `json:"providersWithoutConsent,omitempty" msgpack:"providersWithoutConsent,omitempty" bson:"providerswithoutconsent,omitempty" mapstructure:"providersWithoutConsent,omitempty"`
 
@@ -1605,6 +1688,12 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
+	if o.ProviderWhitelist != nil {
+		s.ProviderWhitelist = o.ProviderWhitelist
+	}
+	if o.ProviderWhitelistEnabled != nil {
+		s.ProviderWhitelistEnabled = o.ProviderWhitelistEnabled
+	}
 	if o.ProvidersWithoutConsent != nil {
 		s.ProvidersWithoutConsent = o.ProvidersWithoutConsent
 	}
@@ -1699,6 +1788,12 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
+	if s.ProviderWhitelist != nil {
+		o.ProviderWhitelist = s.ProviderWhitelist
+	}
+	if s.ProviderWhitelistEnabled != nil {
+		o.ProviderWhitelistEnabled = s.ProviderWhitelistEnabled
+	}
 	if s.ProvidersWithoutConsent != nil {
 		o.ProvidersWithoutConsent = s.ProvidersWithoutConsent
 	}
@@ -1790,6 +1885,12 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
+	}
+	if o.ProviderWhitelist != nil {
+		out.ProviderWhitelist = *o.ProviderWhitelist
+	}
+	if o.ProviderWhitelistEnabled != nil {
+		out.ProviderWhitelistEnabled = *o.ProviderWhitelistEnabled
 	}
 	if o.ProvidersWithoutConsent != nil {
 		out.ProvidersWithoutConsent = *o.ProvidersWithoutConsent
@@ -1946,58 +2047,62 @@ func (o *SparseOrgSettings) DeepCopyInto(out *SparseOrgSettings) {
 }
 
 type mongoAttributesOrgSettings struct {
-	CA                      string        `bson:"ca"`
-	CACommonNames           []string      `bson:"cacommonnames"`
-	ID                      bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy            string        `bson:"accesspolicy"`
-	AllowSupportAccess      bool          `bson:"allowsupportaccess"`
-	AskConsent              bool          `bson:"askconsent"`
-	AssignPolicy            string        `bson:"assignpolicy"`
-	ContentPolicy           string        `bson:"contentpolicy"`
-	CreateTime              time.Time     `bson:"createtime"`
-	DisableURLDiscovery     bool          `bson:"disableurldiscovery"`
-	Fingerprints            []string      `bson:"fingerprints"`
-	ImportHash              string        `bson:"importhash,omitempty"`
-	ImportLabel             string        `bson:"importlabel,omitempty"`
-	Namespace               string        `bson:"namespace,omitempty"`
-	Profile                 string        `bson:"profile"`
-	Propagate               bool          `bson:"propagate"`
-	ProvidersWithoutConsent []string      `bson:"providerswithoutconsent"`
-	ReportRecipientEmails   []string      `bson:"reportrecipientemails"`
-	SafeUsageURL            string        `bson:"safeusageurl"`
-	StoreInputFiles         bool          `bson:"storeinputfiles"`
-	StoreOutputFiles        bool          `bson:"storeoutputfiles"`
-	SubjectKeyIDs           []string      `bson:"subjectkeyids"`
-	UpdateTime              time.Time     `bson:"updatetime"`
-	UseRegoCodeOnly         bool          `bson:"useregocodeonly"`
-	ZHash                   int           `bson:"zhash"`
-	Zone                    int           `bson:"zone"`
+	CA                       string        `bson:"ca"`
+	CACommonNames            []string      `bson:"cacommonnames"`
+	ID                       bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy             string        `bson:"accesspolicy"`
+	AllowSupportAccess       bool          `bson:"allowsupportaccess"`
+	AskConsent               bool          `bson:"askconsent"`
+	AssignPolicy             string        `bson:"assignpolicy"`
+	ContentPolicy            string        `bson:"contentpolicy"`
+	CreateTime               time.Time     `bson:"createtime"`
+	DisableURLDiscovery      bool          `bson:"disableurldiscovery"`
+	Fingerprints             []string      `bson:"fingerprints"`
+	ImportHash               string        `bson:"importhash,omitempty"`
+	ImportLabel              string        `bson:"importlabel,omitempty"`
+	Namespace                string        `bson:"namespace,omitempty"`
+	Profile                  string        `bson:"profile"`
+	Propagate                bool          `bson:"propagate"`
+	ProviderWhitelist        []string      `bson:"providerwhitelist"`
+	ProviderWhitelistEnabled bool          `bson:"providerwhitelistenabled"`
+	ProvidersWithoutConsent  []string      `bson:"providerswithoutconsent"`
+	ReportRecipientEmails    []string      `bson:"reportrecipientemails"`
+	SafeUsageURL             string        `bson:"safeusageurl"`
+	StoreInputFiles          bool          `bson:"storeinputfiles"`
+	StoreOutputFiles         bool          `bson:"storeoutputfiles"`
+	SubjectKeyIDs            []string      `bson:"subjectkeyids"`
+	UpdateTime               time.Time     `bson:"updatetime"`
+	UseRegoCodeOnly          bool          `bson:"useregocodeonly"`
+	ZHash                    int           `bson:"zhash"`
+	Zone                     int           `bson:"zone"`
 }
 type mongoAttributesSparseOrgSettings struct {
-	CA                      *string       `bson:"ca,omitempty"`
-	CACommonNames           *[]string     `bson:"cacommonnames,omitempty"`
-	ID                      bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy            *string       `bson:"accesspolicy,omitempty"`
-	AllowSupportAccess      *bool         `bson:"allowsupportaccess,omitempty"`
-	AskConsent              *bool         `bson:"askconsent,omitempty"`
-	AssignPolicy            *string       `bson:"assignpolicy,omitempty"`
-	ContentPolicy           *string       `bson:"contentpolicy,omitempty"`
-	CreateTime              *time.Time    `bson:"createtime,omitempty"`
-	DisableURLDiscovery     *bool         `bson:"disableurldiscovery,omitempty"`
-	Fingerprints            *[]string     `bson:"fingerprints,omitempty"`
-	ImportHash              *string       `bson:"importhash,omitempty"`
-	ImportLabel             *string       `bson:"importlabel,omitempty"`
-	Namespace               *string       `bson:"namespace,omitempty"`
-	Profile                 *string       `bson:"profile,omitempty"`
-	Propagate               *bool         `bson:"propagate,omitempty"`
-	ProvidersWithoutConsent *[]string     `bson:"providerswithoutconsent,omitempty"`
-	ReportRecipientEmails   *[]string     `bson:"reportrecipientemails,omitempty"`
-	SafeUsageURL            *string       `bson:"safeusageurl,omitempty"`
-	StoreInputFiles         *bool         `bson:"storeinputfiles,omitempty"`
-	StoreOutputFiles        *bool         `bson:"storeoutputfiles,omitempty"`
-	SubjectKeyIDs           *[]string     `bson:"subjectkeyids,omitempty"`
-	UpdateTime              *time.Time    `bson:"updatetime,omitempty"`
-	UseRegoCodeOnly         *bool         `bson:"useregocodeonly,omitempty"`
-	ZHash                   *int          `bson:"zhash,omitempty"`
-	Zone                    *int          `bson:"zone,omitempty"`
+	CA                       *string       `bson:"ca,omitempty"`
+	CACommonNames            *[]string     `bson:"cacommonnames,omitempty"`
+	ID                       bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy             *string       `bson:"accesspolicy,omitempty"`
+	AllowSupportAccess       *bool         `bson:"allowsupportaccess,omitempty"`
+	AskConsent               *bool         `bson:"askconsent,omitempty"`
+	AssignPolicy             *string       `bson:"assignpolicy,omitempty"`
+	ContentPolicy            *string       `bson:"contentpolicy,omitempty"`
+	CreateTime               *time.Time    `bson:"createtime,omitempty"`
+	DisableURLDiscovery      *bool         `bson:"disableurldiscovery,omitempty"`
+	Fingerprints             *[]string     `bson:"fingerprints,omitempty"`
+	ImportHash               *string       `bson:"importhash,omitempty"`
+	ImportLabel              *string       `bson:"importlabel,omitempty"`
+	Namespace                *string       `bson:"namespace,omitempty"`
+	Profile                  *string       `bson:"profile,omitempty"`
+	Propagate                *bool         `bson:"propagate,omitempty"`
+	ProviderWhitelist        *[]string     `bson:"providerwhitelist,omitempty"`
+	ProviderWhitelistEnabled *bool         `bson:"providerwhitelistenabled,omitempty"`
+	ProvidersWithoutConsent  *[]string     `bson:"providerswithoutconsent,omitempty"`
+	ReportRecipientEmails    *[]string     `bson:"reportrecipientemails,omitempty"`
+	SafeUsageURL             *string       `bson:"safeusageurl,omitempty"`
+	StoreInputFiles          *bool         `bson:"storeinputfiles,omitempty"`
+	StoreOutputFiles         *bool         `bson:"storeoutputfiles,omitempty"`
+	SubjectKeyIDs            *[]string     `bson:"subjectkeyids,omitempty"`
+	UpdateTime               *time.Time    `bson:"updatetime,omitempty"`
+	UseRegoCodeOnly          *bool         `bson:"useregocodeonly,omitempty"`
+	ZHash                    *int          `bson:"zhash,omitempty"`
+	Zone                     *int          `bson:"zone,omitempty"`
 }

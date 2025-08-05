@@ -108,9 +108,9 @@
       },
       "type": "array"
     },
-    "principalappusers": {
+    "principalexternals": {
       "items": {
-        "$ref": "principalappuser.json"
+        "$ref": "principalexternal.json"
       },
       "type": "array"
     },

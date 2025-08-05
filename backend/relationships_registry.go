@@ -57,6 +57,44 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[AIPluginIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[APIAuthorizationIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -576,6 +614,31 @@ func init() {
 	}
 
 	relationshipsRegistry[DigestReportIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {
+				RequiredParameters: elemental.NewParametersRequirement(
+					[][][]string{
+						{
+							{
+								"tw",
+								"rcpt",
+							},
+						},
+					},
+				),
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "rcpt",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
+						Name: "tw",
+						Type: "duration",
+					},
+				},
+			},
+		},
 		Retrieve: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -601,9 +664,53 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[DigestReportRequestIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[ErrorTransformerIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[ExtractorIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[ExtractorLibIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -949,7 +1056,7 @@ func init() {
 
 	relationshipsRegistry[PrincipalAppIdentity] = &elemental.Relationship{}
 
-	relationshipsRegistry[PrincipalAppUserIdentity] = &elemental.Relationship{}
+	relationshipsRegistry[PrincipalExternalIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalUserIdentity] = &elemental.Relationship{}
 

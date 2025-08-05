@@ -252,6 +252,10 @@ type Extractor struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// References existing extractorlibs by name to make them importable in the
+	// extractor script.
+	Libs []string `json:"libs" msgpack:"libs" bson:"libs" mapstructure:"libs,omitempty"`
+
 	// The method to match.
 	Method ExtractorMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
 
@@ -296,6 +300,7 @@ func NewExtractor() *Extractor {
 		Behavior:       ExtractorBehaviorPopup,
 		Block:          ExtractorBlockAllow,
 		CancelBehavior: ExtractorCancelBehaviorBlock,
+		Libs:           []string{},
 		Propagate:      true,
 	}
 }
@@ -344,6 +349,7 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.Ignore = o.Ignore
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Libs = o.Libs
 	s.Method = o.Method
 	s.Name = o.Name
 	s.Namespace = o.Namespace
@@ -385,6 +391,7 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.Ignore = s.Ignore
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Libs = s.Libs
 	o.Method = s.Method
 	o.Name = s.Name
 	o.Namespace = s.Namespace
@@ -527,6 +534,7 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Ignore:             &o.Ignore,
 			ImportHash:         &o.ImportHash,
 			ImportLabel:        &o.ImportLabel,
+			Libs:               &o.Libs,
 			Method:             &o.Method,
 			Name:               &o.Name,
 			Namespace:          &o.Namespace,
@@ -571,6 +579,8 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "libs":
+			sp.Libs = &(o.Libs)
 		case "method":
 			sp.Method = &(o.Method)
 		case "name":
@@ -645,6 +655,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.Libs != nil {
+		o.Libs = *so.Libs
 	}
 	if so.Method != nil {
 		o.Method = *so.Method
@@ -827,6 +840,8 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "libs":
+		return o.Libs
 	case "method":
 		return o.Method
 	case "name":
@@ -1043,6 +1058,18 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
+	},
+	"Libs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "libs",
+		ConvertedName:  "Libs",
+		Description: `References existing extractorlibs by name to make them importable in the
+extractor script.`,
+		Exposed: true,
+		Name:    "libs",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
@@ -1339,6 +1366,18 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"libs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "libs",
+		ConvertedName:  "Libs",
+		Description: `References existing extractorlibs by name to make them importable in the
+extractor script.`,
+		Exposed: true,
+		Name:    "libs",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
 	"method": {
 		AllowedChoices: []string{"Post", "Put", "Patch", "Get", "Delete", "Options", "Head"},
 		BSONFieldName:  "method",
@@ -1574,6 +1613,10 @@ type SparseExtractor struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// References existing extractorlibs by name to make them importable in the
+	// extractor script.
+	Libs *[]string `json:"libs,omitempty" msgpack:"libs,omitempty" bson:"libs,omitempty" mapstructure:"libs,omitempty"`
+
 	// The method to match.
 	Method *ExtractorMethodValue `json:"method,omitempty" msgpack:"method,omitempty" bson:"method,omitempty" mapstructure:"method,omitempty"`
 
@@ -1689,6 +1732,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.Libs != nil {
+		s.Libs = o.Libs
+	}
 	if o.Method != nil {
 		s.Method = o.Method
 	}
@@ -1777,6 +1823,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.Libs != nil {
+		o.Libs = s.Libs
+	}
 	if s.Method != nil {
 		o.Method = s.Method
 	}
@@ -1862,6 +1911,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.Libs != nil {
+		out.Libs = *o.Libs
 	}
 	if o.Method != nil {
 		out.Method = *o.Method
@@ -2042,6 +2094,7 @@ type mongoAttributesExtractor struct {
 	Ignore             bool                         `bson:"ignore"`
 	ImportHash         string                       `bson:"importhash,omitempty"`
 	ImportLabel        string                       `bson:"importlabel,omitempty"`
+	Libs               []string                     `bson:"libs"`
 	Method             ExtractorMethodValue         `bson:"method"`
 	Name               string                       `bson:"name"`
 	Namespace          string                       `bson:"namespace,omitempty"`
@@ -2068,6 +2121,7 @@ type mongoAttributesSparseExtractor struct {
 	Ignore             *bool                         `bson:"ignore,omitempty"`
 	ImportHash         *string                       `bson:"importhash,omitempty"`
 	ImportLabel        *string                       `bson:"importlabel,omitempty"`
+	Libs               *[]string                     `bson:"libs,omitempty"`
 	Method             *ExtractorMethodValue         `bson:"method,omitempty"`
 	Name               *string                       `bson:"name,omitempty"`
 	Namespace          *string                       `bson:"namespace,omitempty"`

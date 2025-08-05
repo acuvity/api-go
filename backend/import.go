@@ -88,6 +88,9 @@ type Import struct {
 	// AI domains to import.
 	AIDomains AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
 
+	// AI plugins to import.
+	AIPlugins AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"-" mapstructure:"AIPlugins,omitempty"`
+
 	// APIAuthorizations to import.
 	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
 
@@ -126,6 +129,9 @@ type Import struct {
 
 	// DataSets to import.
 	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
+
+	// Extractor Libs to import.
+	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
 
 	// Extractors to import.
 	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -173,6 +179,7 @@ func NewImport() *Import {
 	return &Import{
 		ModelVersion:        1,
 		AIDomains:           AIDomainsList{},
+		AIPlugins:           AIPluginsList{},
 		APIAuthorizations:   APIAuthorizationsList{},
 		LDAPSources:         api.LDAPSourcesList{},
 		MTLSSources:         api.MTLSSourcesList{},
@@ -186,6 +193,7 @@ func NewImport() *Import {
 		ContentPolicies:     ContentPoliciesList{},
 		CustomDataTypes:     CustomDataTypesList{},
 		DataSets:            DataSetsList{},
+		ExtractorLibs:       ExtractorLibsList{},
 		Extractors:          ExtractorsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
 		OrgSettings:         OrgSettingsList{},
@@ -283,6 +291,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseImport{
 			AIDomains:           &o.AIDomains,
+			AIPlugins:           &o.AIPlugins,
 			APIAuthorizations:   &o.APIAuthorizations,
 			LDAPSources:         &o.LDAPSources,
 			MTLSSources:         &o.MTLSSources,
@@ -296,6 +305,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ContentPolicies:     &o.ContentPolicies,
 			CustomDataTypes:     &o.CustomDataTypes,
 			DataSets:            &o.DataSets,
+			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
@@ -316,6 +326,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "AIDomains":
 			sp.AIDomains = &(o.AIDomains)
+		case "AIPlugins":
+			sp.AIPlugins = &(o.AIPlugins)
 		case "APIAuthorizations":
 			sp.APIAuthorizations = &(o.APIAuthorizations)
 		case "LDAPSources":
@@ -342,6 +354,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CustomDataTypes = &(o.CustomDataTypes)
 		case "dataSets":
 			sp.DataSets = &(o.DataSets)
+		case "extractorLibs":
+			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
 		case "ignoredDomains":
@@ -382,6 +396,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AIDomains != nil {
 		o.AIDomains = *so.AIDomains
 	}
+	if so.AIPlugins != nil {
+		o.AIPlugins = *so.AIPlugins
+	}
 	if so.APIAuthorizations != nil {
 		o.APIAuthorizations = *so.APIAuthorizations
 	}
@@ -420,6 +437,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DataSets != nil {
 		o.DataSets = *so.DataSets
+	}
+	if so.ExtractorLibs != nil {
+		o.ExtractorLibs = *so.ExtractorLibs
 	}
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
@@ -490,6 +510,16 @@ func (o *Import) Validate() error {
 	requiredErrors := elemental.Errors{}
 
 	for _, sub := range o.AIDomains {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.AIPlugins {
 		if sub == nil {
 			continue
 		}
@@ -580,6 +610,16 @@ func (o *Import) Validate() error {
 	}
 
 	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
 		}
@@ -739,6 +779,8 @@ func (o *Import) ValueForAttribute(name string) any {
 	switch name {
 	case "AIDomains":
 		return o.AIDomains
+	case "AIPlugins":
+		return o.AIPlugins
 	case "APIAuthorizations":
 		return o.APIAuthorizations
 	case "LDAPSources":
@@ -765,6 +807,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.CustomDataTypes
 	case "dataSets":
 		return o.DataSets
+	case "extractorLibs":
+		return o.ExtractorLibs
 	case "extractors":
 		return o.Extractors
 	case "ignoredDomains":
@@ -803,6 +847,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "AIDomains",
 		SubType:        "aidomain",
+		Type:           "refList",
+	},
+	"AIPlugins": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIPlugins",
+		Description:    `AI plugins to import.`,
+		Exposed:        true,
+		Name:           "AIPlugins",
+		SubType:        "aiplugin",
 		Type:           "refList",
 	},
 	"APIAuthorizations": {
@@ -920,6 +973,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "dataSets",
 		SubType:        "dataset",
+		Type:           "refList",
+	},
+	"ExtractorLibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractorLibs",
+		Description:    `Extractor Libs to import.`,
+		Exposed:        true,
+		Name:           "extractorLibs",
+		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"Extractors": {
@@ -1044,6 +1106,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "aidomain",
 		Type:           "refList",
 	},
+	"aiplugins": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIPlugins",
+		Description:    `AI plugins to import.`,
+		Exposed:        true,
+		Name:           "AIPlugins",
+		SubType:        "aiplugin",
+		Type:           "refList",
+	},
 	"apiauthorizations": {
 		AllowedChoices: []string{},
 		ConvertedName:  "APIAuthorizations",
@@ -1159,6 +1230,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "dataSets",
 		SubType:        "dataset",
+		Type:           "refList",
+	},
+	"extractorlibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractorLibs",
+		Description:    `Extractor Libs to import.`,
+		Exposed:        true,
+		Name:           "extractorLibs",
+		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"extractors": {
@@ -1338,6 +1418,9 @@ type SparseImport struct {
 	// AI domains to import.
 	AIDomains *AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
 
+	// AI plugins to import.
+	AIPlugins *AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"-" mapstructure:"AIPlugins,omitempty"`
+
 	// APIAuthorizations to import.
 	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
 
@@ -1376,6 +1459,9 @@ type SparseImport struct {
 
 	// DataSets to import.
 	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
+
+	// Extractor Libs to import.
+	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
 
 	// Extractors to import.
 	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
@@ -1481,6 +1567,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.AIDomains != nil {
 		out.AIDomains = *o.AIDomains
 	}
+	if o.AIPlugins != nil {
+		out.AIPlugins = *o.AIPlugins
+	}
 	if o.APIAuthorizations != nil {
 		out.APIAuthorizations = *o.APIAuthorizations
 	}
@@ -1519,6 +1608,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DataSets != nil {
 		out.DataSets = *o.DataSets
+	}
+	if o.ExtractorLibs != nil {
+		out.ExtractorLibs = *o.ExtractorLibs
 	}
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors

@@ -1,5 +1,7 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@userinfo"
+  ],
   "$friendlyName": "Principal App",
   "$friendlyNamePlural": "Principal Apps",
   "$modelName": "PrincipalApp",
@@ -39,11 +41,26 @@
         "null"
       ]
     },
-    "user": {
-      "$friendlyName": "User",
-      "$ref": "principalappuser.json",
-      "description": "The optional user information of the application request.",
-      "title": "user"
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [],

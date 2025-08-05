@@ -1,0 +1,22 @@
+{
+  "$extends": [],
+  "$friendlyName": "Tunnel Proxy Authentication",
+  "$friendlyNamePlural": "Tunnel Proxy Authentications",
+  "$modelName": "TunnelProxyAuth",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "tunnelproxyauths",
+  "$modelRestName": "tunnelproxyauth",
+  "additionalProperties": false,
+  "description": "The authentication information for the HTTP proxy used by the tunnel of the agent.",
+  "properties": {
+    "basic": {
+      "$friendlyName": "Basic Authentication",
+      "$ref": "tunnelproxyauthbasic.json",
+      "description": "If set, the proxy will use basic authentication with the provided username and password.",
+      "title": "basic"
+    }
+  },
+  "required": [],
+  "title": "TunnelProxyAuth",
+  "type": "object"
+}

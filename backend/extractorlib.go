@@ -13,43 +13,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// TeamIdentity represents the Identity of the object.
-var TeamIdentity = elemental.Identity{
-	Name:     "team",
-	Category: "teams",
+// ExtractorLibIdentity represents the Identity of the object.
+var ExtractorLibIdentity = elemental.Identity{
+	Name:     "extractorlib",
+	Category: "extractorlibs",
 	Package:  "lain",
 	Private:  false,
 }
 
-// TeamsList represents a list of Teams
-type TeamsList []*Team
+// ExtractorLibsList represents a list of ExtractorLibs
+type ExtractorLibsList []*ExtractorLib
 
 // Identity returns the identity of the objects in the list.
-func (o TeamsList) Identity() elemental.Identity {
+func (o ExtractorLibsList) Identity() elemental.Identity {
 
-	return TeamIdentity
+	return ExtractorLibIdentity
 }
 
-// Copy returns a pointer to a copy the TeamsList.
-func (o TeamsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the ExtractorLibsList.
+func (o ExtractorLibsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the TeamsList.
-func (o TeamsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the ExtractorLibsList.
+func (o ExtractorLibsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*Team))
+		out = append(out, obj.(*ExtractorLib))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o TeamsList) List() elemental.IdentifiablesList {
+func (o ExtractorLibsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -60,42 +60,39 @@ func (o TeamsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o TeamsList) DefaultOrder() []string {
+func (o ExtractorLibsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the TeamsList converted to SparseTeamsList.
+// ToSparse returns the ExtractorLibsList converted to SparseExtractorLibsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o TeamsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o ExtractorLibsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseTeamsList, len(o))
+	out := make(SparseExtractorLibsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseTeam)
+		out[i] = o[i].ToSparse(fields...).(*SparseExtractorLib)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o TeamsList) Version() int {
+func (o ExtractorLibsList) Version() int {
 
 	return 1
 }
 
-// Team represents the model of a team
-type Team struct {
+// ExtractorLib represents the model of a extractorlib
+type ExtractorLib struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// Description of the team.
+	// The description of the provider.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
-
-	// Set the team to be disabled.
-	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -104,21 +101,21 @@ type Team struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the team.
+	// The name of the library. This will be used to import the module in the main
+	// call.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// A tag expression that identifies user(s).
-	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
+
+	// If not empty, use this lua code to run the extraction.
+	Script string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
-
-	// Weight of the team. It is used if multiple teams match for a user. In that case
-	// the team with the higher weight will be used.
-	Weight int `json:"weight" msgpack:"weight" bson:"weight" mapstructure:"weight,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -129,56 +126,55 @@ type Team struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewTeam returns a new *Team
-func NewTeam() *Team {
+// NewExtractorLib returns a new *ExtractorLib
+func NewExtractorLib() *ExtractorLib {
 
-	return &Team{
+	return &ExtractorLib{
 		ModelVersion: 1,
-		Subject:      [][]string{},
+		Propagate:    true,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *Team) Identity() elemental.Identity {
+func (o *ExtractorLib) Identity() elemental.Identity {
 
-	return TeamIdentity
+	return ExtractorLibIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Team) Identifier() string {
+func (o *ExtractorLib) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Team) SetIdentifier(id string) {
+func (o *ExtractorLib) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Team) GetBSON() (any, error) {
+func (o *ExtractorLib) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesTeam{}
+	s := &mongoAttributesExtractorLib{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.Disabled = o.Disabled
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.Subject = o.Subject
+	s.Propagate = o.Propagate
+	s.Script = o.Script
 	s.UpdateTime = o.UpdateTime
-	s.Weight = o.Weight
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -187,13 +183,13 @@ func (o *Team) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Team) SetBSON(raw bson.Raw) error {
+func (o *ExtractorLib) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesTeam{}
+	s := &mongoAttributesExtractorLib{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -201,14 +197,13 @@ func (o *Team) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.Disabled = s.Disabled
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.Subject = s.Subject
+	o.Propagate = s.Propagate
+	o.Script = s.Script
 	o.UpdateTime = s.UpdateTime
-	o.Weight = s.Weight
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -216,121 +211,129 @@ func (o *Team) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Team) Version() int {
+func (o *ExtractorLib) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Team) BleveType() string {
+func (o *ExtractorLib) BleveType() string {
 
-	return "team"
+	return "extractorlib"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Team) DefaultOrder() []string {
+func (o *ExtractorLib) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Team) Doc() string {
+func (o *ExtractorLib) Doc() string {
 
-	return `Provider Teams are logical groupings of users, defined by their identity claims.
-These teams can be referenced in Access Policies to control user permissions,
-such as granting or restricting access to providers and other related resources
-or operations.`
+	return `Allows to store reusable lua modules that can be referenced in an extractor.`
 }
 
-func (o *Team) String() string {
+func (o *ExtractorLib) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *Team) GetCreateTime() time.Time {
+func (o *ExtractorLib) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *Team) SetCreateTime(createTime time.Time) {
+func (o *ExtractorLib) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *Team) GetImportHash() string {
+func (o *ExtractorLib) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *Team) SetImportHash(importHash string) {
+func (o *ExtractorLib) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *Team) GetImportLabel() string {
+func (o *ExtractorLib) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *Team) SetImportLabel(importLabel string) {
+func (o *ExtractorLib) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *Team) GetNamespace() string {
+func (o *ExtractorLib) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *Team) SetNamespace(namespace string) {
+func (o *ExtractorLib) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *ExtractorLib) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *ExtractorLib) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *Team) GetUpdateTime() time.Time {
+func (o *ExtractorLib) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *Team) SetUpdateTime(updateTime time.Time) {
+func (o *ExtractorLib) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Team) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *ExtractorLib) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseTeam{
+		return &SparseExtractorLib{
 			ID:          &o.ID,
 			CreateTime:  &o.CreateTime,
 			Description: &o.Description,
-			Disabled:    &o.Disabled,
 			ImportHash:  &o.ImportHash,
 			ImportLabel: &o.ImportLabel,
 			Name:        &o.Name,
 			Namespace:   &o.Namespace,
-			Subject:     &o.Subject,
+			Propagate:   &o.Propagate,
+			Script:      &o.Script,
 			UpdateTime:  &o.UpdateTime,
-			Weight:      &o.Weight,
 			ZHash:       &o.ZHash,
 			Zone:        &o.Zone,
 		}
 	}
 
-	sp := &SparseTeam{}
+	sp := &SparseExtractorLib{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -339,8 +342,6 @@ func (o *Team) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "disabled":
-			sp.Disabled = &(o.Disabled)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -349,12 +350,12 @@ func (o *Team) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "subject":
-			sp.Subject = &(o.Subject)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
+		case "script":
+			sp.Script = &(o.Script)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
-		case "weight":
-			sp.Weight = &(o.Weight)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -365,13 +366,13 @@ func (o *Team) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseTeam to the object.
-func (o *Team) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseExtractorLib to the object.
+func (o *ExtractorLib) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseTeam)
+	so := sparse.(*SparseExtractorLib)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -380,9 +381,6 @@ func (o *Team) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.Disabled != nil {
-		o.Disabled = *so.Disabled
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -396,14 +394,14 @@ func (o *Team) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.Subject != nil {
-		o.Subject = *so.Subject
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
+	}
+	if so.Script != nil {
+		o.Script = *so.Script
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
-	}
-	if so.Weight != nil {
-		o.Weight = *so.Weight
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -413,32 +411,32 @@ func (o *Team) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the Team.
-func (o *Team) DeepCopy() *Team {
+// DeepCopy returns a deep copy if the ExtractorLib.
+func (o *ExtractorLib) DeepCopy() *ExtractorLib {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Team{}
+	out := &ExtractorLib{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Team.
-func (o *Team) DeepCopyInto(out *Team) {
+// DeepCopyInto copies the receiver into the given *ExtractorLib.
+func (o *ExtractorLib) DeepCopyInto(out *ExtractorLib) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Team: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy ExtractorLib: %s", err))
 	}
 
-	*out = *target.(*Team)
+	*out = *target.(*ExtractorLib)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Team) Validate() error {
+func (o *ExtractorLib) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -447,15 +445,11 @@ func (o *Team) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '@', '.' or space.`, true); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/]+$`, `must only contain alpha numerical characters, '/', '-' or '_'.`, true); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateName("name", o.Name); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
+	if err := ValidateLua("script", o.Script); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -471,26 +465,26 @@ func (o *Team) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Team) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*ExtractorLib) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := TeamAttributesMap[name]; ok {
+	if v, ok := ExtractorLibAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return TeamLowerCaseAttributesMap[name]
+	return ExtractorLibLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Team) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*ExtractorLib) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return TeamAttributesMap
+	return ExtractorLibAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Team) ValueForAttribute(name string) any {
+func (o *ExtractorLib) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -499,8 +493,6 @@ func (o *Team) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "disabled":
-		return o.Disabled
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -509,12 +501,12 @@ func (o *Team) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "subject":
-		return o.Subject
+	case "propagate":
+		return o.Propagate
+	case "script":
+		return o.Script
 	case "updateTime":
 		return o.UpdateTime
-	case "weight":
-		return o.Weight
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -524,8 +516,8 @@ func (o *Team) ValueForAttribute(name string) any {
 	return nil
 }
 
-// TeamAttributesMap represents the map of attribute for Team.
-var TeamAttributesMap = map[string]elemental.AttributeSpecification{
+// ExtractorLibAttributesMap represents the map of attribute for ExtractorLib.
+var ExtractorLibAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -560,21 +552,11 @@ var TeamAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the team.`,
+		Description:    `The description of the provider.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"Disabled": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disabled",
-		ConvertedName:  "Disabled",
-		Description:    `Set the team to be disabled.`,
-		Exposed:        true,
-		Name:           "disabled",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -605,17 +587,18 @@ same import operation.`,
 		Type:    "string",
 	},
 	"Name": {
-		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_/]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `The name of the team.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The name of the library. This will be used to import the module in the main
+call.`,
+		Exposed:  true,
+		Name:     "name",
+		Required: true,
+		Stored:   true,
+		Type:     "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -632,17 +615,28 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"Subject": {
+	"Propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "subject",
-		ConvertedName:  "Subject",
-		Description:    `A tag expression that identifies user(s).`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		Name:           "subject",
-		Orderable:      true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		Type:           "boolean",
+	},
+	"Script": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description:    `If not empty, use this lua code to run the extraction.`,
+		Exposed:        true,
+		Name:           "script",
+		Stored:         true,
+		Type:           "string",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -659,21 +653,10 @@ same import operation.`,
 		Stored:         true,
 		Type:           "time",
 	},
-	"Weight": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "weight",
-		ConvertedName:  "Weight",
-		Description: `Weight of the team. It is used if multiple teams match for a user. In that case
-the team with the higher weight will be used.`,
-		Exposed: true,
-		Name:    "weight",
-		Stored:  true,
-		Type:    "integer",
-	},
 }
 
-// TeamLowerCaseAttributesMap represents the map of attribute for Team.
-var TeamLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// ExtractorLibLowerCaseAttributesMap represents the map of attribute for ExtractorLib.
+var ExtractorLibLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -708,21 +691,11 @@ var TeamLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the team.`,
+		Description:    `The description of the provider.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"disabled": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "disabled",
-		ConvertedName:  "Disabled",
-		Description:    `Set the team to be disabled.`,
-		Exposed:        true,
-		Name:           "disabled",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -753,17 +726,18 @@ same import operation.`,
 		Type:    "string",
 	},
 	"name": {
-		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_/]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `The name of the team.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The name of the library. This will be used to import the module in the main
+call.`,
+		Exposed:  true,
+		Name:     "name",
+		Required: true,
+		Stored:   true,
+		Type:     "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -780,17 +754,28 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"subject": {
+	"propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "subject",
-		ConvertedName:  "Subject",
-		Description:    `A tag expression that identifies user(s).`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		Name:           "subject",
-		Orderable:      true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		Type:           "boolean",
+	},
+	"script": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description:    `If not empty, use this lua code to run the extraction.`,
+		Exposed:        true,
+		Name:           "script",
+		Stored:         true,
+		Type:           "string",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -807,48 +792,37 @@ same import operation.`,
 		Stored:         true,
 		Type:           "time",
 	},
-	"weight": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "weight",
-		ConvertedName:  "Weight",
-		Description: `Weight of the team. It is used if multiple teams match for a user. In that case
-the team with the higher weight will be used.`,
-		Exposed: true,
-		Name:    "weight",
-		Stored:  true,
-		Type:    "integer",
-	},
 }
 
-// SparseTeamsList represents a list of SparseTeams
-type SparseTeamsList []*SparseTeam
+// SparseExtractorLibsList represents a list of SparseExtractorLibs
+type SparseExtractorLibsList []*SparseExtractorLib
 
 // Identity returns the identity of the objects in the list.
-func (o SparseTeamsList) Identity() elemental.Identity {
+func (o SparseExtractorLibsList) Identity() elemental.Identity {
 
-	return TeamIdentity
+	return ExtractorLibIdentity
 }
 
-// Copy returns a pointer to a copy the SparseTeamsList.
-func (o SparseTeamsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseExtractorLibsList.
+func (o SparseExtractorLibsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseTeamsList.
-func (o SparseTeamsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseExtractorLibsList.
+func (o SparseExtractorLibsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseTeam))
+		out = append(out, obj.(*SparseExtractorLib))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseTeamsList) List() elemental.IdentifiablesList {
+func (o SparseExtractorLibsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -859,13 +833,13 @@ func (o SparseTeamsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseTeamsList) DefaultOrder() []string {
+func (o SparseExtractorLibsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseTeamsList converted to TeamsList.
-func (o SparseTeamsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseExtractorLibsList converted to ExtractorLibsList.
+func (o SparseExtractorLibsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -876,24 +850,21 @@ func (o SparseTeamsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseTeamsList) Version() int {
+func (o SparseExtractorLibsList) Version() int {
 
 	return 1
 }
 
-// SparseTeam represents the sparse version of a team.
-type SparseTeam struct {
+// SparseExtractorLib represents the sparse version of a extractorlib.
+type SparseExtractorLib struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// Description of the team.
+	// The description of the provider.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// Set the team to be disabled.
-	Disabled *bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -902,21 +873,21 @@ type SparseTeam struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the team.
+	// The name of the library. This will be used to import the module in the main
+	// call.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// A tag expression that identifies user(s).
-	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
+	// If not empty, use this lua code to run the extraction.
+	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
-
-	// Weight of the team. It is used if multiple teams match for a user. In that case
-	// the team with the higher weight will be used.
-	Weight *int `json:"weight,omitempty" msgpack:"weight,omitempty" bson:"weight,omitempty" mapstructure:"weight,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -927,19 +898,19 @@ type SparseTeam struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseTeam returns a new  SparseTeam.
-func NewSparseTeam() *SparseTeam {
-	return &SparseTeam{}
+// NewSparseExtractorLib returns a new  SparseExtractorLib.
+func NewSparseExtractorLib() *SparseExtractorLib {
+	return &SparseExtractorLib{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseTeam) Identity() elemental.Identity {
+func (o *SparseExtractorLib) Identity() elemental.Identity {
 
-	return TeamIdentity
+	return ExtractorLibIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseTeam) Identifier() string {
+func (o *SparseExtractorLib) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -948,7 +919,7 @@ func (o *SparseTeam) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseTeam) SetIdentifier(id string) {
+func (o *SparseExtractorLib) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -959,13 +930,13 @@ func (o *SparseTeam) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseTeam) GetBSON() (any, error) {
+func (o *SparseExtractorLib) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseTeam{}
+	s := &mongoAttributesSparseExtractorLib{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -975,9 +946,6 @@ func (o *SparseTeam) GetBSON() (any, error) {
 	}
 	if o.Description != nil {
 		s.Description = o.Description
-	}
-	if o.Disabled != nil {
-		s.Disabled = o.Disabled
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -991,14 +959,14 @@ func (o *SparseTeam) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.Subject != nil {
-		s.Subject = o.Subject
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
+	if o.Script != nil {
+		s.Script = o.Script
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
-	}
-	if o.Weight != nil {
-		s.Weight = o.Weight
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1012,13 +980,13 @@ func (o *SparseTeam) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseTeam) SetBSON(raw bson.Raw) error {
+func (o *SparseExtractorLib) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseTeam{}
+	s := &mongoAttributesSparseExtractorLib{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -1030,9 +998,6 @@ func (o *SparseTeam) SetBSON(raw bson.Raw) error {
 	}
 	if s.Description != nil {
 		o.Description = s.Description
-	}
-	if s.Disabled != nil {
-		o.Disabled = s.Disabled
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1046,14 +1011,14 @@ func (o *SparseTeam) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.Subject != nil {
-		o.Subject = s.Subject
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
+	if s.Script != nil {
+		o.Script = s.Script
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
-	}
-	if s.Weight != nil {
-		o.Weight = s.Weight
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1066,15 +1031,15 @@ func (o *SparseTeam) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseTeam) Version() int {
+func (o *SparseExtractorLib) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseTeam) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseExtractorLib) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewTeam()
+	out := NewExtractorLib()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1083,9 +1048,6 @@ func (o *SparseTeam) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.Disabled != nil {
-		out.Disabled = *o.Disabled
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1099,14 +1061,14 @@ func (o *SparseTeam) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.Subject != nil {
-		out.Subject = *o.Subject
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
+	}
+	if o.Script != nil {
+		out.Script = *o.Script
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
-	}
-	if o.Weight != nil {
-		out.Weight = *o.Weight
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1119,7 +1081,7 @@ func (o *SparseTeam) ToPlain() elemental.PlainIdentifiable {
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseTeam) GetCreateTime() (out time.Time) {
+func (o *SparseExtractorLib) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1129,13 +1091,13 @@ func (o *SparseTeam) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseTeam) SetCreateTime(createTime time.Time) {
+func (o *SparseExtractorLib) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseTeam) GetImportHash() (out string) {
+func (o *SparseExtractorLib) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1145,13 +1107,13 @@ func (o *SparseTeam) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseTeam) SetImportHash(importHash string) {
+func (o *SparseExtractorLib) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseTeam) GetImportLabel() (out string) {
+func (o *SparseExtractorLib) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1161,13 +1123,13 @@ func (o *SparseTeam) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseTeam) SetImportLabel(importLabel string) {
+func (o *SparseExtractorLib) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseTeam) GetNamespace() (out string) {
+func (o *SparseExtractorLib) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1177,13 +1139,29 @@ func (o *SparseTeam) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseTeam) SetNamespace(namespace string) {
+func (o *SparseExtractorLib) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseExtractorLib) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseExtractorLib) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseTeam) GetUpdateTime() (out time.Time) {
+func (o *SparseExtractorLib) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1193,62 +1171,60 @@ func (o *SparseTeam) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseTeam) SetUpdateTime(updateTime time.Time) {
+func (o *SparseExtractorLib) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseTeam.
-func (o *SparseTeam) DeepCopy() *SparseTeam {
+// DeepCopy returns a deep copy if the SparseExtractorLib.
+func (o *SparseExtractorLib) DeepCopy() *SparseExtractorLib {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseTeam{}
+	out := &SparseExtractorLib{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseTeam.
-func (o *SparseTeam) DeepCopyInto(out *SparseTeam) {
+// DeepCopyInto copies the receiver into the given *SparseExtractorLib.
+func (o *SparseExtractorLib) DeepCopyInto(out *SparseExtractorLib) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseTeam: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseExtractorLib: %s", err))
 	}
 
-	*out = *target.(*SparseTeam)
+	*out = *target.(*SparseExtractorLib)
 }
 
-type mongoAttributesTeam struct {
+type mongoAttributesExtractorLib struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  time.Time     `bson:"createtime"`
 	Description string        `bson:"description"`
-	Disabled    bool          `bson:"disabled"`
 	ImportHash  string        `bson:"importhash,omitempty"`
 	ImportLabel string        `bson:"importlabel,omitempty"`
 	Name        string        `bson:"name"`
 	Namespace   string        `bson:"namespace,omitempty"`
-	Subject     [][]string    `bson:"subject"`
+	Propagate   bool          `bson:"propagate"`
+	Script      string        `bson:"script,omitempty"`
 	UpdateTime  time.Time     `bson:"updatetime"`
-	Weight      int           `bson:"weight"`
 	ZHash       int           `bson:"zhash"`
 	Zone        int           `bson:"zone"`
 }
-type mongoAttributesSparseTeam struct {
+type mongoAttributesSparseExtractorLib struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  *time.Time    `bson:"createtime,omitempty"`
 	Description *string       `bson:"description,omitempty"`
-	Disabled    *bool         `bson:"disabled,omitempty"`
 	ImportHash  *string       `bson:"importhash,omitempty"`
 	ImportLabel *string       `bson:"importlabel,omitempty"`
 	Name        *string       `bson:"name,omitempty"`
 	Namespace   *string       `bson:"namespace,omitempty"`
-	Subject     *[][]string   `bson:"subject,omitempty"`
+	Propagate   *bool         `bson:"propagate,omitempty"`
+	Script      *string       `bson:"script,omitempty"`
 	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
-	Weight      *int          `bson:"weight,omitempty"`
 	ZHash       *int          `bson:"zhash,omitempty"`
 	Zone        *int          `bson:"zone,omitempty"`
 }

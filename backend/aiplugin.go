@@ -13,57 +13,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// AlertDefinitionSeverityValue represents the possible values for attribute "severity".
-type AlertDefinitionSeverityValue string
-
-const (
-	// AlertDefinitionSeverityCritical represents the value Critical.
-	AlertDefinitionSeverityCritical AlertDefinitionSeverityValue = "Critical"
-
-	// AlertDefinitionSeverityInfo represents the value Info.
-	AlertDefinitionSeverityInfo AlertDefinitionSeverityValue = "Info"
-
-	// AlertDefinitionSeverityWarning represents the value Warning.
-	AlertDefinitionSeverityWarning AlertDefinitionSeverityValue = "Warning"
-)
-
-// AlertDefinitionIdentity represents the Identity of the object.
-var AlertDefinitionIdentity = elemental.Identity{
-	Name:     "alertdefinition",
-	Category: "alertdefinitions",
-	Package:  "avi",
+// AIPluginIdentity represents the Identity of the object.
+var AIPluginIdentity = elemental.Identity{
+	Name:     "aiplugin",
+	Category: "aiplugins",
+	Package:  "lain",
 	Private:  false,
 }
 
-// AlertDefinitionsList represents a list of AlertDefinitions
-type AlertDefinitionsList []*AlertDefinition
+// AIPluginsList represents a list of AIPlugins
+type AIPluginsList []*AIPlugin
 
 // Identity returns the identity of the objects in the list.
-func (o AlertDefinitionsList) Identity() elemental.Identity {
+func (o AIPluginsList) Identity() elemental.Identity {
 
-	return AlertDefinitionIdentity
+	return AIPluginIdentity
 }
 
-// Copy returns a pointer to a copy the AlertDefinitionsList.
-func (o AlertDefinitionsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the AIPluginsList.
+func (o AIPluginsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the AlertDefinitionsList.
-func (o AlertDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the AIPluginsList.
+func (o AIPluginsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*AlertDefinition))
+		out = append(out, obj.(*AIPlugin))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o AlertDefinitionsList) List() elemental.IdentifiablesList {
+func (o AIPluginsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -74,45 +60,45 @@ func (o AlertDefinitionsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o AlertDefinitionsList) DefaultOrder() []string {
+func (o AIPluginsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the AlertDefinitionsList converted to SparseAlertDefinitionsList.
+// ToSparse returns the AIPluginsList converted to SparseAIPluginsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o AlertDefinitionsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o AIPluginsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseAlertDefinitionsList, len(o))
+	out := make(SparseAIPluginsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseAlertDefinition)
+		out[i] = o[i].ToSparse(fields...).(*SparseAIPlugin)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o AlertDefinitionsList) Version() int {
+func (o AIPluginsList) Version() int {
 
 	return 1
 }
 
-// AlertDefinition represents the model of a alertdefinition
-type AlertDefinition struct {
+// AIPlugin represents the model of a aiplugin
+type AIPlugin struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// If set, how long until a subsequent alert notification can be raised.
-	Cooldown string `json:"cooldown" msgpack:"cooldown" bson:"cooldown" mapstructure:"cooldown,omitempty"`
+	// The categories associated with the plugin.
+	Categories []string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The description of the alert definition.
-	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+	// A brief description about the AI plugin and its purpose.
+	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// Friendly name of the object.
-	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
+	// The human-friendly name of the plugin.
+	DisplayName string `json:"displayName" msgpack:"displayName" bson:"displayname" mapstructure:"displayName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -121,30 +107,38 @@ type AlertDefinition struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The message sent when notifying.
-	Message string `json:"message" msgpack:"message" bson:"message" mapstructure:"message,omitempty"`
-
-	// The internal reference name of the object. It is a sanitized version of Friendly
-	// Name if empty.
+	// The name of the plugin.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The identifier of the plugin.
+	PluginID string `json:"pluginID" msgpack:"pluginID" bson:"pluginid" mapstructure:"pluginID,omitempty"`
+
+	// The universally unique identifier of the plugin.
+	PluginUUID string `json:"pluginUUID" msgpack:"pluginUUID" bson:"pluginuuid" mapstructure:"pluginUUID,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// The severity of the alert event.
-	Severity AlertDefinitionSeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
+	// When the plugin was published.
+	PublishedDate time.Time `json:"publishedDate" msgpack:"publishedDate" bson:"publisheddate" mapstructure:"publishedDate,omitempty"`
 
-	// The sinks used to notify.
-	Sinks []string `json:"sinks" msgpack:"sinks" bson:"sinks" mapstructure:"sinks,omitempty"`
+	// The publisher identifier of the plugin.
+	PublisherID string `json:"publisherID" msgpack:"publisherID" bson:"publisherid" mapstructure:"publisherID,omitempty"`
 
-	// If set, the criteria to trigger an alert notification.
-	Trigger *AlertTrigger `json:"trigger,omitempty" msgpack:"trigger,omitempty" bson:"trigger,omitempty" mapstructure:"trigger,omitempty"`
+	// The publisher name of the plugin.
+	PublisherName string `json:"publisherName" msgpack:"publisherName" bson:"publishername" mapstructure:"publisherName,omitempty"`
+
+	// The tags associated with the plugin.
+	Tags []string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+
+	// Flag to say if the plugin has been vetted by Acuvity or not.
+	Vetted bool `json:"vetted" msgpack:"vetted" bson:"vetted" mapstructure:"vetted,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -155,63 +149,65 @@ type AlertDefinition struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewAlertDefinition returns a new *AlertDefinition
-func NewAlertDefinition() *AlertDefinition {
+// NewAIPlugin returns a new *AIPlugin
+func NewAIPlugin() *AIPlugin {
 
-	return &AlertDefinition{
+	return &AIPlugin{
 		ModelVersion: 1,
-		Cooldown:     "5m",
+		Categories:   []string{},
 		Propagate:    true,
-		Severity:     AlertDefinitionSeverityWarning,
-		Sinks:        []string{},
+		Tags:         []string{},
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *AlertDefinition) Identity() elemental.Identity {
+func (o *AIPlugin) Identity() elemental.Identity {
 
-	return AlertDefinitionIdentity
+	return AIPluginIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *AlertDefinition) Identifier() string {
+func (o *AIPlugin) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *AlertDefinition) SetIdentifier(id string) {
+func (o *AIPlugin) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AlertDefinition) GetBSON() (any, error) {
+func (o *AIPlugin) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesAlertDefinition{}
+	s := &mongoAttributesAIPlugin{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.Cooldown = o.Cooldown
+	s.Categories = o.Categories
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.FriendlyName = o.FriendlyName
+	s.DisplayName = o.DisplayName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
-	s.Message = o.Message
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.PluginID = o.PluginID
+	s.PluginUUID = o.PluginUUID
 	s.Propagate = o.Propagate
-	s.Severity = o.Severity
-	s.Sinks = o.Sinks
-	s.Trigger = o.Trigger
+	s.PublishedDate = o.PublishedDate
+	s.PublisherID = o.PublisherID
+	s.PublisherName = o.PublisherName
+	s.Tags = o.Tags
 	s.UpdateTime = o.UpdateTime
+	s.Vetted = o.Vetted
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -220,32 +216,35 @@ func (o *AlertDefinition) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AlertDefinition) SetBSON(raw bson.Raw) error {
+func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesAlertDefinition{}
+	s := &mongoAttributesAIPlugin{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
-	o.Cooldown = s.Cooldown
+	o.Categories = s.Categories
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.FriendlyName = s.FriendlyName
+	o.DisplayName = s.DisplayName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
-	o.Message = s.Message
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.PluginID = s.PluginID
+	o.PluginUUID = s.PluginUUID
 	o.Propagate = s.Propagate
-	o.Severity = s.Severity
-	o.Sinks = s.Sinks
-	o.Trigger = s.Trigger
+	o.PublishedDate = s.PublishedDate
+	o.PublisherID = s.PublisherID
+	o.PublisherName = s.PublisherName
+	o.Tags = s.Tags
 	o.UpdateTime = s.UpdateTime
+	o.Vetted = s.Vetted
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -253,168 +252,175 @@ func (o *AlertDefinition) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *AlertDefinition) Version() int {
+func (o *AIPlugin) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *AlertDefinition) BleveType() string {
+func (o *AIPlugin) BleveType() string {
 
-	return "alertdefinition"
+	return "aiplugin"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *AlertDefinition) DefaultOrder() []string {
+func (o *AIPlugin) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *AlertDefinition) Doc() string {
+func (o *AIPlugin) Doc() string {
 
-	return `Alert Definitions specify alerts that can be referenced within Content Policies.
-They define the actions to take when an alert is triggered, including severity
-level, notification sinks, triggering conditions, and cooldown settings.`
+	return `AI plugin provides an overview of a plugin.`
 }
 
-func (o *AlertDefinition) String() string {
+func (o *AIPlugin) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *AlertDefinition) GetCreateTime() time.Time {
+func (o *AIPlugin) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *AlertDefinition) SetCreateTime(createTime time.Time) {
+func (o *AIPlugin) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *AlertDefinition) GetImportHash() string {
+func (o *AIPlugin) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *AlertDefinition) SetImportHash(importHash string) {
+func (o *AIPlugin) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *AlertDefinition) GetImportLabel() string {
+func (o *AIPlugin) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *AlertDefinition) SetImportLabel(importLabel string) {
+func (o *AIPlugin) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *AlertDefinition) GetNamespace() string {
+func (o *AIPlugin) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *AlertDefinition) SetNamespace(namespace string) {
+func (o *AIPlugin) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *AlertDefinition) GetPropagate() bool {
+func (o *AIPlugin) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *AlertDefinition) SetPropagate(propagate bool) {
+func (o *AIPlugin) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *AlertDefinition) GetUpdateTime() time.Time {
+func (o *AIPlugin) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *AlertDefinition) SetUpdateTime(updateTime time.Time) {
+func (o *AIPlugin) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *AlertDefinition) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseAlertDefinition{
-			ID:           &o.ID,
-			Cooldown:     &o.Cooldown,
-			CreateTime:   &o.CreateTime,
-			Description:  &o.Description,
-			FriendlyName: &o.FriendlyName,
-			ImportHash:   &o.ImportHash,
-			ImportLabel:  &o.ImportLabel,
-			Message:      &o.Message,
-			Name:         &o.Name,
-			Namespace:    &o.Namespace,
-			Propagate:    &o.Propagate,
-			Severity:     &o.Severity,
-			Sinks:        &o.Sinks,
-			Trigger:      o.Trigger,
-			UpdateTime:   &o.UpdateTime,
-			ZHash:        &o.ZHash,
-			Zone:         &o.Zone,
+		return &SparseAIPlugin{
+			ID:            &o.ID,
+			Categories:    &o.Categories,
+			CreateTime:    &o.CreateTime,
+			Description:   &o.Description,
+			DisplayName:   &o.DisplayName,
+			ImportHash:    &o.ImportHash,
+			ImportLabel:   &o.ImportLabel,
+			Name:          &o.Name,
+			Namespace:     &o.Namespace,
+			PluginID:      &o.PluginID,
+			PluginUUID:    &o.PluginUUID,
+			Propagate:     &o.Propagate,
+			PublishedDate: &o.PublishedDate,
+			PublisherID:   &o.PublisherID,
+			PublisherName: &o.PublisherName,
+			Tags:          &o.Tags,
+			UpdateTime:    &o.UpdateTime,
+			Vetted:        &o.Vetted,
+			ZHash:         &o.ZHash,
+			Zone:          &o.Zone,
 		}
 	}
 
-	sp := &SparseAlertDefinition{}
+	sp := &SparseAIPlugin{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "cooldown":
-			sp.Cooldown = &(o.Cooldown)
+		case "categories":
+			sp.Categories = &(o.Categories)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "friendlyName":
-			sp.FriendlyName = &(o.FriendlyName)
+		case "displayName":
+			sp.DisplayName = &(o.DisplayName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
-		case "message":
-			sp.Message = &(o.Message)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "pluginID":
+			sp.PluginID = &(o.PluginID)
+		case "pluginUUID":
+			sp.PluginUUID = &(o.PluginUUID)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "severity":
-			sp.Severity = &(o.Severity)
-		case "sinks":
-			sp.Sinks = &(o.Sinks)
-		case "trigger":
-			sp.Trigger = o.Trigger
+		case "publishedDate":
+			sp.PublishedDate = &(o.PublishedDate)
+		case "publisherID":
+			sp.PublisherID = &(o.PublisherID)
+		case "publisherName":
+			sp.PublisherName = &(o.PublisherName)
+		case "tags":
+			sp.Tags = &(o.Tags)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "vetted":
+			sp.Vetted = &(o.Vetted)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -425,18 +431,18 @@ func (o *AlertDefinition) ToSparse(fields ...string) elemental.SparseIdentifiabl
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseAlertDefinition to the object.
-func (o *AlertDefinition) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseAIPlugin to the object.
+func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseAlertDefinition)
+	so := sparse.(*SparseAIPlugin)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.Cooldown != nil {
-		o.Cooldown = *so.Cooldown
+	if so.Categories != nil {
+		o.Categories = *so.Categories
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -444,8 +450,8 @@ func (o *AlertDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
-	if so.FriendlyName != nil {
-		o.FriendlyName = *so.FriendlyName
+	if so.DisplayName != nil {
+		o.DisplayName = *so.DisplayName
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -453,29 +459,38 @@ func (o *AlertDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
-	if so.Message != nil {
-		o.Message = *so.Message
-	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.PluginID != nil {
+		o.PluginID = *so.PluginID
+	}
+	if so.PluginUUID != nil {
+		o.PluginUUID = *so.PluginUUID
+	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.Severity != nil {
-		o.Severity = *so.Severity
+	if so.PublishedDate != nil {
+		o.PublishedDate = *so.PublishedDate
 	}
-	if so.Sinks != nil {
-		o.Sinks = *so.Sinks
+	if so.PublisherID != nil {
+		o.PublisherID = *so.PublisherID
 	}
-	if so.Trigger != nil {
-		o.Trigger = so.Trigger
+	if so.PublisherName != nil {
+		o.PublisherName = *so.PublisherName
+	}
+	if so.Tags != nil {
+		o.Tags = *so.Tags
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
+	}
+	if so.Vetted != nil {
+		o.Vetted = *so.Vetted
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -485,70 +500,62 @@ func (o *AlertDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
-// DeepCopy returns a deep copy if the AlertDefinition.
-func (o *AlertDefinition) DeepCopy() *AlertDefinition {
+// DeepCopy returns a deep copy if the AIPlugin.
+func (o *AIPlugin) DeepCopy() *AIPlugin {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &AlertDefinition{}
+	out := &AIPlugin{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *AlertDefinition.
-func (o *AlertDefinition) DeepCopyInto(out *AlertDefinition) {
+// DeepCopyInto copies the receiver into the given *AIPlugin.
+func (o *AIPlugin) DeepCopyInto(out *AIPlugin) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy AlertDefinition: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy AIPlugin: %s", err))
 	}
 
-	*out = *target.(*AlertDefinition)
+	*out = *target.(*AIPlugin)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *AlertDefinition) Validate() error {
+func (o *AIPlugin) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidateDuration("cooldown", o.Cooldown); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
+	if err := elemental.ValidateRequiredString("displayName", o.DisplayName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("severity", string(o.Severity)); err != nil {
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("severity", string(o.Severity), []string{"Critical", "Warning", "Info"}, false); err != nil {
-		errors = errors.Append(err)
+	if err := elemental.ValidateRequiredString("pluginID", o.PluginID); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if o.Trigger != nil {
-		elemental.ResetDefaultForZeroValues(o.Trigger)
-		if err := o.Trigger.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
+	if err := elemental.ValidateRequiredString("pluginUUID", o.PluginUUID); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
-	// Custom object validation.
-	if err := ValidateAlertDefinition(o); err != nil {
-		errors = errors.Append(err)
+	if err := elemental.ValidateRequiredTime("publishedDate", o.PublishedDate); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("publisherID", o.PublisherID); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("publisherName", o.PublisherName); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -563,58 +570,64 @@ func (o *AlertDefinition) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*AlertDefinition) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*AIPlugin) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := AlertDefinitionAttributesMap[name]; ok {
+	if v, ok := AIPluginAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return AlertDefinitionLowerCaseAttributesMap[name]
+	return AIPluginLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*AlertDefinition) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*AIPlugin) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return AlertDefinitionAttributesMap
+	return AIPluginAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *AlertDefinition) ValueForAttribute(name string) any {
+func (o *AIPlugin) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
-	case "cooldown":
-		return o.Cooldown
+	case "categories":
+		return o.Categories
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "friendlyName":
-		return o.FriendlyName
+	case "displayName":
+		return o.DisplayName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
-	case "message":
-		return o.Message
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "pluginID":
+		return o.PluginID
+	case "pluginUUID":
+		return o.PluginUUID
 	case "propagate":
 		return o.Propagate
-	case "severity":
-		return o.Severity
-	case "sinks":
-		return o.Sinks
-	case "trigger":
-		return o.Trigger
+	case "publishedDate":
+		return o.PublishedDate
+	case "publisherID":
+		return o.PublisherID
+	case "publisherName":
+		return o.PublisherName
+	case "tags":
+		return o.Tags
 	case "updateTime":
 		return o.UpdateTime
+	case "vetted":
+		return o.Vetted
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -624,8 +637,8 @@ func (o *AlertDefinition) ValueForAttribute(name string) any {
 	return nil
 }
 
-// AlertDefinitionAttributesMap represents the map of attribute for AlertDefinition.
-var AlertDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
+// AIPluginAttributesMap represents the map of attribute for AIPlugin.
+var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -641,16 +654,16 @@ var AlertDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"Cooldown": {
+	"Categories": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "cooldown",
-		ConvertedName:  "Cooldown",
-		DefaultValue:   "5m",
-		Description:    `If set, how long until a subsequent alert notification can be raised.`,
+		BSONFieldName:  "categories",
+		ConvertedName:  "Categories",
+		Description:    `The categories associated with the plugin.`,
 		Exposed:        true,
-		Name:           "cooldown",
+		Name:           "categories",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "string",
+		Type:           "list",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -671,19 +684,19 @@ var AlertDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the alert definition.`,
+		Description:    `A brief description about the AI plugin and its purpose.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
-	"FriendlyName": {
+	"DisplayName": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "friendlyname",
-		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of the object.`,
+		BSONFieldName:  "displayname",
+		ConvertedName:  "DisplayName",
+		Description:    `The human-friendly name of the plugin.`,
 		Exposed:        true,
-		Name:           "friendlyName",
+		Name:           "displayName",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
@@ -716,28 +729,16 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"Message": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "message",
-		ConvertedName:  "Message",
-		Description:    `The message sent when notifying.`,
-		Exposed:        true,
-		Name:           "message",
-		Stored:         true,
-		Type:           "string",
-	},
 	"Name": {
-		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		CreationOnly:   true,
-		Description: `The internal reference name of the object. It is a sanitized version of Friendly
-Name if empty.`,
-		Exposed: true,
-		Name:    "name",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The name of the plugin.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -754,6 +755,28 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"PluginID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pluginid",
+		ConvertedName:  "PluginID",
+		Description:    `The identifier of the plugin.`,
+		Exposed:        true,
+		Name:           "pluginID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"PluginUUID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pluginuuid",
+		ConvertedName:  "PluginUUID",
+		Description:    `The universally unique identifier of the plugin.`,
+		Exposed:        true,
+		Name:           "pluginUUID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -767,39 +790,49 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Severity": {
-		AllowedChoices: []string{"Critical", "Warning", "Info"},
-		BSONFieldName:  "severity",
-		ConvertedName:  "Severity",
-		DefaultValue:   AlertDefinitionSeverityWarning,
-		Description:    `The severity of the alert event.`,
+	"PublishedDate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publisheddate",
+		ConvertedName:  "PublishedDate",
+		Description:    `When the plugin was published.`,
 		Exposed:        true,
-		Name:           "severity",
+		Name:           "publishedDate",
 		Required:       true,
 		Stored:         true,
-		Type:           "enum",
+		Type:           "time",
 	},
-	"Sinks": {
+	"PublisherID": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "sinks",
-		ConvertedName:  "Sinks",
-		Description:    `The sinks used to notify.`,
+		BSONFieldName:  "publisherid",
+		ConvertedName:  "PublisherID",
+		Description:    `The publisher identifier of the plugin.`,
 		Exposed:        true,
-		Name:           "sinks",
+		Name:           "publisherID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"PublisherName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publishername",
+		ConvertedName:  "PublisherName",
+		Description:    `The publisher name of the plugin.`,
+		Exposed:        true,
+		Name:           "publisherName",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Tags": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tags",
+		ConvertedName:  "Tags",
+		Description:    `The tags associated with the plugin.`,
+		Exposed:        true,
+		Name:           "tags",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
-	},
-	"Trigger": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "trigger",
-		ConvertedName:  "Trigger",
-		Description:    `If set, the criteria to trigger an alert notification.`,
-		Exposed:        true,
-		Name:           "trigger",
-		Stored:         true,
-		SubType:        "alerttrigger",
-		Type:           "ref",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -816,10 +849,20 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"Vetted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vetted",
+		ConvertedName:  "Vetted",
+		Description:    `Flag to say if the plugin has been vetted by Acuvity or not.`,
+		Exposed:        true,
+		Name:           "vetted",
+		Stored:         true,
+		Type:           "boolean",
+	},
 }
 
-// AlertDefinitionLowerCaseAttributesMap represents the map of attribute for AlertDefinition.
-var AlertDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// AIPluginLowerCaseAttributesMap represents the map of attribute for AIPlugin.
+var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -835,16 +878,16 @@ var AlertDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		Stored:         true,
 		Type:           "string",
 	},
-	"cooldown": {
+	"categories": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "cooldown",
-		ConvertedName:  "Cooldown",
-		DefaultValue:   "5m",
-		Description:    `If set, how long until a subsequent alert notification can be raised.`,
+		BSONFieldName:  "categories",
+		ConvertedName:  "Categories",
+		Description:    `The categories associated with the plugin.`,
 		Exposed:        true,
-		Name:           "cooldown",
+		Name:           "categories",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "string",
+		Type:           "list",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -865,19 +908,19 @@ var AlertDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the alert definition.`,
+		Description:    `A brief description about the AI plugin and its purpose.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
-	"friendlyname": {
+	"displayname": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "friendlyname",
-		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of the object.`,
+		BSONFieldName:  "displayname",
+		ConvertedName:  "DisplayName",
+		Description:    `The human-friendly name of the plugin.`,
 		Exposed:        true,
-		Name:           "friendlyName",
+		Name:           "displayName",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
@@ -910,28 +953,16 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"message": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "message",
-		ConvertedName:  "Message",
-		Description:    `The message sent when notifying.`,
-		Exposed:        true,
-		Name:           "message",
-		Stored:         true,
-		Type:           "string",
-	},
 	"name": {
-		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		CreationOnly:   true,
-		Description: `The internal reference name of the object. It is a sanitized version of Friendly
-Name if empty.`,
-		Exposed: true,
-		Name:    "name",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The name of the plugin.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -948,6 +979,28 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"pluginid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pluginid",
+		ConvertedName:  "PluginID",
+		Description:    `The identifier of the plugin.`,
+		Exposed:        true,
+		Name:           "pluginID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"pluginuuid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "pluginuuid",
+		ConvertedName:  "PluginUUID",
+		Description:    `The universally unique identifier of the plugin.`,
+		Exposed:        true,
+		Name:           "pluginUUID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -961,39 +1014,49 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"severity": {
-		AllowedChoices: []string{"Critical", "Warning", "Info"},
-		BSONFieldName:  "severity",
-		ConvertedName:  "Severity",
-		DefaultValue:   AlertDefinitionSeverityWarning,
-		Description:    `The severity of the alert event.`,
+	"publisheddate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publisheddate",
+		ConvertedName:  "PublishedDate",
+		Description:    `When the plugin was published.`,
 		Exposed:        true,
-		Name:           "severity",
+		Name:           "publishedDate",
 		Required:       true,
 		Stored:         true,
-		Type:           "enum",
+		Type:           "time",
 	},
-	"sinks": {
+	"publisherid": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "sinks",
-		ConvertedName:  "Sinks",
-		Description:    `The sinks used to notify.`,
+		BSONFieldName:  "publisherid",
+		ConvertedName:  "PublisherID",
+		Description:    `The publisher identifier of the plugin.`,
 		Exposed:        true,
-		Name:           "sinks",
+		Name:           "publisherID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"publishername": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publishername",
+		ConvertedName:  "PublisherName",
+		Description:    `The publisher name of the plugin.`,
+		Exposed:        true,
+		Name:           "publisherName",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"tags": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tags",
+		ConvertedName:  "Tags",
+		Description:    `The tags associated with the plugin.`,
+		Exposed:        true,
+		Name:           "tags",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
-	},
-	"trigger": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "trigger",
-		ConvertedName:  "Trigger",
-		Description:    `If set, the criteria to trigger an alert notification.`,
-		Exposed:        true,
-		Name:           "trigger",
-		Stored:         true,
-		SubType:        "alerttrigger",
-		Type:           "ref",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1010,37 +1073,47 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"vetted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vetted",
+		ConvertedName:  "Vetted",
+		Description:    `Flag to say if the plugin has been vetted by Acuvity or not.`,
+		Exposed:        true,
+		Name:           "vetted",
+		Stored:         true,
+		Type:           "boolean",
+	},
 }
 
-// SparseAlertDefinitionsList represents a list of SparseAlertDefinitions
-type SparseAlertDefinitionsList []*SparseAlertDefinition
+// SparseAIPluginsList represents a list of SparseAIPlugins
+type SparseAIPluginsList []*SparseAIPlugin
 
 // Identity returns the identity of the objects in the list.
-func (o SparseAlertDefinitionsList) Identity() elemental.Identity {
+func (o SparseAIPluginsList) Identity() elemental.Identity {
 
-	return AlertDefinitionIdentity
+	return AIPluginIdentity
 }
 
-// Copy returns a pointer to a copy the SparseAlertDefinitionsList.
-func (o SparseAlertDefinitionsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseAIPluginsList.
+func (o SparseAIPluginsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseAlertDefinitionsList.
-func (o SparseAlertDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseAIPluginsList.
+func (o SparseAIPluginsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseAlertDefinition))
+		out = append(out, obj.(*SparseAIPlugin))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseAlertDefinitionsList) List() elemental.IdentifiablesList {
+func (o SparseAIPluginsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1051,13 +1124,13 @@ func (o SparseAlertDefinitionsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseAlertDefinitionsList) DefaultOrder() []string {
+func (o SparseAIPluginsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseAlertDefinitionsList converted to AlertDefinitionsList.
-func (o SparseAlertDefinitionsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseAIPluginsList converted to AIPluginsList.
+func (o SparseAIPluginsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1068,27 +1141,27 @@ func (o SparseAlertDefinitionsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseAlertDefinitionsList) Version() int {
+func (o SparseAIPluginsList) Version() int {
 
 	return 1
 }
 
-// SparseAlertDefinition represents the sparse version of a alertdefinition.
-type SparseAlertDefinition struct {
+// SparseAIPlugin represents the sparse version of a aiplugin.
+type SparseAIPlugin struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// If set, how long until a subsequent alert notification can be raised.
-	Cooldown *string `json:"cooldown,omitempty" msgpack:"cooldown,omitempty" bson:"cooldown,omitempty" mapstructure:"cooldown,omitempty"`
+	// The categories associated with the plugin.
+	Categories *[]string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The description of the alert definition.
+	// A brief description about the AI plugin and its purpose.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// Friendly name of the object.
-	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
+	// The human-friendly name of the plugin.
+	DisplayName *string `json:"displayName,omitempty" msgpack:"displayName,omitempty" bson:"displayname,omitempty" mapstructure:"displayName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1097,30 +1170,38 @@ type SparseAlertDefinition struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The message sent when notifying.
-	Message *string `json:"message,omitempty" msgpack:"message,omitempty" bson:"message,omitempty" mapstructure:"message,omitempty"`
-
-	// The internal reference name of the object. It is a sanitized version of Friendly
-	// Name if empty.
+	// The name of the plugin.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The identifier of the plugin.
+	PluginID *string `json:"pluginID,omitempty" msgpack:"pluginID,omitempty" bson:"pluginid,omitempty" mapstructure:"pluginID,omitempty"`
+
+	// The universally unique identifier of the plugin.
+	PluginUUID *string `json:"pluginUUID,omitempty" msgpack:"pluginUUID,omitempty" bson:"pluginuuid,omitempty" mapstructure:"pluginUUID,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// The severity of the alert event.
-	Severity *AlertDefinitionSeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
+	// When the plugin was published.
+	PublishedDate *time.Time `json:"publishedDate,omitempty" msgpack:"publishedDate,omitempty" bson:"publisheddate,omitempty" mapstructure:"publishedDate,omitempty"`
 
-	// The sinks used to notify.
-	Sinks *[]string `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
+	// The publisher identifier of the plugin.
+	PublisherID *string `json:"publisherID,omitempty" msgpack:"publisherID,omitempty" bson:"publisherid,omitempty" mapstructure:"publisherID,omitempty"`
 
-	// If set, the criteria to trigger an alert notification.
-	Trigger *AlertTrigger `json:"trigger,omitempty" msgpack:"trigger,omitempty" bson:"trigger,omitempty" mapstructure:"trigger,omitempty"`
+	// The publisher name of the plugin.
+	PublisherName *string `json:"publisherName,omitempty" msgpack:"publisherName,omitempty" bson:"publishername,omitempty" mapstructure:"publisherName,omitempty"`
+
+	// The tags associated with the plugin.
+	Tags *[]string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+
+	// Flag to say if the plugin has been vetted by Acuvity or not.
+	Vetted *bool `json:"vetted,omitempty" msgpack:"vetted,omitempty" bson:"vetted,omitempty" mapstructure:"vetted,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1131,19 +1212,19 @@ type SparseAlertDefinition struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseAlertDefinition returns a new  SparseAlertDefinition.
-func NewSparseAlertDefinition() *SparseAlertDefinition {
-	return &SparseAlertDefinition{}
+// NewSparseAIPlugin returns a new  SparseAIPlugin.
+func NewSparseAIPlugin() *SparseAIPlugin {
+	return &SparseAIPlugin{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseAlertDefinition) Identity() elemental.Identity {
+func (o *SparseAIPlugin) Identity() elemental.Identity {
 
-	return AlertDefinitionIdentity
+	return AIPluginIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseAlertDefinition) Identifier() string {
+func (o *SparseAIPlugin) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1152,7 +1233,7 @@ func (o *SparseAlertDefinition) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseAlertDefinition) SetIdentifier(id string) {
+func (o *SparseAIPlugin) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1163,19 +1244,19 @@ func (o *SparseAlertDefinition) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAlertDefinition) GetBSON() (any, error) {
+func (o *SparseAIPlugin) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseAlertDefinition{}
+	s := &mongoAttributesSparseAIPlugin{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.Cooldown != nil {
-		s.Cooldown = o.Cooldown
+	if o.Categories != nil {
+		s.Categories = o.Categories
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
@@ -1183,8 +1264,8 @@ func (o *SparseAlertDefinition) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
-	if o.FriendlyName != nil {
-		s.FriendlyName = o.FriendlyName
+	if o.DisplayName != nil {
+		s.DisplayName = o.DisplayName
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -1192,29 +1273,38 @@ func (o *SparseAlertDefinition) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
-	if o.Message != nil {
-		s.Message = o.Message
-	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.PluginID != nil {
+		s.PluginID = o.PluginID
+	}
+	if o.PluginUUID != nil {
+		s.PluginUUID = o.PluginUUID
+	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.Severity != nil {
-		s.Severity = o.Severity
+	if o.PublishedDate != nil {
+		s.PublishedDate = o.PublishedDate
 	}
-	if o.Sinks != nil {
-		s.Sinks = o.Sinks
+	if o.PublisherID != nil {
+		s.PublisherID = o.PublisherID
 	}
-	if o.Trigger != nil {
-		s.Trigger = o.Trigger
+	if o.PublisherName != nil {
+		s.PublisherName = o.PublisherName
+	}
+	if o.Tags != nil {
+		s.Tags = o.Tags
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
+	}
+	if o.Vetted != nil {
+		s.Vetted = o.Vetted
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1228,21 +1318,21 @@ func (o *SparseAlertDefinition) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAlertDefinition) SetBSON(raw bson.Raw) error {
+func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseAlertDefinition{}
+	s := &mongoAttributesSparseAIPlugin{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.Cooldown != nil {
-		o.Cooldown = s.Cooldown
+	if s.Categories != nil {
+		o.Categories = s.Categories
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
@@ -1250,8 +1340,8 @@ func (o *SparseAlertDefinition) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
-	if s.FriendlyName != nil {
-		o.FriendlyName = s.FriendlyName
+	if s.DisplayName != nil {
+		o.DisplayName = s.DisplayName
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1259,29 +1349,38 @@ func (o *SparseAlertDefinition) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
-	if s.Message != nil {
-		o.Message = s.Message
-	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.PluginID != nil {
+		o.PluginID = s.PluginID
+	}
+	if s.PluginUUID != nil {
+		o.PluginUUID = s.PluginUUID
+	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.Severity != nil {
-		o.Severity = s.Severity
+	if s.PublishedDate != nil {
+		o.PublishedDate = s.PublishedDate
 	}
-	if s.Sinks != nil {
-		o.Sinks = s.Sinks
+	if s.PublisherID != nil {
+		o.PublisherID = s.PublisherID
 	}
-	if s.Trigger != nil {
-		o.Trigger = s.Trigger
+	if s.PublisherName != nil {
+		o.PublisherName = s.PublisherName
+	}
+	if s.Tags != nil {
+		o.Tags = s.Tags
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
+	}
+	if s.Vetted != nil {
+		o.Vetted = s.Vetted
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1294,20 +1393,20 @@ func (o *SparseAlertDefinition) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseAlertDefinition) Version() int {
+func (o *SparseAIPlugin) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseAlertDefinition) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewAlertDefinition()
+	out := NewAIPlugin()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.Cooldown != nil {
-		out.Cooldown = *o.Cooldown
+	if o.Categories != nil {
+		out.Categories = *o.Categories
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1315,8 +1414,8 @@ func (o *SparseAlertDefinition) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
-	if o.FriendlyName != nil {
-		out.FriendlyName = *o.FriendlyName
+	if o.DisplayName != nil {
+		out.DisplayName = *o.DisplayName
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1324,29 +1423,38 @@ func (o *SparseAlertDefinition) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
-	if o.Message != nil {
-		out.Message = *o.Message
-	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.PluginID != nil {
+		out.PluginID = *o.PluginID
+	}
+	if o.PluginUUID != nil {
+		out.PluginUUID = *o.PluginUUID
+	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.Severity != nil {
-		out.Severity = *o.Severity
+	if o.PublishedDate != nil {
+		out.PublishedDate = *o.PublishedDate
 	}
-	if o.Sinks != nil {
-		out.Sinks = *o.Sinks
+	if o.PublisherID != nil {
+		out.PublisherID = *o.PublisherID
 	}
-	if o.Trigger != nil {
-		out.Trigger = o.Trigger
+	if o.PublisherName != nil {
+		out.PublisherName = *o.PublisherName
+	}
+	if o.Tags != nil {
+		out.Tags = *o.Tags
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
+	}
+	if o.Vetted != nil {
+		out.Vetted = *o.Vetted
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1359,7 +1467,7 @@ func (o *SparseAlertDefinition) ToPlain() elemental.PlainIdentifiable {
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseAlertDefinition) GetCreateTime() (out time.Time) {
+func (o *SparseAIPlugin) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1369,13 +1477,13 @@ func (o *SparseAlertDefinition) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetCreateTime(createTime time.Time) {
+func (o *SparseAIPlugin) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseAlertDefinition) GetImportHash() (out string) {
+func (o *SparseAIPlugin) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1385,13 +1493,13 @@ func (o *SparseAlertDefinition) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetImportHash(importHash string) {
+func (o *SparseAIPlugin) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseAlertDefinition) GetImportLabel() (out string) {
+func (o *SparseAIPlugin) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1401,13 +1509,13 @@ func (o *SparseAlertDefinition) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetImportLabel(importLabel string) {
+func (o *SparseAIPlugin) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseAlertDefinition) GetNamespace() (out string) {
+func (o *SparseAIPlugin) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1417,13 +1525,13 @@ func (o *SparseAlertDefinition) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetNamespace(namespace string) {
+func (o *SparseAIPlugin) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseAlertDefinition) GetPropagate() (out bool) {
+func (o *SparseAIPlugin) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1433,13 +1541,13 @@ func (o *SparseAlertDefinition) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetPropagate(propagate bool) {
+func (o *SparseAIPlugin) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseAlertDefinition) GetUpdateTime() (out time.Time) {
+func (o *SparseAIPlugin) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1449,70 +1557,76 @@ func (o *SparseAlertDefinition) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseAlertDefinition) SetUpdateTime(updateTime time.Time) {
+func (o *SparseAIPlugin) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseAlertDefinition.
-func (o *SparseAlertDefinition) DeepCopy() *SparseAlertDefinition {
+// DeepCopy returns a deep copy if the SparseAIPlugin.
+func (o *SparseAIPlugin) DeepCopy() *SparseAIPlugin {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseAlertDefinition{}
+	out := &SparseAIPlugin{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseAlertDefinition.
-func (o *SparseAlertDefinition) DeepCopyInto(out *SparseAlertDefinition) {
+// DeepCopyInto copies the receiver into the given *SparseAIPlugin.
+func (o *SparseAIPlugin) DeepCopyInto(out *SparseAIPlugin) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseAlertDefinition: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseAIPlugin: %s", err))
 	}
 
-	*out = *target.(*SparseAlertDefinition)
+	*out = *target.(*SparseAIPlugin)
 }
 
-type mongoAttributesAlertDefinition struct {
-	ID           bson.ObjectId                `bson:"_id,omitempty"`
-	Cooldown     string                       `bson:"cooldown"`
-	CreateTime   time.Time                    `bson:"createtime"`
-	Description  string                       `bson:"description"`
-	FriendlyName string                       `bson:"friendlyname"`
-	ImportHash   string                       `bson:"importhash,omitempty"`
-	ImportLabel  string                       `bson:"importlabel,omitempty"`
-	Message      string                       `bson:"message"`
-	Name         string                       `bson:"name"`
-	Namespace    string                       `bson:"namespace,omitempty"`
-	Propagate    bool                         `bson:"propagate"`
-	Severity     AlertDefinitionSeverityValue `bson:"severity"`
-	Sinks        []string                     `bson:"sinks"`
-	Trigger      *AlertTrigger                `bson:"trigger,omitempty"`
-	UpdateTime   time.Time                    `bson:"updatetime"`
-	ZHash        int                          `bson:"zhash"`
-	Zone         int                          `bson:"zone"`
+type mongoAttributesAIPlugin struct {
+	ID            bson.ObjectId `bson:"_id,omitempty"`
+	Categories    []string      `bson:"categories,omitempty"`
+	CreateTime    time.Time     `bson:"createtime"`
+	Description   string        `bson:"description,omitempty"`
+	DisplayName   string        `bson:"displayname"`
+	ImportHash    string        `bson:"importhash,omitempty"`
+	ImportLabel   string        `bson:"importlabel,omitempty"`
+	Name          string        `bson:"name"`
+	Namespace     string        `bson:"namespace,omitempty"`
+	PluginID      string        `bson:"pluginid"`
+	PluginUUID    string        `bson:"pluginuuid"`
+	Propagate     bool          `bson:"propagate"`
+	PublishedDate time.Time     `bson:"publisheddate"`
+	PublisherID   string        `bson:"publisherid"`
+	PublisherName string        `bson:"publishername"`
+	Tags          []string      `bson:"tags,omitempty"`
+	UpdateTime    time.Time     `bson:"updatetime"`
+	Vetted        bool          `bson:"vetted"`
+	ZHash         int           `bson:"zhash"`
+	Zone          int           `bson:"zone"`
 }
-type mongoAttributesSparseAlertDefinition struct {
-	ID           bson.ObjectId                 `bson:"_id,omitempty"`
-	Cooldown     *string                       `bson:"cooldown,omitempty"`
-	CreateTime   *time.Time                    `bson:"createtime,omitempty"`
-	Description  *string                       `bson:"description,omitempty"`
-	FriendlyName *string                       `bson:"friendlyname,omitempty"`
-	ImportHash   *string                       `bson:"importhash,omitempty"`
-	ImportLabel  *string                       `bson:"importlabel,omitempty"`
-	Message      *string                       `bson:"message,omitempty"`
-	Name         *string                       `bson:"name,omitempty"`
-	Namespace    *string                       `bson:"namespace,omitempty"`
-	Propagate    *bool                         `bson:"propagate,omitempty"`
-	Severity     *AlertDefinitionSeverityValue `bson:"severity,omitempty"`
-	Sinks        *[]string                     `bson:"sinks,omitempty"`
-	Trigger      *AlertTrigger                 `bson:"trigger,omitempty"`
-	UpdateTime   *time.Time                    `bson:"updatetime,omitempty"`
-	ZHash        *int                          `bson:"zhash,omitempty"`
-	Zone         *int                          `bson:"zone,omitempty"`
+type mongoAttributesSparseAIPlugin struct {
+	ID            bson.ObjectId `bson:"_id,omitempty"`
+	Categories    *[]string     `bson:"categories,omitempty"`
+	CreateTime    *time.Time    `bson:"createtime,omitempty"`
+	Description   *string       `bson:"description,omitempty"`
+	DisplayName   *string       `bson:"displayname,omitempty"`
+	ImportHash    *string       `bson:"importhash,omitempty"`
+	ImportLabel   *string       `bson:"importlabel,omitempty"`
+	Name          *string       `bson:"name,omitempty"`
+	Namespace     *string       `bson:"namespace,omitempty"`
+	PluginID      *string       `bson:"pluginid,omitempty"`
+	PluginUUID    *string       `bson:"pluginuuid,omitempty"`
+	Propagate     *bool         `bson:"propagate,omitempty"`
+	PublishedDate *time.Time    `bson:"publisheddate,omitempty"`
+	PublisherID   *string       `bson:"publisherid,omitempty"`
+	PublisherName *string       `bson:"publishername,omitempty"`
+	Tags          *[]string     `bson:"tags,omitempty"`
+	UpdateTime    *time.Time    `bson:"updatetime,omitempty"`
+	Vetted        *bool         `bson:"vetted,omitempty"`
+	ZHash         *int          `bson:"zhash,omitempty"`
+	Zone          *int          `bson:"zone,omitempty"`
 }

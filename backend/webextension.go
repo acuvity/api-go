@@ -254,7 +254,8 @@ func (o *WebExtension) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *WebExtension) Doc() string {
 
-	return `Stores information about a known WebExtension.`
+	return `Displays the status of Web Extensions deployed on users’ web browsers, providing
+insights into their operational state and activity.`
 }
 
 func (o *WebExtension) String() string {

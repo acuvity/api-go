@@ -11,7 +11,7 @@
   "$modelResourceName": "alerts",
   "$modelRestName": "alert",
   "additionalProperties": false,
-  "description": "Represents an alert.",
+  "description": "Displays all alerts generated according to the configured Content Policies, providing visibility into policy violations and related security events.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

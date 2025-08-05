@@ -1749,6 +1749,12 @@ Type: `[]string`
 
 List of claims extracted from the user query.
 
+##### `external`
+
+Type: [`principalexternal`](#principalexternal)
+
+The external principal information if type is External.
+
 ##### `teams`
 
 Type: `[]string`
@@ -1786,7 +1792,13 @@ Describes the principal information of an application.
     "country=us",
     "another-label"
   ],
-  "name": "MyApp"
+  "name": "MyApp",
+  "userClaims": [
+    "name=John Doe",
+    "email=john.doe@acme.com",
+    "@validated=false"
+  ],
+  "username": "john.doe@acme.com"
 }
 ```
 
@@ -1810,48 +1822,50 @@ Type: `string`
 
 The name of the application.
 
-##### `user`
+##### `userClaims`
 
-Type: [`principalappuser`](#principalappuser)
+Type: `[]string`
 
-The optional user information of the application request.
+The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.
 
-### PrincipalAppUser
+##### `username`
 
-Describes the optional principal information of the user of an application which
-is being derived from a bearer token of a request.
+Type: `string`
+
+The optional username of the request.
+
+### PrincipalExternal
+
+Describes the principal information of an external request.
 
 #### Example
 
 ```json
 {
-  "email": "john.doe@acme.com",
-  "name": "John Doe",
-  "tokenValidated": false
+  "userClaims": [
+    "name=John Doe",
+    "email=john.doe@acme.com",
+    "@validated=false"
+  ],
+  "username": "john.doe@acme.com"
 }
 ```
 
 #### Attributes
 
-##### `email`
+##### `userClaims`
+
+Type: `[]string`
+
+The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.
+
+##### `username`
 
 Type: `string`
 
-The Email address of the user. This will be derived from the email claims of a
-token like email, emailAddress or upn.
-
-##### `name`
-
-Type: `string`
-
-The given name of the user. This will be derived from the common name claims of
-a token like name or given_name.
-
-##### `tokenValidated`
-
-Type: `boolean`
-
-This will be true if the apex was able to validate the token in the request.
+The optional username of the request.
 
 ### PrincipalUser
 

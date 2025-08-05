@@ -144,6 +144,10 @@ func (o *Moderation) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateURL("link", o.Link); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for _, sub := range o.Predicates {
 		if sub == nil {
 			continue

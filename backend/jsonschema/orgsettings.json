@@ -173,6 +173,27 @@
         "null"
       ]
     },
+    "providerWhitelist": {
+      "$friendlyName": "Provider Whitelist",
+      "description": "List of provider that are white listed. Only has an effect if providerWhitelistEnabled is true.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providerWhitelist",
+      "type": "array"
+    },
+    "providerWhitelistEnabled": {
+      "$friendlyName": "Provider Whitelist Enabled",
+      "description": "Enables using the provider whitelist. When this is enabled, only the provider defined in the white list will be considered by Apex.",
+      "title": "providerWhitelistEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "providersWithoutConsent": {
       "$friendlyName": "Providers exceptions",
       "description": "The providers which do not request employees' consent.",

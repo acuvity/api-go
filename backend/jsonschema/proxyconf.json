@@ -84,6 +84,15 @@
       "title": "dataSets",
       "type": "array"
     },
+    "extractorLibs": {
+      "$friendlyName": "ExtractorLibs",
+      "description": "The extractor libs of the organization.",
+      "items": {
+        "$ref": "extractorlib.json"
+      },
+      "title": "extractorLibs",
+      "type": "array"
+    },
     "extractors": {
       "$friendlyName": "Extractors",
       "description": "The extractors of the organization.",

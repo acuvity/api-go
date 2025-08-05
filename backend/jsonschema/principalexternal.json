@@ -1,0 +1,39 @@
+{
+  "$extends": [
+    "@userinfo"
+  ],
+  "$friendlyName": "Principal External",
+  "$friendlyNamePlural": "Principal Externals",
+  "$modelName": "PrincipalExternal",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "principalexternals",
+  "$modelRestName": "principalexternal",
+  "additionalProperties": false,
+  "description": "Describes the principal information of an external request.",
+  "properties": {
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PrincipalExternal",
+  "type": "object"
+}

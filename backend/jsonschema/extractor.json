@@ -157,6 +157,18 @@
         "null"
       ]
     },
+    "libs": {
+      "$friendlyName": "Libs",
+      "description": "References existing extractorlibs by name to make them importable in the extractor script.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "libs",
+      "type": "array"
+    },
     "method": {
       "$friendlyName": "Method",
       "$required": true,

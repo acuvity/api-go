@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "User Info",
+  "$friendlyNamePlural": "User Infos",
+  "$modelName": "UserInfo",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "userinfos",
+  "$modelRestName": "userinfo",
+  "additionalProperties": false,
+  "description": "Describes the optional user information which is being derived from a bearer token of a request.",
+  "properties": {
+    "displayName": {
+      "$friendlyName": "Display Name",
+      "description": "The display name of the user. This will be by default derived from the common name claims of a token like name, displayName, or familyName and firstName.",
+      "title": "displayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The user name. This will be by default derived from the common user name claims of a token like email, emailAddress or upn.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenValidated": {
+      "$friendlyName": "Token Validated",
+      "description": "This will be true if the apex was able to validate the token in the request.",
+      "title": "tokenValidated",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "UserInfo",
+  "type": "object"
+}

@@ -84,23 +84,21 @@ func (o ErrorTransformersList) Version() int {
 
 // ErrorTransformer represents the model of a errortransformer
 type ErrorTransformer struct {
-	// The Content-Type to use when returning a formatted error.
-	ContentType string `json:"contentType" msgpack:"contentType" bson:"contenttype" mapstructure:"contentType,omitempty"`
-
-	// HTTP status code to return, instead of the classical one.
-	StatusCode int `json:"statusCode" msgpack:"statusCode" bson:"statuscode" mapstructure:"statusCode,omitempty"`
-
-	// Go template to process and transform the error. The delimiters
-	// are << and >> to prevent collision with acuctl templating.
-	// The template will be passed the following informations:
+	// If set, run the lua code to transform the error.
+	// The script must contain a top level function called `transform()`
+	// that will take as parameters:
 	//
-	// - `.Messages`: a list of string containing the messages to return.
-	// - `.Code`: The original status code.
-	// - `.TransformedCode`: The transformed status code.
-	// - `.Action`: The policy decision action (ask or deny).
+	// - `action`: The decision (`ask` or `deny`)
+	// - `messages`: a list containing table object with keys `reason` and `link`.
+	// - `code`: the original error code.
 	//
-	// All the sprig text function are available.
-	Template string `json:"template" msgpack:"template" bson:"template" mapstructure:"template,omitempty"`
+	// This function must return either nil, an empty table, or a table containing the
+	// following keys:
+	//
+	// - `code`: the transformer HTTP code as a number.
+	// - `content_type`: the transformed Content-Type as a string.
+	// - `body`: The transformer body as a string.
+	Script string `json:"script" msgpack:"script" bson:"script" mapstructure:"script,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -110,7 +108,6 @@ func NewErrorTransformer() *ErrorTransformer {
 
 	return &ErrorTransformer{
 		ModelVersion: 1,
-		ContentType:  "application/json",
 	}
 }
 
@@ -141,9 +138,7 @@ func (o *ErrorTransformer) GetBSON() (any, error) {
 
 	s := &mongoAttributesErrorTransformer{}
 
-	s.ContentType = o.ContentType
-	s.StatusCode = o.StatusCode
-	s.Template = o.Template
+	s.Script = o.Script
 
 	return s, nil
 }
@@ -161,9 +156,7 @@ func (o *ErrorTransformer) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.ContentType = s.ContentType
-	o.StatusCode = s.StatusCode
-	o.Template = s.Template
+	o.Script = s.Script
 
 	return nil
 }
@@ -204,21 +197,15 @@ func (o *ErrorTransformer) ToSparse(fields ...string) elemental.SparseIdentifiab
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseErrorTransformer{
-			ContentType: &o.ContentType,
-			StatusCode:  &o.StatusCode,
-			Template:    &o.Template,
+			Script: &o.Script,
 		}
 	}
 
 	sp := &SparseErrorTransformer{}
 	for _, f := range fields {
 		switch f {
-		case "contentType":
-			sp.ContentType = &(o.ContentType)
-		case "statusCode":
-			sp.StatusCode = &(o.StatusCode)
-		case "template":
-			sp.Template = &(o.Template)
+		case "script":
+			sp.Script = &(o.Script)
 		}
 	}
 
@@ -232,14 +219,8 @@ func (o *ErrorTransformer) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseErrorTransformer)
-	if so.ContentType != nil {
-		o.ContentType = *so.ContentType
-	}
-	if so.StatusCode != nil {
-		o.StatusCode = *so.StatusCode
-	}
-	if so.Template != nil {
-		o.Template = *so.Template
+	if so.Script != nil {
+		o.Script = *so.Script
 	}
 }
 
@@ -272,6 +253,10 @@ func (o *ErrorTransformer) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if err := ValidateLua("script", o.Script); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors
@@ -307,12 +292,8 @@ func (*ErrorTransformer) AttributeSpecifications() map[string]elemental.Attribut
 func (o *ErrorTransformer) ValueForAttribute(name string) any {
 
 	switch name {
-	case "contentType":
-		return o.ContentType
-	case "statusCode":
-		return o.StatusCode
-	case "template":
-		return o.Template
+	case "script":
+		return o.Script
 	}
 
 	return nil
@@ -320,43 +301,26 @@ func (o *ErrorTransformer) ValueForAttribute(name string) any {
 
 // ErrorTransformerAttributesMap represents the map of attribute for ErrorTransformer.
 var ErrorTransformerAttributesMap = map[string]elemental.AttributeSpecification{
-	"ContentType": {
+	"Script": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "contenttype",
-		ConvertedName:  "ContentType",
-		DefaultValue:   "application/json",
-		Description:    `The Content-Type to use when returning a formatted error.`,
-		Exposed:        true,
-		Name:           "contentType",
-		Stored:         true,
-		Type:           "string",
-	},
-	"StatusCode": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "statuscode",
-		ConvertedName:  "StatusCode",
-		Description:    `HTTP status code to return, instead of the classical one.`,
-		Exposed:        true,
-		Name:           "statusCode",
-		Stored:         true,
-		Type:           "integer",
-	},
-	"Template": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "template",
-		ConvertedName:  "Template",
-		Description: `Go template to process and transform the error. The delimiters
-are << and >> to prevent collision with acuctl templating.
-The template will be passed the following informations:
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description: `If set, run the lua code to transform the error.
+The script must contain a top level function called ` + "`" + `transform()` + "`" + `
+that will take as parameters:
 
-- ` + "`" + `.Messages` + "`" + `: a list of string containing the messages to return.
-- ` + "`" + `.Code` + "`" + `: The original status code.
-- ` + "`" + `.TransformedCode` + "`" + `: The transformed status code.
-- ` + "`" + `.Action` + "`" + `: The policy decision action (ask or deny).
+- ` + "`" + `action` + "`" + `: The decision (` + "`" + `ask` + "`" + ` or ` + "`" + `deny` + "`" + `)
+- ` + "`" + `messages` + "`" + `: a list containing table object with keys ` + "`" + `reason` + "`" + ` and ` + "`" + `link` + "`" + `.
+- ` + "`" + `code` + "`" + `: the original error code.
 
-All the sprig text function are available.`,
+This function must return either nil, an empty table, or a table containing the
+following keys:
+
+- ` + "`" + `code` + "`" + `: the transformer HTTP code as a number.
+- ` + "`" + `content_type` + "`" + `: the transformed Content-Type as a string.
+- ` + "`" + `body` + "`" + `: The transformer body as a string.`,
 		Exposed: true,
-		Name:    "template",
+		Name:    "script",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -364,43 +328,26 @@ All the sprig text function are available.`,
 
 // ErrorTransformerLowerCaseAttributesMap represents the map of attribute for ErrorTransformer.
 var ErrorTransformerLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"contenttype": {
+	"script": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "contenttype",
-		ConvertedName:  "ContentType",
-		DefaultValue:   "application/json",
-		Description:    `The Content-Type to use when returning a formatted error.`,
-		Exposed:        true,
-		Name:           "contentType",
-		Stored:         true,
-		Type:           "string",
-	},
-	"statuscode": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "statuscode",
-		ConvertedName:  "StatusCode",
-		Description:    `HTTP status code to return, instead of the classical one.`,
-		Exposed:        true,
-		Name:           "statusCode",
-		Stored:         true,
-		Type:           "integer",
-	},
-	"template": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "template",
-		ConvertedName:  "Template",
-		Description: `Go template to process and transform the error. The delimiters
-are << and >> to prevent collision with acuctl templating.
-The template will be passed the following informations:
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description: `If set, run the lua code to transform the error.
+The script must contain a top level function called ` + "`" + `transform()` + "`" + `
+that will take as parameters:
 
-- ` + "`" + `.Messages` + "`" + `: a list of string containing the messages to return.
-- ` + "`" + `.Code` + "`" + `: The original status code.
-- ` + "`" + `.TransformedCode` + "`" + `: The transformed status code.
-- ` + "`" + `.Action` + "`" + `: The policy decision action (ask or deny).
+- ` + "`" + `action` + "`" + `: The decision (` + "`" + `ask` + "`" + ` or ` + "`" + `deny` + "`" + `)
+- ` + "`" + `messages` + "`" + `: a list containing table object with keys ` + "`" + `reason` + "`" + ` and ` + "`" + `link` + "`" + `.
+- ` + "`" + `code` + "`" + `: the original error code.
 
-All the sprig text function are available.`,
+This function must return either nil, an empty table, or a table containing the
+following keys:
+
+- ` + "`" + `code` + "`" + `: the transformer HTTP code as a number.
+- ` + "`" + `content_type` + "`" + `: the transformed Content-Type as a string.
+- ` + "`" + `body` + "`" + `: The transformer body as a string.`,
 		Exposed: true,
-		Name:    "template",
+		Name:    "script",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -469,23 +416,21 @@ func (o SparseErrorTransformersList) Version() int {
 
 // SparseErrorTransformer represents the sparse version of a errortransformer.
 type SparseErrorTransformer struct {
-	// The Content-Type to use when returning a formatted error.
-	ContentType *string `json:"contentType,omitempty" msgpack:"contentType,omitempty" bson:"contenttype,omitempty" mapstructure:"contentType,omitempty"`
-
-	// HTTP status code to return, instead of the classical one.
-	StatusCode *int `json:"statusCode,omitempty" msgpack:"statusCode,omitempty" bson:"statuscode,omitempty" mapstructure:"statusCode,omitempty"`
-
-	// Go template to process and transform the error. The delimiters
-	// are << and >> to prevent collision with acuctl templating.
-	// The template will be passed the following informations:
+	// If set, run the lua code to transform the error.
+	// The script must contain a top level function called `transform()`
+	// that will take as parameters:
 	//
-	// - `.Messages`: a list of string containing the messages to return.
-	// - `.Code`: The original status code.
-	// - `.TransformedCode`: The transformed status code.
-	// - `.Action`: The policy decision action (ask or deny).
+	// - `action`: The decision (`ask` or `deny`)
+	// - `messages`: a list containing table object with keys `reason` and `link`.
+	// - `code`: the original error code.
 	//
-	// All the sprig text function are available.
-	Template *string `json:"template,omitempty" msgpack:"template,omitempty" bson:"template,omitempty" mapstructure:"template,omitempty"`
+	// This function must return either nil, an empty table, or a table containing the
+	// following keys:
+	//
+	// - `code`: the transformer HTTP code as a number.
+	// - `content_type`: the transformed Content-Type as a string.
+	// - `body`: The transformer body as a string.
+	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -522,14 +467,8 @@ func (o *SparseErrorTransformer) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseErrorTransformer{}
 
-	if o.ContentType != nil {
-		s.ContentType = o.ContentType
-	}
-	if o.StatusCode != nil {
-		s.StatusCode = o.StatusCode
-	}
-	if o.Template != nil {
-		s.Template = o.Template
+	if o.Script != nil {
+		s.Script = o.Script
 	}
 
 	return s, nil
@@ -548,14 +487,8 @@ func (o *SparseErrorTransformer) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	if s.ContentType != nil {
-		o.ContentType = s.ContentType
-	}
-	if s.StatusCode != nil {
-		o.StatusCode = s.StatusCode
-	}
-	if s.Template != nil {
-		o.Template = s.Template
+	if s.Script != nil {
+		o.Script = s.Script
 	}
 
 	return nil
@@ -571,14 +504,8 @@ func (o *SparseErrorTransformer) Version() int {
 func (o *SparseErrorTransformer) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewErrorTransformer()
-	if o.ContentType != nil {
-		out.ContentType = *o.ContentType
-	}
-	if o.StatusCode != nil {
-		out.StatusCode = *o.StatusCode
-	}
-	if o.Template != nil {
-		out.Template = *o.Template
+	if o.Script != nil {
+		out.Script = *o.Script
 	}
 
 	return out
@@ -609,12 +536,8 @@ func (o *SparseErrorTransformer) DeepCopyInto(out *SparseErrorTransformer) {
 }
 
 type mongoAttributesErrorTransformer struct {
-	ContentType string `bson:"contenttype"`
-	StatusCode  int    `bson:"statuscode"`
-	Template    string `bson:"template"`
+	Script string `bson:"script"`
 }
 type mongoAttributesSparseErrorTransformer struct {
-	ContentType *string `bson:"contenttype,omitempty"`
-	StatusCode  *int    `bson:"statuscode,omitempty"`
-	Template    *string `bson:"template,omitempty"`
+	Script *string `bson:"script,omitempty"`
 }

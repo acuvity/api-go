@@ -236,7 +236,10 @@ func (o *ContentPolicy) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *ContentPolicy) Doc() string {
 
-	return `The policy that decides how to handle the request content.`
+	return `Content Policies are used in conjunction with Access Policies to determine how
+user input is handled. They define the system’s response to problematic or
+sensitive inputs and can enforce actions such as warning the user, redacting
+sensitive information, raising alerts, and other protective measures.`
 }
 
 func (o *ContentPolicy) String() string {

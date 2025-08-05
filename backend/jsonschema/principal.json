@@ -50,6 +50,12 @@
       "title": "claims",
       "type": "array"
     },
+    "external": {
+      "$friendlyName": "External",
+      "$ref": "principalexternal.json",
+      "description": "The external principal information if type is External.",
+      "title": "external"
+    },
     "teams": {
       "$friendlyName": "Teams",
       "description": "The teams that were used to authorize the request.",

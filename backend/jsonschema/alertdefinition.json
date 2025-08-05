@@ -14,7 +14,7 @@
   "$modelResourceName": "alertdefinitions",
   "$modelRestName": "alertdefinition",
   "additionalProperties": false,
-  "description": "Represents a definition of an alert.",
+  "description": "Alert Definitions specify alerts that can be referenced within Content Policies. They define the actions to take when an alert is triggered, including severity level, notification sinks, triggering conditions, and cooldown settings.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

@@ -136,6 +136,9 @@ type Principal struct {
 	// List of claims extracted from the user query.
 	Claims []string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"claims,omitempty" mapstructure:"claims,omitempty"`
 
+	// The external principal information if type is External.
+	External *PrincipalExternal `json:"external,omitempty" msgpack:"external,omitempty" bson:"external,omitempty" mapstructure:"external,omitempty"`
+
 	// The teams that were used to authorize the request.
 	Teams []string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
@@ -192,6 +195,7 @@ func (o *Principal) GetBSON() (any, error) {
 	s.App = o.App
 	s.AuthType = o.AuthType
 	s.Claims = o.Claims
+	s.External = o.External
 	s.Teams = o.Teams
 	s.TokenName = o.TokenName
 	s.Type = o.Type
@@ -217,6 +221,7 @@ func (o *Principal) SetBSON(raw bson.Raw) error {
 	o.App = s.App
 	o.AuthType = s.AuthType
 	o.Claims = s.Claims
+	o.External = s.External
 	o.Teams = s.Teams
 	o.TokenName = s.TokenName
 	o.Type = s.Type
@@ -265,6 +270,7 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			App:       o.App,
 			AuthType:  &o.AuthType,
 			Claims:    &o.Claims,
+			External:  o.External,
 			Teams:     &o.Teams,
 			TokenName: &o.TokenName,
 			Type:      &o.Type,
@@ -283,6 +289,8 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AuthType = &(o.AuthType)
 		case "claims":
 			sp.Claims = &(o.Claims)
+		case "external":
+			sp.External = o.External
 		case "teams":
 			sp.Teams = &(o.Teams)
 		case "tokenName":
@@ -315,6 +323,9 @@ func (o *Principal) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Claims != nil {
 		o.Claims = *so.Claims
+	}
+	if so.External != nil {
+		o.External = so.External
 	}
 	if so.Teams != nil {
 		o.Teams = *so.Teams
@@ -369,6 +380,13 @@ func (o *Principal) Validate() error {
 
 	if err := elemental.ValidateStringInList("authType", string(o.AuthType), []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.External != nil {
+		elemental.ResetDefaultForZeroValues(o.External)
+		if err := o.External.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
@@ -433,6 +451,8 @@ func (o *Principal) ValueForAttribute(name string) any {
 		return o.AuthType
 	case "claims":
 		return o.Claims
+	case "external":
+		return o.External
 	case "teams":
 		return o.Teams
 	case "tokenName":
@@ -489,6 +509,17 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"External": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "external",
+		ConvertedName:  "External",
+		Description:    `The external principal information if type is External.`,
+		Exposed:        true,
+		Name:           "external",
+		Stored:         true,
+		SubType:        "principalexternal",
+		Type:           "ref",
 	},
 	"Teams": {
 		AllowedChoices: []string{},
@@ -578,6 +609,17 @@ var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"external": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "external",
+		ConvertedName:  "External",
+		Description:    `The external principal information if type is External.`,
+		Exposed:        true,
+		Name:           "external",
+		Stored:         true,
+		SubType:        "principalexternal",
+		Type:           "ref",
 	},
 	"teams": {
 		AllowedChoices: []string{},
@@ -699,6 +741,9 @@ type SparsePrincipal struct {
 	// List of claims extracted from the user query.
 	Claims *[]string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"claims,omitempty" mapstructure:"claims,omitempty"`
 
+	// The external principal information if type is External.
+	External *PrincipalExternal `json:"external,omitempty" msgpack:"external,omitempty" bson:"external,omitempty" mapstructure:"external,omitempty"`
+
 	// The teams that were used to authorize the request.
 	Teams *[]string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
@@ -758,6 +803,9 @@ func (o *SparsePrincipal) GetBSON() (any, error) {
 	if o.Claims != nil {
 		s.Claims = o.Claims
 	}
+	if o.External != nil {
+		s.External = o.External
+	}
 	if o.Teams != nil {
 		s.Teams = o.Teams
 	}
@@ -799,6 +847,9 @@ func (o *SparsePrincipal) SetBSON(raw bson.Raw) error {
 	if s.Claims != nil {
 		o.Claims = s.Claims
 	}
+	if s.External != nil {
+		o.External = s.External
+	}
 	if s.Teams != nil {
 		o.Teams = s.Teams
 	}
@@ -836,6 +887,9 @@ func (o *SparsePrincipal) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Claims != nil {
 		out.Claims = *o.Claims
+	}
+	if o.External != nil {
+		out.External = o.External
 	}
 	if o.Teams != nil {
 		out.Teams = *o.Teams
@@ -882,6 +936,7 @@ type mongoAttributesPrincipal struct {
 	App       *PrincipalApp          `bson:"app,omitempty"`
 	AuthType  PrincipalAuthTypeValue `bson:"authtype"`
 	Claims    []string               `bson:"claims,omitempty"`
+	External  *PrincipalExternal     `bson:"external,omitempty"`
 	Teams     []string               `bson:"teams,omitempty"`
 	TokenName string                 `bson:"tokenname"`
 	Type      PrincipalTypeValue     `bson:"type"`
@@ -892,6 +947,7 @@ type mongoAttributesSparsePrincipal struct {
 	App       *PrincipalApp           `bson:"app,omitempty"`
 	AuthType  *PrincipalAuthTypeValue `bson:"authtype,omitempty"`
 	Claims    *[]string               `bson:"claims,omitempty"`
+	External  *PrincipalExternal      `bson:"external,omitempty"`
 	Teams     *[]string               `bson:"teams,omitempty"`
 	TokenName *string                 `bson:"tokenname,omitempty"`
 	Type      *PrincipalTypeValue     `bson:"type,omitempty"`

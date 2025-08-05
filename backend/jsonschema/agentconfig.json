@@ -275,6 +275,39 @@
         "null"
       ]
     },
+    "tunnelEnabled": {
+      "$friendlyName": "Tunnel Enabled",
+      "description": "If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the apex will make its requests to the destination back through the agent over the same tunnel.",
+      "title": "tunnelEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "tunnelProxyAuth": {
+      "$friendlyName": "Tunnel Proxy Authentication",
+      "$ref": "tunnelproxyauth.json",
+      "description": "If the proxy server used by the tunnel requires authentication, this is then authentication information to use.",
+      "title": "tunnelProxyAuth"
+    },
+    "tunnelProxyHeaders": {
+      "$friendlyName": "Tunnel Proxy Headers",
+      "description": "If you are using a proxy server for the tunnel connection, you can specify additional headers to be sent with the requests to the proxy.",
+      "items": {
+        "type": "string"
+      },
+      "title": "tunnelProxyHeaders",
+      "type": "object"
+    },
+    "tunnelProxyURL": {
+      "$friendlyName": "Tunnel Proxy URL",
+      "description": "If tunnels are enabled, and the system requires the use of an HTTP proxy server, then this is the URL of the proxy server to use. It must be a full URL including the scheme (http or https) and optionally a port. The proxy will be used not only for the tunnel connection, but also for all requests to the final destination.",
+      "title": "tunnelProxyURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,

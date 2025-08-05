@@ -931,6 +931,9 @@
             },
             "type": "array"
           },
+          "external": {
+            "$ref": "#/components/schemas/principalexternal"
+          },
           "teams": {
             "description": "The teams that were used to authorize the request.",
             "example": "admins",
@@ -988,29 +991,45 @@
             "example": "MyApp",
             "type": "string"
           },
-          "user": {
-            "$ref": "#/components/schemas/principalappuser"
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
+            "example": "john.doe@acme.com",
+            "type": "string"
           }
         },
         "type": "object"
       },
-      "principalappuser": {
-        "description": "Describes the optional principal information of the user of an application which\nis being derived from a bearer token of a request.",
+      "principalexternal": {
+        "description": "Describes the principal information of an external request.",
         "properties": {
-          "email": {
-            "description": "The Email address of the user. This will be derived from the email claims of a\ntoken like email, emailAddress or upn.",
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
             "type": "string"
-          },
-          "name": {
-            "description": "The given name of the user. This will be derived from the common name claims of\na token like name or given_name.",
-            "example": "John Doe",
-            "type": "string"
-          },
-          "tokenValidated": {
-            "description": "This will be true if the apex was able to validate the token in the request.",
-            "example": false,
-            "type": "boolean"
           }
         },
         "type": "object"
