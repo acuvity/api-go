@@ -206,18 +206,18 @@ type AgentConfig struct {
 
 	// If the proxy server used by the tunnel requires authentication, this is then
 	// authentication information to use.
-	TunnelProxyAuth *TunnelProxyAuth `json:"tunnelProxyAuth,omitempty" msgpack:"tunnelProxyAuth,omitempty" bson:"tunnelproxyauth,omitempty" mapstructure:"tunnelProxyAuth,omitempty"`
+	TunnelProxyAuth *TunnelProxyAuth `json:"tunnelProxyAuth" msgpack:"tunnelProxyAuth" bson:"tunnelproxyauth" mapstructure:"tunnelProxyAuth,omitempty"`
 
 	// If you are using a proxy server for the tunnel connection, you can specify
 	// additional headers to be sent with the requests to the proxy.
-	TunnelProxyHeaders map[string]string `json:"tunnelProxyHeaders,omitempty" msgpack:"tunnelProxyHeaders,omitempty" bson:"tunnelproxyheaders,omitempty" mapstructure:"tunnelProxyHeaders,omitempty"`
+	TunnelProxyHeaders map[string]string `json:"tunnelProxyHeaders" msgpack:"tunnelProxyHeaders" bson:"tunnelproxyheaders" mapstructure:"tunnelProxyHeaders,omitempty"`
 
 	// If tunnels are enabled, and the system requires the use of an HTTP proxy server,
 	// then this is the URL of the proxy server to use.
 	// It must be a full URL including the scheme (http or https) and optionally a
 	// port. The proxy will be used not only for the tunnel connection, but also for
 	// all requests to the final destination.
-	TunnelProxyURL string `json:"tunnelProxyURL,omitempty" msgpack:"tunnelProxyURL,omitempty" bson:"tunnelproxyurl,omitempty" mapstructure:"tunnelProxyURL,omitempty"`
+	TunnelProxyURL string `json:"tunnelProxyURL" msgpack:"tunnelProxyURL" bson:"tunnelproxyurl" mapstructure:"tunnelProxyURL,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -2421,9 +2421,9 @@ type mongoAttributesAgentConfig struct {
 	Subject                       [][]string                       `bson:"subject"`
 	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
 	TunnelEnabled                 bool                             `bson:"tunnelenabled"`
-	TunnelProxyAuth               *TunnelProxyAuth                 `bson:"tunnelproxyauth,omitempty"`
-	TunnelProxyHeaders            map[string]string                `bson:"tunnelproxyheaders,omitempty"`
-	TunnelProxyURL                string                           `bson:"tunnelproxyurl,omitempty"`
+	TunnelProxyAuth               *TunnelProxyAuth                 `bson:"tunnelproxyauth"`
+	TunnelProxyHeaders            map[string]string                `bson:"tunnelproxyheaders"`
+	TunnelProxyURL                string                           `bson:"tunnelproxyurl"`
 	UpdateTime                    time.Time                        `bson:"updatetime"`
 	UseDynamicPort                bool                             `bson:"usedynamicport"`
 	ZHash                         int                              `bson:"zhash"`
