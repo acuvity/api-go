@@ -94,8 +94,8 @@ type ScanReport struct {
 	// The result of the scan per domain.
 	Domains []*ScanDomain `json:"domains" msgpack:"domains" bson:"domains" mapstructure:"domains,omitempty"`
 
-	// The location of the scan.
-	Location string `json:"location" msgpack:"location" bson:"location" mapstructure:"location,omitempty"`
+	// Additional metadata for the scanreport.
+	Metadata map[string]string `json:"metadata" msgpack:"metadata" bson:"metadata" mapstructure:"metadata,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -118,6 +118,7 @@ func NewScanReport() *ScanReport {
 	return &ScanReport{
 		ModelVersion: 1,
 		Domains:      []*ScanDomain{},
+		Metadata:     map[string]string{},
 	}
 }
 
@@ -154,7 +155,7 @@ func (o *ScanReport) GetBSON() (any, error) {
 	}
 	s.CreateTime = o.CreateTime
 	s.Domains = o.Domains
-	s.Location = o.Location
+	s.Metadata = o.Metadata
 	s.Namespace = o.Namespace
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -179,7 +180,7 @@ func (o *ScanReport) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Domains = s.Domains
-	o.Location = s.Location
+	o.Metadata = s.Metadata
 	o.Namespace = s.Namespace
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -263,7 +264,7 @@ func (o *ScanReport) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:         &o.ID,
 			CreateTime: &o.CreateTime,
 			Domains:    &o.Domains,
-			Location:   &o.Location,
+			Metadata:   &o.Metadata,
 			Namespace:  &o.Namespace,
 			UpdateTime: &o.UpdateTime,
 			ZHash:      &o.ZHash,
@@ -280,8 +281,8 @@ func (o *ScanReport) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "domains":
 			sp.Domains = &(o.Domains)
-		case "location":
-			sp.Location = &(o.Location)
+		case "metadata":
+			sp.Metadata = &(o.Metadata)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "updateTime":
@@ -312,8 +313,8 @@ func (o *ScanReport) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Domains != nil {
 		o.Domains = *so.Domains
 	}
-	if so.Location != nil {
-		o.Location = *so.Location
+	if so.Metadata != nil {
+		o.Metadata = *so.Metadata
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
@@ -409,8 +410,8 @@ func (o *ScanReport) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "domains":
 		return o.Domains
-	case "location":
-		return o.Location
+	case "metadata":
+		return o.Metadata
 	case "namespace":
 		return o.Namespace
 	case "updateTime":
@@ -467,15 +468,16 @@ var ScanReportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "scandomain",
 		Type:           "refList",
 	},
-	"Location": {
+	"Metadata": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "location",
-		ConvertedName:  "Location",
-		Description:    `The location of the scan.`,
+		BSONFieldName:  "metadata",
+		ConvertedName:  "Metadata",
+		Description:    `Additional metadata for the scanreport.`,
 		Exposed:        true,
-		Name:           "location",
+		Name:           "metadata",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "map[string]string",
+		Type:           "external",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -552,15 +554,16 @@ var ScanReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		SubType:        "scandomain",
 		Type:           "refList",
 	},
-	"location": {
+	"metadata": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "location",
-		ConvertedName:  "Location",
-		Description:    `The location of the scan.`,
+		BSONFieldName:  "metadata",
+		ConvertedName:  "Metadata",
+		Description:    `Additional metadata for the scanreport.`,
 		Exposed:        true,
-		Name:           "location",
+		Name:           "metadata",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "map[string]string",
+		Type:           "external",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -666,8 +669,8 @@ type SparseScanReport struct {
 	// The result of the scan per domain.
 	Domains *[]*ScanDomain `json:"domains,omitempty" msgpack:"domains,omitempty" bson:"domains,omitempty" mapstructure:"domains,omitempty"`
 
-	// The location of the scan.
-	Location *string `json:"location,omitempty" msgpack:"location,omitempty" bson:"location,omitempty" mapstructure:"location,omitempty"`
+	// Additional metadata for the scanreport.
+	Metadata *map[string]string `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -733,8 +736,8 @@ func (o *SparseScanReport) GetBSON() (any, error) {
 	if o.Domains != nil {
 		s.Domains = o.Domains
 	}
-	if o.Location != nil {
-		s.Location = o.Location
+	if o.Metadata != nil {
+		s.Metadata = o.Metadata
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
@@ -773,8 +776,8 @@ func (o *SparseScanReport) SetBSON(raw bson.Raw) error {
 	if s.Domains != nil {
 		o.Domains = s.Domains
 	}
-	if s.Location != nil {
-		o.Location = s.Location
+	if s.Metadata != nil {
+		o.Metadata = s.Metadata
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
@@ -811,8 +814,8 @@ func (o *SparseScanReport) ToPlain() elemental.PlainIdentifiable {
 	if o.Domains != nil {
 		out.Domains = *o.Domains
 	}
-	if o.Location != nil {
-		out.Location = *o.Location
+	if o.Metadata != nil {
+		out.Metadata = *o.Metadata
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
@@ -903,22 +906,22 @@ func (o *SparseScanReport) DeepCopyInto(out *SparseScanReport) {
 }
 
 type mongoAttributesScanReport struct {
-	ID         bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime time.Time     `bson:"createtime"`
-	Domains    []*ScanDomain `bson:"domains"`
-	Location   string        `bson:"location"`
-	Namespace  string        `bson:"namespace,omitempty"`
-	UpdateTime time.Time     `bson:"updatetime"`
-	ZHash      int           `bson:"zhash"`
-	Zone       int           `bson:"zone"`
+	ID         bson.ObjectId     `bson:"_id,omitempty"`
+	CreateTime time.Time         `bson:"createtime"`
+	Domains    []*ScanDomain     `bson:"domains"`
+	Metadata   map[string]string `bson:"metadata"`
+	Namespace  string            `bson:"namespace,omitempty"`
+	UpdateTime time.Time         `bson:"updatetime"`
+	ZHash      int               `bson:"zhash"`
+	Zone       int               `bson:"zone"`
 }
 type mongoAttributesSparseScanReport struct {
-	ID         bson.ObjectId  `bson:"_id,omitempty"`
-	CreateTime *time.Time     `bson:"createtime,omitempty"`
-	Domains    *[]*ScanDomain `bson:"domains,omitempty"`
-	Location   *string        `bson:"location,omitempty"`
-	Namespace  *string        `bson:"namespace,omitempty"`
-	UpdateTime *time.Time     `bson:"updatetime,omitempty"`
-	ZHash      *int           `bson:"zhash,omitempty"`
-	Zone       *int           `bson:"zone,omitempty"`
+	ID         bson.ObjectId      `bson:"_id,omitempty"`
+	CreateTime *time.Time         `bson:"createtime,omitempty"`
+	Domains    *[]*ScanDomain     `bson:"domains,omitempty"`
+	Metadata   *map[string]string `bson:"metadata,omitempty"`
+	Namespace  *string            `bson:"namespace,omitempty"`
+	UpdateTime *time.Time         `bson:"updatetime,omitempty"`
+	ZHash      *int               `bson:"zhash,omitempty"`
+	Zone       *int               `bson:"zone,omitempty"`
 }

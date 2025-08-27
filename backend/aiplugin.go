@@ -13,6 +13,31 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AIPluginServiceTypeValue represents the possible values for attribute "serviceType".
+type AIPluginServiceTypeValue string
+
+const (
+	// AIPluginServiceTypeCodingAssistant represents the value CodingAssistant.
+	AIPluginServiceTypeCodingAssistant AIPluginServiceTypeValue = "CodingAssistant"
+
+	// AIPluginServiceTypeIntegrationPlatform represents the value IntegrationPlatform.
+	AIPluginServiceTypeIntegrationPlatform AIPluginServiceTypeValue = "IntegrationPlatform"
+
+	// AIPluginServiceTypeProductivity represents the value Productivity.
+	AIPluginServiceTypeProductivity AIPluginServiceTypeValue = "Productivity"
+)
+
+// AIPluginTypeValue represents the possible values for attribute "type".
+type AIPluginTypeValue string
+
+const (
+	// AIPluginTypeIDE represents the value IDE.
+	AIPluginTypeIDE AIPluginTypeValue = "IDE"
+
+	// AIPluginTypeWebExtension represents the value WebExtension.
+	AIPluginTypeWebExtension AIPluginTypeValue = "WebExtension"
+)
+
 // AIPluginIdentity represents the Identity of the object.
 var AIPluginIdentity = elemental.Identity{
 	Name:     "aiplugin",
@@ -88,6 +113,9 @@ type AIPlugin struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Contains additional information on an AI-related IDE plugin.
+	IDE *AIPluginIDE `json:"IDE,omitempty" msgpack:"IDE,omitempty" bson:"ide,omitempty" mapstructure:"IDE,omitempty"`
+
 	// The categories associated with the plugin.
 	Categories []string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
@@ -113,32 +141,32 @@ type AIPlugin struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The identifier of the plugin.
-	PluginID string `json:"pluginID" msgpack:"pluginID" bson:"pluginid" mapstructure:"pluginID,omitempty"`
-
-	// The universally unique identifier of the plugin.
-	PluginUUID string `json:"pluginUUID" msgpack:"pluginUUID" bson:"pluginuuid" mapstructure:"pluginUUID,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// When the plugin was published.
 	PublishedDate time.Time `json:"publishedDate" msgpack:"publishedDate" bson:"publisheddate" mapstructure:"publishedDate,omitempty"`
 
-	// The publisher identifier of the plugin.
-	PublisherID string `json:"publisherID" msgpack:"publisherID" bson:"publisherid" mapstructure:"publisherID,omitempty"`
-
 	// The publisher name of the plugin.
 	PublisherName string `json:"publisherName" msgpack:"publisherName" bson:"publishername" mapstructure:"publisherName,omitempty"`
 
+	// The type of service this plugin relates to.
+	ServiceType AIPluginServiceTypeValue `json:"serviceType" msgpack:"serviceType" bson:"servicetype" mapstructure:"serviceType,omitempty"`
+
 	// The tags associated with the plugin.
 	Tags []string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
+
+	// The type of plugin.
+	Type AIPluginTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// Flag to say if the plugin has been vetted by Acuvity or not.
 	Vetted bool `json:"vetted" msgpack:"vetted" bson:"vetted" mapstructure:"vetted,omitempty"`
+
+	// Contains additional information on an AI-related web extension.
+	WebExtension *AIPluginWebExt `json:"webExtension,omitempty" msgpack:"webExtension,omitempty" bson:"webextension,omitempty" mapstructure:"webExtension,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -156,7 +184,9 @@ func NewAIPlugin() *AIPlugin {
 		ModelVersion: 1,
 		Categories:   []string{},
 		Propagate:    true,
+		ServiceType:  AIPluginServiceTypeCodingAssistant,
 		Tags:         []string{},
+		Type:         AIPluginTypeIDE,
 	}
 }
 
@@ -191,6 +221,7 @@ func (o *AIPlugin) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.IDE = o.IDE
 	s.Categories = o.Categories
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -199,15 +230,15 @@ func (o *AIPlugin) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.PluginID = o.PluginID
-	s.PluginUUID = o.PluginUUID
 	s.Propagate = o.Propagate
 	s.PublishedDate = o.PublishedDate
-	s.PublisherID = o.PublisherID
 	s.PublisherName = o.PublisherName
+	s.ServiceType = o.ServiceType
 	s.Tags = o.Tags
+	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.Vetted = o.Vetted
+	s.WebExtension = o.WebExtension
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -228,6 +259,7 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.IDE = s.IDE
 	o.Categories = s.Categories
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -236,15 +268,15 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.PluginID = s.PluginID
-	o.PluginUUID = s.PluginUUID
 	o.Propagate = s.Propagate
 	o.PublishedDate = s.PublishedDate
-	o.PublisherID = s.PublisherID
 	o.PublisherName = s.PublisherName
+	o.ServiceType = s.ServiceType
 	o.Tags = s.Tags
+	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.Vetted = s.Vetted
+	o.WebExtension = s.WebExtension
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -360,6 +392,7 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseAIPlugin{
 			ID:            &o.ID,
+			IDE:           o.IDE,
 			Categories:    &o.Categories,
 			CreateTime:    &o.CreateTime,
 			Description:   &o.Description,
@@ -368,15 +401,15 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportLabel:   &o.ImportLabel,
 			Name:          &o.Name,
 			Namespace:     &o.Namespace,
-			PluginID:      &o.PluginID,
-			PluginUUID:    &o.PluginUUID,
 			Propagate:     &o.Propagate,
 			PublishedDate: &o.PublishedDate,
-			PublisherID:   &o.PublisherID,
 			PublisherName: &o.PublisherName,
+			ServiceType:   &o.ServiceType,
 			Tags:          &o.Tags,
+			Type:          &o.Type,
 			UpdateTime:    &o.UpdateTime,
 			Vetted:        &o.Vetted,
+			WebExtension:  o.WebExtension,
 			ZHash:         &o.ZHash,
 			Zone:          &o.Zone,
 		}
@@ -387,6 +420,8 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "IDE":
+			sp.IDE = o.IDE
 		case "categories":
 			sp.Categories = &(o.Categories)
 		case "createTime":
@@ -403,24 +438,24 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "pluginID":
-			sp.PluginID = &(o.PluginID)
-		case "pluginUUID":
-			sp.PluginUUID = &(o.PluginUUID)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
 		case "publishedDate":
 			sp.PublishedDate = &(o.PublishedDate)
-		case "publisherID":
-			sp.PublisherID = &(o.PublisherID)
 		case "publisherName":
 			sp.PublisherName = &(o.PublisherName)
+		case "serviceType":
+			sp.ServiceType = &(o.ServiceType)
 		case "tags":
 			sp.Tags = &(o.Tags)
+		case "type":
+			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "vetted":
 			sp.Vetted = &(o.Vetted)
+		case "webExtension":
+			sp.WebExtension = o.WebExtension
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -440,6 +475,9 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAIPlugin)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.IDE != nil {
+		o.IDE = so.IDE
 	}
 	if so.Categories != nil {
 		o.Categories = *so.Categories
@@ -465,32 +503,32 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.PluginID != nil {
-		o.PluginID = *so.PluginID
-	}
-	if so.PluginUUID != nil {
-		o.PluginUUID = *so.PluginUUID
-	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
 	if so.PublishedDate != nil {
 		o.PublishedDate = *so.PublishedDate
 	}
-	if so.PublisherID != nil {
-		o.PublisherID = *so.PublisherID
-	}
 	if so.PublisherName != nil {
 		o.PublisherName = *so.PublisherName
 	}
+	if so.ServiceType != nil {
+		o.ServiceType = *so.ServiceType
+	}
 	if so.Tags != nil {
 		o.Tags = *so.Tags
+	}
+	if so.Type != nil {
+		o.Type = *so.Type
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
 	}
 	if so.Vetted != nil {
 		o.Vetted = *so.Vetted
+	}
+	if so.WebExtension != nil {
+		o.WebExtension = so.WebExtension
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -530,6 +568,13 @@ func (o *AIPlugin) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.IDE != nil {
+		elemental.ResetDefaultForZeroValues(o.IDE)
+		if err := o.IDE.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("displayName", o.DisplayName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -538,24 +583,32 @@ func (o *AIPlugin) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("pluginID", o.PluginID); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("pluginUUID", o.PluginUUID); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredTime("publishedDate", o.PublishedDate); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("publisherID", o.PublisherID); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("publisherName", o.PublisherName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("serviceType", string(o.ServiceType), []string{"CodingAssistant", "IntegrationPlatform", "Productivity"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"IDE", "WebExtension"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.WebExtension != nil {
+		elemental.ResetDefaultForZeroValues(o.WebExtension)
+		if err := o.WebExtension.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	// Custom object validation.
+	if err := ValidateAIPlugin(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -594,6 +647,8 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "IDE":
+		return o.IDE
 	case "categories":
 		return o.Categories
 	case "createTime":
@@ -610,24 +665,24 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "pluginID":
-		return o.PluginID
-	case "pluginUUID":
-		return o.PluginUUID
 	case "propagate":
 		return o.Propagate
 	case "publishedDate":
 		return o.PublishedDate
-	case "publisherID":
-		return o.PublisherID
 	case "publisherName":
 		return o.PublisherName
+	case "serviceType":
+		return o.ServiceType
 	case "tags":
 		return o.Tags
+	case "type":
+		return o.Type
 	case "updateTime":
 		return o.UpdateTime
 	case "vetted":
 		return o.Vetted
+	case "webExtension":
+		return o.WebExtension
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -653,6 +708,17 @@ var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"IDE": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ide",
+		ConvertedName:  "IDE",
+		Description:    `Contains additional information on an AI-related IDE plugin.`,
+		Exposed:        true,
+		Name:           "IDE",
+		Stored:         true,
+		SubType:        "aipluginide",
+		Type:           "ref",
 	},
 	"Categories": {
 		AllowedChoices: []string{},
@@ -755,28 +821,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"PluginID": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "pluginid",
-		ConvertedName:  "PluginID",
-		Description:    `The identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "pluginID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
-	"PluginUUID": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "pluginuuid",
-		ConvertedName:  "PluginUUID",
-		Description:    `The universally unique identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "pluginUUID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -801,17 +845,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "time",
 	},
-	"PublisherID": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publisherid",
-		ConvertedName:  "PublisherID",
-		Description:    `The publisher identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "publisherID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"PublisherName": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "publishername",
@@ -823,6 +856,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"ServiceType": {
+		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
+		BSONFieldName:  "servicetype",
+		ConvertedName:  "ServiceType",
+		DefaultValue:   AIPluginServiceTypeCodingAssistant,
+		Description:    `The type of service this plugin relates to.`,
+		Exposed:        true,
+		Name:           "serviceType",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"Tags": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tags",
@@ -833,6 +877,17 @@ same import operation.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Type": {
+		AllowedChoices: []string{"IDE", "WebExtension"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AIPluginTypeIDE,
+		Description:    `The type of plugin.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -859,6 +914,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"WebExtension": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webextension",
+		ConvertedName:  "WebExtension",
+		Description:    `Contains additional information on an AI-related web extension.`,
+		Exposed:        true,
+		Name:           "webExtension",
+		Stored:         true,
+		SubType:        "aipluginwebext",
+		Type:           "ref",
+	},
 }
 
 // AIPluginLowerCaseAttributesMap represents the map of attribute for AIPlugin.
@@ -877,6 +943,17 @@ var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ide": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ide",
+		ConvertedName:  "IDE",
+		Description:    `Contains additional information on an AI-related IDE plugin.`,
+		Exposed:        true,
+		Name:           "IDE",
+		Stored:         true,
+		SubType:        "aipluginide",
+		Type:           "ref",
 	},
 	"categories": {
 		AllowedChoices: []string{},
@@ -979,28 +1056,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"pluginid": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "pluginid",
-		ConvertedName:  "PluginID",
-		Description:    `The identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "pluginID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
-	"pluginuuid": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "pluginuuid",
-		ConvertedName:  "PluginUUID",
-		Description:    `The universally unique identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "pluginUUID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1025,17 +1080,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "time",
 	},
-	"publisherid": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publisherid",
-		ConvertedName:  "PublisherID",
-		Description:    `The publisher identifier of the plugin.`,
-		Exposed:        true,
-		Name:           "publisherID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"publishername": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "publishername",
@@ -1047,6 +1091,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"servicetype": {
+		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
+		BSONFieldName:  "servicetype",
+		ConvertedName:  "ServiceType",
+		DefaultValue:   AIPluginServiceTypeCodingAssistant,
+		Description:    `The type of service this plugin relates to.`,
+		Exposed:        true,
+		Name:           "serviceType",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"tags": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tags",
@@ -1057,6 +1112,17 @@ same import operation.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"type": {
+		AllowedChoices: []string{"IDE", "WebExtension"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AIPluginTypeIDE,
+		Description:    `The type of plugin.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1082,6 +1148,17 @@ same import operation.`,
 		Name:           "vetted",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"webextension": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webextension",
+		ConvertedName:  "WebExtension",
+		Description:    `Contains additional information on an AI-related web extension.`,
+		Exposed:        true,
+		Name:           "webExtension",
+		Stored:         true,
+		SubType:        "aipluginwebext",
+		Type:           "ref",
 	},
 }
 
@@ -1151,6 +1228,9 @@ type SparseAIPlugin struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Contains additional information on an AI-related IDE plugin.
+	IDE *AIPluginIDE `json:"IDE,omitempty" msgpack:"IDE,omitempty" bson:"ide,omitempty" mapstructure:"IDE,omitempty"`
+
 	// The categories associated with the plugin.
 	Categories *[]string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
@@ -1176,32 +1256,32 @@ type SparseAIPlugin struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The identifier of the plugin.
-	PluginID *string `json:"pluginID,omitempty" msgpack:"pluginID,omitempty" bson:"pluginid,omitempty" mapstructure:"pluginID,omitempty"`
-
-	// The universally unique identifier of the plugin.
-	PluginUUID *string `json:"pluginUUID,omitempty" msgpack:"pluginUUID,omitempty" bson:"pluginuuid,omitempty" mapstructure:"pluginUUID,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// When the plugin was published.
 	PublishedDate *time.Time `json:"publishedDate,omitempty" msgpack:"publishedDate,omitempty" bson:"publisheddate,omitempty" mapstructure:"publishedDate,omitempty"`
 
-	// The publisher identifier of the plugin.
-	PublisherID *string `json:"publisherID,omitempty" msgpack:"publisherID,omitempty" bson:"publisherid,omitempty" mapstructure:"publisherID,omitempty"`
-
 	// The publisher name of the plugin.
 	PublisherName *string `json:"publisherName,omitempty" msgpack:"publisherName,omitempty" bson:"publishername,omitempty" mapstructure:"publisherName,omitempty"`
 
+	// The type of service this plugin relates to.
+	ServiceType *AIPluginServiceTypeValue `json:"serviceType,omitempty" msgpack:"serviceType,omitempty" bson:"servicetype,omitempty" mapstructure:"serviceType,omitempty"`
+
 	// The tags associated with the plugin.
 	Tags *[]string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
+
+	// The type of plugin.
+	Type *AIPluginTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// Flag to say if the plugin has been vetted by Acuvity or not.
 	Vetted *bool `json:"vetted,omitempty" msgpack:"vetted,omitempty" bson:"vetted,omitempty" mapstructure:"vetted,omitempty"`
+
+	// Contains additional information on an AI-related web extension.
+	WebExtension *AIPluginWebExt `json:"webExtension,omitempty" msgpack:"webExtension,omitempty" bson:"webextension,omitempty" mapstructure:"webExtension,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1255,6 +1335,9 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.IDE != nil {
+		s.IDE = o.IDE
+	}
 	if o.Categories != nil {
 		s.Categories = o.Categories
 	}
@@ -1279,32 +1362,32 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.PluginID != nil {
-		s.PluginID = o.PluginID
-	}
-	if o.PluginUUID != nil {
-		s.PluginUUID = o.PluginUUID
-	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
 	if o.PublishedDate != nil {
 		s.PublishedDate = o.PublishedDate
 	}
-	if o.PublisherID != nil {
-		s.PublisherID = o.PublisherID
-	}
 	if o.PublisherName != nil {
 		s.PublisherName = o.PublisherName
 	}
+	if o.ServiceType != nil {
+		s.ServiceType = o.ServiceType
+	}
 	if o.Tags != nil {
 		s.Tags = o.Tags
+	}
+	if o.Type != nil {
+		s.Type = o.Type
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
 	if o.Vetted != nil {
 		s.Vetted = o.Vetted
+	}
+	if o.WebExtension != nil {
+		s.WebExtension = o.WebExtension
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1331,6 +1414,9 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.IDE != nil {
+		o.IDE = s.IDE
+	}
 	if s.Categories != nil {
 		o.Categories = s.Categories
 	}
@@ -1355,32 +1441,32 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.PluginID != nil {
-		o.PluginID = s.PluginID
-	}
-	if s.PluginUUID != nil {
-		o.PluginUUID = s.PluginUUID
-	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
 	if s.PublishedDate != nil {
 		o.PublishedDate = s.PublishedDate
 	}
-	if s.PublisherID != nil {
-		o.PublisherID = s.PublisherID
-	}
 	if s.PublisherName != nil {
 		o.PublisherName = s.PublisherName
 	}
+	if s.ServiceType != nil {
+		o.ServiceType = s.ServiceType
+	}
 	if s.Tags != nil {
 		o.Tags = s.Tags
+	}
+	if s.Type != nil {
+		o.Type = s.Type
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
 	if s.Vetted != nil {
 		o.Vetted = s.Vetted
+	}
+	if s.WebExtension != nil {
+		o.WebExtension = s.WebExtension
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1404,6 +1490,9 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	out := NewAIPlugin()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.IDE != nil {
+		out.IDE = o.IDE
 	}
 	if o.Categories != nil {
 		out.Categories = *o.Categories
@@ -1429,32 +1518,32 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.PluginID != nil {
-		out.PluginID = *o.PluginID
-	}
-	if o.PluginUUID != nil {
-		out.PluginUUID = *o.PluginUUID
-	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
 	if o.PublishedDate != nil {
 		out.PublishedDate = *o.PublishedDate
 	}
-	if o.PublisherID != nil {
-		out.PublisherID = *o.PublisherID
-	}
 	if o.PublisherName != nil {
 		out.PublisherName = *o.PublisherName
 	}
+	if o.ServiceType != nil {
+		out.ServiceType = *o.ServiceType
+	}
 	if o.Tags != nil {
 		out.Tags = *o.Tags
+	}
+	if o.Type != nil {
+		out.Type = *o.Type
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
 	}
 	if o.Vetted != nil {
 		out.Vetted = *o.Vetted
+	}
+	if o.WebExtension != nil {
+		out.WebExtension = o.WebExtension
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1587,46 +1676,48 @@ func (o *SparseAIPlugin) DeepCopyInto(out *SparseAIPlugin) {
 }
 
 type mongoAttributesAIPlugin struct {
-	ID            bson.ObjectId `bson:"_id,omitempty"`
-	Categories    []string      `bson:"categories,omitempty"`
-	CreateTime    time.Time     `bson:"createtime"`
-	Description   string        `bson:"description,omitempty"`
-	DisplayName   string        `bson:"displayname"`
-	ImportHash    string        `bson:"importhash,omitempty"`
-	ImportLabel   string        `bson:"importlabel,omitempty"`
-	Name          string        `bson:"name"`
-	Namespace     string        `bson:"namespace,omitempty"`
-	PluginID      string        `bson:"pluginid"`
-	PluginUUID    string        `bson:"pluginuuid"`
-	Propagate     bool          `bson:"propagate"`
-	PublishedDate time.Time     `bson:"publisheddate"`
-	PublisherID   string        `bson:"publisherid"`
-	PublisherName string        `bson:"publishername"`
-	Tags          []string      `bson:"tags,omitempty"`
-	UpdateTime    time.Time     `bson:"updatetime"`
-	Vetted        bool          `bson:"vetted"`
-	ZHash         int           `bson:"zhash"`
-	Zone          int           `bson:"zone"`
+	ID            bson.ObjectId            `bson:"_id,omitempty"`
+	IDE           *AIPluginIDE             `bson:"ide,omitempty"`
+	Categories    []string                 `bson:"categories,omitempty"`
+	CreateTime    time.Time                `bson:"createtime"`
+	Description   string                   `bson:"description,omitempty"`
+	DisplayName   string                   `bson:"displayname"`
+	ImportHash    string                   `bson:"importhash,omitempty"`
+	ImportLabel   string                   `bson:"importlabel,omitempty"`
+	Name          string                   `bson:"name"`
+	Namespace     string                   `bson:"namespace,omitempty"`
+	Propagate     bool                     `bson:"propagate"`
+	PublishedDate time.Time                `bson:"publisheddate"`
+	PublisherName string                   `bson:"publishername"`
+	ServiceType   AIPluginServiceTypeValue `bson:"servicetype"`
+	Tags          []string                 `bson:"tags,omitempty"`
+	Type          AIPluginTypeValue        `bson:"type"`
+	UpdateTime    time.Time                `bson:"updatetime"`
+	Vetted        bool                     `bson:"vetted"`
+	WebExtension  *AIPluginWebExt          `bson:"webextension,omitempty"`
+	ZHash         int                      `bson:"zhash"`
+	Zone          int                      `bson:"zone"`
 }
 type mongoAttributesSparseAIPlugin struct {
-	ID            bson.ObjectId `bson:"_id,omitempty"`
-	Categories    *[]string     `bson:"categories,omitempty"`
-	CreateTime    *time.Time    `bson:"createtime,omitempty"`
-	Description   *string       `bson:"description,omitempty"`
-	DisplayName   *string       `bson:"displayname,omitempty"`
-	ImportHash    *string       `bson:"importhash,omitempty"`
-	ImportLabel   *string       `bson:"importlabel,omitempty"`
-	Name          *string       `bson:"name,omitempty"`
-	Namespace     *string       `bson:"namespace,omitempty"`
-	PluginID      *string       `bson:"pluginid,omitempty"`
-	PluginUUID    *string       `bson:"pluginuuid,omitempty"`
-	Propagate     *bool         `bson:"propagate,omitempty"`
-	PublishedDate *time.Time    `bson:"publisheddate,omitempty"`
-	PublisherID   *string       `bson:"publisherid,omitempty"`
-	PublisherName *string       `bson:"publishername,omitempty"`
-	Tags          *[]string     `bson:"tags,omitempty"`
-	UpdateTime    *time.Time    `bson:"updatetime,omitempty"`
-	Vetted        *bool         `bson:"vetted,omitempty"`
-	ZHash         *int          `bson:"zhash,omitempty"`
-	Zone          *int          `bson:"zone,omitempty"`
+	ID            bson.ObjectId             `bson:"_id,omitempty"`
+	IDE           *AIPluginIDE              `bson:"ide,omitempty"`
+	Categories    *[]string                 `bson:"categories,omitempty"`
+	CreateTime    *time.Time                `bson:"createtime,omitempty"`
+	Description   *string                   `bson:"description,omitempty"`
+	DisplayName   *string                   `bson:"displayname,omitempty"`
+	ImportHash    *string                   `bson:"importhash,omitempty"`
+	ImportLabel   *string                   `bson:"importlabel,omitempty"`
+	Name          *string                   `bson:"name,omitempty"`
+	Namespace     *string                   `bson:"namespace,omitempty"`
+	Propagate     *bool                     `bson:"propagate,omitempty"`
+	PublishedDate *time.Time                `bson:"publisheddate,omitempty"`
+	PublisherName *string                   `bson:"publishername,omitempty"`
+	ServiceType   *AIPluginServiceTypeValue `bson:"servicetype,omitempty"`
+	Tags          *[]string                 `bson:"tags,omitempty"`
+	Type          *AIPluginTypeValue        `bson:"type,omitempty"`
+	UpdateTime    *time.Time                `bson:"updatetime,omitempty"`
+	Vetted        *bool                     `bson:"vetted,omitempty"`
+	WebExtension  *AIPluginWebExt           `bson:"webextension,omitempty"`
+	ZHash         *int                      `bson:"zhash,omitempty"`
+	Zone          *int                      `bson:"zone,omitempty"`
 }

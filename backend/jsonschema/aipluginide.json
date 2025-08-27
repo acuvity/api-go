@@ -1,0 +1,41 @@
+{
+  "$extends": [],
+  "$friendlyName": "IDE AI Plugin",
+  "$friendlyNamePlural": "IDE AI Plugins",
+  "$modelName": "AIPluginIDE",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aipluginide",
+  "$modelRestName": "aipluginide",
+  "additionalProperties": false,
+  "description": "Additional information on an AI-related IDE plugin.",
+  "properties": {
+    "pluginID": {
+      "$friendlyName": "Plugin ID",
+      "$required": true,
+      "description": "The identifier of the plugin.",
+      "title": "pluginID",
+      "type": "string"
+    },
+    "pluginUUID": {
+      "$friendlyName": "Plugin UUID",
+      "$required": true,
+      "description": "The universally unique identifier of the plugin.",
+      "title": "pluginUUID",
+      "type": "string"
+    },
+    "publisherID": {
+      "$friendlyName": "Publisher ID",
+      "$required": true,
+      "description": "The publisher identifier of the plugin.",
+      "title": "publisherID",
+      "type": "string"
+    }
+  },
+  "required": [
+    "pluginID",
+    "pluginUUID",
+    "publisherID"
+  ],
+  "title": "AIPluginIDE",
+  "type": "object"
+}

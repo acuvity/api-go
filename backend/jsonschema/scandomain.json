@@ -61,8 +61,13 @@
       "$friendlyName": "Risk Score",
       "$required": true,
       "description": "The Risk Score.",
-      "title": "riskScore",
-      "type": "number"
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "riskScore"
     },
     "users": {
       "$friendlyName": "Users",

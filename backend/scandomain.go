@@ -11,6 +11,23 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// ScanDomainRiskScoreValue represents the possible values for attribute "riskScore".
+type ScanDomainRiskScoreValue string
+
+const (
+	// ScanDomainRiskScoreCritical represents the value Critical.
+	ScanDomainRiskScoreCritical ScanDomainRiskScoreValue = "Critical"
+
+	// ScanDomainRiskScoreHigh represents the value High.
+	ScanDomainRiskScoreHigh ScanDomainRiskScoreValue = "High"
+
+	// ScanDomainRiskScoreLow represents the value Low.
+	ScanDomainRiskScoreLow ScanDomainRiskScoreValue = "Low"
+
+	// ScanDomainRiskScoreMedium represents the value Medium.
+	ScanDomainRiskScoreMedium ScanDomainRiskScoreValue = "Medium"
+)
+
 // ScanDomain represents the model of a scandomain
 type ScanDomain struct {
 	// Holds the results of the HTTP Scan.
@@ -35,7 +52,7 @@ type ScanDomain struct {
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The Risk Score.
-	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
+	RiskScore ScanDomainRiskScoreValue `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
 	// The user information.
 	Users []*ScanUser `json:"users" msgpack:"users" bson:"users" mapstructure:"users,omitempty"`
@@ -183,8 +200,12 @@ func (o *ScanDomain) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredFloat("riskScore", o.RiskScore); err != nil {
+	if err := elemental.ValidateRequiredString("riskScore", string(o.RiskScore)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("riskScore", string(o.RiskScore), []string{"Low", "Medium", "High", "Critical"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for _, sub := range o.Users {
@@ -334,7 +355,7 @@ var ScanDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"RiskScore": {
-		AllowedChoices: []string{},
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "riskscore",
 		ConvertedName:  "RiskScore",
 		Description:    `The Risk Score.`,
@@ -342,7 +363,7 @@ var ScanDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "riskScore",
 		Required:       true,
 		Stored:         true,
-		Type:           "float",
+		Type:           "enum",
 	},
 	"Users": {
 		AllowedChoices: []string{},
@@ -437,7 +458,7 @@ var ScanDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Type:           "string",
 	},
 	"riskscore": {
-		AllowedChoices: []string{},
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "riskscore",
 		ConvertedName:  "RiskScore",
 		Description:    `The Risk Score.`,
@@ -445,7 +466,7 @@ var ScanDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "riskScore",
 		Required:       true,
 		Stored:         true,
-		Type:           "float",
+		Type:           "enum",
 	},
 	"users": {
 		AllowedChoices: []string{},
@@ -468,6 +489,6 @@ type mongoAttributesScanDomain struct {
 	DomainID            string                         `bson:"domainid"`
 	DomainNamespace     string                         `bson:"domainnamespace"`
 	Name                string                         `bson:"name"`
-	RiskScore           float64                        `bson:"riskscore"`
+	RiskScore           ScanDomainRiskScoreValue       `bson:"riskscore"`
 	Users               []*ScanUser                    `bson:"users"`
 }

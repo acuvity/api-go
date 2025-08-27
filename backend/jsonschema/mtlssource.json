@@ -6,15 +6,22 @@
     "@timed",
     "@claimfilter"
   ],
-  "$friendlyName": "SAML Source",
-  "$friendlyNamePlural": "SAML Sources",
-  "$modelName": "SAMLSource",
+  "$friendlyName": "MTLSSource",
+  "$friendlyNamePlural": "MTLSSources",
+  "$modelName": "MTLSSource",
   "$modelPackage": "a3s",
-  "$modelResourceName": "samlsources",
-  "$modelRestName": "samlsource",
+  "$modelResourceName": "mtlssources",
+  "$modelRestName": "mtlssource",
   "additionalProperties": false,
-  "description": "Defines a remote SAML to use as an authentication source.",
+  "description": "An MTLS Auth source can be used to issue tokens based on user certificates.",
   "properties": {
+    "CA": {
+      "$friendlyName": "CA",
+      "$required": true,
+      "description": "The Certificate authority to use to validate user certificates in PEM format.",
+      "title": "CA",
+      "type": "string"
+    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,
@@ -25,55 +32,36 @@
         "null"
       ]
     },
-    "IDPCertificate": {
-      "$friendlyName": "IDP Certificate",
-      "description": "Identity Provider Certificate in PEM format.",
-      "title": "IDPCertificate",
+    "claimsRetrievalMode": {
+      "$defaultValue": "X509",
+      "$friendlyName": "Claims Retrieval Mode",
+      "description": "Defines if and how you want to enable auto login with client certificates.  For Entra, you will need to set clientTenantID, clientID and clientSecret.  You will also need an Entra application that has the following permissions:  - Directory.Read.All - User.Read  For now, only Entra is supported.",
+      "enum": [
+        "Entra",
+        "X509"
+      ],
+      "title": "claimsRetrievalMode"
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "description": "The oauth clientID if any. This may be required for autologin, depending on the mode.",
+      "title": "clientID",
       "type": [
         "string",
         "null"
       ]
     },
-    "IDPIssuer": {
-      "$friendlyName": "IDP Issuer",
-      "description": "Identity Provider Issuer (also called Entity ID).",
-      "title": "IDPIssuer",
-      "type": [
-        "string",
-        "null"
-      ]
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "$required": true,
+      "description": "Client secret associated with the client ID. This may be required for autologin, depending on the mode.",
+      "title": "clientSecret",
+      "type": "string"
     },
-    "IDPMetadata": {
-      "$friendlyName": "IDP Metadata",
-      "description": "Pass some XML data containing the IDP metadata that can be used for automatic configuration. If you pass this attribute, every other one will be overwritten with the data contained in the metadata file, but it does not take precendence over IDPMetadataURL.",
-      "title": "IDPMetadata",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "IDPMetadataURL": {
-      "$friendlyName": "IDP Metadata URL",
-      "description": "The URL where to fetch the IDPMetadata. If this is set, all other IDP fields are ignored and the metadata will be retrieved when needed for logging in.",
-      "title": "IDPMetadataURL",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "IDPURL": {
-      "$friendlyName": "IDP URL",
-      "description": "URL of the identity provider.",
-      "title": "IDPURL",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "audienceURI": {
-      "$friendlyName": "Audience URI",
-      "description": "The AudienceURI expected for the response. If not provided, Acuvity will send the issuer URL.",
-      "title": "audienceURI",
+    "clientTenantID": {
+      "$friendlyName": "Client Tenant ID",
+      "description": "ID of the tenant for the identity provider, if any. This may be required for autologin, depending on the mode.",
+      "title": "clientTenantID",
       "type": [
         "string",
         "null"
@@ -97,6 +85,19 @@
         "string",
         "null"
       ]
+    },
+    "fingerprints": {
+      "$friendlyName": "Fingerprints",
+      "$readOnly": true,
+      "description": "The fingerprint of the CAs in the chain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "fingerprints",
+      "type": "array"
     },
     "ignoredKeys": {
       "$friendlyName": "IgnoredKeys",
@@ -142,15 +143,6 @@
       "title": "includedKeys",
       "type": "array"
     },
-    "keysTranslationEnabled": {
-      "$friendlyName": "Keys Translation Enabled",
-      "description": "When true, translate some common keys to shorter versions. For instance, `htps://schemas.microsoft.com/ws/2008/06/identity/claims/name=x` would become `@ad:name=x`.",
-      "title": "keysTranslationEnabled",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
     "modifier": {
       "$friendlyName": "Modifier",
       "$ref": "identitymodifier.json",
@@ -174,23 +166,28 @@
         "null"
       ]
     },
-    "serviceProviderIssuer": {
-      "$friendlyName": "Service Provider Issuer",
-      "description": "The Service Provider Issuer which is represented by the client ID. If not provided, Acuvity will send the issuer URL.",
-      "title": "serviceProviderIssuer",
-      "type": [
-        "string",
-        "null"
-      ]
+    "principalUserX509Field": {
+      "$defaultValue": "Email",
+      "$friendlyName": "Principal User X.509 Field",
+      "description": "The X.509 field to look for to extract the user principal name.",
+      "enum": [
+        "CommonName",
+        "Email"
+      ],
+      "title": "principalUserX509Field"
     },
-    "skipResponseSignatureCheck": {
-      "$friendlyName": "Skip response validation check",
-      "description": "If true, the issue request won't check the ResponseSignatureValidated.",
-      "title": "skipResponseSignatureCheck",
-      "type": [
-        "boolean",
-        "null"
-      ]
+    "subjectKeyIDs": {
+      "$friendlyName": "SubjectKeyIDs",
+      "$readOnly": true,
+      "description": "Value of the CAs X.509 SubjectKeyIDs in the chain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "subjectKeyIDs",
+      "type": "array"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -204,8 +201,10 @@
     }
   },
   "required": [
+    "CA",
+    "clientSecret",
     "name"
   ],
-  "title": "SAMLSource",
+  "title": "MTLSSource",
   "type": "object"
 }

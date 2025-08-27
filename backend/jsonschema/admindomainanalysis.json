@@ -28,6 +28,15 @@
       "title": "domain",
       "type": "string"
     },
+    "enqueue": {
+      "$friendlyName": "enqueue",
+      "description": "Enqueue the domain for later analysis.",
+      "title": "enqueue",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,

@@ -25,6 +25,12 @@
         "null"
       ]
     },
+    "IDE": {
+      "$friendlyName": "Integrated Development Environment",
+      "$ref": "aipluginide.json",
+      "description": "Contains additional information on an AI-related IDE plugin.",
+      "title": "IDE"
+    },
     "categories": {
       "$friendlyName": "Categories",
       "description": "The categories associated with the plugin.",
@@ -100,20 +106,6 @@
         "null"
       ]
     },
-    "pluginID": {
-      "$friendlyName": "Plugin ID",
-      "$required": true,
-      "description": "The identifier of the plugin.",
-      "title": "pluginID",
-      "type": "string"
-    },
-    "pluginUUID": {
-      "$friendlyName": "Plugin UUID",
-      "$required": true,
-      "description": "The universally unique identifier of the plugin.",
-      "title": "pluginUUID",
-      "type": "string"
-    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -131,19 +123,23 @@
       "title": "publishedDate",
       "type": "string"
     },
-    "publisherID": {
-      "$friendlyName": "Publisher ID",
-      "$required": true,
-      "description": "The publisher identifier of the plugin.",
-      "title": "publisherID",
-      "type": "string"
-    },
     "publisherName": {
       "$friendlyName": "Publisher Name",
       "$required": true,
       "description": "The publisher name of the plugin.",
       "title": "publisherName",
       "type": "string"
+    },
+    "serviceType": {
+      "$defaultValue": "CodingAssistant",
+      "$friendlyName": "Service Type",
+      "description": "The type of service this plugin relates to.",
+      "enum": [
+        "CodingAssistant",
+        "IntegrationPlatform",
+        "Productivity"
+      ],
+      "title": "serviceType"
     },
     "tags": {
       "$friendlyName": "Tags",
@@ -156,6 +152,16 @@
       },
       "title": "tags",
       "type": "array"
+    },
+    "type": {
+      "$defaultValue": "IDE",
+      "$friendlyName": "Type",
+      "description": "The type of plugin.",
+      "enum": [
+        "IDE",
+        "WebExtension"
+      ],
+      "title": "type"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -175,15 +181,18 @@
         "boolean",
         "null"
       ]
+    },
+    "webExtension": {
+      "$friendlyName": "Web Extension",
+      "$ref": "aipluginwebext.json",
+      "description": "Contains additional information on an AI-related web extension.",
+      "title": "webExtension"
     }
   },
   "required": [
     "displayName",
     "name",
-    "pluginID",
-    "pluginUUID",
     "publishedDate",
-    "publisherID",
     "publisherName"
   ],
   "title": "AIPlugin",

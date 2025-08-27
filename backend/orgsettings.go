@@ -85,12 +85,6 @@ func (o OrgSettingsList) Version() int {
 
 // OrgSettings represents the model of a orgsettings
 type OrgSettings struct {
-	// The Certificate authority to use to validate user certificates in PEM format.
-	CA string `json:"CA" msgpack:"CA" bson:"ca" mapstructure:"CA,omitempty"`
-
-	// The currently used Certificate authorities's Common Name.
-	CACommonNames []string `json:"CACommonNames" msgpack:"CACommonNames" bson:"cacommonnames" mapstructure:"CACommonNames,omitempty"`
-
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -132,9 +126,6 @@ type OrgSettings struct {
 
 	// If true, it disables discovering of the visited URLs.
 	DisableURLDiscovery bool `json:"disableURLDiscovery" msgpack:"disableURLDiscovery" bson:"disableurldiscovery" mapstructure:"disableURLDiscovery,omitempty"`
-
-	// the fingerprint of the cas in the chain.
-	Fingerprints []string `json:"fingerprints" msgpack:"fingerprints" bson:"fingerprints" mapstructure:"fingerprints,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -178,9 +169,6 @@ type OrgSettings struct {
 	// If set, files sent to the users will be stored.
 	StoreOutputFiles bool `json:"storeOutputFiles" msgpack:"storeOutputFiles" bson:"storeoutputfiles" mapstructure:"storeOutputFiles,omitempty"`
 
-	// the IDs of the subject keys of the cas in the chain.
-	SubjectKeyIDs []string `json:"subjectKeyIDs" msgpack:"subjectKeyIDs" bson:"subjectkeyids" mapstructure:"subjectKeyIDs,omitempty"`
-
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -202,13 +190,10 @@ func NewOrgSettings() *OrgSettings {
 
 	return &OrgSettings{
 		ModelVersion:            1,
-		CACommonNames:           []string{},
-		Fingerprints:            []string{},
 		Propagate:               true,
 		ProviderWhitelist:       []string{},
 		ProvidersWithoutConsent: []string{},
 		ReportRecipientEmails:   []string{},
-		SubjectKeyIDs:           []string{},
 	}
 }
 
@@ -240,8 +225,6 @@ func (o *OrgSettings) GetBSON() (any, error) {
 
 	s := &mongoAttributesOrgSettings{}
 
-	s.CA = o.CA
-	s.CACommonNames = o.CACommonNames
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
@@ -252,7 +235,6 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.ContentPolicy = o.ContentPolicy
 	s.CreateTime = o.CreateTime
 	s.DisableURLDiscovery = o.DisableURLDiscovery
-	s.Fingerprints = o.Fingerprints
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Namespace = o.Namespace
@@ -265,7 +247,6 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.SafeUsageURL = o.SafeUsageURL
 	s.StoreInputFiles = o.StoreInputFiles
 	s.StoreOutputFiles = o.StoreOutputFiles
-	s.SubjectKeyIDs = o.SubjectKeyIDs
 	s.UpdateTime = o.UpdateTime
 	s.UseRegoCodeOnly = o.UseRegoCodeOnly
 	s.ZHash = o.ZHash
@@ -287,8 +268,6 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.CA = s.CA
-	o.CACommonNames = s.CACommonNames
 	o.ID = s.ID.Hex()
 	o.AccessPolicy = s.AccessPolicy
 	o.AllowSupportAccess = s.AllowSupportAccess
@@ -297,7 +276,6 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.ContentPolicy = s.ContentPolicy
 	o.CreateTime = s.CreateTime
 	o.DisableURLDiscovery = s.DisableURLDiscovery
-	o.Fingerprints = s.Fingerprints
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Namespace = s.Namespace
@@ -310,7 +288,6 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.SafeUsageURL = s.SafeUsageURL
 	o.StoreInputFiles = s.StoreInputFiles
 	o.StoreOutputFiles = s.StoreOutputFiles
-	o.SubjectKeyIDs = s.SubjectKeyIDs
 	o.UpdateTime = s.UpdateTime
 	o.UseRegoCodeOnly = s.UseRegoCodeOnly
 	o.ZHash = s.ZHash
@@ -427,8 +404,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseOrgSettings{
-			CA:                       &o.CA,
-			CACommonNames:            &o.CACommonNames,
 			ID:                       &o.ID,
 			AccessPolicy:             &o.AccessPolicy,
 			AllowSupportAccess:       &o.AllowSupportAccess,
@@ -437,7 +412,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ContentPolicy:            &o.ContentPolicy,
 			CreateTime:               &o.CreateTime,
 			DisableURLDiscovery:      &o.DisableURLDiscovery,
-			Fingerprints:             &o.Fingerprints,
 			ImportHash:               &o.ImportHash,
 			ImportLabel:              &o.ImportLabel,
 			Namespace:                &o.Namespace,
@@ -450,7 +424,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			SafeUsageURL:             &o.SafeUsageURL,
 			StoreInputFiles:          &o.StoreInputFiles,
 			StoreOutputFiles:         &o.StoreOutputFiles,
-			SubjectKeyIDs:            &o.SubjectKeyIDs,
 			UpdateTime:               &o.UpdateTime,
 			UseRegoCodeOnly:          &o.UseRegoCodeOnly,
 			ZHash:                    &o.ZHash,
@@ -461,10 +434,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseOrgSettings{}
 	for _, f := range fields {
 		switch f {
-		case "CA":
-			sp.CA = &(o.CA)
-		case "CACommonNames":
-			sp.CACommonNames = &(o.CACommonNames)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "accessPolicy":
@@ -481,8 +450,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "disableURLDiscovery":
 			sp.DisableURLDiscovery = &(o.DisableURLDiscovery)
-		case "fingerprints":
-			sp.Fingerprints = &(o.Fingerprints)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -507,8 +474,6 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.StoreInputFiles = &(o.StoreInputFiles)
 		case "storeOutputFiles":
 			sp.StoreOutputFiles = &(o.StoreOutputFiles)
-		case "subjectKeyIDs":
-			sp.SubjectKeyIDs = &(o.SubjectKeyIDs)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "useRegoCodeOnly":
@@ -530,12 +495,6 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseOrgSettings)
-	if so.CA != nil {
-		o.CA = *so.CA
-	}
-	if so.CACommonNames != nil {
-		o.CACommonNames = *so.CACommonNames
-	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -559,9 +518,6 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = *so.DisableURLDiscovery
-	}
-	if so.Fingerprints != nil {
-		o.Fingerprints = *so.Fingerprints
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -598,9 +554,6 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.StoreOutputFiles != nil {
 		o.StoreOutputFiles = *so.StoreOutputFiles
-	}
-	if so.SubjectKeyIDs != nil {
-		o.SubjectKeyIDs = *so.SubjectKeyIDs
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -645,10 +598,6 @@ func (o *OrgSettings) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
-
-	if err := ValidatePEM("CA", o.CA); err != nil {
-		errors = errors.Append(err)
-	}
 
 	if err := ValidateRego("accessPolicy", o.AccessPolicy); err != nil {
 		errors = errors.Append(err)
@@ -700,10 +649,6 @@ func (*OrgSettings) AttributeSpecifications() map[string]elemental.AttributeSpec
 func (o *OrgSettings) ValueForAttribute(name string) any {
 
 	switch name {
-	case "CA":
-		return o.CA
-	case "CACommonNames":
-		return o.CACommonNames
 	case "ID":
 		return o.ID
 	case "accessPolicy":
@@ -720,8 +665,6 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "disableURLDiscovery":
 		return o.DisableURLDiscovery
-	case "fingerprints":
-		return o.Fingerprints
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -746,8 +689,6 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.StoreInputFiles
 	case "storeOutputFiles":
 		return o.StoreOutputFiles
-	case "subjectKeyIDs":
-		return o.SubjectKeyIDs
 	case "updateTime":
 		return o.UpdateTime
 	case "useRegoCodeOnly":
@@ -763,30 +704,6 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 
 // OrgSettingsAttributesMap represents the map of attribute for OrgSettings.
 var OrgSettingsAttributesMap = map[string]elemental.AttributeSpecification{
-	"CA": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "ca",
-		ConvertedName:  "CA",
-		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
-		Exposed:        true,
-		Name:           "CA",
-		Stored:         true,
-		Type:           "string",
-	},
-	"CACommonNames": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "cacommonnames",
-		ConvertedName:  "CACommonNames",
-		Description:    `The currently used Certificate authorities's Common Name.`,
-		Exposed:        true,
-		Name:           "CACommonNames",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Transient:      true,
-		Type:           "list",
-	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -894,19 +811,6 @@ API objects are ignored and this becomes the final policy.`,
 		Name:           "disableURLDiscovery",
 		Stored:         true,
 		Type:           "boolean",
-	},
-	"Fingerprints": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "fingerprints",
-		ConvertedName:  "Fingerprints",
-		Description:    `the fingerprint of the cas in the chain.`,
-		Exposed:        true,
-		Name:           "fingerprints",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -1052,19 +956,6 @@ If provided, it is presented in the consent banner to the employees.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"SubjectKeyIDs": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "subjectkeyids",
-		ConvertedName:  "SubjectKeyIDs",
-		Description:    `the IDs of the subject keys of the cas in the chain.`,
-		Exposed:        true,
-		Name:           "subjectKeyIDs",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1095,30 +986,6 @@ content policies.`,
 
 // OrgSettingsLowerCaseAttributesMap represents the map of attribute for OrgSettings.
 var OrgSettingsLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"ca": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "ca",
-		ConvertedName:  "CA",
-		Description:    `The Certificate authority to use to validate user certificates in PEM format.`,
-		Exposed:        true,
-		Name:           "CA",
-		Stored:         true,
-		Type:           "string",
-	},
-	"cacommonnames": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "cacommonnames",
-		ConvertedName:  "CACommonNames",
-		Description:    `The currently used Certificate authorities's Common Name.`,
-		Exposed:        true,
-		Name:           "CACommonNames",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Transient:      true,
-		Type:           "list",
-	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1226,19 +1093,6 @@ API objects are ignored and this becomes the final policy.`,
 		Name:           "disableURLDiscovery",
 		Stored:         true,
 		Type:           "boolean",
-	},
-	"fingerprints": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "fingerprints",
-		ConvertedName:  "Fingerprints",
-		Description:    `the fingerprint of the cas in the chain.`,
-		Exposed:        true,
-		Name:           "fingerprints",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -1384,19 +1238,6 @@ If provided, it is presented in the consent banner to the employees.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"subjectkeyids": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "subjectkeyids",
-		ConvertedName:  "SubjectKeyIDs",
-		Description:    `the IDs of the subject keys of the cas in the chain.`,
-		Exposed:        true,
-		Name:           "subjectKeyIDs",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1488,12 +1329,6 @@ func (o SparseOrgSettingsList) Version() int {
 
 // SparseOrgSettings represents the sparse version of a orgsettings.
 type SparseOrgSettings struct {
-	// The Certificate authority to use to validate user certificates in PEM format.
-	CA *string `json:"CA,omitempty" msgpack:"CA,omitempty" bson:"ca,omitempty" mapstructure:"CA,omitempty"`
-
-	// The currently used Certificate authorities's Common Name.
-	CACommonNames *[]string `json:"CACommonNames,omitempty" msgpack:"CACommonNames,omitempty" bson:"cacommonnames,omitempty" mapstructure:"CACommonNames,omitempty"`
-
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1536,9 +1371,6 @@ type SparseOrgSettings struct {
 	// If true, it disables discovering of the visited URLs.
 	DisableURLDiscovery *bool `json:"disableURLDiscovery,omitempty" msgpack:"disableURLDiscovery,omitempty" bson:"disableurldiscovery,omitempty" mapstructure:"disableURLDiscovery,omitempty"`
 
-	// the fingerprint of the cas in the chain.
-	Fingerprints *[]string `json:"fingerprints,omitempty" msgpack:"fingerprints,omitempty" bson:"fingerprints,omitempty" mapstructure:"fingerprints,omitempty"`
-
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -1580,9 +1412,6 @@ type SparseOrgSettings struct {
 
 	// If set, files sent to the users will be stored.
 	StoreOutputFiles *bool `json:"storeOutputFiles,omitempty" msgpack:"storeOutputFiles,omitempty" bson:"storeoutputfiles,omitempty" mapstructure:"storeOutputFiles,omitempty"`
-
-	// the IDs of the subject keys of the cas in the chain.
-	SubjectKeyIDs *[]string `json:"subjectKeyIDs,omitempty" msgpack:"subjectKeyIDs,omitempty" bson:"subjectkeyids,omitempty" mapstructure:"subjectKeyIDs,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1640,12 +1469,6 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseOrgSettings{}
 
-	if o.CA != nil {
-		s.CA = o.CA
-	}
-	if o.CACommonNames != nil {
-		s.CACommonNames = o.CACommonNames
-	}
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
@@ -1669,9 +1492,6 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	}
 	if o.DisableURLDiscovery != nil {
 		s.DisableURLDiscovery = o.DisableURLDiscovery
-	}
-	if o.Fingerprints != nil {
-		s.Fingerprints = o.Fingerprints
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -1709,9 +1529,6 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.StoreOutputFiles != nil {
 		s.StoreOutputFiles = o.StoreOutputFiles
 	}
-	if o.SubjectKeyIDs != nil {
-		s.SubjectKeyIDs = o.SubjectKeyIDs
-	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1741,12 +1558,6 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	if s.CA != nil {
-		o.CA = s.CA
-	}
-	if s.CACommonNames != nil {
-		o.CACommonNames = s.CACommonNames
-	}
 	id := s.ID.Hex()
 	o.ID = &id
 	if s.AccessPolicy != nil {
@@ -1769,9 +1580,6 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	}
 	if s.DisableURLDiscovery != nil {
 		o.DisableURLDiscovery = s.DisableURLDiscovery
-	}
-	if s.Fingerprints != nil {
-		o.Fingerprints = s.Fingerprints
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1809,9 +1617,6 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.StoreOutputFiles != nil {
 		o.StoreOutputFiles = s.StoreOutputFiles
 	}
-	if s.SubjectKeyIDs != nil {
-		o.SubjectKeyIDs = s.SubjectKeyIDs
-	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1838,12 +1643,6 @@ func (o *SparseOrgSettings) Version() int {
 func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewOrgSettings()
-	if o.CA != nil {
-		out.CA = *o.CA
-	}
-	if o.CACommonNames != nil {
-		out.CACommonNames = *o.CACommonNames
-	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1867,9 +1666,6 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DisableURLDiscovery != nil {
 		out.DisableURLDiscovery = *o.DisableURLDiscovery
-	}
-	if o.Fingerprints != nil {
-		out.Fingerprints = *o.Fingerprints
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1906,9 +1702,6 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.StoreOutputFiles != nil {
 		out.StoreOutputFiles = *o.StoreOutputFiles
-	}
-	if o.SubjectKeyIDs != nil {
-		out.SubjectKeyIDs = *o.SubjectKeyIDs
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -2047,8 +1840,6 @@ func (o *SparseOrgSettings) DeepCopyInto(out *SparseOrgSettings) {
 }
 
 type mongoAttributesOrgSettings struct {
-	CA                       string        `bson:"ca"`
-	CACommonNames            []string      `bson:"cacommonnames"`
 	ID                       bson.ObjectId `bson:"_id,omitempty"`
 	AccessPolicy             string        `bson:"accesspolicy"`
 	AllowSupportAccess       bool          `bson:"allowsupportaccess"`
@@ -2057,7 +1848,6 @@ type mongoAttributesOrgSettings struct {
 	ContentPolicy            string        `bson:"contentpolicy"`
 	CreateTime               time.Time     `bson:"createtime"`
 	DisableURLDiscovery      bool          `bson:"disableurldiscovery"`
-	Fingerprints             []string      `bson:"fingerprints"`
 	ImportHash               string        `bson:"importhash,omitempty"`
 	ImportLabel              string        `bson:"importlabel,omitempty"`
 	Namespace                string        `bson:"namespace,omitempty"`
@@ -2070,15 +1860,12 @@ type mongoAttributesOrgSettings struct {
 	SafeUsageURL             string        `bson:"safeusageurl"`
 	StoreInputFiles          bool          `bson:"storeinputfiles"`
 	StoreOutputFiles         bool          `bson:"storeoutputfiles"`
-	SubjectKeyIDs            []string      `bson:"subjectkeyids"`
 	UpdateTime               time.Time     `bson:"updatetime"`
 	UseRegoCodeOnly          bool          `bson:"useregocodeonly"`
 	ZHash                    int           `bson:"zhash"`
 	Zone                     int           `bson:"zone"`
 }
 type mongoAttributesSparseOrgSettings struct {
-	CA                       *string       `bson:"ca,omitempty"`
-	CACommonNames            *[]string     `bson:"cacommonnames,omitempty"`
 	ID                       bson.ObjectId `bson:"_id,omitempty"`
 	AccessPolicy             *string       `bson:"accesspolicy,omitempty"`
 	AllowSupportAccess       *bool         `bson:"allowsupportaccess,omitempty"`
@@ -2087,7 +1874,6 @@ type mongoAttributesSparseOrgSettings struct {
 	ContentPolicy            *string       `bson:"contentpolicy,omitempty"`
 	CreateTime               *time.Time    `bson:"createtime,omitempty"`
 	DisableURLDiscovery      *bool         `bson:"disableurldiscovery,omitempty"`
-	Fingerprints             *[]string     `bson:"fingerprints,omitempty"`
 	ImportHash               *string       `bson:"importhash,omitempty"`
 	ImportLabel              *string       `bson:"importlabel,omitempty"`
 	Namespace                *string       `bson:"namespace,omitempty"`
@@ -2100,7 +1886,6 @@ type mongoAttributesSparseOrgSettings struct {
 	SafeUsageURL             *string       `bson:"safeusageurl,omitempty"`
 	StoreInputFiles          *bool         `bson:"storeinputfiles,omitempty"`
 	StoreOutputFiles         *bool         `bson:"storeoutputfiles,omitempty"`
-	SubjectKeyIDs            *[]string     `bson:"subjectkeyids,omitempty"`
 	UpdateTime               *time.Time    `bson:"updatetime,omitempty"`
 	UseRegoCodeOnly          *bool         `bson:"useregocodeonly,omitempty"`
 	ZHash                    *int          `bson:"zhash,omitempty"`

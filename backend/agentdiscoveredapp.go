@@ -11,13 +11,33 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AgentDiscoveredAppTypeValue represents the possible values for attribute "type".
+type AgentDiscoveredAppTypeValue string
+
+const (
+	// AgentDiscoveredAppTypeBrowser represents the value Browser.
+	AgentDiscoveredAppTypeBrowser AgentDiscoveredAppTypeValue = "Browser"
+
+	// AgentDiscoveredAppTypeIDE represents the value IDE.
+	AgentDiscoveredAppTypeIDE AgentDiscoveredAppTypeValue = "IDE"
+
+	// AgentDiscoveredAppTypeNative represents the value Native.
+	AgentDiscoveredAppTypeNative AgentDiscoveredAppTypeValue = "Native"
+)
+
 // AgentDiscoveredApp represents the model of a agentdiscoveredapp
 type AgentDiscoveredApp struct {
+	// The list of configured MCP servers for the application.
+	MCPServers []*AgentDiscoveredMCP `json:"MCPServers,omitempty" msgpack:"MCPServers,omitempty" bson:"-" mapstructure:"MCPServers,omitempty"`
+
 	// The name of the application.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The list of installed genAI plugins/extensions for the application.
 	Plugins []string `json:"plugins,omitempty" msgpack:"plugins,omitempty" bson:"-" mapstructure:"plugins,omitempty"`
+
+	// The type of application.
+	Type AgentDiscoveredAppTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -28,6 +48,7 @@ func NewAgentDiscoveredApp() *AgentDiscoveredApp {
 	return &AgentDiscoveredApp{
 		ModelVersion: 1,
 		Plugins:      []string{},
+		Type:         AgentDiscoveredAppTypeIDE,
 	}
 }
 
@@ -42,6 +63,7 @@ func (o *AgentDiscoveredApp) GetBSON() (any, error) {
 	s := &mongoAttributesAgentDiscoveredApp{}
 
 	s.Name = o.Name
+	s.Type = o.Type
 
 	return s, nil
 }
@@ -60,6 +82,7 @@ func (o *AgentDiscoveredApp) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Name = s.Name
+	o.Type = s.Type
 
 	return nil
 }
@@ -100,6 +123,10 @@ func (o *AgentDiscoveredApp) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"IDE", "Browser", "Native"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -134,10 +161,14 @@ func (*AgentDiscoveredApp) AttributeSpecifications() map[string]elemental.Attrib
 func (o *AgentDiscoveredApp) ValueForAttribute(name string) any {
 
 	switch name {
+	case "MCPServers":
+		return o.MCPServers
 	case "name":
 		return o.Name
 	case "plugins":
 		return o.Plugins
+	case "type":
+		return o.Type
 	}
 
 	return nil
@@ -145,6 +176,16 @@ func (o *AgentDiscoveredApp) ValueForAttribute(name string) any {
 
 // AgentDiscoveredAppAttributesMap represents the map of attribute for AgentDiscoveredApp.
 var AgentDiscoveredAppAttributesMap = map[string]elemental.AttributeSpecification{
+	"MCPServers": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MCPServers",
+		Description:    `The list of configured MCP servers for the application.`,
+		Exposed:        true,
+		Name:           "MCPServers",
+		SubType:        "agentdiscoveredmcp",
+		Transient:      true,
+		Type:           "refList",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -167,10 +208,31 @@ var AgentDiscoveredAppAttributesMap = map[string]elemental.AttributeSpecificatio
 		Transient:      true,
 		Type:           "list",
 	},
+	"Type": {
+		AllowedChoices: []string{"IDE", "Browser", "Native"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AgentDiscoveredAppTypeIDE,
+		Description:    `The type of application.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
+	},
 }
 
 // AgentDiscoveredAppLowerCaseAttributesMap represents the map of attribute for AgentDiscoveredApp.
 var AgentDiscoveredAppLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"mcpservers": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MCPServers",
+		Description:    `The list of configured MCP servers for the application.`,
+		Exposed:        true,
+		Name:           "MCPServers",
+		SubType:        "agentdiscoveredmcp",
+		Transient:      true,
+		Type:           "refList",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -193,8 +255,20 @@ var AgentDiscoveredAppLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		Transient:      true,
 		Type:           "list",
 	},
+	"type": {
+		AllowedChoices: []string{"IDE", "Browser", "Native"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AgentDiscoveredAppTypeIDE,
+		Description:    `The type of application.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
+	},
 }
 
 type mongoAttributesAgentDiscoveredApp struct {
-	Name string `bson:"name,omitempty"`
+	Name string                      `bson:"name,omitempty"`
+	Type AgentDiscoveredAppTypeValue `bson:"type"`
 }

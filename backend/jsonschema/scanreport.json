@@ -42,14 +42,14 @@
       "title": "domains",
       "type": "array"
     },
-    "location": {
-      "$friendlyName": "Location",
-      "description": "The location of the scan.",
-      "title": "location",
-      "type": [
-        "string",
-        "null"
-      ]
+    "metadata": {
+      "$friendlyName": "Metadata",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Additional metadata for the scanreport.",
+      "title": "metadata",
+      "type": "object"
     },
     "namespace": {
       "$friendlyName": "Namespace",

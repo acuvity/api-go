@@ -1337,6 +1337,27 @@ func ValidateCron(attribute string, expr string) error {
 	return nil
 }
 
+// ValidateAIPlugin validates the AIPlugin object.
+func ValidateAIPlugin(plugin *AIPlugin) error {
+
+	switch plugin.Type {
+	case AIPluginTypeIDE:
+		if plugin.IDE == nil {
+			return makeErr("IDE", "'IDE' must have its configuration defined.")
+		}
+	case AIPluginTypeWebExtension:
+		if plugin.WebExtension == nil {
+			return makeErr("webExtension", "'WebExtension' must have its configuration defined.")
+		}
+
+		if plugin.WebExtension.ChromeID == "" && plugin.WebExtension.EdgeID == "" && plugin.WebExtension.FirefoxID == "" {
+			return makeErr("webExtension", "'WebExtension' must have at least one ID defined.")
+		}
+	}
+
+	return nil
+}
+
 func makeErr(attribute string, message string) elemental.Error {
 
 	err := elemental.NewError(

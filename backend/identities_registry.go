@@ -17,7 +17,8 @@ var (
 
 		"aidomain": AIDomainIdentity,
 
-		"aiplugin":        AIPluginIdentity,
+		"aiplugin": AIPluginIdentity,
+
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
 
@@ -121,7 +122,8 @@ var (
 
 		"aidomains": AIDomainIdentity,
 
-		"aiplugins":        AIPluginIdentity,
+		"aiplugins": AIPluginIdentity,
+
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
 
@@ -251,7 +253,6 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
-			{"namespace", "pluginID"},
 			{"namespace", "vetted"},
 		},
 		"alert": {
@@ -1144,6 +1145,8 @@ func (f modelManager) DetachedFromString(name string) any {
 
 	case "agentdiscoveredapp", "AgentDiscoveredApp":
 		return NewAgentDiscoveredApp()
+	case "agentdiscoveredmcp", "AgentDiscoveredMCP":
+		return NewAgentDiscoveredMCP()
 	case "aidcitation", "AIDCitation":
 		return NewAIDCitation()
 	case "aidrisk", "AIDRisk":
@@ -1162,6 +1165,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAIDSectionPlan()
 	case "aidsummary", "AIDSummary":
 		return NewAIDSummary()
+	case "aipluginide", "AIPluginIDE":
+		return NewAIPluginIDE()
+	case "aipluginwebext", "AIPluginWebExt":
+		return NewAIPluginWebExt()
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
 	case "analysis", "Analysis":

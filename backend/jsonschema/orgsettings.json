@@ -15,28 +15,6 @@
   "additionalProperties": false,
   "description": "Manage the default settings for the entire organization.",
   "properties": {
-    "CA": {
-      "$friendlyName": "CA",
-      "description": "The Certificate authority to use to validate user certificates in PEM format.",
-      "title": "CA",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "CACommonNames": {
-      "$friendlyName": "CA Common Names",
-      "$readOnly": true,
-      "description": "The currently used Certificate authorities's Common Name.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "CACommonNames",
-      "type": "array"
-    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,
@@ -110,19 +88,6 @@
         "boolean",
         "null"
       ]
-    },
-    "fingerprints": {
-      "$friendlyName": "Fingerprints",
-      "$readOnly": true,
-      "description": "the fingerprint of the cas in the chain.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "fingerprints",
-      "type": "array"
     },
     "importHash": {
       "$creationOnly": true,
@@ -244,19 +209,6 @@
         "boolean",
         "null"
       ]
-    },
-    "subjectKeyIDs": {
-      "$friendlyName": "Subject Key IDs",
-      "$readOnly": true,
-      "description": "the IDs of the subject keys of the cas in the chain.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "subjectKeyIDs",
-      "type": "array"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",

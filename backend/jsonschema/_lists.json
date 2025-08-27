@@ -36,6 +36,12 @@
       },
       "type": "array"
     },
+    "agentdiscoveredmcps": {
+      "items": {
+        "$ref": "agentdiscoveredmcp.json"
+      },
+      "type": "array"
+    },
     "agentdiscoveries": {
       "items": {
         "$ref": "agentdiscovery.json"
@@ -114,9 +120,21 @@
       },
       "type": "array"
     },
+    "aipluginide": {
+      "items": {
+        "$ref": "aipluginide.json"
+      },
+      "type": "array"
+    },
     "aiplugins": {
       "items": {
         "$ref": "aiplugin.json"
+      },
+      "type": "array"
+    },
+    "aipluginwebext": {
+      "items": {
+        "$ref": "aipluginwebext.json"
       },
       "type": "array"
     },
@@ -807,6 +825,12 @@
     "oauth2source": {
       "items": {
         "$ref": "oauth2source.json"
+      },
+      "type": "array"
+    },
+    "mtlssource": {
+      "items": {
+        "$ref": "mtlssource.json"
       },
       "type": "array"
     },

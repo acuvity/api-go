@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "Agent Discovered MCP Server",
+  "$friendlyNamePlural": "Agent Discovered MCP Servers",
+  "$modelName": "AgentDiscoveredMCP",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "agentdiscoveredmcps",
+  "$modelRestName": "agentdiscoveredmcp",
+  "additionalProperties": false,
+  "description": "Represents an MCP server that the agent discovered.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the MCP server.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$defaultValue": "Local",
+      "$friendlyName": "Type",
+      "description": "The type of MCP server.",
+      "enum": [
+        "Local",
+        "Container",
+        "Remote"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "AgentDiscoveredMCP",
+  "type": "object"
+}

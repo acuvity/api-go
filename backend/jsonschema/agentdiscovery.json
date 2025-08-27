@@ -23,6 +23,15 @@
         "null"
       ]
     },
+    "OS": {
+      "$friendlyName": "Operating System",
+      "description": "The operating system the application is running on.",
+      "title": "OS",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "hostname": {
       "$friendlyName": "Hostname",
       "description": "The hostname where the discovery took place.",

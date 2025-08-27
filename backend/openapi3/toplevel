@@ -110,6 +110,10 @@
             "example": "chatgpt.com",
             "type": "string"
           },
+          "enqueue": {
+            "description": "Enqueue the domain for later analysis.",
+            "type": "boolean"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -515,6 +519,13 @@
       "agentdiscoveredapp": {
         "description": "Represents an application that the agent discovered.",
         "properties": {
+          "MCPServers": {
+            "description": "The list of configured MCP servers for the application.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscoveredmcp"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the application.",
             "type": "string"
@@ -526,6 +537,34 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "type": {
+            "default": "IDE",
+            "description": "The type of application.",
+            "enum": [
+              "IDE",
+              "Browser",
+              "Native"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "agentdiscoveredmcp": {
+        "description": "Represents an MCP server that the agent discovered.",
+        "properties": {
+          "name": {
+            "description": "The name of the MCP server.",
+            "type": "string"
+          },
+          "type": {
+            "default": "Local",
+            "description": "The type of MCP server.",
+            "enum": [
+              "Local",
+              "Container",
+              "Remote"
+            ]
           }
         },
         "type": "object"
@@ -536,6 +575,10 @@
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
+            "type": "string"
+          },
+          "OS": {
+            "description": "The operating system the application is running on.",
             "type": "string"
           },
           "hostname": {
@@ -639,6 +682,17 @@
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "serviceType": {
+            "default": "Conversational",
+            "description": "The type of service this application relates to.",
+            "enum": [
+              "Conversational",
+              "CodingAssistant",
+              "Creative",
+              "OfflineClient",
+              "Productivity"
+            ]
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -1147,6 +1201,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "IDE": {
+            "$ref": "#/components/schemas/aipluginide"
+          },
           "categories": {
             "description": "The categories associated with the plugin.",
             "example": [
@@ -1192,16 +1249,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "pluginID": {
-            "description": "The identifier of the plugin.",
-            "example": "acme.my-simple-plugin",
-            "type": "string"
-          },
-          "pluginUUID": {
-            "description": "The universally unique identifier of the plugin.",
-            "example": "8da828be-d9f0-4609-8367-925552169063",
-            "type": "string"
-          },
           "propagate": {
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
@@ -1213,15 +1260,19 @@
             "format": "date-time",
             "type": "string"
           },
-          "publisherID": {
-            "description": "The publisher identifier of the plugin.",
-            "example": "8da828be-d9f0-4609-8367-925552169063",
-            "type": "string"
-          },
           "publisherName": {
             "description": "The publisher name of the plugin.",
             "example": "ACME",
             "type": "string"
+          },
+          "serviceType": {
+            "default": "CodingAssistant",
+            "description": "The type of service this plugin relates to.",
+            "enum": [
+              "CodingAssistant",
+              "IntegrationPlatform",
+              "Productivity"
+            ]
           },
           "tags": {
             "description": "The tags associated with the plugin.",
@@ -1235,6 +1286,14 @@
             },
             "type": "array"
           },
+          "type": {
+            "default": "IDE",
+            "description": "The type of plugin.",
+            "enum": [
+              "IDE",
+              "WebExtension"
+            ]
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -1244,17 +1303,64 @@
           "vetted": {
             "description": "Flag to say if the plugin has been vetted by Acuvity or not.",
             "type": "boolean"
+          },
+          "webExtension": {
+            "$ref": "#/components/schemas/aipluginwebext"
           }
         },
         "required": [
           "displayName",
           "name",
-          "pluginID",
-          "pluginUUID",
           "publishedDate",
-          "publisherID",
           "publisherName"
         ],
+        "type": "object"
+      },
+      "aipluginide": {
+        "description": "Additional information on an AI-related IDE plugin.",
+        "properties": {
+          "pluginID": {
+            "description": "The identifier of the plugin.",
+            "example": "acme.my-simple-plugin",
+            "type": "string"
+          },
+          "pluginUUID": {
+            "description": "The universally unique identifier of the plugin.",
+            "example": "8da828be-d9f0-4609-8367-925552169063",
+            "type": "string"
+          },
+          "publisherID": {
+            "description": "The publisher identifier of the plugin.",
+            "example": "8da828be-d9f0-4609-8367-925552169063",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pluginID",
+          "pluginUUID",
+          "publisherID"
+        ],
+        "type": "object"
+      },
+      "aipluginwebext": {
+        "description": "Additional information on an AI-related web extension.",
+        "properties": {
+          "chromeID": {
+            "description": "The chrome identifier for the web extension.",
+            "example": "kbfnbcaeplbcioakkpcpgfkobkghlhen",
+            "type": "string"
+          },
+          "edgeID": {
+            "description": "The edge identifier for the web extension.",
+            "example": "cnlefmmeadmemmdciolhbnfeacpdfbkd",
+            "type": "string"
+          },
+          "firefoxID": {
+            "description": "The firefox identifier for the web extension.",
+            "example": "87677a2c52b84ad3a151a4a72f5bd3c4@jetpack",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "alert": {
@@ -4032,19 +4138,6 @@
       "orgsettings": {
         "description": "Manage the default settings for the entire organization.",
         "properties": {
-          "CA": {
-            "description": "The Certificate authority to use to validate user certificates in PEM format.",
-            "example": "-----BEGIN CERTIFICATE-----\nMIIBZTCCAQugAwIBAgIRANYvXLTa16Ykvc9hQ4BBLJEwCgYIKoZIzj0EAwIwEjEQ\nMA4GA1UEAxMHQUNNRSBDQTAeFw0yMTExMDEyMzAwMTlaFw0zMTA5MTAyMzAwMTla\nMBIxEDAOBgNVBAMTB0FDTUUgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASa\n7wknroxwB1znupZ67NzTG9Kuc+tNRlbI22eTDNMKYpIexzWDOyiQ95N3GQIdmAz5\nwVu9l2V3VuKUpD9mNgkRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw\nAwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID\nSAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS\nbOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==\n-----END CERTIFICATE-----",
-            "type": "string"
-          },
-          "CACommonNames": {
-            "description": "The currently used Certificate authorities's Common Name.",
-            "items": {
-              "type": "string"
-            },
-            "readOnly": true,
-            "type": "array"
-          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -4079,14 +4172,6 @@
           "disableURLDiscovery": {
             "description": "If true, it disables discovering of the visited URLs.",
             "type": "boolean"
-          },
-          "fingerprints": {
-            "description": "the fingerprint of the cas in the chain.",
-            "items": {
-              "type": "string"
-            },
-            "readOnly": true,
-            "type": "array"
           },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
@@ -4151,14 +4236,6 @@
           "storeOutputFiles": {
             "description": "If set, files sent to the users will be stored.",
             "type": "boolean"
-          },
-          "subjectKeyIDs": {
-            "description": "the IDs of the subject keys of the cas in the chain.",
-            "items": {
-              "type": "string"
-            },
-            "readOnly": true,
-            "type": "array"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -5550,8 +5627,13 @@
           },
           "riskScore": {
             "description": "The Risk Score.",
-            "example": 3.2,
-            "type": "number"
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
           },
           "users": {
             "description": "The user information.",
@@ -5590,9 +5672,12 @@
             },
             "type": "array"
           },
-          "location": {
-            "description": "The location of the scan.",
-            "type": "string"
+          "metadata": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Additional metadata for the scanreport.",
+            "type": "object"
           },
           "namespace": {
             "description": "The namespace of the object.",

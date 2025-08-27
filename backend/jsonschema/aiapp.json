@@ -110,6 +110,19 @@
         "null"
       ]
     },
+    "serviceType": {
+      "$defaultValue": "Conversational",
+      "$friendlyName": "Service Type",
+      "description": "The type of service this application relates to.",
+      "enum": [
+        "Conversational",
+        "CodingAssistant",
+        "Creative",
+        "OfflineClient",
+        "Productivity"
+      ],
+      "title": "serviceType"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,

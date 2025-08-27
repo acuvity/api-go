@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Web Extension",
+  "$friendlyNamePlural": "AI Web Extensions",
+  "$modelName": "AIPluginWebExt",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aipluginwebext",
+  "$modelRestName": "aipluginwebext",
+  "additionalProperties": false,
+  "description": "Additional information on an AI-related web extension.",
+  "properties": {
+    "chromeID": {
+      "$friendlyName": "Chrome ID",
+      "description": "The chrome identifier for the web extension.",
+      "title": "chromeID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "edgeID": {
+      "$friendlyName": "Edge ID",
+      "description": "The edge identifier for the web extension.",
+      "title": "edgeID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "firefoxID": {
+      "$friendlyName": "Firefox ID",
+      "description": "The firefox identifier for the web extension.",
+      "title": "firefoxID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AIPluginWebExt",
+  "type": "object"
+}

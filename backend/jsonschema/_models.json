@@ -21,6 +21,9 @@
     "agentdiscoveredapp": {
       "$ref": "agentdiscoveredapp.json"
     },
+    "agentdiscoveredmcp": {
+      "$ref": "agentdiscoveredmcp.json"
+    },
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
     },
@@ -59,6 +62,12 @@
     },
     "aiplugin": {
       "$ref": "aiplugin.json"
+    },
+    "aipluginide": {
+      "$ref": "aipluginide.json"
+    },
+    "aipluginwebext": {
+      "$ref": "aipluginwebext.json"
     },
     "alert": {
       "$ref": "alert.json"
@@ -404,6 +413,9 @@
     },
     "oauth2source": {
       "$ref": "oauth2source.json"
+    },
+    "mtlssource": {
+      "$ref": "mtlssource.json"
     },
     "permissions": {
       "$ref": "permissions.json"

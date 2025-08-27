@@ -87,6 +87,9 @@ type AgentDiscovery struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The operating system the application is running on.
+	OS string `json:"OS,omitempty" msgpack:"OS,omitempty" bson:"-" mapstructure:"OS,omitempty"`
+
 	// The hostname where the discovery took place.
 	Hostname string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"-" mapstructure:"hostname,omitempty"`
 
@@ -260,6 +263,7 @@ func (o *AgentDiscovery) ToSparse(fields ...string) elemental.SparseIdentifiable
 		// nolint: goimports
 		return &SparseAgentDiscovery{
 			ID:               &o.ID,
+			OS:               &o.OS,
 			Hostname:         &o.Hostname,
 			ImportHash:       &o.ImportHash,
 			ImportLabel:      &o.ImportLabel,
@@ -276,6 +280,8 @@ func (o *AgentDiscovery) ToSparse(fields ...string) elemental.SparseIdentifiable
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "OS":
+			sp.OS = &(o.OS)
 		case "hostname":
 			sp.Hostname = &(o.Hostname)
 		case "importHash":
@@ -307,6 +313,9 @@ func (o *AgentDiscovery) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAgentDiscovery)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.OS != nil {
+		o.OS = *so.OS
 	}
 	if so.Hostname != nil {
 		o.Hostname = *so.Hostname
@@ -417,6 +426,8 @@ func (o *AgentDiscovery) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "OS":
+		return o.OS
 	case "hostname":
 		return o.Hostname
 	case "importHash":
@@ -453,6 +464,14 @@ var AgentDiscoveryAttributesMap = map[string]elemental.AttributeSpecification{
 		Orderable:      true,
 		ReadOnly:       true,
 		Stored:         true,
+		Type:           "string",
+	},
+	"OS": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OS",
+		Description:    `The operating system the application is running on.`,
+		Exposed:        true,
+		Name:           "OS",
 		Type:           "string",
 	},
 	"Hostname": {
@@ -561,6 +580,14 @@ var AgentDiscoveryLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Orderable:      true,
 		ReadOnly:       true,
 		Stored:         true,
+		Type:           "string",
+	},
+	"os": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OS",
+		Description:    `The operating system the application is running on.`,
+		Exposed:        true,
+		Name:           "OS",
 		Type:           "string",
 	},
 	"hostname": {
@@ -720,6 +747,9 @@ type SparseAgentDiscovery struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The operating system the application is running on.
+	OS *string `json:"OS,omitempty" msgpack:"OS,omitempty" bson:"-" mapstructure:"OS,omitempty"`
+
 	// The hostname where the discovery took place.
 	Hostname *string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"-" mapstructure:"hostname,omitempty"`
 
@@ -850,6 +880,9 @@ func (o *SparseAgentDiscovery) ToPlain() elemental.PlainIdentifiable {
 	out := NewAgentDiscovery()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.OS != nil {
+		out.OS = *o.OS
 	}
 	if o.Hostname != nil {
 		out.Hostname = *o.Hostname

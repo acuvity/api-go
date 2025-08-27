@@ -9,6 +9,15 @@
   "additionalProperties": false,
   "description": "Represents an application that the agent discovered.",
   "properties": {
+    "MCPServers": {
+      "$friendlyName": "MCP Servers",
+      "description": "The list of configured MCP servers for the application.",
+      "items": {
+        "$ref": "agentdiscoveredmcp.json"
+      },
+      "title": "MCPServers",
+      "type": "array"
+    },
     "name": {
       "$friendlyName": "Name",
       "description": "The name of the application.",
@@ -30,6 +39,17 @@
       },
       "title": "plugins",
       "type": "array"
+    },
+    "type": {
+      "$defaultValue": "IDE",
+      "$friendlyName": "Type",
+      "description": "The type of application.",
+      "enum": [
+        "IDE",
+        "Browser",
+        "Native"
+      ],
+      "title": "type"
     }
   },
   "required": [],
