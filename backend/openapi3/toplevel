@@ -538,6 +538,10 @@
             "readOnly": true,
             "type": "string"
           },
+          "OS": {
+            "description": "The operating system the application is running on.",
+            "type": "string"
+          },
           "hostname": {
             "description": "The hostname where the discovery took place.",
             "type": "string"
@@ -639,6 +643,17 @@
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "type": {
+            "default": "Conversational",
+            "description": "The type of application.",
+            "enum": [
+              "Conversational",
+              "CodingAssistant",
+              "Creative",
+              "OfflineClient",
+              "Productivity"
+            ]
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -1158,6 +1173,15 @@
             },
             "type": "array"
           },
+          "connectorType": {
+            "default": "Native",
+            "description": "The type of connector this plugin relates to.",
+            "enum": [
+              "Native",
+              "MCP",
+              "WebExtension"
+            ]
+          },
           "createTime": {
             "description": "Creation date of the object.",
             "format": "date-time",
@@ -1234,6 +1258,15 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "type": {
+            "default": "CodingAssistant",
+            "description": "The type of plugin.",
+            "enum": [
+              "CodingAssistant",
+              "IntegrationPlatform",
+              "Productivity"
+            ]
           },
           "updateTime": {
             "description": "Last update date of the object.",

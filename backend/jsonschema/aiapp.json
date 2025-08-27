@@ -110,6 +110,19 @@
         "null"
       ]
     },
+    "type": {
+      "$defaultValue": "Conversational",
+      "$friendlyName": "Type",
+      "description": "The type of application.",
+      "enum": [
+        "Conversational",
+        "CodingAssistant",
+        "Creative",
+        "OfflineClient",
+        "Productivity"
+      ],
+      "title": "type"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
