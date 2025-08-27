@@ -85,6 +85,9 @@ func (o ImportsList) Version() int {
 
 // Import represents the model of a import
 type Import struct {
+	// AI applications to import.
+	AIApps AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"-" mapstructure:"AIApps,omitempty"`
+
 	// AI domains to import.
 	AIDomains AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
 
@@ -178,6 +181,7 @@ func NewImport() *Import {
 
 	return &Import{
 		ModelVersion:        1,
+		AIApps:              AIAppsList{},
 		AIDomains:           AIDomainsList{},
 		AIPlugins:           AIPluginsList{},
 		APIAuthorizations:   APIAuthorizationsList{},
@@ -242,8 +246,8 @@ func (o *Import) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *Import) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesImport{}
@@ -290,6 +294,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseImport{
+			AIApps:              &o.AIApps,
 			AIDomains:           &o.AIDomains,
 			AIPlugins:           &o.AIPlugins,
 			APIAuthorizations:   &o.APIAuthorizations,
@@ -324,6 +329,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseImport{}
 	for _, f := range fields {
 		switch f {
+		case "AIApps":
+			sp.AIApps = &(o.AIApps)
 		case "AIDomains":
 			sp.AIDomains = &(o.AIDomains)
 		case "AIPlugins":
@@ -393,6 +400,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseImport)
+	if so.AIApps != nil {
+		o.AIApps = *so.AIApps
+	}
 	if so.AIDomains != nil {
 		o.AIDomains = *so.AIDomains
 	}
@@ -508,6 +518,16 @@ func (o *Import) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for _, sub := range o.AIApps {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
 
 	for _, sub := range o.AIDomains {
 		if sub == nil {
@@ -777,6 +797,8 @@ func (*Import) AttributeSpecifications() map[string]elemental.AttributeSpecifica
 func (o *Import) ValueForAttribute(name string) any {
 
 	switch name {
+	case "AIApps":
+		return o.AIApps
 	case "AIDomains":
 		return o.AIDomains
 	case "AIPlugins":
@@ -840,6 +862,15 @@ func (o *Import) ValueForAttribute(name string) any {
 
 // ImportAttributesMap represents the map of attribute for Import.
 var ImportAttributesMap = map[string]elemental.AttributeSpecification{
+	"AIApps": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIApps",
+		Description:    `AI applications to import.`,
+		Exposed:        true,
+		Name:           "AIApps",
+		SubType:        "aiapp",
+		Type:           "refList",
+	},
 	"AIDomains": {
 		AllowedChoices: []string{},
 		ConvertedName:  "AIDomains",
@@ -1097,6 +1128,15 @@ resource.`,
 
 // ImportLowerCaseAttributesMap represents the map of attribute for Import.
 var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"aiapps": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIApps",
+		Description:    `AI applications to import.`,
+		Exposed:        true,
+		Name:           "AIApps",
+		SubType:        "aiapp",
+		Type:           "refList",
+	},
 	"aidomains": {
 		AllowedChoices: []string{},
 		ConvertedName:  "AIDomains",
@@ -1415,6 +1455,9 @@ func (o SparseImportsList) Version() int {
 
 // SparseImport represents the sparse version of a import.
 type SparseImport struct {
+	// AI applications to import.
+	AIApps *AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"-" mapstructure:"AIApps,omitempty"`
+
 	// AI domains to import.
 	AIDomains *AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
 
@@ -1564,6 +1607,9 @@ func (o *SparseImport) Version() int {
 func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewImport()
+	if o.AIApps != nil {
+		out.AIApps = *o.AIApps
+	}
 	if o.AIDomains != nil {
 		out.AIDomains = *o.AIDomains
 	}

@@ -242,6 +242,15 @@
         "boolean",
         "null"
       ]
+    },
+    "webHost": {
+      "$friendlyName": "Web Host",
+      "description": "The main hosts for marketing and legal materials content. This is used to link some HQ domain to the actual provider domain. For instance webHost for mail.superhuman.com should be superhuman.com.",
+      "title": "webHost",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

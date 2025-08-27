@@ -47,8 +47,8 @@ func (o *TunnelProxyAuth) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *TunnelProxyAuth) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesTunnelProxyAuth{}

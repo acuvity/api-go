@@ -176,8 +176,8 @@ func (o *IgnoredDomain) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *IgnoredDomain) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesIgnoredDomain{}
@@ -420,6 +420,10 @@ func (o *IgnoredDomain) Validate() error {
 
 	if err := elemental.ValidateRequiredString("domain", o.Domain); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateDomain("domain", o.Domain); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {

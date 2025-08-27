@@ -1,0 +1,62 @@
+{
+  "$extends": [
+    "@aidsection"
+  ],
+  "$friendlyName": "AID Section Compliance",
+  "$friendlyNamePlural": "AID Section Compliances",
+  "$modelName": "AIDSectionCompliance",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsectioncompliances",
+  "$modelRestName": "aidsectioncompliance",
+  "additionalProperties": false,
+  "description": "AIDomain compliance information.",
+  "properties": {
+    "citations": {
+      "$friendlyName": "Citations",
+      "description": "The citations used to compute the section.",
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "title": "citations",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the section.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the section.",
+      "title": "name",
+      "type": "string"
+    },
+    "risk": {
+      "$friendlyName": "Risk",
+      "$ref": "aidrisk.json",
+      "description": "The risk associated to the section.",
+      "title": "risk"
+    },
+    "type": {
+      "$friendlyName": "type",
+      "$required": true,
+      "description": "Type of the compliance.",
+      "enum": [
+        "Certification",
+        "Framework"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "name",
+    "type"
+  ],
+  "title": "AIDSectionCompliance",
+  "type": "object"
+}

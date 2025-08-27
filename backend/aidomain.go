@@ -88,26 +88,53 @@ type AIDomain struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The list of compliance provided by the domain.
-	Compliances []string `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
+	// List of LLM providers the provider uses.
+	LLMProviders []*AIDSectionLLMProvider `json:"LLMProviders,omitempty" msgpack:"LLMProviders,omitempty" bson:"llmproviders,omitempty" mapstructure:"LLMProviders,omitempty"`
+
+	// Overall risk assessment for the LLM providers.
+	LLMProvidersRisk *AIDRisk `json:"LLMProvidersRisk,omitempty" msgpack:"LLMProvidersRisk,omitempty" bson:"llmprovidersrisk,omitempty" mapstructure:"LLMProvidersRisk,omitempty"`
+
+	// The address of the company.
+	Address string `json:"address" msgpack:"address" bson:"address" mapstructure:"address,omitempty"`
+
+	// The name of the company.
+	Company string `json:"company" msgpack:"company" bson:"company" mapstructure:"company,omitempty"`
+
+	// The url of the company.
+	CompanyURL string `json:"companyURL" msgpack:"companyURL" bson:"companyurl" mapstructure:"companyURL,omitempty"`
+
+	// Certifications or Security Frameworks implemented by the provider.
+	Compliances []*AIDSectionCompliance `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
+
+	// Overall risk assessment for the compliences.
+	CompliancesRisk *AIDRisk `json:"compliancesRisk,omitempty" msgpack:"compliancesRisk,omitempty" bson:"compliancesrisk,omitempty" mapstructure:"compliancesRisk,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The user data storage location.
-	DataResidency []string `json:"dataResidency,omitempty" msgpack:"dataResidency,omitempty" bson:"dataresidency,omitempty" mapstructure:"dataResidency,omitempty"`
+	// List of policies defining how the provider will use customer data.
+	DataPolicies []*AIDSectionDataPolicy `json:"dataPolicies,omitempty" msgpack:"dataPolicies,omitempty" bson:"datapolicies,omitempty" mapstructure:"dataPolicies,omitempty"`
 
-	// Does the provider share user data with 3rd party or services.
-	DataSharing bool `json:"dataSharing" msgpack:"dataSharing" bson:"datasharing" mapstructure:"dataSharing,omitempty"`
+	// Overall risk assessment for the data policies.
+	DataPoliciesRisk *AIDRisk `json:"dataPoliciesRisk,omitempty" msgpack:"dataPoliciesRisk,omitempty" bson:"datapoliciesrisk,omitempty" mapstructure:"dataPoliciesRisk,omitempty"`
 
-	// Does the provider share user data with consent with 3rd party or services.
-	DataSharingConsent bool `json:"dataSharingConsent" msgpack:"dataSharingConsent" bson:"datasharingconsent" mapstructure:"dataSharingConsent,omitempty"`
+	// List of data processors used the provider.
+	DataProcessors []*AIDSectionDataProcessor `json:"dataProcessors,omitempty" msgpack:"dataProcessors,omitempty" bson:"dataprocessors,omitempty" mapstructure:"dataProcessors,omitempty"`
+
+	// Overall risk assessment for the data processors.
+	DataProcessorsRisk *AIDRisk `json:"dataProcessorsRisk,omitempty" msgpack:"dataProcessorsRisk,omitempty" bson:"dataprocessorsrisk,omitempty" mapstructure:"dataProcessorsRisk,omitempty"`
 
 	// A brief description about the AI domain and what services it provides.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The domain of the AI provider.
+	// The domain of the service.
 	Domain string `json:"domain" msgpack:"domain" bson:"domain" mapstructure:"domain,omitempty"`
+
+	// The executive summary.
+	ExecutiveSummary string `json:"executiveSummary,omitempty" msgpack:"executiveSummary,omitempty" bson:"executivesummary,omitempty" mapstructure:"executiveSummary,omitempty"`
+
+	// The features implemented by the provider.
+	Features []*AIDSection `json:"features" msgpack:"features" bson:"features" mapstructure:"features,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -116,14 +143,17 @@ type AIDomain struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Flag to say if the domain is a AI domain or not.
-	IsAIDomain bool `json:"isAIDomain" msgpack:"isAIDomain" bson:"isaidomain" mapstructure:"isAIDomain,omitempty"`
+	// The AI Categories of the services.
+	Industry *AIDSection `json:"industry" msgpack:"industry" bson:"industry" mapstructure:"industry,omitempty"`
 
-	// List of AI models used by the domain.
-	Models []string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+	// The name of the ai domain.
+	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// List of plans/tiers offered by the provider.
+	Plans []*AIDSectionPlan `json:"plans" msgpack:"plans" bson:"plans" mapstructure:"plans,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
@@ -131,20 +161,8 @@ type AIDomain struct {
 	// The name of the main provider.
 	ProviderName string `json:"providerName,omitempty" msgpack:"providerName,omitempty" bson:"providername,omitempty" mapstructure:"providerName,omitempty"`
 
-	// The data retention policies by the domain for each type of users.
-	ProviderRetentionPolicies []*ProviderRetentionPolicy `json:"providerRetentionPolicies,omitempty" msgpack:"providerRetentionPolicies,omitempty" bson:"providerretentionpolicies,omitempty" mapstructure:"providerRetentionPolicies,omitempty"`
-
-	// Does the provider use user data for training its model.
-	ProviderTrainingPolicies []*ProviderTrainingPolicy `json:"providerTrainingPolicies,omitempty" msgpack:"providerTrainingPolicies,omitempty" bson:"providertrainingpolicies,omitempty" mapstructure:"providerTrainingPolicies,omitempty"`
-
-	// A Markdown formatted string explaining the risk score.
-	RiskExplanation string `json:"riskExplanation,omitempty" msgpack:"riskExplanation,omitempty" bson:"riskexplanation,omitempty" mapstructure:"riskExplanation,omitempty"`
-
-	// The risk score for the domain.
-	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
-
-	// Does provider use third party model.
-	ThirdPartyModelUsage bool `json:"thirdPartyModelUsage" msgpack:"thirdPartyModelUsage" bson:"thirdpartymodelusage" mapstructure:"thirdPartyModelUsage,omitempty"`
+	// Quick machine friendly summary.
+	Summary *AIDSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -162,12 +180,8 @@ type AIDomain struct {
 func NewAIDomain() *AIDomain {
 
 	return &AIDomain{
-		ModelVersion:              1,
-		Compliances:               []string{},
-		DataResidency:             []string{},
-		Models:                    []string{},
-		Propagate:                 true,
-		ProviderRetentionPolicies: []*ProviderRetentionPolicy{},
+		ModelVersion: 1,
+		Propagate:    true,
 	}
 }
 
@@ -202,25 +216,31 @@ func (o *AIDomain) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.LLMProviders = o.LLMProviders
+	s.LLMProvidersRisk = o.LLMProvidersRisk
+	s.Address = o.Address
+	s.Company = o.Company
+	s.CompanyURL = o.CompanyURL
 	s.Compliances = o.Compliances
+	s.CompliancesRisk = o.CompliancesRisk
 	s.CreateTime = o.CreateTime
-	s.DataResidency = o.DataResidency
-	s.DataSharing = o.DataSharing
-	s.DataSharingConsent = o.DataSharingConsent
+	s.DataPolicies = o.DataPolicies
+	s.DataPoliciesRisk = o.DataPoliciesRisk
+	s.DataProcessors = o.DataProcessors
+	s.DataProcessorsRisk = o.DataProcessorsRisk
 	s.Description = o.Description
 	s.Domain = o.Domain
+	s.ExecutiveSummary = o.ExecutiveSummary
+	s.Features = o.Features
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
-	s.IsAIDomain = o.IsAIDomain
-	s.Models = o.Models
+	s.Industry = o.Industry
+	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Plans = o.Plans
 	s.Propagate = o.Propagate
 	s.ProviderName = o.ProviderName
-	s.ProviderRetentionPolicies = o.ProviderRetentionPolicies
-	s.ProviderTrainingPolicies = o.ProviderTrainingPolicies
-	s.RiskExplanation = o.RiskExplanation
-	s.RiskScore = o.RiskScore
-	s.ThirdPartyModelUsage = o.ThirdPartyModelUsage
+	s.Summary = o.Summary
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -232,8 +252,8 @@ func (o *AIDomain) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *AIDomain) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesAIDomain{}
@@ -242,25 +262,31 @@ func (o *AIDomain) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.LLMProviders = s.LLMProviders
+	o.LLMProvidersRisk = s.LLMProvidersRisk
+	o.Address = s.Address
+	o.Company = s.Company
+	o.CompanyURL = s.CompanyURL
 	o.Compliances = s.Compliances
+	o.CompliancesRisk = s.CompliancesRisk
 	o.CreateTime = s.CreateTime
-	o.DataResidency = s.DataResidency
-	o.DataSharing = s.DataSharing
-	o.DataSharingConsent = s.DataSharingConsent
+	o.DataPolicies = s.DataPolicies
+	o.DataPoliciesRisk = s.DataPoliciesRisk
+	o.DataProcessors = s.DataProcessors
+	o.DataProcessorsRisk = s.DataProcessorsRisk
 	o.Description = s.Description
 	o.Domain = s.Domain
+	o.ExecutiveSummary = s.ExecutiveSummary
+	o.Features = s.Features
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
-	o.IsAIDomain = s.IsAIDomain
-	o.Models = s.Models
+	o.Industry = s.Industry
+	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Plans = s.Plans
 	o.Propagate = s.Propagate
 	o.ProviderName = s.ProviderName
-	o.ProviderRetentionPolicies = s.ProviderRetentionPolicies
-	o.ProviderTrainingPolicies = s.ProviderTrainingPolicies
-	o.RiskExplanation = s.RiskExplanation
-	o.RiskScore = s.RiskScore
-	o.ThirdPartyModelUsage = s.ThirdPartyModelUsage
+	o.Summary = s.Summary
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -376,29 +402,35 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAIDomain{
-			ID:                        &o.ID,
-			Compliances:               &o.Compliances,
-			CreateTime:                &o.CreateTime,
-			DataResidency:             &o.DataResidency,
-			DataSharing:               &o.DataSharing,
-			DataSharingConsent:        &o.DataSharingConsent,
-			Description:               &o.Description,
-			Domain:                    &o.Domain,
-			ImportHash:                &o.ImportHash,
-			ImportLabel:               &o.ImportLabel,
-			IsAIDomain:                &o.IsAIDomain,
-			Models:                    &o.Models,
-			Namespace:                 &o.Namespace,
-			Propagate:                 &o.Propagate,
-			ProviderName:              &o.ProviderName,
-			ProviderRetentionPolicies: &o.ProviderRetentionPolicies,
-			ProviderTrainingPolicies:  &o.ProviderTrainingPolicies,
-			RiskExplanation:           &o.RiskExplanation,
-			RiskScore:                 &o.RiskScore,
-			ThirdPartyModelUsage:      &o.ThirdPartyModelUsage,
-			UpdateTime:                &o.UpdateTime,
-			ZHash:                     &o.ZHash,
-			Zone:                      &o.Zone,
+			ID:                 &o.ID,
+			LLMProviders:       &o.LLMProviders,
+			LLMProvidersRisk:   o.LLMProvidersRisk,
+			Address:            &o.Address,
+			Company:            &o.Company,
+			CompanyURL:         &o.CompanyURL,
+			Compliances:        &o.Compliances,
+			CompliancesRisk:    o.CompliancesRisk,
+			CreateTime:         &o.CreateTime,
+			DataPolicies:       &o.DataPolicies,
+			DataPoliciesRisk:   o.DataPoliciesRisk,
+			DataProcessors:     &o.DataProcessors,
+			DataProcessorsRisk: o.DataProcessorsRisk,
+			Description:        &o.Description,
+			Domain:             &o.Domain,
+			ExecutiveSummary:   &o.ExecutiveSummary,
+			Features:           &o.Features,
+			ImportHash:         &o.ImportHash,
+			ImportLabel:        &o.ImportLabel,
+			Industry:           o.Industry,
+			Name:               &o.Name,
+			Namespace:          &o.Namespace,
+			Plans:              &o.Plans,
+			Propagate:          &o.Propagate,
+			ProviderName:       &o.ProviderName,
+			Summary:            o.Summary,
+			UpdateTime:         &o.UpdateTime,
+			ZHash:              &o.ZHash,
+			Zone:               &o.Zone,
 		}
 	}
 
@@ -407,44 +439,56 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "LLMProviders":
+			sp.LLMProviders = &(o.LLMProviders)
+		case "LLMProvidersRisk":
+			sp.LLMProvidersRisk = o.LLMProvidersRisk
+		case "address":
+			sp.Address = &(o.Address)
+		case "company":
+			sp.Company = &(o.Company)
+		case "companyURL":
+			sp.CompanyURL = &(o.CompanyURL)
 		case "compliances":
 			sp.Compliances = &(o.Compliances)
+		case "compliancesRisk":
+			sp.CompliancesRisk = o.CompliancesRisk
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
-		case "dataResidency":
-			sp.DataResidency = &(o.DataResidency)
-		case "dataSharing":
-			sp.DataSharing = &(o.DataSharing)
-		case "dataSharingConsent":
-			sp.DataSharingConsent = &(o.DataSharingConsent)
+		case "dataPolicies":
+			sp.DataPolicies = &(o.DataPolicies)
+		case "dataPoliciesRisk":
+			sp.DataPoliciesRisk = o.DataPoliciesRisk
+		case "dataProcessors":
+			sp.DataProcessors = &(o.DataProcessors)
+		case "dataProcessorsRisk":
+			sp.DataProcessorsRisk = o.DataProcessorsRisk
 		case "description":
 			sp.Description = &(o.Description)
 		case "domain":
 			sp.Domain = &(o.Domain)
+		case "executiveSummary":
+			sp.ExecutiveSummary = &(o.ExecutiveSummary)
+		case "features":
+			sp.Features = &(o.Features)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
-		case "isAIDomain":
-			sp.IsAIDomain = &(o.IsAIDomain)
-		case "models":
-			sp.Models = &(o.Models)
+		case "industry":
+			sp.Industry = o.Industry
+		case "name":
+			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "plans":
+			sp.Plans = &(o.Plans)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
 		case "providerName":
 			sp.ProviderName = &(o.ProviderName)
-		case "providerRetentionPolicies":
-			sp.ProviderRetentionPolicies = &(o.ProviderRetentionPolicies)
-		case "providerTrainingPolicies":
-			sp.ProviderTrainingPolicies = &(o.ProviderTrainingPolicies)
-		case "riskExplanation":
-			sp.RiskExplanation = &(o.RiskExplanation)
-		case "riskScore":
-			sp.RiskScore = &(o.RiskScore)
-		case "thirdPartyModelUsage":
-			sp.ThirdPartyModelUsage = &(o.ThirdPartyModelUsage)
+		case "summary":
+			sp.Summary = o.Summary
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -467,20 +511,41 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
+	if so.LLMProviders != nil {
+		o.LLMProviders = *so.LLMProviders
+	}
+	if so.LLMProvidersRisk != nil {
+		o.LLMProvidersRisk = so.LLMProvidersRisk
+	}
+	if so.Address != nil {
+		o.Address = *so.Address
+	}
+	if so.Company != nil {
+		o.Company = *so.Company
+	}
+	if so.CompanyURL != nil {
+		o.CompanyURL = *so.CompanyURL
+	}
 	if so.Compliances != nil {
 		o.Compliances = *so.Compliances
+	}
+	if so.CompliancesRisk != nil {
+		o.CompliancesRisk = so.CompliancesRisk
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
-	if so.DataResidency != nil {
-		o.DataResidency = *so.DataResidency
+	if so.DataPolicies != nil {
+		o.DataPolicies = *so.DataPolicies
 	}
-	if so.DataSharing != nil {
-		o.DataSharing = *so.DataSharing
+	if so.DataPoliciesRisk != nil {
+		o.DataPoliciesRisk = so.DataPoliciesRisk
 	}
-	if so.DataSharingConsent != nil {
-		o.DataSharingConsent = *so.DataSharingConsent
+	if so.DataProcessors != nil {
+		o.DataProcessors = *so.DataProcessors
+	}
+	if so.DataProcessorsRisk != nil {
+		o.DataProcessorsRisk = so.DataProcessorsRisk
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -488,20 +553,29 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Domain != nil {
 		o.Domain = *so.Domain
 	}
+	if so.ExecutiveSummary != nil {
+		o.ExecutiveSummary = *so.ExecutiveSummary
+	}
+	if so.Features != nil {
+		o.Features = *so.Features
+	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
-	if so.IsAIDomain != nil {
-		o.IsAIDomain = *so.IsAIDomain
+	if so.Industry != nil {
+		o.Industry = so.Industry
 	}
-	if so.Models != nil {
-		o.Models = *so.Models
+	if so.Name != nil {
+		o.Name = *so.Name
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Plans != nil {
+		o.Plans = *so.Plans
 	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
@@ -509,20 +583,8 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ProviderName != nil {
 		o.ProviderName = *so.ProviderName
 	}
-	if so.ProviderRetentionPolicies != nil {
-		o.ProviderRetentionPolicies = *so.ProviderRetentionPolicies
-	}
-	if so.ProviderTrainingPolicies != nil {
-		o.ProviderTrainingPolicies = *so.ProviderTrainingPolicies
-	}
-	if so.RiskExplanation != nil {
-		o.RiskExplanation = *so.RiskExplanation
-	}
-	if so.RiskScore != nil {
-		o.RiskScore = *so.RiskScore
-	}
-	if so.ThirdPartyModelUsage != nil {
-		o.ThirdPartyModelUsage = *so.ThirdPartyModelUsage
+	if so.Summary != nil {
+		o.Summary = so.Summary
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -565,11 +627,79 @@ func (o *AIDomain) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	for _, sub := range o.LLMProviders {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.LLMProvidersRisk != nil {
+		elemental.ResetDefaultForZeroValues(o.LLMProvidersRisk)
+		if err := o.LLMProvidersRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Compliances {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.CompliancesRisk != nil {
+		elemental.ResetDefaultForZeroValues(o.CompliancesRisk)
+		if err := o.CompliancesRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.DataPolicies {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.DataPoliciesRisk != nil {
+		elemental.ResetDefaultForZeroValues(o.DataPoliciesRisk)
+		if err := o.DataPoliciesRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.DataProcessors {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.DataProcessorsRisk != nil {
+		elemental.ResetDefaultForZeroValues(o.DataProcessorsRisk)
+		if err := o.DataProcessorsRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("domain", o.Domain); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.ProviderRetentionPolicies {
+	for _, sub := range o.Features {
 		if sub == nil {
 			continue
 		}
@@ -579,22 +709,32 @@ func (o *AIDomain) Validate() error {
 		}
 	}
 
-	for _, sub := range o.ProviderTrainingPolicies {
-		if sub == nil {
-			continue
-		}
-		elemental.ResetDefaultForZeroValues(sub)
-		if err := sub.Validate(); err != nil {
+	if o.Industry != nil {
+		elemental.ResetDefaultForZeroValues(o.Industry)
+		if err := o.Industry.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
-	if err := elemental.ValidateRequiredFloat("riskScore", o.RiskScore); err != nil {
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateMaximumFloat("riskScore", o.RiskScore, 1, false); err != nil {
-		errors = errors.Append(err)
+	for _, sub := range o.Plans {
+		if sub == nil {
+			continue
+		}
+		elemental.ResetDefaultForZeroValues(sub)
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.Summary != nil {
+		elemental.ResetDefaultForZeroValues(o.Summary)
+		if err := o.Summary.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
 	}
 
 	if len(requiredErrors) > 0 {
@@ -633,44 +773,56 @@ func (o *AIDomain) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "LLMProviders":
+		return o.LLMProviders
+	case "LLMProvidersRisk":
+		return o.LLMProvidersRisk
+	case "address":
+		return o.Address
+	case "company":
+		return o.Company
+	case "companyURL":
+		return o.CompanyURL
 	case "compliances":
 		return o.Compliances
+	case "compliancesRisk":
+		return o.CompliancesRisk
 	case "createTime":
 		return o.CreateTime
-	case "dataResidency":
-		return o.DataResidency
-	case "dataSharing":
-		return o.DataSharing
-	case "dataSharingConsent":
-		return o.DataSharingConsent
+	case "dataPolicies":
+		return o.DataPolicies
+	case "dataPoliciesRisk":
+		return o.DataPoliciesRisk
+	case "dataProcessors":
+		return o.DataProcessors
+	case "dataProcessorsRisk":
+		return o.DataProcessorsRisk
 	case "description":
 		return o.Description
 	case "domain":
 		return o.Domain
+	case "executiveSummary":
+		return o.ExecutiveSummary
+	case "features":
+		return o.Features
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
-	case "isAIDomain":
-		return o.IsAIDomain
-	case "models":
-		return o.Models
+	case "industry":
+		return o.Industry
+	case "name":
+		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "plans":
+		return o.Plans
 	case "propagate":
 		return o.Propagate
 	case "providerName":
 		return o.ProviderName
-	case "providerRetentionPolicies":
-		return o.ProviderRetentionPolicies
-	case "providerTrainingPolicies":
-		return o.ProviderTrainingPolicies
-	case "riskExplanation":
-		return o.RiskExplanation
-	case "riskScore":
-		return o.RiskScore
-	case "thirdPartyModelUsage":
-		return o.ThirdPartyModelUsage
+	case "summary":
+		return o.Summary
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -699,16 +851,79 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"LLMProviders": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "llmproviders",
+		ConvertedName:  "LLMProviders",
+		Description:    `List of LLM providers the provider uses.`,
+		Exposed:        true,
+		Name:           "LLMProviders",
+		Stored:         true,
+		SubType:        "aidsectionllmprovider",
+		Type:           "refList",
+	},
+	"LLMProvidersRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "llmprovidersrisk",
+		ConvertedName:  "LLMProvidersRisk",
+		Description:    `Overall risk assessment for the LLM providers.`,
+		Exposed:        true,
+		Name:           "LLMProvidersRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"Address": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "address",
+		ConvertedName:  "Address",
+		Description:    `The address of the company.`,
+		Exposed:        true,
+		Name:           "address",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Company": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "company",
+		ConvertedName:  "Company",
+		Description:    `The name of the company.`,
+		Exposed:        true,
+		Name:           "company",
+		Stored:         true,
+		Type:           "string",
+	},
+	"CompanyURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "companyurl",
+		ConvertedName:  "CompanyURL",
+		Description:    `The url of the company.`,
+		Exposed:        true,
+		Name:           "companyURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Compliances": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "compliances",
 		ConvertedName:  "Compliances",
-		Description:    `The list of compliance provided by the domain.`,
+		Description:    `Certifications or Security Frameworks implemented by the provider.`,
 		Exposed:        true,
 		Name:           "compliances",
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		SubType:        "aidsectioncompliance",
+		Type:           "refList",
+	},
+	"CompliancesRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "compliancesrisk",
+		ConvertedName:  "CompliancesRisk",
+		Description:    `Overall risk assessment for the compliences.`,
+		Exposed:        true,
+		Name:           "compliancesRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -725,36 +940,49 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
-	"DataResidency": {
+	"DataPolicies": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "dataresidency",
-		ConvertedName:  "DataResidency",
-		Description:    `The user data storage location.`,
+		BSONFieldName:  "datapolicies",
+		ConvertedName:  "DataPolicies",
+		Description:    `List of policies defining how the provider will use customer data.`,
 		Exposed:        true,
-		Name:           "dataResidency",
+		Name:           "dataPolicies",
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		SubType:        "aidsectiondatapolicy",
+		Type:           "refList",
 	},
-	"DataSharing": {
+	"DataPoliciesRisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "datasharing",
-		ConvertedName:  "DataSharing",
-		Description:    `Does the provider share user data with 3rd party or services.`,
+		BSONFieldName:  "datapoliciesrisk",
+		ConvertedName:  "DataPoliciesRisk",
+		Description:    `Overall risk assessment for the data policies.`,
 		Exposed:        true,
-		Name:           "dataSharing",
+		Name:           "dataPoliciesRisk",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
-	"DataSharingConsent": {
+	"DataProcessors": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "datasharingconsent",
-		ConvertedName:  "DataSharingConsent",
-		Description:    `Does the provider share user data with consent with 3rd party or services.`,
+		BSONFieldName:  "dataprocessors",
+		ConvertedName:  "DataProcessors",
+		Description:    `List of data processors used the provider.`,
 		Exposed:        true,
-		Name:           "dataSharingConsent",
+		Name:           "dataProcessors",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsectiondataprocessor",
+		Type:           "refList",
+	},
+	"DataProcessorsRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dataprocessorsrisk",
+		ConvertedName:  "DataProcessorsRisk",
+		Description:    `Overall risk assessment for the data processors.`,
+		Exposed:        true,
+		Name:           "dataProcessorsRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -770,13 +998,33 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "domain",
 		ConvertedName:  "Domain",
-		CreationOnly:   true,
-		Description:    `The domain of the AI provider.`,
+		Description:    `The domain of the service.`,
 		Exposed:        true,
 		Name:           "domain",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ExecutiveSummary": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "executivesummary",
+		ConvertedName:  "ExecutiveSummary",
+		Description:    `The executive summary.`,
+		Exposed:        true,
+		Name:           "executiveSummary",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Features": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "features",
+		ConvertedName:  "Features",
+		Description:    `The features implemented by the provider.`,
+		Exposed:        true,
+		Name:           "features",
+		Stored:         true,
+		SubType:        "aidsection",
+		Type:           "refList",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -806,26 +1054,27 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"IsAIDomain": {
+	"Industry": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "isaidomain",
-		ConvertedName:  "IsAIDomain",
-		Description:    `Flag to say if the domain is a AI domain or not.`,
+		BSONFieldName:  "industry",
+		ConvertedName:  "Industry",
+		Description:    `The AI Categories of the services.`,
 		Exposed:        true,
-		Name:           "isAIDomain",
+		Name:           "industry",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsection",
+		Type:           "ref",
 	},
-	"Models": {
+	"Name": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "models",
-		ConvertedName:  "Models",
-		Description:    `List of AI models used by the domain.`,
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the ai domain.`,
 		Exposed:        true,
-		Name:           "models",
+		Name:           "name",
+		Required:       true,
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -841,6 +1090,17 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Plans": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "plans",
+		ConvertedName:  "Plans",
+		Description:    `List of plans/tiers offered by the provider.`,
+		Exposed:        true,
+		Name:           "plans",
+		Stored:         true,
+		SubType:        "aidsectionplan",
+		Type:           "refList",
 	},
 	"Propagate": {
 		AllowedChoices: []string{},
@@ -865,59 +1125,16 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"ProviderRetentionPolicies": {
+	"Summary": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "providerretentionpolicies",
-		ConvertedName:  "ProviderRetentionPolicies",
-		Description:    `The data retention policies by the domain for each type of users.`,
+		BSONFieldName:  "summary",
+		ConvertedName:  "Summary",
+		Description:    `Quick machine friendly summary.`,
 		Exposed:        true,
-		Name:           "providerRetentionPolicies",
+		Name:           "summary",
 		Stored:         true,
-		SubType:        "providerretentionpolicy",
-		Type:           "refList",
-	},
-	"ProviderTrainingPolicies": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "providertrainingpolicies",
-		ConvertedName:  "ProviderTrainingPolicies",
-		Description:    `Does the provider use user data for training its model.`,
-		Exposed:        true,
-		Name:           "providerTrainingPolicies",
-		Stored:         true,
-		SubType:        "providertrainingpolicy",
-		Type:           "refList",
-	},
-	"RiskExplanation": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "riskexplanation",
-		ConvertedName:  "RiskExplanation",
-		Description:    `A Markdown formatted string explaining the risk score.`,
-		Exposed:        true,
-		Name:           "riskExplanation",
-		Stored:         true,
-		Type:           "string",
-	},
-	"RiskScore": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "riskscore",
-		ConvertedName:  "RiskScore",
-		Description:    `The risk score for the domain.`,
-		Exposed:        true,
-		MaxValue:       1,
-		Name:           "riskScore",
-		Required:       true,
-		Stored:         true,
-		Type:           "float",
-	},
-	"ThirdPartyModelUsage": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "thirdpartymodelusage",
-		ConvertedName:  "ThirdPartyModelUsage",
-		Description:    `Does provider use third party model.`,
-		Exposed:        true,
-		Name:           "thirdPartyModelUsage",
-		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsummary",
+		Type:           "ref",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -953,16 +1170,79 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
+	"llmproviders": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "llmproviders",
+		ConvertedName:  "LLMProviders",
+		Description:    `List of LLM providers the provider uses.`,
+		Exposed:        true,
+		Name:           "LLMProviders",
+		Stored:         true,
+		SubType:        "aidsectionllmprovider",
+		Type:           "refList",
+	},
+	"llmprovidersrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "llmprovidersrisk",
+		ConvertedName:  "LLMProvidersRisk",
+		Description:    `Overall risk assessment for the LLM providers.`,
+		Exposed:        true,
+		Name:           "LLMProvidersRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"address": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "address",
+		ConvertedName:  "Address",
+		Description:    `The address of the company.`,
+		Exposed:        true,
+		Name:           "address",
+		Stored:         true,
+		Type:           "string",
+	},
+	"company": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "company",
+		ConvertedName:  "Company",
+		Description:    `The name of the company.`,
+		Exposed:        true,
+		Name:           "company",
+		Stored:         true,
+		Type:           "string",
+	},
+	"companyurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "companyurl",
+		ConvertedName:  "CompanyURL",
+		Description:    `The url of the company.`,
+		Exposed:        true,
+		Name:           "companyURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"compliances": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "compliances",
 		ConvertedName:  "Compliances",
-		Description:    `The list of compliance provided by the domain.`,
+		Description:    `Certifications or Security Frameworks implemented by the provider.`,
 		Exposed:        true,
 		Name:           "compliances",
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		SubType:        "aidsectioncompliance",
+		Type:           "refList",
+	},
+	"compliancesrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "compliancesrisk",
+		ConvertedName:  "CompliancesRisk",
+		Description:    `Overall risk assessment for the compliences.`,
+		Exposed:        true,
+		Name:           "compliancesRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -979,36 +1259,49 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "time",
 	},
-	"dataresidency": {
+	"datapolicies": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "dataresidency",
-		ConvertedName:  "DataResidency",
-		Description:    `The user data storage location.`,
+		BSONFieldName:  "datapolicies",
+		ConvertedName:  "DataPolicies",
+		Description:    `List of policies defining how the provider will use customer data.`,
 		Exposed:        true,
-		Name:           "dataResidency",
+		Name:           "dataPolicies",
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		SubType:        "aidsectiondatapolicy",
+		Type:           "refList",
 	},
-	"datasharing": {
+	"datapoliciesrisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "datasharing",
-		ConvertedName:  "DataSharing",
-		Description:    `Does the provider share user data with 3rd party or services.`,
+		BSONFieldName:  "datapoliciesrisk",
+		ConvertedName:  "DataPoliciesRisk",
+		Description:    `Overall risk assessment for the data policies.`,
 		Exposed:        true,
-		Name:           "dataSharing",
+		Name:           "dataPoliciesRisk",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
-	"datasharingconsent": {
+	"dataprocessors": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "datasharingconsent",
-		ConvertedName:  "DataSharingConsent",
-		Description:    `Does the provider share user data with consent with 3rd party or services.`,
+		BSONFieldName:  "dataprocessors",
+		ConvertedName:  "DataProcessors",
+		Description:    `List of data processors used the provider.`,
 		Exposed:        true,
-		Name:           "dataSharingConsent",
+		Name:           "dataProcessors",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsectiondataprocessor",
+		Type:           "refList",
+	},
+	"dataprocessorsrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dataprocessorsrisk",
+		ConvertedName:  "DataProcessorsRisk",
+		Description:    `Overall risk assessment for the data processors.`,
+		Exposed:        true,
+		Name:           "dataProcessorsRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1024,13 +1317,33 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		AllowedChoices: []string{},
 		BSONFieldName:  "domain",
 		ConvertedName:  "Domain",
-		CreationOnly:   true,
-		Description:    `The domain of the AI provider.`,
+		Description:    `The domain of the service.`,
 		Exposed:        true,
 		Name:           "domain",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"executivesummary": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "executivesummary",
+		ConvertedName:  "ExecutiveSummary",
+		Description:    `The executive summary.`,
+		Exposed:        true,
+		Name:           "executiveSummary",
+		Stored:         true,
+		Type:           "string",
+	},
+	"features": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "features",
+		ConvertedName:  "Features",
+		Description:    `The features implemented by the provider.`,
+		Exposed:        true,
+		Name:           "features",
+		Stored:         true,
+		SubType:        "aidsection",
+		Type:           "refList",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -1060,26 +1373,27 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"isaidomain": {
+	"industry": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "isaidomain",
-		ConvertedName:  "IsAIDomain",
-		Description:    `Flag to say if the domain is a AI domain or not.`,
+		BSONFieldName:  "industry",
+		ConvertedName:  "Industry",
+		Description:    `The AI Categories of the services.`,
 		Exposed:        true,
-		Name:           "isAIDomain",
+		Name:           "industry",
 		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsection",
+		Type:           "ref",
 	},
-	"models": {
+	"name": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "models",
-		ConvertedName:  "Models",
-		Description:    `List of AI models used by the domain.`,
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the ai domain.`,
 		Exposed:        true,
-		Name:           "models",
+		Name:           "name",
+		Required:       true,
 		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -1095,6 +1409,17 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"plans": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "plans",
+		ConvertedName:  "Plans",
+		Description:    `List of plans/tiers offered by the provider.`,
+		Exposed:        true,
+		Name:           "plans",
+		Stored:         true,
+		SubType:        "aidsectionplan",
+		Type:           "refList",
 	},
 	"propagate": {
 		AllowedChoices: []string{},
@@ -1119,59 +1444,16 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"providerretentionpolicies": {
+	"summary": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "providerretentionpolicies",
-		ConvertedName:  "ProviderRetentionPolicies",
-		Description:    `The data retention policies by the domain for each type of users.`,
+		BSONFieldName:  "summary",
+		ConvertedName:  "Summary",
+		Description:    `Quick machine friendly summary.`,
 		Exposed:        true,
-		Name:           "providerRetentionPolicies",
+		Name:           "summary",
 		Stored:         true,
-		SubType:        "providerretentionpolicy",
-		Type:           "refList",
-	},
-	"providertrainingpolicies": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "providertrainingpolicies",
-		ConvertedName:  "ProviderTrainingPolicies",
-		Description:    `Does the provider use user data for training its model.`,
-		Exposed:        true,
-		Name:           "providerTrainingPolicies",
-		Stored:         true,
-		SubType:        "providertrainingpolicy",
-		Type:           "refList",
-	},
-	"riskexplanation": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "riskexplanation",
-		ConvertedName:  "RiskExplanation",
-		Description:    `A Markdown formatted string explaining the risk score.`,
-		Exposed:        true,
-		Name:           "riskExplanation",
-		Stored:         true,
-		Type:           "string",
-	},
-	"riskscore": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "riskscore",
-		ConvertedName:  "RiskScore",
-		Description:    `The risk score for the domain.`,
-		Exposed:        true,
-		MaxValue:       1,
-		Name:           "riskScore",
-		Required:       true,
-		Stored:         true,
-		Type:           "float",
-	},
-	"thirdpartymodelusage": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "thirdpartymodelusage",
-		ConvertedName:  "ThirdPartyModelUsage",
-		Description:    `Does provider use third party model.`,
-		Exposed:        true,
-		Name:           "thirdPartyModelUsage",
-		Stored:         true,
-		Type:           "boolean",
+		SubType:        "aidsummary",
+		Type:           "ref",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1256,26 +1538,53 @@ type SparseAIDomain struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The list of compliance provided by the domain.
-	Compliances *[]string `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
+	// List of LLM providers the provider uses.
+	LLMProviders *[]*AIDSectionLLMProvider `json:"LLMProviders,omitempty" msgpack:"LLMProviders,omitempty" bson:"llmproviders,omitempty" mapstructure:"LLMProviders,omitempty"`
+
+	// Overall risk assessment for the LLM providers.
+	LLMProvidersRisk *AIDRisk `json:"LLMProvidersRisk,omitempty" msgpack:"LLMProvidersRisk,omitempty" bson:"llmprovidersrisk,omitempty" mapstructure:"LLMProvidersRisk,omitempty"`
+
+	// The address of the company.
+	Address *string `json:"address,omitempty" msgpack:"address,omitempty" bson:"address,omitempty" mapstructure:"address,omitempty"`
+
+	// The name of the company.
+	Company *string `json:"company,omitempty" msgpack:"company,omitempty" bson:"company,omitempty" mapstructure:"company,omitempty"`
+
+	// The url of the company.
+	CompanyURL *string `json:"companyURL,omitempty" msgpack:"companyURL,omitempty" bson:"companyurl,omitempty" mapstructure:"companyURL,omitempty"`
+
+	// Certifications or Security Frameworks implemented by the provider.
+	Compliances *[]*AIDSectionCompliance `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
+
+	// Overall risk assessment for the compliences.
+	CompliancesRisk *AIDRisk `json:"compliancesRisk,omitempty" msgpack:"compliancesRisk,omitempty" bson:"compliancesrisk,omitempty" mapstructure:"compliancesRisk,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The user data storage location.
-	DataResidency *[]string `json:"dataResidency,omitempty" msgpack:"dataResidency,omitempty" bson:"dataresidency,omitempty" mapstructure:"dataResidency,omitempty"`
+	// List of policies defining how the provider will use customer data.
+	DataPolicies *[]*AIDSectionDataPolicy `json:"dataPolicies,omitempty" msgpack:"dataPolicies,omitempty" bson:"datapolicies,omitempty" mapstructure:"dataPolicies,omitempty"`
 
-	// Does the provider share user data with 3rd party or services.
-	DataSharing *bool `json:"dataSharing,omitempty" msgpack:"dataSharing,omitempty" bson:"datasharing,omitempty" mapstructure:"dataSharing,omitempty"`
+	// Overall risk assessment for the data policies.
+	DataPoliciesRisk *AIDRisk `json:"dataPoliciesRisk,omitempty" msgpack:"dataPoliciesRisk,omitempty" bson:"datapoliciesrisk,omitempty" mapstructure:"dataPoliciesRisk,omitempty"`
 
-	// Does the provider share user data with consent with 3rd party or services.
-	DataSharingConsent *bool `json:"dataSharingConsent,omitempty" msgpack:"dataSharingConsent,omitempty" bson:"datasharingconsent,omitempty" mapstructure:"dataSharingConsent,omitempty"`
+	// List of data processors used the provider.
+	DataProcessors *[]*AIDSectionDataProcessor `json:"dataProcessors,omitempty" msgpack:"dataProcessors,omitempty" bson:"dataprocessors,omitempty" mapstructure:"dataProcessors,omitempty"`
+
+	// Overall risk assessment for the data processors.
+	DataProcessorsRisk *AIDRisk `json:"dataProcessorsRisk,omitempty" msgpack:"dataProcessorsRisk,omitempty" bson:"dataprocessorsrisk,omitempty" mapstructure:"dataProcessorsRisk,omitempty"`
 
 	// A brief description about the AI domain and what services it provides.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The domain of the AI provider.
+	// The domain of the service.
 	Domain *string `json:"domain,omitempty" msgpack:"domain,omitempty" bson:"domain,omitempty" mapstructure:"domain,omitempty"`
+
+	// The executive summary.
+	ExecutiveSummary *string `json:"executiveSummary,omitempty" msgpack:"executiveSummary,omitempty" bson:"executivesummary,omitempty" mapstructure:"executiveSummary,omitempty"`
+
+	// The features implemented by the provider.
+	Features *[]*AIDSection `json:"features,omitempty" msgpack:"features,omitempty" bson:"features,omitempty" mapstructure:"features,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1284,14 +1593,17 @@ type SparseAIDomain struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Flag to say if the domain is a AI domain or not.
-	IsAIDomain *bool `json:"isAIDomain,omitempty" msgpack:"isAIDomain,omitempty" bson:"isaidomain,omitempty" mapstructure:"isAIDomain,omitempty"`
+	// The AI Categories of the services.
+	Industry *AIDSection `json:"industry,omitempty" msgpack:"industry,omitempty" bson:"industry,omitempty" mapstructure:"industry,omitempty"`
 
-	// List of AI models used by the domain.
-	Models *[]string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+	// The name of the ai domain.
+	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// List of plans/tiers offered by the provider.
+	Plans *[]*AIDSectionPlan `json:"plans,omitempty" msgpack:"plans,omitempty" bson:"plans,omitempty" mapstructure:"plans,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
@@ -1299,20 +1611,8 @@ type SparseAIDomain struct {
 	// The name of the main provider.
 	ProviderName *string `json:"providerName,omitempty" msgpack:"providerName,omitempty" bson:"providername,omitempty" mapstructure:"providerName,omitempty"`
 
-	// The data retention policies by the domain for each type of users.
-	ProviderRetentionPolicies *[]*ProviderRetentionPolicy `json:"providerRetentionPolicies,omitempty" msgpack:"providerRetentionPolicies,omitempty" bson:"providerretentionpolicies,omitempty" mapstructure:"providerRetentionPolicies,omitempty"`
-
-	// Does the provider use user data for training its model.
-	ProviderTrainingPolicies *[]*ProviderTrainingPolicy `json:"providerTrainingPolicies,omitempty" msgpack:"providerTrainingPolicies,omitempty" bson:"providertrainingpolicies,omitempty" mapstructure:"providerTrainingPolicies,omitempty"`
-
-	// A Markdown formatted string explaining the risk score.
-	RiskExplanation *string `json:"riskExplanation,omitempty" msgpack:"riskExplanation,omitempty" bson:"riskexplanation,omitempty" mapstructure:"riskExplanation,omitempty"`
-
-	// The risk score for the domain.
-	RiskScore *float64 `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
-
-	// Does provider use third party model.
-	ThirdPartyModelUsage *bool `json:"thirdPartyModelUsage,omitempty" msgpack:"thirdPartyModelUsage,omitempty" bson:"thirdpartymodelusage,omitempty" mapstructure:"thirdPartyModelUsage,omitempty"`
+	// Quick machine friendly summary.
+	Summary *AIDSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1369,20 +1669,41 @@ func (o *SparseAIDomain) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.LLMProviders != nil {
+		s.LLMProviders = o.LLMProviders
+	}
+	if o.LLMProvidersRisk != nil {
+		s.LLMProvidersRisk = o.LLMProvidersRisk
+	}
+	if o.Address != nil {
+		s.Address = o.Address
+	}
+	if o.Company != nil {
+		s.Company = o.Company
+	}
+	if o.CompanyURL != nil {
+		s.CompanyURL = o.CompanyURL
+	}
 	if o.Compliances != nil {
 		s.Compliances = o.Compliances
+	}
+	if o.CompliancesRisk != nil {
+		s.CompliancesRisk = o.CompliancesRisk
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
-	if o.DataResidency != nil {
-		s.DataResidency = o.DataResidency
+	if o.DataPolicies != nil {
+		s.DataPolicies = o.DataPolicies
 	}
-	if o.DataSharing != nil {
-		s.DataSharing = o.DataSharing
+	if o.DataPoliciesRisk != nil {
+		s.DataPoliciesRisk = o.DataPoliciesRisk
 	}
-	if o.DataSharingConsent != nil {
-		s.DataSharingConsent = o.DataSharingConsent
+	if o.DataProcessors != nil {
+		s.DataProcessors = o.DataProcessors
+	}
+	if o.DataProcessorsRisk != nil {
+		s.DataProcessorsRisk = o.DataProcessorsRisk
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -1390,20 +1711,29 @@ func (o *SparseAIDomain) GetBSON() (any, error) {
 	if o.Domain != nil {
 		s.Domain = o.Domain
 	}
+	if o.ExecutiveSummary != nil {
+		s.ExecutiveSummary = o.ExecutiveSummary
+	}
+	if o.Features != nil {
+		s.Features = o.Features
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
-	if o.IsAIDomain != nil {
-		s.IsAIDomain = o.IsAIDomain
+	if o.Industry != nil {
+		s.Industry = o.Industry
 	}
-	if o.Models != nil {
-		s.Models = o.Models
+	if o.Name != nil {
+		s.Name = o.Name
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.Plans != nil {
+		s.Plans = o.Plans
 	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
@@ -1411,20 +1741,8 @@ func (o *SparseAIDomain) GetBSON() (any, error) {
 	if o.ProviderName != nil {
 		s.ProviderName = o.ProviderName
 	}
-	if o.ProviderRetentionPolicies != nil {
-		s.ProviderRetentionPolicies = o.ProviderRetentionPolicies
-	}
-	if o.ProviderTrainingPolicies != nil {
-		s.ProviderTrainingPolicies = o.ProviderTrainingPolicies
-	}
-	if o.RiskExplanation != nil {
-		s.RiskExplanation = o.RiskExplanation
-	}
-	if o.RiskScore != nil {
-		s.RiskScore = o.RiskScore
-	}
-	if o.ThirdPartyModelUsage != nil {
-		s.ThirdPartyModelUsage = o.ThirdPartyModelUsage
+	if o.Summary != nil {
+		s.Summary = o.Summary
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1454,20 +1772,41 @@ func (o *SparseAIDomain) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.LLMProviders != nil {
+		o.LLMProviders = s.LLMProviders
+	}
+	if s.LLMProvidersRisk != nil {
+		o.LLMProvidersRisk = s.LLMProvidersRisk
+	}
+	if s.Address != nil {
+		o.Address = s.Address
+	}
+	if s.Company != nil {
+		o.Company = s.Company
+	}
+	if s.CompanyURL != nil {
+		o.CompanyURL = s.CompanyURL
+	}
 	if s.Compliances != nil {
 		o.Compliances = s.Compliances
+	}
+	if s.CompliancesRisk != nil {
+		o.CompliancesRisk = s.CompliancesRisk
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
-	if s.DataResidency != nil {
-		o.DataResidency = s.DataResidency
+	if s.DataPolicies != nil {
+		o.DataPolicies = s.DataPolicies
 	}
-	if s.DataSharing != nil {
-		o.DataSharing = s.DataSharing
+	if s.DataPoliciesRisk != nil {
+		o.DataPoliciesRisk = s.DataPoliciesRisk
 	}
-	if s.DataSharingConsent != nil {
-		o.DataSharingConsent = s.DataSharingConsent
+	if s.DataProcessors != nil {
+		o.DataProcessors = s.DataProcessors
+	}
+	if s.DataProcessorsRisk != nil {
+		o.DataProcessorsRisk = s.DataProcessorsRisk
 	}
 	if s.Description != nil {
 		o.Description = s.Description
@@ -1475,20 +1814,29 @@ func (o *SparseAIDomain) SetBSON(raw bson.Raw) error {
 	if s.Domain != nil {
 		o.Domain = s.Domain
 	}
+	if s.ExecutiveSummary != nil {
+		o.ExecutiveSummary = s.ExecutiveSummary
+	}
+	if s.Features != nil {
+		o.Features = s.Features
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
-	if s.IsAIDomain != nil {
-		o.IsAIDomain = s.IsAIDomain
+	if s.Industry != nil {
+		o.Industry = s.Industry
 	}
-	if s.Models != nil {
-		o.Models = s.Models
+	if s.Name != nil {
+		o.Name = s.Name
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.Plans != nil {
+		o.Plans = s.Plans
 	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
@@ -1496,20 +1844,8 @@ func (o *SparseAIDomain) SetBSON(raw bson.Raw) error {
 	if s.ProviderName != nil {
 		o.ProviderName = s.ProviderName
 	}
-	if s.ProviderRetentionPolicies != nil {
-		o.ProviderRetentionPolicies = s.ProviderRetentionPolicies
-	}
-	if s.ProviderTrainingPolicies != nil {
-		o.ProviderTrainingPolicies = s.ProviderTrainingPolicies
-	}
-	if s.RiskExplanation != nil {
-		o.RiskExplanation = s.RiskExplanation
-	}
-	if s.RiskScore != nil {
-		o.RiskScore = s.RiskScore
-	}
-	if s.ThirdPartyModelUsage != nil {
-		o.ThirdPartyModelUsage = s.ThirdPartyModelUsage
+	if s.Summary != nil {
+		o.Summary = s.Summary
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1537,20 +1873,41 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.LLMProviders != nil {
+		out.LLMProviders = *o.LLMProviders
+	}
+	if o.LLMProvidersRisk != nil {
+		out.LLMProvidersRisk = o.LLMProvidersRisk
+	}
+	if o.Address != nil {
+		out.Address = *o.Address
+	}
+	if o.Company != nil {
+		out.Company = *o.Company
+	}
+	if o.CompanyURL != nil {
+		out.CompanyURL = *o.CompanyURL
+	}
 	if o.Compliances != nil {
 		out.Compliances = *o.Compliances
+	}
+	if o.CompliancesRisk != nil {
+		out.CompliancesRisk = o.CompliancesRisk
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
-	if o.DataResidency != nil {
-		out.DataResidency = *o.DataResidency
+	if o.DataPolicies != nil {
+		out.DataPolicies = *o.DataPolicies
 	}
-	if o.DataSharing != nil {
-		out.DataSharing = *o.DataSharing
+	if o.DataPoliciesRisk != nil {
+		out.DataPoliciesRisk = o.DataPoliciesRisk
 	}
-	if o.DataSharingConsent != nil {
-		out.DataSharingConsent = *o.DataSharingConsent
+	if o.DataProcessors != nil {
+		out.DataProcessors = *o.DataProcessors
+	}
+	if o.DataProcessorsRisk != nil {
+		out.DataProcessorsRisk = o.DataProcessorsRisk
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1558,20 +1915,29 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	if o.Domain != nil {
 		out.Domain = *o.Domain
 	}
+	if o.ExecutiveSummary != nil {
+		out.ExecutiveSummary = *o.ExecutiveSummary
+	}
+	if o.Features != nil {
+		out.Features = *o.Features
+	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
-	if o.IsAIDomain != nil {
-		out.IsAIDomain = *o.IsAIDomain
+	if o.Industry != nil {
+		out.Industry = o.Industry
 	}
-	if o.Models != nil {
-		out.Models = *o.Models
+	if o.Name != nil {
+		out.Name = *o.Name
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Plans != nil {
+		out.Plans = *o.Plans
 	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
@@ -1579,20 +1945,8 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	if o.ProviderName != nil {
 		out.ProviderName = *o.ProviderName
 	}
-	if o.ProviderRetentionPolicies != nil {
-		out.ProviderRetentionPolicies = *o.ProviderRetentionPolicies
-	}
-	if o.ProviderTrainingPolicies != nil {
-		out.ProviderTrainingPolicies = *o.ProviderTrainingPolicies
-	}
-	if o.RiskExplanation != nil {
-		out.RiskExplanation = *o.RiskExplanation
-	}
-	if o.RiskScore != nil {
-		out.RiskScore = *o.RiskScore
-	}
-	if o.ThirdPartyModelUsage != nil {
-		out.ThirdPartyModelUsage = *o.ThirdPartyModelUsage
+	if o.Summary != nil {
+		out.Summary = o.Summary
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1728,52 +2082,64 @@ func (o *SparseAIDomain) DeepCopyInto(out *SparseAIDomain) {
 }
 
 type mongoAttributesAIDomain struct {
-	ID                        bson.ObjectId              `bson:"_id,omitempty"`
-	Compliances               []string                   `bson:"compliances,omitempty"`
-	CreateTime                time.Time                  `bson:"createtime"`
-	DataResidency             []string                   `bson:"dataresidency,omitempty"`
-	DataSharing               bool                       `bson:"datasharing"`
-	DataSharingConsent        bool                       `bson:"datasharingconsent"`
-	Description               string                     `bson:"description,omitempty"`
-	Domain                    string                     `bson:"domain"`
-	ImportHash                string                     `bson:"importhash,omitempty"`
-	ImportLabel               string                     `bson:"importlabel,omitempty"`
-	IsAIDomain                bool                       `bson:"isaidomain"`
-	Models                    []string                   `bson:"models,omitempty"`
-	Namespace                 string                     `bson:"namespace,omitempty"`
-	Propagate                 bool                       `bson:"propagate"`
-	ProviderName              string                     `bson:"providername,omitempty"`
-	ProviderRetentionPolicies []*ProviderRetentionPolicy `bson:"providerretentionpolicies,omitempty"`
-	ProviderTrainingPolicies  []*ProviderTrainingPolicy  `bson:"providertrainingpolicies,omitempty"`
-	RiskExplanation           string                     `bson:"riskexplanation,omitempty"`
-	RiskScore                 float64                    `bson:"riskscore"`
-	ThirdPartyModelUsage      bool                       `bson:"thirdpartymodelusage"`
-	UpdateTime                time.Time                  `bson:"updatetime"`
-	ZHash                     int                        `bson:"zhash"`
-	Zone                      int                        `bson:"zone"`
+	ID                 bson.ObjectId              `bson:"_id,omitempty"`
+	LLMProviders       []*AIDSectionLLMProvider   `bson:"llmproviders,omitempty"`
+	LLMProvidersRisk   *AIDRisk                   `bson:"llmprovidersrisk,omitempty"`
+	Address            string                     `bson:"address"`
+	Company            string                     `bson:"company"`
+	CompanyURL         string                     `bson:"companyurl"`
+	Compliances        []*AIDSectionCompliance    `bson:"compliances,omitempty"`
+	CompliancesRisk    *AIDRisk                   `bson:"compliancesrisk,omitempty"`
+	CreateTime         time.Time                  `bson:"createtime"`
+	DataPolicies       []*AIDSectionDataPolicy    `bson:"datapolicies,omitempty"`
+	DataPoliciesRisk   *AIDRisk                   `bson:"datapoliciesrisk,omitempty"`
+	DataProcessors     []*AIDSectionDataProcessor `bson:"dataprocessors,omitempty"`
+	DataProcessorsRisk *AIDRisk                   `bson:"dataprocessorsrisk,omitempty"`
+	Description        string                     `bson:"description,omitempty"`
+	Domain             string                     `bson:"domain"`
+	ExecutiveSummary   string                     `bson:"executivesummary,omitempty"`
+	Features           []*AIDSection              `bson:"features"`
+	ImportHash         string                     `bson:"importhash,omitempty"`
+	ImportLabel        string                     `bson:"importlabel,omitempty"`
+	Industry           *AIDSection                `bson:"industry"`
+	Name               string                     `bson:"name"`
+	Namespace          string                     `bson:"namespace,omitempty"`
+	Plans              []*AIDSectionPlan          `bson:"plans"`
+	Propagate          bool                       `bson:"propagate"`
+	ProviderName       string                     `bson:"providername,omitempty"`
+	Summary            *AIDSummary                `bson:"summary,omitempty"`
+	UpdateTime         time.Time                  `bson:"updatetime"`
+	ZHash              int                        `bson:"zhash"`
+	Zone               int                        `bson:"zone"`
 }
 type mongoAttributesSparseAIDomain struct {
-	ID                        bson.ObjectId               `bson:"_id,omitempty"`
-	Compliances               *[]string                   `bson:"compliances,omitempty"`
-	CreateTime                *time.Time                  `bson:"createtime,omitempty"`
-	DataResidency             *[]string                   `bson:"dataresidency,omitempty"`
-	DataSharing               *bool                       `bson:"datasharing,omitempty"`
-	DataSharingConsent        *bool                       `bson:"datasharingconsent,omitempty"`
-	Description               *string                     `bson:"description,omitempty"`
-	Domain                    *string                     `bson:"domain,omitempty"`
-	ImportHash                *string                     `bson:"importhash,omitempty"`
-	ImportLabel               *string                     `bson:"importlabel,omitempty"`
-	IsAIDomain                *bool                       `bson:"isaidomain,omitempty"`
-	Models                    *[]string                   `bson:"models,omitempty"`
-	Namespace                 *string                     `bson:"namespace,omitempty"`
-	Propagate                 *bool                       `bson:"propagate,omitempty"`
-	ProviderName              *string                     `bson:"providername,omitempty"`
-	ProviderRetentionPolicies *[]*ProviderRetentionPolicy `bson:"providerretentionpolicies,omitempty"`
-	ProviderTrainingPolicies  *[]*ProviderTrainingPolicy  `bson:"providertrainingpolicies,omitempty"`
-	RiskExplanation           *string                     `bson:"riskexplanation,omitempty"`
-	RiskScore                 *float64                    `bson:"riskscore,omitempty"`
-	ThirdPartyModelUsage      *bool                       `bson:"thirdpartymodelusage,omitempty"`
-	UpdateTime                *time.Time                  `bson:"updatetime,omitempty"`
-	ZHash                     *int                        `bson:"zhash,omitempty"`
-	Zone                      *int                        `bson:"zone,omitempty"`
+	ID                 bson.ObjectId               `bson:"_id,omitempty"`
+	LLMProviders       *[]*AIDSectionLLMProvider   `bson:"llmproviders,omitempty"`
+	LLMProvidersRisk   *AIDRisk                    `bson:"llmprovidersrisk,omitempty"`
+	Address            *string                     `bson:"address,omitempty"`
+	Company            *string                     `bson:"company,omitempty"`
+	CompanyURL         *string                     `bson:"companyurl,omitempty"`
+	Compliances        *[]*AIDSectionCompliance    `bson:"compliances,omitempty"`
+	CompliancesRisk    *AIDRisk                    `bson:"compliancesrisk,omitempty"`
+	CreateTime         *time.Time                  `bson:"createtime,omitempty"`
+	DataPolicies       *[]*AIDSectionDataPolicy    `bson:"datapolicies,omitempty"`
+	DataPoliciesRisk   *AIDRisk                    `bson:"datapoliciesrisk,omitempty"`
+	DataProcessors     *[]*AIDSectionDataProcessor `bson:"dataprocessors,omitempty"`
+	DataProcessorsRisk *AIDRisk                    `bson:"dataprocessorsrisk,omitempty"`
+	Description        *string                     `bson:"description,omitempty"`
+	Domain             *string                     `bson:"domain,omitempty"`
+	ExecutiveSummary   *string                     `bson:"executivesummary,omitempty"`
+	Features           *[]*AIDSection              `bson:"features,omitempty"`
+	ImportHash         *string                     `bson:"importhash,omitempty"`
+	ImportLabel        *string                     `bson:"importlabel,omitempty"`
+	Industry           *AIDSection                 `bson:"industry,omitempty"`
+	Name               *string                     `bson:"name,omitempty"`
+	Namespace          *string                     `bson:"namespace,omitempty"`
+	Plans              *[]*AIDSectionPlan          `bson:"plans,omitempty"`
+	Propagate          *bool                       `bson:"propagate,omitempty"`
+	ProviderName       *string                     `bson:"providername,omitempty"`
+	Summary            *AIDSummary                 `bson:"summary,omitempty"`
+	UpdateTime         *time.Time                  `bson:"updatetime,omitempty"`
+	ZHash              *int                        `bson:"zhash,omitempty"`
+	Zone               *int                        `bson:"zone,omitempty"`
 }

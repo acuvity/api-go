@@ -274,6 +274,10 @@ type Extractor struct {
 	// If not empty, use this lua code to run the extraction.
 	Script string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
+	// If true, the content will be logged with no analysis taken and content sent back
+	// as-is.
+	SkipAnalysis bool `json:"skipAnalysis" msgpack:"skipAnalysis" bson:"skipanalysis" mapstructure:"skipAnalysis,omitempty"`
+
 	// The type of extractor.
 	Type ExtractorTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
@@ -356,6 +360,7 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.Path = o.Path
 	s.Propagate = o.Propagate
 	s.Script = o.Script
+	s.SkipAnalysis = o.SkipAnalysis
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -368,8 +373,8 @@ func (o *Extractor) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *Extractor) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesExtractor{}
@@ -398,6 +403,7 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.Path = s.Path
 	o.Propagate = s.Propagate
 	o.Script = s.Script
+	o.SkipAnalysis = s.SkipAnalysis
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -541,6 +547,7 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Path:               &o.Path,
 			Propagate:          &o.Propagate,
 			Script:             &o.Script,
+			SkipAnalysis:       &o.SkipAnalysis,
 			Type:               &o.Type,
 			UpdateTime:         &o.UpdateTime,
 			ZHash:              &o.ZHash,
@@ -593,6 +600,8 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Propagate = &(o.Propagate)
 		case "script":
 			sp.Script = &(o.Script)
+		case "skipAnalysis":
+			sp.SkipAnalysis = &(o.SkipAnalysis)
 		case "type":
 			sp.Type = &(o.Type)
 		case "updateTime":
@@ -676,6 +685,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Script != nil {
 		o.Script = *so.Script
+	}
+	if so.SkipAnalysis != nil {
+		o.SkipAnalysis = *so.SkipAnalysis
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -854,6 +866,8 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.Propagate
 	case "script":
 		return o.Script
+	case "skipAnalysis":
+		return o.SkipAnalysis
 	case "type":
 		return o.Type
 	case "updateTime":
@@ -1145,6 +1159,17 @@ extractor script.`,
 		Name:           "script",
 		Stored:         true,
 		Type:           "string",
+	},
+	"SkipAnalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "skipanalysis",
+		ConvertedName:  "SkipAnalysis",
+		Description: `If true, the content will be logged with no analysis taken and content sent back
+as-is.`,
+		Exposed: true,
+		Name:    "skipAnalysis",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1453,6 +1478,17 @@ extractor script.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"skipanalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "skipanalysis",
+		ConvertedName:  "SkipAnalysis",
+		Description: `If true, the content will be logged with no analysis taken and content sent back
+as-is.`,
+		Exposed: true,
+		Name:    "skipAnalysis",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
 		BSONFieldName:  "type",
@@ -1635,6 +1671,10 @@ type SparseExtractor struct {
 	// If not empty, use this lua code to run the extraction.
 	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
+	// If true, the content will be logged with no analysis taken and content sent back
+	// as-is.
+	SkipAnalysis *bool `json:"skipAnalysis,omitempty" msgpack:"skipAnalysis,omitempty" bson:"skipanalysis,omitempty" mapstructure:"skipAnalysis,omitempty"`
+
 	// The type of extractor.
 	Type *ExtractorTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
@@ -1753,6 +1793,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.Script != nil {
 		s.Script = o.Script
 	}
+	if o.SkipAnalysis != nil {
+		s.SkipAnalysis = o.SkipAnalysis
+	}
 	if o.Type != nil {
 		s.Type = o.Type
 	}
@@ -1844,6 +1887,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.Script != nil {
 		o.Script = s.Script
 	}
+	if s.SkipAnalysis != nil {
+		o.SkipAnalysis = s.SkipAnalysis
+	}
 	if s.Type != nil {
 		o.Type = s.Type
 	}
@@ -1932,6 +1978,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Script != nil {
 		out.Script = *o.Script
+	}
+	if o.SkipAnalysis != nil {
+		out.SkipAnalysis = *o.SkipAnalysis
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -2101,6 +2150,7 @@ type mongoAttributesExtractor struct {
 	Path               string                       `bson:"path"`
 	Propagate          bool                         `bson:"propagate"`
 	Script             string                       `bson:"script,omitempty"`
+	SkipAnalysis       bool                         `bson:"skipanalysis"`
 	Type               ExtractorTypeValue           `bson:"type"`
 	UpdateTime         time.Time                    `bson:"updatetime"`
 	ZHash              int                          `bson:"zhash"`
@@ -2128,6 +2178,7 @@ type mongoAttributesSparseExtractor struct {
 	Path               *string                       `bson:"path,omitempty"`
 	Propagate          *bool                         `bson:"propagate,omitempty"`
 	Script             *string                       `bson:"script,omitempty"`
+	SkipAnalysis       *bool                         `bson:"skipanalysis,omitempty"`
 	Type               *ExtractorTypeValue           `bson:"type,omitempty"`
 	UpdateTime         *time.Time                    `bson:"updatetime,omitempty"`
 	ZHash              *int                          `bson:"zhash,omitempty"`

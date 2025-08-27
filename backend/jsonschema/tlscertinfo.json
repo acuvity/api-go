@@ -1,0 +1,157 @@
+{
+  "$extends": [],
+  "$friendlyName": "TLS Certificate Information",
+  "$friendlyNamePlural": "TLS Certificate Informations",
+  "$modelName": "TLSCertInfo",
+  "$modelPackage": "lain",
+  "$modelResourceName": "tlscertinfos",
+  "$modelRestName": "tlscertinfo",
+  "additionalProperties": false,
+  "description": "Describes a TLS certificate.",
+  "properties": {
+    "DNSAltNames": {
+      "$friendlyName": "DNS Alt Names",
+      "description": "The DNS Alt Names.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "DNSAltNames",
+      "type": "array"
+    },
+    "IPAltNames": {
+      "$friendlyName": "IP Alt Names",
+      "description": "The IP Alt Names.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "IPAltNames",
+      "type": "array"
+    },
+    "commonName": {
+      "$friendlyName": "Common Name",
+      "description": "The name of the subject.",
+      "title": "commonName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "countries": {
+      "$friendlyName": "Countries",
+      "description": "The countries of the subject.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "countries",
+      "type": "array"
+    },
+    "expiration": {
+      "$friendlyName": "Expiration",
+      "description": "The expiration date of the certificate.",
+      "title": "expiration",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issuerCommonName": {
+      "$friendlyName": "Issuer Common Name",
+      "description": "The name of the issuer.",
+      "title": "issuerCommonName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issuerCountries": {
+      "$friendlyName": "Issuer Countries",
+      "description": "The countries of the issuer.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "issuerCountries",
+      "type": "array"
+    },
+    "issuerOrgUnits": {
+      "$friendlyName": "Issuer Organizational Units",
+      "description": "The organizational units of the issuer.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "issuerOrgUnits",
+      "type": "array"
+    },
+    "issuerOrgs": {
+      "$friendlyName": "Issuer Organizations",
+      "description": "The organizations of the issuer.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "issuerOrgs",
+      "type": "array"
+    },
+    "issuerSerial": {
+      "$friendlyName": "Issuer Serial",
+      "description": "The string representation of the issuer serial number.",
+      "title": "issuerSerial",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "orgUnits": {
+      "$friendlyName": "Organizational Units",
+      "description": "The organizational units of the subject.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "orgUnits",
+      "type": "array"
+    },
+    "orgs": {
+      "$friendlyName": "Organizations",
+      "description": "The organizations of the subject.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "orgs",
+      "type": "array"
+    },
+    "serial": {
+      "$friendlyName": "Serial",
+      "description": "The string representation of the certificate serial number.",
+      "title": "serial",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "TLSCertInfo",
+  "type": "object"
+}

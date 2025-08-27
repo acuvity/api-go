@@ -1,0 +1,52 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AID Risk",
+  "$friendlyNamePlural": "AID Risks",
+  "$modelName": "AIDRisk",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidrisk",
+  "$modelRestName": "aidrisk",
+  "additionalProperties": false,
+  "description": "AIDomain Risk.",
+  "properties": {
+    "gaps": {
+      "$friendlyName": "Gaps",
+      "description": "List of gaps which are creating the risk.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "gaps",
+      "type": "array"
+    },
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "reason": {
+      "$friendlyName": "Reason",
+      "$required": true,
+      "description": "The reason explaning the level.",
+      "title": "reason",
+      "type": "string"
+    }
+  },
+  "required": [
+    "level",
+    "reason"
+  ],
+  "title": "AIDRisk",
+  "type": "object"
+}

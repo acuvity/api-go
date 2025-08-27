@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Scan User",
+  "$friendlyNamePlural": "Scan Users",
+  "$modelName": "ScanUser",
+  "$modelPackage": "lain",
+  "$modelResourceName": "scanusers",
+  "$modelRestName": "scanuser",
+  "additionalProperties": false,
+  "description": "Information about the user scanned.",
+  "properties": {
+    "timestamp": {
+      "$friendlyName": "timestamp",
+      "description": "When the user accessed the url.",
+      "title": "timestamp",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "url": {
+      "$friendlyName": "URL",
+      "description": "The accessed URL.",
+      "title": "url",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "user": {
+      "$friendlyName": "User",
+      "description": "The user information.",
+      "title": "user",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ScanUser",
+  "type": "object"
+}

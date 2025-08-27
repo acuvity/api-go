@@ -18,10 +18,10 @@
     },
     "headers": {
       "$friendlyName": "Headers",
-      "description": "A list of headers to apply to all outgoing traces.",
-      "items": {
+      "additionalProperties": {
         "type": "string"
       },
+      "description": "A list of headers to apply to all outgoing traces.",
       "title": "headers",
       "type": "object"
     },

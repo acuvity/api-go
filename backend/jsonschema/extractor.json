@@ -229,6 +229,15 @@
         "null"
       ]
     },
+    "skipAnalysis": {
+      "$friendlyName": "Skip Analysis",
+      "description": "If true, the content will be logged with no analysis taken and content sent back as-is.",
+      "title": "skipAnalysis",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "type": {
       "$friendlyName": "Type",
       "$required": true,

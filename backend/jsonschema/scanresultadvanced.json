@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@scanresult"
+  ],
+  "$friendlyName": "Advanced Scan Result",
+  "$friendlyNamePlural": "Advanced Scan Results",
+  "$modelName": "ScanResultAdvanced",
+  "$modelPackage": "lain",
+  "$modelResourceName": "scanresultadvanced",
+  "$modelRestName": "scanresultadvanced",
+  "additionalProperties": false,
+  "description": "Result of an additional advanced scan.",
+  "properties": {
+    "description": {
+      "$friendlyName": "Description",
+      "$required": true,
+      "description": "The description of the scan.",
+      "title": "description",
+      "type": "string"
+    },
+    "error": {
+      "$friendlyName": "error",
+      "description": "If the status is 'Failed', holds the user facing error.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the scan.",
+      "title": "name",
+      "type": "string"
+    },
+    "status": {
+      "$friendlyName": "status",
+      "$required": true,
+      "description": "Status of the scan.",
+      "enum": [
+        "Pass",
+        "Failed",
+        "Skipped"
+      ],
+      "title": "status"
+    }
+  },
+  "required": [
+    "description",
+    "name",
+    "status"
+  ],
+  "title": "ScanResultAdvanced",
+  "type": "object"
+}

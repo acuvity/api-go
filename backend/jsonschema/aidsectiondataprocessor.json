@@ -1,0 +1,71 @@
+{
+  "$extends": [
+    "@aidsection"
+  ],
+  "$friendlyName": "AID Section Data Processor",
+  "$friendlyNamePlural": "AID Section Data Processors",
+  "$modelName": "AIDSectionDataProcessor",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsectiondataprocessors",
+  "$modelRestName": "aidsectiondataprocessor",
+  "additionalProperties": false,
+  "description": "AIDomain info section plan.",
+  "properties": {
+    "citations": {
+      "$friendlyName": "Citations",
+      "description": "The citations used to compute the section.",
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "title": "citations",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the section.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "locations": {
+      "$friendlyName": "Locations",
+      "description": "Locations of the data processor.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "locations",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the section.",
+      "title": "name",
+      "type": "string"
+    },
+    "risk": {
+      "$friendlyName": "Risk",
+      "$ref": "aidrisk.json",
+      "description": "The risk associated to the section.",
+      "title": "risk"
+    },
+    "service": {
+      "$friendlyName": "Service",
+      "$required": true,
+      "description": "Service provided by the data processor.",
+      "title": "service",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "service"
+  ],
+  "title": "AIDSectionDataProcessor",
+  "type": "object"
+}

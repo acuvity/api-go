@@ -6,6 +6,12 @@
       },
       "type": "array"
     },
+    "admindomainanalyses": {
+      "items": {
+        "$ref": "admindomainanalysis.json"
+      },
+      "type": "array"
+    },
     "adminmagiclinks": {
       "items": {
         "$ref": "adminmagiclink.json"
@@ -42,9 +48,69 @@
       },
       "type": "array"
     },
+    "aiapps": {
+      "items": {
+        "$ref": "aiapp.json"
+      },
+      "type": "array"
+    },
+    "aidcitation": {
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "type": "array"
+    },
     "aidomains": {
       "items": {
         "$ref": "aidomain.json"
+      },
+      "type": "array"
+    },
+    "aidrisk": {
+      "items": {
+        "$ref": "aidrisk.json"
+      },
+      "type": "array"
+    },
+    "aidsectioncompliances": {
+      "items": {
+        "$ref": "aidsectioncompliance.json"
+      },
+      "type": "array"
+    },
+    "aidsectiondatapolicies": {
+      "items": {
+        "$ref": "aidsectiondatapolicy.json"
+      },
+      "type": "array"
+    },
+    "aidsectiondataprocessors": {
+      "items": {
+        "$ref": "aidsectiondataprocessor.json"
+      },
+      "type": "array"
+    },
+    "aidsectionllmprovider": {
+      "items": {
+        "$ref": "aidsectionllmprovider.json"
+      },
+      "type": "array"
+    },
+    "aidsectionplans": {
+      "items": {
+        "$ref": "aidsectionplan.json"
+      },
+      "type": "array"
+    },
+    "aidsections": {
+      "items": {
+        "$ref": "aidsection.json"
+      },
+      "type": "array"
+    },
+    "aidsummaries": {
+      "items": {
+        "$ref": "aidsummary.json"
       },
       "type": "array"
     },
@@ -444,12 +510,6 @@
       },
       "type": "array"
     },
-    "providerdetails": {
-      "items": {
-        "$ref": "providerdetail.json"
-      },
-      "type": "array"
-    },
     "providerretentionpolicies": {
       "items": {
         "$ref": "providerretentionpolicy.json"
@@ -516,6 +576,48 @@
       },
       "type": "array"
     },
+    "scandomain": {
+      "items": {
+        "$ref": "scandomain.json"
+      },
+      "type": "array"
+    },
+    "scanreports": {
+      "items": {
+        "$ref": "scanreport.json"
+      },
+      "type": "array"
+    },
+    "scanresultadvanced": {
+      "items": {
+        "$ref": "scanresultadvanced.json"
+      },
+      "type": "array"
+    },
+    "scanresulthttp": {
+      "items": {
+        "$ref": "scanresulthttp.json"
+      },
+      "type": "array"
+    },
+    "scanresultls": {
+      "items": {
+        "$ref": "scanresulttls.json"
+      },
+      "type": "array"
+    },
+    "scanresultping": {
+      "items": {
+        "$ref": "scanresultping.json"
+      },
+      "type": "array"
+    },
+    "scanusers": {
+      "items": {
+        "$ref": "scanuser.json"
+      },
+      "type": "array"
+    },
     "schemaversions": {
       "items": {
         "$ref": "schemaversion.json"
@@ -573,6 +675,12 @@
     "textualdetections": {
       "items": {
         "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    },
+    "tlscertinfos": {
+      "items": {
+        "$ref": "tlscertinfo.json"
       },
       "type": "array"
     },

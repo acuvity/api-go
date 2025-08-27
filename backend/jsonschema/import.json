@@ -9,6 +9,15 @@
   "additionalProperties": false,
   "description": "Import multiple resource at once.",
   "properties": {
+    "AIApps": {
+      "$friendlyName": "AI Applications",
+      "description": "AI applications to import.",
+      "items": {
+        "$ref": "aiapp.json"
+      },
+      "title": "AIApps",
+      "type": "array"
+    },
     "AIDomains": {
       "$friendlyName": "AI Domains",
       "description": "AI domains to import.",

@@ -1,0 +1,41 @@
+{
+  "$extends": [],
+  "$friendlyName": "AID Citation",
+  "$friendlyNamePlural": "AID Citations",
+  "$modelName": "AIDCitation",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidcitation",
+  "$modelRestName": "aidcitation",
+  "additionalProperties": false,
+  "description": "AIDomain Citation.",
+  "properties": {
+    "URL": {
+      "$friendlyName": "URL",
+      "$required": true,
+      "description": "An URL for the risk.",
+      "title": "URL",
+      "type": "string"
+    },
+    "quote": {
+      "$friendlyName": "Quote",
+      "$required": true,
+      "description": "A quote extracted from the source.",
+      "title": "quote",
+      "type": "string"
+    },
+    "title": {
+      "$friendlyName": "Title",
+      "$required": true,
+      "description": "The title of the page.",
+      "title": "title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "URL",
+    "quote",
+    "title"
+  ],
+  "title": "AIDCitation",
+  "type": "object"
+}

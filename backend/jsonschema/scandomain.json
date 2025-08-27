@@ -1,0 +1,85 @@
+{
+  "$extends": [],
+  "$friendlyName": "Scan Domain",
+  "$friendlyNamePlural": "Scan Domains",
+  "$modelName": "ScanDomain",
+  "$modelPackage": "lain",
+  "$modelResourceName": "scandomain",
+  "$modelRestName": "scandomain",
+  "additionalProperties": false,
+  "description": "Report sent by the Acuvity scanner.",
+  "properties": {
+    "HTTPScanResult": {
+      "$friendlyName": "HTTP Scan Results",
+      "$ref": "scanresulthttp.json",
+      "description": "Holds the results of the HTTP Scan.",
+      "title": "HTTPScanResult"
+    },
+    "PingScanResult": {
+      "$friendlyName": "Ping Scan Results",
+      "$ref": "scanresultping.json",
+      "description": "Holds the results of the Ping Scan.",
+      "title": "PingScanResult"
+    },
+    "TLSScanResult": {
+      "$friendlyName": "HTTP Scan Results",
+      "$ref": "scanresulttls.json",
+      "description": "Holds the results of the HTTP Scan.",
+      "title": "TLSScanResult"
+    },
+    "advancedScanResults": {
+      "$friendlyName": "Advanced Scan Results",
+      "additionalProperties": {
+        "$ref": "scanresultadvanced.json"
+      },
+      "description": "Holds the results of additional scans.",
+      "title": "advancedScanResults",
+      "type": "object"
+    },
+    "domainID": {
+      "$friendlyName": "Domain ID",
+      "$required": true,
+      "description": "Reference to the AI domain ID.",
+      "title": "domainID",
+      "type": "string"
+    },
+    "domainNamespace": {
+      "$friendlyName": "Domain Namespace",
+      "$required": true,
+      "description": "Reference to the AI domain namespace.",
+      "title": "domainNamespace",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the domain.",
+      "title": "name",
+      "type": "string"
+    },
+    "riskScore": {
+      "$friendlyName": "Risk Score",
+      "$required": true,
+      "description": "The Risk Score.",
+      "title": "riskScore",
+      "type": "number"
+    },
+    "users": {
+      "$friendlyName": "Users",
+      "description": "The user information.",
+      "items": {
+        "$ref": "scanuser.json"
+      },
+      "title": "users",
+      "type": "array"
+    }
+  },
+  "required": [
+    "domainID",
+    "domainNamespace",
+    "name",
+    "riskScore"
+  ],
+  "title": "ScanDomain",
+  "type": "object"
+}

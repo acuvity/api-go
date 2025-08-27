@@ -1,0 +1,75 @@
+{
+  "$extends": [
+    "@aidsection"
+  ],
+  "$friendlyName": "AID Section LLM Provider",
+  "$friendlyNamePlural": "AID Section LLM Providers",
+  "$modelName": "AIDSectionLLMProvider",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsectionllmprovider",
+  "$modelRestName": "aidsectionllmprovider",
+  "additionalProperties": false,
+  "description": "AIDomain info section for LLM provider.",
+  "properties": {
+    "citations": {
+      "$friendlyName": "Citations",
+      "description": "The citations used to compute the section.",
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "title": "citations",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the section.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "models": {
+      "$friendlyName": "Models",
+      "description": "List of Models used by the provider.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "models",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the section.",
+      "title": "name",
+      "type": "string"
+    },
+    "risk": {
+      "$friendlyName": "Risk",
+      "$ref": "aidrisk.json",
+      "description": "The risk associated to the section.",
+      "title": "risk"
+    },
+    "type": {
+      "$friendlyName": "type",
+      "description": "Type of LLM Provider.",
+      "enum": [
+        "FirstParty",
+        "ThirdParty",
+        "Hybrid",
+        "BYOM",
+        "Unknown"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AIDSectionLLMProvider",
+  "type": "object"
+}

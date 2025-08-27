@@ -25,17 +25,62 @@
         "null"
       ]
     },
+    "LLMProviders": {
+      "$friendlyName": "LLMProviders",
+      "description": "List of LLM providers the provider uses.",
+      "items": {
+        "$ref": "aidsectionllmprovider.json"
+      },
+      "title": "LLMProviders",
+      "type": "array"
+    },
+    "LLMProvidersRisk": {
+      "$friendlyName": "LLM Provider Risk",
+      "$ref": "aidrisk.json",
+      "description": "Overall risk assessment for the LLM providers.",
+      "title": "LLMProvidersRisk"
+    },
+    "address": {
+      "$friendlyName": "Address",
+      "description": "The address of the company.",
+      "title": "address",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "company": {
+      "$friendlyName": "Company",
+      "description": "The name of the company.",
+      "title": "company",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "companyURL": {
+      "$friendlyName": "Company URL",
+      "description": "The url of the company.",
+      "title": "companyURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "compliances": {
       "$friendlyName": "Compliances",
-      "description": "The list of compliance provided by the domain.",
+      "description": "Certifications or Security Frameworks implemented by the provider.",
       "items": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "$ref": "aidsectioncompliance.json"
       },
       "title": "compliances",
       "type": "array"
+    },
+    "compliancesRisk": {
+      "$friendlyName": "Compliances Risk",
+      "$ref": "aidrisk.json",
+      "description": "Overall risk assessment for the compliences.",
+      "title": "compliancesRisk"
     },
     "createTime": {
       "$friendlyName": "CreateTime",
@@ -47,35 +92,35 @@
         "null"
       ]
     },
-    "dataResidency": {
-      "$friendlyName": "Data Residency",
-      "description": "The user data storage location.",
+    "dataPolicies": {
+      "$friendlyName": "Data Policies",
+      "description": "List of policies defining how the provider will use customer data.",
       "items": {
-        "type": [
-          "string",
-          "null"
-        ]
+        "$ref": "aidsectiondatapolicy.json"
       },
-      "title": "dataResidency",
+      "title": "dataPolicies",
       "type": "array"
     },
-    "dataSharing": {
-      "$friendlyName": "Data Sharing",
-      "description": "Does the provider share user data with 3rd party or services.",
-      "title": "dataSharing",
-      "type": [
-        "boolean",
-        "null"
-      ]
+    "dataPoliciesRisk": {
+      "$friendlyName": "Data Policies Risk",
+      "$ref": "aidrisk.json",
+      "description": "Overall risk assessment for the data policies.",
+      "title": "dataPoliciesRisk"
     },
-    "dataSharingConsent": {
-      "$friendlyName": "Data Sharing Consent",
-      "description": "Does the provider share user data with consent with 3rd party or services.",
-      "title": "dataSharingConsent",
-      "type": [
-        "boolean",
-        "null"
-      ]
+    "dataProcessors": {
+      "$friendlyName": "dataProcessors",
+      "description": "List of data processors used the provider.",
+      "items": {
+        "$ref": "aidsectiondataprocessor.json"
+      },
+      "title": "dataProcessors",
+      "type": "array"
+    },
+    "dataProcessorsRisk": {
+      "$friendlyName": "Data Processor Risk",
+      "$ref": "aidrisk.json",
+      "description": "Overall risk assessment for the data processors.",
+      "title": "dataProcessorsRisk"
     },
     "description": {
       "$friendlyName": "Description",
@@ -87,12 +132,29 @@
       ]
     },
     "domain": {
-      "$creationOnly": true,
       "$friendlyName": "Domain",
       "$required": true,
-      "description": "The domain of the AI provider.",
+      "description": "The domain of the service.",
       "title": "domain",
       "type": "string"
+    },
+    "executiveSummary": {
+      "$friendlyName": "Executive Summary",
+      "description": "The executive summary.",
+      "title": "executiveSummary",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "features": {
+      "$friendlyName": "Features",
+      "description": "The features implemented by the provider.",
+      "items": {
+        "$ref": "aidsection.json"
+      },
+      "title": "features",
+      "type": "array"
     },
     "importHash": {
       "$creationOnly": true,
@@ -114,26 +176,18 @@
         "null"
       ]
     },
-    "isAIDomain": {
-      "$friendlyName": "Is AIDomain",
-      "description": "Flag to say if the domain is a AI domain or not.",
-      "title": "isAIDomain",
-      "type": [
-        "boolean",
-        "null"
-      ]
+    "industry": {
+      "$friendlyName": "Industry",
+      "$ref": "aidsection.json",
+      "description": "The AI Categories of the services.",
+      "title": "industry"
     },
-    "models": {
-      "$friendlyName": "Models",
-      "description": "List of AI models used by the domain.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "models",
-      "type": "array"
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the ai domain.",
+      "title": "name",
+      "type": "string"
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -144,6 +198,15 @@
         "string",
         "null"
       ]
+    },
+    "plans": {
+      "$friendlyName": "Plans",
+      "description": "List of plans/tiers offered by the provider.",
+      "items": {
+        "$ref": "aidsectionplan.json"
+      },
+      "title": "plans",
+      "type": "array"
     },
     "propagate": {
       "$defaultValue": true,
@@ -164,49 +227,11 @@
         "null"
       ]
     },
-    "providerRetentionPolicies": {
-      "$friendlyName": "Provider Retention Policy",
-      "description": "The data retention policies by the domain for each type of users.",
-      "items": {
-        "$ref": "providerretentionpolicy.json"
-      },
-      "title": "providerRetentionPolicies",
-      "type": "array"
-    },
-    "providerTrainingPolicies": {
-      "$friendlyName": "Data Usage To Train",
-      "description": "Does the provider use user data for training its model.",
-      "items": {
-        "$ref": "providertrainingpolicy.json"
-      },
-      "title": "providerTrainingPolicies",
-      "type": "array"
-    },
-    "riskExplanation": {
-      "$friendlyName": "Risk Explanation",
-      "description": "A Markdown formatted string explaining the risk score.",
-      "title": "riskExplanation",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "riskScore": {
-      "$friendlyName": "Risk score",
-      "$required": true,
-      "description": "The risk score for the domain.",
-      "maximum": 1,
-      "title": "riskScore",
-      "type": "number"
-    },
-    "thirdPartyModelUsage": {
-      "$friendlyName": "Third Party Model Usage",
-      "description": "Does provider use third party model.",
-      "title": "thirdPartyModelUsage",
-      "type": [
-        "boolean",
-        "null"
-      ]
+    "summary": {
+      "$friendlyName": "Summary",
+      "$ref": "aidsummary.json",
+      "description": "Quick machine friendly summary.",
+      "title": "summary"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -221,7 +246,7 @@
   },
   "required": [
     "domain",
-    "riskScore"
+    "name"
   ],
   "title": "AIDomain",
   "type": "object"

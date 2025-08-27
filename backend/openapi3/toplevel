@@ -97,6 +97,35 @@
         ],
         "type": "object"
       },
+      "admindomainanalysis": {
+        "description": "Administrative API to send a request to analyze a domain.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "domain": {
+            "description": "Domain to analyze. The analyzis will be sent to refactai.",
+            "example": "chatgpt.com",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "provider": {
+            "description": "Provider name to related to the domain.",
+            "example": "chatgpt",
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "type": "object"
+      },
       "adminmagiclink": {
         "description": "Administrative API to create magic links.",
         "properties": {
@@ -423,6 +452,7 @@
             "items": {
               "type": "string"
             },
+            "readOnly": true,
             "type": "array"
           },
           "subject": {
@@ -453,10 +483,10 @@
             "$ref": "#/components/schemas/tunnelproxyauth"
           },
           "tunnelProxyHeaders": {
-            "description": "If you are using a proxy server for the tunnel connection, you can specify\nadditional headers to be sent with the requests to the proxy.",
-            "items": {
+            "additionalProperties": {
               "type": "string"
             },
+            "description": "If you are using a proxy server for the tunnel connection, you can specify\nadditional headers to be sent with the requests to the proxy.",
             "type": "object"
           },
           "tunnelProxyURL": {
@@ -494,6 +524,7 @@
             "items": {
               "type": "string"
             },
+            "readOnly": true,
             "type": "array"
           }
         },
@@ -551,25 +582,13 @@
         ],
         "type": "object"
       },
-      "aidomain": {
-        "description": "AI domain provides an AI risk score given a domain url.",
+      "aiapp": {
+        "description": "AI application provides an overview of an AI-related application.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
-          },
-          "compliances": {
-            "description": "The list of compliance provided by the domain.",
-            "example": [
-              "SOC2",
-              "GDPR",
-              "HIPAA"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
           },
           "createTime": {
             "description": "Creation date of the object.",
@@ -577,33 +596,13 @@
             "readOnly": true,
             "type": "string"
           },
-          "dataResidency": {
-            "description": "The user data storage location.",
-            "example": [
-              "US",
-              "EU",
-              "China"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "dataSharing": {
-            "description": "Does the provider share user data with 3rd party or services.",
-            "type": "boolean"
-          },
-          "dataSharingConsent": {
-            "description": "Does the provider share user data with consent with 3rd party or services.",
-            "type": "boolean"
-          },
           "description": {
-            "description": "A brief description about the AI domain and what services it provides.",
+            "description": "A brief description about the AI application and its purpose.",
             "example": "A description text",
             "type": "string"
           },
           "domain": {
-            "description": "The domain of the AI provider.",
+            "description": "The domain of the main provider.",
             "example": "openai.com",
             "type": "string"
           },
@@ -615,25 +614,185 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
-          "isAIDomain": {
-            "description": "Flag to say if the domain is a AI domain or not.",
-            "type": "boolean"
+          "name": {
+            "description": "The name of the application.",
+            "example": "My Simple App",
+            "type": "string"
           },
-          "models": {
-            "description": "List of AI models used by the domain.",
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "processNames": {
+            "description": "The names of the process when running as an application.",
             "example": [
-              "gpt-4o",
-              "gpt-4"
+              "mistral",
+              "mistral_desktop"
             ],
             "items": {
               "type": "string"
             },
             "type": "array"
           },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "processNames"
+        ],
+        "type": "object"
+      },
+      "aidcitation": {
+        "description": "AIDomain Citation.",
+        "properties": {
+          "URL": {
+            "description": "An URL for the risk.",
+            "example": "perdu.com",
+            "type": "string"
+          },
+          "quote": {
+            "description": "A quote extracted from the source.",
+            "example": "Lorem Ipsum.",
+            "type": "string"
+          },
+          "title": {
+            "description": "The title of the page.",
+            "example": "Vous etes perdu?",
+            "type": "string"
+          }
+        },
+        "required": [
+          "URL",
+          "quote",
+          "title"
+        ],
+        "type": "object"
+      },
+      "aidomain": {
+        "description": "AI domain provides an AI risk score given a domain url.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "LLMProviders": {
+            "description": "List of LLM providers the provider uses.",
+            "items": {
+              "$ref": "#/components/schemas/aidsectionllmprovider"
+            },
+            "type": "array"
+          },
+          "LLMProvidersRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "address": {
+            "description": "The address of the company.",
+            "type": "string"
+          },
+          "company": {
+            "description": "The name of the company.",
+            "type": "string"
+          },
+          "companyURL": {
+            "description": "The url of the company.",
+            "type": "string"
+          },
+          "compliances": {
+            "description": "Certifications or Security Frameworks implemented by the provider.",
+            "items": {
+              "$ref": "#/components/schemas/aidsectioncompliance"
+            },
+            "type": "array"
+          },
+          "compliancesRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataPolicies": {
+            "description": "List of policies defining how the provider will use customer data.",
+            "items": {
+              "$ref": "#/components/schemas/aidsectiondatapolicy"
+            },
+            "type": "array"
+          },
+          "dataPoliciesRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "dataProcessors": {
+            "description": "List of data processors used the provider.",
+            "items": {
+              "$ref": "#/components/schemas/aidsectiondataprocessor"
+            },
+            "type": "array"
+          },
+          "dataProcessorsRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "description": {
+            "description": "A brief description about the AI domain and what services it provides.",
+            "example": "A description text",
+            "type": "string"
+          },
+          "domain": {
+            "description": "The domain of the service.",
+            "example": "openai.com",
+            "type": "string"
+          },
+          "executiveSummary": {
+            "description": "The executive summary.",
+            "type": "string"
+          },
+          "features": {
+            "description": "The features implemented by the provider.",
+            "items": {
+              "$ref": "#/components/schemas/aidsection"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "industry": {
+            "$ref": "#/components/schemas/aidsection"
+          },
+          "name": {
+            "description": "The name of the ai domain.",
+            "example": "OpenAI Inc.",
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "plans": {
+            "description": "List of plans/tiers offered by the provider.",
+            "items": {
+              "$ref": "#/components/schemas/aidsectionplan"
+            },
+            "type": "array"
           },
           "propagate": {
             "default": true,
@@ -645,40 +804,8 @@
             "example": "chatgpt",
             "type": "string"
           },
-          "providerRetentionPolicies": {
-            "description": "The data retention policies by the domain for each type of users.",
-            "items": {
-              "$ref": "#/components/schemas/providerretentionpolicy"
-            },
-            "type": "array"
-          },
-          "providerTrainingPolicies": {
-            "description": "Does the provider use user data for training its model.",
-            "example": [
-              {
-                "description": "provider uses user data for training the models on Free plan ",
-                "subscriptiontype": "Free",
-                "useData": true
-              }
-            ],
-            "items": {
-              "$ref": "#/components/schemas/providertrainingpolicy"
-            },
-            "type": "array"
-          },
-          "riskExplanation": {
-            "description": "A Markdown formatted string explaining the risk score.",
-            "example": "A markdown string",
-            "type": "string"
-          },
-          "riskScore": {
-            "description": "The risk score for the domain.",
-            "example": 0.5,
-            "type": "number"
-          },
-          "thirdPartyModelUsage": {
-            "description": "Does provider use third party model.",
-            "type": "boolean"
+          "summary": {
+            "$ref": "#/components/schemas/aidsummary"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -689,7 +816,326 @@
         },
         "required": [
           "domain",
-          "riskScore"
+          "name"
+        ],
+        "type": "object"
+      },
+      "aidrisk": {
+        "description": "AIDomain Risk.",
+        "properties": {
+          "gaps": {
+            "description": "List of gaps which are creating the risk.",
+            "example": [
+              "RiskGap1",
+              "RiskGap2"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "level": {
+            "description": "The level of the risk.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "reason": {
+            "description": "The reason explaning the level.",
+            "example": "Because",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "aidsection": {
+        "description": "AIDomain info section.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aidsectioncompliance": {
+        "description": "AIDomain compliance information.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "type": {
+            "description": "Type of the compliance.",
+            "enum": [
+              "Certification",
+              "Framework"
+            ],
+            "example": "Certification"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "aidsectiondatapolicy": {
+        "description": "AIDomain data policy information.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "retention": {
+            "$ref": "#/components/schemas/aidsection"
+          },
+          "retentionPeriod": {
+            "description": "Data retention period in days.",
+            "type": "integer"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "sharing": {
+            "$ref": "#/components/schemas/aidsection"
+          },
+          "sharingConsent": {
+            "description": "If false, the provider shares data without user consent.",
+            "type": "boolean"
+          },
+          "training": {
+            "$ref": "#/components/schemas/aidsection"
+          },
+          "trainingConsent": {
+            "description": "If false, the provider shares data without user consent.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aidsectiondataprocessor": {
+        "description": "AIDomain info section plan.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "locations": {
+            "description": "Locations of the data processor.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "service": {
+            "description": "Service provided by the data processor.",
+            "example": "Content Delivery Network",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "service"
+        ],
+        "type": "object"
+      },
+      "aidsectionllmprovider": {
+        "description": "AIDomain info section for LLM provider.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "models": {
+            "description": "List of Models used by the provider.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "type": {
+            "description": "Type of LLM Provider.",
+            "enum": [
+              "FirstParty",
+              "ThirdParty",
+              "Hybrid",
+              "BYOM",
+              "Unknown"
+            ]
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aidsectionplan": {
+        "description": "AIDomain info section plan.",
+        "properties": {
+          "citations": {
+            "description": "The citations used to compute the section.",
+            "items": {
+              "$ref": "#/components/schemas/aidcitation"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the section.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the section.",
+            "example": "Infrastructure \u0026 Hosting",
+            "type": "string"
+          },
+          "risk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "type": {
+            "$ref": "#/components/schemas/aidsection"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aidsummary": {
+        "description": "AIDomain Summary.",
+        "properties": {
+          "compliances": {
+            "description": "The list of compliances.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "level": {
+            "description": "The level of the risk.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "ownModel": {
+            "description": "If true, the provider uses its own in-house model.",
+            "type": "boolean"
+          },
+          "residencies": {
+            "description": "The residencies of the data.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "retentions": {
+            "description": "List of retention policies.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "sharing": {
+            "description": "If true, the provider shares data with third-party vendors.",
+            "type": "boolean"
+          },
+          "training": {
+            "description": "If true, the provider use customer data to train their model.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "level"
         ],
         "type": "object"
       },
@@ -2017,10 +2463,10 @@
             "type": "object"
           },
           "annotations": {
-            "description": "Annotations attached to the extraction.",
-            "items": {
+            "additionalProperties": {
               "type": "string"
             },
+            "description": "Annotations attached to the extraction.",
             "type": "object"
           },
           "categories": {
@@ -2414,6 +2860,10 @@
             "description": "If not empty, use this lua code to run the extraction.",
             "type": "string"
           },
+          "skipAnalysis": {
+            "description": "If true, the content will be logged with no analysis taken and content sent back\nas-is.",
+            "type": "boolean"
+          },
           "type": {
             "description": "The type of extractor.",
             "enum": [
@@ -2687,6 +3137,13 @@
       "import": {
         "description": "Import multiple resource at once.",
         "properties": {
+          "AIApps": {
+            "description": "AI applications to import.",
+            "items": {
+              "$ref": "#/components/schemas/aiapp"
+            },
+            "type": "array"
+          },
           "AIDomains": {
             "description": "AI domains to import.",
             "items": {
@@ -3775,10 +4232,10 @@
             "type": "string"
           },
           "headers": {
-            "description": "A list of headers to apply to all outgoing traces.",
-            "items": {
+            "additionalProperties": {
               "type": "string"
             },
+            "description": "A list of headers to apply to all outgoing traces.",
             "type": "object"
           },
           "protocol": {
@@ -4439,6 +4896,10 @@
           "upstreamUnsecure": {
             "description": "If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for\ndev purposes.",
             "type": "boolean"
+          },
+          "webHost": {
+            "description": "The main hosts for marketing and legal materials content. This is used to link\nsome HQ domain to the actual provider domain. For instance webHost for\nmail.superhuman.com should be superhuman.com.",
+            "type": "string"
           }
         },
         "required": [
@@ -4446,124 +4907,6 @@
           "friendlyName",
           "name",
           "status"
-        ],
-        "type": "object"
-      },
-      "providerdetail": {
-        "description": "List all information about the provider and its AI domain.",
-        "properties": {
-          "ID": {
-            "description": "ID is the identifier of the object.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "compliances": {
-            "description": "The list of compliance provided by the domain.",
-            "example": [
-              "SOC2",
-              "GDPR",
-              "HIPAA"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "dataResidency": {
-            "description": "The user data storage location.",
-            "example": [
-              "US",
-              "EU",
-              "China"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "dataSharing": {
-            "description": "Does the provider share user data with 3rd party or services.",
-            "example": "A description text",
-            "type": "boolean"
-          },
-          "dataSharingConsent": {
-            "description": "Does the provider share user data with consent with 3rd party or services.",
-            "example": "A flag to indicate data sharing with consent",
-            "type": "boolean"
-          },
-          "description": {
-            "description": "The description of the provider detail.",
-            "type": "string"
-          },
-          "domain": {
-            "description": "Domain of the provider detail.",
-            "type": "string"
-          },
-          "friendlyName": {
-            "description": "Friendly Name of the provider detail.",
-            "example": "OpenAI",
-            "type": "string"
-          },
-          "icon": {
-            "description": "The icon of the providerdetail, base64 encoded.",
-            "type": "string"
-          },
-          "models": {
-            "description": "List of AI models used by the domain.",
-            "example": [
-              "gpt-4o",
-              "gpt-4"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "name": {
-            "description": "Name of the provider detail.",
-            "example": "openai",
-            "type": "string"
-          },
-          "namespace": {
-            "description": "The namespace of the object.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "providerRetentionPolicies": {
-            "description": "The data retention policies by the domain for each type of users.",
-            "items": {
-              "$ref": "#/components/schemas/providerretentionpolicy"
-            },
-            "type": "array"
-          },
-          "providerTrainingPolicies": {
-            "description": "Does the provider use user data for training its model.",
-            "example": [
-              {
-                "description": "provider uses user data for training the models on Free plan ",
-                "subscriptiontype": "Free",
-                "useData": true
-              }
-            ],
-            "items": {
-              "$ref": "#/components/schemas/providertrainingpolicy"
-            },
-            "type": "array"
-          },
-          "riskScore": {
-            "description": "The risk score for the domain.",
-            "example": 0.5,
-            "type": "number"
-          },
-          "thirdPartyModelUsage": {
-            "description": "Does provider use third party model.",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "friendlyName",
-          "name",
-          "riskScore"
         ],
         "type": "object"
       },
@@ -4860,10 +5203,10 @@
             "type": "array"
           },
           "annotations": {
-            "description": "Annotations attached to the log.",
-            "items": {
+            "additionalProperties": {
               "type": "string"
             },
+            "description": "Annotations attached to the log.",
             "type": "object"
           },
           "client": {
@@ -5167,6 +5510,284 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "scandomain": {
+        "description": "Report sent by the Acuvity scanner.",
+        "properties": {
+          "HTTPScanResult": {
+            "$ref": "#/components/schemas/scanresulthttp"
+          },
+          "PingScanResult": {
+            "$ref": "#/components/schemas/scanresultping"
+          },
+          "TLSScanResult": {
+            "$ref": "#/components/schemas/scanresulttls"
+          },
+          "advancedScanResults": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/scanresultadvanced"
+            },
+            "description": "Holds the results of additional scans.",
+            "type": "object"
+          },
+          "domainID": {
+            "description": "Reference to the AI domain ID.",
+            "example": "xxx-xxx-xxx-xxx",
+            "type": "string"
+          },
+          "domainNamespace": {
+            "description": "Reference to the AI domain namespace.",
+            "example": "/orgs",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the domain.",
+            "example": "chatgpt.com",
+            "type": "string"
+          },
+          "riskScore": {
+            "description": "The Risk Score.",
+            "example": 3.2,
+            "type": "number"
+          },
+          "users": {
+            "description": "The user information.",
+            "items": {
+              "$ref": "#/components/schemas/scanuser"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "domainID",
+          "domainNamespace",
+          "name",
+          "riskScore"
+        ],
+        "type": "object"
+      },
+      "scanreport": {
+        "description": "Report sent by the Acuvity scanner.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "domains": {
+            "description": "The result of the scan per domain.",
+            "items": {
+              "$ref": "#/components/schemas/scandomain"
+            },
+            "type": "array"
+          },
+          "location": {
+            "description": "The location of the scan.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "scanresultadvanced": {
+        "description": "Result of an additional advanced scan.",
+        "properties": {
+          "description": {
+            "description": "The description of the scan.",
+            "example": "This scan validates using Anonymous mode for provider P1 is blocked",
+            "type": "string"
+          },
+          "error": {
+            "description": "If the status is 'Failed', holds the user facing error.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the scan.",
+            "example": "Anonymous Access",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the scan.",
+            "enum": [
+              "Pass",
+              "Failed",
+              "Skipped"
+            ],
+            "example": "Pass"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "status"
+        ],
+        "type": "object"
+      },
+      "scanresulthttp": {
+        "description": "Result of an HTTP scan.",
+        "properties": {
+          "botProtectionDetected": {
+            "description": "If true, the domain seems to be protected by a bot detection system.",
+            "type": "boolean"
+          },
+          "botProtectionHints": {
+            "description": "Human readable reasons on why Bot Protection has been detected.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "code": {
+            "description": "The HTTP code.",
+            "type": "integer"
+          },
+          "description": {
+            "description": "The description of the scan.",
+            "example": "This scan validates using Anonymous mode for provider P1 is blocked",
+            "type": "string"
+          },
+          "error": {
+            "description": "If the status is 'Failed', holds the user facing error.",
+            "type": "string"
+          },
+          "headers": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The list of HTTP headers received.",
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the scan.",
+            "example": "Anonymous Access",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the scan.",
+            "enum": [
+              "Pass",
+              "Failed",
+              "Skipped"
+            ],
+            "example": "Pass"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "status"
+        ],
+        "type": "object"
+      },
+      "scanresultping": {
+        "description": "Result of an Ping scan.",
+        "properties": {
+          "description": {
+            "description": "The description of the scan.",
+            "example": "This scan validates using Anonymous mode for provider P1 is blocked",
+            "type": "string"
+          },
+          "error": {
+            "description": "If the status is 'Failed', holds the user facing error.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the scan.",
+            "example": "Anonymous Access",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the scan.",
+            "enum": [
+              "Pass",
+              "Failed",
+              "Skipped"
+            ],
+            "example": "Pass"
+          },
+          "time": {
+            "description": "The list of HTTP headers received.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "status"
+        ],
+        "type": "object"
+      },
+      "scanresulttls": {
+        "description": "Result of an TLS scan.",
+        "properties": {
+          "certificateInfo": {
+            "$ref": "#/components/schemas/tlscertinfo"
+          },
+          "description": {
+            "description": "The description of the scan.",
+            "example": "This scan validates using Anonymous mode for provider P1 is blocked",
+            "type": "string"
+          },
+          "error": {
+            "description": "If the status is 'Failed', holds the user facing error.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the scan.",
+            "example": "Anonymous Access",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the scan.",
+            "enum": [
+              "Pass",
+              "Failed",
+              "Skipped"
+            ],
+            "example": "Pass"
+          }
+        },
+        "required": [
+          "description",
+          "name",
+          "status"
+        ],
+        "type": "object"
+      },
+      "scanuser": {
+        "description": "Information about the user scanned.",
+        "properties": {
+          "timestamp": {
+            "description": "When the user accessed the url.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "url": {
+            "description": "The accessed URL.",
+            "type": "string"
+          },
+          "user": {
+            "description": "The user information.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -5543,6 +6164,89 @@
               "Secret",
               "CDT"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "tlscertinfo": {
+        "description": "Describes a TLS certificate.",
+        "properties": {
+          "DNSAltNames": {
+            "description": "The DNS Alt Names.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "IPAltNames": {
+            "description": "The IP Alt Names.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "commonName": {
+            "description": "The name of the subject.",
+            "type": "string"
+          },
+          "countries": {
+            "description": "The countries of the subject.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "expiration": {
+            "description": "The expiration date of the certificate.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "issuerCommonName": {
+            "description": "The name of the issuer.",
+            "type": "string"
+          },
+          "issuerCountries": {
+            "description": "The countries of the issuer.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "issuerOrgUnits": {
+            "description": "The organizational units of the issuer.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "issuerOrgs": {
+            "description": "The organizations of the issuer.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "issuerSerial": {
+            "description": "The string representation of the issuer serial number.",
+            "type": "string"
+          },
+          "orgUnits": {
+            "description": "The organizational units of the subject.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "orgs": {
+            "description": "The organizations of the subject.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "serial": {
+            "description": "The string representation of the certificate serial number.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -6544,6 +7248,37 @@
         ]
       }
     },
+    "/admindomainanalyses": {
+      "post": {
+        "description": "Sends a domain to refractai for analysis.",
+        "operationId": "create-AdminDomainAnalysis",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/admindomainanalysis"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/admindomainanalysis"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/adminmagiclinks": {
       "post": {
         "description": "Creates a new magic link using admin api.",
@@ -6986,6 +7721,149 @@
           }
         }
       ]
+    },
+    "/aiapps": {
+      "get": {
+        "description": "List all AI applications.",
+        "operationId": "get-all-AIApps",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aiapp"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new AI application.",
+        "operationId": "create-AIApp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiapp"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiapp"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aiapps/{id}": {
+      "delete": {
+        "description": "Delete an AI application given its identifier.",
+        "operationId": "delete-AIApp",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiapp"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI application given its identifier.",
+        "operationId": "get-AIApp",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiapp"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI application given its identifier.",
+        "operationId": "update-AIApp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiapp"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiapp"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     },
     "/aidomains": {
       "get": {
@@ -10260,49 +11138,6 @@
         ]
       }
     },
-    "/providerdetails": {
-      "get": {
-        "description": "List all available provider details.",
-        "operationId": "get-all-ProviderDetails",
-        "parameters": [
-          {
-            "description": "If set, return the icons.",
-            "in": "query",
-            "name": "icon",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "This is an example.",
-            "example": "hello == world",
-            "in": "query",
-            "name": "q",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/providerdetail"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      }
-    },
     "/providers": {
       "get": {
         "description": "List all available provider.",
@@ -11131,6 +11966,149 @@
                     "$ref": "#/components/schemas/role"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/scanreports": {
+      "get": {
+        "description": "List all available scan reports.",
+        "operationId": "get-all-ScanReports",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/scanreport"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new scan report.",
+        "operationId": "create-ScanReport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/scanreport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/scanreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/scanreports/{id}": {
+      "delete": {
+        "description": "Delete a scan report given its identifier.",
+        "operationId": "delete-ScanReport",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/scanreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a scan report given its identifier.",
+        "operationId": "get-ScanReport",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/scanreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a scan report given its identifier.",
+        "operationId": "update-ScanReport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/scanreport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/scanreport"
                 }
               }
             },

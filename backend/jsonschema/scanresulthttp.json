@@ -1,0 +1,95 @@
+{
+  "$extends": [
+    "@scanresult"
+  ],
+  "$friendlyName": "HTTP Scan Result",
+  "$friendlyNamePlural": "HTTP Scan Results",
+  "$modelName": "ScanResultHTTP",
+  "$modelPackage": "lain",
+  "$modelResourceName": "scanresulthttp",
+  "$modelRestName": "scanresulthttp",
+  "additionalProperties": false,
+  "description": "Result of an HTTP scan.",
+  "properties": {
+    "botProtectionDetected": {
+      "$friendlyName": "Bot Protection Detected",
+      "description": "If true, the domain seems to be protected by a bot detection system.",
+      "title": "botProtectionDetected",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "botProtectionHints": {
+      "$friendlyName": "Bot Protection Hints",
+      "description": "Human readable reasons on why Bot Protection has been detected.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "botProtectionHints",
+      "type": "array"
+    },
+    "code": {
+      "$friendlyName": "Code",
+      "description": "The HTTP code.",
+      "title": "code",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "$required": true,
+      "description": "The description of the scan.",
+      "title": "description",
+      "type": "string"
+    },
+    "error": {
+      "$friendlyName": "error",
+      "description": "If the status is 'Failed', holds the user facing error.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "headers": {
+      "$friendlyName": "Headers",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The list of HTTP headers received.",
+      "title": "headers",
+      "type": "object"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the scan.",
+      "title": "name",
+      "type": "string"
+    },
+    "status": {
+      "$friendlyName": "status",
+      "$required": true,
+      "description": "Status of the scan.",
+      "enum": [
+        "Pass",
+        "Failed",
+        "Skipped"
+      ],
+      "title": "status"
+    }
+  },
+  "required": [
+    "description",
+    "name",
+    "status"
+  ],
+  "title": "ScanResultHTTP",
+  "type": "object"
+}

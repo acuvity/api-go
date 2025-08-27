@@ -38,10 +38,10 @@
     },
     "annotations": {
       "$friendlyName": "Annotations",
-      "description": "Annotations attached to the log.",
-      "items": {
+      "additionalProperties": {
         "type": "string"
       },
+      "description": "Annotations attached to the log.",
       "title": "annotations",
       "type": "object"
     },

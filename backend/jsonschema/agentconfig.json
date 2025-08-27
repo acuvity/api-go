@@ -243,6 +243,7 @@
     },
     "scanRunningProcesses": {
       "$friendlyName": "Scan Running Processes",
+      "$readOnly": true,
       "description": "The list of running processes the scanner will look for.",
       "items": {
         "type": [
@@ -292,10 +293,10 @@
     },
     "tunnelProxyHeaders": {
       "$friendlyName": "Tunnel Proxy Headers",
-      "description": "If you are using a proxy server for the tunnel connection, you can specify additional headers to be sent with the requests to the proxy.",
-      "items": {
+      "additionalProperties": {
         "type": "string"
       },
+      "description": "If you are using a proxy server for the tunnel connection, you can specify additional headers to be sent with the requests to the proxy.",
       "title": "tunnelProxyHeaders",
       "type": "object"
     },

@@ -12,8 +12,11 @@ var (
 		"agent":       AgentIdentity,
 		"agentconfig": AgentConfigIdentity,
 
-		"agentdiscovery":  AgentDiscoveryIdentity,
-		"aidomain":        AIDomainIdentity,
+		"agentdiscovery": AgentDiscoveryIdentity,
+		"aiapp":          AIAppIdentity,
+
+		"aidomain": AIDomainIdentity,
+
 		"aiplugin":        AIPluginIdentity,
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
@@ -71,7 +74,6 @@ var (
 		"principaluser":     PrincipalUserIdentity,
 		"project":           ProjectIdentity,
 		"provider":          ProviderIdentity,
-		"providerdetail":    ProviderDetailIdentity,
 
 		"providerteam":  ProviderTeamIdentity,
 		"providertoken": ProviderTokenIdentity,
@@ -82,15 +84,18 @@ var (
 		"queryrange":     QueryRangeIdentity,
 		"role":           RoleIdentity,
 		"root":           RootIdentity,
-		"schemaversion":  SchemaVersionIdentity,
-		"serie":          SerieIdentity,
-		"signup":         SignupIdentity,
-		"sink":           SinkIdentity,
-		"sinkemail":      SinkEmailIdentity,
-		"sinkpagerduty":  SinkPagerDutyIdentity,
-		"sinkslack":      SinkSlackIdentity,
-		"sinksplunk":     SinkSplunkIdentity,
-		"team":           TeamIdentity,
+
+		"scanreport": ScanReportIdentity,
+
+		"schemaversion": SchemaVersionIdentity,
+		"serie":         SerieIdentity,
+		"signup":        SignupIdentity,
+		"sink":          SinkIdentity,
+		"sinkemail":     SinkEmailIdentity,
+		"sinkpagerduty": SinkPagerDutyIdentity,
+		"sinkslack":     SinkSlackIdentity,
+		"sinksplunk":    SinkSplunkIdentity,
+		"team":          TeamIdentity,
 
 		"trace":          TraceIdentity,
 		"traceref":       TraceRefIdentity,
@@ -112,7 +117,10 @@ var (
 		"agentconfigs": AgentConfigIdentity,
 
 		"agentdiscoveries": AgentDiscoveryIdentity,
-		"aidomains":        AIDomainIdentity,
+		"aiapps":           AIAppIdentity,
+
+		"aidomains": AIDomainIdentity,
+
 		"aiplugins":        AIPluginIdentity,
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
@@ -170,7 +178,6 @@ var (
 		"principalusers":     PrincipalUserIdentity,
 		"projects":           ProjectIdentity,
 		"providers":          ProviderIdentity,
-		"providerdetails":    ProviderDetailIdentity,
 
 		"providerteams":  ProviderTeamIdentity,
 		"providertokens": ProviderTokenIdentity,
@@ -181,15 +188,18 @@ var (
 		"queryranges":     QueryRangeIdentity,
 		"roles":           RoleIdentity,
 		"root":            RootIdentity,
-		"schemaversions":  SchemaVersionIdentity,
-		"series":          SerieIdentity,
-		"signups":         SignupIdentity,
-		"sinks":           SinkIdentity,
-		"sinkemail":       SinkEmailIdentity,
-		"sinkpagerduty":   SinkPagerDutyIdentity,
-		"sinkslack":       SinkSlackIdentity,
-		"sinksplunk":      SinkSplunkIdentity,
-		"teams":           TeamIdentity,
+
+		"scanreports": ScanReportIdentity,
+
+		"schemaversions": SchemaVersionIdentity,
+		"series":         SerieIdentity,
+		"signups":        SignupIdentity,
+		"sinks":          SinkIdentity,
+		"sinkemail":      SinkEmailIdentity,
+		"sinkpagerduty":  SinkPagerDutyIdentity,
+		"sinkslack":      SinkSlackIdentity,
+		"sinksplunk":     SinkSplunkIdentity,
+		"teams":          TeamIdentity,
 
 		"traces":         TraceIdentity,
 		"tracerefs":      TraceRefIdentity,
@@ -225,11 +235,16 @@ var (
 		"agentdiscovery": {
 			{"namespace", "importLabel"},
 		},
+		"aiapp": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "domain"},
+			{"namespace", "importLabel"},
+			{"namespace", "processNames"},
+		},
 		"aidomain": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
-			{"namespace", "isAIDomain"},
 			{"namespace", "providerName"},
 		},
 		"aiplugin": {
@@ -353,7 +368,6 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"providerdetail": nil,
 		"providerteam": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
@@ -368,10 +382,13 @@ var (
 		"proxyroundtrip": {
 			{"namespace", "importLabel"},
 		},
-		"query":         nil,
-		"queryrange":    nil,
-		"role":          nil,
-		"root":          nil,
+		"query":      nil,
+		"queryrange": nil,
+		"role":       nil,
+		"root":       nil,
+		"scanreport": {
+			{":shard", ":unique", "zone", "zHash"},
+		},
 		"schemaversion": nil,
 		"serie":         nil,
 		"signup": {
@@ -463,6 +480,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewAgentDiscovery()
+	case AIAppIdentity:
+		return NewAIApp()
 	case AIDomainIdentity:
 		return NewAIDomain()
 	case AIPluginIdentity:
@@ -551,8 +570,6 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewProject()
 	case ProviderIdentity:
 		return NewProvider()
-	case ProviderDetailIdentity:
-		return NewProviderDetail()
 	case ProviderTeamIdentity:
 		return NewProviderTeam()
 	case ProviderTokenIdentity:
@@ -569,6 +586,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewRole()
 	case RootIdentity:
 		return NewRoot()
+	case ScanReportIdentity:
+		return NewScanReport()
 	case SchemaVersionIdentity:
 		return NewSchemaVersion()
 	case SerieIdentity:
@@ -624,6 +643,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewSparseAgentDiscovery()
+	case AIAppIdentity:
+		return NewSparseAIApp()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
 	case AIPluginIdentity:
@@ -712,8 +733,6 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseProject()
 	case ProviderIdentity:
 		return NewSparseProvider()
-	case ProviderDetailIdentity:
-		return NewSparseProviderDetail()
 	case ProviderTeamIdentity:
 		return NewSparseProviderTeam()
 	case ProviderTokenIdentity:
@@ -728,6 +747,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseQueryRange()
 	case RoleIdentity:
 		return NewSparseRole()
+	case ScanReportIdentity:
+		return NewSparseScanReport()
 	case SchemaVersionIdentity:
 		return NewSparseSchemaVersion()
 	case SerieIdentity:
@@ -793,6 +814,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &AgentDiscoveriesList{}
+	case AIAppIdentity:
+		return &AIAppsList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
 	case AIPluginIdentity:
@@ -881,8 +904,6 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ProjectsList{}
 	case ProviderIdentity:
 		return &ProvidersList{}
-	case ProviderDetailIdentity:
-		return &ProviderDetailsList{}
 	case ProviderTeamIdentity:
 		return &ProviderTeamsList{}
 	case ProviderTokenIdentity:
@@ -897,6 +918,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &QueryRangesList{}
 	case RoleIdentity:
 		return &RolesList{}
+	case ScanReportIdentity:
+		return &ScanReportsList{}
 	case SchemaVersionIdentity:
 		return &SchemaVersionsList{}
 	case SerieIdentity:
@@ -952,6 +975,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &SparseAgentDiscoveriesList{}
+	case AIAppIdentity:
+		return &SparseAIAppsList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
 	case AIPluginIdentity:
@@ -1040,8 +1065,6 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseProjectsList{}
 	case ProviderIdentity:
 		return &SparseProvidersList{}
-	case ProviderDetailIdentity:
-		return &SparseProviderDetailsList{}
 	case ProviderTeamIdentity:
 		return &SparseProviderTeamsList{}
 	case ProviderTokenIdentity:
@@ -1056,6 +1079,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseQueryRangesList{}
 	case RoleIdentity:
 		return &SparseRolesList{}
+	case ScanReportIdentity:
+		return &SparseScanReportsList{}
 	case SchemaVersionIdentity:
 		return &SparseSchemaVersionsList{}
 	case SerieIdentity:
@@ -1119,6 +1144,24 @@ func (f modelManager) DetachedFromString(name string) any {
 
 	case "agentdiscoveredapp", "AgentDiscoveredApp":
 		return NewAgentDiscoveredApp()
+	case "aidcitation", "AIDCitation":
+		return NewAIDCitation()
+	case "aidrisk", "AIDRisk":
+		return NewAIDRisk()
+	case "aidsection", "AIDSection":
+		return NewAIDSection()
+	case "aidsectioncompliance", "AIDSectionCompliance":
+		return NewAIDSectionCompliance()
+	case "aidsectiondatapolicy", "AIDSectionDataPolicy":
+		return NewAIDSectionDataPolicy()
+	case "aidsectiondataprocessor", "AIDSectionDataProcessor":
+		return NewAIDSectionDataProcessor()
+	case "aidsectionllmprovider", "AIDSectionLLMProvider":
+		return NewAIDSectionLLMProvider()
+	case "aidsectionplan", "AIDSectionPlan":
+		return NewAIDSectionPlan()
+	case "aidsummary", "AIDSummary":
+		return NewAIDSummary()
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
 	case "analysis", "Analysis":
@@ -1171,8 +1214,22 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewProviderRetentionPolicy()
 	case "providertrainingpolicy", "ProviderTrainingPolicy":
 		return NewProviderTrainingPolicy()
+	case "scandomain", "ScanDomain":
+		return NewScanDomain()
+	case "scanresultadvanced", "ScanResultAdvanced":
+		return NewScanResultAdvanced()
+	case "scanresulthttp", "ScanResultHTTP":
+		return NewScanResultHTTP()
+	case "scanresultping", "ScanResultPing":
+		return NewScanResultPing()
+	case "scanresulttls", "ScanResultTLS":
+		return NewScanResultTLS()
+	case "scanuser", "ScanUser":
+		return NewScanUser()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
+	case "tlscertinfo", "TLSCertInfo":
+		return NewTLSCertInfo()
 	case "tlsstate", "TLSState":
 		return NewTLSState()
 	case "tool", "Tool":
@@ -1205,6 +1262,7 @@ func AllIdentities() []elemental.Identity {
 		AgentIdentity,
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
+		AIAppIdentity,
 		AIDomainIdentity,
 		AIPluginIdentity,
 		AlertIdentity,
@@ -1249,7 +1307,6 @@ func AllIdentities() []elemental.Identity {
 		PrincipalUserIdentity,
 		ProjectIdentity,
 		ProviderIdentity,
-		ProviderDetailIdentity,
 		ProviderTeamIdentity,
 		ProviderTokenIdentity,
 		ProxyConfIdentity,
@@ -1258,6 +1315,7 @@ func AllIdentities() []elemental.Identity {
 		QueryRangeIdentity,
 		RoleIdentity,
 		RootIdentity,
+		ScanReportIdentity,
 		SchemaVersionIdentity,
 		SerieIdentity,
 		SignupIdentity,
@@ -1291,6 +1349,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AgentConfigIdentity:
 		return []string{}
 	case AgentDiscoveryIdentity:
+		return []string{}
+	case AIAppIdentity:
 		return []string{}
 	case AIDomainIdentity:
 		return []string{}
@@ -1380,8 +1440,6 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case ProviderIdentity:
 		return []string{}
-	case ProviderDetailIdentity:
-		return []string{}
 	case ProviderTeamIdentity:
 		return []string{}
 	case ProviderTokenIdentity:
@@ -1397,6 +1455,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case RoleIdentity:
 		return []string{}
 	case RootIdentity:
+		return []string{}
+	case ScanReportIdentity:
 		return []string{}
 	case SchemaVersionIdentity:
 		return []string{}

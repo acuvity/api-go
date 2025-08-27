@@ -124,7 +124,7 @@ type Provider struct {
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// Use to transform an error before sending it back to the client.
-	ErrorTransformer *ErrorTransformer `json:"errorTransformer" msgpack:"errorTransformer" bson:"errortransformer" mapstructure:"errorTransformer,omitempty"`
+	ErrorTransformer *ErrorTransformer `json:"errorTransformer,omitempty" msgpack:"errorTransformer,omitempty" bson:"errortransformer,omitempty" mapstructure:"errorTransformer,omitempty"`
 
 	// If true, consider this provider as experimental. It will require to use a custom
 	// PAC Config to make it usable from the proxy.pac.
@@ -189,6 +189,11 @@ type Provider struct {
 	// If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
 	// dev purposes.
 	UpstreamUnsecure bool `json:"upstreamUnsecure" msgpack:"upstreamUnsecure" bson:"upstreamunsecure" mapstructure:"upstreamUnsecure,omitempty"`
+
+	// The main hosts for marketing and legal materials content. This is used to link
+	// some HQ domain to the actual provider domain. For instance webHost for
+	// mail.superhuman.com should be superhuman.com.
+	WebHost string `json:"webHost" msgpack:"webHost" bson:"webhost" mapstructure:"webHost,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -265,6 +270,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.TrustedCA = o.TrustedCA
 	s.UpdateTime = o.UpdateTime
 	s.UpstreamUnsecure = o.UpstreamUnsecure
+	s.WebHost = o.WebHost
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -275,8 +281,8 @@ func (o *Provider) GetBSON() (any, error) {
 // This is used to transparently convert ID to MongoDBID as ObectID.
 func (o *Provider) SetBSON(raw bson.Raw) error {
 
-	if o == nil {
-		return nil
+	if o == nil || raw.Kind == bson.ElementNil {
+		return bson.ErrSetZero
 	}
 
 	s := &mongoAttributesProvider{}
@@ -309,6 +315,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.TrustedCA = s.TrustedCA
 	o.UpdateTime = s.UpdateTime
 	o.UpstreamUnsecure = s.UpstreamUnsecure
+	o.WebHost = s.WebHost
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -450,6 +457,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			TrustedCA:        &o.TrustedCA,
 			UpdateTime:       &o.UpdateTime,
 			UpstreamUnsecure: &o.UpstreamUnsecure,
+			WebHost:          &o.WebHost,
 			ZHash:            &o.ZHash,
 			Zone:             &o.Zone,
 		}
@@ -508,6 +516,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.UpdateTime = &(o.UpdateTime)
 		case "upstreamUnsecure":
 			sp.UpstreamUnsecure = &(o.UpstreamUnsecure)
+		case "webHost":
+			sp.WebHost = &(o.WebHost)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -599,6 +609,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.UpstreamUnsecure != nil {
 		o.UpstreamUnsecure = *so.UpstreamUnsecure
+	}
+	if so.WebHost != nil {
+		o.WebHost = *so.WebHost
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -713,6 +726,10 @@ func (o *Provider) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateDomain("webHost", o.WebHost); err != nil {
+		errors = errors.Append(err)
+	}
+
 	// Custom object validation.
 	if err := ValidateProvider(o); err != nil {
 		errors = errors.Append(err)
@@ -802,6 +819,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.UpdateTime
 	case "upstreamUnsecure":
 		return o.UpstreamUnsecure
+	case "webHost":
+		return o.WebHost
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -1112,6 +1131,18 @@ dev purposes.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"WebHost": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhost",
+		ConvertedName:  "WebHost",
+		Description: `The main hosts for marketing and legal materials content. This is used to link
+some HQ domain to the actual provider domain. For instance webHost for
+mail.superhuman.com should be superhuman.com.`,
+		Exposed: true,
+		Name:    "webHost",
+		Stored:  true,
+		Type:    "string",
+	},
 }
 
 // ProviderLowerCaseAttributesMap represents the map of attribute for Provider.
@@ -1415,6 +1446,18 @@ dev purposes.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"webhost": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhost",
+		ConvertedName:  "WebHost",
+		Description: `The main hosts for marketing and legal materials content. This is used to link
+some HQ domain to the actual provider domain. For instance webHost for
+mail.superhuman.com should be superhuman.com.`,
+		Exposed: true,
+		Name:    "webHost",
+		Stored:  true,
+		Type:    "string",
+	},
 }
 
 // SparseProvidersList represents a list of SparseProviders
@@ -1563,6 +1606,11 @@ type SparseProvider struct {
 	// dev purposes.
 	UpstreamUnsecure *bool `json:"upstreamUnsecure,omitempty" msgpack:"upstreamUnsecure,omitempty" bson:"upstreamunsecure,omitempty" mapstructure:"upstreamUnsecure,omitempty"`
 
+	// The main hosts for marketing and legal materials content. This is used to link
+	// some HQ domain to the actual provider domain. For instance webHost for
+	// mail.superhuman.com should be superhuman.com.
+	WebHost *string `json:"webHost,omitempty" msgpack:"webHost,omitempty" bson:"webhost,omitempty" mapstructure:"webHost,omitempty"`
+
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
 
@@ -1687,6 +1735,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.UpstreamUnsecure != nil {
 		s.UpstreamUnsecure = o.UpstreamUnsecure
 	}
+	if o.WebHost != nil {
+		s.WebHost = o.WebHost
+	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
 	}
@@ -1784,6 +1835,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.UpstreamUnsecure != nil {
 		o.UpstreamUnsecure = s.UpstreamUnsecure
 	}
+	if s.WebHost != nil {
+		o.WebHost = s.WebHost
+	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
 	}
@@ -1878,6 +1932,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.UpstreamUnsecure != nil {
 		out.UpstreamUnsecure = *o.UpstreamUnsecure
+	}
+	if o.WebHost != nil {
+		out.WebHost = *o.WebHost
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -2015,7 +2072,7 @@ type mongoAttributesProvider struct {
 	Category         ProviderCategoryValue `bson:"category"`
 	CreateTime       time.Time             `bson:"createtime"`
 	Description      string                `bson:"description"`
-	ErrorTransformer *ErrorTransformer     `bson:"errortransformer"`
+	ErrorTransformer *ErrorTransformer     `bson:"errortransformer,omitempty"`
 	Experimental     bool                  `bson:"experimental"`
 	Extractors       []*ExtractorRef       `bson:"extractors,omitempty"`
 	FriendlyName     string                `bson:"friendlyname"`
@@ -2035,6 +2092,7 @@ type mongoAttributesProvider struct {
 	TrustedCA        string                `bson:"trustedca,omitempty"`
 	UpdateTime       time.Time             `bson:"updatetime"`
 	UpstreamUnsecure bool                  `bson:"upstreamunsecure"`
+	WebHost          string                `bson:"webhost"`
 	ZHash            int                   `bson:"zhash"`
 	Zone             int                   `bson:"zone"`
 }
@@ -2064,6 +2122,7 @@ type mongoAttributesSparseProvider struct {
 	TrustedCA        *string                `bson:"trustedca,omitempty"`
 	UpdateTime       *time.Time             `bson:"updatetime,omitempty"`
 	UpstreamUnsecure *bool                  `bson:"upstreamunsecure,omitempty"`
+	WebHost          *string                `bson:"webhost,omitempty"`
 	ZHash            *int                   `bson:"zhash,omitempty"`
 	Zone             *int                   `bson:"zone,omitempty"`
 }

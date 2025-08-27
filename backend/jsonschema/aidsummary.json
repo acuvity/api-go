@@ -1,0 +1,95 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AID Summary",
+  "$friendlyNamePlural": "AID Summaries",
+  "$modelName": "AIDSummary",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsummaries",
+  "$modelRestName": "aidsummary",
+  "additionalProperties": false,
+  "description": "AIDomain Summary.",
+  "properties": {
+    "compliances": {
+      "$friendlyName": "Compliances",
+      "description": "The list of compliances.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "compliances",
+      "type": "array"
+    },
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "ownModel": {
+      "$friendlyName": "Own Model",
+      "description": "If true, the provider uses its own in-house model.",
+      "title": "ownModel",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "residencies": {
+      "$friendlyName": "Residencies",
+      "description": "The residencies of the data.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "residencies",
+      "type": "array"
+    },
+    "retentions": {
+      "$friendlyName": "Retentions",
+      "description": "List of retention policies.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "retentions",
+      "type": "array"
+    },
+    "sharing": {
+      "$friendlyName": "Sharing",
+      "description": "If true, the provider shares data with third-party vendors.",
+      "title": "sharing",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "training": {
+      "$friendlyName": "Training",
+      "description": "If true, the provider use customer data to train their model.",
+      "title": "training",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "title": "AIDSummary",
+  "type": "object"
+}

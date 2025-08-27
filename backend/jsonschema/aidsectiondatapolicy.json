@@ -1,0 +1,96 @@
+{
+  "$extends": [
+    "@aidsection"
+  ],
+  "$friendlyName": "AID Section Data Policy",
+  "$friendlyNamePlural": "AID Section Data Policies",
+  "$modelName": "AIDSectionDataPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsectiondatapolicies",
+  "$modelRestName": "aidsectiondatapolicy",
+  "additionalProperties": false,
+  "description": "AIDomain data policy information.",
+  "properties": {
+    "citations": {
+      "$friendlyName": "Citations",
+      "description": "The citations used to compute the section.",
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "title": "citations",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the section.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the section.",
+      "title": "name",
+      "type": "string"
+    },
+    "retention": {
+      "$friendlyName": "Retention",
+      "$ref": "aidsection.json",
+      "description": "If true, the use data will be used to train models.",
+      "title": "retention"
+    },
+    "retentionPeriod": {
+      "$friendlyName": "Retention Period",
+      "description": "Data retention period in days.",
+      "title": "retentionPeriod",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "risk": {
+      "$friendlyName": "Risk",
+      "$ref": "aidrisk.json",
+      "description": "The risk associated to the section.",
+      "title": "risk"
+    },
+    "sharing": {
+      "$friendlyName": "Sharing",
+      "$ref": "aidsection.json",
+      "description": "If true, the use data will be shared with 3rd-Party.",
+      "title": "sharing"
+    },
+    "sharingConsent": {
+      "$friendlyName": "Sharing Consent",
+      "description": "If false, the provider shares data without user consent.",
+      "title": "sharingConsent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "training": {
+      "$friendlyName": "Training",
+      "$ref": "aidsection.json",
+      "description": "If true, the use data will be used to train models.",
+      "title": "training"
+    },
+    "trainingConsent": {
+      "$friendlyName": "Sharing Consent",
+      "description": "If false, the provider shares data without user consent.",
+      "title": "trainingConsent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AIDSectionDataPolicy",
+  "type": "object"
+}

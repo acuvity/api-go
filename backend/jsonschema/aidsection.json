@@ -1,0 +1,51 @@
+{
+  "$extends": [
+    "@aidsection"
+  ],
+  "$friendlyName": "AID Section",
+  "$friendlyNamePlural": "AID Sections",
+  "$modelName": "AIDSection",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aidsections",
+  "$modelRestName": "aidsection",
+  "additionalProperties": false,
+  "description": "AIDomain info section.",
+  "properties": {
+    "citations": {
+      "$friendlyName": "Citations",
+      "description": "The citations used to compute the section.",
+      "items": {
+        "$ref": "aidcitation.json"
+      },
+      "title": "citations",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the section.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the section.",
+      "title": "name",
+      "type": "string"
+    },
+    "risk": {
+      "$friendlyName": "Risk",
+      "$ref": "aidrisk.json",
+      "description": "The risk associated to the section.",
+      "title": "risk"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AIDSection",
+  "type": "object"
+}

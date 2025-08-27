@@ -23,10 +23,10 @@
     },
     "annotations": {
       "$friendlyName": "Annotations",
-      "description": "Annotations attached to the extraction.",
-      "items": {
+      "additionalProperties": {
         "type": "string"
       },
+      "description": "Annotations attached to the extraction.",
       "title": "annotations",
       "type": "object"
     },

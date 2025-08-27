@@ -1,0 +1,130 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@importable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "AI Application",
+  "$friendlyNamePlural": "AI Applications",
+  "$modelName": "AIApp",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aiapps",
+  "$modelRestName": "aiapp",
+  "additionalProperties": false,
+  "description": "AI application provides an overview of an AI-related application.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "A brief description about the AI application and its purpose.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$friendlyName": "Domain",
+      "description": "The domain of the main provider.",
+      "title": "domain",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the application.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "processNames": {
+      "$friendlyName": "Process names",
+      "$required": true,
+      "description": "The names of the process when running as an application.",
+      "items": {
+        "type": "string"
+      },
+      "title": "processNames",
+      "type": "array"
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "processNames"
+  ],
+  "title": "AIApp",
+  "type": "object"
+}

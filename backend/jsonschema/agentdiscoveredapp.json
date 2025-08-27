@@ -20,6 +20,7 @@
     },
     "plugins": {
       "$friendlyName": "Plugins",
+      "$readOnly": true,
       "description": "The list of installed genAI plugins/extensions for the application.",
       "items": {
         "type": [

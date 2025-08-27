@@ -1221,6 +1221,10 @@ func ValidatePort(attribute string, portStr string) error {
 // ValidateDomain checks that string sent is actually a domain.
 func ValidateDomain(attribute string, domain string) error {
 
+	if domain == "" {
+		return nil
+	}
+
 	if u, err := url.Parse(domain); err == nil && u.Scheme != "" {
 		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not be a full URL", domain))
 	}

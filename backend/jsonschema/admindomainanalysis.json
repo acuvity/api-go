@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Admin Domain Analysis",
+  "$friendlyNamePlural": "Admin Domain Analysis",
+  "$modelName": "AdminDomainAnalysis",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "admindomainanalyses",
+  "$modelRestName": "admindomainanalysis",
+  "additionalProperties": false,
+  "description": "Administrative API to send a request to analyze a domain.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$friendlyName": "domain",
+      "$required": true,
+      "description": "Domain to analyze. The analyzis will be sent to refactai.",
+      "title": "domain",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "provider",
+      "description": "Provider name to related to the domain.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "domain"
+  ],
+  "title": "AdminDomainAnalysis",
+  "type": "object"
+}

@@ -3,6 +3,9 @@
     "accesspolicy": {
       "$ref": "accesspolicy.json"
     },
+    "admindomainanalysis": {
+      "$ref": "admindomainanalysis.json"
+    },
     "adminmagiclink": {
       "$ref": "adminmagiclink.json"
     },
@@ -21,8 +24,38 @@
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
     },
+    "aiapp": {
+      "$ref": "aiapp.json"
+    },
+    "aidcitation": {
+      "$ref": "aidcitation.json"
+    },
     "aidomain": {
       "$ref": "aidomain.json"
+    },
+    "aidrisk": {
+      "$ref": "aidrisk.json"
+    },
+    "aidsection": {
+      "$ref": "aidsection.json"
+    },
+    "aidsectioncompliance": {
+      "$ref": "aidsectioncompliance.json"
+    },
+    "aidsectiondatapolicy": {
+      "$ref": "aidsectiondatapolicy.json"
+    },
+    "aidsectiondataprocessor": {
+      "$ref": "aidsectiondataprocessor.json"
+    },
+    "aidsectionllmprovider": {
+      "$ref": "aidsectionllmprovider.json"
+    },
+    "aidsectionplan": {
+      "$ref": "aidsectionplan.json"
+    },
+    "aidsummary": {
+      "$ref": "aidsummary.json"
     },
     "aiplugin": {
       "$ref": "aiplugin.json"
@@ -225,9 +258,6 @@
     "provider": {
       "$ref": "provider.json"
     },
-    "providerdetail": {
-      "$ref": "providerdetail.json"
-    },
     "providerretentionpolicy": {
       "$ref": "providerretentionpolicy.json"
     },
@@ -258,6 +288,27 @@
     "root": {
       "$ref": "root.json"
     },
+    "scandomain": {
+      "$ref": "scandomain.json"
+    },
+    "scanreport": {
+      "$ref": "scanreport.json"
+    },
+    "scanresultadvanced": {
+      "$ref": "scanresultadvanced.json"
+    },
+    "scanresulthttp": {
+      "$ref": "scanresulthttp.json"
+    },
+    "scanresultping": {
+      "$ref": "scanresultping.json"
+    },
+    "scanresulttls": {
+      "$ref": "scanresulttls.json"
+    },
+    "scanuser": {
+      "$ref": "scanuser.json"
+    },
     "schemaversion": {
       "$ref": "schemaversion.json"
     },
@@ -287,6 +338,9 @@
     },
     "textualdetection": {
       "$ref": "textualdetection.json"
+    },
+    "tlscertinfo": {
+      "$ref": "tlscertinfo.json"
     },
     "tlsstate": {
       "$ref": "tlsstate.json"

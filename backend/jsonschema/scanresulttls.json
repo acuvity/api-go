@@ -1,0 +1,62 @@
+{
+  "$extends": [
+    "@scanresult"
+  ],
+  "$friendlyName": "TLS Scan Result",
+  "$friendlyNamePlural": "TLS Scan Results",
+  "$modelName": "ScanResultTLS",
+  "$modelPackage": "lain",
+  "$modelResourceName": "scanresultls",
+  "$modelRestName": "scanresulttls",
+  "additionalProperties": false,
+  "description": "Result of an TLS scan.",
+  "properties": {
+    "certificateInfo": {
+      "$friendlyName": "Certificate Information",
+      "$ref": "tlscertinfo.json",
+      "description": "Information about the TLS certificate served by the domain.",
+      "title": "certificateInfo"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "$required": true,
+      "description": "The description of the scan.",
+      "title": "description",
+      "type": "string"
+    },
+    "error": {
+      "$friendlyName": "error",
+      "description": "If the status is 'Failed', holds the user facing error.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the scan.",
+      "title": "name",
+      "type": "string"
+    },
+    "status": {
+      "$friendlyName": "status",
+      "$required": true,
+      "description": "Status of the scan.",
+      "enum": [
+        "Pass",
+        "Failed",
+        "Skipped"
+      ],
+      "title": "status"
+    }
+  },
+  "required": [
+    "description",
+    "name",
+    "status"
+  ],
+  "title": "ScanResultTLS",
+  "type": "object"
+}
