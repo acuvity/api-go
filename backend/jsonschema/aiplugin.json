@@ -37,6 +37,17 @@
       "title": "categories",
       "type": "array"
     },
+    "connectorType": {
+      "$defaultValue": "Native",
+      "$friendlyName": "Connector Type",
+      "description": "The type of connector this plugin relates to.",
+      "enum": [
+        "Native",
+        "MCP",
+        "WebExtension"
+      ],
+      "title": "connectorType"
+    },
     "createTime": {
       "$friendlyName": "CreateTime",
       "$readOnly": true,
@@ -156,6 +167,17 @@
       },
       "title": "tags",
       "type": "array"
+    },
+    "type": {
+      "$defaultValue": "CodingAssistant",
+      "$friendlyName": "Type",
+      "description": "The type of plugin.",
+      "enum": [
+        "CodingAssistant",
+        "IntegrationPlatform",
+        "Productivity"
+      ],
+      "title": "type"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",

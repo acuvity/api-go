@@ -13,6 +13,34 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AIPluginConnectorTypeValue represents the possible values for attribute "connectorType".
+type AIPluginConnectorTypeValue string
+
+const (
+	// AIPluginConnectorTypeMCP represents the value MCP.
+	AIPluginConnectorTypeMCP AIPluginConnectorTypeValue = "MCP"
+
+	// AIPluginConnectorTypeNative represents the value Native.
+	AIPluginConnectorTypeNative AIPluginConnectorTypeValue = "Native"
+
+	// AIPluginConnectorTypeWebExtension represents the value WebExtension.
+	AIPluginConnectorTypeWebExtension AIPluginConnectorTypeValue = "WebExtension"
+)
+
+// AIPluginTypeValue represents the possible values for attribute "type".
+type AIPluginTypeValue string
+
+const (
+	// AIPluginTypeCodingAssistant represents the value CodingAssistant.
+	AIPluginTypeCodingAssistant AIPluginTypeValue = "CodingAssistant"
+
+	// AIPluginTypeIntegrationPlatform represents the value IntegrationPlatform.
+	AIPluginTypeIntegrationPlatform AIPluginTypeValue = "IntegrationPlatform"
+
+	// AIPluginTypeProductivity represents the value Productivity.
+	AIPluginTypeProductivity AIPluginTypeValue = "Productivity"
+)
+
 // AIPluginIdentity represents the Identity of the object.
 var AIPluginIdentity = elemental.Identity{
 	Name:     "aiplugin",
@@ -91,6 +119,9 @@ type AIPlugin struct {
 	// The categories associated with the plugin.
 	Categories []string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
+	// The type of connector this plugin relates to.
+	ConnectorType AIPluginConnectorTypeValue `json:"connectorType" msgpack:"connectorType" bson:"connectortype" mapstructure:"connectorType,omitempty"`
+
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
@@ -134,6 +165,9 @@ type AIPlugin struct {
 	// The tags associated with the plugin.
 	Tags []string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
 
+	// The type of plugin.
+	Type AIPluginTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -153,10 +187,12 @@ type AIPlugin struct {
 func NewAIPlugin() *AIPlugin {
 
 	return &AIPlugin{
-		ModelVersion: 1,
-		Categories:   []string{},
-		Propagate:    true,
-		Tags:         []string{},
+		ModelVersion:  1,
+		Categories:    []string{},
+		ConnectorType: AIPluginConnectorTypeNative,
+		Propagate:     true,
+		Tags:          []string{},
+		Type:          AIPluginTypeCodingAssistant,
 	}
 }
 
@@ -192,6 +228,7 @@ func (o *AIPlugin) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.Categories = o.Categories
+	s.ConnectorType = o.ConnectorType
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.DisplayName = o.DisplayName
@@ -206,6 +243,7 @@ func (o *AIPlugin) GetBSON() (any, error) {
 	s.PublisherID = o.PublisherID
 	s.PublisherName = o.PublisherName
 	s.Tags = o.Tags
+	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.Vetted = o.Vetted
 	s.ZHash = o.ZHash
@@ -229,6 +267,7 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.Categories = s.Categories
+	o.ConnectorType = s.ConnectorType
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.DisplayName = s.DisplayName
@@ -243,6 +282,7 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 	o.PublisherID = s.PublisherID
 	o.PublisherName = s.PublisherName
 	o.Tags = s.Tags
+	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.Vetted = s.Vetted
 	o.ZHash = s.ZHash
@@ -361,6 +401,7 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseAIPlugin{
 			ID:            &o.ID,
 			Categories:    &o.Categories,
+			ConnectorType: &o.ConnectorType,
 			CreateTime:    &o.CreateTime,
 			Description:   &o.Description,
 			DisplayName:   &o.DisplayName,
@@ -375,6 +416,7 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PublisherID:   &o.PublisherID,
 			PublisherName: &o.PublisherName,
 			Tags:          &o.Tags,
+			Type:          &o.Type,
 			UpdateTime:    &o.UpdateTime,
 			Vetted:        &o.Vetted,
 			ZHash:         &o.ZHash,
@@ -389,6 +431,8 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "categories":
 			sp.Categories = &(o.Categories)
+		case "connectorType":
+			sp.ConnectorType = &(o.ConnectorType)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
@@ -417,6 +461,8 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PublisherName = &(o.PublisherName)
 		case "tags":
 			sp.Tags = &(o.Tags)
+		case "type":
+			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "vetted":
@@ -443,6 +489,9 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Categories != nil {
 		o.Categories = *so.Categories
+	}
+	if so.ConnectorType != nil {
+		o.ConnectorType = *so.ConnectorType
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -485,6 +534,9 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Tags != nil {
 		o.Tags = *so.Tags
+	}
+	if so.Type != nil {
+		o.Type = *so.Type
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -530,6 +582,10 @@ func (o *AIPlugin) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("connectorType", string(o.ConnectorType), []string{"Native", "MCP", "WebExtension"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("displayName", o.DisplayName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -556,6 +612,10 @@ func (o *AIPlugin) Validate() error {
 
 	if err := elemental.ValidateRequiredString("publisherName", o.PublisherName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"CodingAssistant", "IntegrationPlatform", "Productivity"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -596,6 +656,8 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 		return o.ID
 	case "categories":
 		return o.Categories
+	case "connectorType":
+		return o.ConnectorType
 	case "createTime":
 		return o.CreateTime
 	case "description":
@@ -624,6 +686,8 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 		return o.PublisherName
 	case "tags":
 		return o.Tags
+	case "type":
+		return o.Type
 	case "updateTime":
 		return o.UpdateTime
 	case "vetted":
@@ -664,6 +728,17 @@ var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"ConnectorType": {
+		AllowedChoices: []string{"Native", "MCP", "WebExtension"},
+		BSONFieldName:  "connectortype",
+		ConvertedName:  "ConnectorType",
+		DefaultValue:   AIPluginConnectorTypeNative,
+		Description:    `The type of connector this plugin relates to.`,
+		Exposed:        true,
+		Name:           "connectorType",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -834,6 +909,17 @@ same import operation.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"Type": {
+		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AIPluginTypeCodingAssistant,
+		Description:    `The type of plugin.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -888,6 +974,17 @@ var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"connectortype": {
+		AllowedChoices: []string{"Native", "MCP", "WebExtension"},
+		BSONFieldName:  "connectortype",
+		ConvertedName:  "ConnectorType",
+		DefaultValue:   AIPluginConnectorTypeNative,
+		Description:    `The type of connector this plugin relates to.`,
+		Exposed:        true,
+		Name:           "connectorType",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -1058,6 +1155,17 @@ same import operation.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"type": {
+		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   AIPluginTypeCodingAssistant,
+		Description:    `The type of plugin.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1154,6 +1262,9 @@ type SparseAIPlugin struct {
 	// The categories associated with the plugin.
 	Categories *[]string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
+	// The type of connector this plugin relates to.
+	ConnectorType *AIPluginConnectorTypeValue `json:"connectorType,omitempty" msgpack:"connectorType,omitempty" bson:"connectortype,omitempty" mapstructure:"connectorType,omitempty"`
+
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
@@ -1196,6 +1307,9 @@ type SparseAIPlugin struct {
 
 	// The tags associated with the plugin.
 	Tags *[]string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
+
+	// The type of plugin.
+	Type *AIPluginTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1258,6 +1372,9 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.Categories != nil {
 		s.Categories = o.Categories
 	}
+	if o.ConnectorType != nil {
+		s.ConnectorType = o.ConnectorType
+	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
@@ -1300,6 +1417,9 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.Tags != nil {
 		s.Tags = o.Tags
 	}
+	if o.Type != nil {
+		s.Type = o.Type
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1333,6 +1453,9 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	o.ID = &id
 	if s.Categories != nil {
 		o.Categories = s.Categories
+	}
+	if s.ConnectorType != nil {
+		o.ConnectorType = s.ConnectorType
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
@@ -1376,6 +1499,9 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	if s.Tags != nil {
 		o.Tags = s.Tags
 	}
+	if s.Type != nil {
+		o.Type = s.Type
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1407,6 +1533,9 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Categories != nil {
 		out.Categories = *o.Categories
+	}
+	if o.ConnectorType != nil {
+		out.ConnectorType = *o.ConnectorType
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1449,6 +1578,9 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Tags != nil {
 		out.Tags = *o.Tags
+	}
+	if o.Type != nil {
+		out.Type = *o.Type
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1587,46 +1719,50 @@ func (o *SparseAIPlugin) DeepCopyInto(out *SparseAIPlugin) {
 }
 
 type mongoAttributesAIPlugin struct {
-	ID            bson.ObjectId `bson:"_id,omitempty"`
-	Categories    []string      `bson:"categories,omitempty"`
-	CreateTime    time.Time     `bson:"createtime"`
-	Description   string        `bson:"description,omitempty"`
-	DisplayName   string        `bson:"displayname"`
-	ImportHash    string        `bson:"importhash,omitempty"`
-	ImportLabel   string        `bson:"importlabel,omitempty"`
-	Name          string        `bson:"name"`
-	Namespace     string        `bson:"namespace,omitempty"`
-	PluginID      string        `bson:"pluginid"`
-	PluginUUID    string        `bson:"pluginuuid"`
-	Propagate     bool          `bson:"propagate"`
-	PublishedDate time.Time     `bson:"publisheddate"`
-	PublisherID   string        `bson:"publisherid"`
-	PublisherName string        `bson:"publishername"`
-	Tags          []string      `bson:"tags,omitempty"`
-	UpdateTime    time.Time     `bson:"updatetime"`
-	Vetted        bool          `bson:"vetted"`
-	ZHash         int           `bson:"zhash"`
-	Zone          int           `bson:"zone"`
+	ID            bson.ObjectId              `bson:"_id,omitempty"`
+	Categories    []string                   `bson:"categories,omitempty"`
+	ConnectorType AIPluginConnectorTypeValue `bson:"connectortype"`
+	CreateTime    time.Time                  `bson:"createtime"`
+	Description   string                     `bson:"description,omitempty"`
+	DisplayName   string                     `bson:"displayname"`
+	ImportHash    string                     `bson:"importhash,omitempty"`
+	ImportLabel   string                     `bson:"importlabel,omitempty"`
+	Name          string                     `bson:"name"`
+	Namespace     string                     `bson:"namespace,omitempty"`
+	PluginID      string                     `bson:"pluginid"`
+	PluginUUID    string                     `bson:"pluginuuid"`
+	Propagate     bool                       `bson:"propagate"`
+	PublishedDate time.Time                  `bson:"publisheddate"`
+	PublisherID   string                     `bson:"publisherid"`
+	PublisherName string                     `bson:"publishername"`
+	Tags          []string                   `bson:"tags,omitempty"`
+	Type          AIPluginTypeValue          `bson:"type"`
+	UpdateTime    time.Time                  `bson:"updatetime"`
+	Vetted        bool                       `bson:"vetted"`
+	ZHash         int                        `bson:"zhash"`
+	Zone          int                        `bson:"zone"`
 }
 type mongoAttributesSparseAIPlugin struct {
-	ID            bson.ObjectId `bson:"_id,omitempty"`
-	Categories    *[]string     `bson:"categories,omitempty"`
-	CreateTime    *time.Time    `bson:"createtime,omitempty"`
-	Description   *string       `bson:"description,omitempty"`
-	DisplayName   *string       `bson:"displayname,omitempty"`
-	ImportHash    *string       `bson:"importhash,omitempty"`
-	ImportLabel   *string       `bson:"importlabel,omitempty"`
-	Name          *string       `bson:"name,omitempty"`
-	Namespace     *string       `bson:"namespace,omitempty"`
-	PluginID      *string       `bson:"pluginid,omitempty"`
-	PluginUUID    *string       `bson:"pluginuuid,omitempty"`
-	Propagate     *bool         `bson:"propagate,omitempty"`
-	PublishedDate *time.Time    `bson:"publisheddate,omitempty"`
-	PublisherID   *string       `bson:"publisherid,omitempty"`
-	PublisherName *string       `bson:"publishername,omitempty"`
-	Tags          *[]string     `bson:"tags,omitempty"`
-	UpdateTime    *time.Time    `bson:"updatetime,omitempty"`
-	Vetted        *bool         `bson:"vetted,omitempty"`
-	ZHash         *int          `bson:"zhash,omitempty"`
-	Zone          *int          `bson:"zone,omitempty"`
+	ID            bson.ObjectId               `bson:"_id,omitempty"`
+	Categories    *[]string                   `bson:"categories,omitempty"`
+	ConnectorType *AIPluginConnectorTypeValue `bson:"connectortype,omitempty"`
+	CreateTime    *time.Time                  `bson:"createtime,omitempty"`
+	Description   *string                     `bson:"description,omitempty"`
+	DisplayName   *string                     `bson:"displayname,omitempty"`
+	ImportHash    *string                     `bson:"importhash,omitempty"`
+	ImportLabel   *string                     `bson:"importlabel,omitempty"`
+	Name          *string                     `bson:"name,omitempty"`
+	Namespace     *string                     `bson:"namespace,omitempty"`
+	PluginID      *string                     `bson:"pluginid,omitempty"`
+	PluginUUID    *string                     `bson:"pluginuuid,omitempty"`
+	Propagate     *bool                       `bson:"propagate,omitempty"`
+	PublishedDate *time.Time                  `bson:"publisheddate,omitempty"`
+	PublisherID   *string                     `bson:"publisherid,omitempty"`
+	PublisherName *string                     `bson:"publishername,omitempty"`
+	Tags          *[]string                   `bson:"tags,omitempty"`
+	Type          *AIPluginTypeValue          `bson:"type,omitempty"`
+	UpdateTime    *time.Time                  `bson:"updatetime,omitempty"`
+	Vetted        *bool                       `bson:"vetted,omitempty"`
+	ZHash         *int                        `bson:"zhash,omitempty"`
+	Zone          *int                        `bson:"zone,omitempty"`
 }
