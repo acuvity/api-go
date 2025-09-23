@@ -258,6 +258,8 @@ func (o *SinkSlack) DeepCopyInto(out *SinkSlack) {
 // Validate valides the current information stored into the structure.
 func (o *SinkSlack) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

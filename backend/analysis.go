@@ -106,6 +106,8 @@ func (o *Analysis) DeepCopyInto(out *Analysis) {
 // Validate valides the current information stored into the structure.
 func (o *Analysis) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -113,7 +115,6 @@ func (o *Analysis) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -123,7 +124,6 @@ func (o *Analysis) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -133,7 +133,6 @@ func (o *Analysis) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

@@ -335,6 +335,8 @@ func (o *Metric) DeepCopyInto(out *Metric) {
 // Validate valides the current information stored into the structure.
 func (o *Metric) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

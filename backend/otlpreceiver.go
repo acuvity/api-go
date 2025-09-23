@@ -122,6 +122,8 @@ func (o *OTLPReceiver) DeepCopyInto(out *OTLPReceiver) {
 // Validate valides the current information stored into the structure.
 func (o *OTLPReceiver) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

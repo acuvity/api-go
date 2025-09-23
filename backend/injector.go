@@ -151,6 +151,8 @@ func (o *Injector) DeepCopyInto(out *Injector) {
 // Validate valides the current information stored into the structure.
 func (o *Injector) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

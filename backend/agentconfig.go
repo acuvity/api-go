@@ -727,6 +727,8 @@ func (o *AgentConfig) DeepCopyInto(out *AgentConfig) {
 // Validate valides the current information stored into the structure.
 func (o *AgentConfig) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -754,7 +756,7 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateName("name", o.Name); err != nil {
+	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -770,7 +772,6 @@ func (o *AgentConfig) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -793,7 +794,6 @@ func (o *AgentConfig) Validate() error {
 	}
 
 	if o.TunnelProxyAuth != nil {
-		elemental.ResetDefaultForZeroValues(o.TunnelProxyAuth)
 		if err := o.TunnelProxyAuth.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

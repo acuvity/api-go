@@ -117,6 +117,9 @@ type AIApp struct {
 	// The domain of the main provider.
 	Domain string `json:"domain,omitempty" msgpack:"domain,omitempty" bson:"domain,omitempty" mapstructure:"domain,omitempty"`
 
+	// If set, process names will not be included when scanning for running processes.
+	ExcludeFromScan bool `json:"excludeFromScan" msgpack:"excludeFromScan" bson:"excludefromscan" mapstructure:"excludeFromScan,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -196,6 +199,7 @@ func (o *AIApp) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Domain = o.Domain
+	s.ExcludeFromScan = o.ExcludeFromScan
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
@@ -227,6 +231,7 @@ func (o *AIApp) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Domain = s.Domain
+	o.ExcludeFromScan = s.ExcludeFromScan
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
@@ -349,20 +354,21 @@ func (o *AIApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAIApp{
-			ID:           &o.ID,
-			CreateTime:   &o.CreateTime,
-			Description:  &o.Description,
-			Domain:       &o.Domain,
-			ImportHash:   &o.ImportHash,
-			ImportLabel:  &o.ImportLabel,
-			Name:         &o.Name,
-			Namespace:    &o.Namespace,
-			ProcessNames: &o.ProcessNames,
-			Propagate:    &o.Propagate,
-			ServiceType:  &o.ServiceType,
-			UpdateTime:   &o.UpdateTime,
-			ZHash:        &o.ZHash,
-			Zone:         &o.Zone,
+			ID:              &o.ID,
+			CreateTime:      &o.CreateTime,
+			Description:     &o.Description,
+			Domain:          &o.Domain,
+			ExcludeFromScan: &o.ExcludeFromScan,
+			ImportHash:      &o.ImportHash,
+			ImportLabel:     &o.ImportLabel,
+			Name:            &o.Name,
+			Namespace:       &o.Namespace,
+			ProcessNames:    &o.ProcessNames,
+			Propagate:       &o.Propagate,
+			ServiceType:     &o.ServiceType,
+			UpdateTime:      &o.UpdateTime,
+			ZHash:           &o.ZHash,
+			Zone:            &o.Zone,
 		}
 	}
 
@@ -377,6 +383,8 @@ func (o *AIApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Description = &(o.Description)
 		case "domain":
 			sp.Domain = &(o.Domain)
+		case "excludeFromScan":
+			sp.ExcludeFromScan = &(o.ExcludeFromScan)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -421,6 +429,9 @@ func (o *AIApp) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Domain != nil {
 		o.Domain = *so.Domain
+	}
+	if so.ExcludeFromScan != nil {
+		o.ExcludeFromScan = *so.ExcludeFromScan
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -480,6 +491,8 @@ func (o *AIApp) DeepCopyInto(out *AIApp) {
 
 // Validate valides the current information stored into the structure.
 func (o *AIApp) Validate() error {
+
+	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
@@ -542,6 +555,8 @@ func (o *AIApp) ValueForAttribute(name string) any {
 		return o.Description
 	case "domain":
 		return o.Domain
+	case "excludeFromScan":
+		return o.ExcludeFromScan
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -618,6 +633,16 @@ var AIAppAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "domain",
 		Stored:         true,
 		Type:           "string",
+	},
+	"ExcludeFromScan": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludefromscan",
+		ConvertedName:  "ExcludeFromScan",
+		Description:    `If set, process names will not be included when scanning for running processes.`,
+		Exposed:        true,
+		Name:           "excludeFromScan",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -777,6 +802,16 @@ var AIAppLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "domain",
 		Stored:         true,
 		Type:           "string",
+	},
+	"excludefromscan": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludefromscan",
+		ConvertedName:  "ExcludeFromScan",
+		Description:    `If set, process names will not be included when scanning for running processes.`,
+		Exposed:        true,
+		Name:           "excludeFromScan",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -960,6 +995,9 @@ type SparseAIApp struct {
 	// The domain of the main provider.
 	Domain *string `json:"domain,omitempty" msgpack:"domain,omitempty" bson:"domain,omitempty" mapstructure:"domain,omitempty"`
 
+	// If set, process names will not be included when scanning for running processes.
+	ExcludeFromScan *bool `json:"excludeFromScan,omitempty" msgpack:"excludeFromScan,omitempty" bson:"excludefromscan,omitempty" mapstructure:"excludeFromScan,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -1046,6 +1084,9 @@ func (o *SparseAIApp) GetBSON() (any, error) {
 	if o.Domain != nil {
 		s.Domain = o.Domain
 	}
+	if o.ExcludeFromScan != nil {
+		s.ExcludeFromScan = o.ExcludeFromScan
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
@@ -1104,6 +1145,9 @@ func (o *SparseAIApp) SetBSON(raw bson.Raw) error {
 	if s.Domain != nil {
 		o.Domain = s.Domain
 	}
+	if s.ExcludeFromScan != nil {
+		o.ExcludeFromScan = s.ExcludeFromScan
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
@@ -1159,6 +1203,9 @@ func (o *SparseAIApp) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Domain != nil {
 		out.Domain = *o.Domain
+	}
+	if o.ExcludeFromScan != nil {
+		out.ExcludeFromScan = *o.ExcludeFromScan
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1315,34 +1362,36 @@ func (o *SparseAIApp) DeepCopyInto(out *SparseAIApp) {
 }
 
 type mongoAttributesAIApp struct {
-	ID           bson.ObjectId         `bson:"_id,omitempty"`
-	CreateTime   time.Time             `bson:"createtime"`
-	Description  string                `bson:"description,omitempty"`
-	Domain       string                `bson:"domain,omitempty"`
-	ImportHash   string                `bson:"importhash,omitempty"`
-	ImportLabel  string                `bson:"importlabel,omitempty"`
-	Name         string                `bson:"name"`
-	Namespace    string                `bson:"namespace,omitempty"`
-	ProcessNames []string              `bson:"processnames"`
-	Propagate    bool                  `bson:"propagate"`
-	ServiceType  AIAppServiceTypeValue `bson:"servicetype"`
-	UpdateTime   time.Time             `bson:"updatetime"`
-	ZHash        int                   `bson:"zhash"`
-	Zone         int                   `bson:"zone"`
+	ID              bson.ObjectId         `bson:"_id,omitempty"`
+	CreateTime      time.Time             `bson:"createtime"`
+	Description     string                `bson:"description,omitempty"`
+	Domain          string                `bson:"domain,omitempty"`
+	ExcludeFromScan bool                  `bson:"excludefromscan"`
+	ImportHash      string                `bson:"importhash,omitempty"`
+	ImportLabel     string                `bson:"importlabel,omitempty"`
+	Name            string                `bson:"name"`
+	Namespace       string                `bson:"namespace,omitempty"`
+	ProcessNames    []string              `bson:"processnames"`
+	Propagate       bool                  `bson:"propagate"`
+	ServiceType     AIAppServiceTypeValue `bson:"servicetype"`
+	UpdateTime      time.Time             `bson:"updatetime"`
+	ZHash           int                   `bson:"zhash"`
+	Zone            int                   `bson:"zone"`
 }
 type mongoAttributesSparseAIApp struct {
-	ID           bson.ObjectId          `bson:"_id,omitempty"`
-	CreateTime   *time.Time             `bson:"createtime,omitempty"`
-	Description  *string                `bson:"description,omitempty"`
-	Domain       *string                `bson:"domain,omitempty"`
-	ImportHash   *string                `bson:"importhash,omitempty"`
-	ImportLabel  *string                `bson:"importlabel,omitempty"`
-	Name         *string                `bson:"name,omitempty"`
-	Namespace    *string                `bson:"namespace,omitempty"`
-	ProcessNames *[]string              `bson:"processnames,omitempty"`
-	Propagate    *bool                  `bson:"propagate,omitempty"`
-	ServiceType  *AIAppServiceTypeValue `bson:"servicetype,omitempty"`
-	UpdateTime   *time.Time             `bson:"updatetime,omitempty"`
-	ZHash        *int                   `bson:"zhash,omitempty"`
-	Zone         *int                   `bson:"zone,omitempty"`
+	ID              bson.ObjectId          `bson:"_id,omitempty"`
+	CreateTime      *time.Time             `bson:"createtime,omitempty"`
+	Description     *string                `bson:"description,omitempty"`
+	Domain          *string                `bson:"domain,omitempty"`
+	ExcludeFromScan *bool                  `bson:"excludefromscan,omitempty"`
+	ImportHash      *string                `bson:"importhash,omitempty"`
+	ImportLabel     *string                `bson:"importlabel,omitempty"`
+	Name            *string                `bson:"name,omitempty"`
+	Namespace       *string                `bson:"namespace,omitempty"`
+	ProcessNames    *[]string              `bson:"processnames,omitempty"`
+	Propagate       *bool                  `bson:"propagate,omitempty"`
+	ServiceType     *AIAppServiceTypeValue `bson:"servicetype,omitempty"`
+	UpdateTime      *time.Time             `bson:"updatetime,omitempty"`
+	ZHash           *int                   `bson:"zhash,omitempty"`
+	Zone            *int                   `bson:"zone,omitempty"`
 }

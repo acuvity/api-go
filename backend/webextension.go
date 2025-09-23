@@ -438,6 +438,8 @@ func (o *WebExtension) DeepCopyInto(out *WebExtension) {
 // Validate valides the current information stored into the structure.
 func (o *WebExtension) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -454,7 +456,6 @@ func (o *WebExtension) Validate() error {
 	}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

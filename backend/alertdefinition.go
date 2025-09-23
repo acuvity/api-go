@@ -512,6 +512,8 @@ func (o *AlertDefinition) DeepCopyInto(out *AlertDefinition) {
 // Validate valides the current information stored into the structure.
 func (o *AlertDefinition) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -540,7 +542,6 @@ func (o *AlertDefinition) Validate() error {
 	}
 
 	if o.Trigger != nil {
-		elemental.ResetDefaultForZeroValues(o.Trigger)
 		if err := o.Trigger.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

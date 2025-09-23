@@ -383,6 +383,8 @@ func (o *ProxyConf) DeepCopyInto(out *ProxyConf) {
 // Validate valides the current information stored into the structure.
 func (o *ProxyConf) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -390,7 +392,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -400,7 +401,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -410,7 +410,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -420,7 +419,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -430,7 +428,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -440,14 +437,12 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.OrgSettings != nil {
-		elemental.ResetDefaultForZeroValues(o.OrgSettings)
 		if err := o.OrgSettings.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -457,7 +452,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -467,7 +461,6 @@ func (o *ProxyConf) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

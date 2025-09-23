@@ -440,6 +440,8 @@ func (o *Team) DeepCopyInto(out *Team) {
 // Validate valides the current information stored into the structure.
 func (o *Team) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -451,7 +453,7 @@ func (o *Team) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateName("name", o.Name); err != nil {
+	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
 	}
 

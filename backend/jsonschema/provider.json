@@ -69,6 +69,18 @@
       "description": "Use to transform an error before sending it back to the client.",
       "title": "errorTransformer"
     },
+    "excludedHosts": {
+      "$friendlyName": "Excluded Hosts",
+      "description": "Hosts related to the provider that will be excluded from proxying.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "excludedHosts",
+      "type": "array"
+    },
     "experimental": {
       "$friendlyName": "Experimental",
       "description": "If true, consider this provider as experimental. It will require to use a custom PAC Config to make it usable from the proxy.pac.",

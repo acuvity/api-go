@@ -368,11 +368,12 @@ func (o *Principal) DeepCopyInto(out *Principal) {
 // Validate valides the current information stored into the structure.
 func (o *Principal) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.App != nil {
-		elemental.ResetDefaultForZeroValues(o.App)
 		if err := o.App.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -383,7 +384,6 @@ func (o *Principal) Validate() error {
 	}
 
 	if o.External != nil {
-		elemental.ResetDefaultForZeroValues(o.External)
 		if err := o.External.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -398,7 +398,6 @@ func (o *Principal) Validate() error {
 	}
 
 	if o.User != nil {
-		elemental.ResetDefaultForZeroValues(o.User)
 		if err := o.User.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

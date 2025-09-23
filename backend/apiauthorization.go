@@ -38,8 +38,8 @@ const (
 	// APIAuthorizationRoleProxy represents the value Proxy.
 	APIAuthorizationRoleProxy APIAuthorizationRoleValue = "Proxy"
 
-	// APIAuthorizationRoleTrial represents the value Trial.
-	APIAuthorizationRoleTrial APIAuthorizationRoleValue = "Trial"
+	// APIAuthorizationRoleRiskAuditor represents the value RiskAuditor.
+	APIAuthorizationRoleRiskAuditor APIAuthorizationRoleValue = "RiskAuditor"
 
 	// APIAuthorizationRoleViewer represents the value Viewer.
 	APIAuthorizationRoleViewer APIAuthorizationRoleValue = "Viewer"
@@ -493,6 +493,8 @@ func (o *APIAuthorization) DeepCopyInto(out *APIAuthorization) {
 // Validate valides the current information stored into the structure.
 func (o *APIAuthorization) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -504,7 +506,7 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"}, false); err != nil {
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -699,7 +701,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"Role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -868,7 +870,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Trial", "Viewer"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,

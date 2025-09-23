@@ -127,6 +127,8 @@ func (o *ScanResultPing) DeepCopyInto(out *ScanResultPing) {
 // Validate valides the current information stored into the structure.
 func (o *ScanResultPing) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

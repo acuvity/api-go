@@ -113,6 +113,8 @@ func (o *AIDSectionPlan) DeepCopyInto(out *AIDSectionPlan) {
 // Validate valides the current information stored into the structure.
 func (o *AIDSectionPlan) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -120,7 +122,6 @@ func (o *AIDSectionPlan) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -131,14 +132,12 @@ func (o *AIDSectionPlan) Validate() error {
 	}
 
 	if o.Risk != nil {
-		elemental.ResetDefaultForZeroValues(o.Risk)
 		if err := o.Risk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Type != nil {
-		elemental.ResetDefaultForZeroValues(o.Type)
 		if err := o.Type.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

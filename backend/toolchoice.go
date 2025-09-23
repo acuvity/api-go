@@ -116,6 +116,8 @@ func (o *ToolChoice) DeepCopyInto(out *ToolChoice) {
 // Validate valides the current information stored into the structure.
 func (o *ToolChoice) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

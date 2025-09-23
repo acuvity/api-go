@@ -357,6 +357,8 @@ func (o *Trace) DeepCopyInto(out *Trace) {
 // Validate valides the current information stored into the structure.
 func (o *Trace) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -133,18 +133,18 @@ func (o *ExtractionRequest) DeepCopyInto(out *ExtractionRequest) {
 // Validate valides the current information stored into the structure.
 func (o *ExtractionRequest) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	for _, sub := range o.ToolResults {
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	for _, sub := range o.ToolUses {
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

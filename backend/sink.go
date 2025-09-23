@@ -511,11 +511,12 @@ func (o *Sink) DeepCopyInto(out *Sink) {
 // Validate valides the current information stored into the structure.
 func (o *Sink) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.Email != nil {
-		elemental.ResetDefaultForZeroValues(o.Email)
 		if err := o.Email.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -534,21 +535,18 @@ func (o *Sink) Validate() error {
 	}
 
 	if o.PagerDuty != nil {
-		elemental.ResetDefaultForZeroValues(o.PagerDuty)
 		if err := o.PagerDuty.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Slack != nil {
-		elemental.ResetDefaultForZeroValues(o.Slack)
 		if err := o.Slack.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Splunk != nil {
-		elemental.ResetDefaultForZeroValues(o.Splunk)
 		if err := o.Splunk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

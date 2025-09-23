@@ -271,7 +271,11 @@ func (o *UserToken) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *UserToken) Doc() string {
 
-	return `User Token are revocable long lived tokens for users.`
+	return `User Tokens are long-lived, revocable credentials that allow an API client to
+represent a user. They do not create a new identity but instead carry the same
+identity claims as the caller. They are usually exchanged with a short lived API
+token obtained from the various authentication sources (LDAP, SAML, MTLS,
+Oauth2, etc.).`
 }
 
 func (o *UserToken) String() string {
@@ -471,6 +475,8 @@ func (o *UserToken) DeepCopyInto(out *UserToken) {
 
 // Validate valides the current information stored into the structure.
 func (o *UserToken) Validate() error {
+
+	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}

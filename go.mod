@@ -7,9 +7,9 @@ require (
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
-	go.acuvity.ai/a3s v0.0.0-20250905141627-1b75d08d2977
-	go.acuvity.ai/elemental v0.0.0-20250821151452-a09c0524e760
-	go.opentelemetry.io/collector/pdata v1.40.0
+	go.acuvity.ai/a3s v0.0.0-20250918211646-377fa38c855b
+	go.acuvity.ai/elemental v0.0.0-20250910192920-0090d889f0b8
+	go.opentelemetry.io/collector/pdata v1.42.0
 )
 
 require (
@@ -46,7 +46,8 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.acuvity.ai/regolithe v0.0.0-20250821151615-e03aa119e9c8 // indirect
-	go.opentelemetry.io/collector/featuregate v1.40.0 // indirect
+	go.acuvity.ai/tg v0.0.0-20250220234315-d9494083aa3a // indirect
+	go.opentelemetry.io/collector/featuregate v1.42.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
@@ -55,9 +56,9 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250826171959-ef028d996bc1 // indirect
-	google.golang.org/grpc v1.75.0 // indirect
-	google.golang.org/protobuf v1.36.8 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250922171735-9219d122eba9 // indirect
+	google.golang.org/grpc v1.75.1 // indirect
+	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

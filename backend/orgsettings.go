@@ -596,6 +596,8 @@ func (o *OrgSettings) DeepCopyInto(out *OrgSettings) {
 // Validate valides the current information stored into the structure.
 func (o *OrgSettings) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

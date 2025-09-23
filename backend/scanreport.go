@@ -357,6 +357,8 @@ func (o *ScanReport) DeepCopyInto(out *ScanReport) {
 // Validate valides the current information stored into the structure.
 func (o *ScanReport) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -364,7 +366,6 @@ func (o *ScanReport) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

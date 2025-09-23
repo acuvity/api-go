@@ -153,6 +153,8 @@ func (o *TextualDetection) DeepCopyInto(out *TextualDetection) {
 // Validate valides the current information stored into the structure.
 func (o *TextualDetection) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

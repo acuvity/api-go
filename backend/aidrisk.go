@@ -121,6 +121,8 @@ func (o *AIDRisk) DeepCopyInto(out *AIDRisk) {
 // Validate valides the current information stored into the structure.
 func (o *AIDRisk) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

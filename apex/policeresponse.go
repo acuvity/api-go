@@ -508,6 +508,8 @@ func (o *PoliceResponse) DeepCopyInto(out *PoliceResponse) {
 // Validate valides the current information stored into the structure.
 func (o *PoliceResponse) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -515,7 +517,6 @@ func (o *PoliceResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -529,42 +530,36 @@ func (o *PoliceResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Latency != nil {
-		elemental.ResetDefaultForZeroValues(o.Latency)
 		if err := o.Latency.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.McpMessage != nil {
-		elemental.ResetDefaultForZeroValues(o.McpMessage)
 		if err := o.McpMessage.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Summary != nil {
-		elemental.ResetDefaultForZeroValues(o.Summary)
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.ToolChoice != nil {
-		elemental.ResetDefaultForZeroValues(o.ToolChoice)
 		if err := o.ToolChoice.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -574,7 +569,6 @@ func (o *PoliceResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

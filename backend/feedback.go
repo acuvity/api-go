@@ -451,6 +451,8 @@ func (o *Feedback) DeepCopyInto(out *Feedback) {
 // Validate valides the current information stored into the structure.
 func (o *Feedback) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -467,7 +469,6 @@ func (o *Feedback) Validate() error {
 	}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

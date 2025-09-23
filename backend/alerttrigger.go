@@ -251,6 +251,8 @@ func (o *AlertTrigger) DeepCopyInto(out *AlertTrigger) {
 // Validate valides the current information stored into the structure.
 func (o *AlertTrigger) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -367,6 +367,8 @@ func (o *PoliceRequest) DeepCopyInto(out *PoliceRequest) {
 // Validate valides the current information stored into the structure.
 func (o *PoliceRequest) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -378,7 +380,6 @@ func (o *PoliceRequest) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -388,14 +389,12 @@ func (o *PoliceRequest) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Trace != nil {
-		elemental.ResetDefaultForZeroValues(o.Trace)
 		if err := o.Trace.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -406,7 +405,6 @@ func (o *PoliceRequest) Validate() error {
 	}
 
 	if o.User != nil {
-		elemental.ResetDefaultForZeroValues(o.User)
 		if err := o.User.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

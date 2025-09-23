@@ -356,6 +356,8 @@ func (o *DigestReport) DeepCopyInto(out *DigestReport) {
 // Validate valides the current information stored into the structure.
 func (o *DigestReport) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -367,7 +369,7 @@ func (o *DigestReport) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateName("name", o.Name); err != nil {
+	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
 	}
 

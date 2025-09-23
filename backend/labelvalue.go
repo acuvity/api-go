@@ -367,6 +367,8 @@ func (o *LabelValue) DeepCopyInto(out *LabelValue) {
 // Validate valides the current information stored into the structure.
 func (o *LabelValue) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

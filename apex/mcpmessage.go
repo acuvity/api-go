@@ -153,6 +153,8 @@ func (o *MCPMessage) DeepCopyInto(out *MCPMessage) {
 // Validate valides the current information stored into the structure.
 func (o *MCPMessage) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -522,6 +522,8 @@ func (o *AccessPolicy) DeepCopyInto(out *AccessPolicy) {
 // Validate valides the current information stored into the structure.
 func (o *AccessPolicy) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -533,7 +535,6 @@ func (o *AccessPolicy) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -547,7 +548,7 @@ func (o *AccessPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateName("name", o.Name); err != nil {
+	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
 	}
 

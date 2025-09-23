@@ -119,6 +119,8 @@ func (o *ProviderTrainingPolicy) DeepCopyInto(out *ProviderTrainingPolicy) {
 // Validate valides the current information stored into the structure.
 func (o *ProviderTrainingPolicy) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

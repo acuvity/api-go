@@ -483,11 +483,12 @@ func (o *Agent) DeepCopyInto(out *Agent) {
 // Validate valides the current information stored into the structure.
 func (o *Agent) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.AgentConfig != nil {
-		elemental.ResetDefaultForZeroValues(o.AgentConfig)
 		if err := o.AgentConfig.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -506,7 +507,6 @@ func (o *Agent) Validate() error {
 	}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

@@ -132,6 +132,8 @@ func (o *Modality) DeepCopyInto(out *Modality) {
 // Validate valides the current information stored into the structure.
 func (o *Modality) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

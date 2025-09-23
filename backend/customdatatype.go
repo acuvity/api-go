@@ -457,6 +457,8 @@ func (o *CustomDataType) DeepCopyInto(out *CustomDataType) {
 // Validate valides the current information stored into the structure.
 func (o *CustomDataType) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

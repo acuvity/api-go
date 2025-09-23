@@ -366,6 +366,8 @@ func (o *PageDataView) DeepCopyInto(out *PageDataView) {
 // Validate valides the current information stored into the structure.
 func (o *PageDataView) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -381,7 +383,6 @@ func (o *PageDataView) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

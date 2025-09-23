@@ -649,6 +649,10 @@
             "example": "openai.com",
             "type": "string"
           },
+          "excludeFromScan": {
+            "description": "If set, process names will not be included when scanning for running processes.",
+            "type": "boolean"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
@@ -1760,8 +1764,8 @@
               "OpenTelemetryCollector",
               "Owner",
               "Proxy",
-              "Trial",
-              "Viewer"
+              "Viewer",
+              "RiskAuditor"
             ],
             "example": "Employee"
           },
@@ -1967,7 +1971,7 @@
         "type": "object"
       },
       "apptoken": {
-        "description": "App Token are revocable long lived tokens.",
+        "description": "App Tokens are long-lived, revocable credentials that can be used to establish a\nnew identity for an API client and assign specific authorizations, independently\nof the caller’s claims.",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",
@@ -4282,6 +4286,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -4874,6 +4883,13 @@
           },
           "errorTransformer": {
             "$ref": "#/components/schemas/errortransformer"
+          },
+          "excludedHosts": {
+            "description": "Hosts related to the provider that will be excluded from proxying.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "experimental": {
             "description": "If true, consider this provider as experimental. It will require to use a custom\nPAC Config to make it usable from the proxy.pac.",
@@ -6832,7 +6848,7 @@
         "type": "object"
       },
       "usertoken": {
-        "description": "User Token are revocable long lived tokens for users.",
+        "description": "User Tokens are long-lived, revocable credentials that allow an API client to\nrepresent a user. They do not create a new identity but instead carry the same\nidentity claims as the caller. They are usually exchanged with a short lived API\ntoken obtained from the various authentication sources (LDAP, SAML, MTLS,\nOauth2, etc.).",
         "properties": {
           "ID": {
             "description": "ID is the identifier of the object.",

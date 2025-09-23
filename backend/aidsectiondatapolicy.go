@@ -138,6 +138,8 @@ func (o *AIDSectionDataPolicy) DeepCopyInto(out *AIDSectionDataPolicy) {
 // Validate valides the current information stored into the structure.
 func (o *AIDSectionDataPolicy) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -145,7 +147,6 @@ func (o *AIDSectionDataPolicy) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -156,28 +157,24 @@ func (o *AIDSectionDataPolicy) Validate() error {
 	}
 
 	if o.Retention != nil {
-		elemental.ResetDefaultForZeroValues(o.Retention)
 		if err := o.Retention.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Risk != nil {
-		elemental.ResetDefaultForZeroValues(o.Risk)
 		if err := o.Risk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Sharing != nil {
-		elemental.ResetDefaultForZeroValues(o.Sharing)
 		if err := o.Sharing.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Training != nil {
-		elemental.ResetDefaultForZeroValues(o.Training)
 		if err := o.Training.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

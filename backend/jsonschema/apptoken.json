@@ -12,7 +12,7 @@
   "$modelResourceName": "apptokens",
   "$modelRestName": "apptoken",
   "additionalProperties": false,
-  "description": "App Token are revocable long lived tokens.",
+  "description": "App Tokens are long-lived, revocable credentials that can be used to establish a new identity for an API client and assign specific authorizations, independently of the caller’s claims.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

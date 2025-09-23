@@ -113,8 +113,8 @@
         "OpenTelemetryCollector",
         "Owner",
         "Proxy",
-        "Trial",
-        "Viewer"
+        "Viewer",
+        "RiskAuditor"
       ],
       "title": "role"
     },

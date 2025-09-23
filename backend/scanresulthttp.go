@@ -143,6 +143,8 @@ func (o *ScanResultHTTP) DeepCopyInto(out *ScanResultHTTP) {
 // Validate valides the current information stored into the structure.
 func (o *ScanResultHTTP) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

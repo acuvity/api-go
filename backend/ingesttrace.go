@@ -303,11 +303,12 @@ func (o *IngestTrace) DeepCopyInto(out *IngestTrace) {
 // Validate valides the current information stored into the structure.
 func (o *IngestTrace) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -318,7 +319,6 @@ func (o *IngestTrace) Validate() error {
 	}
 
 	for _, sub := range o.Traces {
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

@@ -282,6 +282,8 @@ func (o *WatchedOrg) DeepCopyInto(out *WatchedOrg) {
 // Validate valides the current information stored into the structure.
 func (o *WatchedOrg) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

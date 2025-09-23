@@ -143,6 +143,8 @@ func (o *ExtractionSummary) DeepCopyInto(out *ExtractionSummary) {
 // Validate valides the current information stored into the structure.
 func (o *ExtractionSummary) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -154,25 +154,24 @@ func (o *ScanDomain) DeepCopyInto(out *ScanDomain) {
 // Validate valides the current information stored into the structure.
 func (o *ScanDomain) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.HTTPScanResult != nil {
-		elemental.ResetDefaultForZeroValues(o.HTTPScanResult)
 		if err := o.HTTPScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.PingScanResult != nil {
-		elemental.ResetDefaultForZeroValues(o.PingScanResult)
 		if err := o.PingScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.TLSScanResult != nil {
-		elemental.ResetDefaultForZeroValues(o.TLSScanResult)
 		if err := o.TLSScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -182,7 +181,6 @@ func (o *ScanDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -212,7 +210,6 @@ func (o *ScanDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

@@ -132,6 +132,8 @@ func (o *OTLPEndpoint) DeepCopyInto(out *OTLPEndpoint) {
 // Validate valides the current information stored into the structure.
 func (o *OTLPEndpoint) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

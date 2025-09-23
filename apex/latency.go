@@ -282,6 +282,8 @@ func (o *Latency) DeepCopyInto(out *Latency) {
 // Validate valides the current information stored into the structure.
 func (o *Latency) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

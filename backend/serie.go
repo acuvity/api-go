@@ -357,6 +357,8 @@ func (o *Serie) DeepCopyInto(out *Serie) {
 // Validate valides the current information stored into the structure.
 func (o *Serie) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -154,6 +154,8 @@ func (o *Mapper) DeepCopyInto(out *Mapper) {
 // Validate valides the current information stored into the structure.
 func (o *Mapper) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

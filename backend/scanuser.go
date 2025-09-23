@@ -104,6 +104,8 @@ func (o *ScanUser) DeepCopyInto(out *ScanUser) {
 // Validate valides the current information stored into the structure.
 func (o *ScanUser) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

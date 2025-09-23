@@ -133,18 +133,18 @@ func (o *Tool) DeepCopyInto(out *Tool) {
 // Validate valides the current information stored into the structure.
 func (o *Tool) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.MCPAnnotations != nil {
-		elemental.ResetDefaultForZeroValues(o.MCPAnnotations)
 		if err := o.MCPAnnotations.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.MCPServer != nil {
-		elemental.ResetDefaultForZeroValues(o.MCPServer)
 		if err := o.MCPServer.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

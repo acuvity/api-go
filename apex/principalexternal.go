@@ -251,6 +251,8 @@ func (o *PrincipalExternal) DeepCopyInto(out *PrincipalExternal) {
 // Validate valides the current information stored into the structure.
 func (o *PrincipalExternal) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

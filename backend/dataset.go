@@ -476,6 +476,8 @@ func (o *DataSet) DeepCopyInto(out *DataSet) {
 // Validate valides the current information stored into the structure.
 func (o *DataSet) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -301,6 +301,8 @@ func (o *Role) DeepCopyInto(out *Role) {
 // Validate valides the current information stored into the structure.
 func (o *Role) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

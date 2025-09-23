@@ -403,6 +403,8 @@ func (o *TraceTagKeys) DeepCopyInto(out *TraceTagKeys) {
 // Validate valides the current information stored into the structure.
 func (o *TraceTagKeys) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -285,6 +285,8 @@ func (o *PrincipalApp) DeepCopyInto(out *PrincipalApp) {
 // Validate valides the current information stored into the structure.
 func (o *PrincipalApp) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

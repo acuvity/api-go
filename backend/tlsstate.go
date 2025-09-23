@@ -121,6 +121,8 @@ func (o *TLSState) DeepCopyInto(out *TLSState) {
 // Validate valides the current information stored into the structure.
 func (o *TLSState) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

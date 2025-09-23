@@ -93,6 +93,8 @@ func (o *PoliceExternalUser) DeepCopyInto(out *PoliceExternalUser) {
 // Validate valides the current information stored into the structure.
 func (o *PoliceExternalUser) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

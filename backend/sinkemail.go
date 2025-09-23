@@ -239,6 +239,8 @@ func (o *SinkEmail) DeepCopyInto(out *SinkEmail) {
 // Validate valides the current information stored into the structure.
 func (o *SinkEmail) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

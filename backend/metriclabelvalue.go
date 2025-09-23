@@ -377,6 +377,8 @@ func (o *MetricLabelValue) DeepCopyInto(out *MetricLabelValue) {
 // Validate valides the current information stored into the structure.
 func (o *MetricLabelValue) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

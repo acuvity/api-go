@@ -134,6 +134,8 @@ func (o *Detection) DeepCopyInto(out *Detection) {
 // Validate valides the current information stored into the structure.
 func (o *Detection) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

@@ -98,6 +98,8 @@ func (o *TunnelProxyAuthBasic) DeepCopyInto(out *TunnelProxyAuthBasic) {
 // Validate valides the current information stored into the structure.
 func (o *TunnelProxyAuthBasic) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

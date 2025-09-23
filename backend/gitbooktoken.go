@@ -234,6 +234,8 @@ func (o *GitbookToken) DeepCopyInto(out *GitbookToken) {
 // Validate valides the current information stored into the structure.
 func (o *GitbookToken) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

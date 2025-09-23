@@ -258,6 +258,8 @@ func (o *DigestReportRequest) DeepCopyInto(out *DigestReportRequest) {
 // Validate valides the current information stored into the structure.
 func (o *DigestReportRequest) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

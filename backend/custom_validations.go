@@ -360,11 +360,17 @@ func ValidateObjectID(attribute string, id string) error {
 	return nil
 }
 
-// ValidateName checks if the given name is valid.
-func ValidateName(attribute string, name string) error {
+// ValidateTrimmed checks if the given property have no leading and trailing spaces.
+func ValidateTrimmed(attribute string, value string) error {
 
-	if strings.TrimSpace(name) == "" {
-		return makeErr(attribute, fmt.Sprintf("provided name ('%s') must not contain just white space.", name))
+	t := strings.TrimSpace(value)
+
+	if t == "" {
+		return makeErr(attribute, fmt.Sprintf("%s must not contain just white space.", attribute))
+	}
+
+	if t != value {
+		return makeErr(attribute, fmt.Sprintf("%s must not contain any leading or trailing spaces.", attribute))
 	}
 
 	return nil

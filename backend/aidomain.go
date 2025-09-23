@@ -624,6 +624,8 @@ func (o *AIDomain) DeepCopyInto(out *AIDomain) {
 // Validate valides the current information stored into the structure.
 func (o *AIDomain) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -631,14 +633,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.LLMProvidersRisk != nil {
-		elemental.ResetDefaultForZeroValues(o.LLMProvidersRisk)
 		if err := o.LLMProvidersRisk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -648,14 +648,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.CompliancesRisk != nil {
-		elemental.ResetDefaultForZeroValues(o.CompliancesRisk)
 		if err := o.CompliancesRisk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -665,14 +663,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.DataPoliciesRisk != nil {
-		elemental.ResetDefaultForZeroValues(o.DataPoliciesRisk)
 		if err := o.DataPoliciesRisk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -682,14 +678,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.DataProcessorsRisk != nil {
-		elemental.ResetDefaultForZeroValues(o.DataProcessorsRisk)
 		if err := o.DataProcessorsRisk.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -703,14 +697,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Industry != nil {
-		elemental.ResetDefaultForZeroValues(o.Industry)
 		if err := o.Industry.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -724,14 +716,12 @@ func (o *AIDomain) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Summary != nil {
-		elemental.ResetDefaultForZeroValues(o.Summary)
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

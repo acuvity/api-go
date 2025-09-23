@@ -373,6 +373,8 @@ func (o *IngressProviderConfig) DeepCopyInto(out *IngressProviderConfig) {
 // Validate valides the current information stored into the structure.
 func (o *IngressProviderConfig) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

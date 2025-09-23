@@ -107,6 +107,8 @@ func (o *AgentDiscoveredMCP) DeepCopyInto(out *AgentDiscoveredMCP) {
 // Validate valides the current information stored into the structure.
 func (o *AgentDiscoveredMCP) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

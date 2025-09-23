@@ -348,6 +348,8 @@ func (o *AppComponent) DeepCopyInto(out *AppComponent) {
 // Validate valides the current information stored into the structure.
 func (o *AppComponent) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -356,7 +358,6 @@ func (o *AppComponent) Validate() error {
 	}
 
 	for _, sub := range o.IngressProviderConfigs {
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

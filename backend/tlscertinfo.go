@@ -162,6 +162,8 @@ func (o *TLSCertInfo) DeepCopyInto(out *TLSCertInfo) {
 // Validate valides the current information stored into the structure.
 func (o *TLSCertInfo) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

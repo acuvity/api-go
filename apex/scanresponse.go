@@ -519,6 +519,8 @@ func (o *ScanResponse) DeepCopyInto(out *ScanResponse) {
 // Validate valides the current information stored into the structure.
 func (o *ScanResponse) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -526,7 +528,6 @@ func (o *ScanResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -540,42 +541,36 @@ func (o *ScanResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Latency != nil {
-		elemental.ResetDefaultForZeroValues(o.Latency)
 		if err := o.Latency.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.McpMessage != nil {
-		elemental.ResetDefaultForZeroValues(o.McpMessage)
 		if err := o.McpMessage.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Principal != nil {
-		elemental.ResetDefaultForZeroValues(o.Principal)
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Summary != nil {
-		elemental.ResetDefaultForZeroValues(o.Summary)
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.ToolChoice != nil {
-		elemental.ResetDefaultForZeroValues(o.ToolChoice)
 		if err := o.ToolChoice.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -585,14 +580,12 @@ func (o *ScanResponse) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	if o.Trace != nil {
-		elemental.ResetDefaultForZeroValues(o.Trace)
 		if err := o.Trace.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

@@ -128,11 +128,12 @@ func (o *ScanResultTLS) DeepCopyInto(out *ScanResultTLS) {
 // Validate valides the current information stored into the structure.
 func (o *ScanResultTLS) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.CertificateInfo != nil {
-		elemental.ResetDefaultForZeroValues(o.CertificateInfo)
 		if err := o.CertificateInfo.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

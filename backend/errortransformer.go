@@ -251,6 +251,8 @@ func (o *ErrorTransformer) DeepCopyInto(out *ErrorTransformer) {
 // Validate valides the current information stored into the structure.
 func (o *ErrorTransformer) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

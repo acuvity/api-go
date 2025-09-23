@@ -3,7 +3,8 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@auto-propagated"
   ],
   "$friendlyName": "OrgStorage",
   "$friendlyNamePlural": "OrgStorages",
@@ -68,6 +69,16 @@
       "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
         "null"
       ]
     },

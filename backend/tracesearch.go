@@ -378,6 +378,8 @@ func (o *TraceSearch) DeepCopyInto(out *TraceSearch) {
 // Validate valides the current information stored into the structure.
 func (o *TraceSearch) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

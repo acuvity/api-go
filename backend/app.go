@@ -510,6 +510,8 @@ func (o *App) DeepCopyInto(out *App) {
 // Validate valides the current information stored into the structure.
 func (o *App) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -517,7 +519,6 @@ func (o *App) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -532,14 +533,12 @@ func (o *App) Validate() error {
 	}
 
 	if o.OtelExporter != nil {
-		elemental.ResetDefaultForZeroValues(o.OtelExporter)
 		if err := o.OtelExporter.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
 
 	for _, sub := range o.OtelReceivers {
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

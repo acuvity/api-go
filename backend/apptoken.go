@@ -249,7 +249,9 @@ func (o *AppToken) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AppToken) Doc() string {
 
-	return `App Token are revocable long lived tokens.`
+	return `App Tokens are long-lived, revocable credentials that can be used to establish a
+new identity for an API client and assign specific authorizations, independently
+of the caller’s claims.`
 }
 
 func (o *AppToken) String() string {
@@ -443,6 +445,8 @@ func (o *AppToken) DeepCopyInto(out *AppToken) {
 
 // Validate valides the current information stored into the structure.
 func (o *AppToken) Validate() error {
+
+	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}

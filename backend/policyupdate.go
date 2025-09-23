@@ -264,6 +264,8 @@ func (o *PolicyUpdate) DeepCopyInto(out *PolicyUpdate) {
 // Validate valides the current information stored into the structure.
 func (o *PolicyUpdate) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

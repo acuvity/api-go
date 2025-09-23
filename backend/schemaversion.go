@@ -261,6 +261,8 @@ func (o *SchemaVersion) DeepCopyInto(out *SchemaVersion) {
 // Validate valides the current information stored into the structure.
 func (o *SchemaVersion) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 

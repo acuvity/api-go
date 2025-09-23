@@ -565,11 +565,12 @@ func (o *AIPlugin) DeepCopyInto(out *AIPlugin) {
 // Validate valides the current information stored into the structure.
 func (o *AIPlugin) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.IDE != nil {
-		elemental.ResetDefaultForZeroValues(o.IDE)
 		if err := o.IDE.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -600,7 +601,6 @@ func (o *AIPlugin) Validate() error {
 	}
 
 	if o.WebExtension != nil {
-		elemental.ResetDefaultForZeroValues(o.WebExtension)
 		if err := o.WebExtension.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

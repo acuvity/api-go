@@ -133,6 +133,8 @@ func (o *Moderation) DeepCopyInto(out *Moderation) {
 // Validate valides the current information stored into the structure.
 func (o *Moderation) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -152,7 +154,6 @@ func (o *Moderation) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

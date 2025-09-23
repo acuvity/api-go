@@ -106,11 +106,12 @@ func (o *ExtractorRef) DeepCopyInto(out *ExtractorRef) {
 // Validate valides the current information stored into the structure.
 func (o *ExtractorRef) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
 	if o.Def != nil {
-		elemental.ResetDefaultForZeroValues(o.Def)
 		if err := o.Def.Validate(); err != nil {
 			errors = errors.Append(err)
 		}

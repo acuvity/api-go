@@ -126,6 +126,9 @@ type Provider struct {
 	// Use to transform an error before sending it back to the client.
 	ErrorTransformer *ErrorTransformer `json:"errorTransformer,omitempty" msgpack:"errorTransformer,omitempty" bson:"errortransformer,omitempty" mapstructure:"errorTransformer,omitempty"`
 
+	// Hosts related to the provider that will be excluded from proxying.
+	ExcludedHosts []string `json:"excludedHosts" msgpack:"excludedHosts" bson:"excludedhosts" mapstructure:"excludedHosts,omitempty"`
+
 	// If true, consider this provider as experimental. It will require to use a custom
 	// PAC Config to make it usable from the proxy.pac.
 	Experimental bool `json:"experimental" msgpack:"experimental" bson:"experimental" mapstructure:"experimental,omitempty"`
@@ -208,10 +211,11 @@ type Provider struct {
 func NewProvider() *Provider {
 
 	return &Provider{
-		ModelVersion: 1,
-		Hosts:        []*Host{},
-		Propagate:    true,
-		Status:       ProviderStatusStable,
+		ModelVersion:  1,
+		ExcludedHosts: []string{},
+		Hosts:         []*Host{},
+		Propagate:     true,
+		Status:        ProviderStatusStable,
 	}
 }
 
@@ -251,6 +255,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.ErrorTransformer = o.ErrorTransformer
+	s.ExcludedHosts = o.ExcludedHosts
 	s.Experimental = o.Experimental
 	s.Extractors = o.Extractors
 	s.FriendlyName = o.FriendlyName
@@ -296,6 +301,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.ErrorTransformer = s.ErrorTransformer
+	o.ExcludedHosts = s.ExcludedHosts
 	o.Experimental = s.Experimental
 	o.Extractors = s.Extractors
 	o.FriendlyName = s.FriendlyName
@@ -438,6 +444,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
 			ErrorTransformer: o.ErrorTransformer,
+			ExcludedHosts:    &o.ExcludedHosts,
 			Experimental:     &o.Experimental,
 			Extractors:       &o.Extractors,
 			FriendlyName:     &o.FriendlyName,
@@ -478,6 +485,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Description = &(o.Description)
 		case "errorTransformer":
 			sp.ErrorTransformer = o.ErrorTransformer
+		case "excludedHosts":
+			sp.ExcludedHosts = &(o.ExcludedHosts)
 		case "experimental":
 			sp.Experimental = &(o.Experimental)
 		case "extractors":
@@ -552,6 +561,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ErrorTransformer != nil {
 		o.ErrorTransformer = so.ErrorTransformer
+	}
+	if so.ExcludedHosts != nil {
+		o.ExcludedHosts = *so.ExcludedHosts
 	}
 	if so.Experimental != nil {
 		o.Experimental = *so.Experimental
@@ -648,6 +660,8 @@ func (o *Provider) DeepCopyInto(out *Provider) {
 // Validate valides the current information stored into the structure.
 func (o *Provider) Validate() error {
 
+	elemental.ResetDefaultForZeroValues(o)
+
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
@@ -660,7 +674,6 @@ func (o *Provider) Validate() error {
 	}
 
 	if o.ErrorTransformer != nil {
-		elemental.ResetDefaultForZeroValues(o.ErrorTransformer)
 		if err := o.ErrorTransformer.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -670,7 +683,6 @@ func (o *Provider) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -684,7 +696,6 @@ func (o *Provider) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -694,7 +705,6 @@ func (o *Provider) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -704,7 +714,6 @@ func (o *Provider) Validate() error {
 		if sub == nil {
 			continue
 		}
-		elemental.ResetDefaultForZeroValues(sub)
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
@@ -781,6 +790,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Description
 	case "errorTransformer":
 		return o.ErrorTransformer
+	case "excludedHosts":
+		return o.ExcludedHosts
 	case "experimental":
 		return o.Experimental
 	case "extractors":
@@ -905,6 +916,17 @@ applied, but the response will be analyzed and classified.`,
 		Stored:         true,
 		SubType:        "errortransformer",
 		Type:           "ref",
+	},
+	"ExcludedHosts": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludedhosts",
+		ConvertedName:  "ExcludedHosts",
+		Description:    `Hosts related to the provider that will be excluded from proxying.`,
+		Exposed:        true,
+		Name:           "excludedHosts",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"Experimental": {
 		AllowedChoices: []string{},
@@ -1220,6 +1242,17 @@ applied, but the response will be analyzed and classified.`,
 		Stored:         true,
 		SubType:        "errortransformer",
 		Type:           "ref",
+	},
+	"excludedhosts": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludedhosts",
+		ConvertedName:  "ExcludedHosts",
+		Description:    `Hosts related to the provider that will be excluded from proxying.`,
+		Exposed:        true,
+		Name:           "excludedHosts",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"experimental": {
 		AllowedChoices: []string{},
@@ -1542,6 +1575,9 @@ type SparseProvider struct {
 	// Use to transform an error before sending it back to the client.
 	ErrorTransformer *ErrorTransformer `json:"errorTransformer,omitempty" msgpack:"errorTransformer,omitempty" bson:"errortransformer,omitempty" mapstructure:"errorTransformer,omitempty"`
 
+	// Hosts related to the provider that will be excluded from proxying.
+	ExcludedHosts *[]string `json:"excludedHosts,omitempty" msgpack:"excludedHosts,omitempty" bson:"excludedhosts,omitempty" mapstructure:"excludedHosts,omitempty"`
+
 	// If true, consider this provider as experimental. It will require to use a custom
 	// PAC Config to make it usable from the proxy.pac.
 	Experimental *bool `json:"experimental,omitempty" msgpack:"experimental,omitempty" bson:"experimental,omitempty" mapstructure:"experimental,omitempty"`
@@ -1678,6 +1714,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.ErrorTransformer != nil {
 		s.ErrorTransformer = o.ErrorTransformer
 	}
+	if o.ExcludedHosts != nil {
+		s.ExcludedHosts = o.ExcludedHosts
+	}
 	if o.Experimental != nil {
 		s.Experimental = o.Experimental
 	}
@@ -1778,6 +1817,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.ErrorTransformer != nil {
 		o.ErrorTransformer = s.ErrorTransformer
 	}
+	if s.ExcludedHosts != nil {
+		o.ExcludedHosts = s.ExcludedHosts
+	}
 	if s.Experimental != nil {
 		o.Experimental = s.Experimental
 	}
@@ -1875,6 +1917,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ErrorTransformer != nil {
 		out.ErrorTransformer = o.ErrorTransformer
+	}
+	if o.ExcludedHosts != nil {
+		out.ExcludedHosts = *o.ExcludedHosts
 	}
 	if o.Experimental != nil {
 		out.Experimental = *o.Experimental
@@ -2073,6 +2118,7 @@ type mongoAttributesProvider struct {
 	CreateTime       time.Time             `bson:"createtime"`
 	Description      string                `bson:"description"`
 	ErrorTransformer *ErrorTransformer     `bson:"errortransformer,omitempty"`
+	ExcludedHosts    []string              `bson:"excludedhosts"`
 	Experimental     bool                  `bson:"experimental"`
 	Extractors       []*ExtractorRef       `bson:"extractors,omitempty"`
 	FriendlyName     string                `bson:"friendlyname"`
@@ -2103,6 +2149,7 @@ type mongoAttributesSparseProvider struct {
 	CreateTime       *time.Time             `bson:"createtime,omitempty"`
 	Description      *string                `bson:"description,omitempty"`
 	ErrorTransformer *ErrorTransformer      `bson:"errortransformer,omitempty"`
+	ExcludedHosts    *[]string              `bson:"excludedhosts,omitempty"`
 	Experimental     *bool                  `bson:"experimental,omitempty"`
 	Extractors       *[]*ExtractorRef       `bson:"extractors,omitempty"`
 	FriendlyName     *string                `bson:"friendlyname,omitempty"`

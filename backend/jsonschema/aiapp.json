@@ -53,6 +53,15 @@
         "null"
       ]
     },
+    "excludeFromScan": {
+      "$friendlyName": "Exclude from Scan",
+      "description": "If set, process names will not be included when scanning for running processes.",
+      "title": "excludeFromScan",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -91,7 +100,7 @@
       ]
     },
     "processNames": {
-      "$friendlyName": "Process names",
+      "$friendlyName": "Process Names",
       "$required": true,
       "description": "The names of the process when running as an application.",
       "items": {
