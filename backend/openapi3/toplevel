@@ -557,6 +557,10 @@
             "description": "The name of the MCP server.",
             "type": "string"
           },
+          "pluginID": {
+            "description": "The identifier of the corresponding plugin.",
+            "type": "string"
+          },
           "type": {
             "default": "Local",
             "description": "The type of MCP server.",

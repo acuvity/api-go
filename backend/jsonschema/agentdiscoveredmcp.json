@@ -18,6 +18,15 @@
         "null"
       ]
     },
+    "pluginID": {
+      "$friendlyName": "Plugin ID",
+      "description": "The identifier of the corresponding plugin.",
+      "title": "pluginID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "type": {
       "$defaultValue": "Local",
       "$friendlyName": "Type",

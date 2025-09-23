@@ -813,6 +813,12 @@ Type: `string`
 
 The name of the MCP server.
 
+##### `pluginID`
+
+Type: `string`
+
+The identifier of the corresponding plugin.
+
 ##### `type`
 
 Type: `enum(Local | Container | Remote)`

@@ -28,7 +28,10 @@ const (
 // AgentDiscoveredMCP represents the model of a agentdiscoveredmcp
 type AgentDiscoveredMCP struct {
 	// The name of the MCP server.
-	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"-" mapstructure:"name,omitempty"`
+	Name string `json:"name" msgpack:"name" bson:"-" mapstructure:"name,omitempty"`
+
+	// The identifier of the corresponding plugin.
+	PluginID string `json:"pluginID,omitempty" msgpack:"pluginID,omitempty" bson:"-" mapstructure:"pluginID,omitempty"`
 
 	// The type of MCP server.
 	Type AgentDiscoveredMCPTypeValue `json:"type" msgpack:"type" bson:"-" mapstructure:"type,omitempty"`
@@ -152,6 +155,8 @@ func (o *AgentDiscoveredMCP) ValueForAttribute(name string) any {
 	switch name {
 	case "name":
 		return o.Name
+	case "pluginID":
+		return o.PluginID
 	case "type":
 		return o.Type
 	}
@@ -167,6 +172,14 @@ var AgentDiscoveredMCPAttributesMap = map[string]elemental.AttributeSpecificatio
 		Description:    `The name of the MCP server.`,
 		Exposed:        true,
 		Name:           "name",
+		Type:           "string",
+	},
+	"PluginID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PluginID",
+		Description:    `The identifier of the corresponding plugin.`,
+		Exposed:        true,
+		Name:           "pluginID",
 		Type:           "string",
 	},
 	"Type": {
@@ -188,6 +201,14 @@ var AgentDiscoveredMCPLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		Description:    `The name of the MCP server.`,
 		Exposed:        true,
 		Name:           "name",
+		Type:           "string",
+	},
+	"pluginid": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PluginID",
+		Description:    `The identifier of the corresponding plugin.`,
+		Exposed:        true,
+		Name:           "pluginID",
 		Type:           "string",
 	},
 	"type": {
