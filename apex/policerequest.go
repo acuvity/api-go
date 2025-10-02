@@ -340,6 +340,78 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *PoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the PoliceRequest.
 func (o *PoliceRequest) DeepCopy() *PoliceRequest {
 
@@ -941,6 +1013,86 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparsePoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SparsePoliceRequest.

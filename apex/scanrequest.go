@@ -399,6 +399,54 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ScanRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the ScanRequest.
 func (o *ScanRequest) DeepCopy() *ScanRequest {
 
@@ -1163,6 +1211,62 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SparseScanRequest.

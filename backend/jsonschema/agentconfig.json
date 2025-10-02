@@ -146,6 +146,15 @@
         "null"
       ]
     },
+    "metricsEnabled": {
+      "$friendlyName": "Metrics Enabled",
+      "description": "If enabled, the agent will start reporting various metrics in logs.",
+      "title": "metricsEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "name": {
       "$friendlyName": "Name",
       "$required": true,

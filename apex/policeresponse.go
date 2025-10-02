@@ -481,6 +481,132 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *PoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *PoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the PoliceResponse.
 func (o *PoliceResponse) DeepCopy() *PoliceResponse {
 
@@ -1509,6 +1635,144 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparsePoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparsePoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetNamespace returns the Namespace of the receiver.

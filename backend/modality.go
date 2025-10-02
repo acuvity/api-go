@@ -63,6 +63,17 @@ func NewModality() *Modality {
 		ModelVersion: 1,
 	}
 }
+func (o *Modality) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *Modality) Identifier() string {
+
+	return ""
+}
+func (o *Modality) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -99,10 +110,34 @@ func (o *Modality) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *Modality) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *Modality) BleveType() string {
 
 	return "modality"
+}
+
+// Doc returns the documentation for the object
+func (o *Modality) Doc() string {
+
+	return `Represents the modality of a some data.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Modality) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Modality) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Modality.

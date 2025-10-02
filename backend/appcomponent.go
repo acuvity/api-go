@@ -321,6 +321,30 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AppComponent) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.IngressProviderConfigs {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IngressProviderConfigs' for 'AppComponent' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AppComponent) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.IngressProviderConfigs {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IngressProviderConfigs' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the AppComponent.
 func (o *AppComponent) DeepCopy() *AppComponent {
 
@@ -888,6 +912,34 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAppComponent) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IngressProviderConfigs != nil {
+		for _, sub := range *o.IngressProviderConfigs {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IngressProviderConfigs' for 'AppComponent' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAppComponent) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IngressProviderConfigs != nil {
+		for _, sub := range *o.IngressProviderConfigs {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IngressProviderConfigs' for 'AppComponent' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SparseAppComponent.

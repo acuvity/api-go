@@ -54,6 +54,17 @@ func NewExtractionRequest() *ExtractionRequest {
 		Data:         []byte{},
 	}
 }
+func (o *ExtractionRequest) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ExtractionRequest) Identifier() string {
+
+	return ""
+}
+func (o *ExtractionRequest) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -100,10 +111,58 @@ func (o *ExtractionRequest) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ExtractionRequest) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ExtractionRequest) BleveType() string {
 
 	return "extractionrequest"
+}
+
+// Doc returns the documentation for the object
+func (o *ExtractionRequest) Doc() string {
+
+	return `Represents the extraction that the user wants to extract.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ExtractionRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.ToolResults {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolResults' for 'ExtractionRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolUses' for 'ExtractionRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ExtractionRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.ToolResults {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolResults' for 'ExtractionRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolUses' for 'ExtractionRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ExtractionRequest.

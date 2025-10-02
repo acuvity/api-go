@@ -53,6 +53,17 @@ func NewAIDSectionDataPolicy() *AIDSectionDataPolicy {
 		ModelVersion: 1,
 	}
 }
+func (o *AIDSectionDataPolicy) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AIDSectionDataPolicy) Identifier() string {
+
+	return ""
+}
+func (o *AIDSectionDataPolicy) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -105,10 +116,100 @@ func (o *AIDSectionDataPolicy) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AIDSectionDataPolicy) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AIDSectionDataPolicy) BleveType() string {
 
 	return "aidsectiondatapolicy"
+}
+
+// Doc returns the documentation for the object
+func (o *AIDSectionDataPolicy) Doc() string {
+
+	return `AIDomain data policy information.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDSectionDataPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Citations' for 'AIDSectionDataPolicy' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Retention != nil {
+		if err := o.Retention.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Retention' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Sharing != nil {
+		if err := o.Sharing.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Sharing' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Training != nil {
+		if err := o.Training.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Training' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDSectionDataPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Citations' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Retention != nil {
+		if err := o.Retention.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Retention' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Sharing != nil {
+		if err := o.Sharing.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Sharing' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Training != nil {
+		if err := o.Training.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Training' for 'AIDSectionDataPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AIDSectionDataPolicy.

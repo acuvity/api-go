@@ -18,15 +18,8 @@
         "null"
       ]
     },
-    "cipherSuite": {
-      "$friendlyName": "Cipher Suite",
-      "$required": true,
-      "description": "The negotiated cipher suite of the connection.",
-      "title": "cipherSuite",
-      "type": "string"
-    },
-    "version": {
-      "$friendlyName": "Version",
+    "TLSVersion": {
+      "$friendlyName": "TLS Version",
       "$required": true,
       "description": "The TLS protocol version used for the connection.",
       "enum": [
@@ -35,12 +28,19 @@
         "TLS12",
         "TLS13"
       ],
-      "title": "version"
+      "title": "TLSVersion"
+    },
+    "cipherSuite": {
+      "$friendlyName": "Cipher Suite",
+      "$required": true,
+      "description": "The negotiated cipher suite of the connection.",
+      "title": "cipherSuite",
+      "type": "string"
     }
   },
   "required": [
-    "cipherSuite",
-    "version"
+    "TLSVersion",
+    "cipherSuite"
   ],
   "title": "TLSState",
   "type": "object"

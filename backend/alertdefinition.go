@@ -485,6 +485,30 @@ func (o *AlertDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AlertDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Trigger != nil {
+		if err := o.Trigger.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trigger' for 'AlertDefinition' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AlertDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Trigger != nil {
+		if err := o.Trigger.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trigger' for 'AlertDefinition' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the AlertDefinition.
 func (o *AlertDefinition) DeepCopy() *AlertDefinition {
 
@@ -1357,6 +1381,30 @@ func (o *SparseAlertDefinition) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAlertDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Trigger != nil {
+		if err := o.Trigger.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trigger' for 'AlertDefinition' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAlertDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Trigger != nil {
+		if err := o.Trigger.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trigger' for 'AlertDefinition' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

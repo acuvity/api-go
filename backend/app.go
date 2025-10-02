@@ -483,6 +483,60 @@ func (o *App) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *App) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Components {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Components' for 'App' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.OtelExporter != nil {
+		if err := o.OtelExporter.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'OtelExporter' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OtelReceivers {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *App) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Components {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Components' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.OtelExporter != nil {
+		if err := o.OtelExporter.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'OtelExporter' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OtelReceivers {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the App.
 func (o *App) DeepCopy() *App {
 
@@ -1399,6 +1453,68 @@ func (o *SparseApp) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseApp) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Components != nil {
+		for _, sub := range *o.Components {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Components' for 'App' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OtelExporter != nil {
+		if err := o.OtelExporter.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'OtelExporter' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.OtelReceivers != nil {
+		for _, sub := range *o.OtelReceivers {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseApp) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Components != nil {
+		for _, sub := range *o.Components {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Components' for 'App' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OtelExporter != nil {
+		if err := o.OtelExporter.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'OtelExporter' for 'App' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.OtelReceivers != nil {
+		for _, sub := range *o.OtelReceivers {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

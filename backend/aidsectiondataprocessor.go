@@ -42,6 +42,17 @@ func NewAIDSectionDataProcessor() *AIDSectionDataProcessor {
 		Locations:    []string{},
 	}
 }
+func (o *AIDSectionDataProcessor) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AIDSectionDataProcessor) Identifier() string {
+
+	return ""
+}
+func (o *AIDSectionDataProcessor) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -86,10 +97,64 @@ func (o *AIDSectionDataProcessor) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AIDSectionDataProcessor) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AIDSectionDataProcessor) BleveType() string {
 
 	return "aidsectiondataprocessor"
+}
+
+// Doc returns the documentation for the object
+func (o *AIDSectionDataProcessor) Doc() string {
+
+	return `AIDomain info section plan.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDSectionDataProcessor) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Citations' for 'AIDSectionDataProcessor' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIDSectionDataProcessor' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDSectionDataProcessor) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Citations' for 'AIDSectionDataProcessor' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIDSectionDataProcessor' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AIDSectionDataProcessor.

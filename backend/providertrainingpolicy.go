@@ -48,6 +48,17 @@ func NewProviderTrainingPolicy() *ProviderTrainingPolicy {
 		SubscriptionType: ProviderTrainingPolicySubscriptionTypeFree,
 	}
 }
+func (o *ProviderTrainingPolicy) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ProviderTrainingPolicy) Identifier() string {
+
+	return ""
+}
+func (o *ProviderTrainingPolicy) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -86,10 +97,34 @@ func (o *ProviderTrainingPolicy) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ProviderTrainingPolicy) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ProviderTrainingPolicy) BleveType() string {
 
 	return "providertrainingpolicy"
+}
+
+// Doc returns the documentation for the object
+func (o *ProviderTrainingPolicy) Doc() string {
+
+	return `Represents provider data usage policy for a given subscription type.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ProviderTrainingPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ProviderTrainingPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ProviderTrainingPolicy.

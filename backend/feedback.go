@@ -424,6 +424,30 @@ func (o *Feedback) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Feedback) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'Feedback' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Feedback) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'Feedback' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Feedback.
 func (o *Feedback) DeepCopy() *Feedback {
 
@@ -1213,6 +1237,30 @@ func (o *SparseFeedback) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseFeedback) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'Feedback' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseFeedback) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'Feedback' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

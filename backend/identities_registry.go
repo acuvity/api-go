@@ -54,6 +54,7 @@ var (
 		"labelvalue": LabelValueIdentity,
 		"landing":    LandingIdentity,
 		"latency":    LatencyIdentity,
+		"logbundle":  LogBundleIdentity,
 
 		"metric":           MetricIdentity,
 		"metriclabelvalue": MetricLabelValueIdentity,
@@ -159,6 +160,7 @@ var (
 		"labelvalues": LabelValueIdentity,
 		"landings":    LandingIdentity,
 		"latencies":   LatencyIdentity,
+		"logbundles":  LogBundleIdentity,
 
 		"metrics":           MetricIdentity,
 		"metriclabelvalues": MetricLabelValueIdentity,
@@ -328,10 +330,13 @@ var (
 		"labelvalue":            nil,
 		"landing":               nil,
 		"latency":               nil,
-		"metric":                nil,
-		"metriclabelvalue":      nil,
-		"metricrange":           nil,
-		"metricserie":           nil,
+		"logbundle": {
+			{":shard", ":unique", "zone", "zHash"},
+		},
+		"metric":           nil,
+		"metriclabelvalue": nil,
+		"metricrange":      nil,
+		"metricserie":      nil,
 		"orgsettings": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"fingerprints"},
@@ -539,6 +544,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewLanding()
 	case LatencyIdentity:
 		return NewLatency()
+	case LogBundleIdentity:
+		return NewLogBundle()
 	case MetricIdentity:
 		return NewMetric()
 	case MetricLabelValueIdentity:
@@ -702,6 +709,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseLanding()
 	case LatencyIdentity:
 		return NewSparseLatency()
+	case LogBundleIdentity:
+		return NewSparseLogBundle()
 	case MetricIdentity:
 		return NewSparseMetric()
 	case MetricLabelValueIdentity:
@@ -873,6 +882,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &LandingsList{}
 	case LatencyIdentity:
 		return &LatenciesList{}
+	case LogBundleIdentity:
+		return &LogBundlesList{}
 	case MetricIdentity:
 		return &MetricsList{}
 	case MetricLabelValueIdentity:
@@ -1034,6 +1045,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseLandingsList{}
 	case LatencyIdentity:
 		return &SparseLatenciesList{}
+	case LogBundleIdentity:
+		return &SparseLogBundlesList{}
 	case MetricIdentity:
 		return &SparseMetricsList{}
 	case MetricLabelValueIdentity:
@@ -1298,6 +1311,7 @@ func AllIdentities() []elemental.Identity {
 		LabelValueIdentity,
 		LandingIdentity,
 		LatencyIdentity,
+		LogBundleIdentity,
 		MetricIdentity,
 		MetricLabelValueIdentity,
 		MetricRangeIdentity,
@@ -1414,6 +1428,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case LandingIdentity:
 		return []string{}
 	case LatencyIdentity:
+		return []string{}
+	case LogBundleIdentity:
 		return []string{}
 	case MetricIdentity:
 		return []string{}

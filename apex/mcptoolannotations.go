@@ -38,6 +38,17 @@ func NewMCPToolAnnotations() *MCPToolAnnotations {
 		ModelVersion: 1,
 	}
 }
+func (o *MCPToolAnnotations) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *MCPToolAnnotations) Identifier() string {
+
+	return ""
+}
+func (o *MCPToolAnnotations) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -80,10 +91,34 @@ func (o *MCPToolAnnotations) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *MCPToolAnnotations) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *MCPToolAnnotations) BleveType() string {
 
 	return "mcptoolannotations"
+}
+
+// Doc returns the documentation for the object
+func (o *MCPToolAnnotations) Doc() string {
+
+	return `Represents the tool annotations as they can be optionally defined for MCP tools.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *MCPToolAnnotations) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *MCPToolAnnotations) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the MCPToolAnnotations.

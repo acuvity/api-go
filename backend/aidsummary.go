@@ -64,6 +64,17 @@ func NewAIDSummary() *AIDSummary {
 		Retentions:   []string{},
 	}
 }
+func (o *AIDSummary) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AIDSummary) Identifier() string {
+
+	return ""
+}
+func (o *AIDSummary) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -110,10 +121,34 @@ func (o *AIDSummary) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AIDSummary) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AIDSummary) BleveType() string {
 
 	return "aidsummary"
+}
+
+// Doc returns the documentation for the object
+func (o *AIDSummary) Doc() string {
+
+	return `AIDomain Summary.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDSummary) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDSummary) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AIDSummary.

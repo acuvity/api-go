@@ -33,6 +33,17 @@ func NewToolResult() *ToolResult {
 		IsError:      false,
 	}
 }
+func (o *ToolResult) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ToolResult) Identifier() string {
+
+	return ""
+}
+func (o *ToolResult) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -71,10 +82,35 @@ func (o *ToolResult) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ToolResult) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ToolResult) BleveType() string {
 
 	return "toolresult"
+}
+
+// Doc returns the documentation for the object
+func (o *ToolResult) Doc() string {
+
+	return `Represents the tool result as passed in by the user or application after calling
+a tool.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ToolResult) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ToolResult) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ToolResult.

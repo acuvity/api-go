@@ -159,6 +159,9 @@ type AgentConfig struct {
 	// system.
 	ManagedCADisabled bool `json:"managedCADisabled" msgpack:"managedCADisabled" bson:"managedcadisabled" mapstructure:"managedCADisabled,omitempty"`
 
+	// If enabled, the agent will start reporting various metrics in logs.
+	MetricsEnabled bool `json:"metricsEnabled" msgpack:"metricsEnabled" bson:"metricsenabled" mapstructure:"metricsEnabled,omitempty"`
+
 	// The name of the agent configuration.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -298,6 +301,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.ListeningPort = o.ListeningPort
 	s.ManagedCADisabled = o.ManagedCADisabled
+	s.MetricsEnabled = o.MetricsEnabled
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.PacName = o.PacName
@@ -349,6 +353,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.ListeningPort = s.ListeningPort
 	o.ManagedCADisabled = s.ManagedCADisabled
+	o.MetricsEnabled = s.MetricsEnabled
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.PacName = s.PacName
@@ -483,6 +488,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportLabel:                   &o.ImportLabel,
 			ListeningPort:                 &o.ListeningPort,
 			ManagedCADisabled:             &o.ManagedCADisabled,
+			MetricsEnabled:                &o.MetricsEnabled,
 			Name:                          &o.Name,
 			Namespace:                     &o.Namespace,
 			PacName:                       &o.PacName,
@@ -538,6 +544,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ListeningPort = &(o.ListeningPort)
 		case "managedCADisabled":
 			sp.ManagedCADisabled = &(o.ManagedCADisabled)
+		case "metricsEnabled":
+			sp.MetricsEnabled = &(o.MetricsEnabled)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -635,6 +643,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ManagedCADisabled != nil {
 		o.ManagedCADisabled = *so.ManagedCADisabled
 	}
+	if so.MetricsEnabled != nil {
+		o.MetricsEnabled = *so.MetricsEnabled
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -698,6 +709,48 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Zone != nil {
 		o.Zone = *so.Zone
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AgentConfig) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.ScanInstalledApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ScanInstalledApps' for 'AgentConfig' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.TunnelProxyAuth != nil {
+		if err := o.TunnelProxyAuth.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TunnelProxyAuth' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AgentConfig) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.ScanInstalledApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ScanInstalledApps' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TunnelProxyAuth != nil {
+		if err := o.TunnelProxyAuth.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TunnelProxyAuth' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AgentConfig.
@@ -870,6 +923,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ListeningPort
 	case "managedCADisabled":
 		return o.ManagedCADisabled
+	case "metricsEnabled":
+		return o.MetricsEnabled
 	case "name":
 		return o.Name
 	case "namespace":
@@ -1087,6 +1142,16 @@ system.`,
 		Name:    "managedCADisabled",
 		Stored:  true,
 		Type:    "boolean",
+	},
+	"MetricsEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "metricsenabled",
+		ConvertedName:  "MetricsEnabled",
+		Description:    `If enabled, the agent will start reporting various metrics in logs.`,
+		Exposed:        true,
+		Name:           "metricsEnabled",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
@@ -1485,6 +1550,16 @@ system.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"metricsenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "metricsenabled",
+		ConvertedName:  "MetricsEnabled",
+		Description:    `If enabled, the agent will start reporting various metrics in logs.`,
+		Exposed:        true,
+		Name:           "metricsEnabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
@@ -1823,6 +1898,9 @@ type SparseAgentConfig struct {
 	// system.
 	ManagedCADisabled *bool `json:"managedCADisabled,omitempty" msgpack:"managedCADisabled,omitempty" bson:"managedcadisabled,omitempty" mapstructure:"managedCADisabled,omitempty"`
 
+	// If enabled, the agent will start reporting various metrics in logs.
+	MetricsEnabled *bool `json:"metricsEnabled,omitempty" msgpack:"metricsEnabled,omitempty" bson:"metricsenabled,omitempty" mapstructure:"metricsEnabled,omitempty"`
+
 	// The name of the agent configuration.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -1981,6 +2059,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ManagedCADisabled != nil {
 		s.ManagedCADisabled = o.ManagedCADisabled
 	}
+	if o.MetricsEnabled != nil {
+		s.MetricsEnabled = o.MetricsEnabled
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -2099,6 +2180,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ManagedCADisabled != nil {
 		o.ManagedCADisabled = s.ManagedCADisabled
 	}
+	if s.MetricsEnabled != nil {
+		o.MetricsEnabled = s.MetricsEnabled
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -2215,6 +2299,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ManagedCADisabled != nil {
 		out.ManagedCADisabled = *o.ManagedCADisabled
 	}
+	if o.MetricsEnabled != nil {
+		out.MetricsEnabled = *o.MetricsEnabled
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -2280,6 +2367,52 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAgentConfig) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ScanInstalledApps != nil {
+		for _, sub := range *o.ScanInstalledApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ScanInstalledApps' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.TunnelProxyAuth != nil {
+		if err := o.TunnelProxyAuth.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TunnelProxyAuth' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAgentConfig) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ScanInstalledApps != nil {
+		for _, sub := range *o.ScanInstalledApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ScanInstalledApps' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.TunnelProxyAuth != nil {
+		if err := o.TunnelProxyAuth.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TunnelProxyAuth' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
@@ -2401,6 +2534,7 @@ type mongoAttributesAgentConfig struct {
 	ImportLabel                   string                           `bson:"importlabel,omitempty"`
 	ListeningPort                 string                           `bson:"listeningport"`
 	ManagedCADisabled             bool                             `bson:"managedcadisabled"`
+	MetricsEnabled                bool                             `bson:"metricsenabled"`
 	Name                          string                           `bson:"name"`
 	Namespace                     string                           `bson:"namespace,omitempty"`
 	PacName                       string                           `bson:"pacname"`
@@ -2437,6 +2571,7 @@ type mongoAttributesSparseAgentConfig struct {
 	ImportLabel                   *string                           `bson:"importlabel,omitempty"`
 	ListeningPort                 *string                           `bson:"listeningport,omitempty"`
 	ManagedCADisabled             *bool                             `bson:"managedcadisabled,omitempty"`
+	MetricsEnabled                *bool                             `bson:"metricsenabled,omitempty"`
 	Name                          *string                           `bson:"name,omitempty"`
 	Namespace                     *string                           `bson:"namespace,omitempty"`
 	PacName                       *string                           `bson:"pacname,omitempty"`

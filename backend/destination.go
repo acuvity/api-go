@@ -39,6 +39,17 @@ func NewDestination() *Destination {
 		Labels:       []string{},
 	}
 }
+func (o *Destination) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *Destination) Identifier() string {
+
+	return ""
+}
+func (o *Destination) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -81,10 +92,34 @@ func (o *Destination) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *Destination) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *Destination) BleveType() string {
 
 	return "destination"
+}
+
+// Doc returns the documentation for the object
+func (o *Destination) Doc() string {
+
+	return `Represents the destination that this request was made to.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Destination) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Destination) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Destination.

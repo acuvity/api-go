@@ -199,26 +199,6 @@ func (o *SinkSlack) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SinkSlack) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.WebhookURL, err = encrypter.EncryptString(o.WebhookURL); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'WebhookURL' for 'SinkSlack' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
-// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SinkSlack) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.WebhookURL, err = encrypter.DecryptString(o.WebhookURL); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'WebhookURL' for 'SinkSlack' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
 // Patch apply the non nil value of a *SparseSinkSlack to the object.
 func (o *SinkSlack) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
@@ -229,6 +209,26 @@ func (o *SinkSlack) Patch(sparse elemental.SparseIdentifiable) {
 	if so.WebhookURL != nil {
 		o.WebhookURL = *so.WebhookURL
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SinkSlack) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.WebhookURL, err = encrypter.EncryptString(o.WebhookURL); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'WebhookURL' for 'SinkSlack' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SinkSlack) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.WebhookURL, err = encrypter.DecryptString(o.WebhookURL); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'WebhookURL' for 'SinkSlack' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SinkSlack.
@@ -489,7 +489,7 @@ func (o *SparseSinkSlack) ToPlain() elemental.PlainIdentifiable {
 func (o *SparseSinkSlack) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.WebhookURL, err = encrypter.EncryptString(*o.WebhookURL); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'WebhookURL' for 'SparseSinkSlack' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to encrypt attribute 'WebhookURL' for 'SparseSinkSlack' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -499,7 +499,7 @@ func (o *SparseSinkSlack) EncryptAttributes(encrypter elemental.AttributeEncrypt
 func (o *SparseSinkSlack) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.WebhookURL, err = encrypter.DecryptString(*o.WebhookURL); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'WebhookURL' for 'SparseSinkSlack' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to decrypt attribute 'WebhookURL' for 'SparseSinkSlack' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil

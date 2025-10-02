@@ -62,6 +62,17 @@ func NewScanResultHTTP() *ScanResultHTTP {
 		BotProtectionHints: []string{},
 	}
 }
+func (o *ScanResultHTTP) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ScanResultHTTP) Identifier() string {
+
+	return ""
+}
+func (o *ScanResultHTTP) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -110,10 +121,34 @@ func (o *ScanResultHTTP) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ScanResultHTTP) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ScanResultHTTP) BleveType() string {
 
 	return "scanresulthttp"
+}
+
+// Doc returns the documentation for the object
+func (o *ScanResultHTTP) Doc() string {
+
+	return `Result of an HTTP scan.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ScanResultHTTP) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ScanResultHTTP) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ScanResultHTTP.

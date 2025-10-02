@@ -300,6 +300,54 @@ func (o *Analyzer) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Analyzer) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Detectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Detectors' for 'Analyzer' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Models {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Models' for 'Analyzer' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Analyzer) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Detectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Detectors' for 'Analyzer' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Models {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Models' for 'Analyzer' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Analyzer.
 func (o *Analyzer) DeepCopy() *Analyzer {
 
@@ -797,6 +845,62 @@ func (o *SparseAnalyzer) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAnalyzer) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Detectors != nil {
+		for _, sub := range *o.Detectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Detectors' for 'Analyzer' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Models != nil {
+		for _, sub := range *o.Models {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Models' for 'Analyzer' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAnalyzer) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Detectors != nil {
+		for _, sub := range *o.Detectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Detectors' for 'Analyzer' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Models != nil {
+		for _, sub := range *o.Models {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Models' for 'Analyzer' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetNamespace returns the Namespace of the receiver.

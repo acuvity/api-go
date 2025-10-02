@@ -326,6 +326,48 @@ func (o *VisitedURL) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *VisitedURL) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.DomainHits {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DomainHits' for 'VisitedURL' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *VisitedURL) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.DomainHits {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DomainHits' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the VisitedURL.
 func (o *VisitedURL) DeepCopy() *VisitedURL {
 
@@ -833,6 +875,52 @@ func (o *SparseVisitedURL) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseVisitedURL) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.DomainHits != nil {
+		for _, sub := range *o.DomainHits {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DomainHits' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseVisitedURL) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.DomainHits != nil {
+		for _, sub := range *o.DomainHits {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DomainHits' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'VisitedURL' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetImportHash returns the ImportHash of the receiver.

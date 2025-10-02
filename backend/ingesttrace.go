@@ -276,6 +276,42 @@ func (o *IngestTrace) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *IngestTrace) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Traces {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Traces' for 'IngestTrace' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *IngestTrace) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Traces {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Traces' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the IngestTrace.
 func (o *IngestTrace) DeepCopy() *IngestTrace {
 
@@ -725,6 +761,46 @@ func (o *SparseIngestTrace) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseIngestTrace) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Traces != nil {
+		for _, sub := range *o.Traces {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Traces' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseIngestTrace) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Traces != nil {
+		for _, sub := range *o.Traces {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Traces' for 'IngestTrace' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetNamespace returns the Namespace of the receiver.

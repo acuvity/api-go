@@ -341,6 +341,54 @@ func (o *Principal) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Principal) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.External != nil {
+		if err := o.External.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'External' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Principal) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.External != nil {
+		if err := o.External.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'External' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Principal.
 func (o *Principal) DeepCopy() *Principal {
 
@@ -904,6 +952,54 @@ func (o *SparsePrincipal) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparsePrincipal) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.External != nil {
+		if err := o.External.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'External' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparsePrincipal) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.External != nil {
+		if err := o.External.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'External' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.User != nil {
+		if err := o.User.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'Principal' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SparsePrincipal.

@@ -35,6 +35,17 @@ func NewExtractorRef() *ExtractorRef {
 		Hosts:        []string{},
 	}
 }
+func (o *ExtractorRef) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ExtractorRef) Identifier() string {
+
+	return ""
+}
+func (o *ExtractorRef) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -73,10 +84,47 @@ func (o *ExtractorRef) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ExtractorRef) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ExtractorRef) BleveType() string {
 
 	return "extractorref"
+}
+
+// Doc returns the documentation for the object
+func (o *ExtractorRef) Doc() string {
+
+	return `This object allows to either define an extractor for the provider, or to
+reference an existing extractor from database.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ExtractorRef) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Def != nil {
+		if err := o.Def.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Def' for 'ExtractorRef' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ExtractorRef) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Def != nil {
+		if err := o.Def.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Def' for 'ExtractorRef' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ExtractorRef.

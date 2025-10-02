@@ -7,8 +7,8 @@ require (
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
-	go.acuvity.ai/a3s v0.0.0-20250918211646-377fa38c855b
-	go.acuvity.ai/elemental v0.0.0-20250910192920-0090d889f0b8
+	go.acuvity.ai/a3s v0.0.0-20251001210042-c31325668583
+	go.acuvity.ai/elemental v0.0.0-20251001162007-f71cb31fff99
 	go.opentelemetry.io/collector/pdata v1.42.0
 )
 
@@ -56,7 +56,7 @@ require (
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/tools v0.33.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250922171735-9219d122eba9 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250929231259-57b25ae835d4 // indirect
 	google.golang.org/grpc v1.75.1 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

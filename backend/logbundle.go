@@ -13,43 +13,51 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// ScanReportIdentity represents the Identity of the object.
-var ScanReportIdentity = elemental.Identity{
-	Name:     "scanreport",
-	Category: "scanreports",
-	Package:  "lain",
+// LogBundleTypeValue represents the possible values for attribute "type".
+type LogBundleTypeValue string
+
+const (
+	// LogBundleTypeAgent represents the value Agent.
+	LogBundleTypeAgent LogBundleTypeValue = "Agent"
+)
+
+// LogBundleIdentity represents the Identity of the object.
+var LogBundleIdentity = elemental.Identity{
+	Name:     "logbundle",
+	Category: "logbundles",
+	Package:  "avi",
 	Private:  false,
 }
 
-// ScanReportsList represents a list of ScanReports
-type ScanReportsList []*ScanReport
+// LogBundlesList represents a list of LogBundles
+type LogBundlesList []*LogBundle
 
 // Identity returns the identity of the objects in the list.
-func (o ScanReportsList) Identity() elemental.Identity {
+func (o LogBundlesList) Identity() elemental.Identity {
 
-	return ScanReportIdentity
+	return LogBundleIdentity
 }
 
-// Copy returns a pointer to a copy the ScanReportsList.
-func (o ScanReportsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the LogBundlesList.
+func (o LogBundlesList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the ScanReportsList.
-func (o ScanReportsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the LogBundlesList.
+func (o LogBundlesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*ScanReport))
+		out = append(out, obj.(*LogBundle))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o ScanReportsList) List() elemental.IdentifiablesList {
+func (o LogBundlesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -60,45 +68,51 @@ func (o ScanReportsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o ScanReportsList) DefaultOrder() []string {
+func (o LogBundlesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the ScanReportsList converted to SparseScanReportsList.
+// ToSparse returns the LogBundlesList converted to SparseLogBundlesList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o ScanReportsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o LogBundlesList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseScanReportsList, len(o))
+	out := make(SparseLogBundlesList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseScanReport)
+		out[i] = o[i].ToSparse(fields...).(*SparseLogBundle)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o ScanReportsList) Version() int {
+func (o LogBundlesList) Version() int {
 
 	return 1
 }
 
-// ScanReport represents the model of a scanreport
-type ScanReport struct {
+// LogBundle represents the model of a logbundle
+type LogBundle struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The result of the scan per domain.
-	Domains []*ScanDomain `json:"domains" msgpack:"domains" bson:"domains" mapstructure:"domains,omitempty"`
+	// The binary data of the log bundle.
+	Data []byte `json:"data" msgpack:"data" bson:"data" mapstructure:"data,omitempty"`
 
-	// Additional metadata for the scanreport.
-	Metadata map[string]string `json:"metadata" msgpack:"metadata" bson:"metadata" mapstructure:"metadata,omitempty"`
+	// The name of the host where the log bundle came from.
+	Hostname string `json:"hostname" msgpack:"hostname" bson:"hostname" mapstructure:"hostname,omitempty"`
+
+	// Name of the log bundle.
+	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// The type of log bundle.
+	Type LogBundleTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -112,51 +126,53 @@ type ScanReport struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewScanReport returns a new *ScanReport
-func NewScanReport() *ScanReport {
+// NewLogBundle returns a new *LogBundle
+func NewLogBundle() *LogBundle {
 
-	return &ScanReport{
+	return &LogBundle{
 		ModelVersion: 1,
-		Domains:      []*ScanDomain{},
-		Metadata:     map[string]string{},
+		Data:         []byte{},
+		Type:         LogBundleTypeAgent,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *ScanReport) Identity() elemental.Identity {
+func (o *LogBundle) Identity() elemental.Identity {
 
-	return ScanReportIdentity
+	return LogBundleIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *ScanReport) Identifier() string {
+func (o *LogBundle) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *ScanReport) SetIdentifier(id string) {
+func (o *LogBundle) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ScanReport) GetBSON() (any, error) {
+func (o *LogBundle) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesScanReport{}
+	s := &mongoAttributesLogBundle{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
-	s.Domains = o.Domains
-	s.Metadata = o.Metadata
+	s.Data = o.Data
+	s.Hostname = o.Hostname
+	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -166,22 +182,24 @@ func (o *ScanReport) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ScanReport) SetBSON(raw bson.Raw) error {
+func (o *LogBundle) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesScanReport{}
+	s := &mongoAttributesLogBundle{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
-	o.Domains = s.Domains
-	o.Metadata = s.Metadata
+	o.Data = s.Data
+	o.Hostname = s.Hostname
+	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -190,101 +208,107 @@ func (o *ScanReport) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *ScanReport) Version() int {
+func (o *LogBundle) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *ScanReport) BleveType() string {
+func (o *LogBundle) BleveType() string {
 
-	return "scanreport"
+	return "logbundle"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *ScanReport) DefaultOrder() []string {
+func (o *LogBundle) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *ScanReport) Doc() string {
+func (o *LogBundle) Doc() string {
 
-	return `Report sent by the Acuvity scanner.`
+	return `Stores the log bundle uploading by a client.`
 }
 
-func (o *ScanReport) String() string {
+func (o *LogBundle) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *ScanReport) GetCreateTime() time.Time {
+func (o *LogBundle) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *ScanReport) SetCreateTime(createTime time.Time) {
+func (o *LogBundle) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *ScanReport) GetNamespace() string {
+func (o *LogBundle) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *ScanReport) SetNamespace(namespace string) {
+func (o *LogBundle) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *ScanReport) GetUpdateTime() time.Time {
+func (o *LogBundle) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *ScanReport) SetUpdateTime(updateTime time.Time) {
+func (o *LogBundle) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *ScanReport) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *LogBundle) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseScanReport{
+		return &SparseLogBundle{
 			ID:         &o.ID,
 			CreateTime: &o.CreateTime,
-			Domains:    &o.Domains,
-			Metadata:   &o.Metadata,
+			Data:       &o.Data,
+			Hostname:   &o.Hostname,
+			Name:       &o.Name,
 			Namespace:  &o.Namespace,
+			Type:       &o.Type,
 			UpdateTime: &o.UpdateTime,
 			ZHash:      &o.ZHash,
 			Zone:       &o.Zone,
 		}
 	}
 
-	sp := &SparseScanReport{}
+	sp := &SparseLogBundle{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
-		case "domains":
-			sp.Domains = &(o.Domains)
-		case "metadata":
-			sp.Metadata = &(o.Metadata)
+		case "data":
+			sp.Data = &(o.Data)
+		case "hostname":
+			sp.Hostname = &(o.Hostname)
+		case "name":
+			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "type":
+			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -297,27 +321,33 @@ func (o *ScanReport) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseScanReport to the object.
-func (o *ScanReport) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseLogBundle to the object.
+func (o *LogBundle) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseScanReport)
+	so := sparse.(*SparseLogBundle)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
-	if so.Domains != nil {
-		o.Domains = *so.Domains
+	if so.Data != nil {
+		o.Data = *so.Data
 	}
-	if so.Metadata != nil {
-		o.Metadata = *so.Metadata
+	if so.Hostname != nil {
+		o.Hostname = *so.Hostname
+	}
+	if so.Name != nil {
+		o.Name = *so.Name
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Type != nil {
+		o.Type = *so.Type
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -331,74 +361,63 @@ func (o *ScanReport) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *ScanReport) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.Domains {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Domains' for 'ScanReport' (%s): %s", o.Identifier(), err)
-		}
-	}
+func (o *LogBundle) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *ScanReport) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.Domains {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Domains' for 'ScanReport' (%s): %w", o.Identifier(), err)
-		}
-	}
+func (o *LogBundle) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the ScanReport.
-func (o *ScanReport) DeepCopy() *ScanReport {
+// DeepCopy returns a deep copy if the LogBundle.
+func (o *LogBundle) DeepCopy() *LogBundle {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &ScanReport{}
+	out := &LogBundle{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *ScanReport.
-func (o *ScanReport) DeepCopyInto(out *ScanReport) {
+// DeepCopyInto copies the receiver into the given *LogBundle.
+func (o *LogBundle) DeepCopyInto(out *LogBundle) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy ScanReport: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy LogBundle: %s", err))
 	}
 
-	*out = *target.(*ScanReport)
+	*out = *target.(*LogBundle)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *ScanReport) Validate() error {
+func (o *LogBundle) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Domains {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
+	if err := elemental.ValidateRequiredExternal("data", o.Data); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("hostname", o.Hostname); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Agent"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -413,38 +432,42 @@ func (o *ScanReport) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*ScanReport) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*LogBundle) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := ScanReportAttributesMap[name]; ok {
+	if v, ok := LogBundleAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return ScanReportLowerCaseAttributesMap[name]
+	return LogBundleLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*ScanReport) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*LogBundle) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return ScanReportAttributesMap
+	return LogBundleAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *ScanReport) ValueForAttribute(name string) any {
+func (o *LogBundle) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
 	case "createTime":
 		return o.CreateTime
-	case "domains":
-		return o.Domains
-	case "metadata":
-		return o.Metadata
+	case "data":
+		return o.Data
+	case "hostname":
+		return o.Hostname
+	case "name":
+		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "type":
+		return o.Type
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -456,8 +479,8 @@ func (o *ScanReport) ValueForAttribute(name string) any {
 	return nil
 }
 
-// ScanReportAttributesMap represents the map of attribute for ScanReport.
-var ScanReportAttributesMap = map[string]elemental.AttributeSpecification{
+// LogBundleAttributesMap represents the map of attribute for LogBundle.
+var LogBundleAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -488,27 +511,39 @@ var ScanReportAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
-	"Domains": {
+	"Data": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "domains",
-		ConvertedName:  "Domains",
-		Description:    `The result of the scan per domain.`,
+		BSONFieldName:  "data",
+		ConvertedName:  "Data",
+		Description:    `The binary data of the log bundle.`,
 		Exposed:        true,
-		Name:           "domains",
+		Name:           "data",
+		Required:       true,
 		Stored:         true,
-		SubType:        "scandomain",
-		Type:           "refList",
-	},
-	"Metadata": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "metadata",
-		ConvertedName:  "Metadata",
-		Description:    `Additional metadata for the scanreport.`,
-		Exposed:        true,
-		Name:           "metadata",
-		Stored:         true,
-		SubType:        "map[string]string",
+		SubType:        "[]byte",
 		Type:           "external",
+	},
+	"Hostname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostname",
+		ConvertedName:  "Hostname",
+		Description:    `The name of the host where the log bundle came from.`,
+		Exposed:        true,
+		Name:           "hostname",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `Name of the log bundle.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -524,6 +559,17 @@ var ScanReportAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Type": {
+		AllowedChoices: []string{"Agent"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   LogBundleTypeAgent,
+		Description:    `The type of log bundle.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -542,8 +588,8 @@ var ScanReportAttributesMap = map[string]elemental.AttributeSpecification{
 	},
 }
 
-// ScanReportLowerCaseAttributesMap represents the map of attribute for ScanReport.
-var ScanReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// LogBundleLowerCaseAttributesMap represents the map of attribute for LogBundle.
+var LogBundleLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -574,27 +620,39 @@ var ScanReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "time",
 	},
-	"domains": {
+	"data": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "domains",
-		ConvertedName:  "Domains",
-		Description:    `The result of the scan per domain.`,
+		BSONFieldName:  "data",
+		ConvertedName:  "Data",
+		Description:    `The binary data of the log bundle.`,
 		Exposed:        true,
-		Name:           "domains",
+		Name:           "data",
+		Required:       true,
 		Stored:         true,
-		SubType:        "scandomain",
-		Type:           "refList",
-	},
-	"metadata": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "metadata",
-		ConvertedName:  "Metadata",
-		Description:    `Additional metadata for the scanreport.`,
-		Exposed:        true,
-		Name:           "metadata",
-		Stored:         true,
-		SubType:        "map[string]string",
+		SubType:        "[]byte",
 		Type:           "external",
+	},
+	"hostname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostname",
+		ConvertedName:  "Hostname",
+		Description:    `The name of the host where the log bundle came from.`,
+		Exposed:        true,
+		Name:           "hostname",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `Name of the log bundle.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -610,6 +668,17 @@ var ScanReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"type": {
+		AllowedChoices: []string{"Agent"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   LogBundleTypeAgent,
+		Description:    `The type of log bundle.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -628,35 +697,35 @@ var ScanReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 	},
 }
 
-// SparseScanReportsList represents a list of SparseScanReports
-type SparseScanReportsList []*SparseScanReport
+// SparseLogBundlesList represents a list of SparseLogBundles
+type SparseLogBundlesList []*SparseLogBundle
 
 // Identity returns the identity of the objects in the list.
-func (o SparseScanReportsList) Identity() elemental.Identity {
+func (o SparseLogBundlesList) Identity() elemental.Identity {
 
-	return ScanReportIdentity
+	return LogBundleIdentity
 }
 
-// Copy returns a pointer to a copy the SparseScanReportsList.
-func (o SparseScanReportsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseLogBundlesList.
+func (o SparseLogBundlesList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseScanReportsList.
-func (o SparseScanReportsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseLogBundlesList.
+func (o SparseLogBundlesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseScanReport))
+		out = append(out, obj.(*SparseLogBundle))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseScanReportsList) List() elemental.IdentifiablesList {
+func (o SparseLogBundlesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -667,13 +736,13 @@ func (o SparseScanReportsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseScanReportsList) DefaultOrder() []string {
+func (o SparseLogBundlesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseScanReportsList converted to ScanReportsList.
-func (o SparseScanReportsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseLogBundlesList converted to LogBundlesList.
+func (o SparseLogBundlesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -684,27 +753,33 @@ func (o SparseScanReportsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseScanReportsList) Version() int {
+func (o SparseLogBundlesList) Version() int {
 
 	return 1
 }
 
-// SparseScanReport represents the sparse version of a scanreport.
-type SparseScanReport struct {
+// SparseLogBundle represents the sparse version of a logbundle.
+type SparseLogBundle struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The result of the scan per domain.
-	Domains *[]*ScanDomain `json:"domains,omitempty" msgpack:"domains,omitempty" bson:"domains,omitempty" mapstructure:"domains,omitempty"`
+	// The binary data of the log bundle.
+	Data *[]byte `json:"data,omitempty" msgpack:"data,omitempty" bson:"data,omitempty" mapstructure:"data,omitempty"`
 
-	// Additional metadata for the scanreport.
-	Metadata *map[string]string `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"metadata,omitempty" mapstructure:"metadata,omitempty"`
+	// The name of the host where the log bundle came from.
+	Hostname *string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
+
+	// Name of the log bundle.
+	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// The type of log bundle.
+	Type *LogBundleTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -718,19 +793,19 @@ type SparseScanReport struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseScanReport returns a new  SparseScanReport.
-func NewSparseScanReport() *SparseScanReport {
-	return &SparseScanReport{}
+// NewSparseLogBundle returns a new  SparseLogBundle.
+func NewSparseLogBundle() *SparseLogBundle {
+	return &SparseLogBundle{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseScanReport) Identity() elemental.Identity {
+func (o *SparseLogBundle) Identity() elemental.Identity {
 
-	return ScanReportIdentity
+	return LogBundleIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseScanReport) Identifier() string {
+func (o *SparseLogBundle) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -739,7 +814,7 @@ func (o *SparseScanReport) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseScanReport) SetIdentifier(id string) {
+func (o *SparseLogBundle) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -750,13 +825,13 @@ func (o *SparseScanReport) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseScanReport) GetBSON() (any, error) {
+func (o *SparseLogBundle) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseScanReport{}
+	s := &mongoAttributesSparseLogBundle{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -764,14 +839,20 @@ func (o *SparseScanReport) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
-	if o.Domains != nil {
-		s.Domains = o.Domains
+	if o.Data != nil {
+		s.Data = o.Data
 	}
-	if o.Metadata != nil {
-		s.Metadata = o.Metadata
+	if o.Hostname != nil {
+		s.Hostname = o.Hostname
+	}
+	if o.Name != nil {
+		s.Name = o.Name
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.Type != nil {
+		s.Type = o.Type
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -788,13 +869,13 @@ func (o *SparseScanReport) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseScanReport) SetBSON(raw bson.Raw) error {
+func (o *SparseLogBundle) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseScanReport{}
+	s := &mongoAttributesSparseLogBundle{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -804,14 +885,20 @@ func (o *SparseScanReport) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
-	if s.Domains != nil {
-		o.Domains = s.Domains
+	if s.Data != nil {
+		o.Data = s.Data
 	}
-	if s.Metadata != nil {
-		o.Metadata = s.Metadata
+	if s.Hostname != nil {
+		o.Hostname = s.Hostname
+	}
+	if s.Name != nil {
+		o.Name = s.Name
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.Type != nil {
+		o.Type = s.Type
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -827,29 +914,35 @@ func (o *SparseScanReport) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseScanReport) Version() int {
+func (o *SparseLogBundle) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseScanReport) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseLogBundle) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewScanReport()
+	out := NewLogBundle()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
-	if o.Domains != nil {
-		out.Domains = *o.Domains
+	if o.Data != nil {
+		out.Data = *o.Data
 	}
-	if o.Metadata != nil {
-		out.Metadata = *o.Metadata
+	if o.Hostname != nil {
+		out.Hostname = *o.Hostname
+	}
+	if o.Name != nil {
+		out.Name = *o.Name
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Type != nil {
+		out.Type = *o.Type
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -865,41 +958,19 @@ func (o *SparseScanReport) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseScanReport) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Domains != nil {
-		for _, sub := range *o.Domains {
-			if sub == nil {
-				continue
-			}
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Domains' for 'ScanReport' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
+func (o *SparseLogBundle) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseScanReport) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Domains != nil {
-		for _, sub := range *o.Domains {
-			if sub == nil {
-				continue
-			}
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Domains' for 'ScanReport' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
+func (o *SparseLogBundle) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseScanReport) GetCreateTime() (out time.Time) {
+func (o *SparseLogBundle) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -909,13 +980,13 @@ func (o *SparseScanReport) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseScanReport) SetCreateTime(createTime time.Time) {
+func (o *SparseLogBundle) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseScanReport) GetNamespace() (out string) {
+func (o *SparseLogBundle) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -925,13 +996,13 @@ func (o *SparseScanReport) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseScanReport) SetNamespace(namespace string) {
+func (o *SparseLogBundle) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseScanReport) GetUpdateTime() (out time.Time) {
+func (o *SparseLogBundle) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -941,52 +1012,56 @@ func (o *SparseScanReport) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseScanReport) SetUpdateTime(updateTime time.Time) {
+func (o *SparseLogBundle) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseScanReport.
-func (o *SparseScanReport) DeepCopy() *SparseScanReport {
+// DeepCopy returns a deep copy if the SparseLogBundle.
+func (o *SparseLogBundle) DeepCopy() *SparseLogBundle {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseScanReport{}
+	out := &SparseLogBundle{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseScanReport.
-func (o *SparseScanReport) DeepCopyInto(out *SparseScanReport) {
+// DeepCopyInto copies the receiver into the given *SparseLogBundle.
+func (o *SparseLogBundle) DeepCopyInto(out *SparseLogBundle) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseScanReport: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseLogBundle: %s", err))
 	}
 
-	*out = *target.(*SparseScanReport)
+	*out = *target.(*SparseLogBundle)
 }
 
-type mongoAttributesScanReport struct {
-	ID         bson.ObjectId     `bson:"_id,omitempty"`
-	CreateTime time.Time         `bson:"createtime"`
-	Domains    []*ScanDomain     `bson:"domains"`
-	Metadata   map[string]string `bson:"metadata"`
-	Namespace  string            `bson:"namespace,omitempty"`
-	UpdateTime time.Time         `bson:"updatetime"`
-	ZHash      int               `bson:"zhash"`
-	Zone       int               `bson:"zone"`
-}
-type mongoAttributesSparseScanReport struct {
+type mongoAttributesLogBundle struct {
 	ID         bson.ObjectId      `bson:"_id,omitempty"`
-	CreateTime *time.Time         `bson:"createtime,omitempty"`
-	Domains    *[]*ScanDomain     `bson:"domains,omitempty"`
-	Metadata   *map[string]string `bson:"metadata,omitempty"`
-	Namespace  *string            `bson:"namespace,omitempty"`
-	UpdateTime *time.Time         `bson:"updatetime,omitempty"`
-	ZHash      *int               `bson:"zhash,omitempty"`
-	Zone       *int               `bson:"zone,omitempty"`
+	CreateTime time.Time          `bson:"createtime"`
+	Data       []byte             `bson:"data"`
+	Hostname   string             `bson:"hostname"`
+	Name       string             `bson:"name"`
+	Namespace  string             `bson:"namespace,omitempty"`
+	Type       LogBundleTypeValue `bson:"type"`
+	UpdateTime time.Time          `bson:"updatetime"`
+	ZHash      int                `bson:"zhash"`
+	Zone       int                `bson:"zone"`
+}
+type mongoAttributesSparseLogBundle struct {
+	ID         bson.ObjectId       `bson:"_id,omitempty"`
+	CreateTime *time.Time          `bson:"createtime,omitempty"`
+	Data       *[]byte             `bson:"data,omitempty"`
+	Hostname   *string             `bson:"hostname,omitempty"`
+	Name       *string             `bson:"name,omitempty"`
+	Namespace  *string             `bson:"namespace,omitempty"`
+	Type       *LogBundleTypeValue `bson:"type,omitempty"`
+	UpdateTime *time.Time          `bson:"updatetime,omitempty"`
+	ZHash      *int                `bson:"zhash,omitempty"`
+	Zone       *int                `bson:"zone,omitempty"`
 }

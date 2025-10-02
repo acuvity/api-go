@@ -356,6 +356,174 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.PACConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PACConfigs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataSets' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ExtractorLibs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.OrgSettings != nil {
+		if err := o.OrgSettings.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'OrgSettings' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Providers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebExtensionConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.PACConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PACConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataSets' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ExtractorLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.OrgSettings != nil {
+		if err := o.OrgSettings.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'OrgSettings' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Providers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebExtensionConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the ProxyConf.
 func (o *ProxyConf) DeepCopy() *ProxyConf {
 
@@ -1071,6 +1239,206 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.PACConfigs != nil {
+		for _, sub := range *o.PACConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PACConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentConfigs != nil {
+		for _, sub := range *o.AgentConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataSets != nil {
+		for _, sub := range *o.DataSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataSets' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ExtractorLibs != nil {
+		for _, sub := range *o.ExtractorLibs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ExtractorLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OrgSettings != nil {
+		if err := o.OrgSettings.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'OrgSettings' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Providers != nil {
+		for _, sub := range *o.Providers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebExtensionConfigs != nil {
+		for _, sub := range *o.WebExtensionConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.PACConfigs != nil {
+		for _, sub := range *o.PACConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PACConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentConfigs != nil {
+		for _, sub := range *o.AgentConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataSets != nil {
+		for _, sub := range *o.DataSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataSets' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ExtractorLibs != nil {
+		for _, sub := range *o.ExtractorLibs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ExtractorLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OrgSettings != nil {
+		if err := o.OrgSettings.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'OrgSettings' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Providers != nil {
+		for _, sub := range *o.Providers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebExtensionConfigs != nil {
+		for _, sub := range *o.WebExtensionConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetNamespace returns the Namespace of the receiver.

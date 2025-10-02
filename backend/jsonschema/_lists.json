@@ -378,6 +378,12 @@
       },
       "type": "array"
     },
+    "logbundles": {
+      "items": {
+        "$ref": "logbundle.json"
+      },
+      "type": "array"
+    },
     "mappers": {
       "items": {
         "$ref": "mapper.json"
@@ -831,6 +837,18 @@
     "mtlssource": {
       "items": {
         "$ref": "mtlssource.json"
+      },
+      "type": "array"
+    },
+    "mtlssourceentra": {
+      "items": {
+        "$ref": "mtlssourceentra.json"
+      },
+      "type": "array"
+    },
+    "mtlssourceokta": {
+      "items": {
+        "$ref": "mtlssourceokta.json"
       },
       "type": "array"
     },

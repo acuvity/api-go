@@ -43,6 +43,17 @@ func NewAnalysis() *Analysis {
 		ModelVersion: 1,
 	}
 }
+func (o *Analysis) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *Analysis) Identifier() string {
+
+	return ""
+}
+func (o *Analysis) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -73,10 +84,88 @@ func (o *Analysis) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *Analysis) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *Analysis) BleveType() string {
 
 	return "analysis"
+}
+
+// Doc returns the documentation for the object
+func (o *Analysis) Doc() string {
+
+	return `Represent a ml pipeline graph analysis.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Analysis) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Analyses {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Analyses' for 'Analysis' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Detections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Detections' for 'Analysis' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.MatchingDetections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MatchingDetections' for 'Analysis' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Analysis) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Analyses {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Analyses' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Detections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Detections' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.MatchingDetections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MatchingDetections' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Analysis.

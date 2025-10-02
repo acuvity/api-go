@@ -538,6 +538,42 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IDE != nil {
+		if err := o.IDE.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.WebExtension != nil {
+		if err := o.WebExtension.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIPlugin) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IDE != nil {
+		if err := o.IDE.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.WebExtension != nil {
+		if err := o.WebExtension.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the AIPlugin.
 func (o *AIPlugin) DeepCopy() *AIPlugin {
 
@@ -1553,6 +1589,42 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IDE != nil {
+		if err := o.IDE.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.WebExtension != nil {
+		if err := o.WebExtension.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAIPlugin) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.IDE != nil {
+		if err := o.IDE.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.WebExtension != nil {
+		if err := o.WebExtension.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

@@ -492,6 +492,144 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ScanResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ScanResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the ScanResponse.
 func (o *ScanResponse) DeepCopy() *ScanResponse {
 
@@ -1562,6 +1700,156 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetNamespace returns the Namespace of the receiver.

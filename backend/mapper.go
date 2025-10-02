@@ -71,6 +71,17 @@ func NewMapper() *Mapper {
 		Hosts:        []string{},
 	}
 }
+func (o *Mapper) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *Mapper) Identifier() string {
+
+	return ""
+}
+func (o *Mapper) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -115,16 +126,40 @@ func (o *Mapper) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *Mapper) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *Mapper) BleveType() string {
 
 	return "mapper"
 }
 
+// Doc returns the documentation for the object
+func (o *Mapper) Doc() string {
+
+	return `TODO.`
+}
+
 // GetPath returns the Path of the receiver.
 func (o *Mapper) GetPath() string {
 
 	return o.Path
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Mapper) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Mapper) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Mapper.

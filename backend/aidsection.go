@@ -35,6 +35,17 @@ func NewAIDSection() *AIDSection {
 		ModelVersion: 1,
 	}
 }
+func (o *AIDSection) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AIDSection) Identifier() string {
+
+	return ""
+}
+func (o *AIDSection) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -75,10 +86,64 @@ func (o *AIDSection) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AIDSection) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AIDSection) BleveType() string {
 
 	return "aidsection"
+}
+
+// Doc returns the documentation for the object
+func (o *AIDSection) Doc() string {
+
+	return `AIDomain info section.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDSection) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Citations' for 'AIDSection' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIDSection' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDSection) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Citations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Citations' for 'AIDSection' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Risk != nil {
+		if err := o.Risk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIDSection' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AIDSection.

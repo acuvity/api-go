@@ -47,6 +47,17 @@ func NewAgentDiscoveredMCP() *AgentDiscoveredMCP {
 		Type:         AgentDiscoveredMCPTypeLocal,
 	}
 }
+func (o *AgentDiscoveredMCP) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AgentDiscoveredMCP) Identifier() string {
+
+	return ""
+}
+func (o *AgentDiscoveredMCP) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -77,10 +88,34 @@ func (o *AgentDiscoveredMCP) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AgentDiscoveredMCP) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AgentDiscoveredMCP) BleveType() string {
 
 	return "agentdiscoveredmcp"
+}
+
+// Doc returns the documentation for the object
+func (o *AgentDiscoveredMCP) Doc() string {
+
+	return `Represents an MCP server that the agent discovered.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AgentDiscoveredMCP) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AgentDiscoveredMCP) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AgentDiscoveredMCP.

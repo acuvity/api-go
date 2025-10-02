@@ -65,6 +65,17 @@ func NewPageDataViewPredicate() *PageDataViewPredicate {
 		Values:       []any{},
 	}
 }
+func (o *PageDataViewPredicate) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *PageDataViewPredicate) Identifier() string {
+
+	return ""
+}
+func (o *PageDataViewPredicate) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -103,10 +114,34 @@ func (o *PageDataViewPredicate) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *PageDataViewPredicate) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *PageDataViewPredicate) BleveType() string {
 
 	return "pagedataviewpredicate"
+}
+
+// Doc returns the documentation for the object
+func (o *PageDataViewPredicate) Doc() string {
+
+	return `Represents a page data view predicate.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *PageDataViewPredicate) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *PageDataViewPredicate) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the PageDataViewPredicate.

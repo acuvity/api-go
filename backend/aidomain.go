@@ -597,6 +597,198 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDomain) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.LLMProviders {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'LLMProviders' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.LLMProvidersRisk != nil {
+		if err := o.LLMProvidersRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Compliances {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Compliances' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.CompliancesRisk != nil {
+		if err := o.CompliancesRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'CompliancesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataPolicies' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.DataPoliciesRisk != nil {
+		if err := o.DataPoliciesRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataPoliciesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataProcessors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataProcessors' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.DataProcessorsRisk != nil {
+		if err := o.DataProcessorsRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataProcessorsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Features {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Features' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Industry != nil {
+		if err := o.Industry.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Industry' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Plans {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Plans' for 'AIDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDomain) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.LLMProviders {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'LLMProviders' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.LLMProvidersRisk != nil {
+		if err := o.LLMProvidersRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Compliances {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Compliances' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.CompliancesRisk != nil {
+		if err := o.CompliancesRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'CompliancesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataPolicies' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataPoliciesRisk != nil {
+		if err := o.DataPoliciesRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataPoliciesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataProcessors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataProcessors' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataProcessorsRisk != nil {
+		if err := o.DataProcessorsRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataProcessorsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Features {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Features' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Industry != nil {
+		if err := o.Industry.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Industry' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Plans {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Plans' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the AIDomain.
 func (o *AIDomain) DeepCopy() *AIDomain {
 
@@ -1949,6 +2141,222 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAIDomain) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.LLMProviders != nil {
+		for _, sub := range *o.LLMProviders {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'LLMProviders' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.LLMProvidersRisk != nil {
+		if err := o.LLMProvidersRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Compliances != nil {
+		for _, sub := range *o.Compliances {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Compliances' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CompliancesRisk != nil {
+		if err := o.CompliancesRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'CompliancesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataPolicies != nil {
+		for _, sub := range *o.DataPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataPolicies' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataPoliciesRisk != nil {
+		if err := o.DataPoliciesRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataPoliciesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataProcessors != nil {
+		for _, sub := range *o.DataProcessors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataProcessors' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataProcessorsRisk != nil {
+		if err := o.DataProcessorsRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataProcessorsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Features != nil {
+		for _, sub := range *o.Features {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Features' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Industry != nil {
+		if err := o.Industry.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Industry' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Plans != nil {
+		for _, sub := range *o.Plans {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Plans' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAIDomain) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.LLMProviders != nil {
+		for _, sub := range *o.LLMProviders {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'LLMProviders' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.LLMProvidersRisk != nil {
+		if err := o.LLMProvidersRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Compliances != nil {
+		for _, sub := range *o.Compliances {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Compliances' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CompliancesRisk != nil {
+		if err := o.CompliancesRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'CompliancesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataPolicies != nil {
+		for _, sub := range *o.DataPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataPolicies' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataPoliciesRisk != nil {
+		if err := o.DataPoliciesRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataPoliciesRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataProcessors != nil {
+		for _, sub := range *o.DataProcessors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataProcessors' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataProcessorsRisk != nil {
+		if err := o.DataProcessorsRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataProcessorsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Features != nil {
+		for _, sub := range *o.Features {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Features' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Industry != nil {
+		if err := o.Industry.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Industry' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Plans != nil {
+		for _, sub := range *o.Plans {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Plans' for 'AIDomain' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

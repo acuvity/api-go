@@ -1,0 +1,94 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Log Bundle",
+  "$friendlyNamePlural": "Log Bundles",
+  "$modelName": "LogBundle",
+  "$modelPackage": "avi",
+  "$modelResourceName": "logbundles",
+  "$modelRestName": "logbundle",
+  "additionalProperties": false,
+  "description": "Stores the log bundle uploading by a client.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "data": {
+      "$friendlyName": "Data",
+      "$required": true,
+      "description": "The binary data of the log bundle.",
+      "title": "data",
+      "type": "string"
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "$required": true,
+      "description": "The name of the host where the log bundle came from.",
+      "title": "hostname",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "Name of the log bundle.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$defaultValue": "Agent",
+      "$friendlyName": "Type",
+      "description": "The type of log bundle.",
+      "enum": [
+        "Agent"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "data",
+    "hostname",
+    "name"
+  ],
+  "title": "LogBundle",
+  "type": "object"
+}

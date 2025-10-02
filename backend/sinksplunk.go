@@ -223,32 +223,6 @@ func (o *SinkSplunk) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SinkSplunk) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.HECURL, err = encrypter.EncryptString(o.HECURL); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'HECURL' for 'SinkSplunk' (%s): %s", o.Identifier(), err)
-	}
-	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SinkSplunk' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
-// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SinkSplunk) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.HECURL, err = encrypter.DecryptString(o.HECURL); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'HECURL' for 'SinkSplunk' (%s): %s", o.Identifier(), err)
-	}
-	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SinkSplunk' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
 // Patch apply the non nil value of a *SparseSinkSplunk to the object.
 func (o *SinkSplunk) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
@@ -268,6 +242,34 @@ func (o *SinkSplunk) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Token != nil {
 		o.Token = *so.Token
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SinkSplunk) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.HECURL, err = encrypter.EncryptString(o.HECURL); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'HECURL' for 'SinkSplunk' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SinkSplunk' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SinkSplunk) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.HECURL, err = encrypter.DecryptString(o.HECURL); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'HECURL' for 'SinkSplunk' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SinkSplunk' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SinkSplunk.
@@ -638,10 +640,11 @@ func (o *SparseSinkSplunk) ToPlain() elemental.PlainIdentifiable {
 func (o *SparseSinkSplunk) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.HECURL, err = encrypter.EncryptString(*o.HECURL); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'HECURL' for 'SparseSinkSplunk' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to encrypt attribute 'HECURL' for 'SparseSinkSplunk' (%s): %w", o.Identifier(), err)
 	}
+
 	if *o.Token, err = encrypter.EncryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseSinkSplunk' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseSinkSplunk' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -651,10 +654,11 @@ func (o *SparseSinkSplunk) EncryptAttributes(encrypter elemental.AttributeEncryp
 func (o *SparseSinkSplunk) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.HECURL, err = encrypter.DecryptString(*o.HECURL); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'HECURL' for 'SparseSinkSplunk' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to decrypt attribute 'HECURL' for 'SparseSinkSplunk' (%s): %w", o.Identifier(), err)
 	}
+
 	if *o.Token, err = encrypter.DecryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseSinkSplunk' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseSinkSplunk' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil

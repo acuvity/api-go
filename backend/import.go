@@ -118,6 +118,9 @@ type Import struct {
 	// Agent configurations to import.
 	AgentConfigs AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
+	// Agent Discovery to import.
+	AgentDiscoveries AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"-" mapstructure:"agentDiscoveries,omitempty"`
+
 	// Alert definitions to import.
 	AlertDefinitions AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
 
@@ -192,6 +195,7 @@ func NewImport() *Import {
 		SAMLSources:         api.SAMLSourcesList{},
 		AccessPolicies:      AccessPoliciesList{},
 		AgentConfigs:        AgentConfigsList{},
+		AgentDiscoveries:    AgentDiscoveriesList{},
 		AlertDefinitions:    AlertDefinitionsList{},
 		Apps:                AppsList{},
 		ContentPolicies:     ContentPoliciesList{},
@@ -305,6 +309,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			SAMLSources:         &o.SAMLSources,
 			AccessPolicies:      &o.AccessPolicies,
 			AgentConfigs:        &o.AgentConfigs,
+			AgentDiscoveries:    &o.AgentDiscoveries,
 			AlertDefinitions:    &o.AlertDefinitions,
 			Apps:                &o.Apps,
 			ContentPolicies:     &o.ContentPolicies,
@@ -351,6 +356,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AccessPolicies = &(o.AccessPolicies)
 		case "agentConfigs":
 			sp.AgentConfigs = &(o.AgentConfigs)
+		case "agentDiscoveries":
+			sp.AgentDiscoveries = &(o.AgentDiscoveries)
 		case "alertDefinitions":
 			sp.AlertDefinitions = &(o.AlertDefinitions)
 		case "apps":
@@ -433,6 +440,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AgentConfigs != nil {
 		o.AgentConfigs = *so.AgentConfigs
 	}
+	if so.AgentDiscoveries != nil {
+		o.AgentDiscoveries = *so.AgentDiscoveries
+	}
 	if so.AlertDefinitions != nil {
 		o.AlertDefinitions = *so.AlertDefinitions
 	}
@@ -487,6 +497,468 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.WebExtensionConfigs != nil {
 		o.WebExtensionConfigs = *so.WebExtensionConfigs
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.AIApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIApps' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIDomains {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIDomains' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIPlugins {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.APIAuthorizations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PACConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PACConfigs' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AccessPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AccessPolicies' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentDiscoveries {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentDiscoveries' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AlertDefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AlertDefinitions' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Apps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Apps' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ContentPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ContentPolicies' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataSets' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ExtractorLibs' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.IgnoredDomains {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OrgSettings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ProviderTeams {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ProviderTeams' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ProviderTokens {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ProviderTokens' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Providers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Proxyroundtrips {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Sinks {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Sinks' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Teams {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Teams' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Visitedurls {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Visitedurls' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebExtensionConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.AIApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIApps' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIDomains {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIDomains' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIPlugins {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.APIAuthorizations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PACConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PACConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AccessPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AccessPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AgentDiscoveries {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentDiscoveries' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AlertDefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AlertDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Apps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Apps' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ContentPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ContentPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.CustomDataTypes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.DataSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataSets' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ExtractorLibs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ExtractorLibs' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.IgnoredDomains {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OrgSettings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ProviderTeams {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ProviderTeams' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ProviderTokens {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ProviderTokens' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Providers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Proxyroundtrips {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Sinks {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Sinks' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Teams {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Teams' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Visitedurls {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Visitedurls' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebExtensionConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Import.
@@ -576,6 +1048,15 @@ func (o *Import) Validate() error {
 	}
 
 	for _, sub := range o.AgentConfigs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.AgentDiscoveries {
 		if sub == nil {
 			continue
 		}
@@ -797,6 +1278,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AccessPolicies
 	case "agentConfigs":
 		return o.AgentConfigs
+	case "agentDiscoveries":
+		return o.AgentDiscoveries
 	case "alertDefinitions":
 		return o.AlertDefinitions
 	case "apps":
@@ -937,6 +1420,15 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "agentConfigs",
 		SubType:        "agentconfig",
+		Type:           "refList",
+	},
+	"AgentDiscoveries": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AgentDiscoveries",
+		Description:    `Agent Discovery to import.`,
+		Exposed:        true,
+		Name:           "agentDiscoveries",
+		SubType:        "agentdiscovery",
 		Type:           "refList",
 	},
 	"AlertDefinitions": {
@@ -1205,6 +1697,15 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "agentconfig",
 		Type:           "refList",
 	},
+	"agentdiscoveries": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AgentDiscoveries",
+		Description:    `Agent Discovery to import.`,
+		Exposed:        true,
+		Name:           "agentDiscoveries",
+		SubType:        "agentdiscovery",
+		Type:           "refList",
+	},
 	"alertdefinitions": {
 		AllowedChoices: []string{},
 		ConvertedName:  "AlertDefinitions",
@@ -1466,6 +1967,9 @@ type SparseImport struct {
 	// Agent configurations to import.
 	AgentConfigs *AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
+	// Agent Discovery to import.
+	AgentDiscoveries *AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"-" mapstructure:"agentDiscoveries,omitempty"`
+
 	// Alert definitions to import.
 	AlertDefinitions *AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
 
@@ -1618,6 +2122,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.AgentConfigs != nil {
 		out.AgentConfigs = *o.AgentConfigs
 	}
+	if o.AgentDiscoveries != nil {
+		out.AgentDiscoveries = *o.AgentDiscoveries
+	}
 	if o.AlertDefinitions != nil {
 		out.AlertDefinitions = *o.AlertDefinitions
 	}
@@ -1674,6 +2181,568 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AIApps != nil {
+		for _, sub := range *o.AIApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIApps' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIDomains != nil {
+		for _, sub := range *o.AIDomains {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIPlugins != nil {
+		for _, sub := range *o.AIPlugins {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.APIAuthorizations != nil {
+		for _, sub := range *o.APIAuthorizations {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.PACConfigs != nil {
+		for _, sub := range *o.PACConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PACConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AccessPolicies != nil {
+		for _, sub := range *o.AccessPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AccessPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentConfigs != nil {
+		for _, sub := range *o.AgentConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentDiscoveries != nil {
+		for _, sub := range *o.AgentDiscoveries {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentDiscoveries' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AlertDefinitions != nil {
+		for _, sub := range *o.AlertDefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AlertDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Apps != nil {
+		for _, sub := range *o.Apps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Apps' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ContentPolicies != nil {
+		for _, sub := range *o.ContentPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ContentPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataSets != nil {
+		for _, sub := range *o.DataSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DataSets' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ExtractorLibs != nil {
+		for _, sub := range *o.ExtractorLibs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ExtractorLibs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.IgnoredDomains != nil {
+		for _, sub := range *o.IgnoredDomains {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OrgSettings != nil {
+		for _, sub := range *o.OrgSettings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ProviderTeams != nil {
+		for _, sub := range *o.ProviderTeams {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ProviderTeams' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ProviderTokens != nil {
+		for _, sub := range *o.ProviderTokens {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ProviderTokens' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Providers != nil {
+		for _, sub := range *o.Providers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Proxyroundtrips != nil {
+		for _, sub := range *o.Proxyroundtrips {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Sinks != nil {
+		for _, sub := range *o.Sinks {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Sinks' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Teams != nil {
+		for _, sub := range *o.Teams {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Teams' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Visitedurls != nil {
+		for _, sub := range *o.Visitedurls {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Visitedurls' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebExtensionConfigs != nil {
+		for _, sub := range *o.WebExtensionConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AIApps != nil {
+		for _, sub := range *o.AIApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIApps' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIDomains != nil {
+		for _, sub := range *o.AIDomains {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIPlugins != nil {
+		for _, sub := range *o.AIPlugins {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.APIAuthorizations != nil {
+		for _, sub := range *o.APIAuthorizations {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.PACConfigs != nil {
+		for _, sub := range *o.PACConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PACConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AccessPolicies != nil {
+		for _, sub := range *o.AccessPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AccessPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentConfigs != nil {
+		for _, sub := range *o.AgentConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AgentDiscoveries != nil {
+		for _, sub := range *o.AgentDiscoveries {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentDiscoveries' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AlertDefinitions != nil {
+		for _, sub := range *o.AlertDefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AlertDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Apps != nil {
+		for _, sub := range *o.Apps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Apps' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ContentPolicies != nil {
+		for _, sub := range *o.ContentPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ContentPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.DataSets != nil {
+		for _, sub := range *o.DataSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DataSets' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ExtractorLibs != nil {
+		for _, sub := range *o.ExtractorLibs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ExtractorLibs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.IgnoredDomains != nil {
+		for _, sub := range *o.IgnoredDomains {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OrgSettings != nil {
+		for _, sub := range *o.OrgSettings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ProviderTeams != nil {
+		for _, sub := range *o.ProviderTeams {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ProviderTeams' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ProviderTokens != nil {
+		for _, sub := range *o.ProviderTokens {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ProviderTokens' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Providers != nil {
+		for _, sub := range *o.Providers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Proxyroundtrips != nil {
+		for _, sub := range *o.Proxyroundtrips {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Sinks != nil {
+		for _, sub := range *o.Sinks {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Sinks' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Teams != nil {
+		for _, sub := range *o.Teams {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Teams' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Visitedurls != nil {
+		for _, sub := range *o.Visitedurls {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Visitedurls' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebExtensionConfigs != nil {
+		for _, sub := range *o.WebExtensionConfigs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SparseImport.

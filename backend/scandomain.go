@@ -71,6 +71,17 @@ func NewScanDomain() *ScanDomain {
 		AdvancedScanResults: map[string]*ScanResultAdvanced{},
 	}
 }
+func (o *ScanDomain) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ScanDomain) Identifier() string {
+
+	return ""
+}
+func (o *ScanDomain) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -121,10 +132,106 @@ func (o *ScanDomain) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ScanDomain) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ScanDomain) BleveType() string {
 
 	return "scandomain"
+}
+
+// Doc returns the documentation for the object
+func (o *ScanDomain) Doc() string {
+
+	return `Report sent by the Acuvity scanner.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ScanDomain) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.HTTPScanResult != nil {
+		if err := o.HTTPScanResult.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'HTTPScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PingScanResult != nil {
+		if err := o.PingScanResult.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'PingScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TLSScanResult != nil {
+		if err := o.TLSScanResult.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TLSScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AdvancedScanResults {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AdvancedScanResults' for 'ScanDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Users {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Users' for 'ScanDomain' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ScanDomain) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.HTTPScanResult != nil {
+		if err := o.HTTPScanResult.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'HTTPScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PingScanResult != nil {
+		if err := o.PingScanResult.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'PingScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TLSScanResult != nil {
+		if err := o.TLSScanResult.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TLSScanResult' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AdvancedScanResults {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AdvancedScanResults' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Users {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Users' for 'ScanDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ScanDomain.

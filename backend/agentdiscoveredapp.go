@@ -51,6 +51,17 @@ func NewAgentDiscoveredApp() *AgentDiscoveredApp {
 		Type:         AgentDiscoveredAppTypeIDE,
 	}
 }
+func (o *AgentDiscoveredApp) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AgentDiscoveredApp) Identifier() string {
+
+	return ""
+}
+func (o *AgentDiscoveredApp) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -87,10 +98,52 @@ func (o *AgentDiscoveredApp) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AgentDiscoveredApp) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AgentDiscoveredApp) BleveType() string {
 
 	return "agentdiscoveredapp"
+}
+
+// Doc returns the documentation for the object
+func (o *AgentDiscoveredApp) Doc() string {
+
+	return `Represents an application that the agent discovered.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AgentDiscoveredApp) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.MCPServers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPServers' for 'AgentDiscoveredApp' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AgentDiscoveredApp) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.MCPServers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPServers' for 'AgentDiscoveredApp' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AgentDiscoveredApp.

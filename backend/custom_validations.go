@@ -1046,17 +1046,29 @@ func ValidateSink(sink *Sink) error {
 		if sink.Email == nil {
 			return makeErr("email", "'Email' must have its configuration defined.")
 		}
+		if sink.Slack != nil || sink.Splunk != nil || sink.PagerDuty != nil {
+			return makeErr("type", "If type is 'Email', only the email property must be set.")
+		}
 	case SinkTypePagerDuty:
 		if sink.PagerDuty == nil {
 			return makeErr("pagerDuty", "'PagerDuty' must have its configuration defined.")
+		}
+		if sink.Slack != nil || sink.Splunk != nil || sink.Email != nil {
+			return makeErr("type", "If type is 'PageDuty', only the pagerDuty property must be set.")
 		}
 	case SinkTypeSlack:
 		if sink.Slack == nil {
 			return makeErr("slack", "'Slack' must have its configuration defined.")
 		}
+		if sink.PagerDuty != nil || sink.Splunk != nil || sink.Email != nil {
+			return makeErr("type", "If type is 'Slack', only the slack property must be set.")
+		}
 	case SinkTypeSplunk:
 		if sink.Splunk == nil {
 			return makeErr("splunk", "'Splunk' must have its configuration defined.")
+		}
+		if sink.PagerDuty != nil || sink.Slack != nil || sink.Email != nil {
+			return makeErr("type", "If type is 'Splunk', only the splunk property must be set.")
 		}
 	}
 
@@ -1235,6 +1247,17 @@ func ValidateDomain(attribute string, domain string) error {
 		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not be a full URL", domain))
 	}
 
+	// @TODO: Uncomment
+	// some clients are still sending IPs.
+	// Since we can't rely on good citizenship, this will refuse plain
+	// and simple if the domain is an IP address. However to not break
+	// existing clients (the whole batch of visited URL would be refused)
+	// right now there is a check in the processor to force ignore IP
+
+	// if net.ParseIP(domain) != nil {
+	// 	return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not be an IP address", domain))
+	// }
+
 	if strings.ContainsAny(domain, "/?#") {
 		return makeErr(attribute, fmt.Sprintf("Invalid domain '%s': must not contain slashes, query, or fragment", domain))
 	}
@@ -1358,6 +1381,41 @@ func ValidateAIPlugin(plugin *AIPlugin) error {
 
 		if plugin.WebExtension.ChromeID == "" && plugin.WebExtension.EdgeID == "" && plugin.WebExtension.FirefoxID == "" {
 			return makeErr("webExtension", "'WebExtension' must have at least one ID defined.")
+		}
+	}
+
+	return nil
+}
+
+var validIndustries = map[string]struct{}{
+	"All":                                  {},
+	"Technology & software":                {},
+	"Financial services & insurance":       {},
+	"Healthcare & life sciences":           {},
+	"Government & public sector":           {},
+	"Education":                            {},
+	"Legal & professional services":        {},
+	"Telecommunications":                   {},
+	"Media & entertainment (incl. gaming)": {},
+	"Retail & e-commerce":                  {},
+	"Consumer packaged goods":              {},
+	"Manufacturing & industrials":          {},
+	"Energy & utilities":                   {},
+	"Automotive & mobility":                {},
+	"Transport, logistics & supply chain":  {},
+	"Travel, hospitality & leisure":        {},
+	"Real estate & construction":           {},
+	"Agriculture & food":                   {},
+	"Advertising, marketing & agencies":    {},
+	"Nonprofit & NGOs":                     {},
+}
+
+// ValidateAIDomainIndustries validates the given list of industry.
+func ValidateAIDomainIndustries(attribute string, industries []string) error {
+
+	for i, ind := range industries {
+		if _, ok := validIndustries[ind]; !ok {
+			return makeErr(attribute, fmt.Sprintf("'%s' (position %d) is not a valid industry", ind, i))
 		}
 	}
 

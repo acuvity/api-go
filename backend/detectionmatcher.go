@@ -90,6 +90,17 @@ func NewDetectionMatcher() *DetectionMatcher {
 		Operator:     DetectionMatcherOperatorMin,
 	}
 }
+func (o *DetectionMatcher) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *DetectionMatcher) Identifier() string {
+
+	return ""
+}
+func (o *DetectionMatcher) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -120,10 +131,40 @@ func (o *DetectionMatcher) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *DetectionMatcher) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *DetectionMatcher) BleveType() string {
 
 	return "detectionmatcher"
+}
+
+// Doc returns the documentation for the object
+func (o *DetectionMatcher) Doc() string {
+
+	return `Represent a detection matcher.
+A Detection Matcher serves as a filtering mechanism for analyzers, determining
+which detections should trigger an analysis. It allows for flexible pattern
+matching on detection attributes such as name, label, and group using glob-style
+wildcards. Additionally, it enables confidence-based filtering by defining
+thresholds and comparison operators. Detection Matchers provide a structured way
+to control when and how analyzers engage with incoming detections.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *DetectionMatcher) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *DetectionMatcher) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the DetectionMatcher.

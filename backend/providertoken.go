@@ -346,26 +346,6 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	return sp
 }
 
-// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *ProviderToken) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'ProviderToken' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
-// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *ProviderToken) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'ProviderToken' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
 // Patch apply the non nil value of a *SparseProviderToken to the object.
 func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
@@ -406,6 +386,26 @@ func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Zone != nil {
 		o.Zone = *so.Zone
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ProviderToken) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'ProviderToken' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ProviderToken) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'ProviderToken' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ProviderToken.
@@ -1045,7 +1045,7 @@ func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
 func (o *SparseProviderToken) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.Token, err = encrypter.EncryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseProviderToken' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseProviderToken' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -1055,7 +1055,7 @@ func (o *SparseProviderToken) EncryptAttributes(encrypter elemental.AttributeEnc
 func (o *SparseProviderToken) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.Token, err = encrypter.DecryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseProviderToken' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseProviderToken' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil

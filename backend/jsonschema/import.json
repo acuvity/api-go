@@ -96,6 +96,15 @@
       "title": "agentConfigs",
       "type": "array"
     },
+    "agentDiscoveries": {
+      "$friendlyName": "Agent Discoveries",
+      "description": "Agent Discovery to import.",
+      "items": {
+        "$ref": "agentdiscovery.json"
+      },
+      "title": "agentDiscoveries",
+      "type": "array"
+    },
     "alertDefinitions": {
       "$friendlyName": "Alert Definitions",
       "description": "Alert definitions to import.",

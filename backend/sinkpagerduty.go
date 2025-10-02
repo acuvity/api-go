@@ -199,26 +199,6 @@ func (o *SinkPagerDuty) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	return sp
 }
 
-// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SinkPagerDuty) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SinkPagerDuty' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
-// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SinkPagerDuty) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SinkPagerDuty' (%s): %s", o.Identifier(), err)
-	}
-
-	return nil
-}
-
 // Patch apply the non nil value of a *SparseSinkPagerDuty to the object.
 func (o *SinkPagerDuty) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
@@ -229,6 +209,26 @@ func (o *SinkPagerDuty) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Token != nil {
 		o.Token = *so.Token
 	}
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SinkPagerDuty) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SinkPagerDuty' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SinkPagerDuty) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SinkPagerDuty' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the SinkPagerDuty.
@@ -489,7 +489,7 @@ func (o *SparseSinkPagerDuty) ToPlain() elemental.PlainIdentifiable {
 func (o *SparseSinkPagerDuty) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.Token, err = encrypter.EncryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseSinkPagerDuty' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseSinkPagerDuty' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -499,7 +499,7 @@ func (o *SparseSinkPagerDuty) EncryptAttributes(encrypter elemental.AttributeEnc
 func (o *SparseSinkPagerDuty) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if *o.Token, err = encrypter.DecryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseSinkPagerDuty' (%s): %s", o.Identifier(), err)
+		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseSinkPagerDuty' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil

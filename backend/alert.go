@@ -370,6 +370,48 @@ func (o *Alert) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Alert) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AlertDefinition != nil {
+		if err := o.AlertDefinition.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AlertDefinition' for 'Alert' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AlertEvents {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AlertEvents' for 'Alert' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Alert) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AlertDefinition != nil {
+		if err := o.AlertDefinition.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AlertDefinition' for 'Alert' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AlertEvents {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AlertEvents' for 'Alert' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Alert.
 func (o *Alert) DeepCopy() *Alert {
 
@@ -1021,6 +1063,52 @@ func (o *SparseAlert) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAlert) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AlertDefinition != nil {
+		if err := o.AlertDefinition.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AlertDefinition' for 'Alert' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AlertEvents != nil {
+		for _, sub := range *o.AlertEvents {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AlertEvents' for 'Alert' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAlert) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AlertDefinition != nil {
+		if err := o.AlertDefinition.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AlertDefinition' for 'Alert' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AlertEvents != nil {
+		for _, sub := range *o.AlertEvents {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AlertEvents' for 'Alert' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

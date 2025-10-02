@@ -53,6 +53,17 @@ func NewScanResultTLS() *ScanResultTLS {
 		CertificateInfo: NewTLSCertInfo(),
 	}
 }
+func (o *ScanResultTLS) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ScanResultTLS) Identifier() string {
+
+	return ""
+}
+func (o *ScanResultTLS) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -95,10 +106,46 @@ func (o *ScanResultTLS) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ScanResultTLS) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ScanResultTLS) BleveType() string {
 
 	return "scanresulttls"
+}
+
+// Doc returns the documentation for the object
+func (o *ScanResultTLS) Doc() string {
+
+	return `Result of an TLS scan.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ScanResultTLS) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.CertificateInfo != nil {
+		if err := o.CertificateInfo.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'CertificateInfo' for 'ScanResultTLS' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ScanResultTLS) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.CertificateInfo != nil {
+		if err := o.CertificateInfo.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'CertificateInfo' for 'ScanResultTLS' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ScanResultTLS.

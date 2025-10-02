@@ -56,6 +56,17 @@ func NewTool() *Tool {
 		ModelVersion: 1,
 	}
 }
+func (o *Tool) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *Tool) Identifier() string {
+
+	return ""
+}
+func (o *Tool) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -100,10 +111,58 @@ func (o *Tool) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *Tool) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *Tool) BleveType() string {
 
 	return "tool"
+}
+
+// Doc returns the documentation for the object
+func (o *Tool) Doc() string {
+
+	return `Represents a tool that can enhance a genAI model's capabilities.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Tool) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MCPAnnotations != nil {
+		if err := o.MCPAnnotations.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MCPAnnotations' for 'Tool' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.MCPServer != nil {
+		if err := o.MCPServer.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MCPServer' for 'Tool' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Tool) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MCPAnnotations != nil {
+		if err := o.MCPAnnotations.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MCPAnnotations' for 'Tool' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.MCPServer != nil {
+		if err := o.MCPServer.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MCPServer' for 'Tool' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the Tool.

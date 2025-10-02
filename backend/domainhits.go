@@ -35,6 +35,17 @@ func NewDomainHits() *DomainHits {
 		ModelVersion: 1,
 	}
 }
+func (o *DomainHits) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *DomainHits) Identifier() string {
+
+	return ""
+}
+func (o *DomainHits) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -71,10 +82,34 @@ func (o *DomainHits) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *DomainHits) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *DomainHits) BleveType() string {
 
 	return "domainhits"
+}
+
+// Doc returns the documentation for the object
+func (o *DomainHits) Doc() string {
+
+	return `This is a domain hit.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *DomainHits) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *DomainHits) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the DomainHits.

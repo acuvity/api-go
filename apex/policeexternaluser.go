@@ -30,6 +30,17 @@ func NewPoliceExternalUser() *PoliceExternalUser {
 		Claims:       []string{},
 	}
 }
+func (o *PoliceExternalUser) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *PoliceExternalUser) Identifier() string {
+
+	return ""
+}
+func (o *PoliceExternalUser) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -60,10 +71,35 @@ func (o *PoliceExternalUser) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *PoliceExternalUser) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *PoliceExternalUser) BleveType() string {
 
 	return "policeexternaluser"
+}
+
+// Doc returns the documentation for the object
+func (o *PoliceExternalUser) Doc() string {
+
+	return `PoliceExternalUser holds the information about the remote user for a
+PoliceRequest.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *PoliceExternalUser) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *PoliceExternalUser) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the PoliceExternalUser.

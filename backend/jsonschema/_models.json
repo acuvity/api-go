@@ -189,6 +189,9 @@
     "latency": {
       "$ref": "latency.json"
     },
+    "logbundle": {
+      "$ref": "logbundle.json"
+    },
     "mapper": {
       "$ref": "mapper.json"
     },
@@ -416,6 +419,12 @@
     },
     "mtlssource": {
       "$ref": "mtlssource.json"
+    },
+    "mtlssourceentra": {
+      "$ref": "mtlssourceentra.json"
+    },
+    "mtlssourceokta": {
+      "$ref": "mtlssourceokta.json"
     },
     "permissions": {
       "$ref": "permissions.json"

@@ -641,6 +641,198 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ProxyRoundtrip) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ProxyRoundtrip' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ProxyRoundtrip' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'ProxyRoundtrip' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ProxyRoundtrip' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ProxyRoundtrip) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Alerts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the ProxyRoundtrip.
 func (o *ProxyRoundtrip) DeepCopy() *ProxyRoundtrip {
 
@@ -2111,6 +2303,214 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseProxyRoundtrip) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Latency' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'McpMessage' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ToolChoice' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseProxyRoundtrip) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Alerts != nil {
+		for _, sub := range *o.Alerts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Extractions != nil {
+		for _, sub := range *o.Extractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractions' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Latency != nil {
+		if err := o.Latency.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Latency' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.McpMessage != nil {
+		if err := o.McpMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'McpMessage' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolChoice != nil {
+		if err := o.ToolChoice.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ToolChoice' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetImportHash returns the ImportHash of the receiver.

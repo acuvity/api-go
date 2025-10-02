@@ -15,6 +15,18 @@
   "additionalProperties": false,
   "description": "Manage the default settings for the entire organization.",
   "properties": {
+    "AIDomainsIndustryFilter": {
+      "$friendlyName": "AI Domains Industry Filter",
+      "description": "If not empty, only report visited AI domains for the matching industries.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "AIDomainsIndustryFilter",
+      "type": "array"
+    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,

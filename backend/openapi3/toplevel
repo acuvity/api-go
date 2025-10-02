@@ -110,14 +110,19 @@
             "example": "chatgpt.com",
             "type": "string"
           },
-          "enqueue": {
-            "description": "Enqueue the domain for later analysis.",
-            "type": "boolean"
-          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "processing": {
+            "default": "Queue",
+            "description": "Type of processing for refractai. Queue means the the processing will be batched\nand will be done later on. Immediate skips the queue and is done as soon as\npossible. Finally RequireValidation will put it a queue and will require manual\nintervention.",
+            "enum": [
+              "Queue",
+              "Immediate",
+              "RequireValidation"
+            ]
           },
           "provider": {
             "description": "Provider name to related to the domain.",
@@ -392,6 +397,10 @@
           },
           "managedCADisabled": {
             "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
+            "type": "boolean"
+          },
+          "metricsEnabled": {
+            "description": "If enabled, the agent will start reporting various metrics in logs.",
             "type": "boolean"
           },
           "name": {
@@ -3316,6 +3325,13 @@
             },
             "type": "array"
           },
+          "agentDiscoveries": {
+            "description": "Agent Discovery to import.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscovery"
+            },
+            "type": "array"
+          },
           "alertDefinitions": {
             "description": "Alert definitions to import.",
             "items": {
@@ -3693,6 +3709,61 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "logbundle": {
+        "description": "Stores the log bundle uploading by a client.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "data": {
+            "description": "The binary data of the log bundle.",
+            "example": "some-fake-data",
+            "type": "string"
+          },
+          "hostname": {
+            "description": "The name of the host where the log bundle came from.",
+            "example": "this-hostname",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the log bundle.",
+            "example": "acushield_logs_09-25-2025_12-16-14",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "default": "Agent",
+            "description": "The type of log bundle.",
+            "enum": [
+              "Agent"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "data",
+          "hostname",
+          "name"
+        ],
         "type": "object"
       },
       "mapper": {
@@ -4146,6 +4217,13 @@
       "orgsettings": {
         "description": "Manage the default settings for the entire organization.",
         "properties": {
+          "AIDomainsIndustryFilter": {
+            "description": "If not empty, only report visited AI domains for the matching industries.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -6364,12 +6442,7 @@
             "example": "h2",
             "type": "string"
           },
-          "cipherSuite": {
-            "description": "The negotiated cipher suite of the connection.",
-            "example": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-            "type": "string"
-          },
-          "version": {
+          "TLSVersion": {
             "description": "The TLS protocol version used for the connection.",
             "enum": [
               "TLS10",
@@ -6378,11 +6451,16 @@
               "TLS13"
             ],
             "example": "TLS12"
+          },
+          "cipherSuite": {
+            "description": "The negotiated cipher suite of the connection.",
+            "example": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "type": "string"
           }
         },
         "required": [
-          "cipherSuite",
-          "version"
+          "TLSVersion",
+          "cipherSuite"
         ],
         "type": "object"
       },
@@ -10393,6 +10471,120 @@
         ]
       }
     },
+    "/logbundles": {
+      "get": {
+        "description": "List all existing log bundles.",
+        "operationId": "get-all-LogBundles",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/logbundle"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "logging"
+        ]
+      },
+      "post": {
+        "description": "Creates a new log bundle.",
+        "operationId": "create-LogBundle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/logbundle"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/logbundle"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "logging"
+        ]
+      }
+    },
+    "/logbundles/{id}": {
+      "delete": {
+        "description": "Delete a log bundle given its identifier.",
+        "operationId": "delete-LogBundle",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/logbundle"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "logging"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a log bundle given its identifier.",
+        "operationId": "get-LogBundle",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/logbundle"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "logging"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
     "/metriclabelvalues": {
       "post": {
         "description": "Requests all metrics for a label.",
@@ -13270,6 +13462,10 @@
     {
       "description": "This tag is for group 'core/import'",
       "name": "core/import"
+    },
+    {
+      "description": "This tag is for group 'logging'",
+      "name": "logging"
     },
     {
       "description": "This tag is for group 'migration'",

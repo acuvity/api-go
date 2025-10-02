@@ -343,6 +343,48 @@ func (o *AgentDiscovery) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AgentDiscovery) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.InstalledApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'InstalledApps' for 'AgentDiscovery' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AgentDiscovery) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.InstalledApps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'InstalledApps' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the AgentDiscovery.
 func (o *AgentDiscovery) DeepCopy() *AgentDiscovery {
 
@@ -910,6 +952,52 @@ func (o *SparseAgentDiscovery) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAgentDiscovery) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.InstalledApps != nil {
+		for _, sub := range *o.InstalledApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'InstalledApps' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAgentDiscovery) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.InstalledApps != nil {
+		for _, sub := range *o.InstalledApps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'InstalledApps' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'AgentDiscovery' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetImportHash returns the ImportHash of the receiver.

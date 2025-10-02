@@ -484,6 +484,66 @@ func (o *Sink) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Sink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Email != nil {
+		if err := o.Email.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PagerDuty != nil {
+		if err := o.PagerDuty.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Slack != nil {
+		if err := o.Slack.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Slack' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Splunk != nil {
+		if err := o.Splunk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Sink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Email != nil {
+		if err := o.Email.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PagerDuty != nil {
+		if err := o.PagerDuty.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Slack != nil {
+		if err := o.Slack.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Slack' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Splunk != nil {
+		if err := o.Splunk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Sink.
 func (o *Sink) DeepCopy() *Sink {
 
@@ -1372,6 +1432,66 @@ func (o *SparseSink) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Email != nil {
+		if err := o.Email.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PagerDuty != nil {
+		if err := o.PagerDuty.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Slack != nil {
+		if err := o.Slack.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Slack' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Splunk != nil {
+		if err := o.Splunk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseSink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Email != nil {
+		if err := o.Email.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PagerDuty != nil {
+		if err := o.PagerDuty.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Slack != nil {
+		if err := o.Slack.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Slack' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Splunk != nil {
+		if err := o.Splunk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

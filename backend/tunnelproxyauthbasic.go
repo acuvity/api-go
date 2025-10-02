@@ -29,6 +29,17 @@ func NewTunnelProxyAuthBasic() *TunnelProxyAuthBasic {
 		ModelVersion: 1,
 	}
 }
+func (o *TunnelProxyAuthBasic) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *TunnelProxyAuthBasic) Identifier() string {
+
+	return ""
+}
+func (o *TunnelProxyAuthBasic) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -65,10 +76,43 @@ func (o *TunnelProxyAuthBasic) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *TunnelProxyAuthBasic) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *TunnelProxyAuthBasic) BleveType() string {
 
 	return "tunnelproxyauthbasic"
+}
+
+// Doc returns the documentation for the object
+func (o *TunnelProxyAuthBasic) Doc() string {
+
+	return `The authentication information for HTTP Basic authentication used by the HTTP
+proxy used by the tunnel of the agent.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *TunnelProxyAuthBasic) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Password, err = encrypter.EncryptString(o.Password); err != nil {
+		return fmt.Errorf("unable to encrypt attribute 'Password' for 'TunnelProxyAuthBasic' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *TunnelProxyAuthBasic) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Password, err = encrypter.DecryptString(o.Password); err != nil {
+		return fmt.Errorf("unable to decrypt attribute 'Password' for 'TunnelProxyAuthBasic' (%s): %w", o.Identifier(), err)
+	}
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the TunnelProxyAuthBasic.

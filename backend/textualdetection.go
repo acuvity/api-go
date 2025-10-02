@@ -70,6 +70,17 @@ func NewTextualDetection() *TextualDetection {
 		ModelVersion: 1,
 	}
 }
+func (o *TextualDetection) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *TextualDetection) Identifier() string {
+
+	return ""
+}
+func (o *TextualDetection) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -120,10 +131,34 @@ func (o *TextualDetection) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *TextualDetection) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *TextualDetection) BleveType() string {
 
 	return "textualdetection"
+}
+
+// Doc returns the documentation for the object
+func (o *TextualDetection) Doc() string {
+
+	return `Represents a textual detection done by policy.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *TextualDetection) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *TextualDetection) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the TextualDetection.

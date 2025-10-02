@@ -50,6 +50,17 @@ func NewAIDRisk() *AIDRisk {
 		Gaps:         []string{},
 	}
 }
+func (o *AIDRisk) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *AIDRisk) Identifier() string {
+
+	return ""
+}
+func (o *AIDRisk) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -88,10 +99,34 @@ func (o *AIDRisk) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *AIDRisk) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *AIDRisk) BleveType() string {
 
 	return "aidrisk"
+}
+
+// Doc returns the documentation for the object
+func (o *AIDRisk) Doc() string {
+
+	return `AIDomain Risk.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *AIDRisk) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *AIDRisk) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the AIDRisk.

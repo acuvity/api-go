@@ -28,15 +28,6 @@
       "title": "domain",
       "type": "string"
     },
-    "enqueue": {
-      "$friendlyName": "enqueue",
-      "description": "Enqueue the domain for later analysis.",
-      "title": "enqueue",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,
@@ -46,6 +37,17 @@
         "string",
         "null"
       ]
+    },
+    "processing": {
+      "$defaultValue": "Queue",
+      "$friendlyName": "Processing",
+      "description": "Type of processing for refractai. Queue means the the processing will be batched and will be done later on. Immediate skips the queue and is done as soon as possible. Finally RequireValidation will put it a queue and will require manual intervention.",
+      "enum": [
+        "Queue",
+        "Immediate",
+        "RequireValidation"
+      ],
+      "title": "processing"
     },
     "provider": {
       "$friendlyName": "provider",

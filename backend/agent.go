@@ -456,6 +456,42 @@ func (o *Agent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Agent) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AgentConfig != nil {
+		if err := o.AgentConfig.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgentConfig' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Agent) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AgentConfig != nil {
+		if err := o.AgentConfig.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgentConfig' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Agent.
 func (o *Agent) DeepCopy() *Agent {
 
@@ -1336,6 +1372,42 @@ func (o *SparseAgent) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAgent) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AgentConfig != nil {
+		if err := o.AgentConfig.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgentConfig' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAgent) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AgentConfig != nil {
+		if err := o.AgentConfig.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgentConfig' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Principal != nil {
+		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'Agent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
 }
 
 // GetImportHash returns the ImportHash of the receiver.

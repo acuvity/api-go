@@ -11,21 +11,21 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// TLSStateVersionValue represents the possible values for attribute "version".
-type TLSStateVersionValue string
+// TLSStateTLSVersionValue represents the possible values for attribute "TLSVersion".
+type TLSStateTLSVersionValue string
 
 const (
-	// TLSStateVersionTLS10 represents the value TLS10.
-	TLSStateVersionTLS10 TLSStateVersionValue = "TLS10"
+	// TLSStateTLSVersionTLS10 represents the value TLS10.
+	TLSStateTLSVersionTLS10 TLSStateTLSVersionValue = "TLS10"
 
-	// TLSStateVersionTLS11 represents the value TLS11.
-	TLSStateVersionTLS11 TLSStateVersionValue = "TLS11"
+	// TLSStateTLSVersionTLS11 represents the value TLS11.
+	TLSStateTLSVersionTLS11 TLSStateTLSVersionValue = "TLS11"
 
-	// TLSStateVersionTLS12 represents the value TLS12.
-	TLSStateVersionTLS12 TLSStateVersionValue = "TLS12"
+	// TLSStateTLSVersionTLS12 represents the value TLS12.
+	TLSStateTLSVersionTLS12 TLSStateTLSVersionValue = "TLS12"
 
-	// TLSStateVersionTLS13 represents the value TLS13.
-	TLSStateVersionTLS13 TLSStateVersionValue = "TLS13"
+	// TLSStateTLSVersionTLS13 represents the value TLS13.
+	TLSStateTLSVersionTLS13 TLSStateTLSVersionValue = "TLS13"
 )
 
 // TLSState represents the model of a tlsstate
@@ -34,11 +34,11 @@ type TLSState struct {
 	// connection.
 	ALPNNegotiatedProtocol string `json:"ALPNNegotiatedProtocol,omitempty" msgpack:"ALPNNegotiatedProtocol,omitempty" bson:"alpnnegotiatedprotocol,omitempty" mapstructure:"ALPNNegotiatedProtocol,omitempty"`
 
+	// The TLS protocol version used for the connection.
+	TLSVersion TLSStateTLSVersionValue `json:"TLSVersion" msgpack:"TLSVersion" bson:"tlsversion" mapstructure:"TLSVersion,omitempty"`
+
 	// The negotiated cipher suite of the connection.
 	CipherSuite string `json:"cipherSuite" msgpack:"cipherSuite" bson:"ciphersuite" mapstructure:"cipherSuite,omitempty"`
-
-	// The TLS protocol version used for the connection.
-	Version TLSStateVersionValue `json:"version" msgpack:"version" bson:"version" mapstructure:"version,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -49,6 +49,17 @@ func NewTLSState() *TLSState {
 	return &TLSState{
 		ModelVersion: 1,
 	}
+}
+func (o *TLSState) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *TLSState) Identifier() string {
+
+	return ""
+}
+func (o *TLSState) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
 }
 
 // GetBSON implements the bson marshaling interface.
@@ -62,8 +73,8 @@ func (o *TLSState) GetBSON() (any, error) {
 	s := &mongoAttributesTLSState{}
 
 	s.ALPNNegotiatedProtocol = o.ALPNNegotiatedProtocol
+	s.TLSVersion = o.TLSVersion
 	s.CipherSuite = o.CipherSuite
-	s.Version = o.Version
 
 	return s, nil
 }
@@ -82,16 +93,40 @@ func (o *TLSState) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ALPNNegotiatedProtocol = s.ALPNNegotiatedProtocol
+	o.TLSVersion = s.TLSVersion
 	o.CipherSuite = s.CipherSuite
-	o.Version = s.Version
 
 	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *TLSState) Version() int {
+
+	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
 func (o *TLSState) BleveType() string {
 
 	return "tlsstate"
+}
+
+// Doc returns the documentation for the object
+func (o *TLSState) Doc() string {
+
+	return `Represents the TLS state of a connection.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *TLSState) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *TLSState) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the TLSState.
@@ -126,16 +161,16 @@ func (o *TLSState) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateRequiredString("TLSVersion", string(o.TLSVersion)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("TLSVersion", string(o.TLSVersion), []string{"TLS10", "TLS11", "TLS12", "TLS13"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("cipherSuite", o.CipherSuite); err != nil {
 		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("version", string(o.Version)); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateStringInList("version", string(o.Version), []string{"TLS10", "TLS11", "TLS12", "TLS13"}, false); err != nil {
-		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -174,10 +209,10 @@ func (o *TLSState) ValueForAttribute(name string) any {
 	switch name {
 	case "ALPNNegotiatedProtocol":
 		return o.ALPNNegotiatedProtocol
+	case "TLSVersion":
+		return o.TLSVersion
 	case "cipherSuite":
 		return o.CipherSuite
-	case "version":
-		return o.Version
 	}
 
 	return nil
@@ -196,6 +231,17 @@ connection.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"TLSVersion": {
+		AllowedChoices: []string{"TLS10", "TLS11", "TLS12", "TLS13"},
+		BSONFieldName:  "tlsversion",
+		ConvertedName:  "TLSVersion",
+		Description:    `The TLS protocol version used for the connection.`,
+		Exposed:        true,
+		Name:           "TLSVersion",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
 	"CipherSuite": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ciphersuite",
@@ -206,17 +252,6 @@ connection.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"Version": {
-		AllowedChoices: []string{"TLS10", "TLS11", "TLS12", "TLS13"},
-		BSONFieldName:  "version",
-		ConvertedName:  "Version",
-		Description:    `The TLS protocol version used for the connection.`,
-		Exposed:        true,
-		Name:           "version",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
 	},
 }
 
@@ -233,6 +268,17 @@ connection.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"tlsversion": {
+		AllowedChoices: []string{"TLS10", "TLS11", "TLS12", "TLS13"},
+		BSONFieldName:  "tlsversion",
+		ConvertedName:  "TLSVersion",
+		Description:    `The TLS protocol version used for the connection.`,
+		Exposed:        true,
+		Name:           "TLSVersion",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
 	"ciphersuite": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ciphersuite",
@@ -244,21 +290,10 @@ connection.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"version": {
-		AllowedChoices: []string{"TLS10", "TLS11", "TLS12", "TLS13"},
-		BSONFieldName:  "version",
-		ConvertedName:  "Version",
-		Description:    `The TLS protocol version used for the connection.`,
-		Exposed:        true,
-		Name:           "version",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
-	},
 }
 
 type mongoAttributesTLSState struct {
-	ALPNNegotiatedProtocol string               `bson:"alpnnegotiatedprotocol,omitempty"`
-	CipherSuite            string               `bson:"ciphersuite"`
-	Version                TLSStateVersionValue `bson:"version"`
+	ALPNNegotiatedProtocol string                  `bson:"alpnnegotiatedprotocol,omitempty"`
+	TLSVersion             TLSStateTLSVersionValue `bson:"tlsversion"`
+	CipherSuite            string                  `bson:"ciphersuite"`
 }

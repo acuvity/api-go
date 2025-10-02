@@ -633,6 +633,102 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 }
 
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *Provider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ErrorTransformer != nil {
+		if err := o.ErrorTransformer.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Provider' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Hosts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Hosts' for 'Provider' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Injectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Injectors' for 'Provider' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Mappers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Mappers' for 'Provider' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *Provider) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ErrorTransformer != nil {
+		if err := o.ErrorTransformer.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Hosts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Hosts' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Injectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Injectors' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Mappers {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Mappers' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	return nil
+}
+
 // DeepCopy returns a deep copy if the Provider.
 func (o *Provider) DeepCopy() *Provider {
 
@@ -1989,6 +2085,118 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 
 	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseProvider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ErrorTransformer != nil {
+		if err := o.ErrorTransformer.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Hosts != nil {
+		for _, sub := range *o.Hosts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Hosts' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Injectors != nil {
+		for _, sub := range *o.Injectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Injectors' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Mappers != nil {
+		for _, sub := range *o.Mappers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Mappers' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseProvider) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ErrorTransformer != nil {
+		if err := o.ErrorTransformer.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Hosts != nil {
+		for _, sub := range *o.Hosts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Hosts' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Injectors != nil {
+		for _, sub := range *o.Injectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Injectors' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Mappers != nil {
+		for _, sub := range *o.Mappers {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Mappers' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.

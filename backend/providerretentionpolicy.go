@@ -48,6 +48,17 @@ func NewProviderRetentionPolicy() *ProviderRetentionPolicy {
 		SubscriptionType: ProviderRetentionPolicySubscriptionTypeFree,
 	}
 }
+func (o *ProviderRetentionPolicy) Identity() elemental.Identity {
+
+	return elemental.Identity{}
+}
+func (o *ProviderRetentionPolicy) Identifier() string {
+
+	return ""
+}
+func (o *ProviderRetentionPolicy) SetIdentifier(id string) {
+	panic("you cannot set identifier on a detached object")
+}
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
@@ -86,10 +97,34 @@ func (o *ProviderRetentionPolicy) SetBSON(raw bson.Raw) error {
 	return nil
 }
 
+// Version returns the hardcoded version of the model.
+func (o *ProviderRetentionPolicy) Version() int {
+
+	return 1
+}
+
 // BleveType implements the bleve.Classifier Interface.
 func (o *ProviderRetentionPolicy) BleveType() string {
 
 	return "providerretentionpolicy"
+}
+
+// Doc returns the documentation for the object
+func (o *ProviderRetentionPolicy) Doc() string {
+
+	return `Represents data retention policy for a given subscription type.`
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *ProviderRetentionPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *ProviderRetentionPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	return nil
 }
 
 // DeepCopy returns a deep copy if the ProviderRetentionPolicy.
