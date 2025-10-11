@@ -27,6 +27,15 @@ const (
 
 // AgentDiscoveredMCP represents the model of a agentdiscoveredmcp
 type AgentDiscoveredMCP struct {
+	// The arguments applied to the MCP server.
+	Args []string `json:"args,omitempty" msgpack:"args,omitempty" bson:"-" mapstructure:"args,omitempty"`
+
+	// The command of the MCP server.
+	Command string `json:"command,omitempty" msgpack:"command,omitempty" bson:"-" mapstructure:"command,omitempty"`
+
+	// Environment variables set for the MCP server.
+	Env map[string]string `json:"env,omitempty" msgpack:"env,omitempty" bson:"-" mapstructure:"env,omitempty"`
+
 	// The name of the MCP server.
 	Name string `json:"name" msgpack:"name" bson:"-" mapstructure:"name,omitempty"`
 
@@ -44,6 +53,8 @@ func NewAgentDiscoveredMCP() *AgentDiscoveredMCP {
 
 	return &AgentDiscoveredMCP{
 		ModelVersion: 1,
+		Args:         []string{},
+		Env:          map[string]string{},
 		Type:         AgentDiscoveredMCPTypeLocal,
 	}
 }
@@ -188,6 +199,12 @@ func (*AgentDiscoveredMCP) AttributeSpecifications() map[string]elemental.Attrib
 func (o *AgentDiscoveredMCP) ValueForAttribute(name string) any {
 
 	switch name {
+	case "args":
+		return o.Args
+	case "command":
+		return o.Command
+	case "env":
+		return o.Env
 	case "name":
 		return o.Name
 	case "pluginID":
@@ -201,6 +218,32 @@ func (o *AgentDiscoveredMCP) ValueForAttribute(name string) any {
 
 // AgentDiscoveredMCPAttributesMap represents the map of attribute for AgentDiscoveredMCP.
 var AgentDiscoveredMCPAttributesMap = map[string]elemental.AttributeSpecification{
+	"Args": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Args",
+		Description:    `The arguments applied to the MCP server.`,
+		Exposed:        true,
+		Name:           "args",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"Command": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Command",
+		Description:    `The command of the MCP server.`,
+		Exposed:        true,
+		Name:           "command",
+		Type:           "string",
+	},
+	"Env": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Env",
+		Description:    `Environment variables set for the MCP server.`,
+		Exposed:        true,
+		Name:           "env",
+		SubType:        "map[string]string",
+		Type:           "external",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Name",
@@ -230,6 +273,32 @@ var AgentDiscoveredMCPAttributesMap = map[string]elemental.AttributeSpecificatio
 
 // AgentDiscoveredMCPLowerCaseAttributesMap represents the map of attribute for AgentDiscoveredMCP.
 var AgentDiscoveredMCPLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"args": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Args",
+		Description:    `The arguments applied to the MCP server.`,
+		Exposed:        true,
+		Name:           "args",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"command": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Command",
+		Description:    `The command of the MCP server.`,
+		Exposed:        true,
+		Name:           "command",
+		Type:           "string",
+	},
+	"env": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Env",
+		Description:    `Environment variables set for the MCP server.`,
+		Exposed:        true,
+		Name:           "env",
+		SubType:        "map[string]string",
+		Type:           "external",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Name",

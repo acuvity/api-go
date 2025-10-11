@@ -814,6 +814,24 @@ Represents an MCP server that the agent discovered.
 
 #### Attributes
 
+##### `args`
+
+Type: `[]string`
+
+The arguments applied to the MCP server.
+
+##### `command`
+
+Type: `string`
+
+The command of the MCP server.
+
+##### `env`
+
+Type: `map[string]string`
+
+Environment variables set for the MCP server.
+
 ##### `name`
 
 Type: `string`
@@ -2210,7 +2228,7 @@ The individual permissions. Only works if role is Custom.
 
 ##### `role` [`required`]
 
-Type: `enum(Administrator | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | RiskAuditor)`
+Type: `enum(Administrator | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | RiskAuditor | ExternalIDP)`
 
 The role for the subjects.
 

@@ -114,7 +114,8 @@
         "Owner",
         "Proxy",
         "Viewer",
-        "RiskAuditor"
+        "RiskAuditor",
+        "ExternalIDP"
       ],
       "title": "role"
     },

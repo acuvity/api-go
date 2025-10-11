@@ -9,6 +9,36 @@
   "additionalProperties": false,
   "description": "Represents an MCP server that the agent discovered.",
   "properties": {
+    "args": {
+      "$friendlyName": "Args",
+      "description": "The arguments applied to the MCP server.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "args",
+      "type": "array"
+    },
+    "command": {
+      "$friendlyName": "Command",
+      "description": "The command of the MCP server.",
+      "title": "command",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "env": {
+      "$friendlyName": "Env",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Environment variables set for the MCP server.",
+      "title": "env",
+      "type": "object"
+    },
     "name": {
       "$friendlyName": "Name",
       "description": "The name of the MCP server.",

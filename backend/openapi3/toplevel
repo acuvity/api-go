@@ -562,6 +562,24 @@
       "agentdiscoveredmcp": {
         "description": "Represents an MCP server that the agent discovered.",
         "properties": {
+          "args": {
+            "description": "The arguments applied to the MCP server.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "command": {
+            "description": "The command of the MCP server.",
+            "type": "string"
+          },
+          "env": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Environment variables set for the MCP server.",
+            "type": "object"
+          },
           "name": {
             "description": "The name of the MCP server.",
             "type": "string"
@@ -1778,7 +1796,8 @@
               "Owner",
               "Proxy",
               "Viewer",
-              "RiskAuditor"
+              "RiskAuditor",
+              "ExternalIDP"
             ],
             "example": "Employee"
           },
