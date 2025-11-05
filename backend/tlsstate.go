@@ -40,6 +40,9 @@ type TLSState struct {
 	// The negotiated cipher suite of the connection.
 	CipherSuite string `json:"cipherSuite" msgpack:"cipherSuite" bson:"ciphersuite" mapstructure:"cipherSuite,omitempty"`
 
+	// The TLS library/provider/implementation used for the connection if known.
+	Implementation string `json:"implementation,omitempty" msgpack:"implementation,omitempty" bson:"implementation,omitempty" mapstructure:"implementation,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -75,6 +78,7 @@ func (o *TLSState) GetBSON() (any, error) {
 	s.ALPNNegotiatedProtocol = o.ALPNNegotiatedProtocol
 	s.TLSVersion = o.TLSVersion
 	s.CipherSuite = o.CipherSuite
+	s.Implementation = o.Implementation
 
 	return s, nil
 }
@@ -95,6 +99,7 @@ func (o *TLSState) SetBSON(raw bson.Raw) error {
 	o.ALPNNegotiatedProtocol = s.ALPNNegotiatedProtocol
 	o.TLSVersion = s.TLSVersion
 	o.CipherSuite = s.CipherSuite
+	o.Implementation = s.Implementation
 
 	return nil
 }
@@ -213,6 +218,8 @@ func (o *TLSState) ValueForAttribute(name string) any {
 		return o.TLSVersion
 	case "cipherSuite":
 		return o.CipherSuite
+	case "implementation":
+		return o.Implementation
 	}
 
 	return nil
@@ -253,6 +260,16 @@ connection.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"Implementation": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "implementation",
+		ConvertedName:  "Implementation",
+		Description:    `The TLS library/provider/implementation used for the connection if known.`,
+		Exposed:        true,
+		Name:           "implementation",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // TLSStateLowerCaseAttributesMap represents the map of attribute for TLSState.
@@ -290,10 +307,21 @@ connection.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"implementation": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "implementation",
+		ConvertedName:  "Implementation",
+		Description:    `The TLS library/provider/implementation used for the connection if known.`,
+		Exposed:        true,
+		Name:           "implementation",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 type mongoAttributesTLSState struct {
 	ALPNNegotiatedProtocol string                  `bson:"alpnnegotiatedprotocol,omitempty"`
 	TLSVersion             TLSStateTLSVersionValue `bson:"tlsversion"`
 	CipherSuite            string                  `bson:"ciphersuite"`
+	Implementation         string                  `bson:"implementation,omitempty"`
 }

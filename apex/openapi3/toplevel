@@ -45,26 +45,6 @@
             "description": "The description of the analyzer.",
             "type": "string"
           },
-          "detectionMatchers": {
-            "description": "A list of detection matcher that will trigger the analyzer.",
-            "example": [
-              [
-                {
-                  "confidence": "Medium",
-                  "group": "Text",
-                  "name": "txt",
-                  "operator": "min"
-                }
-              ]
-            ],
-            "items": {
-              "items": {
-                "type": "object"
-              },
-              "type": "array"
-            },
-            "type": "array"
-          },
           "detectors": {
             "description": "The detectors the analyzer can use.",
             "items": {
@@ -79,6 +59,33 @@
           "group": {
             "description": "The group the analyzer belongs to.",
             "type": "string"
+          },
+          "matchers": {
+            "description": "A list of matcher that will trigger the analyzer.",
+            "example": [
+              [
+                {
+                  "confidence": "Medium",
+                  "group": "Text",
+                  "name": "txt",
+                  "operator": "min",
+                  "scope": "detection"
+                }
+              ],
+              [
+                {
+                  "scope": "metadata",
+                  "type": "Input"
+                }
+              ]
+            ],
+            "items": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "type": "array"
           },
           "models": {
             "description": "The models used by the analyzer.",
@@ -99,22 +106,8 @@
         },
         "type": "object"
       },
-      "analyzermodel": {
-        "description": "Represent an analyzer model.",
-        "properties": {
-          "name": {
-            "description": "The name of the model.",
-            "type": "string"
-          },
-          "revision": {
-            "description": "The revision of the model.",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "detectionmatcher": {
-        "description": "Represent a detection matcher.\nA Detection Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections should trigger an analysis. It allows for flexible pattern\nmatching on detection attributes such as name, label, and group using glob-style\nwildcards. Additionally, it enables confidence-based filtering by defining\nthresholds and comparison operators. Detection Matchers provide a structured way\nto control when and how analyzers engage with incoming detections.",
+      "analyzermatcher": {
+        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections and/or metadata should trigger an analyzer. It allows for\nflexible pattern\nmatching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses metadata attributes such as type, hasTools and\nhasToolUses.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections and/or\nmetadata.",
         "properties": {
           "confidence": {
             "default": "Low",
@@ -156,6 +149,36 @@
               "Min",
               "Max"
             ]
+          },
+          "scope": {
+            "default": "Detection",
+            "description": "The scope of the matcher, can be either Detection or Metadata.",
+            "enum": [
+              "Detection",
+              "Metadata"
+            ]
+          },
+          "type": {
+            "default": "Input",
+            "description": "The type of data, either Input or Output.",
+            "enum": [
+              "Input",
+              "Output"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "analyzermodel": {
+        "description": "Represent an analyzer model.",
+        "properties": {
+          "name": {
+            "description": "The name of the model.",
+            "type": "string"
+          },
+          "revision": {
+            "description": "The revision of the model.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -820,7 +843,8 @@
               "Ask",
               "Bypassed",
               "ForbiddenUser",
-              "Skipped"
+              "Skipped",
+              "Redirected"
             ]
           },
           "extractions": {
@@ -1006,6 +1030,26 @@
           "username": {
             "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
+            "type": "string"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
             "type": "string"
           }
         },
@@ -1199,7 +1243,8 @@
               "Ask",
               "Bypassed",
               "ForbiddenUser",
-              "Skipped"
+              "Skipped",
+              "Redirected"
             ]
           },
           "extractions": {

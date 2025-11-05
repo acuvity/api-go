@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Egress Policy ACL",
+  "$friendlyNamePlural": "Egress Policy ACLs",
+  "$modelName": "EgressPolicyACL",
+  "$modelPackage": "lain",
+  "$modelResourceName": "egresspolicyacls",
+  "$modelRestName": "egresspolicyacl",
+  "additionalProperties": false,
+  "description": "Represents an ACL for an egress policy of an application component.",
+  "properties": {
+    "IPRanges": {
+      "$friendlyName": "IP Ranges",
+      "description": "The list of IP ranges in CIDR notation to match for this ACL.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "IPRanges",
+      "type": "array"
+    },
+    "action": {
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The action to take for connections egressing from this workload that match this ACL.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "hostnames": {
+      "$friendlyName": "Hostnames",
+      "description": "The list of hostnames to match for this ACL. Supports wildcard prefixes, e.g. *.example.com which matches sub1.example.com but not sub2.sub1.example.com, as well as recursive wildcard prefixes, e.g. **.example.com which matches sub1.example.com as well as sub2.sub1.example.com.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hostnames",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "title": "EgressPolicyACL",
+  "type": "object"
+}

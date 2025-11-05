@@ -28,12 +28,18 @@ var (
 
 		"apiauthorization": APIAuthorizationIdentity,
 		"app":              AppIdentity,
+		"appagent":         AppAgentIdentity,
 		"appcomponent":     AppComponentIdentity,
-		"apptoken":         AppTokenIdentity,
-		"authsettings":     AuthSettingsIdentity,
-		"contentpolicy":    ContentPolicyIdentity,
-		"customdatatype":   CustomDataTypeIdentity,
-		"dataset":          DataSetIdentity,
+
+		"appgraphquery": AppGraphQueryIdentity,
+		"appreport":     AppReportIdentity,
+
+		"apptoken":     AppTokenIdentity,
+		"authsettings": AuthSettingsIdentity,
+
+		"contentpolicy":  ContentPolicyIdentity,
+		"customdatatype": CustomDataTypeIdentity,
+		"dataset":        DataSetIdentity,
 
 		"digestreport":        DigestReportIdentity,
 		"digestreportrequest": DigestReportRequestIdentity,
@@ -46,15 +52,16 @@ var (
 		"feedback":     FeedbackIdentity,
 		"gitbooktoken": GitbookTokenIdentity,
 
-		"ignoreddomain":         IgnoredDomainIdentity,
-		"import":                ImportIdentity,
-		"ingesttrace":           IngestTraceIdentity,
-		"ingressproviderconfig": IngressProviderConfigIdentity,
+		"ignoreddomain": IgnoredDomainIdentity,
+		"import":        ImportIdentity,
+		"ingesttrace":   IngestTraceIdentity,
 
 		"labelvalue": LabelValueIdentity,
 		"landing":    LandingIdentity,
 		"latency":    LatencyIdentity,
 		"logbundle":  LogBundleIdentity,
+
+		"mcpgateway": MCPGatewayIdentity,
 
 		"metric":           MetricIdentity,
 		"metriclabelvalue": MetricLabelValueIdentity,
@@ -134,12 +141,18 @@ var (
 
 		"apiauthorizations": APIAuthorizationIdentity,
 		"apps":              AppIdentity,
+		"appagents":         AppAgentIdentity,
 		"appcomponents":     AppComponentIdentity,
-		"apptokens":         AppTokenIdentity,
-		"authsettings":      AuthSettingsIdentity,
-		"contentpolicies":   ContentPolicyIdentity,
-		"customdatatypes":   CustomDataTypeIdentity,
-		"datasets":          DataSetIdentity,
+
+		"appgraphqueries": AppGraphQueryIdentity,
+		"appreports":      AppReportIdentity,
+
+		"apptokens":    AppTokenIdentity,
+		"authsettings": AuthSettingsIdentity,
+
+		"contentpolicies": ContentPolicyIdentity,
+		"customdatatypes": CustomDataTypeIdentity,
+		"datasets":        DataSetIdentity,
 
 		"digestreports":        DigestReportIdentity,
 		"digestreportrequests": DigestReportRequestIdentity,
@@ -152,15 +165,16 @@ var (
 		"feedbacks":     FeedbackIdentity,
 		"gitbooktokens": GitbookTokenIdentity,
 
-		"ignoreddomains":         IgnoredDomainIdentity,
-		"import":                 ImportIdentity,
-		"ingesttraces":           IngestTraceIdentity,
-		"ingressproviderconfigs": IngressProviderConfigIdentity,
+		"ignoreddomains": IgnoredDomainIdentity,
+		"import":         ImportIdentity,
+		"ingesttraces":   IngestTraceIdentity,
 
 		"labelvalues": LabelValueIdentity,
 		"landings":    LandingIdentity,
 		"latencies":   LatencyIdentity,
 		"logbundles":  LogBundleIdentity,
+
+		"mcpgateways": MCPGatewayIdentity,
 
 		"metrics":           MetricIdentity,
 		"metriclabelvalues": MetricLabelValueIdentity,
@@ -277,7 +291,16 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 		},
-		"appcomponent": nil,
+		"appagent": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "hostname"},
+			{"namespace", "importLabel"},
+		},
+		"appcomponent":  nil,
+		"appgraphquery": nil,
+		"appreport": {
+			{"namespace", "importLabel"},
+		},
 		"apptoken": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -324,14 +347,17 @@ var (
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 		},
-		"import":                nil,
-		"ingesttrace":           nil,
-		"ingressproviderconfig": nil,
-		"labelvalue":            nil,
-		"landing":               nil,
-		"latency":               nil,
+		"import":      nil,
+		"ingesttrace": nil,
+		"labelvalue":  nil,
+		"landing":     nil,
+		"latency":     nil,
 		"logbundle": {
 			{":shard", ":unique", "zone", "zHash"},
+		},
+		"mcpgateway": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "name"},
 		},
 		"metric":           nil,
 		"metriclabelvalue": nil,
@@ -504,8 +530,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAPIAuthorization()
 	case AppIdentity:
 		return NewApp()
+	case AppAgentIdentity:
+		return NewAppAgent()
 	case AppComponentIdentity:
 		return NewAppComponent()
+	case AppGraphQueryIdentity:
+		return NewAppGraphQuery()
+	case AppReportIdentity:
+		return NewAppReport()
 	case AppTokenIdentity:
 		return NewAppToken()
 	case AuthSettingsIdentity:
@@ -536,8 +568,6 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewImport()
 	case IngestTraceIdentity:
 		return NewIngestTrace()
-	case IngressProviderConfigIdentity:
-		return NewIngressProviderConfig()
 	case LabelValueIdentity:
 		return NewLabelValue()
 	case LandingIdentity:
@@ -546,6 +576,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewLatency()
 	case LogBundleIdentity:
 		return NewLogBundle()
+	case MCPGatewayIdentity:
+		return NewMCPGateway()
 	case MetricIdentity:
 		return NewMetric()
 	case MetricLabelValueIdentity:
@@ -669,8 +701,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAPIAuthorization()
 	case AppIdentity:
 		return NewSparseApp()
+	case AppAgentIdentity:
+		return NewSparseAppAgent()
 	case AppComponentIdentity:
 		return NewSparseAppComponent()
+	case AppGraphQueryIdentity:
+		return NewSparseAppGraphQuery()
+	case AppReportIdentity:
+		return NewSparseAppReport()
 	case AppTokenIdentity:
 		return NewSparseAppToken()
 	case AuthSettingsIdentity:
@@ -701,8 +739,6 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseImport()
 	case IngestTraceIdentity:
 		return NewSparseIngestTrace()
-	case IngressProviderConfigIdentity:
-		return NewSparseIngressProviderConfig()
 	case LabelValueIdentity:
 		return NewSparseLabelValue()
 	case LandingIdentity:
@@ -711,6 +747,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseLatency()
 	case LogBundleIdentity:
 		return NewSparseLogBundle()
+	case MCPGatewayIdentity:
+		return NewSparseMCPGateway()
 	case MetricIdentity:
 		return NewSparseMetric()
 	case MetricLabelValueIdentity:
@@ -842,8 +880,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &APIAuthorizationsList{}
 	case AppIdentity:
 		return &AppsList{}
+	case AppAgentIdentity:
+		return &AppAgentsList{}
 	case AppComponentIdentity:
 		return &AppComponentsList{}
+	case AppGraphQueryIdentity:
+		return &AppGraphQueriesList{}
+	case AppReportIdentity:
+		return &AppReportsList{}
 	case AppTokenIdentity:
 		return &AppTokensList{}
 	case AuthSettingsIdentity:
@@ -874,8 +918,6 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ImportsList{}
 	case IngestTraceIdentity:
 		return &IngestTracesList{}
-	case IngressProviderConfigIdentity:
-		return &IngressProviderConfigsList{}
 	case LabelValueIdentity:
 		return &LabelValuesList{}
 	case LandingIdentity:
@@ -884,6 +926,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &LatenciesList{}
 	case LogBundleIdentity:
 		return &LogBundlesList{}
+	case MCPGatewayIdentity:
+		return &MCPGatewaysList{}
 	case MetricIdentity:
 		return &MetricsList{}
 	case MetricLabelValueIdentity:
@@ -1005,8 +1049,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAPIAuthorizationsList{}
 	case AppIdentity:
 		return &SparseAppsList{}
+	case AppAgentIdentity:
+		return &SparseAppAgentsList{}
 	case AppComponentIdentity:
 		return &SparseAppComponentsList{}
+	case AppGraphQueryIdentity:
+		return &SparseAppGraphQueriesList{}
+	case AppReportIdentity:
+		return &SparseAppReportsList{}
 	case AppTokenIdentity:
 		return &SparseAppTokensList{}
 	case AuthSettingsIdentity:
@@ -1037,8 +1087,6 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseImportsList{}
 	case IngestTraceIdentity:
 		return &SparseIngestTracesList{}
-	case IngressProviderConfigIdentity:
-		return &SparseIngressProviderConfigsList{}
 	case LabelValueIdentity:
 		return &SparseLabelValuesList{}
 	case LandingIdentity:
@@ -1047,6 +1095,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseLatenciesList{}
 	case LogBundleIdentity:
 		return &SparseLogBundlesList{}
+	case MCPGatewayIdentity:
+		return &SparseMCPGatewaysList{}
 	case MetricIdentity:
 		return &SparseMetricsList{}
 	case MetricLabelValueIdentity:
@@ -1186,18 +1236,52 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAlertEvent()
 	case "analysis", "Analysis":
 		return NewAnalysis()
+	case "analyzermatcher", "Matcher":
+		return NewMatcher()
 	case "analyzermodel", "AnalyzerModel":
 		return NewAnalyzerModel()
+	case "appcomponentegress", "AppComponentEgress":
+		return NewAppComponentEgress()
+	case "appcomponentingress", "AppComponentIngress":
+		return NewAppComponentIngress()
+	case "appcomponentselector", "AppComponentSelector":
+		return NewAppComponentSelector()
+	case "appgraph", "AppGraph":
+		return NewAppGraph()
+	case "appgraphlink", "AppGraphLink":
+		return NewAppGraphLink()
+	case "appgraphlinkconnection", "AppGraphLinkConnection":
+		return NewAppGraphLinkConnection()
+	case "appgraphlinkdns", "AppGraphLinkDNS":
+		return NewAppGraphLinkDNS()
+	case "appgraphlinks", "AppGraphLinks":
+		return NewAppGraphLinks()
+	case "appgraphnode", "AppGraphNode":
+		return NewAppGraphNode()
+	case "appselector", "AppSelector":
+		return NewAppSelector()
+	case "connectionencryption", "ConnectionEncryption":
+		return NewConnectionEncryption()
+	case "connectionreport", "ConnectionReport":
+		return NewConnectionReport()
 	case "destination", "Destination":
 		return NewDestination()
 	case "detection", "Detection":
 		return NewDetection()
-	case "detectionmatcher", "DetectionMatcher":
-		return NewDetectionMatcher()
 	case "detector", "Detector":
 		return NewDetector()
+	case "dnsreport", "DNSReport":
+		return NewDNSReport()
 	case "domainhits", "DomainHits":
 		return NewDomainHits()
+	case "egressdefaultpolicy", "EgressDefaultPolicy":
+		return NewEgressDefaultPolicy()
+	case "egresspolicy", "EgressPolicy":
+		return NewEgressPolicy()
+	case "egresspolicyacl", "EgressPolicyACL":
+		return NewEgressPolicyACL()
+	case "egresspolicyrule", "EgressPolicyRule":
+		return NewEgressPolicyRule()
 	case "extraction", "Extraction":
 		return NewExtraction()
 	case "extractioninformation", "ExtractionInformation":
@@ -1208,10 +1292,26 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewExtractorRef()
 	case "host", "Host":
 		return NewHost()
+	case "ingressacl", "IngressACL":
+		return NewIngressACL()
+	case "ingresslistener", "IngressListener":
+		return NewIngressListener()
+	case "ingresspolicy", "IngressPolicy":
+		return NewIngressPolicy()
+	case "ingresspolicyrule", "IngressPolicyRule":
+		return NewIngressPolicyRule()
+	case "ingressproxyconfig", "IngressProxyConfig":
+		return NewIngressProxyConfig()
 	case "injector", "Injector":
 		return NewInjector()
+	case "kubernetesworkloadgroupselector", "KubernetesWorkloadGroupSelector":
+		return NewKubernetesWorkloadGroupSelector()
+	case "kubernetesworkloadgroupsetselector", "KubernetesWorkloadGroupSetSelector":
+		return NewKubernetesWorkloadGroupSetSelector()
 	case "mapper", "Mapper":
 		return NewMapper()
+	case "mcpgatewayserver", "MCPGatewayServer":
+		return NewMCPGatewayServer()
 	case "mcpmessage", "MCPMessage":
 		return NewMCPMessage()
 	case "mcpserver", "MCPServer":
@@ -1264,6 +1364,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewTunnelProxyAuth()
 	case "tunnelproxyauthbasic", "TunnelProxyAuthBasic":
 		return NewTunnelProxyAuthBasic()
+	case "workload", "Workload":
+		return NewWorkload()
+	case "workloadstatus", "WorkloadStatus":
+		return NewWorkloadStatus()
 	default:
 		return nil
 	}
@@ -1291,7 +1395,10 @@ func AllIdentities() []elemental.Identity {
 		AnalyzerIdentity,
 		APIAuthorizationIdentity,
 		AppIdentity,
+		AppAgentIdentity,
 		AppComponentIdentity,
+		AppGraphQueryIdentity,
+		AppReportIdentity,
 		AppTokenIdentity,
 		AuthSettingsIdentity,
 		ContentPolicyIdentity,
@@ -1307,11 +1414,11 @@ func AllIdentities() []elemental.Identity {
 		IgnoredDomainIdentity,
 		ImportIdentity,
 		IngestTraceIdentity,
-		IngressProviderConfigIdentity,
 		LabelValueIdentity,
 		LandingIdentity,
 		LatencyIdentity,
 		LogBundleIdentity,
+		MCPGatewayIdentity,
 		MetricIdentity,
 		MetricLabelValueIdentity,
 		MetricRangeIdentity,
@@ -1389,7 +1496,13 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AppIdentity:
 		return []string{}
+	case AppAgentIdentity:
+		return []string{}
 	case AppComponentIdentity:
+		return []string{}
+	case AppGraphQueryIdentity:
+		return []string{}
+	case AppReportIdentity:
 		return []string{}
 	case AppTokenIdentity:
 		return []string{}
@@ -1421,8 +1534,6 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case IngestTraceIdentity:
 		return []string{}
-	case IngressProviderConfigIdentity:
-		return []string{}
 	case LabelValueIdentity:
 		return []string{}
 	case LandingIdentity:
@@ -1430,6 +1541,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case LatencyIdentity:
 		return []string{}
 	case LogBundleIdentity:
+		return []string{}
+	case MCPGatewayIdentity:
 		return []string{}
 	case MetricIdentity:
 		return []string{}

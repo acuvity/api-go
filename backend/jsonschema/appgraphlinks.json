@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Links",
+  "$friendlyNamePlural": "App Graph Links",
+  "$modelName": "AppGraphLinks",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinks",
+  "$modelRestName": "appgraphlinks",
+  "additionalProperties": false,
+  "description": "Represents the application graph links for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "egress": {
+      "$friendlyName": "Egress",
+      "additionalProperties": {
+        "$ref": "appgraphlink.json"
+      },
+      "description": "The egress links from this node to other nodes in the application graph.",
+      "title": "egress",
+      "type": "object"
+    },
+    "ingress": {
+      "$friendlyName": "Ingress",
+      "additionalProperties": {
+        "$ref": "appgraphlink.json"
+      },
+      "description": "The ingress links from this node to other nodes in the application graph.",
+      "title": "ingress",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "AppGraphLinks",
+  "type": "object"
+}

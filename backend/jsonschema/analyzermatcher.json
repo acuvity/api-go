@@ -1,0 +1,98 @@
+{
+  "$extends": [],
+  "$friendlyName": "Matcher",
+  "$friendlyNamePlural": "Matchers",
+  "$modelName": "Matcher",
+  "$modelPackage": "lain",
+  "$modelResourceName": "analyzermatchers",
+  "$modelRestName": "analyzermatcher",
+  "additionalProperties": false,
+  "description": "Represent an analyzer matcher. An analyzer Matcher serves as a filtering mechanism for analyzers, determining which detections and/or metadata should trigger an analyzer. It allows for flexible pattern matching on: - for scope Detection, uses detection attributes such as name, label, and group using glob-style wildcards and confidence-based filtering by defining thresholds and comparison operators. - for scope Metadata, uses metadata attributes such as type, hasTools and hasToolUses. Matchers provide a structured way to control when and how analyzers engage with incoming detections and/or metadata.",
+  "properties": {
+    "confidence": {
+      "$defaultValue": "Low",
+      "$friendlyName": "Confidence",
+      "description": "The detection confidence level to operate on.",
+      "enum": [
+        "Unlikely",
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "title": "confidence"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the detection matcher.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "group": {
+      "$defaultValue": "*",
+      "$friendlyName": "Group",
+      "description": "The group pattern used to match detection group. Supports glob-style wildcards (e.g. 'Text*' matches 'Text', 'Text_'). Default value is '*' meaning matching any detection group.",
+      "title": "group",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "label": {
+      "$defaultValue": "*",
+      "$friendlyName": "Label",
+      "description": "The label pattern used to match detection label. Supports glob-style wildcards (e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any detection label.",
+      "title": "label",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$defaultValue": "*",
+      "$friendlyName": "Name",
+      "description": "The name pattern used to match detection name. Supports glob-style wildcards (e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any detection name.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operator": {
+      "$defaultValue": "Min",
+      "$friendlyName": "Operator",
+      "description": "Specifies how to compare the detection's confidence value against the matcher's threshold: - 'Is': All Detections confidence must exactly match the threshold - 'Min': At least one detection confidence must be greater than or equal to the threshold - 'Max': At least one detection confidence must be less than the threshold The default value is 'Min'.",
+      "enum": [
+        "Is",
+        "Min",
+        "Max"
+      ],
+      "title": "operator"
+    },
+    "scope": {
+      "$defaultValue": "Detection",
+      "$friendlyName": "Scope",
+      "description": "The scope of the matcher, can be either Detection or Metadata.",
+      "enum": [
+        "Detection",
+        "Metadata"
+      ],
+      "title": "scope"
+    },
+    "type": {
+      "$defaultValue": "Input",
+      "$friendlyName": "Type",
+      "description": "The type of data, either Input or Output.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "Matcher",
+  "type": "object"
+}

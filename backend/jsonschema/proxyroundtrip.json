@@ -72,7 +72,8 @@
         "Ask",
         "Bypassed",
         "ForbiddenUser",
-        "Skipped"
+        "Skipped",
+        "Redirected"
       ],
       "title": "decision"
     },

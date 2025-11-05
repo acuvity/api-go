@@ -19,7 +19,8 @@
             "description": "Define if the provider is allowed or denied for the match expression.",
             "enum": [
               "Allow",
-              "Deny"
+              "Deny",
+              "Redirect"
             ]
           },
           "alertDefinition": {
@@ -84,6 +85,14 @@
           "permissive": {
             "description": "If set, just log the decision, but don't enforce it.",
             "type": "boolean"
+          },
+          "redirectMessage": {
+            "description": "If set, show this message to user before the redirection.",
+            "type": "string"
+          },
+          "redirectURL": {
+            "description": "If set, redirect the user to that URL.",
+            "type": "string"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -1670,26 +1679,6 @@
             "description": "The description of the analyzer.",
             "type": "string"
           },
-          "detectionMatchers": {
-            "description": "A list of detection matcher that will trigger the analyzer.",
-            "example": [
-              [
-                {
-                  "confidence": "Medium",
-                  "group": "Text",
-                  "name": "txt",
-                  "operator": "min"
-                }
-              ]
-            ],
-            "items": {
-              "items": {
-                "type": "object"
-              },
-              "type": "array"
-            },
-            "type": "array"
-          },
           "detectors": {
             "description": "The detectors the analyzer can use.",
             "items": {
@@ -1704,6 +1693,33 @@
           "group": {
             "description": "The group the analyzer belongs to.",
             "type": "string"
+          },
+          "matchers": {
+            "description": "A list of matcher that will trigger the analyzer.",
+            "example": [
+              [
+                {
+                  "confidence": "Medium",
+                  "group": "Text",
+                  "name": "txt",
+                  "operator": "min",
+                  "scope": "detection"
+                }
+              ],
+              [
+                {
+                  "scope": "metadata",
+                  "type": "Input"
+                }
+              ]
+            ],
+            "items": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "type": "array"
           },
           "models": {
             "description": "The models used by the analyzer.",
@@ -1720,6 +1736,69 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "analyzermatcher": {
+        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections and/or metadata should trigger an analyzer. It allows for\nflexible pattern\nmatching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses metadata attributes such as type, hasTools and\nhasToolUses.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections and/or\nmetadata.",
+        "properties": {
+          "confidence": {
+            "default": "Low",
+            "description": "The detection confidence level to operate on.",
+            "enum": [
+              "Unlikely",
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "description": {
+            "description": "The description of the detection matcher.",
+            "type": "string"
+          },
+          "group": {
+            "default": "*",
+            "description": "The group pattern used to match detection group. Supports glob-style wildcards\n(e.g. 'Text*' matches 'Text', 'Text_'). Default value is '*' meaning matching\nany\ndetection group.",
+            "example": "Text",
+            "type": "string"
+          },
+          "label": {
+            "default": "*",
+            "description": "The label pattern used to match detection label. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection label.",
+            "example": "txt",
+            "type": "string"
+          },
+          "name": {
+            "default": "*",
+            "description": "The name pattern used to match detection name. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection name.",
+            "example": "txt",
+            "type": "string"
+          },
+          "operator": {
+            "default": "Min",
+            "description": "Specifies how to compare the detection's confidence value against the matcher's\nthreshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nThe default value is 'Min'.",
+            "enum": [
+              "Is",
+              "Min",
+              "Max"
+            ]
+          },
+          "scope": {
+            "default": "Detection",
+            "description": "The scope of the matcher, can be either Detection or Metadata.",
+            "enum": [
+              "Detection",
+              "Metadata"
+            ]
+          },
+          "type": {
+            "default": "Input",
+            "description": "The type of data, either Input or Output.",
+            "enum": [
+              "Input",
+              "Output"
+            ]
           }
         },
         "type": "object"
@@ -1797,7 +1876,8 @@
               "Proxy",
               "Viewer",
               "RiskAuditor",
-              "ExternalIDP"
+              "ExternalIDP",
+              "Minibridge"
             ],
             "example": "Employee"
           },
@@ -1842,9 +1922,6 @@
           },
           "components": {
             "description": "List of components for the application.",
-            "example": {
-              "refMode": "pointer"
-            },
             "items": {
               "$ref": "#/components/schemas/appcomponent"
             },
@@ -1890,20 +1967,7 @@
             "type": "array"
           },
           "selector": {
-            "description": "A tag expression that identify an application based on downstream labels.",
-            "example": [
-              [
-                "k8s-namespace=wordpress",
-                "zone=us-west"
-              ]
-            ],
-            "items": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "type": "array"
+            "$ref": "#/components/schemas/appselector"
           },
           "subject": {
             "description": "Only bearers with claims matching the subject will be allowed to access the\nappcomponent tokens.",
@@ -1933,63 +1997,148 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "selector"
+        ],
+        "type": "object"
+      },
+      "appagent": {
+        "description": "Displays the status of the apex-agent which enforces app components on\nworkloads.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "accessibleAppComponents": {
+            "description": "The list of app components that this app agent can impersonate.",
+            "example": [
+              "mcp-chatbot-demo/agent",
+              "mcp-chatbot-demo/mcp-server-fetch"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "config": {
+            "description": "The configuration that the app agent was started with. The format of the config\nis version specific and subject to change.",
+            "example": "{\"log_level\":\"info\"}",
+            "type": "string"
+          },
+          "currentVersion": {
+            "description": "The current version of the agent.",
+            "example": "0.1.0",
+            "type": "string"
+          },
+          "forbiddenAppComponents": {
+            "description": "The list of app components that this app agent does not have access to\nimpersonate.",
+            "example": [
+              "mcp-chatbot-demo/agent",
+              "mcp-chatbot-demo/mcp-server-fetch"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "healthDetails": {
+            "description": "Internal details about the status of the app agent which can assist in\ntroubleshooting problems. The format of the internal details are version,\nplatform and workload specific and subject to change.",
+            "type": "string"
+          },
+          "hostname": {
+            "description": "The name of the host where the agent is runnning.",
+            "example": "this-hostname",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "isAnalyzerReachable": {
+            "description": "True if the analyzer is reachable.",
+            "type": "boolean"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ping": {
+            "description": "The last ping recorded for the app agent.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          },
+          "start": {
+            "description": "The start time for the app agent.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of the app agent.",
+            "enum": [
+              "Alive",
+              "Stopped"
+            ],
+            "example": "Alive"
+          },
+          "workloads": {
+            "description": "The list of active workloads managed by this app agent.",
+            "items": {
+              "$ref": "#/components/schemas/workload"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "hostname",
+          "principal",
+          "status"
         ],
         "type": "object"
       },
       "appcomponent": {
         "description": "Represents a particular component of the application.",
         "properties": {
-          "CAInjectionEnabled": {
-            "description": "EXPERIMENTAL. If egress mode is inline, the Apex will act as a transparent\nproxy. The certificates that will be served by the proxy are generated by the\nApex itself which are issued by a dynamic TLS CA. If you enable this feature,\nthe matching app component instances will get the CA certificate dynamically\ninjected into the system trust store.",
-            "type": "boolean"
-          },
           "description": {
             "description": "The description of the component.",
             "example": "The email agent with reading capabilities.",
             "type": "string"
           },
-          "egressMode": {
-            "default": "Disabled",
-            "description": "The egress datapath mode to use for network traffic going out to providers for\nthis application component. By default this is set to disabled. However, this\ncan be changed to mirror traffic where the Apex is only providing visibility\nwith no possibility of any access or content policies to take effect. Or this\ncan be set to inline in which case all traffic to providers will be redirected\nto the Apex which acts as a transparent proxy in this case. In this mode access\nand content policies will take effect.",
-            "enum": [
-              "Disabled",
-              "Mirror",
-              "Inline"
-            ],
-            "example": "Inline"
+          "egress": {
+            "$ref": "#/components/schemas/appcomponentegress"
           },
-          "ingressProviderConfigs": {
-            "description": "The ingress provider configurations to serve for this application. If this app\ncomponent serves multiple ingress providers, you must define an ingress provider\nconfig for every single one of them. If you need access to the same ingress\nprovider over different port configurations (for example one serving https while\nanother port serves plain http), then you must define two ingress provider\nconfigurations and reuse the same provider name within the configuration.",
-            "items": {
-              "$ref": "#/components/schemas/ingressproviderconfig"
-            },
-            "type": "array"
+          "ingress": {
+            "$ref": "#/components/schemas/appcomponentingress"
+          },
+          "kind": {
+            "default": "Other",
+            "description": "The kind of component.",
+            "enum": [
+              "Agent",
+              "Tool",
+              "Model",
+              "VectorDB",
+              "Other"
+            ],
+            "example": "Agent"
           },
           "name": {
             "description": "The component name.",
             "example": "mailerd",
             "type": "string"
           },
-          "providerName": {
-            "description": "If given, this is the provider name that this component represents. This\n**MUST** match the name of a provider.",
-            "example": "my-app-provider",
-            "type": "string"
-          },
           "selector": {
-            "description": "A tag expression that identify an application component based on downstream\nlabels.",
-            "example": [
-              [
-                "component=frontend"
-              ]
-            ],
-            "items": {
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "type": "array"
+            "$ref": "#/components/schemas/appcomponentselector"
           },
           "token": {
             "description": "The token for the current component. Only populated by the backend when the\ncaller's\nclaim match the parents app.subject.",
@@ -1998,7 +2147,447 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "selector"
+        ],
+        "type": "object"
+      },
+      "appcomponentegress": {
+        "description": "Represents the egress configuration of an application component.",
+        "properties": {
+          "defaultPolicy": {
+            "$ref": "#/components/schemas/egressdefaultpolicy"
+          },
+          "policies": {
+            "description": "The list of policies for egress connections.",
+            "items": {
+              "$ref": "#/components/schemas/egresspolicy"
+            },
+            "type": "array"
+          },
+          "proxyAccessPolicy": {
+            "description": "The computed rego access policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "proxyContentPolicy": {
+            "description": "The computed rego content policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "appcomponentingress": {
+        "description": "Represents the ingress configuration of an application component.",
+        "properties": {
+          "ACLs": {
+            "description": "The list of ACLs to apply for the ingress of this workload.",
+            "items": {
+              "$ref": "#/components/schemas/ingressacl"
+            },
+            "type": "array"
+          },
+          "defaultACLAction": {
+            "default": "Allow",
+            "description": "The default action to take for connections ingressing to this workload that do\nnot match any of the ACLs.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "listeners": {
+            "description": "The defined listeners for this ingress workload.",
+            "items": {
+              "$ref": "#/components/schemas/ingresslistener"
+            },
+            "type": "array"
+          },
+          "proxyAccessPolicy": {
+            "description": "The computed rego access policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "proxyContentPolicy": {
+            "description": "The computed rego content policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "appcomponentselector": {
+        "description": "Represents an app component selector used to identify workloads.",
+        "properties": {
+          "kubernetes": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupselector"
+          },
+          "type": {
+            "default": "Kubernetes",
+            "description": "The type of selector.",
+            "enum": [
+              "Kubernetes"
+            ]
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "0ff92a76a3765740e26d84947d92e5fc",
+            "readOnly": true,
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "appgraph": {
+        "description": "Represents an application graph generated from the different logs collected by\nthe app agents.",
+        "properties": {
+          "kind": {
+            "description": "Filters by application graph kind. Must not be combined with\nworkloadGroupSetHashes.",
+            "enum": [
+              "Defined",
+              "Undefined",
+              "UndefinedWithAIDomains"
+            ],
+            "example": "Defined"
+          },
+          "name": {
+            "description": "The name of the application graph.",
+            "example": "mcp-chatbot-demo",
+            "type": "string"
+          },
+          "nodes": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/appgraphnode"
+            },
+            "description": "The nodes in the application graph.",
+            "type": "object"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlink": {
+        "description": "Represents an application graph link for an application graph node generated\nfrom the different logs collected by the app agents.",
+        "properties": {
+          "connections": {
+            "$ref": "#/components/schemas/appgraphlinkconnection"
+          },
+          "dns": {
+            "$ref": "#/components/schemas/appgraphlinkdns"
+          },
+          "logs": {
+            "description": "The log links from this node to other nodes in the application graph.",
+            "items": {
+              "$ref": "#/components/schemas/proxyroundtrip"
+            },
+            "type": "array"
+          },
+          "nodeID": {
+            "description": "The unique identifier of the application graph node.",
+            "example": "appc:mcp-chatbot-demo/agent",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlinkconnection": {
+        "description": "Represents an application graph link connection entry for an application graph\nnode generated from the different logs collected by the app agents.",
+        "properties": {
+          "allow": {
+            "description": "The number of allowed connections to this node.",
+            "type": "integer"
+          },
+          "connections": {
+            "description": "The connection links from this node to other nodes in the application graph.",
+            "example": "{}",
+            "items": {
+              "$ref": "#/components/schemas/connectionreport"
+            },
+            "type": "array"
+          },
+          "deny": {
+            "description": "The number of denied connections to this node.",
+            "type": "integer"
+          },
+          "encrypted": {
+            "description": "The number of encrypted connections to this node.",
+            "type": "integer"
+          },
+          "insecureEncryption": {
+            "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0\nor 1.1).",
+            "type": "integer"
+          },
+          "unencrypted": {
+            "description": "The number of unencrypted connections to this node.",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlinkdns": {
+        "description": "Represents an application graph link DNS entry for an application graph node\ngenerated from the different logs collected by the app agents.",
+        "properties": {
+          "allow": {
+            "description": "The number of allowed DNS requests to this node.",
+            "type": "integer"
+          },
+          "deny": {
+            "description": "The number of denied DNS requests to this node.",
+            "type": "integer"
+          },
+          "dns": {
+            "description": "The DNS links from this node to other nodes in the application graph as queried\nfrom Loki. This is not populated by default.",
+            "items": {
+              "$ref": "#/components/schemas/dnsreport"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlinks": {
+        "description": "Represents the application graph links for an application graph node generated\nfrom the different logs collected by the app agents.",
+        "properties": {
+          "egress": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/appgraphlink"
+            },
+            "description": "The egress links from this node to other nodes in the application graph.",
+            "type": "object"
+          },
+          "ingress": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/appgraphlink"
+            },
+            "description": "The ingress links from this node to other nodes in the application graph.",
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphnode": {
+        "description": "Represents an application graph node for an application graph generated from the\ndifferent logs collected by the app agents.",
+        "properties": {
+          "links": {
+            "$ref": "#/components/schemas/appgraphlinks"
+          },
+          "name": {
+            "description": "The name of the application graph node.",
+            "example": "mcp-chatbot-agent",
+            "type": "string"
+          },
+          "nodeID": {
+            "description": "The unique identifier of the application graph node.",
+            "example": "appc:mcp-chatbot-demo/agent",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of the application graph node.",
+            "enum": [
+              "WorkloadGroup",
+              "AppComponent",
+              "Provider",
+              "AIDomain",
+              "Domain",
+              "IP"
+            ],
+            "example": "WorkloadGroup"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "nodeID",
+          "type"
+        ],
+        "type": "object"
+      },
+      "appgraphquery": {
+        "description": "This is a query to generate application graphs generated from the different logs\ncollected by the app agents.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "appGraphKind": {
+            "default": "All",
+            "description": "Filters by application graph kind. Must not be combined with\nworkloadGroupSetHashes.",
+            "enum": [
+              "All",
+              "Defined",
+              "Undefined",
+              "UndefinedWithAIDomains"
+            ]
+          },
+          "direction": {
+            "default": "Backward",
+            "description": "Determines the sort order of logs.",
+            "enum": [
+              "Forward",
+              "Backward"
+            ]
+          },
+          "end": {
+            "description": "The end of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": "May 8, 2009 5:57:51 PM",
+            "type": "string"
+          },
+          "endRelative": {
+            "description": "The relative end of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "description": "The maximum number of results for logs to return per graph per node per link\ntype.",
+            "type": "integer"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "result": {
+            "description": "The result of the request.",
+            "items": {
+              "$ref": "#/components/schemas/appgraph"
+            },
+            "type": "array"
+          },
+          "start": {
+            "description": "The start of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": 1700083708672317036,
+            "type": "string"
+          },
+          "startRelative": {
+            "description": "The relative start of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "workloadGroupSetHashes": {
+            "description": "Filters by hashes of the workload group sets to generate application graphs for.\nMust not be combined with appGraphKinds.",
+            "example": [
+              "wgs-0ff92a76a3765740e26d84947d92e5fc",
+              "wgs-d41d8cd98f00b204e9800998ecf8427e"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "appreport": {
+        "description": "Report sent by the Acuvity app agent.",
+        "properties": {
+          "DNSReports": {
+            "description": "List of DNS reports.",
+            "items": {
+              "$ref": "#/components/schemas/dnsreport"
+            },
+            "type": "array"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectionReports": {
+            "description": "List of connection reports.",
+            "items": {
+              "$ref": "#/components/schemas/connectionreport"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          }
+        },
+        "required": [
+          "principal"
+        ],
+        "type": "object"
+      },
+      "appselector": {
+        "description": "Represents an app selector used to identify and group workload groups.",
+        "properties": {
+          "kubernetes": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupsetselector"
+          },
+          "type": {
+            "default": "Kubernetes",
+            "description": "The type of selector.",
+            "enum": [
+              "Kubernetes"
+            ]
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "0ff92a76a3765740e26d84947d92e5fc",
+            "readOnly": true,
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
         ],
         "type": "object"
       },
@@ -2067,6 +2656,16 @@
             "description": "If true, the token will not be stored and will only be revocable if you keep\ntrack of the token ID yourself. Also, the validity will be capped and the token\nwon't be long lived.",
             "type": "boolean"
           },
+          "type": {
+            "default": "Default",
+            "description": "Select the type of token. This will insert various claims to match pre\nconfigured api authorizations.",
+            "enum": [
+              "Default",
+              "RemoteApex",
+              "IDP",
+              "Minibridge"
+            ]
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -2101,6 +2700,163 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "connectionencryption": {
+        "description": "Represents the encryption used within a connection.",
+        "properties": {
+          "tls": {
+            "$ref": "#/components/schemas/tlsstate"
+          }
+        },
+        "type": "object"
+      },
+      "connectionreport": {
+        "description": "Represents a connection report sent by an app agent within an app report.",
+        "properties": {
+          "action": {
+            "default": "Allow",
+            "description": "The action taken.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "actionOrigin": {
+            "description": "The origin where the action was taken.",
+            "example": "eBPF-cgroup-connect",
+            "type": "string"
+          },
+          "appComponent": {
+            "description": "The app component that this target represents.",
+            "example": "mcp-chatbot-demo/agent",
+            "type": "string"
+          },
+          "direction": {
+            "description": "The direction of the connection relative to the perspective of the workload.",
+            "enum": [
+              "Ingress",
+              "Egress"
+            ],
+            "example": "Egress"
+          },
+          "dstIP": {
+            "description": "The destination IP address of the connection.",
+            "example": "192.0.2.12",
+            "type": "string"
+          },
+          "dstPort": {
+            "description": "The destination port of the connection.",
+            "example": 443,
+            "type": "integer"
+          },
+          "encryption": {
+            "$ref": "#/components/schemas/connectionencryption"
+          },
+          "hostname": {
+            "description": "The hostname that the connection is made to, if available.",
+            "example": "api.example.com",
+            "type": "string"
+          },
+          "payloadAppTokenClaims": {
+            "description": "If any, these are the Acuvity AppToken claims that were discovered in the\nconnection payload.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "payloadAuthTokenClaims": {
+            "description": "If any, these are the Auth Token claims that were discovered in the\nAuthorization header of an HTTP connection payload in case the Authorization\ntoken is a JWT.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "payloadInsights": {
+            "description": "List of insights that were discovered from inspecting the connection payload.",
+            "example": [
+              "TCP",
+              "TLS",
+              "HTTP",
+              "JSON"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "policyID": {
+            "description": "The reference to the policy ID that triggered this action.",
+            "example": "acl-ingress-7d7eb84d-06a6-4e57-a2a0-68d4a35a42bd",
+            "type": "string"
+          },
+          "provider": {
+            "description": "The provider that this target represents.",
+            "example": "openai-api",
+            "type": "string"
+          },
+          "reason": {
+            "description": "The reason for the action.",
+            "example": "Policy rule default-deny-all matched and denied the connection.",
+            "type": "string"
+          },
+          "socketCookie": {
+            "description": "The unique identifier for the socket connection on the operating host.",
+            "example": 834983,
+            "type": "integer"
+          },
+          "socketTimestamp": {
+            "description": "The timestamp when the socket was created.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "socketType": {
+            "description": "The type of socket from the perspective of the workload and its proxy.",
+            "enum": [
+              "ToProxy",
+              "FromProxy",
+              "ToWorkload",
+              "FromWorkload"
+            ],
+            "example": "FromProxy"
+          },
+          "srcIP": {
+            "description": "The source IP address of the connection.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
+          "srcPort": {
+            "description": "The source port of the connection.",
+            "example": 51234,
+            "type": "integer"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "direction",
+          "socketType"
+        ],
         "type": "object"
       },
       "contentpolicy": {
@@ -2346,6 +3102,26 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
           }
         },
         "required": [
@@ -2400,53 +3176,6 @@
           "start": {
             "description": "The start position of the poisitional detection.",
             "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "detectionmatcher": {
-        "description": "Represent a detection matcher.\nA Detection Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections should trigger an analysis. It allows for flexible pattern\nmatching on detection attributes such as name, label, and group using glob-style\nwildcards. Additionally, it enables confidence-based filtering by defining\nthresholds and comparison operators. Detection Matchers provide a structured way\nto control when and how analyzers engage with incoming detections.",
-        "properties": {
-          "confidence": {
-            "default": "Low",
-            "description": "The detection confidence level to operate on.",
-            "enum": [
-              "Unlikely",
-              "Low",
-              "Medium",
-              "High"
-            ]
-          },
-          "description": {
-            "description": "The description of the detection matcher.",
-            "type": "string"
-          },
-          "group": {
-            "default": "*",
-            "description": "The group pattern used to match detection group. Supports glob-style wildcards\n(e.g. 'Text*' matches 'Text', 'Text_'). Default value is '*' meaning matching\nany\ndetection group.",
-            "example": "Text",
-            "type": "string"
-          },
-          "label": {
-            "default": "*",
-            "description": "The label pattern used to match detection label. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection label.",
-            "example": "txt",
-            "type": "string"
-          },
-          "name": {
-            "default": "*",
-            "description": "The name pattern used to match detection name. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection name.",
-            "example": "txt",
-            "type": "string"
-          },
-          "operator": {
-            "default": "Min",
-            "description": "Specifies how to compare the detection's confidence value against the matcher's\nthreshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nThe default value is 'Min'.",
-            "enum": [
-              "Is",
-              "Min",
-              "Max"
-            ]
           }
         },
         "type": "object"
@@ -2549,6 +3278,102 @@
         },
         "type": "object"
       },
+      "dnsreport": {
+        "description": "Represents a DNS report sent by an app agent within an app report.",
+        "properties": {
+          "CNAMEs": {
+            "description": "The canonical name (CNAME) records associated with the domain, if any.",
+            "example": [
+              "www.l.example.com",
+              "www.k.example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "IPAddresses": {
+            "description": "The list of IP addresses associated with the domain.",
+            "example": [
+              "192.0.2.12",
+              "3fff::1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "action": {
+            "default": "Allow",
+            "description": "The action taken.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "actionOrigin": {
+            "description": "The origin where the action was taken.",
+            "example": "eBPF-cgroup-connect",
+            "type": "string"
+          },
+          "appComponent": {
+            "description": "The app component that this target represents.",
+            "example": "mcp-chatbot-demo/agent",
+            "type": "string"
+          },
+          "domain": {
+            "description": "The domain that was queried.",
+            "example": "example.com",
+            "type": "string"
+          },
+          "hits": {
+            "description": "The number of times this domain was queried.",
+            "example": 42,
+            "type": "integer"
+          },
+          "policyID": {
+            "description": "The reference to the policy ID that triggered this action.",
+            "example": "acl-ingress-7d7eb84d-06a6-4e57-a2a0-68d4a35a42bd",
+            "type": "string"
+          },
+          "provider": {
+            "description": "The provider that this target represents.",
+            "example": "openai-api",
+            "type": "string"
+          },
+          "reason": {
+            "description": "The reason for the action.",
+            "example": "Policy rule default-deny-all matched and denied the connection.",
+            "type": "string"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "domain",
+          "hits"
+        ],
+        "type": "object"
+      },
       "domainhits": {
         "description": "This is a domain hit.",
         "properties": {
@@ -2576,6 +3401,171 @@
         "required": [
           "domain",
           "hits"
+        ],
+        "type": "object"
+      },
+      "egressdefaultpolicy": {
+        "description": "Represents the default egress policy configuration of an application component.",
+        "properties": {
+          "ACLAction": {
+            "default": "Allow",
+            "description": "The default ACL action to take for connections egressing from this workload that\nare not covered by other policy rules or ACLs.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          }
+        },
+        "required": [
+          "ACLAction"
+        ],
+        "type": "object"
+      },
+      "egresspolicy": {
+        "description": "Represents an egress policy of an application component.",
+        "properties": {
+          "ACLs": {
+            "description": "The list of ACLs to apply for the egress policy.",
+            "items": {
+              "$ref": "#/components/schemas/egresspolicyacl"
+            },
+            "type": "array"
+          },
+          "accessDeniedMessage": {
+            "description": "The message that is sent if the access is denied.",
+            "example": "Access Denied",
+            "type": "string"
+          },
+          "alertDefinition": {
+            "description": "The definition to use for alerting when action is deny.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the access policy.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the policy is disabled and will not be applied.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the egress policy.",
+            "example": "my access policy",
+            "type": "string"
+          },
+          "policyID": {
+            "description": "The Policy ID is the unique identifier for this policy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "rules": {
+            "description": "The list of rules for the egress policy.",
+            "items": {
+              "$ref": "#/components/schemas/egresspolicyrule"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "egresspolicyacl": {
+        "description": "Represents an ACL for an egress policy of an application component.",
+        "properties": {
+          "IPRanges": {
+            "description": "The list of IP ranges in CIDR notation to match for this ACL.",
+            "example": [
+              "192.0.2.0/24",
+              "192.0.2.12/32",
+              "3fff::/20",
+              "3fff::1/128"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "action": {
+            "description": "The action to take for connections egressing from this workload that match this\nACL.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ],
+            "example": "Allow"
+          },
+          "hostnames": {
+            "description": "The list of hostnames to match for this ACL. Supports wildcard prefixes, e.g.\n*.example.com which matches sub1.example.com but not sub2.sub1.example.com, as\nwell as recursive wildcard prefixes, e.g. **.example.com which matches\nsub1.example.com as well as sub2.sub1.example.com.",
+            "example": [
+              "www.example.com",
+              "*.example.com",
+              "**.example.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object"
+      },
+      "egresspolicyrule": {
+        "description": "Represents a rule for an egress policy of an application component.",
+        "properties": {
+          "appComponents": {
+            "description": "The list of application components that this rule applies to in the form of\napp/component. If the component is not specified, then this rule applies to all\ncomponents of the application.",
+            "example": [
+              "acme-ai-app/email-agent",
+              "mcp-servers-enterprise/mcp-sharepoint",
+              "mcp-servers-internet"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "contentPolicies": {
+            "description": "The list of content policies to apply when the workload has access to the\nprovider.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "mode": {
+            "description": "The mode of the egress policy rule which determines how traffic is being\nhandled. If set to Proxy, then the traffic will be redirected to the Apex proxy:\nthis enables access policy enforcement as well as content policy redactions. If\nset to Passthrough, then the traffic will not be touched and simply be passed\nthrough to its intended destination.",
+            "enum": [
+              "Proxy",
+              "Passthrough"
+            ],
+            "example": "Proxy"
+          },
+          "providers": {
+            "description": "The list of providers that this rule applies to.",
+            "example": [
+              "anthropic-api",
+              "openai-api"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "proxyAction": {
+            "default": "NotApplicable",
+            "description": "The action to take for connections egressing from this workload that match this\nrule. This requires the mode to be set to Proxy.",
+            "enum": [
+              "NotApplicable",
+              "Allow",
+              "Deny"
+            ]
+          }
+        },
+        "required": [
+          "mode"
         ],
         "type": "object"
       },
@@ -3358,6 +4348,20 @@
             },
             "type": "array"
           },
+          "appagents": {
+            "description": "App agents to import.",
+            "items": {
+              "$ref": "#/components/schemas/appagent"
+            },
+            "type": "array"
+          },
+          "appreports": {
+            "description": "App reports to import.",
+            "items": {
+              "$ref": "#/components/schemas/appreport"
+            },
+            "type": "array"
+          },
           "apps": {
             "description": "Apps to import.",
             "items": {
@@ -3416,6 +4420,13 @@
             "description": "OrgSettings to import.",
             "items": {
               "$ref": "#/components/schemas/orgsettings"
+            },
+            "type": "array"
+          },
+          "projects": {
+            "description": "Projects to import.",
+            "items": {
+              "$ref": "#/components/schemas/project"
             },
             "type": "array"
           },
@@ -3515,59 +4526,262 @@
         ],
         "type": "object"
       },
-      "ingressproviderconfig": {
-        "description": "Represents the configuration if an apex is to act as an ingress for a provider.",
+      "ingressacl": {
+        "description": "Represents an ACL for the ingress of an application component.",
         "properties": {
-          "dialTLS": {
-            "default": "Preserve",
-            "description": "This option controls the dialing behaviour of the apex to the origin server.\nShould be explicitly set to enabled if the origin expects TLS connections. And\nvice versa it should be set to disabled if the origin expects connections in\nplaintext. By default this setting is set to preserve which means that the apex\nis going to dial using whatever mode it terminated its own connection with: if\nthe apex received a TLS connection, it will dial TLS, if it received a plaintext\nconnection, then it will dial plaintext. The apex receiving behaviour can be\ncontrolled with the listenTLS option. As a last resort this setting can be set\nto auto which means that the apex is going to probe the origin server to\ndetermine if it needs to dial using TLS or not. Note that this is potentially\nsending a TLS Client Hello to a plaintext HTTP server which is not expecting\nthat. Therefore, this option is not recommended if it can be avoided. This\nsetting is ignored in mirror mode.",
-            "enum": [
-              "Preserve",
-              "Auto",
-              "Enabled",
-              "Disabled"
-            ],
-            "example": "Enabled"
+          "ACLID": {
+            "description": "The ACL ID is the unique identifier for this ACL.",
+            "example": "acl-12345",
+            "readOnly": true,
+            "type": "string"
           },
-          "listenPort": {
+          "IPRanges": {
+            "description": "The list of IP ranges in CIDR notation to match for this ACL.",
+            "example": [
+              "192.0.2.0/24",
+              "192.0.2.12/32",
+              "3fff::/20",
+              "3fff::1/128"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "action": {
+            "description": "The action to take for connections ingressing to this workload that match this\nACL.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ],
+            "example": "Allow"
+          },
+          "description": {
+            "description": "Description of the ingress ACL.",
+            "example": "Allows access from loadbalancer IPs.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the ACL is disabled and will not be applied.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the ingress ACL.",
+            "example": "allow loadbalancer access",
+            "type": "string"
+          },
+          "port": {
+            "description": "The port to match for this ACL. If not set, the ACL will match all ports.",
+            "example": 8443,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "IPRanges",
+          "action",
+          "name"
+        ],
+        "type": "object"
+      },
+      "ingresslistener": {
+        "description": "Represents a listener for the ingress of an application component.",
+        "properties": {
+          "extractors": {
+            "description": "List of extractors for the provider.",
+            "example": [
+              {
+                "ref": "mcp/input"
+              },
+              {
+                "ref": "mcp/output"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/extractorref"
+            },
+            "type": "array"
+          },
+          "hosts": {
+            "description": "The list of hosts that this listener expects to receive traffic for.",
+            "example": [
+              "mcp-chatbot-agent.mcp-chatbot-demo.svc.cluster.local",
+              "mcp-chatbot-agent.mcp-chatbot-demo",
+              "mcp-chatbot-agent"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "mode": {
+            "description": "The mode of the ingress listener which determines how traffic is being handled.\nIf set to Proxy, then the traffic will be redirected to the Apex proxy: this\nenables access policy enforcement as well as content policy redactions. If set\nto Passthrough, then the traffic will not be touched and simply be passed\nthrough to its intended destination.",
+            "enum": [
+              "Proxy",
+              "Passthrough"
+            ],
+            "example": "Proxy"
+          },
+          "port": {
             "description": "The listening port. For appcomponent configurations this is the listening port\nthat traffic will be intercepted on or mirrored from.",
             "example": 8443,
             "type": "integer"
           },
-          "listenTLS": {
-            "default": "Auto",
-            "description": "This option controls the receiving behaviour of connection to the apex before\nthey are going to be proxied to the origin server. To control the dialing\nbehaviour of the apex towards the origin server use the dialTLS option. Should\nbe explicitly set to enabled if the listener expects TLS connections. And vice\nversa it should be set to disabled if the listener expects connections in\nplaintext. By default this setting is set to auto which means that the listener\nwill automatically determine if incoming connections are TLS or not: TLS\nconnections will be accepted, as well as  plain TCP connections will be\naccepted, both on the configured listenPort. This setting is ignored in mirror\nmode.",
-            "enum": [
-              "Auto",
-              "Enabled",
-              "Disabled"
-            ],
-            "example": "Enabled"
-          },
-          "listenTLSCert": {
-            "description": "Optional PEM encoded X509v3 certificate to use for the listener for this\nprovider. This setting will be ignored if listenMode is not TLS or Auto or mode\nis not Inline. However, this setting is required if listenTLSKey is set.",
-            "example": "-----BEGIN CERTIFICATE-----\nMIIF...\n...\n-----END CERTIFICATE-----",
-            "type": "string"
-          },
-          "listenTLSKey": {
-            "description": "Optional PEM encoded key pair to use for the listener for this provider. This\nsetting will be ignored if listenMode is not TLS or Auto or mode is not Inline.\nHowever, this setting is required if listenTLSCert is set.",
-            "example": "-----BEGIN EC PRIVATE KEY-----\nMHcCA...\n...\n-----END EC PRIVATE KEY-----",
-            "type": "string"
-          },
-          "mode": {
-            "default": "Disabled",
-            "description": "The ingress datapath mode to use for network traffic arriving for this ingress\nprovider for this application component. By default this is set to disabled.\nHowever, this can be changed to mirror traffic where the Apex is only providing\nvisibility with no possibility of any access or content policies to take effect.\nOr this can be set to inline in which case all traffic to providers will be\nredirected to the Apex which acts as a transparent proxy in this case. In this\nmode access and content policies will take effect.",
-            "enum": [
-              "Disabled",
-              "Mirror",
-              "Inline"
-            ],
-            "example": "Inline"
+          "proxy": {
+            "$ref": "#/components/schemas/ingressproxyconfig"
           }
         },
         "required": [
-          "listenPort"
+          "extractors",
+          "hosts",
+          "mode",
+          "port"
         ],
+        "type": "object"
+      },
+      "ingresspolicy": {
+        "description": "Represents an ingress policy of an application component.",
+        "properties": {
+          "accessDeniedMessage": {
+            "description": "The message that is sent if the access is denied.",
+            "example": "Access Denied",
+            "type": "string"
+          },
+          "alertDefinition": {
+            "description": "The definition to use for alerting when action is deny.",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the access policy.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the policy is disabled and will not be applied.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the ingress policy.",
+            "example": "my access policy",
+            "type": "string"
+          },
+          "policyID": {
+            "description": "The Policy ID is the unique identifier for this policy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "rules": {
+            "description": "The list of rules for the ingress policy.",
+            "example": [
+              {
+                "action": "Allow",
+                "ipRanges": [
+                  "0.0.0.0/0"
+                ]
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ingresspolicyrule"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "rules"
+        ],
+        "type": "object"
+      },
+      "ingresspolicyrule": {
+        "description": "Represents a rule for an ingress policy of an application component.",
+        "properties": {
+          "IPRanges": {
+            "description": "The list of IP ranges in CIDR notation to match for this rule.",
+            "example": [
+              "192.0.2.0/24",
+              "192.0.2.12/32",
+              "3fff::/20",
+              "3fff::1/128"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "action": {
+            "description": "The action to take for connections ingressing to the proxy of this workload that\nmatch this rule.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ],
+            "example": "Allow"
+          },
+          "appComponents": {
+            "description": "The list of application components that this rule applies to in the form of\napp/component. If the component is not specified, then this rule applies to all\ncomponents of the application.",
+            "example": [
+              "acme-ai-app/email-agent",
+              "mcp-servers-enterprise/mcp-sharepoint",
+              "mcp-servers-internet"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "contentPolicies": {
+            "description": "The list of content policies to apply when the workload has access to the\nprovider.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object"
+      },
+      "ingressproxyconfig": {
+        "description": "Represents the proxy configuration for an ingress listener of an application\ncomponent.",
+        "properties": {
+          "defaultPolicyAccessDeniedMessage": {
+            "description": "The message that is sent if the access is denied by the default policy deny\naction.",
+            "example": "Access Denied",
+            "type": "string"
+          },
+          "defaultPolicyAction": {
+            "default": "Allow",
+            "description": "The default action to take for connections ingressing to the proxy of this\nworkload that do not match any of the policies.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "dialTLS": {
+            "default": "Preserve",
+            "description": "This option controls the dialing behaviour of the apex to the origin server.\nShould be explicitly set to enabled if the origin expects TLS connections. And\nvice versa it should be set to disabled if the origin expects connections in\nplaintext. By default this setting is set to preserve which means that the apex\nis going to dial using whatever mode it terminated its own connection with: if\nthe apex received a TLS connection, it will dial TLS, if it received a plaintext\nconnection, then it will dial plaintext. The apex receiving behaviour can be\ncontrolled with the listenTLS option. As a last resort this setting can be set\nto auto detect which means that the apex is going to probe the origin server to\ndetermine if it needs to dial using TLS or not. Note that this is potentially\nsending a TLS Client Hello to a plaintext HTTP server which is not expecting\nthat. Therefore, this option is not recommended if it can be avoided.",
+            "enum": [
+              "Preserve",
+              "AutoDetect",
+              "Enabled",
+              "Disabled"
+            ]
+          },
+          "listenTLS": {
+            "default": "AutoDetect",
+            "description": "This option controls the receiving behaviour of connection to the apex before\nthey are going to be proxied to the origin server. To control the dialing\nbehaviour of the apex towards the origin server use the dialTLS option. Should\nbe explicitly set to enabled if the listener expects TLS connections. And vice\nversa it should be set to disabled if the listener expects connections in\nplaintext. By default this setting is set to auto detect which means that the\nlistener will automatically determine if incoming connections are TLS or not:\nTLS connections will be accepted, as well as  plain TCP connections will be\naccepted, both on the configured listenPort.",
+            "enum": [
+              "AutoDetect",
+              "Enabled",
+              "Disabled"
+            ]
+          },
+          "policies": {
+            "description": "The defined policies for this ingress listener.",
+            "items": {
+              "$ref": "#/components/schemas/ingresspolicy"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "injector": {
@@ -3575,10 +4789,6 @@
         "properties": {
           "delayXHRPatching": {
             "description": "Since JS world is the mess we all know, there are some cases when we must delay\nthe monkey patching of the XHR request.",
-            "type": "boolean"
-          },
-          "disableBodyReplacement": {
-            "description": "If this is true, the acuvity popup will be shown on top the existing body of the\nprovider, instead of replacing it. It usually causes a lot of issue, but on some\nweirdos (microsoft),\nit's the opposite.",
             "type": "boolean"
           },
           "hosts": {
@@ -3610,11 +4820,61 @@
               "/v1/*/hello/*"
             ],
             "type": "string"
+          },
+          "replaceBody": {
+            "description": "If this is true, the acuvity popup will replace the original body with itself\ninstead of being shown on top the existing body of the\nprovider. Some providers require body replacement to allow popup interaction or\navoid capturing popup input.",
+            "type": "boolean"
           }
         },
         "required": [
           "method",
           "path"
+        ],
+        "type": "object"
+      },
+      "kubernetesworkloadgroupselector": {
+        "description": "Represents a Kubernetes workload group selector used to identify and group\nworkloads in Kubernetes clusters.",
+        "properties": {
+          "kubernetesNamespace": {
+            "description": "The Kubernetes namespace where the deployment, statefulset or job is located.",
+            "example": "default",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the Kubernetes deployment, statefulset or job to select.",
+            "example": "mcp-chatbot-agent",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of Kubernetes workload group to select.",
+            "enum": [
+              "Pod",
+              "Deployment",
+              "StatefulSet",
+              "Job",
+              "CronJob"
+            ],
+            "example": "Deployment"
+          }
+        },
+        "required": [
+          "kubernetesNamespace",
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
+      "kubernetesworkloadgroupsetselector": {
+        "description": "Represents a Kubernetes workload group set selector used to identify and group\nworkload groups in Kubernetes clusters.",
+        "properties": {
+          "kubernetesNamespace": {
+            "description": "The Kubernetes namespace that makes up this workload group set.",
+            "example": "default",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kubernetesNamespace"
         ],
         "type": "object"
       },
@@ -3835,6 +5095,90 @@
         "required": [
           "method",
           "path"
+        ],
+        "type": "object"
+      },
+      "mcpgateway": {
+        "description": "Represents MCP Gateways connected to the system.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the MCP gateway.",
+            "example": "Dev Gateway",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ping": {
+            "description": "The last ping recorded for the agent.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "servers": {
+            "description": "The list of mcp servers running behind the gateway.",
+            "items": {
+              "$ref": "#/components/schemas/mcpgatewayserver"
+            },
+            "type": "array"
+          },
+          "status": {
+            "description": "The status of the agent.",
+            "enum": [
+              "Running",
+              "Stopped"
+            ],
+            "example": "Running"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "ping",
+          "status"
+        ],
+        "type": "object"
+      },
+      "mcpgatewayserver": {
+        "description": "Represents an MCP server running behind an MCP gateway.",
+        "properties": {
+          "URLs": {
+            "description": "The URLs of the MCP servers.",
+            "example": [
+              "https://mcp-server-1",
+              "https://mcp-server-2"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The name of the MCP server.",
+            "example": "deepwiki",
+            "type": "string"
+          }
+        },
+        "required": [
+          "URLs"
         ],
         "type": "object"
       },
@@ -4458,16 +5802,6 @@
             "example": "127.0.0.1:4318",
             "type": "string"
           },
-          "listenTLSCert": {
-            "description": "Optional PEM encoded X509v3 certificate to use for the listener for this OTLP\nreceiver. This setting is required if listenTLSKey is set.",
-            "example": "-----BEGIN CERTIFICATE-----\nMIIF...\n...\n-----END CERTIFICATE-----",
-            "type": "string"
-          },
-          "listenTLSKey": {
-            "description": "Optional PEM encoded key pair to use for the listener for this OTLP receiver.\nThis setting is required if listenTLSCert is set.",
-            "example": "-----BEGIN EC PRIVATE KEY-----\nMHcCA...\n...\n-----END EC PRIVATE KEY-----",
-            "type": "string"
-          },
           "protocol": {
             "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this\ndepends on the OTLP receiver being used.",
             "enum": [
@@ -4632,6 +5966,21 @@
       "policyref": {
         "description": "Reference a policy.",
         "properties": {
+          "appPolicyID": {
+            "description": "The app policy ID of the referenced policy.",
+            "example": "xxx-xxx-xxx-xxx",
+            "type": "string"
+          },
+          "appPolicyName": {
+            "description": "The app policy name of the referenced policy.",
+            "example": "email-agent",
+            "type": "string"
+          },
+          "appPolicyType": {
+            "description": "The app policy type of the referenced policy.",
+            "example": "ingress",
+            "type": "string"
+          },
           "matchingTeams": {
             "description": "Teams that were used to trigger this policy.",
             "example": [
@@ -4865,6 +6214,26 @@
           "username": {
             "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
+            "type": "string"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
             "type": "string"
           }
         },
@@ -5421,7 +6790,8 @@
               "Ask",
               "Bypassed",
               "ForbiddenUser",
-              "Skipped"
+              "Skipped",
+              "Redirected"
             ]
           },
           "destination": {
@@ -6475,6 +7845,11 @@
             "description": "The negotiated cipher suite of the connection.",
             "example": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
             "type": "string"
+          },
+          "implementation": {
+            "description": "The TLS library/provider/implementation used for the connection if known.",
+            "example": "OpenSSL",
+            "type": "string"
           }
         },
         "required": [
@@ -7270,6 +8645,100 @@
           "name",
           "subject"
         ],
+        "type": "object"
+      },
+      "workload": {
+        "description": "Represents a workload that is managed by an app agent.",
+        "properties": {
+          "IPAddresses": {
+            "description": "The list of IP addresses assigned to this workload.",
+            "example": [
+              "192.0.2.12",
+              "3fff::1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kubernetes": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupselector"
+          },
+          "labels": {
+            "description": "The list of labels that loosely describe and identify this workload.",
+            "example": [
+              "@os:hostname=gke-test-default-pool-d4a850e7-1nb1",
+              "@k8s:namespace=default",
+              "@k8s:label:app=mcp-demo-agent",
+              "@k8s:replicaset=mcp-demo-agent-9b8b446d4",
+              "@k8s:deployment=mcp-demo-agent",
+              "@container:image=docker.io/acuvity/mcp-demo-agent:latest"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "status": {
+            "$ref": "#/components/schemas/workloadstatus"
+          },
+          "type": {
+            "default": "Kubernetes",
+            "description": "The type of selector.",
+            "enum": [
+              "Kubernetes"
+            ]
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadID": {
+            "description": "The unique identifier for this workload.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "workloadstatus": {
+        "description": "Represents the status of a workload that is managed by an app agent.",
+        "properties": {
+          "appComponents": {
+            "description": "The list of App Components that this workload enforces.",
+            "example": [
+              "mcp-chatbot-demo/agent",
+              "mcp-chatbot-demo/mcp-server-fetch"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "healthDetails": {
+            "description": "Internal details about the status of the workload which can explain the health\nstatus. The format of the internal details are version, platform and workload\nspecific and subject to change.",
+            "example": "{\"egress\":{\"spec\":{\"mode\":\"Inline\",\"inlineSpec\":{\"cgroupPath\":\"/kubepods.slice/kubepods-besteffort.slice/kubepods-besteffort-pod1ea39b68_8087_481c_bdc4_c6d686d7ec64.slice\",\"appComponents\":[\"mcp-chatbot-demo/agent\"]}},\"status\":{\"healthy\":true,\"listener\":{\"addr\":\"0.0.0.0:12443\",\"netns\":{\"path\":\"/var/run/netns/cni-6b752c64-5ef1-38e0-8d93-b67001170eef\",\"inode\":4026532350,\"cookie\":4119}},\"inlineStatus\":{\"attachedToCgroup\":true,\"linkInfos\":[{\"id\":109,\"type\":3,\"program\":950},{\"id\":110,\"type\":3,\"program\":951},{\"id\":111,\"type\":3,\"program\":953},{\"id\":112,\"type\":3,\"program\":952}],\"providerAddresses\":[\"192.0.2.12\",\"3fff::1\"]}}}}",
+            "type": "string"
+          },
+          "healthy": {
+            "description": "True if the workload is considered healthy from the perspective of the app\nagent.",
+            "type": "boolean"
+          },
+          "lastHealthChange": {
+            "description": "The timestamp of the last change in health status.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
         "type": "object"
       }
     },
@@ -8858,6 +10327,275 @@
           "core"
         ]
       }
+    },
+    "/appagents": {
+      "get": {
+        "description": "List all available app agents.",
+        "operationId": "get-all-AppAgents",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/appagent"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new app agent.",
+        "operationId": "create-AppAgent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appagent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appagent"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/appagents/{id}": {
+      "delete": {
+        "description": "Deletes the App Agent with the given ID.",
+        "operationId": "delete-AppAgent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appagent"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the App Agent with the given ID.",
+        "operationId": "get-AppAgent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appagent"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the App Agent with the given ID.",
+        "operationId": "update-AppAgent",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appagent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appagent"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/appgraphqueries": {
+      "post": {
+        "description": "Creates a new app graph query.",
+        "operationId": "create-AppGraphQuery",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appgraphquery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appgraphquery"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/appreports": {
+      "get": {
+        "description": "List all app reports.",
+        "operationId": "get-all-AppReports",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/appreport"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new app report.",
+        "operationId": "create-AppReport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appreport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/appreports/{id}": {
+      "get": {
+        "description": "Retrieve an app report given its identifier.",
+        "operationId": "get-AppReport",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appreport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/apps": {
       "get": {
@@ -10591,6 +12329,120 @@
         },
         "tags": [
           "logging"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/mcpgateways": {
+      "get": {
+        "description": "List all available mcp gateways.",
+        "operationId": "get-all-MCPGateways",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcpgateway"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "post": {
+        "description": "Creates a new mcp gateway.",
+        "operationId": "create-MCPGateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpgateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      }
+    },
+    "/mcpgateways/{id}": {
+      "delete": {
+        "description": "Delete an MCP Gateway given its identifier.",
+        "operationId": "delete-MCPGateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an MCP Gateway given its identifier.",
+        "operationId": "get-MCPGateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
         ]
       },
       "parameters": [
@@ -13485,6 +15337,10 @@
     {
       "description": "This tag is for group 'logging'",
       "name": "logging"
+    },
+    {
+      "description": "This tag is for group 'mcp'",
+      "name": "mcp"
     },
     {
       "description": "This tag is for group 'migration'",

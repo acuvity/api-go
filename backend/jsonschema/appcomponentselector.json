@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@workloadgroupselector"
+  ],
+  "$friendlyName": "App Component Selector",
+  "$friendlyNamePlural": "App Component Selectors",
+  "$modelName": "AppComponentSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appcomponentselectors",
+  "$modelRestName": "appcomponentselector",
+  "additionalProperties": false,
+  "description": "Represents an app component selector used to identify workloads.",
+  "properties": {
+    "kubernetes": {
+      "$friendlyName": "Kubernetes",
+      "$ref": "kubernetesworkloadgroupselector.json",
+      "description": "If type is 'Kubernetes', this field contains the Kubernetes-specific selector configuration.",
+      "title": "kubernetes"
+    },
+    "type": {
+      "$defaultValue": "Kubernetes",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of selector.",
+      "enum": [
+        "Kubernetes"
+      ],
+      "title": "type"
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "$readOnly": true,
+      "description": "The hash of the workload group this application belongs to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupLabel": {
+      "$friendlyName": "Workload Group Label",
+      "$readOnly": true,
+      "description": "The label format of the workload group this application belongs to.",
+      "title": "workloadGroupLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "AppComponentSelector",
+  "type": "object"
+}

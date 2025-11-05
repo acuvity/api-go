@@ -1,0 +1,128 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@timerangeable"
+  ],
+  "$friendlyName": "App Graph Query",
+  "$friendlyNamePlural": "App Graph Queries",
+  "$modelName": "AppGraphQuery",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphqueries",
+  "$modelRestName": "appgraphquery",
+  "additionalProperties": false,
+  "description": "This is a query to generate application graphs generated from the different logs collected by the app agents.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appGraphKind": {
+      "$defaultValue": "All",
+      "$friendlyName": "App Graph Kind",
+      "description": "Filters by application graph kind. Must not be combined with workloadGroupSetHashes.",
+      "enum": [
+        "All",
+        "Defined",
+        "Undefined",
+        "UndefinedWithAIDomains"
+      ],
+      "title": "appGraphKind"
+    },
+    "direction": {
+      "$defaultValue": "Backward",
+      "$friendlyName": "Direction",
+      "description": "Determines the sort order of logs.",
+      "enum": [
+        "Forward",
+        "Backward"
+      ],
+      "title": "direction"
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "end",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "endRelative": {
+      "$friendlyName": "EndRelative",
+      "description": "The relative end of the time window as time.Duration.",
+      "title": "endRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "limit": {
+      "$defaultValue": 100,
+      "$friendlyName": "Limit",
+      "description": "The maximum number of results for logs to return per graph per node per link type.",
+      "title": "limit",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "description": "The result of the request.",
+      "items": {
+        "$ref": "appgraph.json"
+      },
+      "title": "result",
+      "type": "array"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "startRelative": {
+      "$friendlyName": "StartRelative",
+      "description": "The relative start of the time window as time.Duration.",
+      "title": "startRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetHashes": {
+      "$friendlyName": "Workload Group Set Hashes",
+      "description": "Filters by hashes of the workload group sets to generate application graphs for. Must not be combined with appGraphKinds.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "workloadGroupSetHashes",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "AppGraphQuery",
+  "type": "object"
+}

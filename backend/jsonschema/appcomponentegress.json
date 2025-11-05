@@ -1,0 +1,53 @@
+{
+  "$extends": [
+    "@appproxypolicy"
+  ],
+  "$friendlyName": "App Component Egress",
+  "$friendlyNamePlural": "App Component Egress",
+  "$modelName": "AppComponentEgress",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appcomponentegresses",
+  "$modelRestName": "appcomponentegress",
+  "additionalProperties": false,
+  "description": "Represents the egress configuration of an application component.",
+  "properties": {
+    "defaultPolicy": {
+      "$friendlyName": "Default Policy",
+      "$ref": "egressdefaultpolicy.json",
+      "description": "The default policy settings for egress connections.",
+      "title": "defaultPolicy"
+    },
+    "policies": {
+      "$friendlyName": "Policies",
+      "description": "The list of policies for egress connections.",
+      "items": {
+        "$ref": "egresspolicy.json"
+      },
+      "title": "policies",
+      "type": "array"
+    },
+    "proxyAccessPolicy": {
+      "$friendlyName": "Proxy Access Policy",
+      "$readOnly": true,
+      "description": "The computed rego access policy for the proxy.",
+      "title": "proxyAccessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "proxyContentPolicy": {
+      "$friendlyName": "Proxy Content Policy",
+      "$readOnly": true,
+      "description": "The computed rego content policy for the proxy.",
+      "title": "proxyContentPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppComponentEgress",
+  "type": "object"
+}

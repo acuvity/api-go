@@ -1,0 +1,176 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@principalable"
+  ],
+  "$friendlyName": "App Agent",
+  "$friendlyNamePlural": "App Agents",
+  "$modelName": "AppAgent",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appagents",
+  "$modelRestName": "appagent",
+  "additionalProperties": false,
+  "description": "Displays the status of the apex-agent which enforces app components on workloads.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accessibleAppComponents": {
+      "$friendlyName": "Accessible App Components",
+      "description": "The list of app components that this app agent can impersonate.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "accessibleAppComponents",
+      "type": "array"
+    },
+    "config": {
+      "$friendlyName": "Config",
+      "description": "The configuration that the app agent was started with. The format of the config is version specific and subject to change.",
+      "title": "config",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currentVersion": {
+      "$friendlyName": "Current Version",
+      "description": "The current version of the agent.",
+      "title": "currentVersion",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "forbiddenAppComponents": {
+      "$friendlyName": "Forbidden App Components",
+      "description": "The list of app components that this app agent does not have access to impersonate.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "forbiddenAppComponents",
+      "type": "array"
+    },
+    "healthDetails": {
+      "$friendlyName": "Health Details",
+      "description": "Internal details about the status of the app agent which can assist in troubleshooting problems. The format of the internal details are version, platform and workload specific and subject to change.",
+      "title": "healthDetails",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "$required": true,
+      "description": "The name of the host where the agent is runnning.",
+      "title": "hostname",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isAnalyzerReachable": {
+      "$friendlyName": "Is Analyzer Reachable",
+      "description": "True if the analyzer is reachable.",
+      "title": "isAnalyzerReachable",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "description": "The last ping recorded for the app agent.",
+      "title": "ping",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start time for the app agent.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the app agent.",
+      "enum": [
+        "Alive",
+        "Stopped"
+      ],
+      "title": "status"
+    },
+    "workloads": {
+      "$friendlyName": "Workloads",
+      "description": "The list of active workloads managed by this app agent.",
+      "items": {
+        "$ref": "workload.json"
+      },
+      "title": "workloads",
+      "type": "array"
+    }
+  },
+  "required": [
+    "hostname",
+    "principal",
+    "status"
+  ],
+  "title": "AppAgent",
+  "type": "object"
+}

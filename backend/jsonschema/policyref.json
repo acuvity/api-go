@@ -9,6 +9,33 @@
   "additionalProperties": false,
   "description": "Reference a policy.",
   "properties": {
+    "appPolicyID": {
+      "$friendlyName": "App Policy ID",
+      "description": "The app policy ID of the referenced policy.",
+      "title": "appPolicyID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appPolicyName": {
+      "$friendlyName": "App Policy Name",
+      "description": "The app policy name of the referenced policy.",
+      "title": "appPolicyName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appPolicyType": {
+      "$friendlyName": "App Policy Type",
+      "description": "The app policy type of the referenced policy.",
+      "title": "appPolicyType",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "matchingTeams": {
       "$friendlyName": "Matching Teams",
       "description": "Teams that were used to trigger this policy.",

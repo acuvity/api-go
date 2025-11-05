@@ -1,0 +1,49 @@
+{
+  "$extends": [],
+  "$friendlyName": "Kubernetes Workload Group Selector",
+  "$friendlyNamePlural": "Kubernetes Workload Group Selectors",
+  "$modelName": "KubernetesWorkloadGroupSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "kubernetesworkloadgroupselectors",
+  "$modelRestName": "kubernetesworkloadgroupselector",
+  "additionalProperties": false,
+  "description": "Represents a Kubernetes workload group selector used to identify and group workloads in Kubernetes clusters.",
+  "properties": {
+    "kubernetesNamespace": {
+      "$friendlyName": "Kubernetes Namespace",
+      "$required": true,
+      "description": "The Kubernetes namespace where the deployment, statefulset or job is located.",
+      "pattern": "^[a-zA-Z0-9-]+$",
+      "title": "kubernetesNamespace",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the Kubernetes deployment, statefulset or job to select.",
+      "pattern": "^[a-zA-Z0-9-.]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of Kubernetes workload group to select.",
+      "enum": [
+        "Pod",
+        "Deployment",
+        "StatefulSet",
+        "Job",
+        "CronJob"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "kubernetesNamespace",
+    "name",
+    "type"
+  ],
+  "title": "KubernetesWorkloadGroupSelector",
+  "type": "object"
+}

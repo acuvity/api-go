@@ -11,41 +11,63 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// DetectionMatcherConfidenceValue represents the possible values for attribute "confidence".
-type DetectionMatcherConfidenceValue string
+// MatcherConfidenceValue represents the possible values for attribute "confidence".
+type MatcherConfidenceValue string
 
 const (
-	// DetectionMatcherConfidenceHigh represents the value High.
-	DetectionMatcherConfidenceHigh DetectionMatcherConfidenceValue = "High"
+	// MatcherConfidenceHigh represents the value High.
+	MatcherConfidenceHigh MatcherConfidenceValue = "High"
 
-	// DetectionMatcherConfidenceLow represents the value Low.
-	DetectionMatcherConfidenceLow DetectionMatcherConfidenceValue = "Low"
+	// MatcherConfidenceLow represents the value Low.
+	MatcherConfidenceLow MatcherConfidenceValue = "Low"
 
-	// DetectionMatcherConfidenceMedium represents the value Medium.
-	DetectionMatcherConfidenceMedium DetectionMatcherConfidenceValue = "Medium"
+	// MatcherConfidenceMedium represents the value Medium.
+	MatcherConfidenceMedium MatcherConfidenceValue = "Medium"
 
-	// DetectionMatcherConfidenceUnlikely represents the value Unlikely.
-	DetectionMatcherConfidenceUnlikely DetectionMatcherConfidenceValue = "Unlikely"
+	// MatcherConfidenceUnlikely represents the value Unlikely.
+	MatcherConfidenceUnlikely MatcherConfidenceValue = "Unlikely"
 )
 
-// DetectionMatcherOperatorValue represents the possible values for attribute "operator".
-type DetectionMatcherOperatorValue string
+// MatcherOperatorValue represents the possible values for attribute "operator".
+type MatcherOperatorValue string
 
 const (
-	// DetectionMatcherOperatorIs represents the value Is.
-	DetectionMatcherOperatorIs DetectionMatcherOperatorValue = "Is"
+	// MatcherOperatorIs represents the value Is.
+	MatcherOperatorIs MatcherOperatorValue = "Is"
 
-	// DetectionMatcherOperatorMax represents the value Max.
-	DetectionMatcherOperatorMax DetectionMatcherOperatorValue = "Max"
+	// MatcherOperatorMax represents the value Max.
+	MatcherOperatorMax MatcherOperatorValue = "Max"
 
-	// DetectionMatcherOperatorMin represents the value Min.
-	DetectionMatcherOperatorMin DetectionMatcherOperatorValue = "Min"
+	// MatcherOperatorMin represents the value Min.
+	MatcherOperatorMin MatcherOperatorValue = "Min"
 )
 
-// DetectionMatcher represents the model of a detectionmatcher
-type DetectionMatcher struct {
+// MatcherScopeValue represents the possible values for attribute "scope".
+type MatcherScopeValue string
+
+const (
+	// MatcherScopeDetection represents the value Detection.
+	MatcherScopeDetection MatcherScopeValue = "Detection"
+
+	// MatcherScopeMetadata represents the value Metadata.
+	MatcherScopeMetadata MatcherScopeValue = "Metadata"
+)
+
+// MatcherTypeValue represents the possible values for attribute "type".
+type MatcherTypeValue string
+
+const (
+	// MatcherTypeInput represents the value Input.
+	MatcherTypeInput MatcherTypeValue = "Input"
+
+	// MatcherTypeOutput represents the value Output.
+	MatcherTypeOutput MatcherTypeValue = "Output"
+)
+
+// Matcher represents the model of a analyzermatcher
+type Matcher struct {
 	// The detection confidence level to operate on.
-	Confidence DetectionMatcherConfidenceValue `json:"confidence" msgpack:"confidence" bson:"-" mapstructure:"confidence,omitempty"`
+	Confidence MatcherConfidenceValue `json:"confidence,omitempty" msgpack:"confidence,omitempty" bson:"-" mapstructure:"confidence,omitempty"`
 
 	// The description of the detection matcher.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
@@ -54,7 +76,13 @@ type DetectionMatcher struct {
 	// (e.g. 'Text*' matches 'Text', 'Text_'). Default value is '*' meaning matching
 	// any
 	// detection group.
-	Group string `json:"group" msgpack:"group" bson:"-" mapstructure:"group,omitempty"`
+	Group string `json:"group,omitempty" msgpack:"group,omitempty" bson:"-" mapstructure:"group,omitempty"`
+
+	// If the metadata has tool uses set.
+	HasToolUses bool `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
+
+	// If the metadata has tools set.
+	HasTools bool `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
 	// The label pattern used to match detection label. Supports glob-style wildcards
 	// (e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any
@@ -64,7 +92,7 @@ type DetectionMatcher struct {
 	// The name pattern used to match detection name. Supports glob-style wildcards
 	// (e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any
 	// detection name.
-	Name string `json:"name" msgpack:"name" bson:"-" mapstructure:"name,omitempty"`
+	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"-" mapstructure:"name,omitempty"`
 
 	// Specifies how to compare the detection's confidence value against the matcher's
 	// threshold:
@@ -73,57 +101,65 @@ type DetectionMatcher struct {
 	// threshold
 	// - 'Max': At least one detection confidence must be less than the threshold
 	// The default value is 'Min'.
-	Operator DetectionMatcherOperatorValue `json:"operator" msgpack:"operator" bson:"-" mapstructure:"operator,omitempty"`
+	Operator MatcherOperatorValue `json:"operator,omitempty" msgpack:"operator,omitempty" bson:"-" mapstructure:"operator,omitempty"`
+
+	// The scope of the matcher, can be either Detection or Metadata.
+	Scope MatcherScopeValue `json:"scope" msgpack:"scope" bson:"-" mapstructure:"scope,omitempty"`
+
+	// The type of data, either Input or Output.
+	Type MatcherTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"-" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewDetectionMatcher returns a new *DetectionMatcher
-func NewDetectionMatcher() *DetectionMatcher {
+// NewMatcher returns a new *Matcher
+func NewMatcher() *Matcher {
 
-	return &DetectionMatcher{
+	return &Matcher{
 		ModelVersion: 1,
-		Confidence:   DetectionMatcherConfidenceLow,
+		Confidence:   MatcherConfidenceLow,
 		Group:        "*",
 		Label:        "*",
 		Name:         "*",
-		Operator:     DetectionMatcherOperatorMin,
+		Operator:     MatcherOperatorMin,
+		Scope:        MatcherScopeDetection,
+		Type:         MatcherTypeInput,
 	}
 }
-func (o *DetectionMatcher) Identity() elemental.Identity {
+func (o *Matcher) Identity() elemental.Identity {
 
 	return elemental.Identity{}
 }
-func (o *DetectionMatcher) Identifier() string {
+func (o *Matcher) Identifier() string {
 
 	return ""
 }
-func (o *DetectionMatcher) SetIdentifier(id string) {
+func (o *Matcher) SetIdentifier(id string) {
 	panic("you cannot set identifier on a detached object")
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *DetectionMatcher) GetBSON() (any, error) {
+func (o *Matcher) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesDetectionMatcher{}
+	s := &mongoAttributesMatcher{}
 
 	return s, nil
 }
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *DetectionMatcher) SetBSON(raw bson.Raw) error {
+func (o *Matcher) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesDetectionMatcher{}
+	s := &mongoAttributesMatcher{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -132,67 +168,74 @@ func (o *DetectionMatcher) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *DetectionMatcher) Version() int {
+func (o *Matcher) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *DetectionMatcher) BleveType() string {
+func (o *Matcher) BleveType() string {
 
-	return "detectionmatcher"
+	return "analyzermatcher"
 }
 
 // Doc returns the documentation for the object
-func (o *DetectionMatcher) Doc() string {
+func (o *Matcher) Doc() string {
 
-	return `Represent a detection matcher.
-A Detection Matcher serves as a filtering mechanism for analyzers, determining
-which detections should trigger an analysis. It allows for flexible pattern
-matching on detection attributes such as name, label, and group using glob-style
-wildcards. Additionally, it enables confidence-based filtering by defining
-thresholds and comparison operators. Detection Matchers provide a structured way
-to control when and how analyzers engage with incoming detections.`
+	return `Represent an analyzer matcher.
+An analyzer Matcher serves as a filtering mechanism for analyzers, determining
+which detections and/or metadata should trigger an analyzer. It allows for
+flexible pattern
+matching on:
+- for scope Detection, uses detection attributes such as name, label, and group
+using glob-style
+wildcards and confidence-based filtering by defining
+thresholds and comparison operators.
+- for scope Metadata, uses metadata attributes such as type, hasTools and
+hasToolUses.
+Matchers provide a structured way
+to control when and how analyzers engage with incoming detections and/or
+metadata.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *DetectionMatcher) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *Matcher) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *DetectionMatcher) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *Matcher) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the DetectionMatcher.
-func (o *DetectionMatcher) DeepCopy() *DetectionMatcher {
+// DeepCopy returns a deep copy if the Matcher.
+func (o *Matcher) DeepCopy() *Matcher {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &DetectionMatcher{}
+	out := &Matcher{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *DetectionMatcher.
-func (o *DetectionMatcher) DeepCopyInto(out *DetectionMatcher) {
+// DeepCopyInto copies the receiver into the given *Matcher.
+func (o *Matcher) DeepCopyInto(out *Matcher) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy DetectionMatcher: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy Matcher: %s", err))
 	}
 
-	*out = *target.(*DetectionMatcher)
+	*out = *target.(*Matcher)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *DetectionMatcher) Validate() error {
+func (o *Matcher) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
@@ -204,6 +247,14 @@ func (o *DetectionMatcher) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"Is", "Min", "Max"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("scope", string(o.Scope), []string{"Detection", "Metadata"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -219,26 +270,26 @@ func (o *DetectionMatcher) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*DetectionMatcher) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*Matcher) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := DetectionMatcherAttributesMap[name]; ok {
+	if v, ok := MatcherAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return DetectionMatcherLowerCaseAttributesMap[name]
+	return MatcherLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*DetectionMatcher) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*Matcher) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return DetectionMatcherAttributesMap
+	return MatcherAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *DetectionMatcher) ValueForAttribute(name string) any {
+func (o *Matcher) ValueForAttribute(name string) any {
 
 	switch name {
 	case "confidence":
@@ -247,23 +298,31 @@ func (o *DetectionMatcher) ValueForAttribute(name string) any {
 		return o.Description
 	case "group":
 		return o.Group
+	case "hasToolUses":
+		return o.HasToolUses
+	case "hasTools":
+		return o.HasTools
 	case "label":
 		return o.Label
 	case "name":
 		return o.Name
 	case "operator":
 		return o.Operator
+	case "scope":
+		return o.Scope
+	case "type":
+		return o.Type
 	}
 
 	return nil
 }
 
-// DetectionMatcherAttributesMap represents the map of attribute for DetectionMatcher.
-var DetectionMatcherAttributesMap = map[string]elemental.AttributeSpecification{
+// MatcherAttributesMap represents the map of attribute for Matcher.
+var MatcherAttributesMap = map[string]elemental.AttributeSpecification{
 	"Confidence": {
 		AllowedChoices: []string{"Unlikely", "Low", "Medium", "High"},
 		ConvertedName:  "Confidence",
-		DefaultValue:   DetectionMatcherConfidenceLow,
+		DefaultValue:   MatcherConfidenceLow,
 		Description:    `The detection confidence level to operate on.`,
 		Exposed:        true,
 		Name:           "confidence",
@@ -289,6 +348,7 @@ detection group.`,
 		Name:    "group",
 		Type:    "string",
 	},
+
 	"Label": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Label",
@@ -314,7 +374,7 @@ detection name.`,
 	"Operator": {
 		AllowedChoices: []string{"Is", "Min", "Max"},
 		ConvertedName:  "Operator",
-		DefaultValue:   DetectionMatcherOperatorMin,
+		DefaultValue:   MatcherOperatorMin,
 		Description: `Specifies how to compare the detection's confidence value against the matcher's
 threshold:
 - 'Is': All Detections confidence must exactly match the threshold
@@ -326,14 +386,32 @@ The default value is 'Min'.`,
 		Name:    "operator",
 		Type:    "enum",
 	},
+	"Scope": {
+		AllowedChoices: []string{"Detection", "Metadata"},
+		ConvertedName:  "Scope",
+		DefaultValue:   MatcherScopeDetection,
+		Description:    `The scope of the matcher, can be either Detection or Metadata.`,
+		Exposed:        true,
+		Name:           "scope",
+		Type:           "enum",
+	},
+	"Type": {
+		AllowedChoices: []string{"Input", "Output"},
+		ConvertedName:  "Type",
+		DefaultValue:   MatcherTypeInput,
+		Description:    `The type of data, either Input or Output.`,
+		Exposed:        true,
+		Name:           "type",
+		Type:           "enum",
+	},
 }
 
-// DetectionMatcherLowerCaseAttributesMap represents the map of attribute for DetectionMatcher.
-var DetectionMatcherLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// MatcherLowerCaseAttributesMap represents the map of attribute for Matcher.
+var MatcherLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"confidence": {
 		AllowedChoices: []string{"Unlikely", "Low", "Medium", "High"},
 		ConvertedName:  "Confidence",
-		DefaultValue:   DetectionMatcherConfidenceLow,
+		DefaultValue:   MatcherConfidenceLow,
 		Description:    `The detection confidence level to operate on.`,
 		Exposed:        true,
 		Name:           "confidence",
@@ -359,6 +437,7 @@ detection group.`,
 		Name:    "group",
 		Type:    "string",
 	},
+
 	"label": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Label",
@@ -384,7 +463,7 @@ detection name.`,
 	"operator": {
 		AllowedChoices: []string{"Is", "Min", "Max"},
 		ConvertedName:  "Operator",
-		DefaultValue:   DetectionMatcherOperatorMin,
+		DefaultValue:   MatcherOperatorMin,
 		Description: `Specifies how to compare the detection's confidence value against the matcher's
 threshold:
 - 'Is': All Detections confidence must exactly match the threshold
@@ -396,7 +475,25 @@ The default value is 'Min'.`,
 		Name:    "operator",
 		Type:    "enum",
 	},
+	"scope": {
+		AllowedChoices: []string{"Detection", "Metadata"},
+		ConvertedName:  "Scope",
+		DefaultValue:   MatcherScopeDetection,
+		Description:    `The scope of the matcher, can be either Detection or Metadata.`,
+		Exposed:        true,
+		Name:           "scope",
+		Type:           "enum",
+	},
+	"type": {
+		AllowedChoices: []string{"Input", "Output"},
+		ConvertedName:  "Type",
+		DefaultValue:   MatcherTypeInput,
+		Description:    `The type of data, either Input or Output.`,
+		Exposed:        true,
+		Name:           "type",
+		Type:           "enum",
+	},
 }
 
-type mongoAttributesDetectionMatcher struct {
+type mongoAttributesMatcher struct {
 }

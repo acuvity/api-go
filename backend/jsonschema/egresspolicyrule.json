@@ -1,0 +1,75 @@
+{
+  "$extends": [],
+  "$friendlyName": "Egress Policy Rule",
+  "$friendlyNamePlural": "Egress Policy Rules",
+  "$modelName": "EgressPolicyRule",
+  "$modelPackage": "lain",
+  "$modelResourceName": "egresspolicyrules",
+  "$modelRestName": "egresspolicyrule",
+  "additionalProperties": false,
+  "description": "Represents a rule for an egress policy of an application component.",
+  "properties": {
+    "appComponents": {
+      "$friendlyName": "App Components",
+      "description": "The list of application components that this rule applies to in the form of app/component. If the component is not specified, then this rule applies to all components of the application.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "appComponents",
+      "type": "array"
+    },
+    "contentPolicies": {
+      "$friendlyName": "Content Policies",
+      "description": "The list of content policies to apply when the workload has access to the provider.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "contentPolicies",
+      "type": "array"
+    },
+    "mode": {
+      "$friendlyName": "Mode",
+      "$required": true,
+      "description": "The mode of the egress policy rule which determines how traffic is being handled. If set to Proxy, then the traffic will be redirected to the Apex proxy: this enables access policy enforcement as well as content policy redactions. If set to Passthrough, then the traffic will not be touched and simply be passed through to its intended destination.",
+      "enum": [
+        "Proxy",
+        "Passthrough"
+      ],
+      "title": "mode"
+    },
+    "providers": {
+      "$friendlyName": "Providers",
+      "description": "The list of providers that this rule applies to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providers",
+      "type": "array"
+    },
+    "proxyAction": {
+      "$defaultValue": "NotApplicable",
+      "$friendlyName": "Proxy Action",
+      "description": "The action to take for connections egressing from this workload that match this rule. This requires the mode to be set to Proxy.",
+      "enum": [
+        "NotApplicable",
+        "Allow",
+        "Deny"
+      ],
+      "title": "proxyAction"
+    }
+  },
+  "required": [
+    "mode"
+  ],
+  "title": "EgressPolicyRule",
+  "type": "object"
+}

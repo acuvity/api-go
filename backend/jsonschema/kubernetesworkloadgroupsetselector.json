@@ -1,0 +1,26 @@
+{
+  "$extends": [],
+  "$friendlyName": "Kubernetes Workload Group Set Selector",
+  "$friendlyNamePlural": "Kubernetes Workload Group Set Selectors",
+  "$modelName": "KubernetesWorkloadGroupSetSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "kubernetesworkloadgroupsetselectors",
+  "$modelRestName": "kubernetesworkloadgroupsetselector",
+  "additionalProperties": false,
+  "description": "Represents a Kubernetes workload group set selector used to identify and group workload groups in Kubernetes clusters.",
+  "properties": {
+    "kubernetesNamespace": {
+      "$friendlyName": "Kubernetes Namespace",
+      "$required": true,
+      "description": "The Kubernetes namespace that makes up this workload group set.",
+      "pattern": "^[a-zA-Z0-9-]+$",
+      "title": "kubernetesNamespace",
+      "type": "string"
+    }
+  },
+  "required": [
+    "kubernetesNamespace"
+  ],
+  "title": "KubernetesWorkloadGroupSetSelector",
+  "type": "object"
+}

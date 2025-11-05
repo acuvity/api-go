@@ -6,11 +6,11 @@
     "analyzer": {
       "$ref": "analyzer.json"
     },
+    "analyzermatcher": {
+      "$ref": "analyzermatcher.json"
+    },
     "analyzermodel": {
       "$ref": "analyzermodel.json"
-    },
-    "detectionmatcher": {
-      "$ref": "detectionmatcher.json"
     },
     "detector": {
       "$ref": "detector.json"

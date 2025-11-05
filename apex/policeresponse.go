@@ -32,6 +32,9 @@ const (
 	// PoliceResponseDecisionForbiddenUser represents the value ForbiddenUser.
 	PoliceResponseDecisionForbiddenUser PoliceResponseDecisionValue = "ForbiddenUser"
 
+	// PoliceResponseDecisionRedirected represents the value Redirected.
+	PoliceResponseDecisionRedirected PoliceResponseDecisionValue = "Redirected"
+
 	// PoliceResponseDecisionSkipped represents the value Skipped.
 	PoliceResponseDecisionSkipped PoliceResponseDecisionValue = "Skipped"
 )
@@ -150,7 +153,7 @@ type PoliceResponse struct {
 	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
 
 	// The model used by the request.
-	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -648,7 +651,7 @@ func (o *PoliceResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -845,7 +848,7 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1078,7 +1081,7 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1826,7 +1829,7 @@ type mongoAttributesPoliceResponse struct {
 	Hash          string                      `bson:"hash"`
 	Latency       *Latency                    `bson:"latency,omitempty"`
 	McpMessage    *MCPMessage                 `bson:"mcpmessage,omitempty"`
-	Model         string                      `bson:"model"`
+	Model         string                      `bson:"model,omitempty"`
 	Namespace     string                      `bson:"namespace,omitempty"`
 	PipelineName  string                      `bson:"pipelinename"`
 	Principal     *Principal                  `bson:"principal"`

@@ -87,6 +87,9 @@
     "analyzer": {
       "$ref": "analyzer.json"
     },
+    "analyzermatcher": {
+      "$ref": "analyzermatcher.json"
+    },
     "analyzermodel": {
       "$ref": "analyzermodel.json"
     },
@@ -96,14 +99,59 @@
     "app": {
       "$ref": "app.json"
     },
+    "appagent": {
+      "$ref": "appagent.json"
+    },
     "appcomponent": {
       "$ref": "appcomponent.json"
+    },
+    "appcomponentegress": {
+      "$ref": "appcomponentegress.json"
+    },
+    "appcomponentingress": {
+      "$ref": "appcomponentingress.json"
+    },
+    "appcomponentselector": {
+      "$ref": "appcomponentselector.json"
+    },
+    "appgraph": {
+      "$ref": "appgraph.json"
+    },
+    "appgraphlink": {
+      "$ref": "appgraphlink.json"
+    },
+    "appgraphlinkconnection": {
+      "$ref": "appgraphlinkconnection.json"
+    },
+    "appgraphlinkdns": {
+      "$ref": "appgraphlinkdns.json"
+    },
+    "appgraphlinks": {
+      "$ref": "appgraphlinks.json"
+    },
+    "appgraphnode": {
+      "$ref": "appgraphnode.json"
+    },
+    "appgraphquery": {
+      "$ref": "appgraphquery.json"
+    },
+    "appreport": {
+      "$ref": "appreport.json"
+    },
+    "appselector": {
+      "$ref": "appselector.json"
     },
     "apptoken": {
       "$ref": "apptoken.json"
     },
     "authsettings": {
       "$ref": "authsettings.json"
+    },
+    "connectionencryption": {
+      "$ref": "connectionencryption.json"
+    },
+    "connectionreport": {
+      "$ref": "connectionreport.json"
     },
     "contentpolicy": {
       "$ref": "contentpolicy.json"
@@ -120,9 +168,6 @@
     "detection": {
       "$ref": "detection.json"
     },
-    "detectionmatcher": {
-      "$ref": "detectionmatcher.json"
-    },
     "detector": {
       "$ref": "detector.json"
     },
@@ -132,8 +177,23 @@
     "digestreportrequest": {
       "$ref": "digestreportrequest.json"
     },
+    "dnsreport": {
+      "$ref": "dnsreport.json"
+    },
     "domainhits": {
       "$ref": "domainhits.json"
+    },
+    "egressdefaultpolicy": {
+      "$ref": "egressdefaultpolicy.json"
+    },
+    "egresspolicy": {
+      "$ref": "egresspolicy.json"
+    },
+    "egresspolicyacl": {
+      "$ref": "egresspolicyacl.json"
+    },
+    "egresspolicyrule": {
+      "$ref": "egresspolicyrule.json"
     },
     "errortransformer": {
       "$ref": "errortransformer.json"
@@ -174,11 +234,29 @@
     "ingesttrace": {
       "$ref": "ingesttrace.json"
     },
-    "ingressproviderconfig": {
-      "$ref": "ingressproviderconfig.json"
+    "ingressacl": {
+      "$ref": "ingressacl.json"
+    },
+    "ingresslistener": {
+      "$ref": "ingresslistener.json"
+    },
+    "ingresspolicy": {
+      "$ref": "ingresspolicy.json"
+    },
+    "ingresspolicyrule": {
+      "$ref": "ingresspolicyrule.json"
+    },
+    "ingressproxyconfig": {
+      "$ref": "ingressproxyconfig.json"
     },
     "injector": {
       "$ref": "injector.json"
+    },
+    "kubernetesworkloadgroupselector": {
+      "$ref": "kubernetesworkloadgroupselector.json"
+    },
+    "kubernetesworkloadgroupsetselector": {
+      "$ref": "kubernetesworkloadgroupsetselector.json"
     },
     "labelvalue": {
       "$ref": "labelvalue.json"
@@ -194,6 +272,12 @@
     },
     "mapper": {
       "$ref": "mapper.json"
+    },
+    "mcpgateway": {
+      "$ref": "mcpgateway.json"
+    },
+    "mcpgatewayserver": {
+      "$ref": "mcpgatewayserver.json"
     },
     "mcpmessage": {
       "$ref": "mcpmessage.json"
@@ -404,6 +488,12 @@
     },
     "webextensionconfig": {
       "$ref": "webextensionconfig.json"
+    },
+    "workload": {
+      "$ref": "workload.json"
+    },
+    "workloadstatus": {
+      "$ref": "workloadstatus.json"
     },
     "identitymodifier": {
       "$ref": "identitymodifier.json"

@@ -168,6 +168,12 @@
       },
       "type": "array"
     },
+    "analyzermatchers": {
+      "items": {
+        "$ref": "analyzermatcher.json"
+      },
+      "type": "array"
+    },
     "analyzermodels": {
       "items": {
         "$ref": "analyzermodel.json"
@@ -186,15 +192,93 @@
       },
       "type": "array"
     },
+    "appagents": {
+      "items": {
+        "$ref": "appagent.json"
+      },
+      "type": "array"
+    },
+    "appcomponentegresses": {
+      "items": {
+        "$ref": "appcomponentegress.json"
+      },
+      "type": "array"
+    },
+    "appcomponentingresses": {
+      "items": {
+        "$ref": "appcomponentingress.json"
+      },
+      "type": "array"
+    },
     "appcomponents": {
       "items": {
         "$ref": "appcomponent.json"
       },
       "type": "array"
     },
+    "appcomponentselectors": {
+      "items": {
+        "$ref": "appcomponentselector.json"
+      },
+      "type": "array"
+    },
+    "appgraphlink": {
+      "items": {
+        "$ref": "appgraphlink.json"
+      },
+      "type": "array"
+    },
+    "appgraphlinkconnection": {
+      "items": {
+        "$ref": "appgraphlinkconnection.json"
+      },
+      "type": "array"
+    },
+    "appgraphlinkdns": {
+      "items": {
+        "$ref": "appgraphlinkdns.json"
+      },
+      "type": "array"
+    },
+    "appgraphlinks": {
+      "items": {
+        "$ref": "appgraphlinks.json"
+      },
+      "type": "array"
+    },
+    "appgraphnodes": {
+      "items": {
+        "$ref": "appgraphnode.json"
+      },
+      "type": "array"
+    },
+    "appgraphqueries": {
+      "items": {
+        "$ref": "appgraphquery.json"
+      },
+      "type": "array"
+    },
+    "appgraphs": {
+      "items": {
+        "$ref": "appgraph.json"
+      },
+      "type": "array"
+    },
+    "appreports": {
+      "items": {
+        "$ref": "appreport.json"
+      },
+      "type": "array"
+    },
     "apps": {
       "items": {
         "$ref": "app.json"
+      },
+      "type": "array"
+    },
+    "appselectors": {
+      "items": {
+        "$ref": "appselector.json"
       },
       "type": "array"
     },
@@ -207,6 +291,18 @@
     "authsettings": {
       "items": {
         "$ref": "authsettings.json"
+      },
+      "type": "array"
+    },
+    "connectionencryptions": {
+      "items": {
+        "$ref": "connectionencryption.json"
+      },
+      "type": "array"
+    },
+    "connectionreports": {
+      "items": {
+        "$ref": "connectionreport.json"
       },
       "type": "array"
     },
@@ -234,12 +330,6 @@
       },
       "type": "array"
     },
-    "detectionmatchers": {
-      "items": {
-        "$ref": "detectionmatcher.json"
-      },
-      "type": "array"
-    },
     "detections": {
       "items": {
         "$ref": "detection.json"
@@ -264,9 +354,39 @@
       },
       "type": "array"
     },
+    "dnsreports": {
+      "items": {
+        "$ref": "dnsreport.json"
+      },
+      "type": "array"
+    },
     "domainhits": {
       "items": {
         "$ref": "domainhits.json"
+      },
+      "type": "array"
+    },
+    "egressdefaultpolicies": {
+      "items": {
+        "$ref": "egressdefaultpolicy.json"
+      },
+      "type": "array"
+    },
+    "egresspolicies": {
+      "items": {
+        "$ref": "egresspolicy.json"
+      },
+      "type": "array"
+    },
+    "egresspolicyacls": {
+      "items": {
+        "$ref": "egresspolicyacl.json"
+      },
+      "type": "array"
+    },
+    "egresspolicyrules": {
+      "items": {
+        "$ref": "egresspolicyrule.json"
       },
       "type": "array"
     },
@@ -348,15 +468,51 @@
       },
       "type": "array"
     },
-    "ingressproviderconfigs": {
+    "ingressacls": {
       "items": {
-        "$ref": "ingressproviderconfig.json"
+        "$ref": "ingressacl.json"
+      },
+      "type": "array"
+    },
+    "ingresslisteners": {
+      "items": {
+        "$ref": "ingresslistener.json"
+      },
+      "type": "array"
+    },
+    "ingresspolicies": {
+      "items": {
+        "$ref": "ingresspolicy.json"
+      },
+      "type": "array"
+    },
+    "ingresspolicyrules": {
+      "items": {
+        "$ref": "ingresspolicyrule.json"
+      },
+      "type": "array"
+    },
+    "ingressproxyconfigs": {
+      "items": {
+        "$ref": "ingressproxyconfig.json"
       },
       "type": "array"
     },
     "injectors": {
       "items": {
         "$ref": "injector.json"
+      },
+      "type": "array"
+    },
+    "kubernetesworkloadgroupselectors": {
+      "items": {
+        "$ref": "kubernetesworkloadgroupselector.json"
+      },
+      "type": "array"
+    },
+    "kubernetesworkloadgroupsetselectors": {
+      "items": {
+        "$ref": "kubernetesworkloadgroupsetselector.json"
       },
       "type": "array"
     },
@@ -387,6 +543,18 @@
     "mappers": {
       "items": {
         "$ref": "mapper.json"
+      },
+      "type": "array"
+    },
+    "mcpgateways": {
+      "items": {
+        "$ref": "mcpgateway.json"
+      },
+      "type": "array"
+    },
+    "mcpgatewayservers": {
+      "items": {
+        "$ref": "mcpgatewayserver.json"
       },
       "type": "array"
     },
@@ -807,6 +975,18 @@
     "webextensions": {
       "items": {
         "$ref": "webextension.json"
+      },
+      "type": "array"
+    },
+    "workloads": {
+      "items": {
+        "$ref": "workload.json"
+      },
+      "type": "array"
+    },
+    "workloadstatuses": {
+      "items": {
+        "$ref": "workloadstatus.json"
       },
       "type": "array"
     },

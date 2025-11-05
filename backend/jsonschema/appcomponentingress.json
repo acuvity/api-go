@@ -1,0 +1,66 @@
+{
+  "$extends": [
+    "@appproxypolicy"
+  ],
+  "$friendlyName": "App Component Ingress",
+  "$friendlyNamePlural": "App Component Ingress",
+  "$modelName": "AppComponentIngress",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appcomponentingresses",
+  "$modelRestName": "appcomponentingress",
+  "additionalProperties": false,
+  "description": "Represents the ingress configuration of an application component.",
+  "properties": {
+    "ACLs": {
+      "$friendlyName": "ACLs",
+      "description": "The list of ACLs to apply for the ingress of this workload.",
+      "items": {
+        "$ref": "ingressacl.json"
+      },
+      "title": "ACLs",
+      "type": "array"
+    },
+    "defaultACLAction": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Default ACL Action",
+      "description": "The default action to take for connections ingressing to this workload that do not match any of the ACLs.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "defaultACLAction"
+    },
+    "listeners": {
+      "$friendlyName": "Listeners",
+      "description": "The defined listeners for this ingress workload.",
+      "items": {
+        "$ref": "ingresslistener.json"
+      },
+      "title": "listeners",
+      "type": "array"
+    },
+    "proxyAccessPolicy": {
+      "$friendlyName": "Proxy Access Policy",
+      "$readOnly": true,
+      "description": "The computed rego access policy for the proxy.",
+      "title": "proxyAccessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "proxyContentPolicy": {
+      "$friendlyName": "Proxy Content Policy",
+      "$readOnly": true,
+      "description": "The computed rego content policy for the proxy.",
+      "title": "proxyContentPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppComponentIngress",
+  "type": "object"
+}

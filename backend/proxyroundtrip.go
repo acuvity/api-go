@@ -32,6 +32,9 @@ const (
 	// ProxyRoundtripDecisionForbiddenUser represents the value ForbiddenUser.
 	ProxyRoundtripDecisionForbiddenUser ProxyRoundtripDecisionValue = "ForbiddenUser"
 
+	// ProxyRoundtripDecisionRedirected represents the value Redirected.
+	ProxyRoundtripDecisionRedirected ProxyRoundtripDecisionValue = "Redirected"
+
 	// ProxyRoundtripDecisionSkipped represents the value Skipped.
 	ProxyRoundtripDecisionSkipped ProxyRoundtripDecisionValue = "Skipped"
 )
@@ -177,7 +180,7 @@ type ProxyRoundtrip struct {
 	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
 
 	// The model used by the request.
-	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -194,7 +197,7 @@ type ProxyRoundtrip struct {
 	// access permissions, run analysis, apply content policies and reported what
 	// we would have done, but ultimately let the request go to the provider
 	// untouched.
-	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
+	Permissive bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// The name of the particular pipeline that extracted the text.
 	PipelineName string `json:"pipelineName" msgpack:"pipelineName" bson:"pipelinename" mapstructure:"pipelineName,omitempty"`
@@ -874,7 +877,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1128,7 +1131,7 @@ var ProxyRoundtripAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1487,7 +1490,7 @@ var ProxyRoundtripLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -2601,10 +2604,10 @@ type mongoAttributesProxyRoundtrip struct {
 	ImportLabel       string                           `bson:"importlabel,omitempty"`
 	Latency           *Latency                         `bson:"latency,omitempty"`
 	McpMessage        *MCPMessage                      `bson:"mcpmessage,omitempty"`
-	Model             string                           `bson:"model"`
+	Model             string                           `bson:"model,omitempty"`
 	Namespace         string                           `bson:"namespace,omitempty"`
 	Offband           bool                             `bson:"offband"`
-	Permissive        bool                             `bson:"permissive"`
+	Permissive        bool                             `bson:"permissive,omitempty"`
 	PipelineName      string                           `bson:"pipelinename"`
 	PolicyRefs        PolicyRefsList                   `bson:"policyrefs"`
 	Principal         *Principal                       `bson:"principal"`

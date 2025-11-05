@@ -1,0 +1,249 @@
+{
+  "$extends": [
+    "@appreportaction",
+    "@appreporttarget",
+    "@workloadgroup",
+    "@workloadgroupset"
+  ],
+  "$friendlyName": "Connection Report",
+  "$friendlyNamePlural": "Connection Reports",
+  "$modelName": "ConnectionReport",
+  "$modelPackage": "lain",
+  "$modelResourceName": "connectionreports",
+  "$modelRestName": "connectionreport",
+  "additionalProperties": false,
+  "description": "Represents a connection report sent by an app agent within an app report.",
+  "properties": {
+    "action": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The action taken.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "actionOrigin": {
+      "$friendlyName": "Action Origin",
+      "description": "The origin where the action was taken.",
+      "title": "actionOrigin",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appComponent": {
+      "$friendlyName": "App Component",
+      "description": "The app component that this target represents.",
+      "title": "appComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "direction": {
+      "$friendlyName": "Direction",
+      "$required": true,
+      "description": "The direction of the connection relative to the perspective of the workload.",
+      "enum": [
+        "Ingress",
+        "Egress"
+      ],
+      "title": "direction"
+    },
+    "dstIP": {
+      "$friendlyName": "Destination IP",
+      "description": "The destination IP address of the connection.",
+      "title": "dstIP",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dstPort": {
+      "$friendlyName": "Destination Port",
+      "description": "The destination port of the connection.",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "dstPort",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "encryption": {
+      "$friendlyName": "Encryption",
+      "$ref": "connectionencryption.json",
+      "description": "If the connection is encrypted, this field contains details about the discovered encryption details used of the connection.",
+      "title": "encryption"
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "description": "The hostname that the connection is made to, if available.",
+      "title": "hostname",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "payloadAppTokenClaims": {
+      "$friendlyName": "Payload App Token Claims",
+      "description": "If any, these are the Acuvity AppToken claims that were discovered in the connection payload.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "payloadAppTokenClaims",
+      "type": "array"
+    },
+    "payloadAuthTokenClaims": {
+      "$friendlyName": "Payload Auth Token Claims",
+      "description": "If any, these are the Auth Token claims that were discovered in the Authorization header of an HTTP connection payload in case the Authorization token is a JWT.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "payloadAuthTokenClaims",
+      "type": "array"
+    },
+    "payloadInsights": {
+      "$friendlyName": "Payload Insights",
+      "description": "List of insights that were discovered from inspecting the connection payload.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "payloadInsights",
+      "type": "array"
+    },
+    "policyID": {
+      "$friendlyName": "Policy ID",
+      "description": "The reference to the policy ID that triggered this action.",
+      "title": "policyID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The provider that this target represents.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "$friendlyName": "Reason",
+      "description": "The reason for the action.",
+      "title": "reason",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "socketCookie": {
+      "$friendlyName": "Socket Cookie",
+      "description": "The unique identifier for the socket connection on the operating host.",
+      "minimum": 1,
+      "title": "socketCookie",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "socketTimestamp": {
+      "$friendlyName": "Socket Timestamp",
+      "description": "The timestamp when the socket was created.",
+      "title": "socketTimestamp",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "socketType": {
+      "$friendlyName": "Socket Type",
+      "$required": true,
+      "description": "The type of socket from the perspective of the workload and its proxy.",
+      "enum": [
+        "ToProxy",
+        "FromProxy",
+        "ToWorkload",
+        "FromWorkload"
+      ],
+      "title": "socketType"
+    },
+    "srcIP": {
+      "$friendlyName": "Source IP",
+      "description": "The source IP address of the connection.",
+      "title": "srcIP",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "srcPort": {
+      "$friendlyName": "Source Port",
+      "description": "The source port of the connection.",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "srcPort",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "description": "The hash of the workload group this application belongs to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupLabel": {
+      "$friendlyName": "Workload Group Label",
+      "description": "The label format of the workload group this application belongs to.",
+      "title": "workloadGroupLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "description": "The hash of the workload group set this application belongs to.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetLabel": {
+      "$friendlyName": "Workload Group Set Label",
+      "description": "The label format of the workload group set this application belongs to.",
+      "title": "workloadGroupSetLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "action",
+    "direction",
+    "socketType"
+  ],
+  "title": "ConnectionReport",
+  "type": "object"
+}

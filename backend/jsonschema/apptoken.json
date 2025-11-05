@@ -133,6 +133,18 @@
         "null"
       ]
     },
+    "type": {
+      "$defaultValue": "Default",
+      "$friendlyName": "Type",
+      "description": "Select the type of token. This will insert various claims to match pre configured api authorizations.",
+      "enum": [
+        "Default",
+        "RemoteApex",
+        "IDP",
+        "Minibridge"
+      ],
+      "title": "type"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,

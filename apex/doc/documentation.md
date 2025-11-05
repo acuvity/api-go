@@ -14,17 +14,24 @@ Represents an analyzer.
 
 ```json
 {
-  "detectionMatchers": [
+  "enabled": false,
+  "matchers": [
     [
       {
         "confidence": "Medium",
         "group": "Text",
         "name": "txt",
-        "operator": "min"
+        "operator": "min",
+        "scope": "detection"
+      }
+    ],
+    [
+      {
+        "scope": "metadata",
+        "type": "Input"
       }
     ]
-  ],
-  "enabled": false
+  ]
 }
 ```
 
@@ -48,12 +55,6 @@ Type: `string`
 
 The description of the analyzer.
 
-##### `detectionMatchers`
-
-Type: `[][]detectionmatcher`
-
-A list of detection matcher that will trigger the analyzer.
-
 ##### `detectors`
 
 Type: [`[]detector`](#detector)
@@ -71,6 +72,12 @@ Tell if the analyzer is enabled by default.
 Type: `string`
 
 The group the analyzer belongs to.
+
+##### `matchers`
+
+Type: `[][]analyzermatcher`
+
+A list of matcher that will trigger the analyzer.
 
 ##### `models`
 
@@ -302,7 +309,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected)`
 
 Tell what was the decision about the data.
 
@@ -638,7 +645,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected)`
 
 Tell what was the decision about the data.
 
@@ -792,33 +799,22 @@ Type: `time`
 
 When the alert event was raised.
 
-### AnalyzerModel
+### Matcher
 
-Represent an analyzer model.
-
-#### Attributes
-
-##### `name`
-
-Type: `string`
-
-The name of the model.
-
-##### `revision`
-
-Type: `string`
-
-The revision of the model.
-
-### DetectionMatcher
-
-Represent a detection matcher.
-A Detection Matcher serves as a filtering mechanism for analyzers, determining
-which detections should trigger an analysis. It allows for flexible pattern
-matching on detection attributes such as name, label, and group using glob-style
-wildcards. Additionally, it enables confidence-based filtering by defining
-thresholds and comparison operators. Detection Matchers provide a structured way
-to control when and how analyzers engage with incoming detections.
+Represent an analyzer matcher.
+An analyzer Matcher serves as a filtering mechanism for analyzers, determining
+which detections and/or metadata should trigger an analyzer. It allows for
+flexible pattern
+matching on:
+- for scope Detection, uses detection attributes such as name, label, and group
+using glob-style
+wildcards and confidence-based filtering by defining
+thresholds and comparison operators.
+- for scope Metadata, uses metadata attributes such as type, hasTools and
+hasToolUses.
+Matchers provide a structured way
+to control when and how analyzers engage with incoming detections and/or
+metadata.
 
 #### Example
 
@@ -828,7 +824,9 @@ to control when and how analyzers engage with incoming detections.
   "group": "Text",
   "label": "txt",
   "name": "txt",
-  "operator": "Min"
+  "operator": "Min",
+  "scope": "Detection",
+  "type": "Input"
 }
 ```
 
@@ -912,6 +910,48 @@ Default value:
 ```json
 "Min"
 ```
+
+##### `scope`
+
+Type: `enum(Detection | Metadata)`
+
+The scope of the matcher, can be either Detection or Metadata.
+
+Default value:
+
+```json
+"Detection"
+```
+
+##### `type`
+
+Type: `enum(Input | Output)`
+
+The type of data, either Input or Output.
+
+Default value:
+
+```json
+"Input"
+```
+
+### AnalyzerModel
+
+Represent an analyzer model.
+
+#### Attributes
+
+##### `name`
+
+Type: `string`
+
+The name of the model.
+
+##### `revision`
+
+Type: `string`
+
+The revision of the model.
 
 ### Detector
 
@@ -1798,7 +1838,11 @@ Describes the principal information of an application.
     "email=john.doe@acme.com",
     "@validated=false"
   ],
-  "username": "john.doe@acme.com"
+  "username": "john.doe@acme.com",
+  "workloadGroupHash": "wg-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+  "workloadGroupSetHash": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupSetLabel": "k8s:namespace=demo"
 }
 ```
 
@@ -1834,6 +1878,30 @@ claims can be mapped to different keys.
 Type: `string`
 
 The optional username of the request.
+
+##### `workloadGroupHash`
+
+Type: `string`
+
+The hash of the workload group this application belongs to.
+
+##### `workloadGroupLabel`
+
+Type: `string`
+
+The label format of the workload group this application belongs to.
+
+##### `workloadGroupSetHash`
+
+Type: `string`
+
+The hash of the workload group set this application belongs to.
+
+##### `workloadGroupSetLabel`
+
+Type: `string`
+
+The label format of the workload group set this application belongs to.
 
 ### PrincipalExternal
 

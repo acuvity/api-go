@@ -108,15 +108,10 @@
     },
     "selector": {
       "$friendlyName": "Selector",
-      "description": "A tag expression that identify an application based on downstream labels.",
-      "items": {
-        "items": {
-          "type": "string"
-        },
-        "type": "array"
-      },
-      "title": "selector",
-      "type": "array"
+      "$ref": "appselector.json",
+      "$required": true,
+      "description": "The selector configuration that identifies workload group sets as this app.",
+      "title": "selector"
     },
     "subject": {
       "$friendlyName": "Subject",
@@ -153,7 +148,8 @@
     }
   },
   "required": [
-    "name"
+    "name",
+    "selector"
   ],
   "title": "App",
   "type": "object"

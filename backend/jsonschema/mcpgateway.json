@@ -1,0 +1,97 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "MCP Gateway",
+  "$friendlyNamePlural": "MCP Gateways",
+  "$modelName": "MCPGateway",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgateways",
+  "$modelRestName": "mcpgateway",
+  "additionalProperties": false,
+  "description": "Represents MCP Gateways connected to the system.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "Name of the MCP gateway.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "$required": true,
+      "description": "The last ping recorded for the agent.",
+      "title": "ping",
+      "type": "string"
+    },
+    "servers": {
+      "$friendlyName": "servers",
+      "description": "The list of mcp servers running behind the gateway.",
+      "items": {
+        "$ref": "mcpgatewayserver.json"
+      },
+      "title": "servers",
+      "type": "array"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the agent.",
+      "enum": [
+        "Running",
+        "Stopped"
+      ],
+      "title": "status"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "ping",
+    "status"
+  ],
+  "title": "MCPGateway",
+  "type": "object"
+}

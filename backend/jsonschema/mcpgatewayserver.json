@@ -1,0 +1,37 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Gateway Server",
+  "$friendlyNamePlural": "MCP Gateway Servers",
+  "$modelName": "MCPGatewayServer",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgatewayservers",
+  "$modelRestName": "mcpgatewayserver",
+  "additionalProperties": false,
+  "description": "Represents an MCP server running behind an MCP gateway.",
+  "properties": {
+    "URLs": {
+      "$friendlyName": "URLs",
+      "$required": true,
+      "description": "The URLs of the MCP servers.",
+      "items": {
+        "type": "string"
+      },
+      "title": "URLs",
+      "type": "array"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the MCP server.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "URLs"
+  ],
+  "title": "MCPGatewayServer",
+  "type": "object"
+}

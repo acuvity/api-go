@@ -469,6 +469,9 @@ func (o *ProviderTeam) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateProviderTeamName("name", o.Name); err != nil {
+		errors = errors.Append(err)
+	}
 	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
 	}

@@ -28,6 +28,18 @@ type Destination struct {
 	// The list of labels attached to the application request destination.
 	Labels []string `json:"labels,omitempty" msgpack:"labels,omitempty" bson:"labels,omitempty" mapstructure:"labels,omitempty"`
 
+	// The hash of the workload group this application belongs to.
+	WorkloadGroupHash string `json:"workloadGroupHash,omitempty" msgpack:"workloadGroupHash,omitempty" bson:"workloadgrouphash,omitempty" mapstructure:"workloadGroupHash,omitempty"`
+
+	// The label format of the workload group this application belongs to.
+	WorkloadGroupLabel string `json:"workloadGroupLabel,omitempty" msgpack:"workloadGroupLabel,omitempty" bson:"workloadgrouplabel,omitempty" mapstructure:"workloadGroupLabel,omitempty"`
+
+	// The hash of the workload group set this application belongs to.
+	WorkloadGroupSetHash string `json:"workloadGroupSetHash,omitempty" msgpack:"workloadGroupSetHash,omitempty" bson:"workloadgroupsethash,omitempty" mapstructure:"workloadGroupSetHash,omitempty"`
+
+	// The label format of the workload group set this application belongs to.
+	WorkloadGroupSetLabel string `json:"workloadGroupSetLabel,omitempty" msgpack:"workloadGroupSetLabel,omitempty" bson:"workloadgroupsetlabel,omitempty" mapstructure:"workloadGroupSetLabel,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -66,6 +78,10 @@ func (o *Destination) GetBSON() (any, error) {
 	s.Host = o.Host
 	s.Ip = o.Ip
 	s.Labels = o.Labels
+	s.WorkloadGroupHash = o.WorkloadGroupHash
+	s.WorkloadGroupLabel = o.WorkloadGroupLabel
+	s.WorkloadGroupSetHash = o.WorkloadGroupSetHash
+	s.WorkloadGroupSetLabel = o.WorkloadGroupSetLabel
 
 	return s, nil
 }
@@ -88,6 +104,10 @@ func (o *Destination) SetBSON(raw bson.Raw) error {
 	o.Host = s.Host
 	o.Ip = s.Ip
 	o.Labels = s.Labels
+	o.WorkloadGroupHash = s.WorkloadGroupHash
+	o.WorkloadGroupLabel = s.WorkloadGroupLabel
+	o.WorkloadGroupSetHash = s.WorkloadGroupSetHash
+	o.WorkloadGroupSetLabel = s.WorkloadGroupSetLabel
 
 	return nil
 }
@@ -202,6 +222,14 @@ func (o *Destination) ValueForAttribute(name string) any {
 		return o.Ip
 	case "labels":
 		return o.Labels
+	case "workloadGroupHash":
+		return o.WorkloadGroupHash
+	case "workloadGroupLabel":
+		return o.WorkloadGroupLabel
+	case "workloadGroupSetHash":
+		return o.WorkloadGroupSetHash
+	case "workloadGroupSetLabel":
+		return o.WorkloadGroupSetLabel
 	}
 
 	return nil
@@ -261,6 +289,46 @@ var DestinationAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "string",
 		Type:           "list",
 	},
+	"WorkloadGroupHash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouphash",
+		ConvertedName:  "WorkloadGroupHash",
+		Description:    `The hash of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouplabel",
+		ConvertedName:  "WorkloadGroupLabel",
+		Description:    `The label format of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupLabel",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupSetHash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsethash",
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description:    `The hash of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupSetLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsetlabel",
+		ConvertedName:  "WorkloadGroupSetLabel",
+		Description:    `The label format of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetLabel",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // DestinationLowerCaseAttributesMap represents the map of attribute for Destination.
@@ -317,12 +385,56 @@ var DestinationLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		SubType:        "string",
 		Type:           "list",
 	},
+	"workloadgrouphash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouphash",
+		ConvertedName:  "WorkloadGroupHash",
+		Description:    `The hash of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgrouplabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouplabel",
+		ConvertedName:  "WorkloadGroupLabel",
+		Description:    `The label format of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupLabel",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgroupsethash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsethash",
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description:    `The hash of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgroupsetlabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsetlabel",
+		ConvertedName:  "WorkloadGroupSetLabel",
+		Description:    `The label format of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetLabel",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 type mongoAttributesDestination struct {
-	App       string   `bson:"app,omitempty"`
-	Component string   `bson:"component,omitempty"`
-	Host      string   `bson:"host"`
-	Ip        string   `bson:"ip,omitempty"`
-	Labels    []string `bson:"labels,omitempty"`
+	App                   string   `bson:"app,omitempty"`
+	Component             string   `bson:"component,omitempty"`
+	Host                  string   `bson:"host"`
+	Ip                    string   `bson:"ip,omitempty"`
+	Labels                []string `bson:"labels,omitempty"`
+	WorkloadGroupHash     string   `bson:"workloadgrouphash,omitempty"`
+	WorkloadGroupLabel    string   `bson:"workloadgrouplabel,omitempty"`
+	WorkloadGroupSetHash  string   `bson:"workloadgroupsethash,omitempty"`
+	WorkloadGroupSetLabel string   `bson:"workloadgroupsetlabel,omitempty"`
 }

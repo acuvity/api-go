@@ -115,7 +115,8 @@
         "Proxy",
         "Viewer",
         "RiskAuditor",
-        "ExternalIDP"
+        "ExternalIDP",
+        "Minibridge"
       ],
       "title": "role"
     },

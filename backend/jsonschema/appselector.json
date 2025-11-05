@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@workloadgroupsetselector"
+  ],
+  "$friendlyName": "App Selector",
+  "$friendlyNamePlural": "App Selectors",
+  "$modelName": "AppSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appselectors",
+  "$modelRestName": "appselector",
+  "additionalProperties": false,
+  "description": "Represents an app selector used to identify and group workload groups.",
+  "properties": {
+    "kubernetes": {
+      "$friendlyName": "Kubernetes",
+      "$ref": "kubernetesworkloadgroupsetselector.json",
+      "description": "If type is 'Kubernetes', this field contains the Kubernetes-specific selector configuration.",
+      "title": "kubernetes"
+    },
+    "type": {
+      "$defaultValue": "Kubernetes",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of selector.",
+      "enum": [
+        "Kubernetes"
+      ],
+      "title": "type"
+    },
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "$readOnly": true,
+      "description": "The hash of the workload group set this application belongs to.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetLabel": {
+      "$friendlyName": "Workload Group Set Label",
+      "$readOnly": true,
+      "description": "The label format of the workload group set this application belongs to.",
+      "title": "workloadGroupSetLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "AppSelector",
+  "type": "object"
+}

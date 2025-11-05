@@ -1,0 +1,55 @@
+{
+  "$extends": [],
+  "$friendlyName": "Workload Status",
+  "$friendlyNamePlural": "Workload Status",
+  "$modelName": "WorkloadStatus",
+  "$modelPackage": "lain",
+  "$modelResourceName": "workloadstatuses",
+  "$modelRestName": "workloadstatus",
+  "additionalProperties": false,
+  "description": "Represents the status of a workload that is managed by an app agent.",
+  "properties": {
+    "appComponents": {
+      "$friendlyName": "App Components",
+      "description": "The list of App Components that this workload enforces.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "appComponents",
+      "type": "array"
+    },
+    "healthDetails": {
+      "$friendlyName": "Health Details",
+      "description": "Internal details about the status of the workload which can explain the health status. The format of the internal details are version, platform and workload specific and subject to change.",
+      "title": "healthDetails",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "healthy": {
+      "$friendlyName": "Healthy",
+      "description": "True if the workload is considered healthy from the perspective of the app agent.",
+      "title": "healthy",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "lastHealthChange": {
+      "$friendlyName": "Last Health Change",
+      "description": "The timestamp of the last change in health status.",
+      "title": "lastHealthChange",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "WorkloadStatus",
+  "type": "object"
+}

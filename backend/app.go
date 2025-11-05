@@ -139,8 +139,8 @@ type App struct {
 	// spans for the application.
 	OtelReceivers []OTLPReceiver `json:"otelReceivers,omitempty" msgpack:"otelReceivers,omitempty" bson:"otelreceivers,omitempty" mapstructure:"otelReceivers,omitempty"`
 
-	// A tag expression that identify an application based on downstream labels.
-	Selector [][]string `json:"selector" msgpack:"selector" bson:"selector" mapstructure:"selector,omitempty"`
+	// The selector configuration that identifies workload group sets as this app.
+	Selector AppSelector `json:"selector" msgpack:"selector" bson:"selector" mapstructure:"selector,omitempty"`
 
 	// Only bearers with claims matching the subject will be allowed to access the
 	// appcomponent tokens.
@@ -181,7 +181,6 @@ func NewApp() *App {
 	return &App{
 		ModelVersion: 1,
 		Components:   AppComponentsList{},
-		Selector:     [][]string{},
 		Subject:      [][]string{},
 		Tracing:      AppTracingDisabled,
 	}
@@ -507,6 +506,10 @@ func (o *App) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err err
 		}
 	}
 
+	if err := o.Selector.EncryptAttributes(encrypter); err != nil {
+		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'App' (%s): %w", o.Identifier(), err)
+	}
+
 	return nil
 }
 
@@ -532,6 +535,10 @@ func (o *App) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err err
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %w", o.Identifier(), err)
 		}
+	}
+
+	if err := o.Selector.DecryptAttributes(encrypter); err != nil {
+		return fmt.Errorf("unable to decrypt ref attribute 'Selector' for 'App' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -598,7 +605,7 @@ func (o *App) Validate() error {
 		}
 	}
 
-	if err := ValidateTagsExpression("selector", o.Selector); err != nil {
+	if err := o.Selector.Validate(); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -831,12 +838,13 @@ spans for the application.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
 		ConvertedName:  "Selector",
-		Description:    `A tag expression that identify an application based on downstream labels.`,
+		Description:    `The selector configuration that identifies workload group sets as this app.`,
 		Exposed:        true,
 		Name:           "selector",
+		Required:       true,
 		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		SubType:        "appselector",
+		Type:           "ref",
 	},
 	"Subject": {
 		AllowedChoices: []string{},
@@ -1037,12 +1045,13 @@ spans for the application.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
 		ConvertedName:  "Selector",
-		Description:    `A tag expression that identify an application based on downstream labels.`,
+		Description:    `The selector configuration that identifies workload group sets as this app.`,
 		Exposed:        true,
 		Name:           "selector",
+		Required:       true,
 		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		SubType:        "appselector",
+		Type:           "ref",
 	},
 	"subject": {
 		AllowedChoices: []string{},
@@ -1201,8 +1210,8 @@ type SparseApp struct {
 	// spans for the application.
 	OtelReceivers *[]OTLPReceiver `json:"otelReceivers,omitempty" msgpack:"otelReceivers,omitempty" bson:"otelreceivers,omitempty" mapstructure:"otelReceivers,omitempty"`
 
-	// A tag expression that identify an application based on downstream labels.
-	Selector *[][]string `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
+	// The selector configuration that identifies workload group sets as this app.
+	Selector *AppSelector `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
 
 	// Only bearers with claims matching the subject will be allowed to access the
 	// appcomponent tokens.
@@ -1483,6 +1492,10 @@ func (o *SparseApp) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 	}
 
+	if err := o.Selector.EncryptAttributes(encrypter); err != nil {
+		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'App' (%s): %w", o.Identifier(), err)
+	}
+
 	return nil
 }
 
@@ -1512,6 +1525,10 @@ func (o *SparseApp) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OtelReceivers' for 'App' (%s): %w", o.Identifier(), err)
 			}
 		}
+	}
+
+	if err := o.Selector.DecryptAttributes(encrypter); err != nil {
+		return fmt.Errorf("unable to decrypt ref attribute 'Selector' for 'App' (%s): %w", o.Identifier(), err)
 	}
 
 	return nil
@@ -1632,7 +1649,7 @@ type mongoAttributesApp struct {
 	Namespace     string            `bson:"namespace,omitempty"`
 	OtelExporter  *OTLPEndpoint     `bson:"otelexporter,omitempty"`
 	OtelReceivers []OTLPReceiver    `bson:"otelreceivers,omitempty"`
-	Selector      [][]string        `bson:"selector"`
+	Selector      AppSelector       `bson:"selector"`
 	Subject       [][]string        `bson:"subject"`
 	Tracing       AppTracingValue   `bson:"tracing"`
 	UpdateTime    time.Time         `bson:"updatetime"`
@@ -1650,7 +1667,7 @@ type mongoAttributesSparseApp struct {
 	Namespace     *string            `bson:"namespace,omitempty"`
 	OtelExporter  *OTLPEndpoint      `bson:"otelexporter,omitempty"`
 	OtelReceivers *[]OTLPReceiver    `bson:"otelreceivers,omitempty"`
-	Selector      *[][]string        `bson:"selector,omitempty"`
+	Selector      *AppSelector       `bson:"selector,omitempty"`
 	Subject       *[][]string        `bson:"subject,omitempty"`
 	Tracing       *AppTracingValue   `bson:"tracing,omitempty"`
 	UpdateTime    *time.Time         `bson:"updatetime,omitempty"`

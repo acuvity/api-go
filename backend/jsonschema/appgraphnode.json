@@ -1,0 +1,93 @@
+{
+  "$extends": [
+    "@workloadgroup",
+    "@workloadgroupset"
+  ],
+  "$friendlyName": "App Graph Node",
+  "$friendlyNamePlural": "App Graph Nodes",
+  "$modelName": "AppGraphNode",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphnodes",
+  "$modelRestName": "appgraphnode",
+  "additionalProperties": false,
+  "description": "Represents an application graph node for an application graph generated from the different logs collected by the app agents.",
+  "properties": {
+    "links": {
+      "$friendlyName": "Links",
+      "$ref": "appgraphlinks.json",
+      "description": "The links from this node to other nodes in the application graph.",
+      "title": "links"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the application graph node.",
+      "title": "name",
+      "type": "string"
+    },
+    "nodeID": {
+      "$friendlyName": "Node ID",
+      "$required": true,
+      "description": "The unique identifier of the application graph node.",
+      "title": "nodeID",
+      "type": "string"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of the application graph node.",
+      "enum": [
+        "WorkloadGroup",
+        "AppComponent",
+        "Provider",
+        "AIDomain",
+        "Domain",
+        "IP"
+      ],
+      "title": "type"
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "description": "The hash of the workload group this application belongs to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupLabel": {
+      "$friendlyName": "Workload Group Label",
+      "description": "The label format of the workload group this application belongs to.",
+      "title": "workloadGroupLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "description": "The hash of the workload group set this application belongs to.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetLabel": {
+      "$friendlyName": "Workload Group Set Label",
+      "description": "The label format of the workload group set this application belongs to.",
+      "title": "workloadGroupSetLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "nodeID",
+    "type"
+  ],
+  "title": "AppGraphNode",
+  "type": "object"
+}

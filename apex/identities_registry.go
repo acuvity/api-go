@@ -251,10 +251,10 @@ func (f modelManager) DetachedFromString(name string) any {
 
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
+	case "analyzermatcher", "Matcher":
+		return NewMatcher()
 	case "analyzermodel", "AnalyzerModel":
 		return NewAnalyzerModel()
-	case "detectionmatcher", "DetectionMatcher":
-		return NewDetectionMatcher()
 	case "detector", "Detector":
 		return NewDetector()
 	case "extraction", "Extraction":
