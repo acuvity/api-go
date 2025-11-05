@@ -1,0 +1,87 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@principalable",
+    "@importable"
+  ],
+  "$friendlyName": "App Report",
+  "$friendlyNamePlural": "App Reports",
+  "$modelName": "AppReport",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appreports",
+  "$modelRestName": "appreport",
+  "additionalProperties": false,
+  "description": "Report sent by the Acuvity app agent.",
+  "properties": {
+    "DNSReports": {
+      "$friendlyName": "DNS Reports",
+      "description": "List of DNS reports.",
+      "items": {
+        "$ref": "dnsreport.json"
+      },
+      "title": "DNSReports",
+      "type": "array"
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectionReports": {
+      "$friendlyName": "Connection Reports",
+      "description": "List of connection reports.",
+      "items": {
+        "$ref": "connectionreport.json"
+      },
+      "title": "connectionReports",
+      "type": "array"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "$required": true,
+      "description": "The principal of the object.",
+      "title": "principal"
+    }
+  },
+  "required": [
+    "principal"
+  ],
+  "title": "AppReport",
+  "type": "object"
+}

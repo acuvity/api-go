@@ -90,9 +90,6 @@ type Analyzer struct {
 	// The description of the analyzer.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
-	// A list of detection matcher that will trigger the analyzer.
-	DetectionMatchers [][]DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
-
 	// The detectors the analyzer can use.
 	Detectors []*Detector `json:"detectors,omitempty" msgpack:"detectors,omitempty" bson:"-" mapstructure:"detectors,omitempty"`
 
@@ -101,6 +98,9 @@ type Analyzer struct {
 
 	// The group the analyzer belongs to.
 	Group string `json:"group" msgpack:"group" bson:"-" mapstructure:"group,omitempty"`
+
+	// A list of matcher that will trigger the analyzer.
+	Matchers [][]Matcher `json:"matchers,omitempty" msgpack:"matchers,omitempty" bson:"-" mapstructure:"matchers,omitempty"`
 
 	// The models used by the analyzer.
 	Models []*AnalyzerModel `json:"models,omitempty" msgpack:"models,omitempty" bson:"-" mapstructure:"models,omitempty"`
@@ -225,15 +225,15 @@ func (o *Analyzer) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAnalyzer{
-			ID:                &o.ID,
-			Description:       &o.Description,
-			DetectionMatchers: &o.DetectionMatchers,
-			Detectors:         &o.Detectors,
-			Enabled:           &o.Enabled,
-			Group:             &o.Group,
-			Models:            &o.Models,
-			Name:              &o.Name,
-			Namespace:         &o.Namespace,
+			ID:          &o.ID,
+			Description: &o.Description,
+			Detectors:   &o.Detectors,
+			Enabled:     &o.Enabled,
+			Group:       &o.Group,
+			Matchers:    &o.Matchers,
+			Models:      &o.Models,
+			Name:        &o.Name,
+			Namespace:   &o.Namespace,
 		}
 	}
 
@@ -244,14 +244,14 @@ func (o *Analyzer) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "description":
 			sp.Description = &(o.Description)
-		case "detectionMatchers":
-			sp.DetectionMatchers = &(o.DetectionMatchers)
 		case "detectors":
 			sp.Detectors = &(o.Detectors)
 		case "enabled":
 			sp.Enabled = &(o.Enabled)
 		case "group":
 			sp.Group = &(o.Group)
+		case "matchers":
+			sp.Matchers = &(o.Matchers)
 		case "models":
 			sp.Models = &(o.Models)
 		case "name":
@@ -277,9 +277,6 @@ func (o *Analyzer) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
-	if so.DetectionMatchers != nil {
-		o.DetectionMatchers = *so.DetectionMatchers
-	}
 	if so.Detectors != nil {
 		o.Detectors = *so.Detectors
 	}
@@ -288,6 +285,9 @@ func (o *Analyzer) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Group != nil {
 		o.Group = *so.Group
+	}
+	if so.Matchers != nil {
+		o.Matchers = *so.Matchers
 	}
 	if so.Models != nil {
 		o.Models = *so.Models
@@ -436,14 +436,14 @@ func (o *Analyzer) ValueForAttribute(name string) any {
 		return o.ID
 	case "description":
 		return o.Description
-	case "detectionMatchers":
-		return o.DetectionMatchers
 	case "detectors":
 		return o.Detectors
 	case "enabled":
 		return o.Enabled
 	case "group":
 		return o.Group
+	case "matchers":
+		return o.Matchers
 	case "models":
 		return o.Models
 	case "name":
@@ -480,15 +480,6 @@ var AnalyzerAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Type:           "string",
 	},
-	"DetectionMatchers": {
-		AllowedChoices: []string{},
-		ConvertedName:  "DetectionMatchers",
-		Description:    `A list of detection matcher that will trigger the analyzer.`,
-		Exposed:        true,
-		Name:           "detectionMatchers",
-		SubType:        "[][]detectionmatcher",
-		Type:           "external",
-	},
 	"Detectors": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Detectors",
@@ -513,6 +504,15 @@ var AnalyzerAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "group",
 		Type:           "string",
+	},
+	"Matchers": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Matchers",
+		Description:    `A list of matcher that will trigger the analyzer.`,
+		Exposed:        true,
+		Name:           "matchers",
+		SubType:        "[][]analyzermatcher",
+		Type:           "external",
 	},
 	"Models": {
 		AllowedChoices: []string{},
@@ -573,15 +573,6 @@ var AnalyzerLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "description",
 		Type:           "string",
 	},
-	"detectionmatchers": {
-		AllowedChoices: []string{},
-		ConvertedName:  "DetectionMatchers",
-		Description:    `A list of detection matcher that will trigger the analyzer.`,
-		Exposed:        true,
-		Name:           "detectionMatchers",
-		SubType:        "[][]detectionmatcher",
-		Type:           "external",
-	},
 	"detectors": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Detectors",
@@ -606,6 +597,15 @@ var AnalyzerLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Exposed:        true,
 		Name:           "group",
 		Type:           "string",
+	},
+	"matchers": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Matchers",
+		Description:    `A list of matcher that will trigger the analyzer.`,
+		Exposed:        true,
+		Name:           "matchers",
+		SubType:        "[][]analyzermatcher",
+		Type:           "external",
 	},
 	"models": {
 		AllowedChoices: []string{},
@@ -710,9 +710,6 @@ type SparseAnalyzer struct {
 	// The description of the analyzer.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"-" mapstructure:"description,omitempty"`
 
-	// A list of detection matcher that will trigger the analyzer.
-	DetectionMatchers *[][]DetectionMatcher `json:"detectionMatchers,omitempty" msgpack:"detectionMatchers,omitempty" bson:"-" mapstructure:"detectionMatchers,omitempty"`
-
 	// The detectors the analyzer can use.
 	Detectors *[]*Detector `json:"detectors,omitempty" msgpack:"detectors,omitempty" bson:"-" mapstructure:"detectors,omitempty"`
 
@@ -721,6 +718,9 @@ type SparseAnalyzer struct {
 
 	// The group the analyzer belongs to.
 	Group *string `json:"group,omitempty" msgpack:"group,omitempty" bson:"-" mapstructure:"group,omitempty"`
+
+	// A list of matcher that will trigger the analyzer.
+	Matchers *[][]Matcher `json:"matchers,omitempty" msgpack:"matchers,omitempty" bson:"-" mapstructure:"matchers,omitempty"`
 
 	// The models used by the analyzer.
 	Models *[]*AnalyzerModel `json:"models,omitempty" msgpack:"models,omitempty" bson:"-" mapstructure:"models,omitempty"`
@@ -822,9 +822,6 @@ func (o *SparseAnalyzer) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
-	if o.DetectionMatchers != nil {
-		out.DetectionMatchers = *o.DetectionMatchers
-	}
 	if o.Detectors != nil {
 		out.Detectors = *o.Detectors
 	}
@@ -833,6 +830,9 @@ func (o *SparseAnalyzer) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Group != nil {
 		out.Group = *o.Group
+	}
+	if o.Matchers != nil {
+		out.Matchers = *o.Matchers
 	}
 	if o.Models != nil {
 		out.Models = *o.Models

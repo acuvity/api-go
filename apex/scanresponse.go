@@ -32,6 +32,9 @@ const (
 	// ScanResponseDecisionForbiddenUser represents the value ForbiddenUser.
 	ScanResponseDecisionForbiddenUser ScanResponseDecisionValue = "ForbiddenUser"
 
+	// ScanResponseDecisionRedirected represents the value Redirected.
+	ScanResponseDecisionRedirected ScanResponseDecisionValue = "Redirected"
+
 	// ScanResponseDecisionSkipped represents the value Skipped.
 	ScanResponseDecisionSkipped ScanResponseDecisionValue = "Skipped"
 )
@@ -150,7 +153,7 @@ type ScanResponse struct {
 	McpMessage *MCPMessage `json:"mcpMessage,omitempty" msgpack:"mcpMessage,omitempty" bson:"mcpmessage,omitempty" mapstructure:"mcpMessage,omitempty"`
 
 	// The model used by the request.
-	Model string `json:"model" msgpack:"model" bson:"model" mapstructure:"model,omitempty"`
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -671,7 +674,7 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -876,7 +879,7 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1120,7 +1123,7 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1903,7 +1906,7 @@ type mongoAttributesScanResponse struct {
 	Hash          string                    `bson:"hash"`
 	Latency       *Latency                  `bson:"latency,omitempty"`
 	McpMessage    *MCPMessage               `bson:"mcpmessage,omitempty"`
-	Model         string                    `bson:"model"`
+	Model         string                    `bson:"model,omitempty"`
 	Namespace     string                    `bson:"namespace,omitempty"`
 	PipelineName  string                    `bson:"pipelinename"`
 	Principal     *Principal                `bson:"principal"`

@@ -39,7 +39,8 @@
       "description": "Define if the provider is allowed or denied for the match expression.",
       "enum": [
         "Allow",
-        "Deny"
+        "Deny",
+        "Redirect"
       ],
       "title": "action"
     },
@@ -163,6 +164,24 @@
       "title": "permissive",
       "type": [
         "boolean",
+        "null"
+      ]
+    },
+    "redirectMessage": {
+      "$friendlyName": "Redirect Message",
+      "description": "If set, show this message to user before the redirection.",
+      "title": "redirectMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "redirectURL": {
+      "$friendlyName": "Redirect URL",
+      "description": "If set, redirect the user to that URL.",
+      "title": "redirectURL",
+      "type": [
+        "string",
         "null"
       ]
     },

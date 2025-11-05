@@ -1,0 +1,28 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Link Logs",
+  "$friendlyNamePlural": "App Graph Link Logs",
+  "$modelName": "AppGraphLinkLogs",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinklogs",
+  "$modelRestName": "appgraphlinklogs",
+  "additionalProperties": false,
+  "description": "Represents an application graph link logs entry for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "input": {
+      "$friendlyName": "Input",
+      "$ref": "appgraphlinklogentry.json",
+      "description": "The input (request) type log links from this node to other nodes in the application graph.",
+      "title": "input"
+    },
+    "output": {
+      "$friendlyName": "Output",
+      "$ref": "appgraphlinklogentry.json",
+      "description": "The output (response) type log links from this node to other nodes in the application graph.",
+      "title": "output"
+    }
+  },
+  "required": [],
+  "title": "AppGraphLinkLogs",
+  "type": "object"
+}

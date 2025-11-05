@@ -1,0 +1,29 @@
+{
+  "$extends": [],
+  "$friendlyName": "Egress Default Policy",
+  "$friendlyNamePlural": "Egress Default Policies",
+  "$modelName": "EgressDefaultPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "egressdefaultpolicies",
+  "$modelRestName": "egressdefaultpolicy",
+  "additionalProperties": false,
+  "description": "Represents the default egress policy configuration of an application component.",
+  "properties": {
+    "ACLAction": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "ACL Action",
+      "$required": true,
+      "description": "The default ACL action to take for connections egressing from this workload that are not covered by other policy rules or ACLs.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "ACLAction"
+    }
+  },
+  "required": [
+    "ACLAction"
+  ],
+  "title": "EgressDefaultPolicy",
+  "type": "object"
+}

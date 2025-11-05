@@ -589,6 +589,9 @@ func (o *Sink) Validate() error {
 	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)

@@ -1,0 +1,156 @@
+{
+  "$extends": [
+    "@appreportaction",
+    "@appreporttarget",
+    "@workloadgroup",
+    "@workloadgroupset"
+  ],
+  "$friendlyName": "DNS Report",
+  "$friendlyNamePlural": "DNS Reports",
+  "$modelName": "DNSReport",
+  "$modelPackage": "lain",
+  "$modelResourceName": "dnsreports",
+  "$modelRestName": "dnsreport",
+  "additionalProperties": false,
+  "description": "Represents a DNS report sent by an app agent within an app report.",
+  "properties": {
+    "CNAMEs": {
+      "$friendlyName": "CNAMEs",
+      "description": "The canonical name (CNAME) records associated with the domain, if any.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "CNAMEs",
+      "type": "array"
+    },
+    "IPAddresses": {
+      "$friendlyName": "IP Addresses",
+      "description": "The list of IP addresses associated with the domain.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "IPAddresses",
+      "type": "array"
+    },
+    "action": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The action taken.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "actionOrigin": {
+      "$friendlyName": "Action Origin",
+      "description": "The origin where the action was taken.",
+      "title": "actionOrigin",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appComponent": {
+      "$friendlyName": "App Component",
+      "description": "The app component that this target represents.",
+      "title": "appComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "The domain that was queried.",
+      "title": "domain",
+      "type": "string"
+    },
+    "hits": {
+      "$friendlyName": "Hits",
+      "$required": true,
+      "description": "The number of times this domain was queried.",
+      "minimum": 1,
+      "title": "hits",
+      "type": "integer"
+    },
+    "policyID": {
+      "$friendlyName": "Policy ID",
+      "description": "The reference to the policy ID that triggered this action.",
+      "title": "policyID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The provider that this target represents.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reason": {
+      "$friendlyName": "Reason",
+      "description": "The reason for the action.",
+      "title": "reason",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "description": "The hash of the workload group this application belongs to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupLabel": {
+      "$friendlyName": "Workload Group Label",
+      "description": "The label format of the workload group this application belongs to.",
+      "title": "workloadGroupLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "description": "The hash of the workload group set this application belongs to.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetLabel": {
+      "$friendlyName": "Workload Group Set Label",
+      "description": "The label format of the workload group set this application belongs to.",
+      "title": "workloadGroupSetLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "action",
+    "domain",
+    "hits"
+  ],
+  "title": "DNSReport",
+  "type": "object"
+}

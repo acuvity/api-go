@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Link",
+  "$friendlyNamePlural": "App Graph Links",
+  "$modelName": "AppGraphLink",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinks",
+  "$modelRestName": "appgraphlink",
+  "additionalProperties": false,
+  "description": "Represents an application graph link for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "connections": {
+      "$friendlyName": "Connections",
+      "$ref": "appgraphlinkconnection.json",
+      "description": "The connection link data from this node to other nodes in the application graph.",
+      "title": "connections"
+    },
+    "dns": {
+      "$friendlyName": "DNS",
+      "$ref": "appgraphlinkdns.json",
+      "description": "The DNS link data from this node to other nodes in the application graph.",
+      "title": "dns"
+    },
+    "logs": {
+      "$friendlyName": "Logs",
+      "$ref": "appgraphlinklogs.json",
+      "description": "The log links from this node to other nodes in the application graph.",
+      "title": "logs"
+    },
+    "nodeID": {
+      "$friendlyName": "Node ID",
+      "description": "The unique identifier of the application graph node.",
+      "title": "nodeID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppGraphLink",
+  "type": "object"
+}

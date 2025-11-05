@@ -1,0 +1,136 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Trace Link",
+  "$friendlyNamePlural": "App Graph Trace Links",
+  "$modelName": "AppGraphTraceLink",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphtracelinks",
+  "$modelRestName": "appgraphtracelink",
+  "additionalProperties": false,
+  "description": "Represents an application graph trace link for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "allow": {
+      "$friendlyName": "Allow",
+      "description": "True if this link is a connection that was allowed, false if denied.",
+      "title": "allow",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "dstNodeID": {
+      "$friendlyName": "Destination Node ID",
+      "$required": true,
+      "description": "The unique identifier of the application graph node which constitutes the destination for this link.",
+      "title": "dstNodeID",
+      "type": "string"
+    },
+    "encrypted": {
+      "$friendlyName": "Encrypted",
+      "description": "True if this link is a connection which is using encryption.",
+      "title": "encrypted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "findings": {
+      "$friendlyName": "Findings",
+      "description": "The findings categorized by type detected for this link.",
+      "items": {
+        "type": "integer"
+      },
+      "title": "findings",
+      "type": "object"
+    },
+    "insecureEncryption": {
+      "$friendlyName": "Insecure Encryption",
+      "description": "True if this link is a connection using insecure encryption (e.g., TLS 1.0 or 1.1).",
+      "title": "insecureEncryption",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "log": {
+      "$friendlyName": "Log",
+      "$ref": "proxyroundtrip.json",
+      "description": "The optional log data for this link in the application graph. If not provided, the log can be queried from Loki using the log timestamp and log hash.",
+      "title": "log"
+    },
+    "logHash": {
+      "$friendlyName": "Log Hash",
+      "$required": true,
+      "description": "The hash of the log entry for this link in the application graph. This can be used to query the log from Loki.",
+      "title": "logHash",
+      "type": "string"
+    },
+    "logTimestamp": {
+      "$friendlyName": "Log Timestamp",
+      "$required": true,
+      "description": "The timestamp in nanoseconds of the log entry for this link in the application graph. This can be used to query the log from Loki.",
+      "title": "logTimestamp",
+      "type": "integer"
+    },
+    "processingNode": {
+      "$friendlyName": "Processing Node",
+      "$required": true,
+      "description": "Identifies if either the source node or the destination node were responsible for processing that resulted in this link.",
+      "enum": [
+        "SourceNode",
+        "DestinationNode"
+      ],
+      "title": "processingNode"
+    },
+    "spanID": {
+      "$friendlyName": "Span ID",
+      "$required": true,
+      "description": "The span ID that is being referenced.",
+      "title": "spanID",
+      "type": "string"
+    },
+    "spanNumber": {
+      "$friendlyName": "Span Number",
+      "$required": true,
+      "description": "The number of the span in the trace that denotes the logical order number of the span within the trace.",
+      "title": "spanNumber",
+      "type": "integer"
+    },
+    "srcNodeID": {
+      "$friendlyName": "Source Node ID",
+      "$required": true,
+      "description": "The unique identifier of the application graph node which constitutes the source for this link.",
+      "title": "srcNodeID",
+      "type": "string"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of the proxy roundtrip. Input represents a request, Output a response.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username associated with this link.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "dstNodeID",
+    "logHash",
+    "logTimestamp",
+    "processingNode",
+    "spanID",
+    "spanNumber",
+    "srcNodeID"
+  ],
+  "title": "AppGraphTraceLink",
+  "type": "object"
+}

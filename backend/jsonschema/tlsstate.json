@@ -36,6 +36,15 @@
       "description": "The negotiated cipher suite of the connection.",
       "title": "cipherSuite",
       "type": "string"
+    },
+    "implementation": {
+      "$friendlyName": "Implementation",
+      "description": "The TLS library/provider/implementation used for the connection if known.",
+      "title": "implementation",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [

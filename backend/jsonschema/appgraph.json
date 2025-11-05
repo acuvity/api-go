@@ -1,0 +1,73 @@
+{
+  "$extends": [
+    "@workloadgroupset"
+  ],
+  "$friendlyName": "App Graph",
+  "$friendlyNamePlural": "App Graphs",
+  "$modelName": "AppGraph",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphs",
+  "$modelRestName": "appgraph",
+  "additionalProperties": false,
+  "description": "Represents an application graph generated from the different logs collected by the app agents.",
+  "properties": {
+    "kind": {
+      "$friendlyName": "Kind",
+      "description": "Filters by application graph kind. Must not be combined with workloadGroupSetHashes.",
+      "enum": [
+        "Defined",
+        "Undefined",
+        "UndefinedWithAIDomains"
+      ],
+      "title": "kind"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the application graph.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "nodes": {
+      "$friendlyName": "Nodes",
+      "additionalProperties": {
+        "$ref": "appgraphnode.json"
+      },
+      "description": "The nodes in the application graph.",
+      "title": "nodes",
+      "type": "object"
+    },
+    "traceLinks": {
+      "$friendlyName": "Trace Links",
+      "description": "If this is an application graph for a trace ID, this is the flat list of all links for this application graph.",
+      "items": {
+        "$ref": "appgraphtracelink.json"
+      },
+      "title": "traceLinks",
+      "type": "array"
+    },
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "description": "The hash of the workload group set this application belongs to.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupSetLabel": {
+      "$friendlyName": "Workload Group Set Label",
+      "description": "The label format of the workload group set this application belongs to.",
+      "title": "workloadGroupSetLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppGraph",
+  "type": "object"
+}

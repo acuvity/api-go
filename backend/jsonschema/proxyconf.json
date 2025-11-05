@@ -21,6 +21,15 @@
         "null"
       ]
     },
+    "MCPGateways": {
+      "$friendlyName": "MCPGateways",
+      "description": "The list of MCP Gateways registered in the system.",
+      "items": {
+        "$ref": "mcpgateway.json"
+      },
+      "title": "MCPGateways",
+      "type": "array"
+    },
     "PACConfigs": {
       "$friendlyName": "PACConfigs",
       "description": "The PAC configurations of the organizations.",

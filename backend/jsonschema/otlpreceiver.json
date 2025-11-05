@@ -16,24 +16,6 @@
       "title": "endpoint",
       "type": "string"
     },
-    "listenTLSCert": {
-      "$friendlyName": "Listen TLS Certificate",
-      "description": "Optional PEM encoded X509v3 certificate to use for the listener for this OTLP receiver. This setting is required if listenTLSKey is set.",
-      "title": "listenTLSCert",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "listenTLSKey": {
-      "$friendlyName": "Listen TLS Key",
-      "description": "Optional PEM encoded key pair to use for the listener for this OTLP receiver. This setting is required if listenTLSCert is set.",
-      "title": "listenTLSKey",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "protocol": {
       "$friendlyName": "Protocol",
       "$required": true,

@@ -49,6 +49,17 @@
         "null"
       ]
     },
+    "classification": {
+      "$defaultValue": "AIEnabled",
+      "$friendlyName": "Classification",
+      "$required": true,
+      "description": "The classification of the AI domain.",
+      "enum": [
+        "AINative",
+        "AIEnabled"
+      ],
+      "title": "classification"
+    },
     "company": {
       "$friendlyName": "Company",
       "description": "The name of the company.",
@@ -245,6 +256,7 @@
     }
   },
   "required": [
+    "classification",
     "domain",
     "name"
   ],

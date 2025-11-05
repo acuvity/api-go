@@ -1,0 +1,86 @@
+{
+  "$extends": [],
+  "$friendlyName": "Ingress ACL",
+  "$friendlyNamePlural": "Ingress ACLs",
+  "$modelName": "IngressACL",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ingressacls",
+  "$modelRestName": "ingressacl",
+  "additionalProperties": false,
+  "description": "Represents an ACL for the ingress of an application component.",
+  "properties": {
+    "ACLID": {
+      "$friendlyName": "ACL ID",
+      "$readOnly": true,
+      "description": "The ACL ID is the unique identifier for this ACL.",
+      "title": "ACLID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "IPRanges": {
+      "$friendlyName": "IP Ranges",
+      "$required": true,
+      "description": "The list of IP ranges in CIDR notation to match for this ACL.",
+      "items": {
+        "type": "string"
+      },
+      "title": "IPRanges",
+      "type": "array"
+    },
+    "action": {
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The action to take for connections ingressing to this workload that match this ACL.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the ingress ACL.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the ACL is disabled and will not be applied.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the ingress ACL.",
+      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "port": {
+      "$friendlyName": "Port",
+      "description": "The port to match for this ACL. If not set, the ACL will match all ports.",
+      "maximum": 65535,
+      "title": "port",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "IPRanges",
+    "action",
+    "name"
+  ],
+  "title": "IngressACL",
+  "type": "object"
+}

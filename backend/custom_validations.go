@@ -32,7 +32,7 @@ func ValidateURL(attribute string, u string) error {
 	}
 
 	switch uu.Scheme {
-	case "http", "https":
+	case "http", "https", "ws", "wss":
 	case "":
 		return makeErr(attribute, "invalid url: missing scheme")
 	default:
@@ -197,8 +197,12 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 		return makeErr("alertDefinition", fmt.Sprintf("you cannot set an alert definition if the access decision is '%s'", accessPolicy.Action))
 	}
 
-	if accessPolicy.Action == AccessPolicyActionDeny && len(accessPolicy.ContentPolicies) != 0 {
+	if (accessPolicy.Action == AccessPolicyActionDeny || accessPolicy.Action == AccessPolicyActionRedirect) && len(accessPolicy.ContentPolicies) != 0 {
 		return makeErr("contentPolicies", fmt.Sprintf("you cannot set content policies if the access decision is '%s'", accessPolicy.Action))
+	}
+
+	if accessPolicy.Action == AccessPolicyActionRedirect && accessPolicy.RedirectMessage == "" {
+		return makeErr("redirectMessage", fmt.Sprintf("you must set 'redirectMessage' if the access decision is '%s'", accessPolicy.Action))
 	}
 
 	matches := map[string]any{}
@@ -239,6 +243,10 @@ func ValidateAccessPolicyTopics(attribute string, forbiddenTopics []string) erro
 
 // ValidateProvider validates the entire provider objects
 func ValidateProvider(provider *Provider) error {
+
+	if provider != nil && strings.HasPrefix(provider.Name, "appc:") {
+		return makeErr("name", "provider name must not start with reserved prefix 'appc:'")
+	}
 
 	hosts := make(map[string]struct{}, len(provider.Hosts))
 	for _, h := range provider.Hosts {
@@ -293,6 +301,14 @@ func ValidateProvider(provider *Provider) error {
 		}
 	}
 
+	return nil
+}
+
+// ValidateProviderTeamName validates the entire provider team name
+func ValidateProviderTeamName(attribute string, name string) error {
+	if name == "UNASSIGNED" {
+		return makeErr("name", "'UNASSIGNED' is a reserved name")
+	}
 	return nil
 }
 
@@ -959,6 +975,54 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyToolUses:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'ToolUses' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'ToolUses' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'ToolUses' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'ToolUses' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'ToolUses' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyMCPServer:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPServer' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'MCPServer' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'MCPServer' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPServer' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyRiskScore:
 		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
 			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
@@ -1078,16 +1142,43 @@ func ValidateSink(sink *Sink) error {
 // ValidateApp validates the app object
 func ValidateApp(app *App) error {
 
-	m := map[string]struct{}{}
+	m := make(map[string]struct{}, len(app.Components))
+	wgm := make(map[string]struct{}, len(app.Components))
 	for _, component := range app.Components {
 		if component.Name == "_default" {
 			return makeErr("name", "_default is a reserved component name")
 		}
 
+		// ensure component selector type matches the app selector type
+		switch app.Selector.Type {
+		case AppSelectorTypeKubernetes:
+			if component.Selector.Type != AppComponentSelectorTypeKubernetes {
+				return makeErr("selector", fmt.Sprintf("component '%s' selector type must be 'Kubernetes' to match the app selector type", component.Name))
+			}
+		}
+
+		// ensure component names are unique
 		if _, ok := m[component.Name]; ok {
 			return makeErr("name", fmt.Sprintf("another component is already named '%s'", component.Name))
 		}
 		m[component.Name] = struct{}{}
+
+		// ensure component selectors are unique
+		wgh := WorkloadGroupHashFromSelector(&component.Selector)
+		if wgh == "" {
+			return makeErr("selector", fmt.Sprintf("component '%s' has an invalid Kubernetes selector (workload group hash computation failed)", component.Name))
+		}
+		if _, ok := wgm[wgh]; ok {
+			return makeErr("selector", fmt.Sprintf("another component is already using the same Kubernetes selector as component '%s'", component.Name))
+		}
+		wgm[wgh] = struct{}{}
+
+		// ensure Kubernetes component selectors all carry the same namespace
+		if component.Selector.Type == AppComponentSelectorTypeKubernetes {
+			if app.Selector.Kubernetes.KubernetesNamespace != component.Selector.Kubernetes.KubernetesNamespace {
+				return makeErr("selector", "Kubernetes component selectors must carry the same Kubernetes namespace as the Kubernetes app selector")
+			}
+		}
 	}
 
 	return nil
@@ -1183,6 +1274,21 @@ func ValidateRegexps(attribute string, r []string) error {
 		if err := ValidateRegexp(attribute, rr); err != nil {
 			return makeErr(attribute, fmt.Sprintf("Invalid item %d: %s", i, err))
 		}
+	}
+
+	return nil
+}
+
+// ValidateIP validates the given input is a valid IP address.
+func ValidateIP(attribute string, ipStr string) error {
+
+	if ipStr == "" {
+		return nil
+	}
+
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return makeErr(attribute, fmt.Sprintf("Invalid IP address '%s'", ipStr))
 	}
 
 	return nil
@@ -1419,6 +1525,292 @@ func ValidateAIDomainIndustries(attribute string, industries []string) error {
 		}
 	}
 
+	return nil
+}
+
+// ValidateCIDRs validates the given inputs are valid lists of CIDR notations.
+func ValidateCIDRs(attribute string, cidrs []string) error {
+
+	if len(cidrs) == 0 {
+		return nil
+	}
+
+	for i, cidr := range cidrs {
+		if _, _, err := net.ParseCIDR(cidr); err != nil {
+			return makeErr(attribute, fmt.Sprintf("Invalid CIDR at index %d: %s", i, err))
+		}
+	}
+
+	return nil
+}
+
+var (
+	// valid DNS label: LDH (letters, digits, hyphen) with no leading/trailing hyphen, max 63 chars
+	validHostnameLabel = `[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?`
+
+	// for the egress policies, a valid hostname is:
+	// optional leading wildcard followed immediately by a dot (*.|**.), then at least two labels, no trailing dot
+	validPolicyHostnameRegex = regexp.MustCompile(
+		`^(?:(?:\*\*|\*)\.)?(?:` + validHostnameLabel + `\.)+` + validHostnameLabel + `$`,
+	)
+
+	// Allow a single label or multiple labels separated by dots; no trailing dot
+	validOnePlusLabelsDNSNameRegex = regexp.MustCompile(`^` + validHostnameLabel + `(?:\.` + validHostnameLabel + `)*$`)
+)
+
+// ValidatePolicyHostnames validates the given hostnames to be valid strings for egress policy usage.
+func ValidatePolicyHostnames(attribute string, hostnames []string) error {
+
+	if len(hostnames) == 0 {
+		return nil
+	}
+
+	for i, hostname := range hostnames {
+		if hostname == "" {
+			return makeErr(attribute, fmt.Sprintf("Hostname at index %d is empty", i))
+		}
+
+		if !validPolicyHostnameRegex.MatchString(hostname) {
+			return makeErr(attribute, fmt.Sprintf("Hostname at index %d is an invalid policy hostname: it can have an optional leading wildcard (*.|**.), and must consist of at least two labels.", i))
+		}
+	}
+
+	return nil
+}
+
+// ValidateDNSName validates the given DNS name to be a valid string for a typical DNS name excluding a dotted end.
+func ValidateDNSName(attribute, dnsName string) error {
+
+	if dnsName == "" {
+		return nil
+	}
+
+	if !validOnePlusLabelsDNSNameRegex.MatchString(dnsName) {
+		return makeErr(attribute, fmt.Sprintf("DNS name '%s' is an invalid DNS name: it must consist of at least one label.", dnsName))
+	}
+
+	return nil
+}
+
+// ValidateDNSNames validates the given DNS names to be valid strings for a typical DNS name excluding a dotted end.
+func ValidateDNSNames(attribute string, dnsNames []string) error {
+
+	if len(dnsNames) == 0 {
+		return nil
+	}
+
+	for i, dnsName := range dnsNames {
+		if dnsName == "" {
+			return makeErr(attribute, fmt.Sprintf("DNS name at index %d is empty", i))
+		}
+
+		if !validOnePlusLabelsDNSNameRegex.MatchString(dnsName) {
+			return makeErr(attribute, fmt.Sprintf("DNS name at index %d is an invalid DNS name: it must consist of at least one label.", i))
+		}
+	}
+
+	return nil
+}
+
+// ValidateAppGraphQuery validates the app graph query object.
+func ValidateAppGraphQuery(appGraphQuery *AppGraphQuery) error {
+
+	if appGraphQuery.AppGraphKind != AppGraphQueryAppGraphKindAll && len(appGraphQuery.WorkloadGroupSetHashes) > 0 {
+		return makeErr("workloadGroupSetHashes", "'WorkloadGroupSetHashes' cannot be set when 'AppGraphKind' is set.")
+	}
+
+	return nil
+}
+
+// ValidateAppComponentReferences validates the references to app components.
+func ValidateAppComponentReferences(attribute string, references []string) error {
+
+	if len(references) == 0 {
+		return nil
+	}
+
+	m := map[string]struct{}{}
+	for _, ref := range references {
+		if ref == "" {
+			return makeErr(attribute, "Reference cannot be empty")
+		}
+		if _, ok := m[ref]; ok {
+			return makeErr(attribute, fmt.Sprintf("Duplicate reference found: '%s'", ref))
+		}
+		m[ref] = struct{}{}
+
+		// an app component reference can only have one slash, or no slash when referring to all components
+		// and obviously after the split they cannot be empty
+		parts := strings.Split(ref, "/")
+		if len(parts) > 2 {
+			return makeErr(attribute, fmt.Sprintf("Invalid reference '%s': can only contain one slash", ref))
+		}
+		if len(parts) == 2 {
+			if parts[0] == "" {
+				return makeErr(attribute, fmt.Sprintf("Invalid reference '%s': app name cannot be empty", ref))
+			}
+			if parts[1] == "" {
+				return makeErr(attribute, fmt.Sprintf("Invalid reference '%s': component name cannot be empty", ref))
+			}
+		}
+		if len(parts) == 1 {
+			if parts[0] == "" {
+				return makeErr(attribute, "Invalid reference: cannot be empty")
+			}
+		}
+	}
+
+	return nil
+}
+
+// ValidateAppSelector validates the app selector object.
+func ValidateAppSelector(appSelector *AppSelector) error {
+
+	switch appSelector.Type {
+	case AppSelectorTypeKubernetes:
+		if appSelector.Kubernetes == nil {
+			return makeErr("kubernetes", "Kubernetes app selector must be defined if app selector 'type' is set to 'Kubernetes'.")
+		}
+		return nil
+	default:
+		return makeErr("type", fmt.Sprintf("Unknown app selector type '%s'.", appSelector.Type))
+	}
+}
+
+// ValidateAppComponentSelector validates the app component selector object.
+func ValidateAppComponentSelector(appComponentSelector *AppComponentSelector) error {
+
+	switch appComponentSelector.Type {
+	case AppComponentSelectorTypeKubernetes:
+		if appComponentSelector.Kubernetes == nil {
+			return makeErr("kubernetes", "Kubernetes app component selector must be defined if app component selector 'type' is set to 'Kubernetes'.")
+		}
+		return nil
+	default:
+		return makeErr("type", fmt.Sprintf("Unknown app component selector type '%s'.", appComponentSelector.Type))
+	}
+}
+
+// ValidateAppReport validates the app report object.
+func ValidateAppReport(appReport *AppReport) error {
+	if len(appReport.ConnectionReports) == 0 && len(appReport.DNSReports) == 0 {
+		return makeErr("connectionReports", "At least one connection report or DNS report must be provided")
+	}
+	return nil
+}
+
+// ValidateDNSReport validates the DNS report object.
+func ValidateDNSReport(dnsReport *DNSReport) error {
+	if dnsReport.Action == DNSReportActionAllow && len(dnsReport.IPAddresses) == 0 && len(dnsReport.CNAMEs) == 0 {
+		return makeErr("ipAddresses", "At least one IP address or one CNAME must be provided when action is 'Allow'")
+	}
+	return nil
+}
+
+// ValidateEgressPolicy validates the egress policy object.
+func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
+	if len(egressPolicy.Rules) == 0 && len(egressPolicy.ACLs) == 0 {
+		return makeErr("rules", "At least one rule or ACL must be provided")
+	}
+	return nil
+}
+
+// ValidateEgressPolicyACL validates the egress policy ACL object.
+func ValidateEgressPolicyACL(egressPolicyACL *EgressPolicyACL) error {
+	if len(egressPolicyACL.Hostnames) == 0 && len(egressPolicyACL.IPRanges) == 0 {
+		return makeErr("hostnames", "At least one hostname or IP range must be provided")
+	}
+	return nil
+}
+
+// ValidateEgressPolicyRule validates the egress policy rule object.
+func ValidateEgressPolicyRule(egressPolicyRule *EgressPolicyRule) error {
+
+	if len(egressPolicyRule.AppComponents) == 0 && len(egressPolicyRule.Providers) == 0 {
+		return makeErr("appComponents", "At least one app component or provider must be provided")
+	}
+	if len(egressPolicyRule.AppComponents) > 0 && len(egressPolicyRule.Providers) > 0 {
+		return makeErr("appComponents", "You cannot provide both app components and providers")
+	}
+
+	switch egressPolicyRule.Mode {
+	case EgressPolicyRuleModeProxy:
+		if egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionAllow && egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionDeny {
+			return makeErr("proxyAction", "When 'Mode' is set to 'Proxy', 'ProxyAction' must be either 'Allow' or 'Deny'")
+		}
+	default:
+		if egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionNotApplicable && egressPolicyRule.ProxyAction != "" {
+			return makeErr("proxyAction", "When 'Mode' is not set to 'Proxy', 'ProxyAction' must be 'NotApplicable'")
+		}
+	}
+
+	return nil
+}
+
+// ValidateIngressACL validates the ingress ACL object.
+func ValidateIngressACL(ingressACL *IngressACL) error {
+	// TODO: looking at this right now, I don't know anymore why I thought that this needs a custom validation
+	return nil
+}
+
+// ValidateIngressListener validates the ingress listener object.
+func ValidateIngressListener(ingressListener *IngressListener) error {
+	switch ingressListener.Mode {
+	case IngressListenerModePassthrough:
+		// nothing to do for passthrough
+		return nil
+	case IngressListenerModeProxy:
+		if ingressListener.Proxy == nil {
+			return makeErr("proxy", "'Proxy' must be defined if 'Mode' is set to 'Proxy'.")
+		}
+	default:
+		return makeErr("mode", fmt.Sprintf("Unknown ingress listener mode '%s'.", ingressListener.Mode))
+	}
+	return nil
+}
+
+// ValidateIngressListeners validates a list of ingress listeners.
+func ValidateIngressListeners(attribute string, ingressListeners []*IngressListener) error {
+
+	if len(ingressListeners) == 0 {
+		return nil
+	}
+
+	m := map[int]struct{}{}
+	for _, listener := range ingressListeners {
+		if _, ok := m[listener.Port]; ok {
+			return makeErr(attribute, fmt.Sprintf("another listener is already using port '%d'", listener.Port))
+		}
+		m[listener.Port] = struct{}{}
+	}
+	return nil
+}
+
+// ValidateIngressPolicy validates the ingress policy object.
+func ValidateIngressPolicy(ingressPolicy *IngressPolicy) error {
+	// TODO: looking at this right now, I don't know anymore why I thought that this needs a custom validation
+	return nil
+}
+
+// ValidateIngressPolicyRule validates the ingress policy rule object.
+func ValidateIngressPolicyRule(ingressPolicyRule *IngressPolicyRule) error {
+	if len(ingressPolicyRule.AppComponents) == 0 && len(ingressPolicyRule.IPRanges) == 0 {
+		return makeErr("appComponents", "At least one app component or IP range must be provided")
+	}
+	if len(ingressPolicyRule.AppComponents) > 0 && len(ingressPolicyRule.IPRanges) > 0 {
+		return makeErr("appComponents", "You cannot provide both app components and IP ranges")
+	}
+	return nil
+}
+
+// ValidateIngressProxyConfig validates the ingress proxy configuration object.
+func ValidateIngressProxyConfig(ingressProxyConfig *IngressProxyConfig) error {
+
+	// TODO: keeping this validation here until we bring this back in which case it will be needed again
+	// if (ingressProxyConfig.ListenTLSKey == "" && ingressProxyConfig.ListenTLSCert != "") ||
+	// 	(ingressProxyConfig.ListenTLSKey != "" && ingressProxyConfig.ListenTLSCert == "") {
+	// 	return makeErr("listenTLSCert", "'ListenTLSCert' and 'ListenTLSKey' must both be defined or both be empty.")
+	// }
 	return nil
 }
 

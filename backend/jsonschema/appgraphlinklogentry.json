@@ -1,0 +1,79 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Link Log Entry",
+  "$friendlyNamePlural": "App Graph Link Log Entries",
+  "$modelName": "AppGraphLinkLogEntry",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinklogentries",
+  "$modelRestName": "appgraphlinklogentry",
+  "additionalProperties": false,
+  "description": "Represents an application graph link log entry for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "allow": {
+      "$friendlyName": "Allow",
+      "description": "The number of allowed connections to this node.",
+      "title": "allow",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "deny": {
+      "$friendlyName": "Deny",
+      "description": "The number of denied connections to this node.",
+      "title": "deny",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "encrypted": {
+      "$friendlyName": "Encrypted",
+      "description": "The number of encrypted connections to this node.",
+      "title": "encrypted",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "findings": {
+      "$friendlyName": "Findings",
+      "description": "The findings categorized by type detected in the logs for this node.",
+      "items": {
+        "type": "integer"
+      },
+      "title": "findings",
+      "type": "object"
+    },
+    "insecureEncryption": {
+      "$friendlyName": "Insecure Encryption",
+      "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0 or 1.1).",
+      "title": "insecureEncryption",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "logs": {
+      "$friendlyName": "Logs",
+      "description": "The log links from this node to other nodes in the application graph.",
+      "items": {
+        "$ref": "proxyroundtrip.json"
+      },
+      "title": "logs",
+      "type": "array"
+    },
+    "unencrypted": {
+      "$friendlyName": "Unencrypted",
+      "description": "The number of unencrypted connections to this node.",
+      "title": "unencrypted",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppGraphLinkLogEntry",
+  "type": "object"
+}

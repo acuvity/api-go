@@ -1,0 +1,66 @@
+{
+  "$extends": [],
+  "$friendlyName": "Ingress Listener",
+  "$friendlyNamePlural": "Ingress Listeners",
+  "$modelName": "IngressListener",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ingresslisteners",
+  "$modelRestName": "ingresslistener",
+  "additionalProperties": false,
+  "description": "Represents a listener for the ingress of an application component.",
+  "properties": {
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "$required": true,
+      "description": "List of extractors for the provider.",
+      "items": {
+        "$ref": "extractorref.json"
+      },
+      "title": "extractors",
+      "type": "array"
+    },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "$required": true,
+      "description": "The list of hosts that this listener expects to receive traffic for.",
+      "items": {
+        "type": "string"
+      },
+      "title": "hosts",
+      "type": "array"
+    },
+    "mode": {
+      "$friendlyName": "Mode",
+      "$required": true,
+      "description": "The mode of the ingress listener which determines how traffic is being handled. If set to Proxy, then the traffic will be redirected to the Apex proxy: this enables access policy enforcement as well as content policy redactions. If set to Passthrough, then the traffic will not be touched and simply be passed through to its intended destination.",
+      "enum": [
+        "Proxy",
+        "Passthrough"
+      ],
+      "title": "mode"
+    },
+    "port": {
+      "$friendlyName": "Port",
+      "$required": true,
+      "description": "The listening port. For appcomponent configurations this is the listening port that traffic will be intercepted on or mirrored from.",
+      "maximum": 65535,
+      "minimum": 1,
+      "title": "port",
+      "type": "integer"
+    },
+    "proxy": {
+      "$friendlyName": "Proxy",
+      "$ref": "ingressproxyconfig.json",
+      "description": "If mode is set to Proxy, then this contains the proxy configuration for the listener.",
+      "title": "proxy"
+    }
+  },
+  "required": [
+    "extractors",
+    "hosts",
+    "mode",
+    "port"
+  ],
+  "title": "IngressListener",
+  "type": "object"
+}

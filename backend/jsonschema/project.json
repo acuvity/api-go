@@ -64,7 +64,6 @@
       ]
     },
     "name": {
-      "$creationOnly": true,
       "$friendlyName": "Name",
       "$required": true,
       "description": "The name of the project.",

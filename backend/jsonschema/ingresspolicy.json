@@ -1,0 +1,83 @@
+{
+  "$extends": [],
+  "$friendlyName": "Ingress Policy",
+  "$friendlyNamePlural": "Ingress Policies",
+  "$modelName": "IngressPolicy",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ingresspolicies",
+  "$modelRestName": "ingresspolicy",
+  "additionalProperties": false,
+  "description": "Represents an ingress policy of an application component.",
+  "properties": {
+    "accessDeniedMessage": {
+      "$friendlyName": "Access Denied Message",
+      "description": "The message that is sent if the access is denied.",
+      "title": "accessDeniedMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "description": "The definition to use for alerting when action is deny.",
+      "title": "alertDefinition",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the access policy.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the policy is disabled and will not be applied.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the ingress policy.",
+      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "policyID": {
+      "$friendlyName": "Policy ID",
+      "$readOnly": true,
+      "description": "The Policy ID is the unique identifier for this policy.",
+      "title": "policyID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rules": {
+      "$friendlyName": "Rules",
+      "$required": true,
+      "description": "The list of rules for the ingress policy.",
+      "items": {
+        "$ref": "ingresspolicyrule.json"
+      },
+      "title": "rules",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "rules"
+  ],
+  "title": "IngressPolicy",
+  "type": "object"
+}

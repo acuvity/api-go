@@ -27,14 +27,6 @@ type OTLPReceiver struct {
 	// Endpoint configures the listening address for the server.
 	Endpoint string `json:"endpoint" msgpack:"endpoint" bson:"endpoint" mapstructure:"endpoint,omitempty"`
 
-	// Optional PEM encoded X509v3 certificate to use for the listener for this OTLP
-	// receiver. This setting is required if listenTLSKey is set.
-	ListenTLSCert string `json:"listenTLSCert,omitempty" msgpack:"listenTLSCert,omitempty" bson:"listentlscert,omitempty" mapstructure:"listenTLSCert,omitempty"`
-
-	// Optional PEM encoded key pair to use for the listener for this OTLP receiver.
-	// This setting is required if listenTLSCert is set.
-	ListenTLSKey string `json:"listenTLSKey,omitempty" msgpack:"listenTLSKey,omitempty" bson:"listentlskey,omitempty" mapstructure:"listenTLSKey,omitempty"`
-
 	// Specifies the OTLP transport protocol to be used for trace data. Note that this
 	// depends on the OTLP receiver being used.
 	Protocol OTLPReceiverProtocolValue `json:"protocol" msgpack:"protocol" bson:"protocol" mapstructure:"protocol,omitempty"`
@@ -72,8 +64,6 @@ func (o *OTLPReceiver) GetBSON() (any, error) {
 	s := &mongoAttributesOTLPReceiver{}
 
 	s.Endpoint = o.Endpoint
-	s.ListenTLSCert = o.ListenTLSCert
-	s.ListenTLSKey = o.ListenTLSKey
 	s.Protocol = o.Protocol
 
 	return s, nil
@@ -93,8 +83,6 @@ func (o *OTLPReceiver) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Endpoint = s.Endpoint
-	o.ListenTLSCert = s.ListenTLSCert
-	o.ListenTLSKey = s.ListenTLSKey
 	o.Protocol = s.Protocol
 
 	return nil
@@ -170,14 +158,6 @@ func (o *OTLPReceiver) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidatePEM("listenTLSCert", o.ListenTLSCert); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := ValidatePEM("listenTLSKey", o.ListenTLSKey); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredString("protocol", string(o.Protocol)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -222,10 +202,6 @@ func (o *OTLPReceiver) ValueForAttribute(name string) any {
 	switch name {
 	case "endpoint":
 		return o.Endpoint
-	case "listenTLSCert":
-		return o.ListenTLSCert
-	case "listenTLSKey":
-		return o.ListenTLSKey
 	case "protocol":
 		return o.Protocol
 	}
@@ -245,28 +221,6 @@ var OTLPReceiverAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"ListenTLSCert": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "listentlscert",
-		ConvertedName:  "ListenTLSCert",
-		Description: `Optional PEM encoded X509v3 certificate to use for the listener for this OTLP
-receiver. This setting is required if listenTLSKey is set.`,
-		Exposed: true,
-		Name:    "listenTLSCert",
-		Stored:  true,
-		Type:    "string",
-	},
-	"ListenTLSKey": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "listentlskey",
-		ConvertedName:  "ListenTLSKey",
-		Description: `Optional PEM encoded key pair to use for the listener for this OTLP receiver.
-This setting is required if listenTLSCert is set.`,
-		Exposed: true,
-		Name:    "listenTLSKey",
-		Stored:  true,
-		Type:    "string",
 	},
 	"Protocol": {
 		AllowedChoices: []string{"GRPC", "HTTP"},
@@ -295,28 +249,6 @@ var OTLPReceiverLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
-	"listentlscert": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "listentlscert",
-		ConvertedName:  "ListenTLSCert",
-		Description: `Optional PEM encoded X509v3 certificate to use for the listener for this OTLP
-receiver. This setting is required if listenTLSKey is set.`,
-		Exposed: true,
-		Name:    "listenTLSCert",
-		Stored:  true,
-		Type:    "string",
-	},
-	"listentlskey": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "listentlskey",
-		ConvertedName:  "ListenTLSKey",
-		Description: `Optional PEM encoded key pair to use for the listener for this OTLP receiver.
-This setting is required if listenTLSCert is set.`,
-		Exposed: true,
-		Name:    "listenTLSKey",
-		Stored:  true,
-		Type:    "string",
-	},
 	"protocol": {
 		AllowedChoices: []string{"GRPC", "HTTP"},
 		BSONFieldName:  "protocol",
@@ -332,8 +264,6 @@ depends on the OTLP receiver being used.`,
 }
 
 type mongoAttributesOTLPReceiver struct {
-	Endpoint      string                    `bson:"endpoint"`
-	ListenTLSCert string                    `bson:"listentlscert,omitempty"`
-	ListenTLSKey  string                    `bson:"listentlskey,omitempty"`
-	Protocol      OTLPReceiverProtocolValue `bson:"protocol"`
+	Endpoint string                    `bson:"endpoint"`
+	Protocol OTLPReceiverProtocolValue `bson:"protocol"`
 }

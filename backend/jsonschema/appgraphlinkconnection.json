@@ -1,0 +1,70 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Link Connection",
+  "$friendlyNamePlural": "App Graph Link Connections",
+  "$modelName": "AppGraphLinkConnection",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinkconnections",
+  "$modelRestName": "appgraphlinkconnection",
+  "additionalProperties": false,
+  "description": "Represents an application graph link connection entry for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "allow": {
+      "$friendlyName": "Allow",
+      "description": "The number of allowed connections to this node.",
+      "title": "allow",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "connections": {
+      "$friendlyName": "Connections",
+      "description": "The connection links from this node to other nodes in the application graph.",
+      "items": {
+        "$ref": "connectionreport.json"
+      },
+      "title": "connections",
+      "type": "array"
+    },
+    "deny": {
+      "$friendlyName": "Deny",
+      "description": "The number of denied connections to this node.",
+      "title": "deny",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "encrypted": {
+      "$friendlyName": "Encrypted",
+      "description": "The number of encrypted connections to this node.",
+      "title": "encrypted",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "insecureEncryption": {
+      "$friendlyName": "Insecure Encryption",
+      "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0 or 1.1).",
+      "title": "insecureEncryption",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "unencrypted": {
+      "$friendlyName": "Unencrypted",
+      "description": "The number of unencrypted connections to this node.",
+      "title": "unencrypted",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppGraphLinkConnection",
+  "type": "object"
+}

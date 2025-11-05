@@ -21,15 +21,6 @@
         "null"
       ]
     },
-    "disableBodyReplacement": {
-      "$friendlyName": "Disable Body Replacement",
-      "description": "If this is true, the acuvity popup will be shown on top the existing body of the provider, instead of replacing it. It usually causes a lot of issue, but on some weirdos (microsoft), it's the opposite.",
-      "title": "disableBodyReplacement",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
     "hosts": {
       "$friendlyName": "Hosts",
       "description": "Optional hosts to match. This is useful in case the provider has multiple hosts to discriminate which logger to use.",
@@ -63,6 +54,15 @@
       "description": "A regular expression to match a URL path to log.",
       "title": "path",
       "type": "string"
+    },
+    "replaceBody": {
+      "$friendlyName": "Replacement Body",
+      "description": "If this is true, the acuvity popup will replace the original body with itself instead of being shown on top the existing body of the provider. Some providers require body replacement to allow popup interaction or avoid capturing popup input.",
+      "title": "replaceBody",
+      "type": [
+        "boolean",
+        "null"
+      ]
     }
   },
   "required": [

@@ -84,6 +84,15 @@ func (o PolicyRefsList) Version() int {
 
 // PolicyRef represents the model of a policyref
 type PolicyRef struct {
+	// The app policy ID of the referenced policy.
+	AppPolicyID string `json:"appPolicyID,omitempty" msgpack:"appPolicyID,omitempty" bson:"apppolicyid,omitempty" mapstructure:"appPolicyID,omitempty"`
+
+	// The app policy name of the referenced policy.
+	AppPolicyName string `json:"appPolicyName,omitempty" msgpack:"appPolicyName,omitempty" bson:"apppolicyname,omitempty" mapstructure:"appPolicyName,omitempty"`
+
+	// The app policy type of the referenced policy.
+	AppPolicyType string `json:"appPolicyType,omitempty" msgpack:"appPolicyType,omitempty" bson:"apppolicytype,omitempty" mapstructure:"appPolicyType,omitempty"`
+
 	// Teams that were used to trigger this policy.
 	MatchingTeams []string `json:"matchingTeams,omitempty" msgpack:"matchingTeams,omitempty" bson:"matchingteams,omitempty" mapstructure:"matchingTeams,omitempty"`
 
@@ -138,6 +147,9 @@ func (o *PolicyRef) GetBSON() (any, error) {
 
 	s := &mongoAttributesPolicyRef{}
 
+	s.AppPolicyID = o.AppPolicyID
+	s.AppPolicyName = o.AppPolicyName
+	s.AppPolicyType = o.AppPolicyType
 	s.MatchingTeams = o.MatchingTeams
 	s.PolicyID = o.PolicyID
 	s.PolicyIdentity = o.PolicyIdentity
@@ -160,6 +172,9 @@ func (o *PolicyRef) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.AppPolicyID = s.AppPolicyID
+	o.AppPolicyName = s.AppPolicyName
+	o.AppPolicyType = s.AppPolicyType
 	o.MatchingTeams = s.MatchingTeams
 	o.PolicyID = s.PolicyID
 	o.PolicyIdentity = s.PolicyIdentity
@@ -205,6 +220,9 @@ func (o *PolicyRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePolicyRef{
+			AppPolicyID:     &o.AppPolicyID,
+			AppPolicyName:   &o.AppPolicyName,
+			AppPolicyType:   &o.AppPolicyType,
 			MatchingTeams:   &o.MatchingTeams,
 			PolicyID:        &o.PolicyID,
 			PolicyIdentity:  &o.PolicyIdentity,
@@ -216,6 +234,12 @@ func (o *PolicyRef) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparsePolicyRef{}
 	for _, f := range fields {
 		switch f {
+		case "appPolicyID":
+			sp.AppPolicyID = &(o.AppPolicyID)
+		case "appPolicyName":
+			sp.AppPolicyName = &(o.AppPolicyName)
+		case "appPolicyType":
+			sp.AppPolicyType = &(o.AppPolicyType)
 		case "matchingTeams":
 			sp.MatchingTeams = &(o.MatchingTeams)
 		case "policyID":
@@ -239,6 +263,15 @@ func (o *PolicyRef) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparsePolicyRef)
+	if so.AppPolicyID != nil {
+		o.AppPolicyID = *so.AppPolicyID
+	}
+	if so.AppPolicyName != nil {
+		o.AppPolicyName = *so.AppPolicyName
+	}
+	if so.AppPolicyType != nil {
+		o.AppPolicyType = *so.AppPolicyType
+	}
 	if so.MatchingTeams != nil {
 		o.MatchingTeams = *so.MatchingTeams
 	}
@@ -350,6 +383,12 @@ func (*PolicyRef) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *PolicyRef) ValueForAttribute(name string) any {
 
 	switch name {
+	case "appPolicyID":
+		return o.AppPolicyID
+	case "appPolicyName":
+		return o.AppPolicyName
+	case "appPolicyType":
+		return o.AppPolicyType
 	case "matchingTeams":
 		return o.MatchingTeams
 	case "policyID":
@@ -367,6 +406,36 @@ func (o *PolicyRef) ValueForAttribute(name string) any {
 
 // PolicyRefAttributesMap represents the map of attribute for PolicyRef.
 var PolicyRefAttributesMap = map[string]elemental.AttributeSpecification{
+	"AppPolicyID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicyid",
+		ConvertedName:  "AppPolicyID",
+		Description:    `The app policy ID of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyID",
+		Stored:         true,
+		Type:           "string",
+	},
+	"AppPolicyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicyname",
+		ConvertedName:  "AppPolicyName",
+		Description:    `The app policy name of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyName",
+		Stored:         true,
+		Type:           "string",
+	},
+	"AppPolicyType": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicytype",
+		ConvertedName:  "AppPolicyType",
+		Description:    `The app policy type of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyType",
+		Stored:         true,
+		Type:           "string",
+	},
 	"MatchingTeams": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "matchingteams",
@@ -426,6 +495,36 @@ var PolicyRefAttributesMap = map[string]elemental.AttributeSpecification{
 
 // PolicyRefLowerCaseAttributesMap represents the map of attribute for PolicyRef.
 var PolicyRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"apppolicyid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicyid",
+		ConvertedName:  "AppPolicyID",
+		Description:    `The app policy ID of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyID",
+		Stored:         true,
+		Type:           "string",
+	},
+	"apppolicyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicyname",
+		ConvertedName:  "AppPolicyName",
+		Description:    `The app policy name of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyName",
+		Stored:         true,
+		Type:           "string",
+	},
+	"apppolicytype": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apppolicytype",
+		ConvertedName:  "AppPolicyType",
+		Description:    `The app policy type of the referenced policy.`,
+		Exposed:        true,
+		Name:           "appPolicyType",
+		Stored:         true,
+		Type:           "string",
+	},
 	"matchingteams": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "matchingteams",
@@ -546,6 +645,15 @@ func (o SparsePolicyRefsList) Version() int {
 
 // SparsePolicyRef represents the sparse version of a policyref.
 type SparsePolicyRef struct {
+	// The app policy ID of the referenced policy.
+	AppPolicyID *string `json:"appPolicyID,omitempty" msgpack:"appPolicyID,omitempty" bson:"apppolicyid,omitempty" mapstructure:"appPolicyID,omitempty"`
+
+	// The app policy name of the referenced policy.
+	AppPolicyName *string `json:"appPolicyName,omitempty" msgpack:"appPolicyName,omitempty" bson:"apppolicyname,omitempty" mapstructure:"appPolicyName,omitempty"`
+
+	// The app policy type of the referenced policy.
+	AppPolicyType *string `json:"appPolicyType,omitempty" msgpack:"appPolicyType,omitempty" bson:"apppolicytype,omitempty" mapstructure:"appPolicyType,omitempty"`
+
 	// Teams that were used to trigger this policy.
 	MatchingTeams *[]string `json:"matchingTeams,omitempty" msgpack:"matchingTeams,omitempty" bson:"matchingteams,omitempty" mapstructure:"matchingTeams,omitempty"`
 
@@ -596,6 +704,15 @@ func (o *SparsePolicyRef) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparsePolicyRef{}
 
+	if o.AppPolicyID != nil {
+		s.AppPolicyID = o.AppPolicyID
+	}
+	if o.AppPolicyName != nil {
+		s.AppPolicyName = o.AppPolicyName
+	}
+	if o.AppPolicyType != nil {
+		s.AppPolicyType = o.AppPolicyType
+	}
 	if o.MatchingTeams != nil {
 		s.MatchingTeams = o.MatchingTeams
 	}
@@ -628,6 +745,15 @@ func (o *SparsePolicyRef) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	if s.AppPolicyID != nil {
+		o.AppPolicyID = s.AppPolicyID
+	}
+	if s.AppPolicyName != nil {
+		o.AppPolicyName = s.AppPolicyName
+	}
+	if s.AppPolicyType != nil {
+		o.AppPolicyType = s.AppPolicyType
+	}
 	if s.MatchingTeams != nil {
 		o.MatchingTeams = s.MatchingTeams
 	}
@@ -657,6 +783,15 @@ func (o *SparsePolicyRef) Version() int {
 func (o *SparsePolicyRef) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewPolicyRef()
+	if o.AppPolicyID != nil {
+		out.AppPolicyID = *o.AppPolicyID
+	}
+	if o.AppPolicyName != nil {
+		out.AppPolicyName = *o.AppPolicyName
+	}
+	if o.AppPolicyType != nil {
+		out.AppPolicyType = *o.AppPolicyType
+	}
 	if o.MatchingTeams != nil {
 		out.MatchingTeams = *o.MatchingTeams
 	}
@@ -713,6 +848,9 @@ func (o *SparsePolicyRef) DeepCopyInto(out *SparsePolicyRef) {
 }
 
 type mongoAttributesPolicyRef struct {
+	AppPolicyID     string   `bson:"apppolicyid,omitempty"`
+	AppPolicyName   string   `bson:"apppolicyname,omitempty"`
+	AppPolicyType   string   `bson:"apppolicytype,omitempty"`
 	MatchingTeams   []string `bson:"matchingteams,omitempty"`
 	PolicyID        string   `bson:"policyid"`
 	PolicyIdentity  string   `bson:"policyidentity"`
@@ -720,6 +858,9 @@ type mongoAttributesPolicyRef struct {
 	PolicyNamespace string   `bson:"policynamespace"`
 }
 type mongoAttributesSparsePolicyRef struct {
+	AppPolicyID     *string   `bson:"apppolicyid,omitempty"`
+	AppPolicyName   *string   `bson:"apppolicyname,omitempty"`
+	AppPolicyType   *string   `bson:"apppolicytype,omitempty"`
 	MatchingTeams   *[]string `bson:"matchingteams,omitempty"`
 	PolicyID        *string   `bson:"policyid,omitempty"`
 	PolicyIdentity  *string   `bson:"policyidentity,omitempty"`

@@ -114,6 +114,24 @@
       "title": "alertDefinitions",
       "type": "array"
     },
+    "appagents": {
+      "$friendlyName": "App Agents",
+      "description": "App agents to import.",
+      "items": {
+        "$ref": "appagent.json"
+      },
+      "title": "appagents",
+      "type": "array"
+    },
+    "appreports": {
+      "$friendlyName": "App Reports",
+      "description": "App reports to import.",
+      "items": {
+        "$ref": "appreport.json"
+      },
+      "title": "appreports",
+      "type": "array"
+    },
     "apps": {
       "$friendlyName": "Apps",
       "description": "Apps to import.",
@@ -191,6 +209,15 @@
         "$ref": "orgsettings.json"
       },
       "title": "orgSettings",
+      "type": "array"
+    },
+    "projects": {
+      "$friendlyName": "Projects",
+      "description": "Projects to import.",
+      "items": {
+        "$ref": "project.json"
+      },
+      "title": "projects",
       "type": "array"
     },
     "providerTeams": {

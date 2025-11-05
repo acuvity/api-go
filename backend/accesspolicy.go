@@ -22,6 +22,9 @@ const (
 
 	// AccessPolicyActionDeny represents the value Deny.
 	AccessPolicyActionDeny AccessPolicyActionValue = "Deny"
+
+	// AccessPolicyActionRedirect represents the value Redirect.
+	AccessPolicyActionRedirect AccessPolicyActionValue = "Redirect"
 )
 
 // AccessPolicyIdentity represents the Identity of the object.
@@ -150,6 +153,12 @@ type AccessPolicy struct {
 	// If set, just log the decision, but don't enforce it.
 	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
+	// If set, show this message to user before the redirection.
+	RedirectMessage string `json:"redirectMessage" msgpack:"redirectMessage" bson:"redirectmessage" mapstructure:"redirectMessage,omitempty"`
+
+	// If set, redirect the user to that URL.
+	RedirectURL string `json:"redirectURL" msgpack:"redirectURL" bson:"redirecturl" mapstructure:"redirectURL,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
@@ -218,6 +227,8 @@ func (o *AccessPolicy) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.OffbandAnalysis = o.OffbandAnalysis
 	s.Permissive = o.Permissive
+	s.RedirectMessage = o.RedirectMessage
+	s.RedirectURL = o.RedirectURL
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -254,6 +265,8 @@ func (o *AccessPolicy) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.OffbandAnalysis = s.OffbandAnalysis
 	o.Permissive = s.Permissive
+	o.RedirectMessage = s.RedirectMessage
+	o.RedirectURL = s.RedirectURL
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -376,6 +389,8 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:           &o.Namespace,
 			OffbandAnalysis:     &o.OffbandAnalysis,
 			Permissive:          &o.Permissive,
+			RedirectMessage:     &o.RedirectMessage,
+			RedirectURL:         &o.RedirectURL,
 			UpdateTime:          &o.UpdateTime,
 			ZHash:               &o.ZHash,
 			Zone:                &o.Zone,
@@ -417,6 +432,10 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.OffbandAnalysis = &(o.OffbandAnalysis)
 		case "permissive":
 			sp.Permissive = &(o.Permissive)
+		case "redirectMessage":
+			sp.RedirectMessage = &(o.RedirectMessage)
+		case "redirectURL":
+			sp.RedirectURL = &(o.RedirectURL)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -483,6 +502,12 @@ func (o *AccessPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Permissive != nil {
 		o.Permissive = *so.Permissive
+	}
+	if so.RedirectMessage != nil {
+		o.RedirectMessage = *so.RedirectMessage
+	}
+	if so.RedirectURL != nil {
+		o.RedirectURL = *so.RedirectURL
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -557,7 +582,7 @@ func (o *AccessPolicy) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny"}, false); err != nil {
+	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Redirect"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -579,6 +604,10 @@ func (o *AccessPolicy) Validate() error {
 	}
 
 	if err := ValidateTrimmed("name", o.Name); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateURL("redirectURL", o.RedirectURL); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -653,6 +682,10 @@ func (o *AccessPolicy) ValueForAttribute(name string) any {
 		return o.OffbandAnalysis
 	case "permissive":
 		return o.Permissive
+	case "redirectMessage":
+		return o.RedirectMessage
+	case "redirectURL":
+		return o.RedirectURL
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -692,7 +725,7 @@ var AccessPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   AccessPolicyActionAllow,
@@ -859,6 +892,26 @@ to do any form of content moderation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"RedirectMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redirectmessage",
+		ConvertedName:  "RedirectMessage",
+		Description:    `If set, show this message to user before the redirection.`,
+		Exposed:        true,
+		Name:           "redirectMessage",
+		Stored:         true,
+		Type:           "string",
+	},
+	"RedirectURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redirecturl",
+		ConvertedName:  "RedirectURL",
+		Description:    `If set, redirect the user to that URL.`,
+		Exposed:        true,
+		Name:           "redirectURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -904,7 +957,7 @@ var AccessPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   AccessPolicyActionAllow,
@@ -1071,6 +1124,26 @@ to do any form of content moderation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"redirectmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redirectmessage",
+		ConvertedName:  "RedirectMessage",
+		Description:    `If set, show this message to user before the redirection.`,
+		Exposed:        true,
+		Name:           "redirectMessage",
+		Stored:         true,
+		Type:           "string",
+	},
+	"redirecturl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redirecturl",
+		ConvertedName:  "RedirectURL",
+		Description:    `If set, redirect the user to that URL.`,
+		Exposed:        true,
+		Name:           "redirectURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1205,6 +1278,12 @@ type SparseAccessPolicy struct {
 	// If set, just log the decision, but don't enforce it.
 	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
+	// If set, show this message to user before the redirection.
+	RedirectMessage *string `json:"redirectMessage,omitempty" msgpack:"redirectMessage,omitempty" bson:"redirectmessage,omitempty" mapstructure:"redirectMessage,omitempty"`
+
+	// If set, redirect the user to that URL.
+	RedirectURL *string `json:"redirectURL,omitempty" msgpack:"redirectURL,omitempty" bson:"redirecturl,omitempty" mapstructure:"redirectURL,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
@@ -1305,6 +1384,12 @@ func (o *SparseAccessPolicy) GetBSON() (any, error) {
 	if o.Permissive != nil {
 		s.Permissive = o.Permissive
 	}
+	if o.RedirectMessage != nil {
+		s.RedirectMessage = o.RedirectMessage
+	}
+	if o.RedirectURL != nil {
+		s.RedirectURL = o.RedirectURL
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1378,6 +1463,12 @@ func (o *SparseAccessPolicy) SetBSON(raw bson.Raw) error {
 	if s.Permissive != nil {
 		o.Permissive = s.Permissive
 	}
+	if s.RedirectMessage != nil {
+		o.RedirectMessage = s.RedirectMessage
+	}
+	if s.RedirectURL != nil {
+		o.RedirectURL = s.RedirectURL
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1448,6 +1539,12 @@ func (o *SparseAccessPolicy) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Permissive != nil {
 		out.Permissive = *o.Permissive
+	}
+	if o.RedirectMessage != nil {
+		out.RedirectMessage = *o.RedirectMessage
+	}
+	if o.RedirectURL != nil {
+		out.RedirectURL = *o.RedirectURL
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1617,6 +1714,8 @@ type mongoAttributesAccessPolicy struct {
 	Namespace           string                  `bson:"namespace,omitempty"`
 	OffbandAnalysis     bool                    `bson:"offbandanalysis"`
 	Permissive          bool                    `bson:"permissive"`
+	RedirectMessage     string                  `bson:"redirectmessage"`
+	RedirectURL         string                  `bson:"redirecturl"`
 	UpdateTime          time.Time               `bson:"updatetime"`
 	ZHash               int                     `bson:"zhash"`
 	Zone                int                     `bson:"zone"`
@@ -1638,6 +1737,8 @@ type mongoAttributesSparseAccessPolicy struct {
 	Namespace           *string                  `bson:"namespace,omitempty"`
 	OffbandAnalysis     *bool                    `bson:"offbandanalysis,omitempty"`
 	Permissive          *bool                    `bson:"permissive,omitempty"`
+	RedirectMessage     *string                  `bson:"redirectmessage,omitempty"`
+	RedirectURL         *string                  `bson:"redirecturl,omitempty"`
 	UpdateTime          *time.Time               `bson:"updatetime,omitempty"`
 	ZHash               *int                     `bson:"zhash,omitempty"`
 	Zone                *int                     `bson:"zone,omitempty"`

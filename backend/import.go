@@ -124,6 +124,12 @@ type Import struct {
 	// Alert definitions to import.
 	AlertDefinitions AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
 
+	// App agents to import.
+	Appagents AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"-" mapstructure:"appagents,omitempty"`
+
+	// App reports to import.
+	Appreports AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"-" mapstructure:"appreports,omitempty"`
+
 	// Apps to import.
 	Apps AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"-" mapstructure:"apps,omitempty"`
 
@@ -151,6 +157,9 @@ type Import struct {
 
 	// OrgSettings to import.
 	OrgSettings OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"-" mapstructure:"orgSettings,omitempty"`
+
+	// Projects to import.
+	Projects ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"-" mapstructure:"projects,omitempty"`
 
 	// Provider teams to import.
 	ProviderTeams ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"-" mapstructure:"providerTeams,omitempty"`
@@ -197,6 +206,8 @@ func NewImport() *Import {
 		AgentConfigs:        AgentConfigsList{},
 		AgentDiscoveries:    AgentDiscoveriesList{},
 		AlertDefinitions:    AlertDefinitionsList{},
+		Appagents:           AppAgentsList{},
+		Appreports:          AppReportsList{},
 		Apps:                AppsList{},
 		ContentPolicies:     ContentPoliciesList{},
 		CustomDataTypes:     CustomDataTypesList{},
@@ -205,6 +216,7 @@ func NewImport() *Import {
 		Extractors:          ExtractorsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
 		OrgSettings:         OrgSettingsList{},
+		Projects:            ProjectsList{},
 		ProviderTeams:       ProviderTeamsList{},
 		ProviderTokens:      ProviderTokensList{},
 		Providers:           ProvidersList{},
@@ -311,6 +323,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AgentConfigs:        &o.AgentConfigs,
 			AgentDiscoveries:    &o.AgentDiscoveries,
 			AlertDefinitions:    &o.AlertDefinitions,
+			Appagents:           &o.Appagents,
+			Appreports:          &o.Appreports,
 			Apps:                &o.Apps,
 			ContentPolicies:     &o.ContentPolicies,
 			CustomDataTypes:     &o.CustomDataTypes,
@@ -320,6 +334,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
 			OrgSettings:         &o.OrgSettings,
+			Projects:            &o.Projects,
 			ProviderTeams:       &o.ProviderTeams,
 			ProviderTokens:      &o.ProviderTokens,
 			Providers:           &o.Providers,
@@ -360,6 +375,10 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AgentDiscoveries = &(o.AgentDiscoveries)
 		case "alertDefinitions":
 			sp.AlertDefinitions = &(o.AlertDefinitions)
+		case "appagents":
+			sp.Appagents = &(o.Appagents)
+		case "appreports":
+			sp.Appreports = &(o.Appreports)
 		case "apps":
 			sp.Apps = &(o.Apps)
 		case "contentPolicies":
@@ -378,6 +397,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Label = &(o.Label)
 		case "orgSettings":
 			sp.OrgSettings = &(o.OrgSettings)
+		case "projects":
+			sp.Projects = &(o.Projects)
 		case "providerTeams":
 			sp.ProviderTeams = &(o.ProviderTeams)
 		case "providerTokens":
@@ -446,6 +467,12 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AlertDefinitions != nil {
 		o.AlertDefinitions = *so.AlertDefinitions
 	}
+	if so.Appagents != nil {
+		o.Appagents = *so.Appagents
+	}
+	if so.Appreports != nil {
+		o.Appreports = *so.Appreports
+	}
 	if so.Apps != nil {
 		o.Apps = *so.Apps
 	}
@@ -472,6 +499,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.OrgSettings != nil {
 		o.OrgSettings = *so.OrgSettings
+	}
+	if so.Projects != nil {
+		o.Projects = *so.Projects
 	}
 	if so.ProviderTeams != nil {
 		o.ProviderTeams = *so.ProviderTeams
@@ -583,6 +613,24 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Appagents {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Appagents' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Appreports {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Appreports' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Apps {
 		if sub == nil {
 			continue
@@ -652,6 +700,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Projects {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Projects' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -814,6 +871,24 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Appagents {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Appagents' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Appreports {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Appreports' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Apps {
 		if sub == nil {
 			continue
@@ -883,6 +958,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Projects {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Projects' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1074,6 +1158,24 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for _, sub := range o.Appagents {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Appreports {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	for _, sub := range o.Apps {
 		if sub == nil {
 			continue
@@ -1142,6 +1244,15 @@ func (o *Import) Validate() error {
 	}
 
 	for _, sub := range o.OrgSettings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
+	for _, sub := range o.Projects {
 		if sub == nil {
 			continue
 		}
@@ -1282,6 +1393,10 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AgentDiscoveries
 	case "alertDefinitions":
 		return o.AlertDefinitions
+	case "appagents":
+		return o.Appagents
+	case "appreports":
+		return o.Appreports
 	case "apps":
 		return o.Apps
 	case "contentPolicies":
@@ -1300,6 +1415,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Label
 	case "orgSettings":
 		return o.OrgSettings
+	case "projects":
+		return o.Projects
 	case "providerTeams":
 		return o.ProviderTeams
 	case "providerTokens":
@@ -1440,6 +1557,24 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "alertdefinition",
 		Type:           "refList",
 	},
+	"Appagents": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Appagents",
+		Description:    `App agents to import.`,
+		Exposed:        true,
+		Name:           "appagents",
+		SubType:        "appagent",
+		Type:           "refList",
+	},
+	"Appreports": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Appreports",
+		Description:    `App reports to import.`,
+		Exposed:        true,
+		Name:           "appreports",
+		SubType:        "appreport",
+		Type:           "refList",
+	},
 	"Apps": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Apps",
@@ -1520,6 +1655,15 @@ resource.`,
 		Exposed:        true,
 		Name:           "orgSettings",
 		SubType:        "orgsettings",
+		Type:           "refList",
+	},
+	"Projects": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Projects",
+		Description:    `Projects to import.`,
+		Exposed:        true,
+		Name:           "projects",
+		SubType:        "project",
 		Type:           "refList",
 	},
 	"ProviderTeams": {
@@ -1715,6 +1859,24 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "alertdefinition",
 		Type:           "refList",
 	},
+	"appagents": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Appagents",
+		Description:    `App agents to import.`,
+		Exposed:        true,
+		Name:           "appagents",
+		SubType:        "appagent",
+		Type:           "refList",
+	},
+	"appreports": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Appreports",
+		Description:    `App reports to import.`,
+		Exposed:        true,
+		Name:           "appreports",
+		SubType:        "appreport",
+		Type:           "refList",
+	},
 	"apps": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Apps",
@@ -1795,6 +1957,15 @@ resource.`,
 		Exposed:        true,
 		Name:           "orgSettings",
 		SubType:        "orgsettings",
+		Type:           "refList",
+	},
+	"projects": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Projects",
+		Description:    `Projects to import.`,
+		Exposed:        true,
+		Name:           "projects",
+		SubType:        "project",
 		Type:           "refList",
 	},
 	"providerteams": {
@@ -1973,6 +2144,12 @@ type SparseImport struct {
 	// Alert definitions to import.
 	AlertDefinitions *AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
 
+	// App agents to import.
+	Appagents *AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"-" mapstructure:"appagents,omitempty"`
+
+	// App reports to import.
+	Appreports *AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"-" mapstructure:"appreports,omitempty"`
+
 	// Apps to import.
 	Apps *AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"-" mapstructure:"apps,omitempty"`
 
@@ -2000,6 +2177,9 @@ type SparseImport struct {
 
 	// OrgSettings to import.
 	OrgSettings *OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"-" mapstructure:"orgSettings,omitempty"`
+
+	// Projects to import.
+	Projects *ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"-" mapstructure:"projects,omitempty"`
 
 	// Provider teams to import.
 	ProviderTeams *ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"-" mapstructure:"providerTeams,omitempty"`
@@ -2128,6 +2308,12 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.AlertDefinitions != nil {
 		out.AlertDefinitions = *o.AlertDefinitions
 	}
+	if o.Appagents != nil {
+		out.Appagents = *o.Appagents
+	}
+	if o.Appreports != nil {
+		out.Appreports = *o.Appreports
+	}
 	if o.Apps != nil {
 		out.Apps = *o.Apps
 	}
@@ -2154,6 +2340,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.OrgSettings != nil {
 		out.OrgSettings = *o.OrgSettings
+	}
+	if o.Projects != nil {
+		out.Projects = *o.Projects
 	}
 	if o.ProviderTeams != nil {
 		out.ProviderTeams = *o.ProviderTeams
@@ -2285,6 +2474,28 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Appagents != nil {
+		for _, sub := range *o.Appagents {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Appagents' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Appreports != nil {
+		for _, sub := range *o.Appreports {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Appreports' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Apps != nil {
 		for _, sub := range *o.Apps {
 			if sub == nil {
@@ -2369,6 +2580,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Projects != nil {
+		for _, sub := range *o.Projects {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Projects' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -2566,6 +2788,28 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Appagents != nil {
+		for _, sub := range *o.Appagents {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Appagents' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Appreports != nil {
+		for _, sub := range *o.Appreports {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Appreports' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Apps != nil {
 		for _, sub := range *o.Apps {
 			if sub == nil {
@@ -2650,6 +2894,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OrgSettings' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Projects != nil {
+		for _, sub := range *o.Projects {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Projects' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}

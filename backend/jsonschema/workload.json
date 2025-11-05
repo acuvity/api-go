@@ -1,0 +1,94 @@
+{
+  "$extends": [
+    "@workloadgroupselector",
+    "@workloadgroup"
+  ],
+  "$friendlyName": "Workload",
+  "$friendlyNamePlural": "Workloads",
+  "$modelName": "Workload",
+  "$modelPackage": "lain",
+  "$modelResourceName": "workloads",
+  "$modelRestName": "workload",
+  "additionalProperties": false,
+  "description": "Represents a workload that is managed by an app agent.",
+  "properties": {
+    "IPAddresses": {
+      "$friendlyName": "IP Addresses",
+      "description": "The list of IP addresses assigned to this workload.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "IPAddresses",
+      "type": "array"
+    },
+    "kubernetes": {
+      "$friendlyName": "Kubernetes",
+      "$ref": "kubernetesworkloadgroupselector.json",
+      "description": "If type is 'Kubernetes', this field contains the Kubernetes-specific selector configuration.",
+      "title": "kubernetes"
+    },
+    "labels": {
+      "$friendlyName": "Labels",
+      "description": "The list of labels that loosely describe and identify this workload.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "labels",
+      "type": "array"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$ref": "workloadstatus.json",
+      "description": "The current status of this workload.",
+      "title": "status"
+    },
+    "type": {
+      "$defaultValue": "Kubernetes",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of selector.",
+      "enum": [
+        "Kubernetes"
+      ],
+      "title": "type"
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "description": "The hash of the workload group this application belongs to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadGroupLabel": {
+      "$friendlyName": "Workload Group Label",
+      "description": "The label format of the workload group this application belongs to.",
+      "title": "workloadGroupLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "workloadID": {
+      "$friendlyName": "Workload ID",
+      "description": "The unique identifier for this workload.",
+      "title": "workloadID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "Workload",
+  "type": "object"
+}

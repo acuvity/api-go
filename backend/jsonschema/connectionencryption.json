@@ -1,0 +1,22 @@
+{
+  "$extends": [],
+  "$friendlyName": "Connection Encryption",
+  "$friendlyNamePlural": "Connection Encryptions",
+  "$modelName": "ConnectionEncryption",
+  "$modelPackage": "lain",
+  "$modelResourceName": "connectionencryptions",
+  "$modelRestName": "connectionencryption",
+  "additionalProperties": false,
+  "description": "Represents the encryption used within a connection.",
+  "properties": {
+    "tls": {
+      "$friendlyName": "TLS",
+      "$ref": "tlsstate.json",
+      "description": "If the connection used TLS encryption, this field contains the TLS state details.",
+      "title": "tls"
+    }
+  },
+  "required": [],
+  "title": "ConnectionEncryption",
+  "type": "object"
+}

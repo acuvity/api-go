@@ -6,6 +6,12 @@
       },
       "type": "array"
     },
+    "analyzermatchers": {
+      "items": {
+        "$ref": "analyzermatcher.json"
+      },
+      "type": "array"
+    },
     "analyzermodels": {
       "items": {
         "$ref": "analyzermodel.json"
@@ -15,12 +21,6 @@
     "analyzers": {
       "items": {
         "$ref": "analyzer.json"
-      },
-      "type": "array"
-    },
-    "detectionmatchers": {
-      "items": {
-        "$ref": "detectionmatcher.json"
       },
       "type": "array"
     },

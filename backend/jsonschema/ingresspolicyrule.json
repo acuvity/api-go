@@ -1,0 +1,64 @@
+{
+  "$extends": [],
+  "$friendlyName": "Ingress Policy Rule",
+  "$friendlyNamePlural": "Ingress Policy Rules",
+  "$modelName": "IngressPolicyRule",
+  "$modelPackage": "lain",
+  "$modelResourceName": "ingresspolicyrules",
+  "$modelRestName": "ingresspolicyrule",
+  "additionalProperties": false,
+  "description": "Represents a rule for an ingress policy of an application component.",
+  "properties": {
+    "IPRanges": {
+      "$friendlyName": "IP Ranges",
+      "description": "The list of IP ranges in CIDR notation to match for this rule.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "IPRanges",
+      "type": "array"
+    },
+    "action": {
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "The action to take for connections ingressing to the proxy of this workload that match this rule.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "action"
+    },
+    "appComponents": {
+      "$friendlyName": "App Components",
+      "description": "The list of application components that this rule applies to in the form of app/component. If the component is not specified, then this rule applies to all components of the application.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "appComponents",
+      "type": "array"
+    },
+    "contentPolicies": {
+      "$friendlyName": "Content Policies",
+      "description": "The list of content policies to apply when the workload has access to the provider.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "contentPolicies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "title": "IngressPolicyRule",
+  "type": "object"
+}

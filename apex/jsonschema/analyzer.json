@@ -30,18 +30,6 @@
         "null"
       ]
     },
-    "detectionMatchers": {
-      "$friendlyName": "DetectionMatchers",
-      "description": "A list of detection matcher that will trigger the analyzer.",
-      "items": {
-        "items": {
-          "type": "object"
-        },
-        "type": "array"
-      },
-      "title": "detectionMatchers",
-      "type": "array"
-    },
     "detectors": {
       "$friendlyName": "Detectors",
       "description": "The detectors the analyzer can use.",
@@ -68,6 +56,18 @@
         "string",
         "null"
       ]
+    },
+    "matchers": {
+      "$friendlyName": "Matchers",
+      "description": "A list of matcher that will trigger the analyzer.",
+      "items": {
+        "items": {
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "title": "matchers",
+      "type": "array"
     },
     "models": {
       "$friendlyName": "Models",

@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Graph Link DNS",
+  "$friendlyNamePlural": "App Graph Link DNSs",
+  "$modelName": "AppGraphLinkDNS",
+  "$modelPackage": "snitch",
+  "$modelResourceName": "appgraphlinkdns",
+  "$modelRestName": "appgraphlinkdns",
+  "additionalProperties": false,
+  "description": "Represents an application graph link DNS entry for an application graph node generated from the different logs collected by the app agents.",
+  "properties": {
+    "allow": {
+      "$friendlyName": "Allow",
+      "description": "The number of allowed DNS requests to this node.",
+      "title": "allow",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "deny": {
+      "$friendlyName": "Deny",
+      "description": "The number of denied DNS requests to this node.",
+      "title": "deny",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "dns": {
+      "$friendlyName": "DNS",
+      "description": "The DNS links from this node to other nodes in the application graph as queried from Loki. This is not populated by default.",
+      "items": {
+        "$ref": "dnsreport.json"
+      },
+      "title": "dns",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "AppGraphLinkDNS",
+  "type": "object"
+}
