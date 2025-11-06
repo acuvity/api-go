@@ -19,6 +19,9 @@ type MCPGatewayServer struct {
 	// The name of the MCP server.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// The list of available tools.
+	Tools []*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -54,6 +57,7 @@ func (o *MCPGatewayServer) GetBSON() (any, error) {
 
 	s.URLs = o.URLs
 	s.Name = o.Name
+	s.Tools = o.Tools
 
 	return s, nil
 }
@@ -73,6 +77,7 @@ func (o *MCPGatewayServer) SetBSON(raw bson.Raw) error {
 
 	o.URLs = s.URLs
 	o.Name = s.Name
+	o.Tools = s.Tools
 
 	return nil
 }
@@ -98,11 +103,29 @@ func (o *MCPGatewayServer) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *MCPGatewayServer) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'MCPGatewayServer' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *MCPGatewayServer) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'MCPGatewayServer' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -147,6 +170,15 @@ func (o *MCPGatewayServer) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -185,6 +217,8 @@ func (o *MCPGatewayServer) ValueForAttribute(name string) any {
 		return o.URLs
 	case "name":
 		return o.Name
+	case "tools":
+		return o.Tools
 	}
 
 	return nil
@@ -214,6 +248,17 @@ var MCPGatewayServerAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of available tools.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refList",
+	},
 }
 
 // MCPGatewayServerLowerCaseAttributesMap represents the map of attribute for MCPGatewayServer.
@@ -240,9 +285,21 @@ var MCPGatewayServerLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Stored:         true,
 		Type:           "string",
 	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of available tools.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refList",
+	},
 }
 
 type mongoAttributesMCPGatewayServer struct {
-	URLs []string `bson:"urls"`
-	Name string   `bson:"name,omitempty"`
+	URLs  []string `bson:"urls"`
+	Name  string   `bson:"name,omitempty"`
+	Tools []*Tool  `bson:"tools,omitempty"`
 }

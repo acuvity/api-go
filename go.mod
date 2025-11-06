@@ -8,7 +8,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20251027152343-a77798a4e39c
+	go.acuvity.ai/a3s v0.0.0-20251106013604-7fc538815165
 	go.acuvity.ai/elemental v0.0.0-20251002204433-86d68da957e2
 	go.opentelemetry.io/collector/pdata v1.45.0
 )

@@ -5175,6 +5175,14 @@
             "description": "The name of the MCP server.",
             "example": "deepwiki",
             "type": "string"
+          },
+          "tools": {
+            "description": "The list of available tools.",
+            "example": "deepwiki",
+            "items": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "type": "array"
           }
         },
         "required": [

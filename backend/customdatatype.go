@@ -481,6 +481,9 @@ func (o *CustomDataType) Validate() error {
 	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if err := ValidateRegexps("matches", o.Matches); err != nil {
 		errors = errors.Append(err)

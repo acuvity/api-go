@@ -494,6 +494,9 @@ func (o *ContentPolicy) Validate() error {
 	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
 
 	for _, sub := range o.Moderations {
 		if sub == nil {

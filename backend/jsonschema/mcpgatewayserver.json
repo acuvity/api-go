@@ -27,6 +27,15 @@
         "string",
         "null"
       ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The list of available tools.",
+      "items": {
+        "$ref": "tool.json"
+      },
+      "title": "tools",
+      "type": "array"
     }
   },
   "required": [

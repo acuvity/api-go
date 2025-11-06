@@ -8416,7 +8416,7 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_/@. ]+$`]
+##### `name` [`required`,`format=^[a-zA-Z0-9-_/@. ]+$`]
 
 Type: `string`
 
@@ -12208,7 +12208,8 @@ Represents an MCP server running behind an MCP gateway.
     "https://mcp-server-1",
     "https://mcp-server-2"
   ],
-  "name": "deepwiki"
+  "name": "deepwiki",
+  "tools": "deepwiki"
 }
 ```
 
@@ -12225,6 +12226,12 @@ The URLs of the MCP servers.
 Type: `string`
 
 The name of the MCP server.
+
+##### `tools`
+
+Type: [`[]tool`](#tool)
+
+The list of available tools.
 
 ## migration
 
