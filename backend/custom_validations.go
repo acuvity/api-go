@@ -975,6 +975,54 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyToolUses:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'ToolUses' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'ToolUses' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'ToolUses' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'ToolUses' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'ToolUses' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyMCPServer:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPServer' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'MCPServer' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'MCPServer' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPServer' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyRiskScore:
 		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
 			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")

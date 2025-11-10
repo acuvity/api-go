@@ -799,6 +799,14 @@
             "description": "The address of the company.",
             "type": "string"
           },
+          "classification": {
+            "default": "AIEnabled",
+            "description": "The classification of the AI domain.",
+            "enum": [
+              "AINative",
+              "AIEnabled"
+            ]
+          },
           "company": {
             "description": "The name of the company.",
             "type": "string"
@@ -913,6 +921,7 @@
           }
         },
         "required": [
+          "classification",
           "domain",
           "name"
         ],
@@ -2294,11 +2303,7 @@
             "$ref": "#/components/schemas/appgraphlinkdns"
           },
           "logs": {
-            "description": "The log links from this node to other nodes in the application graph.",
-            "items": {
-              "$ref": "#/components/schemas/proxyroundtrip"
-            },
-            "type": "array"
+            "$ref": "#/components/schemas/appgraphlinklogs"
           },
           "nodeID": {
             "description": "The unique identifier of the application graph node.",
@@ -2359,6 +2364,61 @@
               "$ref": "#/components/schemas/dnsreport"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlinklogentry": {
+        "description": "Represents an application graph link log entry for an application graph\nnode generated from the different logs collected by the app agents.",
+        "properties": {
+          "allow": {
+            "description": "The number of allowed connections to this node.",
+            "type": "integer"
+          },
+          "deny": {
+            "description": "The number of denied connections to this node.",
+            "type": "integer"
+          },
+          "encrypted": {
+            "description": "The number of encrypted connections to this node.",
+            "type": "integer"
+          },
+          "findings": {
+            "description": "The findings categorized by type detected in the logs for this node.",
+            "example": {
+              "pii": 42
+            },
+            "items": {
+              "type": "integer"
+            },
+            "type": "object"
+          },
+          "insecureEncryption": {
+            "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0\nor 1.1).",
+            "type": "integer"
+          },
+          "logs": {
+            "description": "The log links from this node to other nodes in the application graph.",
+            "items": {
+              "$ref": "#/components/schemas/proxyroundtrip"
+            },
+            "type": "array"
+          },
+          "unencrypted": {
+            "description": "The number of unencrypted connections to this node.",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "appgraphlinklogs": {
+        "description": "Represents an application graph link logs entry for an application graph node\ngenerated from the different logs collected by the app agents.",
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/appgraphlinklogentry"
+          },
+          "output": {
+            "$ref": "#/components/schemas/appgraphlinklogentry"
           }
         },
         "type": "object"
@@ -5128,6 +5188,11 @@
             "format": "date-time",
             "type": "string"
           },
+          "publicURL": {
+            "description": "The public URL of the gateway.",
+            "example": "https://mcp.acme.com",
+            "type": "string"
+          },
           "servers": {
             "description": "The list of mcp servers running behind the gateway.",
             "items": {
@@ -5153,6 +5218,7 @@
         "required": [
           "name",
           "ping",
+          "publicURL",
           "status"
         ],
         "type": "object"
@@ -6061,6 +6127,7 @@
               "IsIngress",
               "Keywords",
               "Languages",
+              "MCPServer",
               "Malcontents",
               "Modality",
               "Model",
@@ -6077,6 +6144,7 @@
               "Status",
               "Team",
               "Tools",
+              "ToolUses",
               "Topics",
               "Workspace"
             ],
@@ -6664,6 +6732,13 @@
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "MCPGateways": {
+            "description": "The list of MCP Gateways registered in the system.",
+            "items": {
+              "$ref": "#/components/schemas/mcpgateway"
+            },
+            "type": "array"
           },
           "PACConfigs": {
             "description": "The PAC configurations of the organizations.",

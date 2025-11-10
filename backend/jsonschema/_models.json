@@ -126,6 +126,12 @@
     "appgraphlinkdns": {
       "$ref": "appgraphlinkdns.json"
     },
+    "appgraphlinklogentry": {
+      "$ref": "appgraphlinklogentry.json"
+    },
+    "appgraphlinklogs": {
+      "$ref": "appgraphlinklogs.json"
+    },
     "appgraphlinks": {
       "$ref": "appgraphlinks.json"
     },

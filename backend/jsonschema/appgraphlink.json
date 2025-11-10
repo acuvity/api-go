@@ -4,7 +4,7 @@
   "$friendlyNamePlural": "App Graph Links",
   "$modelName": "AppGraphLink",
   "$modelPackage": "snitch",
-  "$modelResourceName": "appgraphlink",
+  "$modelResourceName": "appgraphlinks",
   "$modelRestName": "appgraphlink",
   "additionalProperties": false,
   "description": "Represents an application graph link for an application graph node generated from the different logs collected by the app agents.",
@@ -23,12 +23,9 @@
     },
     "logs": {
       "$friendlyName": "Logs",
+      "$ref": "appgraphlinklogs.json",
       "description": "The log links from this node to other nodes in the application graph.",
-      "items": {
-        "$ref": "proxyroundtrip.json"
-      },
-      "title": "logs",
-      "type": "array"
+      "title": "logs"
     },
     "nodeID": {
       "$friendlyName": "Node ID",

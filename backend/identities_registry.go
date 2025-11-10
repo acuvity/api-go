@@ -1254,6 +1254,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAppGraphLinkConnection()
 	case "appgraphlinkdns", "AppGraphLinkDNS":
 		return NewAppGraphLinkDNS()
+	case "appgraphlinklogentry", "AppGraphLinkLogEntry":
+		return NewAppGraphLinkLogEntry()
+	case "appgraphlinklogs", "AppGraphLinkLogs":
+		return NewAppGraphLinkLogs()
 	case "appgraphlinks", "AppGraphLinks":
 		return NewAppGraphLinks()
 	case "appgraphnode", "AppGraphNode":

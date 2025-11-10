@@ -87,6 +87,9 @@ type ProxyConf struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The list of MCP Gateways registered in the system.
+	MCPGateways MCPGatewaysList `json:"MCPGateways,omitempty" msgpack:"MCPGateways,omitempty" bson:"-" mapstructure:"MCPGateways,omitempty"`
+
 	// The PAC configurations of the organizations.
 	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
 
@@ -246,6 +249,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseProxyConf{
 			ID:                  &o.ID,
+			MCPGateways:         &o.MCPGateways,
 			PACConfigs:          &o.PACConfigs,
 			AccessPolicy:        &o.AccessPolicy,
 			AgentConfigs:        &o.AgentConfigs,
@@ -268,6 +272,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "MCPGateways":
+			sp.MCPGateways = &(o.MCPGateways)
 		case "PACConfigs":
 			sp.PACConfigs = &(o.PACConfigs)
 		case "accessPolicy":
@@ -311,6 +317,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseProxyConf)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.MCPGateways != nil {
+		o.MCPGateways = *so.MCPGateways
 	}
 	if so.PACConfigs != nil {
 		o.PACConfigs = *so.PACConfigs
@@ -358,6 +367,15 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.MCPGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.PACConfigs {
 		if sub == nil {
@@ -442,6 +460,15 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.MCPGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.PACConfigs {
 		if sub == nil {
@@ -555,6 +582,15 @@ func (o *ProxyConf) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for _, sub := range o.MCPGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
 
 	for _, sub := range o.PACConfigs {
 		if sub == nil {
@@ -670,6 +706,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "MCPGateways":
+		return o.MCPGateways
 	case "PACConfigs":
 		return o.PACConfigs
 	case "accessPolicy":
@@ -719,6 +757,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"MCPGateways": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MCPGateways",
+		Description:    `The list of MCP Gateways registered in the system.`,
+		Exposed:        true,
+		Name:           "MCPGateways",
+		SubType:        "mcpgateway",
+		Type:           "refList",
 	},
 	"PACConfigs": {
 		AllowedChoices: []string{},
@@ -867,6 +914,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"mcpgateways": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MCPGateways",
+		Description:    `The list of MCP Gateways registered in the system.`,
+		Exposed:        true,
+		Name:           "MCPGateways",
+		SubType:        "mcpgateway",
+		Type:           "refList",
 	},
 	"pacconfigs": {
 		AllowedChoices: []string{},
@@ -1065,6 +1121,9 @@ type SparseProxyConf struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The list of MCP Gateways registered in the system.
+	MCPGateways *MCPGatewaysList `json:"MCPGateways,omitempty" msgpack:"MCPGateways,omitempty" bson:"-" mapstructure:"MCPGateways,omitempty"`
+
 	// The PAC configurations of the organizations.
 	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
 
@@ -1195,6 +1254,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.MCPGateways != nil {
+		out.MCPGateways = *o.MCPGateways
+	}
 	if o.PACConfigs != nil {
 		out.PACConfigs = *o.PACConfigs
 	}
@@ -1243,6 +1305,17 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MCPGateways != nil {
+		for _, sub := range *o.MCPGateways {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.PACConfigs != nil {
 		for _, sub := range *o.PACConfigs {
@@ -1343,6 +1416,17 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MCPGateways != nil {
+		for _, sub := range *o.MCPGateways {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.PACConfigs != nil {
 		for _, sub := range *o.PACConfigs {

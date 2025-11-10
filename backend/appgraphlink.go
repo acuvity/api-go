@@ -20,7 +20,7 @@ type AppGraphLink struct {
 	Dns *AppGraphLinkDNS `json:"dns,omitempty" msgpack:"dns,omitempty" bson:"-" mapstructure:"dns,omitempty"`
 
 	// The log links from this node to other nodes in the application graph.
-	Logs ProxyRoundtripsList `json:"logs,omitempty" msgpack:"logs,omitempty" bson:"-" mapstructure:"logs,omitempty"`
+	Logs *AppGraphLinkLogs `json:"logs,omitempty" msgpack:"logs,omitempty" bson:"-" mapstructure:"logs,omitempty"`
 
 	// The unique identifier of the application graph node.
 	NodeID string `json:"nodeID,omitempty" msgpack:"nodeID,omitempty" bson:"-" mapstructure:"nodeID,omitempty"`
@@ -110,9 +110,9 @@ func (o *AppGraphLink) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
-	for _, sub := range o.Logs {
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Logs' for 'AppGraphLink' (%s): %s", o.Identifier(), err)
+	if o.Logs != nil {
+		if err := o.Logs.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Logs' for 'AppGraphLink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -134,9 +134,9 @@ func (o *AppGraphLink) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
-	for _, sub := range o.Logs {
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Logs' for 'AppGraphLink' (%s): %w", o.Identifier(), err)
+	if o.Logs != nil {
+		if err := o.Logs.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Logs' for 'AppGraphLink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -187,8 +187,8 @@ func (o *AppGraphLink) Validate() error {
 		}
 	}
 
-	for _, sub := range o.Logs {
-		if err := sub.Validate(); err != nil {
+	if o.Logs != nil {
+		if err := o.Logs.Validate(); err != nil {
 			errors = errors.Append(err)
 		}
 	}
@@ -266,8 +266,8 @@ var AppGraphLinkAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `The log links from this node to other nodes in the application graph.`,
 		Exposed:        true,
 		Name:           "logs",
-		SubType:        "proxyroundtrip",
-		Type:           "refList",
+		SubType:        "appgraphlinklogs",
+		Type:           "ref",
 	},
 	"NodeID": {
 		AllowedChoices: []string{},
@@ -305,8 +305,8 @@ var AppGraphLinkLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Description:    `The log links from this node to other nodes in the application graph.`,
 		Exposed:        true,
 		Name:           "logs",
-		SubType:        "proxyroundtrip",
-		Type:           "refList",
+		SubType:        "appgraphlinklogs",
+		Type:           "ref",
 	},
 	"nodeid": {
 		AllowedChoices: []string{},

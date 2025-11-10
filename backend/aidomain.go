@@ -13,6 +13,17 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AIDomainClassificationValue represents the possible values for attribute "classification".
+type AIDomainClassificationValue string
+
+const (
+	// AIDomainClassificationAIEnabled represents the value AIEnabled.
+	AIDomainClassificationAIEnabled AIDomainClassificationValue = "AIEnabled"
+
+	// AIDomainClassificationAINative represents the value AINative.
+	AIDomainClassificationAINative AIDomainClassificationValue = "AINative"
+)
+
 // AIDomainIdentity represents the Identity of the object.
 var AIDomainIdentity = elemental.Identity{
 	Name:     "aidomain",
@@ -97,6 +108,9 @@ type AIDomain struct {
 	// The address of the company.
 	Address string `json:"address" msgpack:"address" bson:"address" mapstructure:"address,omitempty"`
 
+	// The classification of the AI domain.
+	Classification AIDomainClassificationValue `json:"classification" msgpack:"classification" bson:"classification" mapstructure:"classification,omitempty"`
+
 	// The name of the company.
 	Company string `json:"company" msgpack:"company" bson:"company" mapstructure:"company,omitempty"`
 
@@ -180,8 +194,9 @@ type AIDomain struct {
 func NewAIDomain() *AIDomain {
 
 	return &AIDomain{
-		ModelVersion: 1,
-		Propagate:    true,
+		ModelVersion:   1,
+		Classification: AIDomainClassificationAIEnabled,
+		Propagate:      true,
 	}
 }
 
@@ -219,6 +234,7 @@ func (o *AIDomain) GetBSON() (any, error) {
 	s.LLMProviders = o.LLMProviders
 	s.LLMProvidersRisk = o.LLMProvidersRisk
 	s.Address = o.Address
+	s.Classification = o.Classification
 	s.Company = o.Company
 	s.CompanyURL = o.CompanyURL
 	s.Compliances = o.Compliances
@@ -265,6 +281,7 @@ func (o *AIDomain) SetBSON(raw bson.Raw) error {
 	o.LLMProviders = s.LLMProviders
 	o.LLMProvidersRisk = s.LLMProvidersRisk
 	o.Address = s.Address
+	o.Classification = s.Classification
 	o.Company = s.Company
 	o.CompanyURL = s.CompanyURL
 	o.Compliances = s.Compliances
@@ -406,6 +423,7 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			LLMProviders:       &o.LLMProviders,
 			LLMProvidersRisk:   o.LLMProvidersRisk,
 			Address:            &o.Address,
+			Classification:     &o.Classification,
 			Company:            &o.Company,
 			CompanyURL:         &o.CompanyURL,
 			Compliances:        &o.Compliances,
@@ -445,6 +463,8 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.LLMProvidersRisk = o.LLMProvidersRisk
 		case "address":
 			sp.Address = &(o.Address)
+		case "classification":
+			sp.Classification = &(o.Classification)
 		case "company":
 			sp.Company = &(o.Company)
 		case "companyURL":
@@ -519,6 +539,9 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Address != nil {
 		o.Address = *so.Address
+	}
+	if so.Classification != nil {
+		o.Classification = *so.Classification
 	}
 	if so.Company != nil {
 		o.Company = *so.Company
@@ -836,6 +859,14 @@ func (o *AIDomain) Validate() error {
 		}
 	}
 
+	if err := elemental.ValidateRequiredString("classification", string(o.Classification)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("classification", string(o.Classification), []string{"AINative", "AIEnabled"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for _, sub := range o.Compliances {
 		if sub == nil {
 			continue
@@ -961,6 +992,8 @@ func (o *AIDomain) ValueForAttribute(name string) any {
 		return o.LLMProvidersRisk
 	case "address":
 		return o.Address
+	case "classification":
+		return o.Classification
 	case "company":
 		return o.Company
 	case "companyURL":
@@ -1064,6 +1097,18 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "address",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Classification": {
+		AllowedChoices: []string{"AINative", "AIEnabled"},
+		BSONFieldName:  "classification",
+		ConvertedName:  "Classification",
+		DefaultValue:   AIDomainClassificationAIEnabled,
+		Description:    `The classification of the AI domain.`,
+		Exposed:        true,
+		Name:           "classification",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"Company": {
 		AllowedChoices: []string{},
@@ -1383,6 +1428,18 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "address",
 		Stored:         true,
 		Type:           "string",
+	},
+	"classification": {
+		AllowedChoices: []string{"AINative", "AIEnabled"},
+		BSONFieldName:  "classification",
+		ConvertedName:  "Classification",
+		DefaultValue:   AIDomainClassificationAIEnabled,
+		Description:    `The classification of the AI domain.`,
+		Exposed:        true,
+		Name:           "classification",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"company": {
 		AllowedChoices: []string{},
@@ -1729,6 +1786,9 @@ type SparseAIDomain struct {
 	// The address of the company.
 	Address *string `json:"address,omitempty" msgpack:"address,omitempty" bson:"address,omitempty" mapstructure:"address,omitempty"`
 
+	// The classification of the AI domain.
+	Classification *AIDomainClassificationValue `json:"classification,omitempty" msgpack:"classification,omitempty" bson:"classification,omitempty" mapstructure:"classification,omitempty"`
+
 	// The name of the company.
 	Company *string `json:"company,omitempty" msgpack:"company,omitempty" bson:"company,omitempty" mapstructure:"company,omitempty"`
 
@@ -1860,6 +1920,9 @@ func (o *SparseAIDomain) GetBSON() (any, error) {
 	if o.Address != nil {
 		s.Address = o.Address
 	}
+	if o.Classification != nil {
+		s.Classification = o.Classification
+	}
 	if o.Company != nil {
 		s.Company = o.Company
 	}
@@ -1963,6 +2026,9 @@ func (o *SparseAIDomain) SetBSON(raw bson.Raw) error {
 	if s.Address != nil {
 		o.Address = s.Address
 	}
+	if s.Classification != nil {
+		o.Classification = s.Classification
+	}
 	if s.Company != nil {
 		o.Company = s.Company
 	}
@@ -2063,6 +2129,9 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Address != nil {
 		out.Address = *o.Address
+	}
+	if o.Classification != nil {
+		out.Classification = *o.Classification
 	}
 	if o.Company != nil {
 		out.Company = *o.Company
@@ -2480,64 +2549,66 @@ func (o *SparseAIDomain) DeepCopyInto(out *SparseAIDomain) {
 }
 
 type mongoAttributesAIDomain struct {
-	ID                 bson.ObjectId              `bson:"_id,omitempty"`
-	LLMProviders       []*AIDSectionLLMProvider   `bson:"llmproviders,omitempty"`
-	LLMProvidersRisk   *AIDRisk                   `bson:"llmprovidersrisk,omitempty"`
-	Address            string                     `bson:"address"`
-	Company            string                     `bson:"company"`
-	CompanyURL         string                     `bson:"companyurl"`
-	Compliances        []*AIDSectionCompliance    `bson:"compliances,omitempty"`
-	CompliancesRisk    *AIDRisk                   `bson:"compliancesrisk,omitempty"`
-	CreateTime         time.Time                  `bson:"createtime"`
-	DataPolicies       []*AIDSectionDataPolicy    `bson:"datapolicies,omitempty"`
-	DataPoliciesRisk   *AIDRisk                   `bson:"datapoliciesrisk,omitempty"`
-	DataProcessors     []*AIDSectionDataProcessor `bson:"dataprocessors,omitempty"`
-	DataProcessorsRisk *AIDRisk                   `bson:"dataprocessorsrisk,omitempty"`
-	Description        string                     `bson:"description,omitempty"`
-	Domain             string                     `bson:"domain"`
-	ExecutiveSummary   string                     `bson:"executivesummary,omitempty"`
-	Features           []*AIDSection              `bson:"features"`
-	ImportHash         string                     `bson:"importhash,omitempty"`
-	ImportLabel        string                     `bson:"importlabel,omitempty"`
-	Industry           *AIDSection                `bson:"industry"`
-	Name               string                     `bson:"name"`
-	Namespace          string                     `bson:"namespace,omitempty"`
-	Plans              []*AIDSectionPlan          `bson:"plans"`
-	Propagate          bool                       `bson:"propagate"`
-	ProviderName       string                     `bson:"providername,omitempty"`
-	Summary            *AIDSummary                `bson:"summary,omitempty"`
-	UpdateTime         time.Time                  `bson:"updatetime"`
-	ZHash              int                        `bson:"zhash"`
-	Zone               int                        `bson:"zone"`
+	ID                 bson.ObjectId               `bson:"_id,omitempty"`
+	LLMProviders       []*AIDSectionLLMProvider    `bson:"llmproviders,omitempty"`
+	LLMProvidersRisk   *AIDRisk                    `bson:"llmprovidersrisk,omitempty"`
+	Address            string                      `bson:"address"`
+	Classification     AIDomainClassificationValue `bson:"classification"`
+	Company            string                      `bson:"company"`
+	CompanyURL         string                      `bson:"companyurl"`
+	Compliances        []*AIDSectionCompliance     `bson:"compliances,omitempty"`
+	CompliancesRisk    *AIDRisk                    `bson:"compliancesrisk,omitempty"`
+	CreateTime         time.Time                   `bson:"createtime"`
+	DataPolicies       []*AIDSectionDataPolicy     `bson:"datapolicies,omitempty"`
+	DataPoliciesRisk   *AIDRisk                    `bson:"datapoliciesrisk,omitempty"`
+	DataProcessors     []*AIDSectionDataProcessor  `bson:"dataprocessors,omitempty"`
+	DataProcessorsRisk *AIDRisk                    `bson:"dataprocessorsrisk,omitempty"`
+	Description        string                      `bson:"description,omitempty"`
+	Domain             string                      `bson:"domain"`
+	ExecutiveSummary   string                      `bson:"executivesummary,omitempty"`
+	Features           []*AIDSection               `bson:"features"`
+	ImportHash         string                      `bson:"importhash,omitempty"`
+	ImportLabel        string                      `bson:"importlabel,omitempty"`
+	Industry           *AIDSection                 `bson:"industry"`
+	Name               string                      `bson:"name"`
+	Namespace          string                      `bson:"namespace,omitempty"`
+	Plans              []*AIDSectionPlan           `bson:"plans"`
+	Propagate          bool                        `bson:"propagate"`
+	ProviderName       string                      `bson:"providername,omitempty"`
+	Summary            *AIDSummary                 `bson:"summary,omitempty"`
+	UpdateTime         time.Time                   `bson:"updatetime"`
+	ZHash              int                         `bson:"zhash"`
+	Zone               int                         `bson:"zone"`
 }
 type mongoAttributesSparseAIDomain struct {
-	ID                 bson.ObjectId               `bson:"_id,omitempty"`
-	LLMProviders       *[]*AIDSectionLLMProvider   `bson:"llmproviders,omitempty"`
-	LLMProvidersRisk   *AIDRisk                    `bson:"llmprovidersrisk,omitempty"`
-	Address            *string                     `bson:"address,omitempty"`
-	Company            *string                     `bson:"company,omitempty"`
-	CompanyURL         *string                     `bson:"companyurl,omitempty"`
-	Compliances        *[]*AIDSectionCompliance    `bson:"compliances,omitempty"`
-	CompliancesRisk    *AIDRisk                    `bson:"compliancesrisk,omitempty"`
-	CreateTime         *time.Time                  `bson:"createtime,omitempty"`
-	DataPolicies       *[]*AIDSectionDataPolicy    `bson:"datapolicies,omitempty"`
-	DataPoliciesRisk   *AIDRisk                    `bson:"datapoliciesrisk,omitempty"`
-	DataProcessors     *[]*AIDSectionDataProcessor `bson:"dataprocessors,omitempty"`
-	DataProcessorsRisk *AIDRisk                    `bson:"dataprocessorsrisk,omitempty"`
-	Description        *string                     `bson:"description,omitempty"`
-	Domain             *string                     `bson:"domain,omitempty"`
-	ExecutiveSummary   *string                     `bson:"executivesummary,omitempty"`
-	Features           *[]*AIDSection              `bson:"features,omitempty"`
-	ImportHash         *string                     `bson:"importhash,omitempty"`
-	ImportLabel        *string                     `bson:"importlabel,omitempty"`
-	Industry           *AIDSection                 `bson:"industry,omitempty"`
-	Name               *string                     `bson:"name,omitempty"`
-	Namespace          *string                     `bson:"namespace,omitempty"`
-	Plans              *[]*AIDSectionPlan          `bson:"plans,omitempty"`
-	Propagate          *bool                       `bson:"propagate,omitempty"`
-	ProviderName       *string                     `bson:"providername,omitempty"`
-	Summary            *AIDSummary                 `bson:"summary,omitempty"`
-	UpdateTime         *time.Time                  `bson:"updatetime,omitempty"`
-	ZHash              *int                        `bson:"zhash,omitempty"`
-	Zone               *int                        `bson:"zone,omitempty"`
+	ID                 bson.ObjectId                `bson:"_id,omitempty"`
+	LLMProviders       *[]*AIDSectionLLMProvider    `bson:"llmproviders,omitempty"`
+	LLMProvidersRisk   *AIDRisk                     `bson:"llmprovidersrisk,omitempty"`
+	Address            *string                      `bson:"address,omitempty"`
+	Classification     *AIDomainClassificationValue `bson:"classification,omitempty"`
+	Company            *string                      `bson:"company,omitempty"`
+	CompanyURL         *string                      `bson:"companyurl,omitempty"`
+	Compliances        *[]*AIDSectionCompliance     `bson:"compliances,omitempty"`
+	CompliancesRisk    *AIDRisk                     `bson:"compliancesrisk,omitempty"`
+	CreateTime         *time.Time                   `bson:"createtime,omitempty"`
+	DataPolicies       *[]*AIDSectionDataPolicy     `bson:"datapolicies,omitempty"`
+	DataPoliciesRisk   *AIDRisk                     `bson:"datapoliciesrisk,omitempty"`
+	DataProcessors     *[]*AIDSectionDataProcessor  `bson:"dataprocessors,omitempty"`
+	DataProcessorsRisk *AIDRisk                     `bson:"dataprocessorsrisk,omitempty"`
+	Description        *string                      `bson:"description,omitempty"`
+	Domain             *string                      `bson:"domain,omitempty"`
+	ExecutiveSummary   *string                      `bson:"executivesummary,omitempty"`
+	Features           *[]*AIDSection               `bson:"features,omitempty"`
+	ImportHash         *string                      `bson:"importhash,omitempty"`
+	ImportLabel        *string                      `bson:"importlabel,omitempty"`
+	Industry           *AIDSection                  `bson:"industry,omitempty"`
+	Name               *string                      `bson:"name,omitempty"`
+	Namespace          *string                      `bson:"namespace,omitempty"`
+	Plans              *[]*AIDSectionPlan           `bson:"plans,omitempty"`
+	Propagate          *bool                        `bson:"propagate,omitempty"`
+	ProviderName       *string                      `bson:"providername,omitempty"`
+	Summary            *AIDSummary                  `bson:"summary,omitempty"`
+	UpdateTime         *time.Time                   `bson:"updatetime,omitempty"`
+	ZHash              *int                         `bson:"zhash,omitempty"`
+	Zone               *int                         `bson:"zone,omitempty"`
 }

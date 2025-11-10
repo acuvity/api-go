@@ -1,13 +1,13 @@
 {
   "$extends": [],
-  "$friendlyName": "App Graph Link Connection",
-  "$friendlyNamePlural": "App Graph Link Connections",
-  "$modelName": "AppGraphLinkConnection",
+  "$friendlyName": "App Graph Link Log Entry",
+  "$friendlyNamePlural": "App Graph Link Log Entries",
+  "$modelName": "AppGraphLinkLogEntry",
   "$modelPackage": "snitch",
-  "$modelResourceName": "appgraphlinkconnections",
-  "$modelRestName": "appgraphlinkconnection",
+  "$modelResourceName": "appgraphlinklogentries",
+  "$modelRestName": "appgraphlinklogentry",
   "additionalProperties": false,
-  "description": "Represents an application graph link connection entry for an application graph node generated from the different logs collected by the app agents.",
+  "description": "Represents an application graph link log entry for an application graph node generated from the different logs collected by the app agents.",
   "properties": {
     "allow": {
       "$friendlyName": "Allow",
@@ -17,15 +17,6 @@
         "integer",
         "null"
       ]
-    },
-    "connections": {
-      "$friendlyName": "Connections",
-      "description": "The connection links from this node to other nodes in the application graph.",
-      "items": {
-        "$ref": "connectionreport.json"
-      },
-      "title": "connections",
-      "type": "array"
     },
     "deny": {
       "$friendlyName": "Deny",
@@ -45,6 +36,15 @@
         "null"
       ]
     },
+    "findings": {
+      "$friendlyName": "Findings",
+      "description": "The findings categorized by type detected in the logs for this node.",
+      "items": {
+        "type": "integer"
+      },
+      "title": "findings",
+      "type": "object"
+    },
     "insecureEncryption": {
       "$friendlyName": "Insecure Encryption",
       "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0 or 1.1).",
@@ -53,6 +53,15 @@
         "integer",
         "null"
       ]
+    },
+    "logs": {
+      "$friendlyName": "Logs",
+      "description": "The log links from this node to other nodes in the application graph.",
+      "items": {
+        "$ref": "proxyroundtrip.json"
+      },
+      "title": "logs",
+      "type": "array"
     },
     "unencrypted": {
       "$friendlyName": "Unencrypted",
@@ -65,6 +74,6 @@
     }
   },
   "required": [],
-  "title": "AppGraphLinkConnection",
+  "title": "AppGraphLinkLogEntry",
   "type": "object"
 }

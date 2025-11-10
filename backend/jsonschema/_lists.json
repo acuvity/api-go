@@ -222,13 +222,7 @@
       },
       "type": "array"
     },
-    "appgraphlink": {
-      "items": {
-        "$ref": "appgraphlink.json"
-      },
-      "type": "array"
-    },
-    "appgraphlinkconnection": {
+    "appgraphlinkconnections": {
       "items": {
         "$ref": "appgraphlinkconnection.json"
       },
@@ -237,6 +231,18 @@
     "appgraphlinkdns": {
       "items": {
         "$ref": "appgraphlinkdns.json"
+      },
+      "type": "array"
+    },
+    "appgraphlinklogentries": {
+      "items": {
+        "$ref": "appgraphlinklogentry.json"
+      },
+      "type": "array"
+    },
+    "appgraphlinklogs": {
+      "items": {
+        "$ref": "appgraphlinklogs.json"
       },
       "type": "array"
     },

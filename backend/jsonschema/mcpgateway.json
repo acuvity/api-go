@@ -57,6 +57,13 @@
       "title": "ping",
       "type": "string"
     },
+    "publicURL": {
+      "$friendlyName": "Public URL",
+      "$required": true,
+      "description": "The public URL of the gateway.",
+      "title": "publicURL",
+      "type": "string"
+    },
     "servers": {
       "$friendlyName": "servers",
       "description": "The list of mcp servers running behind the gateway.",
@@ -90,6 +97,7 @@
   "required": [
     "name",
     "ping",
+    "publicURL",
     "status"
   ],
   "title": "MCPGateway",

@@ -1146,6 +1146,7 @@ AI domain provides an AI risk score given a domain url.
 
 ```json
 {
+  "classification": "AIEnabled",
   "description": "A description text",
   "domain": "openai.com",
   "name": "OpenAI Inc.",
@@ -1206,6 +1207,18 @@ Overall risk assessment for the LLM providers.
 Type: `string`
 
 The address of the company.
+
+##### `classification` [`required`]
+
+Type: `enum(AINative | AIEnabled)`
+
+The classification of the AI domain.
+
+Default value:
+
+```json
+"AIEnabled"
+```
 
 ##### `company`
 
@@ -3038,7 +3051,7 @@ The DNS link data from this node to other nodes in the application graph.
 
 ##### `logs`
 
-Type: [`[]proxyroundtrip`](#proxyroundtrip)
+Type: [`appgraphlinklogs`](#appgraphlinklogs)
 
 The log links from this node to other nodes in the application graph.
 
@@ -3125,6 +3138,87 @@ Type: [`[]dnsreport`](#dnsreport)
 
 The DNS links from this node to other nodes in the application graph as queried
 from Loki. This is not populated by default.
+
+### AppGraphLinkLogEntry
+
+Represents an application graph link log entry for an application graph
+node generated from the different logs collected by the app agents.
+
+#### Example
+
+```json
+{
+  "findings": {
+    "pii": 42
+  }
+}
+```
+
+#### Attributes
+
+##### `allow`
+
+Type: `integer`
+
+The number of allowed connections to this node.
+
+##### `deny`
+
+Type: `integer`
+
+The number of denied connections to this node.
+
+##### `encrypted`
+
+Type: `integer`
+
+The number of encrypted connections to this node.
+
+##### `findings`
+
+Type: `map[string]int`
+
+The findings categorized by type detected in the logs for this node.
+
+##### `insecureEncryption`
+
+Type: `integer`
+
+The number of connections to this node with insecure encryption (e.g., TLS 1.0
+or 1.1).
+
+##### `logs`
+
+Type: [`[]proxyroundtrip`](#proxyroundtrip)
+
+The log links from this node to other nodes in the application graph.
+
+##### `unencrypted`
+
+Type: `integer`
+
+The number of unencrypted connections to this node.
+
+### AppGraphLinkLogs
+
+Represents an application graph link logs entry for an application graph node
+generated from the different logs collected by the app agents.
+
+#### Attributes
+
+##### `input`
+
+Type: [`appgraphlinklogentry`](#appgraphlinklogentry)
+
+The input (request) type log links from this node to other nodes in the
+application graph.
+
+##### `output`
+
+Type: [`appgraphlinklogentry`](#appgraphlinklogentry)
+
+The output (response) type log links from this node to other nodes in the
+application graph.
 
 ### AppGraphLinks
 
@@ -8112,7 +8206,7 @@ Represents a Predicate.
 
 ##### `key` [`required`]
 
-Type: `enum(Categories | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | Exploits | IsIngress | Keywords | Languages | Malcontents | Modality | Model | PIIs | Plugin | Provider | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | Status | Team | Tools | Topics | Workspace)`
+Type: `enum(Categories | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | Exploits | IsIngress | Keywords | Languages | MCPServer | Malcontents | Modality | Model | PIIs | Plugin | Provider | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | Status | Team | Tools | ToolUses | Topics | Workspace)`
 
 The key of the predicate.
 
@@ -8998,6 +9092,12 @@ Get a particular proxyconf.
 Type: `string`
 
 ID is the identifier of the object.
+
+##### `MCPGateways`
+
+Type: [`[]mcpgateway`](#mcpgateway)
+
+The list of MCP Gateways registered in the system.
 
 ##### `PACConfigs`
 
@@ -12120,6 +12220,7 @@ Represents MCP Gateways connected to the system.
 {
   "name": "Dev Gateway",
   "ping": "2024-06-21T00:36:15.021Z",
+  "publicURL": "https://mcp.acme.com",
   "status": "Running"
 }
 ```
@@ -12177,6 +12278,12 @@ The namespace of the object.
 Type: `time`
 
 The last ping recorded for the agent.
+
+##### `publicURL` [`required`]
+
+Type: `string`
+
+The public URL of the gateway.
 
 ##### `servers`
 

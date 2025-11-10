@@ -24,6 +24,7 @@
         "IsIngress",
         "Keywords",
         "Languages",
+        "MCPServer",
         "Malcontents",
         "Modality",
         "Model",
@@ -40,6 +41,7 @@
         "Status",
         "Team",
         "Tools",
+        "ToolUses",
         "Topics",
         "Workspace"
       ],

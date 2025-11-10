@@ -111,6 +111,9 @@ type MCPGateway struct {
 	// The last ping recorded for the agent.
 	Ping time.Time `json:"ping" msgpack:"ping" bson:"ping" mapstructure:"ping,omitempty"`
 
+	// The public URL of the gateway.
+	PublicURL string `json:"publicURL" msgpack:"publicURL" bson:"publicurl" mapstructure:"publicURL,omitempty"`
+
 	// The list of mcp servers running behind the gateway.
 	Servers []*MCPGatewayServer `json:"servers" msgpack:"servers" bson:"servers" mapstructure:"servers,omitempty"`
 
@@ -172,6 +175,7 @@ func (o *MCPGateway) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Ping = o.Ping
+	s.PublicURL = o.PublicURL
 	s.Servers = o.Servers
 	s.Status = o.Status
 	s.UpdateTime = o.UpdateTime
@@ -199,6 +203,7 @@ func (o *MCPGateway) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Ping = s.Ping
+	o.PublicURL = s.PublicURL
 	o.Servers = s.Servers
 	o.Status = s.Status
 	o.UpdateTime = s.UpdateTime
@@ -285,6 +290,7 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:       &o.Name,
 			Namespace:  &o.Namespace,
 			Ping:       &o.Ping,
+			PublicURL:  &o.PublicURL,
 			Servers:    &o.Servers,
 			Status:     &o.Status,
 			UpdateTime: &o.UpdateTime,
@@ -306,6 +312,8 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "ping":
 			sp.Ping = &(o.Ping)
+		case "publicURL":
+			sp.PublicURL = &(o.PublicURL)
 		case "servers":
 			sp.Servers = &(o.Servers)
 		case "status":
@@ -343,6 +351,9 @@ func (o *MCPGateway) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Ping != nil {
 		o.Ping = *so.Ping
+	}
+	if so.PublicURL != nil {
+		o.PublicURL = *so.PublicURL
 	}
 	if so.Servers != nil {
 		o.Servers = *so.Servers
@@ -431,6 +442,14 @@ func (o *MCPGateway) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("publicURL", o.PublicURL); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateURL("publicURL", o.PublicURL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for _, sub := range o.Servers {
 		if sub == nil {
 			continue
@@ -492,6 +511,8 @@ func (o *MCPGateway) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "ping":
 		return o.Ping
+	case "publicURL":
+		return o.PublicURL
 	case "servers":
 		return o.Servers
 	case "status":
@@ -575,6 +596,17 @@ var MCPGatewayAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"PublicURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publicurl",
+		ConvertedName:  "PublicURL",
+		Description:    `The public URL of the gateway.`,
+		Exposed:        true,
+		Name:           "publicURL",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Servers": {
 		AllowedChoices: []string{},
@@ -683,6 +715,17 @@ var MCPGatewayLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Required:       true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"publicurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publicurl",
+		ConvertedName:  "PublicURL",
+		Description:    `The public URL of the gateway.`,
+		Exposed:        true,
+		Name:           "publicURL",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"servers": {
 		AllowedChoices: []string{},
@@ -801,6 +844,9 @@ type SparseMCPGateway struct {
 	// The last ping recorded for the agent.
 	Ping *time.Time `json:"ping,omitempty" msgpack:"ping,omitempty" bson:"ping,omitempty" mapstructure:"ping,omitempty"`
 
+	// The public URL of the gateway.
+	PublicURL *string `json:"publicURL,omitempty" msgpack:"publicURL,omitempty" bson:"publicurl,omitempty" mapstructure:"publicURL,omitempty"`
+
 	// The list of mcp servers running behind the gateway.
 	Servers *[]*MCPGatewayServer `json:"servers,omitempty" msgpack:"servers,omitempty" bson:"servers,omitempty" mapstructure:"servers,omitempty"`
 
@@ -874,6 +920,9 @@ func (o *SparseMCPGateway) GetBSON() (any, error) {
 	if o.Ping != nil {
 		s.Ping = o.Ping
 	}
+	if o.PublicURL != nil {
+		s.PublicURL = o.PublicURL
+	}
 	if o.Servers != nil {
 		s.Servers = o.Servers
 	}
@@ -920,6 +969,9 @@ func (o *SparseMCPGateway) SetBSON(raw bson.Raw) error {
 	if s.Ping != nil {
 		o.Ping = s.Ping
 	}
+	if s.PublicURL != nil {
+		o.PublicURL = s.PublicURL
+	}
 	if s.Servers != nil {
 		o.Servers = s.Servers
 	}
@@ -963,6 +1015,9 @@ func (o *SparseMCPGateway) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Ping != nil {
 		out.Ping = *o.Ping
+	}
+	if o.PublicURL != nil {
+		out.PublicURL = *o.PublicURL
 	}
 	if o.Servers != nil {
 		out.Servers = *o.Servers
@@ -1095,6 +1150,7 @@ type mongoAttributesMCPGateway struct {
 	Name       string                `bson:"name"`
 	Namespace  string                `bson:"namespace,omitempty"`
 	Ping       time.Time             `bson:"ping"`
+	PublicURL  string                `bson:"publicurl"`
 	Servers    []*MCPGatewayServer   `bson:"servers"`
 	Status     MCPGatewayStatusValue `bson:"status"`
 	UpdateTime time.Time             `bson:"updatetime"`
@@ -1107,6 +1163,7 @@ type mongoAttributesSparseMCPGateway struct {
 	Name       *string                `bson:"name,omitempty"`
 	Namespace  *string                `bson:"namespace,omitempty"`
 	Ping       *time.Time             `bson:"ping,omitempty"`
+	PublicURL  *string                `bson:"publicurl,omitempty"`
 	Servers    *[]*MCPGatewayServer   `bson:"servers,omitempty"`
 	Status     *MCPGatewayStatusValue `bson:"status,omitempty"`
 	UpdateTime *time.Time             `bson:"updatetime,omitempty"`
