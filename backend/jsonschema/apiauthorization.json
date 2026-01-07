@@ -116,7 +116,7 @@
         "Viewer",
         "RiskAuditor",
         "ExternalIDP",
-        "Minibridge"
+        "Maxibridge"
       ],
       "title": "role"
     },

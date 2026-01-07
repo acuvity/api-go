@@ -6,64 +6,66 @@ package api
 import (
 	"fmt"
 	"slices"
-	"time"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.acuvity.ai/elemental"
 )
 
-// ContentPolicyTypeValue represents the possible values for attribute "type".
-type ContentPolicyTypeValue string
+// FindingDefinitionSeverityValue represents the possible values for attribute "severity".
+type FindingDefinitionSeverityValue string
 
 const (
-	// ContentPolicyTypeBoth represents the value Both.
-	ContentPolicyTypeBoth ContentPolicyTypeValue = "Both"
+	// FindingDefinitionSeverityCritical represents the value Critical.
+	FindingDefinitionSeverityCritical FindingDefinitionSeverityValue = "Critical"
 
-	// ContentPolicyTypeRequest represents the value Request.
-	ContentPolicyTypeRequest ContentPolicyTypeValue = "Request"
+	// FindingDefinitionSeverityHigh represents the value High.
+	FindingDefinitionSeverityHigh FindingDefinitionSeverityValue = "High"
 
-	// ContentPolicyTypeResponse represents the value Response.
-	ContentPolicyTypeResponse ContentPolicyTypeValue = "Response"
+	// FindingDefinitionSeverityLow represents the value Low.
+	FindingDefinitionSeverityLow FindingDefinitionSeverityValue = "Low"
+
+	// FindingDefinitionSeverityMedium represents the value Medium.
+	FindingDefinitionSeverityMedium FindingDefinitionSeverityValue = "Medium"
 )
 
-// ContentPolicyIdentity represents the Identity of the object.
-var ContentPolicyIdentity = elemental.Identity{
-	Name:     "contentpolicy",
-	Category: "contentpolicies",
+// FindingDefinitionIdentity represents the Identity of the object.
+var FindingDefinitionIdentity = elemental.Identity{
+	Name:     "findingdefinition",
+	Category: "findingdefinitions",
 	Package:  "lain",
 	Private:  false,
 }
 
-// ContentPoliciesList represents a list of ContentPolicies
-type ContentPoliciesList []*ContentPolicy
+// FindingDefinitionsList represents a list of FindingDefinitions
+type FindingDefinitionsList []*FindingDefinition
 
 // Identity returns the identity of the objects in the list.
-func (o ContentPoliciesList) Identity() elemental.Identity {
+func (o FindingDefinitionsList) Identity() elemental.Identity {
 
-	return ContentPolicyIdentity
+	return FindingDefinitionIdentity
 }
 
-// Copy returns a pointer to a copy the ContentPoliciesList.
-func (o ContentPoliciesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the FindingDefinitionsList.
+func (o FindingDefinitionsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the ContentPoliciesList.
-func (o ContentPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the FindingDefinitionsList.
+func (o FindingDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*ContentPolicy))
+		out = append(out, obj.(*FindingDefinition))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o ContentPoliciesList) List() elemental.IdentifiablesList {
+func (o FindingDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -74,42 +76,42 @@ func (o ContentPoliciesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o ContentPoliciesList) DefaultOrder() []string {
+func (o FindingDefinitionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the ContentPoliciesList converted to SparseContentPoliciesList.
+// ToSparse returns the FindingDefinitionsList converted to SparseFindingDefinitionsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o ContentPoliciesList) ToSparse(fields ...string) elemental.Identifiables {
+func (o FindingDefinitionsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseContentPoliciesList, len(o))
+	out := make(SparseFindingDefinitionsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseContentPolicy)
+		out[i] = o[i].ToSparse(fields...).(*SparseFindingDefinition)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o ContentPoliciesList) Version() int {
+func (o FindingDefinitionsList) Version() int {
 
 	return 1
 }
 
-// ContentPolicy represents the model of a contentpolicy
-type ContentPolicy struct {
+// FindingDefinition represents the model of a findingdefinition
+type FindingDefinition struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Creation date of the object.
-	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
-
-	// Description of the content policy.
-	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+	// The description of the finding.
+	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
+
+	// The identities that can trigger this finding.
+	Identities []string `json:"identities" msgpack:"identities" bson:"identities" mapstructure:"identities,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -117,9 +119,6 @@ type ContentPolicy struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
-
-	// The list of moderations to take when the user has access to the provider.
-	Moderations []*Moderation `json:"moderations" msgpack:"moderations" bson:"moderations" mapstructure:"moderations,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
@@ -131,11 +130,14 @@ type ContentPolicy struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// Choose on what the content policy should apply.
-	Type ContentPolicyTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
+	// The identities that can resolve this finding.
+	ResolutionIdentities []string `json:"resolutionIdentities" msgpack:"resolutionIdentities" bson:"resolutionidentities" mapstructure:"resolutionIdentities,omitempty"`
 
-	// Last update date of the object.
-	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+	// Script to contains the Lua functions.
+	Script string `json:"script" msgpack:"script" bson:"script" mapstructure:"script,omitempty"`
+
+	// The severity of the finding that will be created.
+	Severity FindingDefinitionSeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -146,58 +148,58 @@ type ContentPolicy struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewContentPolicy returns a new *ContentPolicy
-func NewContentPolicy() *ContentPolicy {
+// NewFindingDefinition returns a new *FindingDefinition
+func NewFindingDefinition() *FindingDefinition {
 
-	return &ContentPolicy{
-		ModelVersion: 1,
-		Propagate:    true,
-		Type:         ContentPolicyTypeRequest,
+	return &FindingDefinition{
+		ModelVersion:         1,
+		Identities:           []string{},
+		Propagate:            true,
+		ResolutionIdentities: []string{},
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *ContentPolicy) Identity() elemental.Identity {
+func (o *FindingDefinition) Identity() elemental.Identity {
 
-	return ContentPolicyIdentity
+	return FindingDefinitionIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *ContentPolicy) Identifier() string {
+func (o *FindingDefinition) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *ContentPolicy) SetIdentifier(id string) {
+func (o *FindingDefinition) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ContentPolicy) GetBSON() (any, error) {
+func (o *FindingDefinition) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesContentPolicy{}
+	s := &mongoAttributesFindingDefinition{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.CreateTime = o.CreateTime
-	s.Description = o.Description
 	s.FriendlyName = o.FriendlyName
+	s.Identities = o.Identities
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
-	s.Moderations = o.Moderations
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
-	s.Type = o.Type
-	s.UpdateTime = o.UpdateTime
+	s.ResolutionIdentities = o.ResolutionIdentities
+	s.Script = o.Script
+	s.Severity = o.Severity
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -206,29 +208,28 @@ func (o *ContentPolicy) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ContentPolicy) SetBSON(raw bson.Raw) error {
+func (o *FindingDefinition) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesContentPolicy{}
+	s := &mongoAttributesFindingDefinition{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
-	o.CreateTime = s.CreateTime
-	o.Description = s.Description
 	o.FriendlyName = s.FriendlyName
+	o.Identities = s.Identities
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
-	o.Moderations = s.Moderations
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
-	o.Type = s.Type
-	o.UpdateTime = s.UpdateTime
+	o.ResolutionIdentities = s.ResolutionIdentities
+	o.Script = s.Script
+	o.Severity = s.Severity
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -236,160 +237,133 @@ func (o *ContentPolicy) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *ContentPolicy) Version() int {
+func (o *FindingDefinition) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *ContentPolicy) BleveType() string {
+func (o *FindingDefinition) BleveType() string {
 
-	return "contentpolicy"
+	return "findingdefinition"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *ContentPolicy) DefaultOrder() []string {
+func (o *FindingDefinition) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *ContentPolicy) Doc() string {
+func (o *FindingDefinition) Doc() string {
 
-	return `Content Policies are used in conjunction with Access Policies to determine how
-user input is handled. They define the system’s response to problematic or
-sensitive inputs and can enforce actions such as warning the user, redacting
-sensitive information, raising alerts, and other protective measures.`
+	return `Defines a finding that can be instantiated anywhere in the Acuvity system.`
 }
 
-func (o *ContentPolicy) String() string {
+func (o *FindingDefinition) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
-// GetCreateTime returns the CreateTime of the receiver.
-func (o *ContentPolicy) GetCreateTime() time.Time {
-
-	return o.CreateTime
-}
-
-// SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *ContentPolicy) SetCreateTime(createTime time.Time) {
-
-	o.CreateTime = createTime
-}
-
 // GetImportHash returns the ImportHash of the receiver.
-func (o *ContentPolicy) GetImportHash() string {
+func (o *FindingDefinition) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *ContentPolicy) SetImportHash(importHash string) {
+func (o *FindingDefinition) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *ContentPolicy) GetImportLabel() string {
+func (o *FindingDefinition) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *ContentPolicy) SetImportLabel(importLabel string) {
+func (o *FindingDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *ContentPolicy) GetNamespace() string {
+func (o *FindingDefinition) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *ContentPolicy) SetNamespace(namespace string) {
+func (o *FindingDefinition) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *ContentPolicy) GetPropagate() bool {
+func (o *FindingDefinition) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *ContentPolicy) SetPropagate(propagate bool) {
+func (o *FindingDefinition) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
-// GetUpdateTime returns the UpdateTime of the receiver.
-func (o *ContentPolicy) GetUpdateTime() time.Time {
-
-	return o.UpdateTime
-}
-
-// SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *ContentPolicy) SetUpdateTime(updateTime time.Time) {
-
-	o.UpdateTime = updateTime
-}
-
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *ContentPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *FindingDefinition) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseContentPolicy{
-			ID:           &o.ID,
-			CreateTime:   &o.CreateTime,
-			Description:  &o.Description,
-			FriendlyName: &o.FriendlyName,
-			ImportHash:   &o.ImportHash,
-			ImportLabel:  &o.ImportLabel,
-			Moderations:  &o.Moderations,
-			Name:         &o.Name,
-			Namespace:    &o.Namespace,
-			Propagate:    &o.Propagate,
-			Type:         &o.Type,
-			UpdateTime:   &o.UpdateTime,
-			ZHash:        &o.ZHash,
-			Zone:         &o.Zone,
+		return &SparseFindingDefinition{
+			ID:                   &o.ID,
+			Description:          &o.Description,
+			FriendlyName:         &o.FriendlyName,
+			Identities:           &o.Identities,
+			ImportHash:           &o.ImportHash,
+			ImportLabel:          &o.ImportLabel,
+			Name:                 &o.Name,
+			Namespace:            &o.Namespace,
+			Propagate:            &o.Propagate,
+			ResolutionIdentities: &o.ResolutionIdentities,
+			Script:               &o.Script,
+			Severity:             &o.Severity,
+			ZHash:                &o.ZHash,
+			Zone:                 &o.Zone,
 		}
 	}
 
-	sp := &SparseContentPolicy{}
+	sp := &SparseFindingDefinition{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "createTime":
-			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
+		case "identities":
+			sp.Identities = &(o.Identities)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
-		case "moderations":
-			sp.Moderations = &(o.Moderations)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "type":
-			sp.Type = &(o.Type)
-		case "updateTime":
-			sp.UpdateTime = &(o.UpdateTime)
+		case "resolutionIdentities":
+			sp.ResolutionIdentities = &(o.ResolutionIdentities)
+		case "script":
+			sp.Script = &(o.Script)
+		case "severity":
+			sp.Severity = &(o.Severity)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -400,18 +374,15 @@ func (o *ContentPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseContentPolicy to the object.
-func (o *ContentPolicy) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseFindingDefinition to the object.
+func (o *FindingDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseContentPolicy)
+	so := sparse.(*SparseFindingDefinition)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.CreateTime != nil {
-		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -419,14 +390,14 @@ func (o *ContentPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
 	}
+	if so.Identities != nil {
+		o.Identities = *so.Identities
+	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
-	}
-	if so.Moderations != nil {
-		o.Moderations = *so.Moderations
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -437,11 +408,14 @@ func (o *ContentPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.Type != nil {
-		o.Type = *so.Type
+	if so.ResolutionIdentities != nil {
+		o.ResolutionIdentities = *so.ResolutionIdentities
 	}
-	if so.UpdateTime != nil {
-		o.UpdateTime = *so.UpdateTime
+	if so.Script != nil {
+		o.Script = *so.Script
+	}
+	if so.Severity != nil {
+		o.Severity = *so.Severity
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -452,61 +426,43 @@ func (o *ContentPolicy) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *ContentPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.Moderations {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Moderations' for 'ContentPolicy' (%s): %s", o.Identifier(), err)
-		}
-	}
+func (o *FindingDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *ContentPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.Moderations {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Moderations' for 'ContentPolicy' (%s): %w", o.Identifier(), err)
-		}
-	}
+func (o *FindingDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the ContentPolicy.
-func (o *ContentPolicy) DeepCopy() *ContentPolicy {
+// DeepCopy returns a deep copy if the FindingDefinition.
+func (o *FindingDefinition) DeepCopy() *FindingDefinition {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &ContentPolicy{}
+	out := &FindingDefinition{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *ContentPolicy.
-func (o *ContentPolicy) DeepCopyInto(out *ContentPolicy) {
+// DeepCopyInto copies the receiver into the given *FindingDefinition.
+func (o *FindingDefinition) DeepCopyInto(out *FindingDefinition) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy ContentPolicy: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy FindingDefinition: %s", err))
 	}
 
-	*out = *target.(*ContentPolicy)
+	*out = *target.(*FindingDefinition)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *ContentPolicy) Validate() error {
+func (o *FindingDefinition) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
@@ -524,29 +480,19 @@ func (o *ContentPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Moderations {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-		}
-	}
-
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Both", "Request", "Response"}, false); err != nil {
+	if err := ValidateLua("script", o.Script); err != nil {
 		errors = errors.Append(err)
 	}
 
-	// Custom object validation.
-	if err := ValidateContentPolicy(o); err != nil {
+	if err := elemental.ValidateRequiredString("severity", string(o.Severity)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("severity", string(o.Severity), []string{"Low", "Medium", "High", "Critical"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -562,52 +508,52 @@ func (o *ContentPolicy) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*ContentPolicy) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*FindingDefinition) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := ContentPolicyAttributesMap[name]; ok {
+	if v, ok := FindingDefinitionAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return ContentPolicyLowerCaseAttributesMap[name]
+	return FindingDefinitionLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*ContentPolicy) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*FindingDefinition) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return ContentPolicyAttributesMap
+	return FindingDefinitionAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *ContentPolicy) ValueForAttribute(name string) any {
+func (o *FindingDefinition) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
-	case "createTime":
-		return o.CreateTime
 	case "description":
 		return o.Description
 	case "friendlyName":
 		return o.FriendlyName
+	case "identities":
+		return o.Identities
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
-	case "moderations":
-		return o.Moderations
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
-	case "type":
-		return o.Type
-	case "updateTime":
-		return o.UpdateTime
+	case "resolutionIdentities":
+		return o.ResolutionIdentities
+	case "script":
+		return o.Script
+	case "severity":
+		return o.Severity
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -617,8 +563,8 @@ func (o *ContentPolicy) ValueForAttribute(name string) any {
 	return nil
 }
 
-// ContentPolicyAttributesMap represents the map of attribute for ContentPolicy.
-var ContentPolicyAttributesMap = map[string]elemental.AttributeSpecification{
+// FindingDefinitionAttributesMap represents the map of attribute for FindingDefinition.
+var FindingDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -634,29 +580,12 @@ var ContentPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"CreateTime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "createtime",
-		ConvertedName:  "CreateTime",
-		Description:    `Creation date of the object.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "createTime",
-		Orderable:      true,
-		ReadOnly:       true,
-		Setter:         true,
-		Stored:         true,
-		Type:           "time",
-	},
 	"Description": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the content policy.`,
+		Description:    `The description of the finding.`,
 		Exposed:        true,
 		Name:           "description",
-		Stored:         true,
 		Type:           "string",
 	},
 	"FriendlyName": {
@@ -669,6 +598,17 @@ var ContentPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Identities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "identities",
+		ConvertedName:  "Identities",
+		Description:    `The identities that can trigger this finding.`,
+		Exposed:        true,
+		Name:           "identities",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -697,17 +637,6 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
-	},
-	"Moderations": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "moderations",
-		ConvertedName:  "Moderations",
-		Description:    `The list of moderations to take when the user has access to the provider.`,
-		Exposed:        true,
-		Name:           "moderations",
-		Stored:         true,
-		SubType:        "moderation",
-		Type:           "refList",
 	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
@@ -750,37 +679,42 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Type": {
-		AllowedChoices: []string{"Both", "Request", "Response"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   ContentPolicyTypeRequest,
-		Description:    `Choose on what the content policy should apply.`,
+	"ResolutionIdentities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "resolutionidentities",
+		ConvertedName:  "ResolutionIdentities",
+		Description:    `The identities that can resolve this finding.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "resolutionIdentities",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"Script": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description:    `Script to contains the Lua functions.`,
+		Exposed:        true,
+		Name:           "script",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Severity": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		BSONFieldName:  "severity",
+		ConvertedName:  "Severity",
+		Description:    `The severity of the finding that will be created.`,
+		Exposed:        true,
+		Name:           "severity",
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"UpdateTime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "updatetime",
-		ConvertedName:  "UpdateTime",
-		Description:    `Last update date of the object.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "updateTime",
-		Orderable:      true,
-		ReadOnly:       true,
-		Setter:         true,
-		Stored:         true,
-		Type:           "time",
-	},
 }
 
-// ContentPolicyLowerCaseAttributesMap represents the map of attribute for ContentPolicy.
-var ContentPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// FindingDefinitionLowerCaseAttributesMap represents the map of attribute for FindingDefinition.
+var FindingDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -796,29 +730,12 @@ var ContentPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "string",
 	},
-	"createtime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "createtime",
-		ConvertedName:  "CreateTime",
-		Description:    `Creation date of the object.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "createTime",
-		Orderable:      true,
-		ReadOnly:       true,
-		Setter:         true,
-		Stored:         true,
-		Type:           "time",
-	},
 	"description": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the content policy.`,
+		Description:    `The description of the finding.`,
 		Exposed:        true,
 		Name:           "description",
-		Stored:         true,
 		Type:           "string",
 	},
 	"friendlyname": {
@@ -831,6 +748,17 @@ var ContentPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"identities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "identities",
+		ConvertedName:  "Identities",
+		Description:    `The identities that can trigger this finding.`,
+		Exposed:        true,
+		Name:           "identities",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -859,17 +787,6 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
-	},
-	"moderations": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "moderations",
-		ConvertedName:  "Moderations",
-		Description:    `The list of moderations to take when the user has access to the provider.`,
-		Exposed:        true,
-		Name:           "moderations",
-		Stored:         true,
-		SubType:        "moderation",
-		Type:           "refList",
 	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
@@ -912,64 +829,69 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"type": {
-		AllowedChoices: []string{"Both", "Request", "Response"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   ContentPolicyTypeRequest,
-		Description:    `Choose on what the content policy should apply.`,
+	"resolutionidentities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "resolutionidentities",
+		ConvertedName:  "ResolutionIdentities",
+		Description:    `The identities that can resolve this finding.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "resolutionIdentities",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"script": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "script",
+		ConvertedName:  "Script",
+		Description:    `Script to contains the Lua functions.`,
+		Exposed:        true,
+		Name:           "script",
+		Stored:         true,
+		Type:           "string",
+	},
+	"severity": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		BSONFieldName:  "severity",
+		ConvertedName:  "Severity",
+		Description:    `The severity of the finding that will be created.`,
+		Exposed:        true,
+		Name:           "severity",
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"updatetime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "updatetime",
-		ConvertedName:  "UpdateTime",
-		Description:    `Last update date of the object.`,
-		Exposed:        true,
-		Getter:         true,
-		Name:           "updateTime",
-		Orderable:      true,
-		ReadOnly:       true,
-		Setter:         true,
-		Stored:         true,
-		Type:           "time",
-	},
 }
 
-// SparseContentPoliciesList represents a list of SparseContentPolicies
-type SparseContentPoliciesList []*SparseContentPolicy
+// SparseFindingDefinitionsList represents a list of SparseFindingDefinitions
+type SparseFindingDefinitionsList []*SparseFindingDefinition
 
 // Identity returns the identity of the objects in the list.
-func (o SparseContentPoliciesList) Identity() elemental.Identity {
+func (o SparseFindingDefinitionsList) Identity() elemental.Identity {
 
-	return ContentPolicyIdentity
+	return FindingDefinitionIdentity
 }
 
-// Copy returns a pointer to a copy the SparseContentPoliciesList.
-func (o SparseContentPoliciesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseFindingDefinitionsList.
+func (o SparseFindingDefinitionsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseContentPoliciesList.
-func (o SparseContentPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseFindingDefinitionsList.
+func (o SparseFindingDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseContentPolicy))
+		out = append(out, obj.(*SparseFindingDefinition))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseContentPoliciesList) List() elemental.IdentifiablesList {
+func (o SparseFindingDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -980,13 +902,13 @@ func (o SparseContentPoliciesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseContentPoliciesList) DefaultOrder() []string {
+func (o SparseFindingDefinitionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseContentPoliciesList converted to ContentPoliciesList.
-func (o SparseContentPoliciesList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseFindingDefinitionsList converted to FindingDefinitionsList.
+func (o SparseFindingDefinitionsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -997,24 +919,24 @@ func (o SparseContentPoliciesList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseContentPoliciesList) Version() int {
+func (o SparseFindingDefinitionsList) Version() int {
 
 	return 1
 }
 
-// SparseContentPolicy represents the sparse version of a contentpolicy.
-type SparseContentPolicy struct {
+// SparseFindingDefinition represents the sparse version of a findingdefinition.
+type SparseFindingDefinition struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Creation date of the object.
-	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
-
-	// Description of the content policy.
-	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	// The description of the finding.
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"-" mapstructure:"description,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
+
+	// The identities that can trigger this finding.
+	Identities *[]string `json:"identities,omitempty" msgpack:"identities,omitempty" bson:"identities,omitempty" mapstructure:"identities,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1022,9 +944,6 @@ type SparseContentPolicy struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
-
-	// The list of moderations to take when the user has access to the provider.
-	Moderations *[]*Moderation `json:"moderations,omitempty" msgpack:"moderations,omitempty" bson:"moderations,omitempty" mapstructure:"moderations,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
@@ -1036,11 +955,14 @@ type SparseContentPolicy struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// Choose on what the content policy should apply.
-	Type *ContentPolicyTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
+	// The identities that can resolve this finding.
+	ResolutionIdentities *[]string `json:"resolutionIdentities,omitempty" msgpack:"resolutionIdentities,omitempty" bson:"resolutionidentities,omitempty" mapstructure:"resolutionIdentities,omitempty"`
 
-	// Last update date of the object.
-	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+	// Script to contains the Lua functions.
+	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
+
+	// The severity of the finding that will be created.
+	Severity *FindingDefinitionSeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1051,19 +973,19 @@ type SparseContentPolicy struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseContentPolicy returns a new  SparseContentPolicy.
-func NewSparseContentPolicy() *SparseContentPolicy {
-	return &SparseContentPolicy{}
+// NewSparseFindingDefinition returns a new  SparseFindingDefinition.
+func NewSparseFindingDefinition() *SparseFindingDefinition {
+	return &SparseFindingDefinition{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseContentPolicy) Identity() elemental.Identity {
+func (o *SparseFindingDefinition) Identity() elemental.Identity {
 
-	return ContentPolicyIdentity
+	return FindingDefinitionIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseContentPolicy) Identifier() string {
+func (o *SparseFindingDefinition) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1072,7 +994,7 @@ func (o *SparseContentPolicy) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseContentPolicy) SetIdentifier(id string) {
+func (o *SparseFindingDefinition) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1083,34 +1005,28 @@ func (o *SparseContentPolicy) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseContentPolicy) GetBSON() (any, error) {
+func (o *SparseFindingDefinition) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseContentPolicy{}
+	s := &mongoAttributesSparseFindingDefinition{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.CreateTime != nil {
-		s.CreateTime = o.CreateTime
-	}
-	if o.Description != nil {
-		s.Description = o.Description
-	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
+	}
+	if o.Identities != nil {
+		s.Identities = o.Identities
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
-	}
-	if o.Moderations != nil {
-		s.Moderations = o.Moderations
 	}
 	if o.Name != nil {
 		s.Name = o.Name
@@ -1121,11 +1037,14 @@ func (o *SparseContentPolicy) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.Type != nil {
-		s.Type = o.Type
+	if o.ResolutionIdentities != nil {
+		s.ResolutionIdentities = o.ResolutionIdentities
 	}
-	if o.UpdateTime != nil {
-		s.UpdateTime = o.UpdateTime
+	if o.Script != nil {
+		s.Script = o.Script
+	}
+	if o.Severity != nil {
+		s.Severity = o.Severity
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1139,36 +1058,30 @@ func (o *SparseContentPolicy) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseContentPolicy) SetBSON(raw bson.Raw) error {
+func (o *SparseFindingDefinition) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseContentPolicy{}
+	s := &mongoAttributesSparseFindingDefinition{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.CreateTime != nil {
-		o.CreateTime = s.CreateTime
-	}
-	if s.Description != nil {
-		o.Description = s.Description
-	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
+	}
+	if s.Identities != nil {
+		o.Identities = s.Identities
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
-	}
-	if s.Moderations != nil {
-		o.Moderations = s.Moderations
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1179,11 +1092,14 @@ func (o *SparseContentPolicy) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.Type != nil {
-		o.Type = s.Type
+	if s.ResolutionIdentities != nil {
+		o.ResolutionIdentities = s.ResolutionIdentities
 	}
-	if s.UpdateTime != nil {
-		o.UpdateTime = s.UpdateTime
+	if s.Script != nil {
+		o.Script = s.Script
+	}
+	if s.Severity != nil {
+		o.Severity = s.Severity
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1196,20 +1112,17 @@ func (o *SparseContentPolicy) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseContentPolicy) Version() int {
+func (o *SparseFindingDefinition) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseContentPolicy) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseFindingDefinition) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewContentPolicy()
+	out := NewFindingDefinition()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.CreateTime != nil {
-		out.CreateTime = *o.CreateTime
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1217,14 +1130,14 @@ func (o *SparseContentPolicy) ToPlain() elemental.PlainIdentifiable {
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
 	}
+	if o.Identities != nil {
+		out.Identities = *o.Identities
+	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
-	}
-	if o.Moderations != nil {
-		out.Moderations = *o.Moderations
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1235,11 +1148,14 @@ func (o *SparseContentPolicy) ToPlain() elemental.PlainIdentifiable {
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.Type != nil {
-		out.Type = *o.Type
+	if o.ResolutionIdentities != nil {
+		out.ResolutionIdentities = *o.ResolutionIdentities
 	}
-	if o.UpdateTime != nil {
-		out.UpdateTime = *o.UpdateTime
+	if o.Script != nil {
+		out.Script = *o.Script
+	}
+	if o.Severity != nil {
+		out.Severity = *o.Severity
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1252,57 +1168,19 @@ func (o *SparseContentPolicy) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseContentPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Moderations != nil {
-		for _, sub := range *o.Moderations {
-			if sub == nil {
-				continue
-			}
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Moderations' for 'ContentPolicy' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
+func (o *SparseFindingDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseContentPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.Moderations != nil {
-		for _, sub := range *o.Moderations {
-			if sub == nil {
-				continue
-			}
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Moderations' for 'ContentPolicy' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
+func (o *SparseFindingDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
-// GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseContentPolicy) GetCreateTime() (out time.Time) {
-
-	if o.CreateTime == nil {
-		return
-	}
-
-	return *o.CreateTime
-}
-
-// SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetCreateTime(createTime time.Time) {
-
-	o.CreateTime = &createTime
-}
-
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseContentPolicy) GetImportHash() (out string) {
+func (o *SparseFindingDefinition) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1312,13 +1190,13 @@ func (o *SparseContentPolicy) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetImportHash(importHash string) {
+func (o *SparseFindingDefinition) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseContentPolicy) GetImportLabel() (out string) {
+func (o *SparseFindingDefinition) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1328,13 +1206,13 @@ func (o *SparseContentPolicy) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetImportLabel(importLabel string) {
+func (o *SparseFindingDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseContentPolicy) GetNamespace() (out string) {
+func (o *SparseFindingDefinition) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1344,13 +1222,13 @@ func (o *SparseContentPolicy) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetNamespace(namespace string) {
+func (o *SparseFindingDefinition) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseContentPolicy) GetPropagate() (out bool) {
+func (o *SparseFindingDefinition) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1360,80 +1238,62 @@ func (o *SparseContentPolicy) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetPropagate(propagate bool) {
+func (o *SparseFindingDefinition) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
-// GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseContentPolicy) GetUpdateTime() (out time.Time) {
-
-	if o.UpdateTime == nil {
-		return
-	}
-
-	return *o.UpdateTime
-}
-
-// SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseContentPolicy) SetUpdateTime(updateTime time.Time) {
-
-	o.UpdateTime = &updateTime
-}
-
-// DeepCopy returns a deep copy if the SparseContentPolicy.
-func (o *SparseContentPolicy) DeepCopy() *SparseContentPolicy {
+// DeepCopy returns a deep copy if the SparseFindingDefinition.
+func (o *SparseFindingDefinition) DeepCopy() *SparseFindingDefinition {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseContentPolicy{}
+	out := &SparseFindingDefinition{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseContentPolicy.
-func (o *SparseContentPolicy) DeepCopyInto(out *SparseContentPolicy) {
+// DeepCopyInto copies the receiver into the given *SparseFindingDefinition.
+func (o *SparseFindingDefinition) DeepCopyInto(out *SparseFindingDefinition) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseContentPolicy: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseFindingDefinition: %s", err))
 	}
 
-	*out = *target.(*SparseContentPolicy)
+	*out = *target.(*SparseFindingDefinition)
 }
 
-type mongoAttributesContentPolicy struct {
-	ID           bson.ObjectId          `bson:"_id,omitempty"`
-	CreateTime   time.Time              `bson:"createtime"`
-	Description  string                 `bson:"description"`
-	FriendlyName string                 `bson:"friendlyname"`
-	ImportHash   string                 `bson:"importhash,omitempty"`
-	ImportLabel  string                 `bson:"importlabel,omitempty"`
-	Moderations  []*Moderation          `bson:"moderations"`
-	Name         string                 `bson:"name"`
-	Namespace    string                 `bson:"namespace,omitempty"`
-	Propagate    bool                   `bson:"propagate"`
-	Type         ContentPolicyTypeValue `bson:"type"`
-	UpdateTime   time.Time              `bson:"updatetime"`
-	ZHash        int                    `bson:"zhash"`
-	Zone         int                    `bson:"zone"`
+type mongoAttributesFindingDefinition struct {
+	ID                   bson.ObjectId                  `bson:"_id,omitempty"`
+	FriendlyName         string                         `bson:"friendlyname"`
+	Identities           []string                       `bson:"identities"`
+	ImportHash           string                         `bson:"importhash,omitempty"`
+	ImportLabel          string                         `bson:"importlabel,omitempty"`
+	Name                 string                         `bson:"name"`
+	Namespace            string                         `bson:"namespace,omitempty"`
+	Propagate            bool                           `bson:"propagate"`
+	ResolutionIdentities []string                       `bson:"resolutionidentities"`
+	Script               string                         `bson:"script"`
+	Severity             FindingDefinitionSeverityValue `bson:"severity"`
+	ZHash                int                            `bson:"zhash"`
+	Zone                 int                            `bson:"zone"`
 }
-type mongoAttributesSparseContentPolicy struct {
-	ID           bson.ObjectId           `bson:"_id,omitempty"`
-	CreateTime   *time.Time              `bson:"createtime,omitempty"`
-	Description  *string                 `bson:"description,omitempty"`
-	FriendlyName *string                 `bson:"friendlyname,omitempty"`
-	ImportHash   *string                 `bson:"importhash,omitempty"`
-	ImportLabel  *string                 `bson:"importlabel,omitempty"`
-	Moderations  *[]*Moderation          `bson:"moderations,omitempty"`
-	Name         *string                 `bson:"name,omitempty"`
-	Namespace    *string                 `bson:"namespace,omitempty"`
-	Propagate    *bool                   `bson:"propagate,omitempty"`
-	Type         *ContentPolicyTypeValue `bson:"type,omitempty"`
-	UpdateTime   *time.Time              `bson:"updatetime,omitempty"`
-	ZHash        *int                    `bson:"zhash,omitempty"`
-	Zone         *int                    `bson:"zone,omitempty"`
+type mongoAttributesSparseFindingDefinition struct {
+	ID                   bson.ObjectId                   `bson:"_id,omitempty"`
+	FriendlyName         *string                         `bson:"friendlyname,omitempty"`
+	Identities           *[]string                       `bson:"identities,omitempty"`
+	ImportHash           *string                         `bson:"importhash,omitempty"`
+	ImportLabel          *string                         `bson:"importlabel,omitempty"`
+	Name                 *string                         `bson:"name,omitempty"`
+	Namespace            *string                         `bson:"namespace,omitempty"`
+	Propagate            *bool                           `bson:"propagate,omitempty"`
+	ResolutionIdentities *[]string                       `bson:"resolutionidentities,omitempty"`
+	Script               *string                         `bson:"script,omitempty"`
+	Severity             *FindingDefinitionSeverityValue `bson:"severity,omitempty"`
+	ZHash                *int                            `bson:"zhash,omitempty"`
+	Zone                 *int                            `bson:"zone,omitempty"`
 }

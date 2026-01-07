@@ -29,8 +29,8 @@ type ExtractionRequest struct {
 	// If true, indicates that the file has been stored.
 	IsStored bool `json:"isStored,omitempty" msgpack:"isStored,omitempty" bson:"isstored,omitempty" mapstructure:"isStored,omitempty"`
 
-	// A means of distinguishing what was extracted, such as prompt, input file or
-	// code.
+	// Contains events and other information that are not actual user content, and will
+	// not go through analysis.
 	Label string `json:"label,omitempty" msgpack:"label,omitempty" bson:"label,omitempty" mapstructure:"label,omitempty"`
 
 	// This is an internal field and has no api meaning.
@@ -323,8 +323,8 @@ systems to mark an extraction as internal only as opposed to user facing.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "label",
 		ConvertedName:  "Label",
-		Description: `A means of distinguishing what was extracted, such as prompt, input file or
-code.`,
+		Description: `Contains events and other information that are not actual user content, and will
+not go through analysis.`,
 		Exposed: true,
 		Name:    "label",
 		Stored:  true,
@@ -412,8 +412,8 @@ systems to mark an extraction as internal only as opposed to user facing.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "label",
 		ConvertedName:  "Label",
-		Description: `A means of distinguishing what was extracted, such as prompt, input file or
-code.`,
+		Description: `Contains events and other information that are not actual user content, and will
+not go through analysis.`,
 		Exposed: true,
 		Name:    "label",
 		Stored:  true,

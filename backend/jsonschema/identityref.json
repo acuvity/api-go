@@ -1,0 +1,41 @@
+{
+  "$extends": [],
+  "$friendlyName": "Identity Reference",
+  "$friendlyNamePlural": "Identity References",
+  "$modelName": "IdentityRef",
+  "$modelPackage": "lain",
+  "$modelResourceName": "identityrefs",
+  "$modelRestName": "identityref",
+  "additionalProperties": false,
+  "description": "This is an identity reference.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$required": true,
+      "description": "The identifier of the object.",
+      "title": "ID",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$required": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": "string"
+    },
+    "restName": {
+      "$friendlyName": "Identity REST name",
+      "$required": true,
+      "description": "The identity name of the object.",
+      "title": "restName",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ID",
+    "namespace",
+    "restName"
+  ],
+  "title": "IdentityRef",
+  "type": "object"
+}

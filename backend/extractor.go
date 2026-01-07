@@ -13,17 +13,6 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// ExtractorSSEManagementValue represents the possible values for attribute "SSEManagement".
-type ExtractorSSEManagementValue string
-
-const (
-	// ExtractorSSEManagementCollect represents the value Collect.
-	ExtractorSSEManagementCollect ExtractorSSEManagementValue = "Collect"
-
-	// ExtractorSSEManagementStream represents the value Stream.
-	ExtractorSSEManagementStream ExtractorSSEManagementValue = "Stream"
-)
-
 // ExtractorAnonymizationValue represents the possible values for attribute "anonymization".
 type ExtractorAnonymizationValue string
 
@@ -98,6 +87,17 @@ const (
 
 	// ExtractorMethodPut represents the value Put.
 	ExtractorMethodPut ExtractorMethodValue = "Put"
+)
+
+// ExtractorStreamSplitterValue represents the possible values for attribute "streamSplitter".
+type ExtractorStreamSplitterValue string
+
+const (
+	// ExtractorStreamSplitterLine represents the value Line.
+	ExtractorStreamSplitterLine ExtractorStreamSplitterValue = "Line"
+
+	// ExtractorStreamSplitterSSE represents the value SSE.
+	ExtractorStreamSplitterSSE ExtractorStreamSplitterValue = "SSE"
 )
 
 // ExtractorTypeValue represents the possible values for attribute "type".
@@ -186,12 +186,6 @@ type Extractor struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// This property defines how you want the extractor to work with
-	// server-side events. With Collect all the events buffer until the server
-	// closes the connection and sends the entire data to the lua code
-	// while Stream will collect line by line and will send events line by line.
-	SSEManagement ExtractorSSEManagementValue `json:"SSEManagement" msgpack:"SSEManagement" bson:"ssemanagement" mapstructure:"SSEManagement,omitempty"`
-
 	// The analyzers parameter allows for customizing which analyzers should be used,
 	// overriding the default selection. Each analyzer entry can optionally include a
 	// prefix to modify its behavior:
@@ -268,6 +262,10 @@ type Extractor struct {
 	// A regular expression to match a URL path to log.
 	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
 
+	// This property defines if the system should police the output. This property is
+	// noop if type is Input. It only matters on type Output.
+	PoliceOutput bool `json:"policeOutput" msgpack:"policeOutput" bson:"policeoutput" mapstructure:"policeOutput,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
@@ -277,6 +275,10 @@ type Extractor struct {
 	// If true, the content will be logged with no analysis taken and content sent back
 	// as-is.
 	SkipAnalysis bool `json:"skipAnalysis" msgpack:"skipAnalysis" bson:"skipanalysis" mapstructure:"skipAnalysis,omitempty"`
+
+	// This property defines how the system should split protocol messages in the
+	// stream.
+	StreamSplitter ExtractorStreamSplitterValue `json:"streamSplitter" msgpack:"streamSplitter" bson:"streamsplitter" mapstructure:"streamSplitter,omitempty"`
 
 	// The type of extractor.
 	Type ExtractorTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -298,7 +300,6 @@ func NewExtractor() *Extractor {
 
 	return &Extractor{
 		ModelVersion:   1,
-		SSEManagement:  ExtractorSSEManagementCollect,
 		Analyzers:      []string{},
 		Anonymization:  ExtractorAnonymizationFixedSize,
 		Behavior:       ExtractorBehaviorPopup,
@@ -306,6 +307,7 @@ func NewExtractor() *Extractor {
 		CancelBehavior: ExtractorCancelBehaviorBlock,
 		Libs:           []string{},
 		Propagate:      true,
+		StreamSplitter: ExtractorStreamSplitterSSE,
 	}
 }
 
@@ -340,7 +342,6 @@ func (o *Extractor) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.SSEManagement = o.SSEManagement
 	s.Analyzers = o.Analyzers
 	s.Anonymization = o.Anonymization
 	s.Behavior = o.Behavior
@@ -358,9 +359,11 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Path = o.Path
+	s.PoliceOutput = o.PoliceOutput
 	s.Propagate = o.Propagate
 	s.Script = o.Script
 	s.SkipAnalysis = o.SkipAnalysis
+	s.StreamSplitter = o.StreamSplitter
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -383,7 +386,6 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
-	o.SSEManagement = s.SSEManagement
 	o.Analyzers = s.Analyzers
 	o.Anonymization = s.Anonymization
 	o.Behavior = s.Behavior
@@ -401,9 +403,11 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Path = s.Path
+	o.PoliceOutput = s.PoliceOutput
 	o.Propagate = s.Propagate
 	o.Script = s.Script
 	o.SkipAnalysis = s.SkipAnalysis
+	o.StreamSplitter = s.StreamSplitter
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -527,7 +531,6 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseExtractor{
 			ID:                 &o.ID,
-			SSEManagement:      &o.SSEManagement,
 			Analyzers:          &o.Analyzers,
 			Anonymization:      &o.Anonymization,
 			Behavior:           &o.Behavior,
@@ -545,9 +548,11 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:               &o.Name,
 			Namespace:          &o.Namespace,
 			Path:               &o.Path,
+			PoliceOutput:       &o.PoliceOutput,
 			Propagate:          &o.Propagate,
 			Script:             &o.Script,
 			SkipAnalysis:       &o.SkipAnalysis,
+			StreamSplitter:     &o.StreamSplitter,
 			Type:               &o.Type,
 			UpdateTime:         &o.UpdateTime,
 			ZHash:              &o.ZHash,
@@ -560,8 +565,6 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "SSEManagement":
-			sp.SSEManagement = &(o.SSEManagement)
 		case "analyzers":
 			sp.Analyzers = &(o.Analyzers)
 		case "anonymization":
@@ -596,12 +599,16 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "path":
 			sp.Path = &(o.Path)
+		case "policeOutput":
+			sp.PoliceOutput = &(o.PoliceOutput)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
 		case "script":
 			sp.Script = &(o.Script)
 		case "skipAnalysis":
 			sp.SkipAnalysis = &(o.SkipAnalysis)
+		case "streamSplitter":
+			sp.StreamSplitter = &(o.StreamSplitter)
 		case "type":
 			sp.Type = &(o.Type)
 		case "updateTime":
@@ -625,9 +632,6 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseExtractor)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.SSEManagement != nil {
-		o.SSEManagement = *so.SSEManagement
 	}
 	if so.Analyzers != nil {
 		o.Analyzers = *so.Analyzers
@@ -680,6 +684,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Path != nil {
 		o.Path = *so.Path
 	}
+	if so.PoliceOutput != nil {
+		o.PoliceOutput = *so.PoliceOutput
+	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
@@ -688,6 +695,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SkipAnalysis != nil {
 		o.SkipAnalysis = *so.SkipAnalysis
+	}
+	if so.StreamSplitter != nil {
+		o.StreamSplitter = *so.StreamSplitter
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -747,10 +757,6 @@ func (o *Extractor) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateStringInList("SSEManagement", string(o.SSEManagement), []string{"Collect", "Stream"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateStringInList("anonymization", string(o.Anonymization), []string{"FixedSize", "VariableSize"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -788,6 +794,10 @@ func (o *Extractor) Validate() error {
 	}
 
 	if err := ValidateLua("script", o.Script); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("streamSplitter", string(o.StreamSplitter), []string{"Line", "SSE"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -840,8 +850,6 @@ func (o *Extractor) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
-	case "SSEManagement":
-		return o.SSEManagement
 	case "analyzers":
 		return o.Analyzers
 	case "anonymization":
@@ -876,12 +884,16 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "path":
 		return o.Path
+	case "policeOutput":
+		return o.PoliceOutput
 	case "propagate":
 		return o.Propagate
 	case "script":
 		return o.Script
 	case "skipAnalysis":
 		return o.SkipAnalysis
+	case "streamSplitter":
+		return o.StreamSplitter
 	case "type":
 		return o.Type
 	case "updateTime":
@@ -911,20 +923,6 @@ var ExtractorAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"SSEManagement": {
-		AllowedChoices: []string{"Collect", "Stream"},
-		BSONFieldName:  "ssemanagement",
-		ConvertedName:  "SSEManagement",
-		DefaultValue:   ExtractorSSEManagementCollect,
-		Description: `This property defines how you want the extractor to work with
-server-side events. With Collect all the events buffer until the server
-closes the connection and sends the entire data to the lua code
-while Stream will collect line by line and will send events line by line.`,
-		Exposed: true,
-		Name:    "SSEManagement",
-		Stored:  true,
-		Type:    "enum",
 	},
 	"Analyzers": {
 		AllowedChoices: []string{},
@@ -1151,6 +1149,17 @@ extractor script.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"PoliceOutput": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policeoutput",
+		ConvertedName:  "PoliceOutput",
+		Description: `This property defines if the system should police the output. This property is
+noop if type is Input. It only matters on type Output.`,
+		Exposed: true,
+		Name:    "policeOutput",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1184,6 +1193,18 @@ as-is.`,
 		Name:    "skipAnalysis",
 		Stored:  true,
 		Type:    "boolean",
+	},
+	"StreamSplitter": {
+		AllowedChoices: []string{"Line", "SSE"},
+		BSONFieldName:  "streamsplitter",
+		ConvertedName:  "StreamSplitter",
+		DefaultValue:   ExtractorStreamSplitterSSE,
+		Description: `This property defines how the system should split protocol messages in the
+stream.`,
+		Exposed: true,
+		Name:    "streamSplitter",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1229,20 +1250,6 @@ var ExtractorLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"ssemanagement": {
-		AllowedChoices: []string{"Collect", "Stream"},
-		BSONFieldName:  "ssemanagement",
-		ConvertedName:  "SSEManagement",
-		DefaultValue:   ExtractorSSEManagementCollect,
-		Description: `This property defines how you want the extractor to work with
-server-side events. With Collect all the events buffer until the server
-closes the connection and sends the entire data to the lua code
-while Stream will collect line by line and will send events line by line.`,
-		Exposed: true,
-		Name:    "SSEManagement",
-		Stored:  true,
-		Type:    "enum",
 	},
 	"analyzers": {
 		AllowedChoices: []string{},
@@ -1469,6 +1476,17 @@ extractor script.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"policeoutput": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policeoutput",
+		ConvertedName:  "PoliceOutput",
+		Description: `This property defines if the system should police the output. This property is
+noop if type is Input. It only matters on type Output.`,
+		Exposed: true,
+		Name:    "policeOutput",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1502,6 +1520,18 @@ as-is.`,
 		Name:    "skipAnalysis",
 		Stored:  true,
 		Type:    "boolean",
+	},
+	"streamsplitter": {
+		AllowedChoices: []string{"Line", "SSE"},
+		BSONFieldName:  "streamsplitter",
+		ConvertedName:  "StreamSplitter",
+		DefaultValue:   ExtractorStreamSplitterSSE,
+		Description: `This property defines how the system should split protocol messages in the
+stream.`,
+		Exposed: true,
+		Name:    "streamSplitter",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1597,12 +1627,6 @@ type SparseExtractor struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// This property defines how you want the extractor to work with
-	// server-side events. With Collect all the events buffer until the server
-	// closes the connection and sends the entire data to the lua code
-	// while Stream will collect line by line and will send events line by line.
-	SSEManagement *ExtractorSSEManagementValue `json:"SSEManagement,omitempty" msgpack:"SSEManagement,omitempty" bson:"ssemanagement,omitempty" mapstructure:"SSEManagement,omitempty"`
-
 	// The analyzers parameter allows for customizing which analyzers should be used,
 	// overriding the default selection. Each analyzer entry can optionally include a
 	// prefix to modify its behavior:
@@ -1679,6 +1703,10 @@ type SparseExtractor struct {
 	// A regular expression to match a URL path to log.
 	Path *string `json:"path,omitempty" msgpack:"path,omitempty" bson:"path,omitempty" mapstructure:"path,omitempty"`
 
+	// This property defines if the system should police the output. This property is
+	// noop if type is Input. It only matters on type Output.
+	PoliceOutput *bool `json:"policeOutput,omitempty" msgpack:"policeOutput,omitempty" bson:"policeoutput,omitempty" mapstructure:"policeOutput,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
@@ -1688,6 +1716,10 @@ type SparseExtractor struct {
 	// If true, the content will be logged with no analysis taken and content sent back
 	// as-is.
 	SkipAnalysis *bool `json:"skipAnalysis,omitempty" msgpack:"skipAnalysis,omitempty" bson:"skipanalysis,omitempty" mapstructure:"skipAnalysis,omitempty"`
+
+	// This property defines how the system should split protocol messages in the
+	// stream.
+	StreamSplitter *ExtractorStreamSplitterValue `json:"streamSplitter,omitempty" msgpack:"streamSplitter,omitempty" bson:"streamsplitter,omitempty" mapstructure:"streamSplitter,omitempty"`
 
 	// The type of extractor.
 	Type *ExtractorTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
@@ -1747,9 +1779,6 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.SSEManagement != nil {
-		s.SSEManagement = o.SSEManagement
-	}
 	if o.Analyzers != nil {
 		s.Analyzers = o.Analyzers
 	}
@@ -1801,6 +1830,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.Path != nil {
 		s.Path = o.Path
 	}
+	if o.PoliceOutput != nil {
+		s.PoliceOutput = o.PoliceOutput
+	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
@@ -1809,6 +1841,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	}
 	if o.SkipAnalysis != nil {
 		s.SkipAnalysis = o.SkipAnalysis
+	}
+	if o.StreamSplitter != nil {
+		s.StreamSplitter = o.StreamSplitter
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1841,9 +1876,6 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.SSEManagement != nil {
-		o.SSEManagement = s.SSEManagement
-	}
 	if s.Analyzers != nil {
 		o.Analyzers = s.Analyzers
 	}
@@ -1895,6 +1927,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.Path != nil {
 		o.Path = s.Path
 	}
+	if s.PoliceOutput != nil {
+		o.PoliceOutput = s.PoliceOutput
+	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
@@ -1903,6 +1938,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	}
 	if s.SkipAnalysis != nil {
 		o.SkipAnalysis = s.SkipAnalysis
+	}
+	if s.StreamSplitter != nil {
+		o.StreamSplitter = s.StreamSplitter
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1932,9 +1970,6 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	out := NewExtractor()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.SSEManagement != nil {
-		out.SSEManagement = *o.SSEManagement
 	}
 	if o.Analyzers != nil {
 		out.Analyzers = *o.Analyzers
@@ -1987,6 +2022,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	if o.Path != nil {
 		out.Path = *o.Path
 	}
+	if o.PoliceOutput != nil {
+		out.PoliceOutput = *o.PoliceOutput
+	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
@@ -1995,6 +2033,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SkipAnalysis != nil {
 		out.SkipAnalysis = *o.SkipAnalysis
+	}
+	if o.StreamSplitter != nil {
+		out.StreamSplitter = *o.StreamSplitter
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -2156,7 +2197,6 @@ func (o *SparseExtractor) DeepCopyInto(out *SparseExtractor) {
 
 type mongoAttributesExtractor struct {
 	ID                 bson.ObjectId                `bson:"_id,omitempty"`
-	SSEManagement      ExtractorSSEManagementValue  `bson:"ssemanagement"`
 	Analyzers          []string                     `bson:"analyzers,omitempty"`
 	Anonymization      ExtractorAnonymizationValue  `bson:"anonymization"`
 	Behavior           ExtractorBehaviorValue       `bson:"behavior,omitempty"`
@@ -2174,9 +2214,11 @@ type mongoAttributesExtractor struct {
 	Name               string                       `bson:"name"`
 	Namespace          string                       `bson:"namespace,omitempty"`
 	Path               string                       `bson:"path"`
+	PoliceOutput       bool                         `bson:"policeoutput"`
 	Propagate          bool                         `bson:"propagate"`
 	Script             string                       `bson:"script,omitempty"`
 	SkipAnalysis       bool                         `bson:"skipanalysis"`
+	StreamSplitter     ExtractorStreamSplitterValue `bson:"streamsplitter"`
 	Type               ExtractorTypeValue           `bson:"type"`
 	UpdateTime         time.Time                    `bson:"updatetime"`
 	ZHash              int                          `bson:"zhash"`
@@ -2184,7 +2226,6 @@ type mongoAttributesExtractor struct {
 }
 type mongoAttributesSparseExtractor struct {
 	ID                 bson.ObjectId                 `bson:"_id,omitempty"`
-	SSEManagement      *ExtractorSSEManagementValue  `bson:"ssemanagement,omitempty"`
 	Analyzers          *[]string                     `bson:"analyzers,omitempty"`
 	Anonymization      *ExtractorAnonymizationValue  `bson:"anonymization,omitempty"`
 	Behavior           *ExtractorBehaviorValue       `bson:"behavior,omitempty"`
@@ -2202,9 +2243,11 @@ type mongoAttributesSparseExtractor struct {
 	Name               *string                       `bson:"name,omitempty"`
 	Namespace          *string                       `bson:"namespace,omitempty"`
 	Path               *string                       `bson:"path,omitempty"`
+	PoliceOutput       *bool                         `bson:"policeoutput,omitempty"`
 	Propagate          *bool                         `bson:"propagate,omitempty"`
 	Script             *string                       `bson:"script,omitempty"`
 	SkipAnalysis       *bool                         `bson:"skipanalysis,omitempty"`
+	StreamSplitter     *ExtractorStreamSplitterValue `bson:"streamsplitter,omitempty"`
 	Type               *ExtractorTypeValue           `bson:"type,omitempty"`
 	UpdateTime         *time.Time                    `bson:"updatetime,omitempty"`
 	ZHash              *int                          `bson:"zhash,omitempty"`

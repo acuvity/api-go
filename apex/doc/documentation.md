@@ -1200,8 +1200,8 @@ scores:
 
 Type: `string`
 
-A means of distinguishing what was extracted, such as prompt, input file or
-code.
+Contains events and other information that are not actual user content, and will
+not go through analysis.
 
 ##### `languages`
 
@@ -1411,8 +1411,8 @@ If true, indicates that the file has been stored.
 
 Type: `string`
 
-A means of distinguishing what was extracted, such as prompt, input file or
-code.
+Contains events and other information that are not actual user content, and will
+not go through analysis.
 
 ##### `toolResults`
 
@@ -2120,7 +2120,9 @@ a tool.
 ```json
 {
   "callID": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
-  "isError": false
+  "isError": false,
+  "name": "fetch",
+  "serverName": "my-mcp-server"
 }
 ```
 
@@ -2130,7 +2132,7 @@ a tool.
 
 Type: `string`
 
-The ID of the tool use as previously returned by a models tool use response.
+The ID of the tool use as previously returned by a tool use response.
 
 ##### `content`
 
@@ -2149,6 +2151,18 @@ Default value:
 ```json
 false
 ```
+
+##### `name`
+
+Type: `string`
+
+The name of the tool used.
+
+##### `serverName`
+
+Type: `string`
+
+The server name of the tool used.
 
 ### ToolUse
 

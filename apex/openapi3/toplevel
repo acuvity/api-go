@@ -354,7 +354,7 @@
             "type": "object"
           },
           "label": {
-            "description": "A means of distinguishing what was extracted, such as prompt, input file or\ncode.",
+            "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
           },
           "languages": {
@@ -468,7 +468,7 @@
             "type": "boolean"
           },
           "label": {
-            "description": "A means of distinguishing what was extracted, such as prompt, input file or\ncode.",
+            "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
           },
           "toolResults": {
@@ -1438,7 +1438,7 @@
         "description": "Represents the tool result as passed in by the user or application after calling\na tool.",
         "properties": {
           "callID": {
-            "description": "The ID of the tool use as previously returned by a models tool use response.",
+            "description": "The ID of the tool use as previously returned by a tool use response.",
             "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
             "type": "string"
           },
@@ -1450,6 +1450,16 @@
             "default": false,
             "description": "Indicates if the tool call failed.",
             "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the tool used.",
+            "example": "fetch",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "The server name of the tool used.",
+            "example": "my-mcp-server",
+            "type": "string"
           }
         },
         "required": [

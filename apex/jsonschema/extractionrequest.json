@@ -56,7 +56,7 @@
     },
     "label": {
       "$friendlyName": "Label",
-      "description": "A means of distinguishing what was extracted, such as prompt, input file or code.",
+      "description": "Contains events and other information that are not actual user content, and will not go through analysis.",
       "title": "label",
       "type": [
         "string",

@@ -24,6 +24,7 @@
         "IsIngress",
         "Keywords",
         "Languages",
+        "MCPGateway",
         "MCPServer",
         "Malcontents",
         "Modality",

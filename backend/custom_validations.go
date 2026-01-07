@@ -155,8 +155,9 @@ func ValidateTag(attribute string, tag string) error {
 func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 
 	for _, moderation := range contentPolicy.Moderations {
-		if moderation.Action == ModerationActionNone && moderation.AlertDefinition == "" && !moderation.Redact {
-			return makeErr("action", "You must have at least redaction or alert definition set")
+
+		if err := validateToolMisalignmentExploit(moderation); err != nil {
+			return err
 		}
 
 		if moderation.Redact {
@@ -588,8 +589,8 @@ func ValidatePredicate(p *Predicate) error {
 		}
 
 	case PredicateKeyTeam:
-		if o != PredicateOperatorAny {
-			return makeErr("operator", "Key 'Team' only supports operator 'Any'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'Team' only supports operator 'Any' and 'NotAny'")
 		}
 		if len(v) == 0 {
 			return makeErr("values", "'Team' must have at least one value")
@@ -999,6 +1000,30 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyMCPGateway:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPGateway' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPGateway' must have at least one value")
+			}
+			for _, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr("values", "Key 'MCPGateway' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr("values", "Key 'MCPGateway' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPGateway' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyMCPServer:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
 			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
@@ -1179,6 +1204,30 @@ func ValidateApp(app *App) error {
 				return makeErr("selector", "Kubernetes component selectors must carry the same Kubernetes namespace as the Kubernetes app selector")
 			}
 		}
+	}
+
+	otelReceivers := map[string]struct{}{}
+	for _, otelReceiver := range app.OtelReceivers {
+		endpoint := otelReceiver.Endpoint
+
+		// we should be able to split the IP:Port pair
+		// NOTE: this is already being done in ValidateIPPort, but we cannot rely on this in this function
+		host, portStr, err := net.SplitHostPort(endpoint)
+		if err != nil {
+			return makeErr("otelReceivers", fmt.Sprintf("Invalid IP:Port pair '%s': %s", endpoint, err))
+		}
+		if host == "" {
+			host = "0.0.0.0"
+		}
+		if portStr == "" {
+			return makeErr("otelReceivers", fmt.Sprintf("Invalid IP:Port pair '%s': port is empty", endpoint))
+		}
+		endpoint = net.JoinHostPort(host, portStr)
+
+		if _, ok := otelReceivers[endpoint]; ok {
+			return makeErr("otelReceivers", fmt.Sprintf("duplicate OpenTelemetry receiver endpoint '%s'", otelReceiver.Endpoint))
+		}
+		otelReceivers[endpoint] = struct{}{}
 	}
 
 	return nil
@@ -1691,6 +1740,32 @@ func ValidateAppComponentSelector(appComponentSelector *AppComponentSelector) er
 	}
 }
 
+// ValidateKubernetesWorkloadGroupSelector validates the Kubernetes workload group selector object.
+func ValidateKubernetesWorkloadGroupSelector(kubernetesSelector *KubernetesWorkloadGroupSelector) error {
+
+	switch kubernetesSelector.Type {
+	case KubernetesWorkloadGroupSelectorTypePod:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeDeployment:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeStatefulSet:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeJob:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeCronJob:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeDaemonSet:
+		return nil
+	case KubernetesWorkloadGroupSelectorTypeCustom:
+		if kubernetesSelector.Custom == nil {
+			return makeErr("custom", "Custom Kubernetes workload group selector must be defined if 'type' is set to 'Custom'.")
+		}
+		return nil
+	default:
+		return makeErr("type", fmt.Sprintf("Unknown Kubernetes workload group selector type '%s'.", kubernetesSelector.Type))
+	}
+}
+
 // ValidateAppReport validates the app report object.
 func ValidateAppReport(appReport *AppReport) error {
 	if len(appReport.ConnectionReports) == 0 && len(appReport.DNSReports) == 0 {
@@ -1828,4 +1903,57 @@ func makeErr(attribute string, message string) elemental.Error {
 	}
 
 	return err
+}
+
+// validateToolMisalignmentExploit - validate that Tool misalignement exploit is paired
+// with some tool use names.
+func validateToolMisalignmentExploit(moderation *Moderation) error {
+
+	const exploitValueIntentToolMismatch = "intent_tool_mismatch"
+
+	allowed := map[PredicateOperatorValue]struct{}{
+		PredicateOperatorAny:    {},
+		PredicateOperatorEquals: {},
+	}
+
+	hasIntentToolMismatch := false
+	hasToolUsesWithNames := false
+
+	for _, p := range moderation.Predicates {
+		if _, ok := allowed[p.Operator]; !ok {
+			continue
+		}
+
+		switch p.Key {
+		case "Exploits":
+			for _, v := range p.Values {
+				if v == exploitValueIntentToolMismatch {
+					hasIntentToolMismatch = true
+					break
+				}
+			}
+
+		case "ToolUses":
+			if len(p.Values) > 0 {
+				hasToolUsesWithNames = true
+			}
+		}
+
+		if hasIntentToolMismatch && hasToolUsesWithNames {
+			return nil
+		}
+	}
+
+	if hasIntentToolMismatch && !hasToolUsesWithNames {
+		return makeErr(
+			"predicates",
+			fmt.Sprintf(
+				"Tool misalignment exploit need to be paired with Tool Use with '%s' or '%s' operator",
+				PredicateOperatorAny,
+				PredicateOperatorEquals,
+			),
+		)
+	}
+
+	return nil
 }

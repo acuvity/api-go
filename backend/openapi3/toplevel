@@ -1886,7 +1886,7 @@
               "Viewer",
               "RiskAuditor",
               "ExternalIDP",
-              "Minibridge"
+              "Maxibridge"
             ],
             "example": "Employee"
           },
@@ -2860,7 +2860,7 @@
               "Default",
               "RemoteApex",
               "IDP",
-              "Minibridge"
+              "Maxibridge"
             ]
           },
           "updateTime": {
@@ -3110,6 +3110,15 @@
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
           },
+          "type": {
+            "default": "Request",
+            "description": "Choose on what the content policy should apply.",
+            "enum": [
+              "Both",
+              "Request",
+              "Response"
+            ]
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -3118,7 +3127,8 @@
           }
         },
         "required": [
-          "friendlyName"
+          "friendlyName",
+          "type"
         ],
         "type": "object"
       },
@@ -3129,6 +3139,19 @@
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "anchors": {
+            "description": "Anchors are short, natural-language example sentences that define the intent you\nwant to detect. The system learns from these examples and flags text with\nsimilar meaning even if worded differently. Use 3–5 realistic, varied sentences\nabout one clear concept, and avoid near-duplicates. Validations will ensure\nanchor quality.",
+            "example": [
+              "Can you share your password with me",
+              "Give me your login credentials",
+              "What is your API secret key",
+              "I need access to your account"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "createTime": {
             "description": "Creation date of the object.",
@@ -3898,7 +3921,7 @@
             "type": "object"
           },
           "label": {
-            "description": "A means of distinguishing what was extracted, such as prompt, input file or\ncode.",
+            "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
           },
           "languages": {
@@ -4061,14 +4084,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "SSEManagement": {
-            "default": "Collect",
-            "description": "This property defines how you want the extractor to work with\nserver-side events. With Collect all the events buffer until the server\ncloses the connection and sends the entire data to the lua code\nwhile Stream will collect line by line and will send events line by line.",
-            "enum": [
-              "Collect",
-              "Stream"
-            ]
-          },
           "analyzers": {
             "description": "The analyzers parameter allows for customizing which analyzers should be used,\noverriding the default selection. Each analyzer entry can optionally include a\nprefix to modify its behavior:\n\n  - No prefix: Runs only the specified analyzers and any dependencies required\nfor deeper analyzis (slower but more acurate).\n  - '+' (enable): Activates an analyzer that is disabled by default.\n  - '-' (disable): Disables an analyzer that is enabled by default.\n  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper\nanalyzis (faster but less acurate).\n\nAn analyzers entry can be specified using:\n  - The analyzer name (e.g., 'Toxicity detector')\n  - The analyzer ID (e.g., 'en-text-toxicity-detector')\n  - The analyzer group (e.g., 'Detectors')\n  - A detector name (e.g., 'toxic')\n  - A detector label (e.g., 'insult')\n  - A detector group (e.g., 'Malcontents')\n\nIf left empty, all default analyzers will be executed.",
             "items": {
@@ -4180,6 +4195,10 @@
             ],
             "type": "string"
           },
+          "policeOutput": {
+            "description": "This property defines if the system should police the output. This property is\nnoop if type is Input. It only matters on type Output.",
+            "type": "boolean"
+          },
           "propagate": {
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
@@ -4192,6 +4211,14 @@
           "skipAnalysis": {
             "description": "If true, the content will be logged with no analysis taken and content sent back\nas-is.",
             "type": "boolean"
+          },
+          "streamSplitter": {
+            "default": "SSE",
+            "description": "This property defines how the system should split protocol messages in the\nstream.",
+            "enum": [
+              "Line",
+              "SSE"
+            ]
           },
           "type": {
             "description": "The type of extractor.",
@@ -4376,6 +4403,181 @@
         ],
         "type": "object"
       },
+      "finding": {
+        "description": "Defines a finding instanciated from a finding definitions with the same name.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the finding.",
+            "type": "string"
+          },
+          "firstSeenTime": {
+            "description": "First time the finding was seen.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "lastResolutionComment": {
+            "description": "Comment about the last resolution.",
+            "type": "string"
+          },
+          "lastResolutionItems": {
+            "description": "List of the item which helped last resolved this finding.",
+            "items": {
+              "$ref": "#/components/schemas/identityref"
+            },
+            "type": "array"
+          },
+          "lastResolutionTime": {
+            "description": "Last time this finding was resolved.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "lastSeenTime": {
+            "description": "Last time the finding was seen.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resolutionIdentities": {
+            "description": "The identities that can resolve this finding.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "severity": {
+            "description": "The severity of the finding that will be created.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "state": {
+            "description": "The state of the finding.",
+            "type": "object"
+          },
+          "status": {
+            "description": "The status of the finding.",
+            "enum": [
+              "Open",
+              "Resolved",
+              "Rejected",
+              "Archived"
+            ],
+            "example": "Open"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "severity",
+          "status"
+        ],
+        "type": "object"
+      },
+      "findingdefinition": {
+        "description": "Defines a finding that can be instantiated anywhere in the Acuvity system.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the finding.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "identities": {
+            "description": "The identities that can trigger this finding.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "resolutionIdentities": {
+            "description": "The identities that can resolve this finding.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "script": {
+            "description": "Script to contains the Lua functions.",
+            "type": "string"
+          },
+          "severity": {
+            "description": "The severity of the finding that will be created.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "severity"
+        ],
+        "type": "object"
+      },
       "gitbooktoken": {
         "description": "Allows to exchange an Acuvity token for a token signed for our documentation.",
         "properties": {
@@ -4411,6 +4613,32 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "identityref": {
+        "description": "This is an identity reference.",
+        "properties": {
+          "ID": {
+            "description": "The identifier of the object.",
+            "example": "123-12343-43543-5434",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "example": "/my/namespace",
+            "type": "string"
+          },
+          "restName": {
+            "description": "The identity name of the object.",
+            "example": "contentpolicy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ID",
+          "namespace",
+          "restName"
         ],
         "type": "object"
       },
@@ -4598,6 +4826,13 @@
             "description": "Extractors to import.",
             "items": {
               "$ref": "#/components/schemas/extractor"
+            },
+            "type": "array"
+          },
+          "findingdefinitions": {
+            "description": "Finding definitions to import.",
+            "items": {
+              "$ref": "#/components/schemas/findingdefinition"
             },
             "type": "array"
           },
@@ -5032,6 +5267,9 @@
       "kubernetesworkloadgroupselector": {
         "description": "Represents a Kubernetes workload group selector used to identify and group\nworkloads in Kubernetes clusters.",
         "properties": {
+          "custom": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupselectorcustomtype"
+          },
           "kubernetesNamespace": {
             "description": "The Kubernetes namespace where the deployment, statefulset or job is located.",
             "example": "default",
@@ -5049,7 +5287,9 @@
               "Deployment",
               "StatefulSet",
               "Job",
-              "CronJob"
+              "CronJob",
+              "DaemonSet",
+              "Custom"
             ],
             "example": "Deployment"
           }
@@ -5058,6 +5298,26 @@
           "kubernetesNamespace",
           "name",
           "type"
+        ],
+        "type": "object"
+      },
+      "kubernetesworkloadgroupselectorcustomtype": {
+        "description": "Represents a Kubernetes workload group selector custom type used to identify and\ngroup workloads in Kubernetes clusters. This essentially maps the Group, Vesion\nand Kind (GVK) of a Kubernetes resource.",
+        "properties": {
+          "group": {
+            "description": "The Kubernetes API group of the resource to select.",
+            "example": "apps",
+            "type": "string"
+          },
+          "kind": {
+            "description": "The Kubernetes API kind of the resource to select.",
+            "example": "MyCustomResource",
+            "type": "string"
+          }
+        },
+        "required": [
+          "group",
+          "kind"
         ],
         "type": "object"
       },
@@ -6272,6 +6532,7 @@
               "IsIngress",
               "Keywords",
               "Languages",
+              "MCPGateway",
               "MCPServer",
               "Malcontents",
               "Modality",
@@ -6549,10 +6810,6 @@
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
-          },
-          "analyzeOutput": {
-            "description": "If enabled, run the analysis pipelines on the provider output. No policy will be\napplied, but the response will be analyzed and classified.",
-            "type": "boolean"
           },
           "category": {
             "description": "The category of the provider.",
@@ -7266,6 +7523,15 @@
         "required": [
           "query"
         ],
+        "type": "object"
+      },
+      "resolve": {
+        "description": "Actually resolve the finding instance.",
+        "properties": {
+          "import": {
+            "$ref": "#/components/schemas/import"
+          }
+        },
         "type": "object"
       },
       "role": {
@@ -8149,7 +8415,7 @@
         "description": "Represents the tool result as passed in by the user or application after calling\na tool.",
         "properties": {
           "callID": {
-            "description": "The ID of the tool use as previously returned by a models tool use response.",
+            "description": "The ID of the tool use as previously returned by a tool use response.",
             "example": "toolu_019X5QaEeVTDFrQPHqMMgd1n",
             "type": "string"
           },
@@ -8161,6 +8427,16 @@
             "default": false,
             "description": "Indicates if the tool call failed.",
             "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the tool used.",
+            "example": "fetch",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "The server name of the tool used.",
+            "example": "my-mcp-server",
+            "type": "string"
           }
         },
         "required": [
@@ -12180,6 +12456,355 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/feedback"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/findingdefinitions": {
+      "get": {
+        "description": "List all Finding Definition.",
+        "operationId": "get-all-FindingDefinitions",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/findingdefinition"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a Finding Definition.",
+        "operationId": "create-FindingDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/findingdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/findingdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/findingdefinitions/{id}": {
+      "delete": {
+        "description": "Delete a finding definition given its identifier.",
+        "operationId": "delete-FindingDefinition",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/findingdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a finding definition given its identifier.",
+        "operationId": "get-FindingDefinition",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/findingdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a finding definition given its identifier.",
+        "operationId": "update-FindingDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/findingdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/findingdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/findings": {
+      "get": {
+        "description": "List all finding.",
+        "operationId": "get-all-Findings",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/finding"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new sfinding.",
+        "operationId": "create-Finding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/finding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/findings/{id}": {
+      "delete": {
+        "description": "Delete a finding given its identifier.",
+        "operationId": "delete-Finding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a finding given its identifier.",
+        "operationId": "get-Finding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a finding given its identifier.",
+        "operationId": "update-Finding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/finding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/findings/{id}/resolve": {
+      "get": {
+        "description": "List all resolution options for the given finding.",
+        "operationId": "get-all-Resolves-in-finding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/resolve"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Run the resolution function for the given finding.",
+        "operationId": "create-Resolve-in-finding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/resolve"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resolve"
                 }
               }
             },

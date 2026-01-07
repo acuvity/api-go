@@ -112,6 +112,18 @@
         "null"
       ]
     },
+    "type": {
+      "$defaultValue": "Request",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "Choose on what the content policy should apply.",
+      "enum": [
+        "Both",
+        "Request",
+        "Response"
+      ],
+      "title": "type"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -124,7 +136,8 @@
     }
   },
   "required": [
-    "friendlyName"
+    "friendlyName",
+    "type"
   ],
   "title": "ContentPolicy",
   "type": "object"

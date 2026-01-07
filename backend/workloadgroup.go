@@ -51,6 +51,10 @@ func WorkloadGroupLabelFromKubernetesSelector(selector *KubernetesWorkloadGroupS
 		return fmt.Sprintf("k8s:job=%s,namespace=%s", selector.Name, selector.KubernetesNamespace)
 	case KubernetesWorkloadGroupSelectorTypeCronJob:
 		return fmt.Sprintf("k8s:cronjob=%s,namespace=%s", selector.Name, selector.KubernetesNamespace)
+	case KubernetesWorkloadGroupSelectorTypeDaemonSet:
+		return fmt.Sprintf("k8s:daemonset=%s,namespace=%s", selector.Name, selector.KubernetesNamespace)
+	case KubernetesWorkloadGroupSelectorTypeCustom:
+		return customLabel(selector.Custom, selector.Name, selector.KubernetesNamespace)
 	default:
 		return ""
 	}
@@ -74,4 +78,26 @@ func WorkloadGroupHashFromKubernetesSelector(selector *KubernetesWorkloadGroupSe
 	binary.BigEndian.PutUint64(b[0:8], h1)
 	binary.BigEndian.PutUint64(b[8:16], h2)
 	return "wg-" + hex.EncodeToString(b[:])
+}
+
+func formatCustom(custom *KubernetesWorkloadGroupSelectorCustomType) string {
+	if custom.Group == "" {
+		return fmt.Sprintf("core[%s]", custom.Kind)
+	}
+	return fmt.Sprintf("%s[%s]", custom.Group, custom.Kind)
+}
+
+func customLabel(custom *KubernetesWorkloadGroupSelectorCustomType, name, namespace string) string {
+
+	if custom == nil {
+		return ""
+	}
+
+	customStr := formatCustom(custom)
+
+	if namespace == "" {
+		return fmt.Sprintf("k8s:%s=%s", customStr, name)
+	}
+
+	return fmt.Sprintf("k8s:%s=%s,namespace=%s", customStr, name, namespace)
 }

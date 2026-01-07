@@ -3,18 +3,17 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed",
-    "@auto-propagated",
-    "@namelinkable"
+    "@namelinkable",
+    "@auto-propagated"
   ],
-  "$friendlyName": "Custom Data Type",
-  "$friendlyNamePlural": "Custom Data Types",
-  "$modelName": "CustomDataType",
+  "$friendlyName": "Finding Definition",
+  "$friendlyNamePlural": "Finding Definitions",
+  "$modelName": "FindingDefinition",
   "$modelPackage": "lain",
-  "$modelResourceName": "customdatatypes",
-  "$modelRestName": "customdatatype",
+  "$modelResourceName": "findingdefinitions",
+  "$modelRestName": "findingdefinition",
   "additionalProperties": false,
-  "description": "Allows to create custom data detectors.",
+  "description": "Defines a finding that can be instantiated anywhere in the Acuvity system.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -26,31 +25,9 @@
         "null"
       ]
     },
-    "anchors": {
-      "$friendlyName": "Anchors",
-      "description": "Anchors are short, natural-language example sentences that define the intent you want to detect. The system learns from these examples and flags text with similar meaning even if worded differently. Use 3–5 realistic, varied sentences about one clear concept, and avoid near-duplicates. Validations will ensure anchor quality.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "anchors",
-      "type": "array"
-    },
-    "createTime": {
-      "$friendlyName": "CreateTime",
-      "$readOnly": true,
-      "description": "Creation date of the object.",
-      "title": "createTime",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "description": {
       "$friendlyName": "Description",
-      "description": "Description of the custom data type.",
+      "description": "The description of the finding.",
       "title": "description",
       "type": [
         "string",
@@ -63,6 +40,18 @@
       "description": "Friendly name of the object.",
       "title": "friendlyName",
       "type": "string"
+    },
+    "identities": {
+      "$friendlyName": "Identities",
+      "description": "The identities that can trigger this finding.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "identities",
+      "type": "array"
     },
     "importHash": {
       "$creationOnly": true,
@@ -83,18 +72,6 @@
         "string",
         "null"
       ]
-    },
-    "matches": {
-      "$friendlyName": "Matches",
-      "description": "A list of RE2 regular expressions used for data detection. Each expression can include zero or one capturing group. If no capturing group is present, detection positions will be determined based on the entire captured portion of the data. If a single capturing group is included, the detection positions will correspond to the part defined by that group. However, if more than one capturing group is found, the system will return a validation error. Additionally, extra validations are performed to ensure that the regular expressions are not overly complex, preventing any negative impact on detection engine performance.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "matches",
-      "type": "array"
     },
     "name": {
       "$creationOnly": true,
@@ -127,20 +104,44 @@
         "null"
       ]
     },
-    "updateTime": {
-      "$friendlyName": "UpdateTime",
-      "$readOnly": true,
-      "description": "Last update date of the object.",
-      "title": "updateTime",
+    "resolutionIdentities": {
+      "$friendlyName": "Identities",
+      "description": "The identities that can resolve this finding.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "resolutionIdentities",
+      "type": "array"
+    },
+    "script": {
+      "$friendlyName": "Script",
+      "description": "Script to contains the Lua functions.",
+      "title": "script",
       "type": [
         "string",
         "null"
       ]
+    },
+    "severity": {
+      "$friendlyName": "Severity",
+      "$required": true,
+      "description": "The severity of the finding that will be created.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "severity"
     }
   },
   "required": [
-    "friendlyName"
+    "friendlyName",
+    "severity"
   ],
-  "title": "CustomDataType",
+  "title": "FindingDefinition",
   "type": "object"
 }

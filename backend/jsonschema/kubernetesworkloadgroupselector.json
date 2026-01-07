@@ -9,6 +9,12 @@
   "additionalProperties": false,
   "description": "Represents a Kubernetes workload group selector used to identify and group workloads in Kubernetes clusters.",
   "properties": {
+    "custom": {
+      "$friendlyName": "Custom",
+      "$ref": "kubernetesworkloadgroupselectorcustomtype.json",
+      "description": "The custom Kubernetes workload group selector details. This field is required if the type is set to 'Custom'.",
+      "title": "custom"
+    },
     "kubernetesNamespace": {
       "$friendlyName": "Kubernetes Namespace",
       "$required": true,
@@ -34,7 +40,9 @@
         "Deployment",
         "StatefulSet",
         "Job",
-        "CronJob"
+        "CronJob",
+        "DaemonSet",
+        "Custom"
       ],
       "title": "type"
     }

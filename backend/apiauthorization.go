@@ -32,8 +32,8 @@ const (
 	// APIAuthorizationRoleExternalIDP represents the value ExternalIDP.
 	APIAuthorizationRoleExternalIDP APIAuthorizationRoleValue = "ExternalIDP"
 
-	// APIAuthorizationRoleMinibridge represents the value Minibridge.
-	APIAuthorizationRoleMinibridge APIAuthorizationRoleValue = "Minibridge"
+	// APIAuthorizationRoleMaxibridge represents the value Maxibridge.
+	APIAuthorizationRoleMaxibridge APIAuthorizationRoleValue = "Maxibridge"
 
 	// APIAuthorizationRoleOpenTelemetryCollector represents the value OpenTelemetryCollector.
 	APIAuthorizationRoleOpenTelemetryCollector APIAuthorizationRoleValue = "OpenTelemetryCollector"
@@ -524,7 +524,7 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Minibridge"}, false); err != nil {
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -719,7 +719,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"Role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Minibridge"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -888,7 +888,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Minibridge"},
+		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,

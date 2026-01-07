@@ -1,0 +1,35 @@
+{
+  "$extends": [],
+  "$friendlyName": "Kubernetes Workload Group Selector Custom Type",
+  "$friendlyNamePlural": "Kubernetes Workload Group Selector Custom Types",
+  "$modelName": "KubernetesWorkloadGroupSelectorCustomType",
+  "$modelPackage": "lain",
+  "$modelResourceName": "kubernetesworkloadgroupselectorcustomtypes",
+  "$modelRestName": "kubernetesworkloadgroupselectorcustomtype",
+  "additionalProperties": false,
+  "description": "Represents a Kubernetes workload group selector custom type used to identify and group workloads in Kubernetes clusters. This essentially maps the Group, Vesion and Kind (GVK) of a Kubernetes resource.",
+  "properties": {
+    "group": {
+      "$friendlyName": "Group",
+      "$required": true,
+      "description": "The Kubernetes API group of the resource to select.",
+      "pattern": "^([a-z0-9]([-a-z0-9]*[a-z0-9])?\\.)*([a-z0-9]([-a-z0-9]*[a-z0-9])?)$",
+      "title": "group",
+      "type": "string"
+    },
+    "kind": {
+      "$friendlyName": "Kind",
+      "$required": true,
+      "description": "The Kubernetes API kind of the resource to select.",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*$",
+      "title": "kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "group",
+    "kind"
+  ],
+  "title": "KubernetesWorkloadGroupSelectorCustomType",
+  "type": "object"
+}

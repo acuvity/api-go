@@ -228,11 +228,20 @@
     "feedback": {
       "$ref": "feedback.json"
     },
+    "finding": {
+      "$ref": "finding.json"
+    },
+    "findingdefinition": {
+      "$ref": "findingdefinition.json"
+    },
     "gitbooktoken": {
       "$ref": "gitbooktoken.json"
     },
     "host": {
       "$ref": "host.json"
+    },
+    "identityref": {
+      "$ref": "identityref.json"
     },
     "ignoreddomain": {
       "$ref": "ignoreddomain.json"
@@ -263,6 +272,9 @@
     },
     "kubernetesworkloadgroupselector": {
       "$ref": "kubernetesworkloadgroupselector.json"
+    },
+    "kubernetesworkloadgroupselectorcustomtype": {
+      "$ref": "kubernetesworkloadgroupselectorcustomtype.json"
     },
     "kubernetesworkloadgroupsetselector": {
       "$ref": "kubernetesworkloadgroupsetselector.json"
@@ -386,6 +398,9 @@
     },
     "queryrange": {
       "$ref": "queryrange.json"
+    },
+    "resolve": {
+      "$ref": "resolve.json"
     },
     "role": {
       "$ref": "role.json"

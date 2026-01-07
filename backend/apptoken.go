@@ -23,8 +23,8 @@ const (
 	// AppTokenTypeIDP represents the value IDP.
 	AppTokenTypeIDP AppTokenTypeValue = "IDP"
 
-	// AppTokenTypeMinibridge represents the value Minibridge.
-	AppTokenTypeMinibridge AppTokenTypeValue = "Minibridge"
+	// AppTokenTypeMaxibridge represents the value Maxibridge.
+	AppTokenTypeMaxibridge AppTokenTypeValue = "Maxibridge"
 
 	// AppTokenTypeRemoteApex represents the value RemoteApex.
 	AppTokenTypeRemoteApex AppTokenTypeValue = "RemoteApex"
@@ -501,7 +501,7 @@ func (o *AppToken) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Default", "RemoteApex", "IDP", "Minibridge"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Default", "RemoteApex", "IDP", "Maxibridge"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -737,7 +737,7 @@ won't be long lived.`,
 		Type:    "boolean",
 	},
 	"Type": {
-		AllowedChoices: []string{"Default", "RemoteApex", "IDP", "Minibridge"},
+		AllowedChoices: []string{"Default", "RemoteApex", "IDP", "Maxibridge"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   AppTokenTypeDefault,
@@ -929,7 +929,7 @@ won't be long lived.`,
 		Type:    "boolean",
 	},
 	"type": {
-		AllowedChoices: []string{"Default", "RemoteApex", "IDP", "Minibridge"},
+		AllowedChoices: []string{"Default", "RemoteApex", "IDP", "Maxibridge"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   AppTokenTypeDefault,

@@ -45,6 +45,9 @@ const (
 	// PredicateKeyLanguages represents the value Languages.
 	PredicateKeyLanguages PredicateKeyValue = "Languages"
 
+	// PredicateKeyMCPGateway represents the value MCPGateway.
+	PredicateKeyMCPGateway PredicateKeyValue = "MCPGateway"
+
 	// PredicateKeyMCPServer represents the value MCPServer.
 	PredicateKeyMCPServer PredicateKeyValue = "MCPServer"
 
@@ -281,7 +284,7 @@ func (o *Predicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"}, false); err != nil {
+	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -348,7 +351,7 @@ func (o *Predicate) ValueForAttribute(name string) any {
 // PredicateAttributesMap represents the map of attribute for Predicate.
 var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 	"Key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,
@@ -396,7 +399,7 @@ predicate true.`,
 // PredicateLowerCaseAttributesMap represents the map of attribute for Predicate.
 var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,

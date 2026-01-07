@@ -86,104 +86,107 @@ func (o ImportsList) Version() int {
 // Import represents the model of a import
 type Import struct {
 	// AI applications to import.
-	AIApps AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"-" mapstructure:"AIApps,omitempty"`
+	AIApps AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"aiapps,omitempty" mapstructure:"AIApps,omitempty"`
 
 	// AI domains to import.
-	AIDomains AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
+	AIDomains AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"aidomains,omitempty" mapstructure:"AIDomains,omitempty"`
 
 	// AI plugins to import.
-	AIPlugins AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"-" mapstructure:"AIPlugins,omitempty"`
+	AIPlugins AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
 
 	// APIAuthorizations to import.
-	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
+	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
 	// LDAP Sources to import.
-	LDAPSources api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"-" mapstructure:"LDAPSources,omitempty"`
+	LDAPSources api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"ldapsources,omitempty" mapstructure:"LDAPSources,omitempty"`
 
 	// MTLS Sources to import.
-	MTLSSources api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"-" mapstructure:"MTLSSources,omitempty"`
+	MTLSSources api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"mtlssources,omitempty" mapstructure:"MTLSSources,omitempty"`
 
 	// OIDC Sources to import.
-	OIDCSources api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"-" mapstructure:"OIDCSources,omitempty"`
+	OIDCSources api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"oidcsources,omitempty" mapstructure:"OIDCSources,omitempty"`
 
 	// PACConfigs to import.
-	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
+	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"pacconfigs,omitempty" mapstructure:"PACConfigs,omitempty"`
 
 	// SAML Sources to import.
-	SAMLSources api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"-" mapstructure:"SAMLSources,omitempty"`
+	SAMLSources api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"samlsources,omitempty" mapstructure:"SAMLSources,omitempty"`
 
 	// Access policies to import.
-	AccessPolicies AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"-" mapstructure:"accessPolicies,omitempty"`
+	AccessPolicies AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"accesspolicies,omitempty" mapstructure:"accessPolicies,omitempty"`
 
 	// Agent configurations to import.
-	AgentConfigs AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
+	AgentConfigs AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"agentconfigs,omitempty" mapstructure:"agentConfigs,omitempty"`
 
 	// Agent Discovery to import.
-	AgentDiscoveries AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"-" mapstructure:"agentDiscoveries,omitempty"`
+	AgentDiscoveries AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"agentdiscoveries,omitempty" mapstructure:"agentDiscoveries,omitempty"`
 
 	// Alert definitions to import.
-	AlertDefinitions AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
+	AlertDefinitions AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"alertdefinitions,omitempty" mapstructure:"alertDefinitions,omitempty"`
 
 	// App agents to import.
-	Appagents AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"-" mapstructure:"appagents,omitempty"`
+	Appagents AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"appagents,omitempty" mapstructure:"appagents,omitempty"`
 
 	// App reports to import.
-	Appreports AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"-" mapstructure:"appreports,omitempty"`
+	Appreports AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"appreports,omitempty" mapstructure:"appreports,omitempty"`
 
 	// Apps to import.
-	Apps AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"-" mapstructure:"apps,omitempty"`
+	Apps AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"apps,omitempty" mapstructure:"apps,omitempty"`
 
 	// Content policies to import.
-	ContentPolicies ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
+	ContentPolicies ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"contentpolicies,omitempty" mapstructure:"contentPolicies,omitempty"`
 
 	// Custom Data Types to import.
-	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"customdatatypes,omitempty" mapstructure:"customDataTypes,omitempty"`
 
 	// DataSets to import.
-	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
+	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
 
 	// Extractor Libs to import.
-	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
+	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
 
 	// Extractors to import.
-	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
+
+	// Finding definitions to import.
+	Findingdefinitions FindingDefinitionsList `json:"findingdefinitions,omitempty" msgpack:"findingdefinitions,omitempty" bson:"findingdefinitions,omitempty" mapstructure:"findingdefinitions,omitempty"`
 
 	// Ignored domains to import.
-	IgnoredDomains IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"-" mapstructure:"ignoredDomains,omitempty"`
+	IgnoredDomains IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
 
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
-	Label string `json:"label" msgpack:"label" bson:"-" mapstructure:"label,omitempty"`
+	Label string `json:"label" msgpack:"label" bson:"label" mapstructure:"label,omitempty"`
 
 	// OrgSettings to import.
-	OrgSettings OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"-" mapstructure:"orgSettings,omitempty"`
+	OrgSettings OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"orgsettings,omitempty" mapstructure:"orgSettings,omitempty"`
 
 	// Projects to import.
-	Projects ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"-" mapstructure:"projects,omitempty"`
+	Projects ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"projects,omitempty" mapstructure:"projects,omitempty"`
 
 	// Provider teams to import.
-	ProviderTeams ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"-" mapstructure:"providerTeams,omitempty"`
+	ProviderTeams ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"providerteams,omitempty" mapstructure:"providerTeams,omitempty"`
 
 	// ProviderTokens to import.
-	ProviderTokens ProviderTokensList `json:"providerTokens,omitempty" msgpack:"providerTokens,omitempty" bson:"-" mapstructure:"providerTokens,omitempty"`
+	ProviderTokens ProviderTokensList `json:"providerTokens,omitempty" msgpack:"providerTokens,omitempty" bson:"providertokens,omitempty" mapstructure:"providerTokens,omitempty"`
 
 	// Providers to import.
-	Providers ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"-" mapstructure:"providers,omitempty"`
+	Providers ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"providers,omitempty" mapstructure:"providers,omitempty"`
 
 	// Proxy roundtrip to import. This will populate dummy data.
-	Proxyroundtrips ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"-" mapstructure:"proxyroundtrips,omitempty"`
+	Proxyroundtrips ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"proxyroundtrips,omitempty" mapstructure:"proxyroundtrips,omitempty"`
 
 	// Sinks to import.
-	Sinks SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"-" mapstructure:"sinks,omitempty"`
+	Sinks SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
 
 	// Teams to import.
-	Teams TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"-" mapstructure:"teams,omitempty"`
+	Teams TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
 	// Visited URLs to import.
-	Visitedurls VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"-" mapstructure:"visitedurls,omitempty"`
+	Visitedurls VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
 
 	// WebExtension configurations to import.
-	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
+	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"webextensionconfigs,omitempty" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -214,6 +217,7 @@ func NewImport() *Import {
 		DataSets:            DataSetsList{},
 		ExtractorLibs:       ExtractorLibsList{},
 		Extractors:          ExtractorsList{},
+		Findingdefinitions:  FindingDefinitionsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
 		OrgSettings:         OrgSettingsList{},
 		Projects:            ProjectsList{},
@@ -255,6 +259,41 @@ func (o *Import) GetBSON() (any, error) {
 
 	s := &mongoAttributesImport{}
 
+	s.AIApps = o.AIApps
+	s.AIDomains = o.AIDomains
+	s.AIPlugins = o.AIPlugins
+	s.APIAuthorizations = o.APIAuthorizations
+	s.LDAPSources = o.LDAPSources
+	s.MTLSSources = o.MTLSSources
+	s.OIDCSources = o.OIDCSources
+	s.PACConfigs = o.PACConfigs
+	s.SAMLSources = o.SAMLSources
+	s.AccessPolicies = o.AccessPolicies
+	s.AgentConfigs = o.AgentConfigs
+	s.AgentDiscoveries = o.AgentDiscoveries
+	s.AlertDefinitions = o.AlertDefinitions
+	s.Appagents = o.Appagents
+	s.Appreports = o.Appreports
+	s.Apps = o.Apps
+	s.ContentPolicies = o.ContentPolicies
+	s.CustomDataTypes = o.CustomDataTypes
+	s.DataSets = o.DataSets
+	s.ExtractorLibs = o.ExtractorLibs
+	s.Extractors = o.Extractors
+	s.Findingdefinitions = o.Findingdefinitions
+	s.IgnoredDomains = o.IgnoredDomains
+	s.Label = o.Label
+	s.OrgSettings = o.OrgSettings
+	s.Projects = o.Projects
+	s.ProviderTeams = o.ProviderTeams
+	s.ProviderTokens = o.ProviderTokens
+	s.Providers = o.Providers
+	s.Proxyroundtrips = o.Proxyroundtrips
+	s.Sinks = o.Sinks
+	s.Teams = o.Teams
+	s.Visitedurls = o.Visitedurls
+	s.WebExtensionConfigs = o.WebExtensionConfigs
+
 	return s, nil
 }
 
@@ -270,6 +309,41 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
+
+	o.AIApps = s.AIApps
+	o.AIDomains = s.AIDomains
+	o.AIPlugins = s.AIPlugins
+	o.APIAuthorizations = s.APIAuthorizations
+	o.LDAPSources = s.LDAPSources
+	o.MTLSSources = s.MTLSSources
+	o.OIDCSources = s.OIDCSources
+	o.PACConfigs = s.PACConfigs
+	o.SAMLSources = s.SAMLSources
+	o.AccessPolicies = s.AccessPolicies
+	o.AgentConfigs = s.AgentConfigs
+	o.AgentDiscoveries = s.AgentDiscoveries
+	o.AlertDefinitions = s.AlertDefinitions
+	o.Appagents = s.Appagents
+	o.Appreports = s.Appreports
+	o.Apps = s.Apps
+	o.ContentPolicies = s.ContentPolicies
+	o.CustomDataTypes = s.CustomDataTypes
+	o.DataSets = s.DataSets
+	o.ExtractorLibs = s.ExtractorLibs
+	o.Extractors = s.Extractors
+	o.Findingdefinitions = s.Findingdefinitions
+	o.IgnoredDomains = s.IgnoredDomains
+	o.Label = s.Label
+	o.OrgSettings = s.OrgSettings
+	o.Projects = s.Projects
+	o.ProviderTeams = s.ProviderTeams
+	o.ProviderTokens = s.ProviderTokens
+	o.Providers = s.Providers
+	o.Proxyroundtrips = s.Proxyroundtrips
+	o.Sinks = s.Sinks
+	o.Teams = s.Teams
+	o.Visitedurls = s.Visitedurls
+	o.WebExtensionConfigs = s.WebExtensionConfigs
 
 	return nil
 }
@@ -331,6 +405,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DataSets:            &o.DataSets,
 			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
+			Findingdefinitions:  &o.Findingdefinitions,
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
 			OrgSettings:         &o.OrgSettings,
@@ -391,6 +466,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
+		case "findingdefinitions":
+			sp.Findingdefinitions = &(o.Findingdefinitions)
 		case "ignoredDomains":
 			sp.IgnoredDomains = &(o.IgnoredDomains)
 		case "label":
@@ -490,6 +567,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
+	}
+	if so.Findingdefinitions != nil {
+		o.Findingdefinitions = *so.Findingdefinitions
 	}
 	if so.IgnoredDomains != nil {
 		o.IgnoredDomains = *so.IgnoredDomains
@@ -682,6 +762,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Findingdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Findingdefinitions' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -940,6 +1029,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Findingdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Findingdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1230,6 +1328,15 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for _, sub := range o.Findingdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	for _, sub := range o.IgnoredDomains {
 		if sub == nil {
 			continue
@@ -1409,6 +1516,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.ExtractorLibs
 	case "extractors":
 		return o.Extractors
+	case "findingdefinitions":
+		return o.Findingdefinitions
 	case "ignoredDomains":
 		return o.IgnoredDomains
 	case "label":
@@ -1442,299 +1551,376 @@ func (o *Import) ValueForAttribute(name string) any {
 var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 	"AIApps": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aiapps",
 		ConvertedName:  "AIApps",
 		Description:    `AI applications to import.`,
 		Exposed:        true,
 		Name:           "AIApps",
+		Stored:         true,
 		SubType:        "aiapp",
 		Type:           "refList",
 	},
 	"AIDomains": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aidomains",
 		ConvertedName:  "AIDomains",
 		Description:    `AI domains to import.`,
 		Exposed:        true,
 		Name:           "AIDomains",
+		Stored:         true,
 		SubType:        "aidomain",
 		Type:           "refList",
 	},
 	"AIPlugins": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aiplugins",
 		ConvertedName:  "AIPlugins",
 		Description:    `AI plugins to import.`,
 		Exposed:        true,
 		Name:           "AIPlugins",
+		Stored:         true,
 		SubType:        "aiplugin",
 		Type:           "refList",
 	},
 	"APIAuthorizations": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "apiauthorizations",
 		ConvertedName:  "APIAuthorizations",
 		Description:    `APIAuthorizations to import.`,
 		Exposed:        true,
 		Name:           "APIAuthorizations",
+		Stored:         true,
 		SubType:        "apiauthorization",
 		Type:           "refList",
 	},
 	"LDAPSources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "ldapsources",
 		ConvertedName:  "LDAPSources",
 		Description:    `LDAP Sources to import.`,
 		Exposed:        true,
 		Name:           "LDAPSources",
+		Stored:         true,
 		SubType:        "a3s.LDAPSources",
 		Type:           "external",
 	},
 	"MTLSSources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "mtlssources",
 		ConvertedName:  "MTLSSources",
 		Description:    `MTLS Sources to import.`,
 		Exposed:        true,
 		Name:           "MTLSSources",
+		Stored:         true,
 		SubType:        "a3s.MTLSSources",
 		Type:           "external",
 	},
 	"OIDCSources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "oidcsources",
 		ConvertedName:  "OIDCSources",
 		Description:    `OIDC Sources to import.`,
 		Exposed:        true,
 		Name:           "OIDCSources",
+		Stored:         true,
 		SubType:        "a3s.OIDCSources",
 		Type:           "external",
 	},
 	"PACConfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "pacconfigs",
 		ConvertedName:  "PACConfigs",
 		Description:    `PACConfigs to import.`,
 		Exposed:        true,
 		Name:           "PACConfigs",
+		Stored:         true,
 		SubType:        "pacconfig",
 		Type:           "refList",
 	},
 	"SAMLSources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "samlsources",
 		ConvertedName:  "SAMLSources",
 		Description:    `SAML Sources to import.`,
 		Exposed:        true,
 		Name:           "SAMLSources",
+		Stored:         true,
 		SubType:        "a3s.SAMLSources",
 		Type:           "external",
 	},
 	"AccessPolicies": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "accesspolicies",
 		ConvertedName:  "AccessPolicies",
 		Description:    `Access policies to import.`,
 		Exposed:        true,
 		Name:           "accessPolicies",
+		Stored:         true,
 		SubType:        "accesspolicy",
 		Type:           "refList",
 	},
 	"AgentConfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "agentconfigs",
 		ConvertedName:  "AgentConfigs",
 		Description:    `Agent configurations to import.`,
 		Exposed:        true,
 		Name:           "agentConfigs",
+		Stored:         true,
 		SubType:        "agentconfig",
 		Type:           "refList",
 	},
 	"AgentDiscoveries": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "agentdiscoveries",
 		ConvertedName:  "AgentDiscoveries",
 		Description:    `Agent Discovery to import.`,
 		Exposed:        true,
 		Name:           "agentDiscoveries",
+		Stored:         true,
 		SubType:        "agentdiscovery",
 		Type:           "refList",
 	},
 	"AlertDefinitions": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "alertdefinitions",
 		ConvertedName:  "AlertDefinitions",
 		Description:    `Alert definitions to import.`,
 		Exposed:        true,
 		Name:           "alertDefinitions",
+		Stored:         true,
 		SubType:        "alertdefinition",
 		Type:           "refList",
 	},
 	"Appagents": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "appagents",
 		ConvertedName:  "Appagents",
 		Description:    `App agents to import.`,
 		Exposed:        true,
 		Name:           "appagents",
+		Stored:         true,
 		SubType:        "appagent",
 		Type:           "refList",
 	},
 	"Appreports": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "appreports",
 		ConvertedName:  "Appreports",
 		Description:    `App reports to import.`,
 		Exposed:        true,
 		Name:           "appreports",
+		Stored:         true,
 		SubType:        "appreport",
 		Type:           "refList",
 	},
 	"Apps": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "apps",
 		ConvertedName:  "Apps",
 		Description:    `Apps to import.`,
 		Exposed:        true,
 		Name:           "apps",
+		Stored:         true,
 		SubType:        "app",
 		Type:           "refList",
 	},
 	"ContentPolicies": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
 		ConvertedName:  "ContentPolicies",
 		Description:    `Content policies to import.`,
 		Exposed:        true,
 		Name:           "contentPolicies",
+		Stored:         true,
 		SubType:        "contentpolicy",
 		Type:           "refList",
 	},
 	"CustomDataTypes": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "customdatatypes",
 		ConvertedName:  "CustomDataTypes",
 		Description:    `Custom Data Types to import.`,
 		Exposed:        true,
 		Name:           "customDataTypes",
+		Stored:         true,
 		SubType:        "customdatatype",
 		Type:           "refList",
 	},
 	"DataSets": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "datasets",
 		ConvertedName:  "DataSets",
 		Description:    `DataSets to import.`,
 		Exposed:        true,
 		Name:           "dataSets",
+		Stored:         true,
 		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"ExtractorLibs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "extractorlibs",
 		ConvertedName:  "ExtractorLibs",
 		Description:    `Extractor Libs to import.`,
 		Exposed:        true,
 		Name:           "extractorLibs",
+		Stored:         true,
 		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"Extractors": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
 		ConvertedName:  "Extractors",
 		Description:    `Extractors to import.`,
 		Exposed:        true,
 		Name:           "extractors",
+		Stored:         true,
 		SubType:        "extractor",
+		Type:           "refList",
+	},
+	"Findingdefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "findingdefinitions",
+		ConvertedName:  "Findingdefinitions",
+		Description:    `Finding definitions to import.`,
+		Exposed:        true,
+		Name:           "findingdefinitions",
+		Stored:         true,
+		SubType:        "findingdefinition",
 		Type:           "refList",
 	},
 	"IgnoredDomains": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "ignoreddomains",
 		ConvertedName:  "IgnoredDomains",
 		Description:    `Ignored domains to import.`,
 		Exposed:        true,
 		Name:           "ignoredDomains",
+		Stored:         true,
 		SubType:        "ignoreddomain",
 		Type:           "refList",
 	},
 	"Label": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "label",
 		ConvertedName:  "Label",
 		Description: `Import label that will be used to identify all the resources imported by this
 resource.`,
 		Exposed:  true,
 		Name:     "label",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"OrgSettings": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "orgsettings",
 		ConvertedName:  "OrgSettings",
 		Description:    `OrgSettings to import.`,
 		Exposed:        true,
 		Name:           "orgSettings",
+		Stored:         true,
 		SubType:        "orgsettings",
 		Type:           "refList",
 	},
 	"Projects": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "projects",
 		ConvertedName:  "Projects",
 		Description:    `Projects to import.`,
 		Exposed:        true,
 		Name:           "projects",
+		Stored:         true,
 		SubType:        "project",
 		Type:           "refList",
 	},
 	"ProviderTeams": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providerteams",
 		ConvertedName:  "ProviderTeams",
 		Description:    `Provider teams to import.`,
 		Exposed:        true,
 		Name:           "providerTeams",
+		Stored:         true,
 		SubType:        "providerteam",
 		Type:           "refList",
 	},
 	"ProviderTokens": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providertokens",
 		ConvertedName:  "ProviderTokens",
 		Description:    `ProviderTokens to import.`,
 		Exposed:        true,
 		Name:           "providerTokens",
+		Stored:         true,
 		SubType:        "providertoken",
 		Type:           "refList",
 	},
 	"Providers": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providers",
 		ConvertedName:  "Providers",
 		Description:    `Providers to import.`,
 		Exposed:        true,
 		Name:           "providers",
+		Stored:         true,
 		SubType:        "provider",
 		Type:           "refList",
 	},
 	"Proxyroundtrips": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "proxyroundtrips",
 		ConvertedName:  "Proxyroundtrips",
 		Description:    `Proxy roundtrip to import. This will populate dummy data.`,
 		Exposed:        true,
 		Name:           "proxyroundtrips",
+		Stored:         true,
 		SubType:        "proxyroundtrip",
 		Type:           "refList",
 	},
 	"Sinks": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "sinks",
 		ConvertedName:  "Sinks",
 		Description:    `Sinks to import.`,
 		Exposed:        true,
 		Name:           "sinks",
+		Stored:         true,
 		SubType:        "sink",
 		Type:           "refList",
 	},
 	"Teams": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "teams",
 		ConvertedName:  "Teams",
 		Description:    `Teams to import.`,
 		Exposed:        true,
 		Name:           "teams",
+		Stored:         true,
 		SubType:        "team",
 		Type:           "refList",
 	},
 	"Visitedurls": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "visitedurls",
 		ConvertedName:  "Visitedurls",
 		Description:    `Visited URLs to import.`,
 		Exposed:        true,
 		Name:           "visitedurls",
+		Stored:         true,
 		SubType:        "visitedurl",
 		Type:           "refList",
 	},
 	"WebExtensionConfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "webextensionconfigs",
 		ConvertedName:  "WebExtensionConfigs",
 		Description:    `WebExtension configurations to import.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
+		Stored:         true,
 		SubType:        "webextensionconfig",
 		Type:           "refList",
 	},
@@ -1744,299 +1930,376 @@ resource.`,
 var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"aiapps": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aiapps",
 		ConvertedName:  "AIApps",
 		Description:    `AI applications to import.`,
 		Exposed:        true,
 		Name:           "AIApps",
+		Stored:         true,
 		SubType:        "aiapp",
 		Type:           "refList",
 	},
 	"aidomains": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aidomains",
 		ConvertedName:  "AIDomains",
 		Description:    `AI domains to import.`,
 		Exposed:        true,
 		Name:           "AIDomains",
+		Stored:         true,
 		SubType:        "aidomain",
 		Type:           "refList",
 	},
 	"aiplugins": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "aiplugins",
 		ConvertedName:  "AIPlugins",
 		Description:    `AI plugins to import.`,
 		Exposed:        true,
 		Name:           "AIPlugins",
+		Stored:         true,
 		SubType:        "aiplugin",
 		Type:           "refList",
 	},
 	"apiauthorizations": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "apiauthorizations",
 		ConvertedName:  "APIAuthorizations",
 		Description:    `APIAuthorizations to import.`,
 		Exposed:        true,
 		Name:           "APIAuthorizations",
+		Stored:         true,
 		SubType:        "apiauthorization",
 		Type:           "refList",
 	},
 	"ldapsources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "ldapsources",
 		ConvertedName:  "LDAPSources",
 		Description:    `LDAP Sources to import.`,
 		Exposed:        true,
 		Name:           "LDAPSources",
+		Stored:         true,
 		SubType:        "a3s.LDAPSources",
 		Type:           "external",
 	},
 	"mtlssources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "mtlssources",
 		ConvertedName:  "MTLSSources",
 		Description:    `MTLS Sources to import.`,
 		Exposed:        true,
 		Name:           "MTLSSources",
+		Stored:         true,
 		SubType:        "a3s.MTLSSources",
 		Type:           "external",
 	},
 	"oidcsources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "oidcsources",
 		ConvertedName:  "OIDCSources",
 		Description:    `OIDC Sources to import.`,
 		Exposed:        true,
 		Name:           "OIDCSources",
+		Stored:         true,
 		SubType:        "a3s.OIDCSources",
 		Type:           "external",
 	},
 	"pacconfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "pacconfigs",
 		ConvertedName:  "PACConfigs",
 		Description:    `PACConfigs to import.`,
 		Exposed:        true,
 		Name:           "PACConfigs",
+		Stored:         true,
 		SubType:        "pacconfig",
 		Type:           "refList",
 	},
 	"samlsources": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "samlsources",
 		ConvertedName:  "SAMLSources",
 		Description:    `SAML Sources to import.`,
 		Exposed:        true,
 		Name:           "SAMLSources",
+		Stored:         true,
 		SubType:        "a3s.SAMLSources",
 		Type:           "external",
 	},
 	"accesspolicies": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "accesspolicies",
 		ConvertedName:  "AccessPolicies",
 		Description:    `Access policies to import.`,
 		Exposed:        true,
 		Name:           "accessPolicies",
+		Stored:         true,
 		SubType:        "accesspolicy",
 		Type:           "refList",
 	},
 	"agentconfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "agentconfigs",
 		ConvertedName:  "AgentConfigs",
 		Description:    `Agent configurations to import.`,
 		Exposed:        true,
 		Name:           "agentConfigs",
+		Stored:         true,
 		SubType:        "agentconfig",
 		Type:           "refList",
 	},
 	"agentdiscoveries": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "agentdiscoveries",
 		ConvertedName:  "AgentDiscoveries",
 		Description:    `Agent Discovery to import.`,
 		Exposed:        true,
 		Name:           "agentDiscoveries",
+		Stored:         true,
 		SubType:        "agentdiscovery",
 		Type:           "refList",
 	},
 	"alertdefinitions": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "alertdefinitions",
 		ConvertedName:  "AlertDefinitions",
 		Description:    `Alert definitions to import.`,
 		Exposed:        true,
 		Name:           "alertDefinitions",
+		Stored:         true,
 		SubType:        "alertdefinition",
 		Type:           "refList",
 	},
 	"appagents": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "appagents",
 		ConvertedName:  "Appagents",
 		Description:    `App agents to import.`,
 		Exposed:        true,
 		Name:           "appagents",
+		Stored:         true,
 		SubType:        "appagent",
 		Type:           "refList",
 	},
 	"appreports": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "appreports",
 		ConvertedName:  "Appreports",
 		Description:    `App reports to import.`,
 		Exposed:        true,
 		Name:           "appreports",
+		Stored:         true,
 		SubType:        "appreport",
 		Type:           "refList",
 	},
 	"apps": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "apps",
 		ConvertedName:  "Apps",
 		Description:    `Apps to import.`,
 		Exposed:        true,
 		Name:           "apps",
+		Stored:         true,
 		SubType:        "app",
 		Type:           "refList",
 	},
 	"contentpolicies": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
 		ConvertedName:  "ContentPolicies",
 		Description:    `Content policies to import.`,
 		Exposed:        true,
 		Name:           "contentPolicies",
+		Stored:         true,
 		SubType:        "contentpolicy",
 		Type:           "refList",
 	},
 	"customdatatypes": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "customdatatypes",
 		ConvertedName:  "CustomDataTypes",
 		Description:    `Custom Data Types to import.`,
 		Exposed:        true,
 		Name:           "customDataTypes",
+		Stored:         true,
 		SubType:        "customdatatype",
 		Type:           "refList",
 	},
 	"datasets": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "datasets",
 		ConvertedName:  "DataSets",
 		Description:    `DataSets to import.`,
 		Exposed:        true,
 		Name:           "dataSets",
+		Stored:         true,
 		SubType:        "dataset",
 		Type:           "refList",
 	},
 	"extractorlibs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "extractorlibs",
 		ConvertedName:  "ExtractorLibs",
 		Description:    `Extractor Libs to import.`,
 		Exposed:        true,
 		Name:           "extractorLibs",
+		Stored:         true,
 		SubType:        "extractorlib",
 		Type:           "refList",
 	},
 	"extractors": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
 		ConvertedName:  "Extractors",
 		Description:    `Extractors to import.`,
 		Exposed:        true,
 		Name:           "extractors",
+		Stored:         true,
 		SubType:        "extractor",
+		Type:           "refList",
+	},
+	"findingdefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "findingdefinitions",
+		ConvertedName:  "Findingdefinitions",
+		Description:    `Finding definitions to import.`,
+		Exposed:        true,
+		Name:           "findingdefinitions",
+		Stored:         true,
+		SubType:        "findingdefinition",
 		Type:           "refList",
 	},
 	"ignoreddomains": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "ignoreddomains",
 		ConvertedName:  "IgnoredDomains",
 		Description:    `Ignored domains to import.`,
 		Exposed:        true,
 		Name:           "ignoredDomains",
+		Stored:         true,
 		SubType:        "ignoreddomain",
 		Type:           "refList",
 	},
 	"label": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "label",
 		ConvertedName:  "Label",
 		Description: `Import label that will be used to identify all the resources imported by this
 resource.`,
 		Exposed:  true,
 		Name:     "label",
 		Required: true,
+		Stored:   true,
 		Type:     "string",
 	},
 	"orgsettings": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "orgsettings",
 		ConvertedName:  "OrgSettings",
 		Description:    `OrgSettings to import.`,
 		Exposed:        true,
 		Name:           "orgSettings",
+		Stored:         true,
 		SubType:        "orgsettings",
 		Type:           "refList",
 	},
 	"projects": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "projects",
 		ConvertedName:  "Projects",
 		Description:    `Projects to import.`,
 		Exposed:        true,
 		Name:           "projects",
+		Stored:         true,
 		SubType:        "project",
 		Type:           "refList",
 	},
 	"providerteams": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providerteams",
 		ConvertedName:  "ProviderTeams",
 		Description:    `Provider teams to import.`,
 		Exposed:        true,
 		Name:           "providerTeams",
+		Stored:         true,
 		SubType:        "providerteam",
 		Type:           "refList",
 	},
 	"providertokens": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providertokens",
 		ConvertedName:  "ProviderTokens",
 		Description:    `ProviderTokens to import.`,
 		Exposed:        true,
 		Name:           "providerTokens",
+		Stored:         true,
 		SubType:        "providertoken",
 		Type:           "refList",
 	},
 	"providers": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "providers",
 		ConvertedName:  "Providers",
 		Description:    `Providers to import.`,
 		Exposed:        true,
 		Name:           "providers",
+		Stored:         true,
 		SubType:        "provider",
 		Type:           "refList",
 	},
 	"proxyroundtrips": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "proxyroundtrips",
 		ConvertedName:  "Proxyroundtrips",
 		Description:    `Proxy roundtrip to import. This will populate dummy data.`,
 		Exposed:        true,
 		Name:           "proxyroundtrips",
+		Stored:         true,
 		SubType:        "proxyroundtrip",
 		Type:           "refList",
 	},
 	"sinks": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "sinks",
 		ConvertedName:  "Sinks",
 		Description:    `Sinks to import.`,
 		Exposed:        true,
 		Name:           "sinks",
+		Stored:         true,
 		SubType:        "sink",
 		Type:           "refList",
 	},
 	"teams": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "teams",
 		ConvertedName:  "Teams",
 		Description:    `Teams to import.`,
 		Exposed:        true,
 		Name:           "teams",
+		Stored:         true,
 		SubType:        "team",
 		Type:           "refList",
 	},
 	"visitedurls": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "visitedurls",
 		ConvertedName:  "Visitedurls",
 		Description:    `Visited URLs to import.`,
 		Exposed:        true,
 		Name:           "visitedurls",
+		Stored:         true,
 		SubType:        "visitedurl",
 		Type:           "refList",
 	},
 	"webextensionconfigs": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "webextensionconfigs",
 		ConvertedName:  "WebExtensionConfigs",
 		Description:    `WebExtension configurations to import.`,
 		Exposed:        true,
 		Name:           "webExtensionConfigs",
+		Stored:         true,
 		SubType:        "webextensionconfig",
 		Type:           "refList",
 	},
@@ -2106,104 +2369,107 @@ func (o SparseImportsList) Version() int {
 // SparseImport represents the sparse version of a import.
 type SparseImport struct {
 	// AI applications to import.
-	AIApps *AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"-" mapstructure:"AIApps,omitempty"`
+	AIApps *AIAppsList `json:"AIApps,omitempty" msgpack:"AIApps,omitempty" bson:"aiapps,omitempty" mapstructure:"AIApps,omitempty"`
 
 	// AI domains to import.
-	AIDomains *AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"-" mapstructure:"AIDomains,omitempty"`
+	AIDomains *AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"aidomains,omitempty" mapstructure:"AIDomains,omitempty"`
 
 	// AI plugins to import.
-	AIPlugins *AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"-" mapstructure:"AIPlugins,omitempty"`
+	AIPlugins *AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
 
 	// APIAuthorizations to import.
-	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"-" mapstructure:"APIAuthorizations,omitempty"`
+	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
 	// LDAP Sources to import.
-	LDAPSources *api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"-" mapstructure:"LDAPSources,omitempty"`
+	LDAPSources *api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"ldapsources,omitempty" mapstructure:"LDAPSources,omitempty"`
 
 	// MTLS Sources to import.
-	MTLSSources *api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"-" mapstructure:"MTLSSources,omitempty"`
+	MTLSSources *api.MTLSSourcesList `json:"MTLSSources,omitempty" msgpack:"MTLSSources,omitempty" bson:"mtlssources,omitempty" mapstructure:"MTLSSources,omitempty"`
 
 	// OIDC Sources to import.
-	OIDCSources *api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"-" mapstructure:"OIDCSources,omitempty"`
+	OIDCSources *api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"oidcsources,omitempty" mapstructure:"OIDCSources,omitempty"`
 
 	// PACConfigs to import.
-	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
+	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"pacconfigs,omitempty" mapstructure:"PACConfigs,omitempty"`
 
 	// SAML Sources to import.
-	SAMLSources *api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"-" mapstructure:"SAMLSources,omitempty"`
+	SAMLSources *api.SAMLSourcesList `json:"SAMLSources,omitempty" msgpack:"SAMLSources,omitempty" bson:"samlsources,omitempty" mapstructure:"SAMLSources,omitempty"`
 
 	// Access policies to import.
-	AccessPolicies *AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"-" mapstructure:"accessPolicies,omitempty"`
+	AccessPolicies *AccessPoliciesList `json:"accessPolicies,omitempty" msgpack:"accessPolicies,omitempty" bson:"accesspolicies,omitempty" mapstructure:"accessPolicies,omitempty"`
 
 	// Agent configurations to import.
-	AgentConfigs *AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
+	AgentConfigs *AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"agentconfigs,omitempty" mapstructure:"agentConfigs,omitempty"`
 
 	// Agent Discovery to import.
-	AgentDiscoveries *AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"-" mapstructure:"agentDiscoveries,omitempty"`
+	AgentDiscoveries *AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"agentdiscoveries,omitempty" mapstructure:"agentDiscoveries,omitempty"`
 
 	// Alert definitions to import.
-	AlertDefinitions *AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"-" mapstructure:"alertDefinitions,omitempty"`
+	AlertDefinitions *AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"alertdefinitions,omitempty" mapstructure:"alertDefinitions,omitempty"`
 
 	// App agents to import.
-	Appagents *AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"-" mapstructure:"appagents,omitempty"`
+	Appagents *AppAgentsList `json:"appagents,omitempty" msgpack:"appagents,omitempty" bson:"appagents,omitempty" mapstructure:"appagents,omitempty"`
 
 	// App reports to import.
-	Appreports *AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"-" mapstructure:"appreports,omitempty"`
+	Appreports *AppReportsList `json:"appreports,omitempty" msgpack:"appreports,omitempty" bson:"appreports,omitempty" mapstructure:"appreports,omitempty"`
 
 	// Apps to import.
-	Apps *AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"-" mapstructure:"apps,omitempty"`
+	Apps *AppsList `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"apps,omitempty" mapstructure:"apps,omitempty"`
 
 	// Content policies to import.
-	ContentPolicies *ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"-" mapstructure:"contentPolicies,omitempty"`
+	ContentPolicies *ContentPoliciesList `json:"contentPolicies,omitempty" msgpack:"contentPolicies,omitempty" bson:"contentpolicies,omitempty" mapstructure:"contentPolicies,omitempty"`
 
 	// Custom Data Types to import.
-	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"customdatatypes,omitempty" mapstructure:"customDataTypes,omitempty"`
 
 	// DataSets to import.
-	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"-" mapstructure:"dataSets,omitempty"`
+	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
 
 	// Extractor Libs to import.
-	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"-" mapstructure:"extractorLibs,omitempty"`
+	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
 
 	// Extractors to import.
-	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
+	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
+
+	// Finding definitions to import.
+	Findingdefinitions *FindingDefinitionsList `json:"findingdefinitions,omitempty" msgpack:"findingdefinitions,omitempty" bson:"findingdefinitions,omitempty" mapstructure:"findingdefinitions,omitempty"`
 
 	// Ignored domains to import.
-	IgnoredDomains *IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"-" mapstructure:"ignoredDomains,omitempty"`
+	IgnoredDomains *IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
 
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
-	Label *string `json:"label,omitempty" msgpack:"label,omitempty" bson:"-" mapstructure:"label,omitempty"`
+	Label *string `json:"label,omitempty" msgpack:"label,omitempty" bson:"label,omitempty" mapstructure:"label,omitempty"`
 
 	// OrgSettings to import.
-	OrgSettings *OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"-" mapstructure:"orgSettings,omitempty"`
+	OrgSettings *OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"orgsettings,omitempty" mapstructure:"orgSettings,omitempty"`
 
 	// Projects to import.
-	Projects *ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"-" mapstructure:"projects,omitempty"`
+	Projects *ProjectsList `json:"projects,omitempty" msgpack:"projects,omitempty" bson:"projects,omitempty" mapstructure:"projects,omitempty"`
 
 	// Provider teams to import.
-	ProviderTeams *ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"-" mapstructure:"providerTeams,omitempty"`
+	ProviderTeams *ProviderTeamsList `json:"providerTeams,omitempty" msgpack:"providerTeams,omitempty" bson:"providerteams,omitempty" mapstructure:"providerTeams,omitempty"`
 
 	// ProviderTokens to import.
-	ProviderTokens *ProviderTokensList `json:"providerTokens,omitempty" msgpack:"providerTokens,omitempty" bson:"-" mapstructure:"providerTokens,omitempty"`
+	ProviderTokens *ProviderTokensList `json:"providerTokens,omitempty" msgpack:"providerTokens,omitempty" bson:"providertokens,omitempty" mapstructure:"providerTokens,omitempty"`
 
 	// Providers to import.
-	Providers *ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"-" mapstructure:"providers,omitempty"`
+	Providers *ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"providers,omitempty" mapstructure:"providers,omitempty"`
 
 	// Proxy roundtrip to import. This will populate dummy data.
-	Proxyroundtrips *ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"-" mapstructure:"proxyroundtrips,omitempty"`
+	Proxyroundtrips *ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"proxyroundtrips,omitempty" mapstructure:"proxyroundtrips,omitempty"`
 
 	// Sinks to import.
-	Sinks *SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"-" mapstructure:"sinks,omitempty"`
+	Sinks *SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
 
 	// Teams to import.
-	Teams *TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"-" mapstructure:"teams,omitempty"`
+	Teams *TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
 	// Visited URLs to import.
-	Visitedurls *VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"-" mapstructure:"visitedurls,omitempty"`
+	Visitedurls *VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
 
 	// WebExtension configurations to import.
-	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"-" mapstructure:"webExtensionConfigs,omitempty"`
+	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"webextensionconfigs,omitempty" mapstructure:"webExtensionConfigs,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -2240,6 +2506,109 @@ func (o *SparseImport) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseImport{}
 
+	if o.AIApps != nil {
+		s.AIApps = o.AIApps
+	}
+	if o.AIDomains != nil {
+		s.AIDomains = o.AIDomains
+	}
+	if o.AIPlugins != nil {
+		s.AIPlugins = o.AIPlugins
+	}
+	if o.APIAuthorizations != nil {
+		s.APIAuthorizations = o.APIAuthorizations
+	}
+	if o.LDAPSources != nil {
+		s.LDAPSources = o.LDAPSources
+	}
+	if o.MTLSSources != nil {
+		s.MTLSSources = o.MTLSSources
+	}
+	if o.OIDCSources != nil {
+		s.OIDCSources = o.OIDCSources
+	}
+	if o.PACConfigs != nil {
+		s.PACConfigs = o.PACConfigs
+	}
+	if o.SAMLSources != nil {
+		s.SAMLSources = o.SAMLSources
+	}
+	if o.AccessPolicies != nil {
+		s.AccessPolicies = o.AccessPolicies
+	}
+	if o.AgentConfigs != nil {
+		s.AgentConfigs = o.AgentConfigs
+	}
+	if o.AgentDiscoveries != nil {
+		s.AgentDiscoveries = o.AgentDiscoveries
+	}
+	if o.AlertDefinitions != nil {
+		s.AlertDefinitions = o.AlertDefinitions
+	}
+	if o.Appagents != nil {
+		s.Appagents = o.Appagents
+	}
+	if o.Appreports != nil {
+		s.Appreports = o.Appreports
+	}
+	if o.Apps != nil {
+		s.Apps = o.Apps
+	}
+	if o.ContentPolicies != nil {
+		s.ContentPolicies = o.ContentPolicies
+	}
+	if o.CustomDataTypes != nil {
+		s.CustomDataTypes = o.CustomDataTypes
+	}
+	if o.DataSets != nil {
+		s.DataSets = o.DataSets
+	}
+	if o.ExtractorLibs != nil {
+		s.ExtractorLibs = o.ExtractorLibs
+	}
+	if o.Extractors != nil {
+		s.Extractors = o.Extractors
+	}
+	if o.Findingdefinitions != nil {
+		s.Findingdefinitions = o.Findingdefinitions
+	}
+	if o.IgnoredDomains != nil {
+		s.IgnoredDomains = o.IgnoredDomains
+	}
+	if o.Label != nil {
+		s.Label = o.Label
+	}
+	if o.OrgSettings != nil {
+		s.OrgSettings = o.OrgSettings
+	}
+	if o.Projects != nil {
+		s.Projects = o.Projects
+	}
+	if o.ProviderTeams != nil {
+		s.ProviderTeams = o.ProviderTeams
+	}
+	if o.ProviderTokens != nil {
+		s.ProviderTokens = o.ProviderTokens
+	}
+	if o.Providers != nil {
+		s.Providers = o.Providers
+	}
+	if o.Proxyroundtrips != nil {
+		s.Proxyroundtrips = o.Proxyroundtrips
+	}
+	if o.Sinks != nil {
+		s.Sinks = o.Sinks
+	}
+	if o.Teams != nil {
+		s.Teams = o.Teams
+	}
+	if o.Visitedurls != nil {
+		s.Visitedurls = o.Visitedurls
+	}
+	if o.WebExtensionConfigs != nil {
+		s.WebExtensionConfigs = o.WebExtensionConfigs
+	}
+
 	return s, nil
 }
 
@@ -2254,6 +2623,109 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	s := &mongoAttributesSparseImport{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
+	}
+
+	if s.AIApps != nil {
+		o.AIApps = s.AIApps
+	}
+	if s.AIDomains != nil {
+		o.AIDomains = s.AIDomains
+	}
+	if s.AIPlugins != nil {
+		o.AIPlugins = s.AIPlugins
+	}
+	if s.APIAuthorizations != nil {
+		o.APIAuthorizations = s.APIAuthorizations
+	}
+	if s.LDAPSources != nil {
+		o.LDAPSources = s.LDAPSources
+	}
+	if s.MTLSSources != nil {
+		o.MTLSSources = s.MTLSSources
+	}
+	if s.OIDCSources != nil {
+		o.OIDCSources = s.OIDCSources
+	}
+	if s.PACConfigs != nil {
+		o.PACConfigs = s.PACConfigs
+	}
+	if s.SAMLSources != nil {
+		o.SAMLSources = s.SAMLSources
+	}
+	if s.AccessPolicies != nil {
+		o.AccessPolicies = s.AccessPolicies
+	}
+	if s.AgentConfigs != nil {
+		o.AgentConfigs = s.AgentConfigs
+	}
+	if s.AgentDiscoveries != nil {
+		o.AgentDiscoveries = s.AgentDiscoveries
+	}
+	if s.AlertDefinitions != nil {
+		o.AlertDefinitions = s.AlertDefinitions
+	}
+	if s.Appagents != nil {
+		o.Appagents = s.Appagents
+	}
+	if s.Appreports != nil {
+		o.Appreports = s.Appreports
+	}
+	if s.Apps != nil {
+		o.Apps = s.Apps
+	}
+	if s.ContentPolicies != nil {
+		o.ContentPolicies = s.ContentPolicies
+	}
+	if s.CustomDataTypes != nil {
+		o.CustomDataTypes = s.CustomDataTypes
+	}
+	if s.DataSets != nil {
+		o.DataSets = s.DataSets
+	}
+	if s.ExtractorLibs != nil {
+		o.ExtractorLibs = s.ExtractorLibs
+	}
+	if s.Extractors != nil {
+		o.Extractors = s.Extractors
+	}
+	if s.Findingdefinitions != nil {
+		o.Findingdefinitions = s.Findingdefinitions
+	}
+	if s.IgnoredDomains != nil {
+		o.IgnoredDomains = s.IgnoredDomains
+	}
+	if s.Label != nil {
+		o.Label = s.Label
+	}
+	if s.OrgSettings != nil {
+		o.OrgSettings = s.OrgSettings
+	}
+	if s.Projects != nil {
+		o.Projects = s.Projects
+	}
+	if s.ProviderTeams != nil {
+		o.ProviderTeams = s.ProviderTeams
+	}
+	if s.ProviderTokens != nil {
+		o.ProviderTokens = s.ProviderTokens
+	}
+	if s.Providers != nil {
+		o.Providers = s.Providers
+	}
+	if s.Proxyroundtrips != nil {
+		o.Proxyroundtrips = s.Proxyroundtrips
+	}
+	if s.Sinks != nil {
+		o.Sinks = s.Sinks
+	}
+	if s.Teams != nil {
+		o.Teams = s.Teams
+	}
+	if s.Visitedurls != nil {
+		o.Visitedurls = s.Visitedurls
+	}
+	if s.WebExtensionConfigs != nil {
+		o.WebExtensionConfigs = s.WebExtensionConfigs
 	}
 
 	return nil
@@ -2331,6 +2803,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors
+	}
+	if o.Findingdefinitions != nil {
+		out.Findingdefinitions = *o.Findingdefinitions
 	}
 	if o.IgnoredDomains != nil {
 		out.IgnoredDomains = *o.IgnoredDomains
@@ -2558,6 +3033,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Findingdefinitions != nil {
+		for _, sub := range *o.Findingdefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Findingdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -2876,6 +3362,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Findingdefinitions != nil {
+		for _, sub := range *o.Findingdefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Findingdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.IgnoredDomains != nil {
 		for _, sub := range *o.IgnoredDomains {
 			if sub == nil {
@@ -3025,6 +3522,74 @@ func (o *SparseImport) DeepCopyInto(out *SparseImport) {
 }
 
 type mongoAttributesImport struct {
+	AIApps              AIAppsList              `bson:"aiapps,omitempty"`
+	AIDomains           AIDomainsList           `bson:"aidomains,omitempty"`
+	AIPlugins           AIPluginsList           `bson:"aiplugins,omitempty"`
+	APIAuthorizations   APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
+	LDAPSources         api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
+	MTLSSources         api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
+	OIDCSources         api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	PACConfigs          PACConfigsList          `bson:"pacconfigs,omitempty"`
+	SAMLSources         api.SAMLSourcesList     `bson:"samlsources,omitempty"`
+	AccessPolicies      AccessPoliciesList      `bson:"accesspolicies,omitempty"`
+	AgentConfigs        AgentConfigsList        `bson:"agentconfigs,omitempty"`
+	AgentDiscoveries    AgentDiscoveriesList    `bson:"agentdiscoveries,omitempty"`
+	AlertDefinitions    AlertDefinitionsList    `bson:"alertdefinitions,omitempty"`
+	Appagents           AppAgentsList           `bson:"appagents,omitempty"`
+	Appreports          AppReportsList          `bson:"appreports,omitempty"`
+	Apps                AppsList                `bson:"apps,omitempty"`
+	ContentPolicies     ContentPoliciesList     `bson:"contentpolicies,omitempty"`
+	CustomDataTypes     CustomDataTypesList     `bson:"customdatatypes,omitempty"`
+	DataSets            DataSetsList            `bson:"datasets,omitempty"`
+	ExtractorLibs       ExtractorLibsList       `bson:"extractorlibs,omitempty"`
+	Extractors          ExtractorsList          `bson:"extractors,omitempty"`
+	Findingdefinitions  FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	IgnoredDomains      IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	Label               string                  `bson:"label"`
+	OrgSettings         OrgSettingsList         `bson:"orgsettings,omitempty"`
+	Projects            ProjectsList            `bson:"projects,omitempty"`
+	ProviderTeams       ProviderTeamsList       `bson:"providerteams,omitempty"`
+	ProviderTokens      ProviderTokensList      `bson:"providertokens,omitempty"`
+	Providers           ProvidersList           `bson:"providers,omitempty"`
+	Proxyroundtrips     ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Sinks               SinksList               `bson:"sinks,omitempty"`
+	Teams               TeamsList               `bson:"teams,omitempty"`
+	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
+	WebExtensionConfigs WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 }
 type mongoAttributesSparseImport struct {
+	AIApps              *AIAppsList              `bson:"aiapps,omitempty"`
+	AIDomains           *AIDomainsList           `bson:"aidomains,omitempty"`
+	AIPlugins           *AIPluginsList           `bson:"aiplugins,omitempty"`
+	APIAuthorizations   *APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
+	LDAPSources         *api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
+	MTLSSources         *api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
+	OIDCSources         *api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	PACConfigs          *PACConfigsList          `bson:"pacconfigs,omitempty"`
+	SAMLSources         *api.SAMLSourcesList     `bson:"samlsources,omitempty"`
+	AccessPolicies      *AccessPoliciesList      `bson:"accesspolicies,omitempty"`
+	AgentConfigs        *AgentConfigsList        `bson:"agentconfigs,omitempty"`
+	AgentDiscoveries    *AgentDiscoveriesList    `bson:"agentdiscoveries,omitempty"`
+	AlertDefinitions    *AlertDefinitionsList    `bson:"alertdefinitions,omitempty"`
+	Appagents           *AppAgentsList           `bson:"appagents,omitempty"`
+	Appreports          *AppReportsList          `bson:"appreports,omitempty"`
+	Apps                *AppsList                `bson:"apps,omitempty"`
+	ContentPolicies     *ContentPoliciesList     `bson:"contentpolicies,omitempty"`
+	CustomDataTypes     *CustomDataTypesList     `bson:"customdatatypes,omitempty"`
+	DataSets            *DataSetsList            `bson:"datasets,omitempty"`
+	ExtractorLibs       *ExtractorLibsList       `bson:"extractorlibs,omitempty"`
+	Extractors          *ExtractorsList          `bson:"extractors,omitempty"`
+	Findingdefinitions  *FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	IgnoredDomains      *IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	Label               *string                  `bson:"label,omitempty"`
+	OrgSettings         *OrgSettingsList         `bson:"orgsettings,omitempty"`
+	Projects            *ProjectsList            `bson:"projects,omitempty"`
+	ProviderTeams       *ProviderTeamsList       `bson:"providerteams,omitempty"`
+	ProviderTokens      *ProviderTokensList      `bson:"providertokens,omitempty"`
+	Providers           *ProvidersList           `bson:"providers,omitempty"`
+	Proxyroundtrips     *ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Sinks               *SinksList               `bson:"sinks,omitempty"`
+	Teams               *TeamsList               `bson:"teams,omitempty"`
+	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`
+	WebExtensionConfigs *WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 }

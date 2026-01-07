@@ -1,0 +1,179 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@namelinkable"
+  ],
+  "$friendlyName": "Finding",
+  "$friendlyNamePlural": "Findings",
+  "$modelName": "Finding",
+  "$modelPackage": "lain",
+  "$modelResourceName": "findings",
+  "$modelRestName": "finding",
+  "additionalProperties": false,
+  "description": "Defines a finding instanciated from a finding definitions with the same name.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the finding.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "firstSeenTime": {
+      "$friendlyName": "First Seen Time",
+      "description": "First time the finding was seen.",
+      "title": "firstSeenTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lastResolutionComment": {
+      "$friendlyName": "Last Resolution Comment",
+      "description": "Comment about the last resolution.",
+      "title": "lastResolutionComment",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lastResolutionItems": {
+      "$friendlyName": "Last Resolution items",
+      "description": "List of the item which helped last resolved this finding.",
+      "items": {
+        "$ref": "identityref.json"
+      },
+      "title": "lastResolutionItems",
+      "type": "array"
+    },
+    "lastResolutionTime": {
+      "$friendlyName": "Last Resolution Time",
+      "description": "Last time this finding was resolved.",
+      "title": "lastResolutionTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lastSeenTime": {
+      "$friendlyName": "Last Seen Time",
+      "description": "Last time the finding was seen.",
+      "title": "lastSeenTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "resolutionIdentities": {
+      "$friendlyName": "Identities",
+      "description": "The identities that can resolve this finding.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "resolutionIdentities",
+      "type": "array"
+    },
+    "severity": {
+      "$friendlyName": "Severity",
+      "$required": true,
+      "description": "The severity of the finding that will be created.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "severity"
+    },
+    "state": {
+      "$friendlyName": "State",
+      "description": "The state of the finding.",
+      "title": "state",
+      "type": "object"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the finding.",
+      "enum": [
+        "Open",
+        "Resolved",
+        "Rejected",
+        "Archived"
+      ],
+      "title": "status"
+    }
+  },
+  "required": [
+    "friendlyName",
+    "severity",
+    "status"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

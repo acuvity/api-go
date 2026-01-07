@@ -13,7 +13,7 @@ import (
 
 // ToolResult represents the model of a toolresult
 type ToolResult struct {
-	// The ID of the tool use as previously returned by a models tool use response.
+	// The ID of the tool use as previously returned by a tool use response.
 	CallID string `json:"callID" msgpack:"callID" bson:"callid" mapstructure:"callID,omitempty"`
 
 	// The content of the tool call results.
@@ -21,6 +21,12 @@ type ToolResult struct {
 
 	// Indicates if the tool call failed.
 	IsError bool `json:"isError" msgpack:"isError" bson:"iserror" mapstructure:"isError,omitempty"`
+
+	// The name of the tool used.
+	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// The server name of the tool used.
+	ServerName string `json:"serverName" msgpack:"serverName" bson:"servername" mapstructure:"serverName,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -58,6 +64,8 @@ func (o *ToolResult) GetBSON() (any, error) {
 	s.CallID = o.CallID
 	s.Content = o.Content
 	s.IsError = o.IsError
+	s.Name = o.Name
+	s.ServerName = o.ServerName
 
 	return s, nil
 }
@@ -78,6 +86,8 @@ func (o *ToolResult) SetBSON(raw bson.Raw) error {
 	o.CallID = s.CallID
 	o.Content = s.Content
 	o.IsError = s.IsError
+	o.Name = s.Name
+	o.ServerName = s.ServerName
 
 	return nil
 }
@@ -189,6 +199,10 @@ func (o *ToolResult) ValueForAttribute(name string) any {
 		return o.Content
 	case "isError":
 		return o.IsError
+	case "name":
+		return o.Name
+	case "serverName":
+		return o.ServerName
 	}
 
 	return nil
@@ -200,7 +214,7 @@ var ToolResultAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "callid",
 		ConvertedName:  "CallID",
-		Description:    `The ID of the tool use as previously returned by a models tool use response.`,
+		Description:    `The ID of the tool use as previously returned by a tool use response.`,
 		Exposed:        true,
 		Name:           "callID",
 		Required:       true,
@@ -227,6 +241,26 @@ var ToolResultAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"Name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the tool used.`,
+		Exposed:        true,
+		Name:           "name",
+		Stored:         true,
+		Type:           "string",
+	},
+	"ServerName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "servername",
+		ConvertedName:  "ServerName",
+		Description:    `The server name of the tool used.`,
+		Exposed:        true,
+		Name:           "serverName",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // ToolResultLowerCaseAttributesMap represents the map of attribute for ToolResult.
@@ -235,7 +269,7 @@ var ToolResultLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		AllowedChoices: []string{},
 		BSONFieldName:  "callid",
 		ConvertedName:  "CallID",
-		Description:    `The ID of the tool use as previously returned by a models tool use response.`,
+		Description:    `The ID of the tool use as previously returned by a tool use response.`,
 		Exposed:        true,
 		Name:           "callID",
 		Required:       true,
@@ -262,10 +296,32 @@ var ToolResultLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"name": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "name",
+		ConvertedName:  "Name",
+		Description:    `The name of the tool used.`,
+		Exposed:        true,
+		Name:           "name",
+		Stored:         true,
+		Type:           "string",
+	},
+	"servername": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "servername",
+		ConvertedName:  "ServerName",
+		Description:    `The server name of the tool used.`,
+		Exposed:        true,
+		Name:           "serverName",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 type mongoAttributesToolResult struct {
-	CallID  string `bson:"callid"`
-	Content string `bson:"content"`
-	IsError bool   `bson:"iserror"`
+	CallID     string `bson:"callid"`
+	Content    string `bson:"content"`
+	IsError    bool   `bson:"iserror"`
+	Name       string `bson:"name"`
+	ServerName string `bson:"servername"`
 }

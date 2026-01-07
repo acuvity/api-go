@@ -18,6 +18,12 @@ const (
 	// KubernetesWorkloadGroupSelectorTypeCronJob represents the value CronJob.
 	KubernetesWorkloadGroupSelectorTypeCronJob KubernetesWorkloadGroupSelectorTypeValue = "CronJob"
 
+	// KubernetesWorkloadGroupSelectorTypeCustom represents the value Custom.
+	KubernetesWorkloadGroupSelectorTypeCustom KubernetesWorkloadGroupSelectorTypeValue = "Custom"
+
+	// KubernetesWorkloadGroupSelectorTypeDaemonSet represents the value DaemonSet.
+	KubernetesWorkloadGroupSelectorTypeDaemonSet KubernetesWorkloadGroupSelectorTypeValue = "DaemonSet"
+
 	// KubernetesWorkloadGroupSelectorTypeDeployment represents the value Deployment.
 	KubernetesWorkloadGroupSelectorTypeDeployment KubernetesWorkloadGroupSelectorTypeValue = "Deployment"
 
@@ -33,6 +39,10 @@ const (
 
 // KubernetesWorkloadGroupSelector represents the model of a kubernetesworkloadgroupselector
 type KubernetesWorkloadGroupSelector struct {
+	// The custom Kubernetes workload group selector details. This field is required if
+	// the type is set to 'Custom'.
+	Custom *KubernetesWorkloadGroupSelectorCustomType `json:"custom,omitempty" msgpack:"custom,omitempty" bson:"custom,omitempty" mapstructure:"custom,omitempty"`
+
 	// The Kubernetes namespace where the deployment, statefulset or job is located.
 	KubernetesNamespace string `json:"kubernetesNamespace" msgpack:"kubernetesNamespace" bson:"kubernetesnamespace" mapstructure:"kubernetesNamespace,omitempty"`
 
@@ -74,6 +84,7 @@ func (o *KubernetesWorkloadGroupSelector) GetBSON() (any, error) {
 
 	s := &mongoAttributesKubernetesWorkloadGroupSelector{}
 
+	s.Custom = o.Custom
 	s.KubernetesNamespace = o.KubernetesNamespace
 	s.Name = o.Name
 	s.Type = o.Type
@@ -94,6 +105,7 @@ func (o *KubernetesWorkloadGroupSelector) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.Custom = s.Custom
 	o.KubernetesNamespace = s.KubernetesNamespace
 	o.Name = s.Name
 	o.Type = s.Type
@@ -123,11 +135,23 @@ workloads in Kubernetes clusters.`
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *KubernetesWorkloadGroupSelector) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Custom != nil {
+		if err := o.Custom.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Custom' for 'KubernetesWorkloadGroupSelector' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *KubernetesWorkloadGroupSelector) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Custom != nil {
+		if err := o.Custom.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Custom' for 'KubernetesWorkloadGroupSelector' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -164,6 +188,12 @@ func (o *KubernetesWorkloadGroupSelector) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.Custom != nil {
+		if err := o.Custom.Validate(); err != nil {
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("kubernetesNamespace", o.KubernetesNamespace); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -184,7 +214,12 @@ func (o *KubernetesWorkloadGroupSelector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob", "DaemonSet", "Custom"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateKubernetesWorkloadGroupSelector(o); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -222,6 +257,8 @@ func (*KubernetesWorkloadGroupSelector) AttributeSpecifications() map[string]ele
 func (o *KubernetesWorkloadGroupSelector) ValueForAttribute(name string) any {
 
 	switch name {
+	case "custom":
+		return o.Custom
 	case "kubernetesNamespace":
 		return o.KubernetesNamespace
 	case "name":
@@ -235,6 +272,18 @@ func (o *KubernetesWorkloadGroupSelector) ValueForAttribute(name string) any {
 
 // KubernetesWorkloadGroupSelectorAttributesMap represents the map of attribute for KubernetesWorkloadGroupSelector.
 var KubernetesWorkloadGroupSelectorAttributesMap = map[string]elemental.AttributeSpecification{
+	"Custom": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "custom",
+		ConvertedName:  "Custom",
+		Description: `The custom Kubernetes workload group selector details. This field is required if
+the type is set to 'Custom'.`,
+		Exposed: true,
+		Name:    "custom",
+		Stored:  true,
+		SubType: "kubernetesworkloadgroupselectorcustomtype",
+		Type:    "ref",
+	},
 	"KubernetesNamespace": {
 		AllowedChars:   `^[a-zA-Z0-9-]+$`,
 		AllowedChoices: []string{},
@@ -260,7 +309,7 @@ var KubernetesWorkloadGroupSelectorAttributesMap = map[string]elemental.Attribut
 		Type:           "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob"},
+		AllowedChoices: []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob", "DaemonSet", "Custom"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of Kubernetes workload group to select.`,
@@ -274,6 +323,18 @@ var KubernetesWorkloadGroupSelectorAttributesMap = map[string]elemental.Attribut
 
 // KubernetesWorkloadGroupSelectorLowerCaseAttributesMap represents the map of attribute for KubernetesWorkloadGroupSelector.
 var KubernetesWorkloadGroupSelectorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"custom": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "custom",
+		ConvertedName:  "Custom",
+		Description: `The custom Kubernetes workload group selector details. This field is required if
+the type is set to 'Custom'.`,
+		Exposed: true,
+		Name:    "custom",
+		Stored:  true,
+		SubType: "kubernetesworkloadgroupselectorcustomtype",
+		Type:    "ref",
+	},
 	"kubernetesnamespace": {
 		AllowedChars:   `^[a-zA-Z0-9-]+$`,
 		AllowedChoices: []string{},
@@ -299,7 +360,7 @@ var KubernetesWorkloadGroupSelectorLowerCaseAttributesMap = map[string]elemental
 		Type:           "string",
 	},
 	"type": {
-		AllowedChoices: []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob"},
+		AllowedChoices: []string{"Pod", "Deployment", "StatefulSet", "Job", "CronJob", "DaemonSet", "Custom"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of Kubernetes workload group to select.`,
@@ -312,7 +373,8 @@ var KubernetesWorkloadGroupSelectorLowerCaseAttributesMap = map[string]elemental
 }
 
 type mongoAttributesKubernetesWorkloadGroupSelector struct {
-	KubernetesNamespace string                                   `bson:"kubernetesnamespace"`
-	Name                string                                   `bson:"name"`
-	Type                KubernetesWorkloadGroupSelectorTypeValue `bson:"type"`
+	Custom              *KubernetesWorkloadGroupSelectorCustomType `bson:"custom,omitempty"`
+	KubernetesNamespace string                                     `bson:"kubernetesnamespace"`
+	Name                string                                     `bson:"name"`
+	Type                KubernetesWorkloadGroupSelectorTypeValue   `bson:"type"`
 }

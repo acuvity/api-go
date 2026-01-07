@@ -50,8 +50,10 @@ var (
 		"extractor":    ExtractorIdentity,
 		"extractorlib": ExtractorLibIdentity,
 
-		"feedback":     FeedbackIdentity,
-		"gitbooktoken": GitbookTokenIdentity,
+		"feedback":          FeedbackIdentity,
+		"finding":           FindingIdentity,
+		"findingdefinition": FindingDefinitionIdentity,
+		"gitbooktoken":      GitbookTokenIdentity,
 
 		"ignoreddomain": IgnoredDomainIdentity,
 		"import":        ImportIdentity,
@@ -92,6 +94,7 @@ var (
 		"proxyroundtrip": ProxyRoundtripIdentity,
 		"query":          QueryIdentity,
 		"queryrange":     QueryRangeIdentity,
+		"resolve":        ResolveIdentity,
 		"role":           RoleIdentity,
 		"root":           RootIdentity,
 
@@ -164,8 +167,10 @@ var (
 		"extractors":    ExtractorIdentity,
 		"extractorlibs": ExtractorLibIdentity,
 
-		"feedbacks":     FeedbackIdentity,
-		"gitbooktokens": GitbookTokenIdentity,
+		"feedbacks":          FeedbackIdentity,
+		"findings":           FindingIdentity,
+		"findingdefinitions": FindingDefinitionIdentity,
+		"gitbooktokens":      GitbookTokenIdentity,
 
 		"ignoreddomains": IgnoredDomainIdentity,
 		"import":         ImportIdentity,
@@ -206,6 +211,7 @@ var (
 		"proxyroundtrips": ProxyRoundtripIdentity,
 		"queries":         QueryIdentity,
 		"queryranges":     QueryRangeIdentity,
+		"resolve":         ResolveIdentity,
 		"roles":           RoleIdentity,
 		"root":            RootIdentity,
 
@@ -343,6 +349,18 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "logHash", "key", "value"},
 		},
+		"finding": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "severity"},
+			{"namespace", "status"},
+		},
+		"findingdefinition": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"gitbooktoken": nil,
 		"ignoreddomain": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -419,6 +437,7 @@ var (
 		},
 		"query":      nil,
 		"queryrange": nil,
+		"resolve":    nil,
 		"role":       nil,
 		"root":       nil,
 		"scanreport": {
@@ -563,6 +582,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewExtractorLib()
 	case FeedbackIdentity:
 		return NewFeedback()
+	case FindingIdentity:
+		return NewFinding()
+	case FindingDefinitionIdentity:
+		return NewFindingDefinition()
 	case GitbookTokenIdentity:
 		return NewGitbookToken()
 	case IgnoredDomainIdentity:
@@ -625,6 +648,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewQuery()
 	case QueryRangeIdentity:
 		return NewQueryRange()
+	case ResolveIdentity:
+		return NewResolve()
 	case RoleIdentity:
 		return NewRole()
 	case RootIdentity:
@@ -734,6 +759,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseExtractorLib()
 	case FeedbackIdentity:
 		return NewSparseFeedback()
+	case FindingIdentity:
+		return NewSparseFinding()
+	case FindingDefinitionIdentity:
+		return NewSparseFindingDefinition()
 	case GitbookTokenIdentity:
 		return NewSparseGitbookToken()
 	case IgnoredDomainIdentity:
@@ -796,6 +825,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseQuery()
 	case QueryRangeIdentity:
 		return NewSparseQueryRange()
+	case ResolveIdentity:
+		return NewSparseResolve()
 	case RoleIdentity:
 		return NewSparseRole()
 	case ScanReportIdentity:
@@ -913,6 +944,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ExtractorLibsList{}
 	case FeedbackIdentity:
 		return &FeedbacksList{}
+	case FindingIdentity:
+		return &FindingsList{}
+	case FindingDefinitionIdentity:
+		return &FindingDefinitionsList{}
 	case GitbookTokenIdentity:
 		return &GitbookTokensList{}
 	case IgnoredDomainIdentity:
@@ -975,6 +1010,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &QueriesList{}
 	case QueryRangeIdentity:
 		return &QueryRangesList{}
+	case ResolveIdentity:
+		return &ResolvesList{}
 	case RoleIdentity:
 		return &RolesList{}
 	case ScanReportIdentity:
@@ -1082,6 +1119,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseExtractorLibsList{}
 	case FeedbackIdentity:
 		return &SparseFeedbacksList{}
+	case FindingIdentity:
+		return &SparseFindingsList{}
+	case FindingDefinitionIdentity:
+		return &SparseFindingDefinitionsList{}
 	case GitbookTokenIdentity:
 		return &SparseGitbookTokensList{}
 	case IgnoredDomainIdentity:
@@ -1144,6 +1185,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseQueriesList{}
 	case QueryRangeIdentity:
 		return &SparseQueryRangesList{}
+	case ResolveIdentity:
+		return &SparseResolvesList{}
 	case RoleIdentity:
 		return &SparseRolesList{}
 	case ScanReportIdentity:
@@ -1301,6 +1344,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewExtractorRef()
 	case "host", "Host":
 		return NewHost()
+	case "identityref", "IdentityRef":
+		return NewIdentityRef()
 	case "ingressacl", "IngressACL":
 		return NewIngressACL()
 	case "ingresslistener", "IngressListener":
@@ -1315,6 +1360,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewInjector()
 	case "kubernetesworkloadgroupselector", "KubernetesWorkloadGroupSelector":
 		return NewKubernetesWorkloadGroupSelector()
+	case "kubernetesworkloadgroupselectorcustomtype", "KubernetesWorkloadGroupSelectorCustomType":
+		return NewKubernetesWorkloadGroupSelectorCustomType()
 	case "kubernetesworkloadgroupsetselector", "KubernetesWorkloadGroupSetSelector":
 		return NewKubernetesWorkloadGroupSetSelector()
 	case "mapper", "Mapper":
@@ -1419,6 +1466,8 @@ func AllIdentities() []elemental.Identity {
 		ExtractorIdentity,
 		ExtractorLibIdentity,
 		FeedbackIdentity,
+		FindingIdentity,
+		FindingDefinitionIdentity,
 		GitbookTokenIdentity,
 		IgnoredDomainIdentity,
 		ImportIdentity,
@@ -1450,6 +1499,7 @@ func AllIdentities() []elemental.Identity {
 		ProxyRoundtripIdentity,
 		QueryIdentity,
 		QueryRangeIdentity,
+		ResolveIdentity,
 		RoleIdentity,
 		RootIdentity,
 		ScanReportIdentity,
@@ -1535,6 +1585,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case FeedbackIdentity:
 		return []string{}
+	case FindingIdentity:
+		return []string{}
+	case FindingDefinitionIdentity:
+		return []string{}
 	case GitbookTokenIdentity:
 		return []string{}
 	case IgnoredDomainIdentity:
@@ -1596,6 +1650,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case QueryIdentity:
 		return []string{}
 	case QueryRangeIdentity:
+		return []string{}
+	case ResolveIdentity:
 		return []string{}
 	case RoleIdentity:
 		return []string{}

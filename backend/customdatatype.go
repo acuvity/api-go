@@ -88,6 +88,13 @@ type CustomDataType struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Anchors are short, natural-language example sentences that define the intent you
+	// want to detect. The system learns from these examples and flags text with
+	// similar meaning even if worded differently. Use 3–5 realistic, varied sentences
+	// about one clear concept, and avoid near-duplicates. Validations will ensure
+	// anchor quality.
+	Anchors []string `json:"anchors" msgpack:"anchors" bson:"anchors" mapstructure:"anchors,omitempty"`
+
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
@@ -141,6 +148,7 @@ func NewCustomDataType() *CustomDataType {
 
 	return &CustomDataType{
 		ModelVersion: 1,
+		Anchors:      []string{},
 		Matches:      []string{},
 		Propagate:    true,
 	}
@@ -177,6 +185,7 @@ func (o *CustomDataType) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Anchors = o.Anchors
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.FriendlyName = o.FriendlyName
@@ -207,6 +216,7 @@ func (o *CustomDataType) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Anchors = s.Anchors
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.FriendlyName = s.FriendlyName
@@ -332,6 +342,7 @@ func (o *CustomDataType) ToSparse(fields ...string) elemental.SparseIdentifiable
 		// nolint: goimports
 		return &SparseCustomDataType{
 			ID:           &o.ID,
+			Anchors:      &o.Anchors,
 			CreateTime:   &o.CreateTime,
 			Description:  &o.Description,
 			FriendlyName: &o.FriendlyName,
@@ -352,6 +363,8 @@ func (o *CustomDataType) ToSparse(fields ...string) elemental.SparseIdentifiable
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "anchors":
+			sp.Anchors = &(o.Anchors)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
@@ -391,6 +404,9 @@ func (o *CustomDataType) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseCustomDataType)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.Anchors != nil {
+		o.Anchors = *so.Anchors
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -529,6 +545,8 @@ func (o *CustomDataType) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "anchors":
+		return o.Anchors
 	case "createTime":
 		return o.CreateTime
 	case "description":
@@ -574,6 +592,21 @@ var CustomDataTypeAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Anchors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anchors",
+		ConvertedName:  "Anchors",
+		Description: `Anchors are short, natural-language example sentences that define the intent you
+want to detect. The system learns from these examples and flags text with
+similar meaning even if worded differently. Use 3–5 realistic, varied sentences
+about one clear concept, and avoid near-duplicates. Validations will ensure
+anchor quality.`,
+		Exposed: true,
+		Name:    "anchors",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -731,6 +764,21 @@ var CustomDataTypeLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"anchors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anchors",
+		ConvertedName:  "Anchors",
+		Description: `Anchors are short, natural-language example sentences that define the intent you
+want to detect. The system learns from these examples and flags text with
+similar meaning even if worded differently. Use 3–5 realistic, varied sentences
+about one clear concept, and avoid near-duplicates. Validations will ensure
+anchor quality.`,
+		Exposed: true,
+		Name:    "anchors",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -938,6 +986,13 @@ type SparseCustomDataType struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// Anchors are short, natural-language example sentences that define the intent you
+	// want to detect. The system learns from these examples and flags text with
+	// similar meaning even if worded differently. Use 3–5 realistic, varied sentences
+	// about one clear concept, and avoid near-duplicates. Validations will ensure
+	// anchor quality.
+	Anchors *[]string `json:"anchors,omitempty" msgpack:"anchors,omitempty" bson:"anchors,omitempty" mapstructure:"anchors,omitempty"`
+
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
@@ -1029,6 +1084,9 @@ func (o *SparseCustomDataType) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Anchors != nil {
+		s.Anchors = o.Anchors
+	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
@@ -1084,6 +1142,9 @@ func (o *SparseCustomDataType) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Anchors != nil {
+		o.Anchors = s.Anchors
+	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
@@ -1136,6 +1197,9 @@ func (o *SparseCustomDataType) ToPlain() elemental.PlainIdentifiable {
 	out := NewCustomDataType()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.Anchors != nil {
+		out.Anchors = *o.Anchors
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1311,6 +1375,7 @@ func (o *SparseCustomDataType) DeepCopyInto(out *SparseCustomDataType) {
 
 type mongoAttributesCustomDataType struct {
 	ID           bson.ObjectId `bson:"_id,omitempty"`
+	Anchors      []string      `bson:"anchors"`
 	CreateTime   time.Time     `bson:"createtime"`
 	Description  string        `bson:"description"`
 	FriendlyName string        `bson:"friendlyname"`
@@ -1326,6 +1391,7 @@ type mongoAttributesCustomDataType struct {
 }
 type mongoAttributesSparseCustomDataType struct {
 	ID           bson.ObjectId `bson:"_id,omitempty"`
+	Anchors      *[]string     `bson:"anchors,omitempty"`
 	CreateTime   *time.Time    `bson:"createtime,omitempty"`
 	Description  *string       `bson:"description,omitempty"`
 	FriendlyName *string       `bson:"friendlyname,omitempty"`

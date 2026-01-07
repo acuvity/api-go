@@ -110,10 +110,6 @@ type Provider struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// If enabled, run the analysis pipelines on the provider output. No policy will be
-	// applied, but the response will be analyzed and classified.
-	AnalyzeOutput bool `json:"analyzeOutput" msgpack:"analyzeOutput" bson:"analyzeoutput" mapstructure:"analyzeOutput,omitempty"`
-
 	// The category of the provider.
 	Category ProviderCategoryValue `json:"category" msgpack:"category" bson:"category" mapstructure:"category,omitempty"`
 
@@ -250,7 +246,6 @@ func (o *Provider) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.AnalyzeOutput = o.AnalyzeOutput
 	s.Category = o.Category
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -296,7 +291,6 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
-	o.AnalyzeOutput = s.AnalyzeOutput
 	o.Category = s.Category
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -439,7 +433,6 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseProvider{
 			ID:               &o.ID,
-			AnalyzeOutput:    &o.AnalyzeOutput,
 			Category:         &o.Category,
 			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
@@ -475,8 +468,6 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "analyzeOutput":
-			sp.AnalyzeOutput = &(o.AnalyzeOutput)
 		case "category":
 			sp.Category = &(o.Category)
 		case "createTime":
@@ -546,9 +537,6 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseProvider)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.AnalyzeOutput != nil {
-		o.AnalyzeOutput = *so.AnalyzeOutput
 	}
 	if so.Category != nil {
 		o.Category = *so.Category
@@ -876,8 +864,6 @@ func (o *Provider) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
-	case "analyzeOutput":
-		return o.AnalyzeOutput
 	case "category":
 		return o.Category
 	case "createTime":
@@ -953,17 +939,6 @@ var ProviderAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"AnalyzeOutput": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "analyzeoutput",
-		ConvertedName:  "AnalyzeOutput",
-		Description: `If enabled, run the analysis pipelines on the provider output. No policy will be
-applied, but the response will be analyzed and classified.`,
-		Exposed: true,
-		Name:    "analyzeOutput",
-		Stored:  true,
-		Type:    "boolean",
 	},
 	"Category": {
 		AllowedChoices: []string{"User", "App"},
@@ -1279,17 +1254,6 @@ var ProviderLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"analyzeoutput": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "analyzeoutput",
-		ConvertedName:  "AnalyzeOutput",
-		Description: `If enabled, run the analysis pipelines on the provider output. No policy will be
-applied, but the response will be analyzed and classified.`,
-		Exposed: true,
-		Name:    "analyzeOutput",
-		Stored:  true,
-		Type:    "boolean",
 	},
 	"category": {
 		AllowedChoices: []string{"User", "App"},
@@ -1655,10 +1619,6 @@ type SparseProvider struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// If enabled, run the analysis pipelines on the provider output. No policy will be
-	// applied, but the response will be analyzed and classified.
-	AnalyzeOutput *bool `json:"analyzeOutput,omitempty" msgpack:"analyzeOutput,omitempty" bson:"analyzeoutput,omitempty" mapstructure:"analyzeOutput,omitempty"`
-
 	// The category of the provider.
 	Category *ProviderCategoryValue `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
 
@@ -1795,9 +1755,6 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.AnalyzeOutput != nil {
-		s.AnalyzeOutput = o.AnalyzeOutput
-	}
 	if o.Category != nil {
 		s.Category = o.Category
 	}
@@ -1898,9 +1855,6 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.AnalyzeOutput != nil {
-		o.AnalyzeOutput = s.AnalyzeOutput
-	}
 	if s.Category != nil {
 		o.Category = s.Category
 	}
@@ -1998,9 +1952,6 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	out := NewProvider()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.AnalyzeOutput != nil {
-		out.AnalyzeOutput = *o.AnalyzeOutput
 	}
 	if o.Category != nil {
 		out.Category = *o.Category
@@ -2321,7 +2272,6 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 
 type mongoAttributesProvider struct {
 	ID               bson.ObjectId         `bson:"_id,omitempty"`
-	AnalyzeOutput    bool                  `bson:"analyzeoutput"`
 	Category         ProviderCategoryValue `bson:"category"`
 	CreateTime       time.Time             `bson:"createtime"`
 	Description      string                `bson:"description"`
@@ -2352,7 +2302,6 @@ type mongoAttributesProvider struct {
 }
 type mongoAttributesSparseProvider struct {
 	ID               bson.ObjectId          `bson:"_id,omitempty"`
-	AnalyzeOutput    *bool                  `bson:"analyzeoutput,omitempty"`
 	Category         *ProviderCategoryValue `bson:"category,omitempty"`
 	CreateTime       *time.Time             `bson:"createtime,omitempty"`
 	Description      *string                `bson:"description,omitempty"`

@@ -25,15 +25,6 @@
         "null"
       ]
     },
-    "analyzeOutput": {
-      "$friendlyName": "Analyze Output",
-      "description": "If enabled, run the analysis pipelines on the provider output. No policy will be applied, but the response will be analyzed and classified.",
-      "title": "analyzeOutput",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
     "category": {
       "$friendlyName": "Provider Category",
       "$required": true,

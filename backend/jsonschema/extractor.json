@@ -27,16 +27,6 @@
         "null"
       ]
     },
-    "SSEManagement": {
-      "$defaultValue": "Collect",
-      "$friendlyName": "SSE Management",
-      "description": "This property defines how you want the extractor to work with server-side events. With Collect all the events buffer until the server closes the connection and sends the entire data to the lua code while Stream will collect line by line and will send events line by line.",
-      "enum": [
-        "Collect",
-        "Stream"
-      ],
-      "title": "SSEManagement"
-    },
     "analyzers": {
       "$friendlyName": "Analyzers",
       "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analyzis (slower but more acurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analyzis (faster but less acurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
@@ -210,6 +200,15 @@
       "title": "path",
       "type": "string"
     },
+    "policeOutput": {
+      "$friendlyName": "Police Output",
+      "description": "This property defines if the system should police the output. This property is noop if type is Input. It only matters on type Output.",
+      "title": "policeOutput",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -237,6 +236,16 @@
         "boolean",
         "null"
       ]
+    },
+    "streamSplitter": {
+      "$defaultValue": "SSE",
+      "$friendlyName": "Stream Splitter",
+      "description": "This property defines how the system should split protocol messages in the stream.",
+      "enum": [
+        "Line",
+        "SSE"
+      ],
+      "title": "streamSplitter"
     },
     "type": {
       "$friendlyName": "Type",

@@ -450,6 +450,18 @@
       },
       "type": "array"
     },
+    "findingdefinitions": {
+      "items": {
+        "$ref": "findingdefinition.json"
+      },
+      "type": "array"
+    },
+    "findings": {
+      "items": {
+        "$ref": "finding.json"
+      },
+      "type": "array"
+    },
     "gitbooktokens": {
       "items": {
         "$ref": "gitbooktoken.json"
@@ -459,6 +471,12 @@
     "hosts": {
       "items": {
         "$ref": "host.json"
+      },
+      "type": "array"
+    },
+    "identityrefs": {
+      "items": {
+        "$ref": "identityref.json"
       },
       "type": "array"
     },
@@ -513,6 +531,12 @@
     "injectors": {
       "items": {
         "$ref": "injector.json"
+      },
+      "type": "array"
+    },
+    "kubernetesworkloadgroupselectorcustomtypes": {
+      "items": {
+        "$ref": "kubernetesworkloadgroupselectorcustomtype.json"
       },
       "type": "array"
     },
@@ -765,6 +789,12 @@
     "queryranges": {
       "items": {
         "$ref": "queryrange.json"
+      },
+      "type": "array"
+    },
+    "resolve": {
+      "items": {
+        "$ref": "resolve.json"
       },
       "type": "array"
     },

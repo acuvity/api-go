@@ -1,0 +1,22 @@
+{
+  "$extends": [],
+  "$friendlyName": "Resolve",
+  "$friendlyNamePlural": "Resolves",
+  "$modelName": "Resolve",
+  "$modelPackage": "lain",
+  "$modelResourceName": "resolve",
+  "$modelRestName": "resolve",
+  "additionalProperties": false,
+  "description": "Actually resolve the finding instance.",
+  "properties": {
+    "import": {
+      "$friendlyName": "import",
+      "$ref": "import.json",
+      "description": "import to resolve the finding instance.",
+      "title": "import"
+    }
+  },
+  "required": [],
+  "title": "Resolve",
+  "type": "object"
+}

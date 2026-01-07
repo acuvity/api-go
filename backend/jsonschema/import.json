@@ -186,6 +186,15 @@
       "title": "extractors",
       "type": "array"
     },
+    "findingdefinitions": {
+      "$friendlyName": "Finding Definitions",
+      "description": "Finding definitions to import.",
+      "items": {
+        "$ref": "findingdefinition.json"
+      },
+      "title": "findingdefinitions",
+      "type": "array"
+    },
     "ignoredDomains": {
       "$friendlyName": "Ignored Domains",
       "description": "Ignored domains to import.",
