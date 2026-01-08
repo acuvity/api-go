@@ -99,6 +99,9 @@ type MCPGateway struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The certificate used by the MCP Gateway.
+	Certificate string `json:"certificate" msgpack:"certificate" bson:"certificate" mapstructure:"certificate,omitempty"`
+
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
@@ -178,6 +181,7 @@ func (o *MCPGateway) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Certificate = o.Certificate
 	s.CreateTime = o.CreateTime
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -208,6 +212,7 @@ func (o *MCPGateway) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Certificate = s.Certificate
 	o.CreateTime = s.CreateTime
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -321,6 +326,7 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseMCPGateway{
 			ID:          &o.ID,
+			Certificate: &o.Certificate,
 			CreateTime:  &o.CreateTime,
 			ImportHash:  &o.ImportHash,
 			ImportLabel: &o.ImportLabel,
@@ -341,6 +347,8 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "certificate":
+			sp.Certificate = &(o.Certificate)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "importHash":
@@ -380,6 +388,9 @@ func (o *MCPGateway) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseMCPGateway)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.Certificate != nil {
+		o.Certificate = *so.Certificate
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
@@ -481,6 +492,10 @@ func (o *MCPGateway) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := ValidatePEM("certificate", o.Certificate); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -550,6 +565,8 @@ func (o *MCPGateway) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "certificate":
+		return o.Certificate
 	case "createTime":
 		return o.CreateTime
 	case "importHash":
@@ -593,6 +610,16 @@ var MCPGatewayAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Certificate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "certificate",
+		ConvertedName:  "Certificate",
+		Description:    `The certificate used by the MCP Gateway.`,
+		Exposed:        true,
+		Name:           "certificate",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -740,6 +767,16 @@ var MCPGatewayLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"certificate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "certificate",
+		ConvertedName:  "Certificate",
+		Description:    `The certificate used by the MCP Gateway.`,
+		Exposed:        true,
+		Name:           "certificate",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -939,6 +976,9 @@ type SparseMCPGateway struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The certificate used by the MCP Gateway.
+	Certificate *string `json:"certificate,omitempty" msgpack:"certificate,omitempty" bson:"certificate,omitempty" mapstructure:"certificate,omitempty"`
+
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
@@ -1022,6 +1062,9 @@ func (o *SparseMCPGateway) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Certificate != nil {
+		s.Certificate = o.Certificate
+	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
@@ -1077,6 +1120,9 @@ func (o *SparseMCPGateway) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Certificate != nil {
+		o.Certificate = s.Certificate
+	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
@@ -1129,6 +1175,9 @@ func (o *SparseMCPGateway) ToPlain() elemental.PlainIdentifiable {
 	out := NewMCPGateway()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.Certificate != nil {
+		out.Certificate = *o.Certificate
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
@@ -1310,6 +1359,7 @@ func (o *SparseMCPGateway) DeepCopyInto(out *SparseMCPGateway) {
 
 type mongoAttributesMCPGateway struct {
 	ID          bson.ObjectId         `bson:"_id,omitempty"`
+	Certificate string                `bson:"certificate"`
 	CreateTime  time.Time             `bson:"createtime"`
 	ImportHash  string                `bson:"importhash,omitempty"`
 	ImportLabel string                `bson:"importlabel,omitempty"`
@@ -1325,6 +1375,7 @@ type mongoAttributesMCPGateway struct {
 }
 type mongoAttributesSparseMCPGateway struct {
 	ID          bson.ObjectId          `bson:"_id,omitempty"`
+	Certificate *string                `bson:"certificate,omitempty"`
 	CreateTime  *time.Time             `bson:"createtime,omitempty"`
 	ImportHash  *string                `bson:"importhash,omitempty"`
 	ImportLabel *string                `bson:"importlabel,omitempty"`

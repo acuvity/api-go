@@ -5563,6 +5563,10 @@
             "readOnly": true,
             "type": "string"
           },
+          "certificate": {
+            "description": "The certificate used by the MCP Gateway.",
+            "type": "string"
+          },
           "createTime": {
             "description": "Creation date of the object.",
             "format": "date-time",

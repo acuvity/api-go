@@ -24,6 +24,15 @@
         "null"
       ]
     },
+    "certificate": {
+      "$friendlyName": "Certificate",
+      "description": "The certificate used by the MCP Gateway.",
+      "title": "certificate",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "createTime": {
       "$friendlyName": "CreateTime",
       "$readOnly": true,
