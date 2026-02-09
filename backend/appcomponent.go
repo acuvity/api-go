@@ -380,12 +380,14 @@ func (o *AppComponent) Validate() error {
 	if o.Egress != nil {
 		if err := o.Egress.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "egress")
 		}
 	}
 
 	if o.Ingress != nil {
 		if err := o.Ingress.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "ingress")
 		}
 	}
 
@@ -403,6 +405,7 @@ func (o *AppComponent) Validate() error {
 
 	if err := o.Selector.Validate(); err != nil {
 		errors = errors.Append(err)
+		elemental.InjectAttributePath(errors, "selector")
 	}
 
 	if len(requiredErrors) > 0 {

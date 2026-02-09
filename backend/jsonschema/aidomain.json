@@ -90,7 +90,7 @@
     "compliancesRisk": {
       "$friendlyName": "Compliances Risk",
       "$ref": "aidrisk.json",
-      "description": "Overall risk assessment for the compliences.",
+      "description": "Overall risk assessment for the compliances.",
       "title": "compliancesRisk"
     },
     "createTime": {

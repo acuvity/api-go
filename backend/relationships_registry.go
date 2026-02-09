@@ -1848,6 +1848,12 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[ValidateIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[VisitedURLIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},

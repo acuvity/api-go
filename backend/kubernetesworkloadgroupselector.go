@@ -191,6 +191,7 @@ func (o *KubernetesWorkloadGroupSelector) Validate() error {
 	if o.Custom != nil {
 		if err := o.Custom.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "custom")
 		}
 	}
 

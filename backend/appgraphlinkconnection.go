@@ -164,12 +164,13 @@ func (o *AppGraphLinkConnection) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Connections {
+	for i, sub := range o.Connections {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "connections", i))
 		}
 	}
 

@@ -33,6 +33,9 @@ const (
 	// PageDataViewPredicateOperatorEqualsOrLesserThan represents the value EqualsOrLesserThan.
 	PageDataViewPredicateOperatorEqualsOrLesserThan PageDataViewPredicateOperatorValue = "EqualsOrLesserThan"
 
+	// PageDataViewPredicateOperatorLike represents the value Like.
+	PageDataViewPredicateOperatorLike PageDataViewPredicateOperatorValue = "Like"
+
 	// PageDataViewPredicateOperatorNotAny represents the value NotAny.
 	PageDataViewPredicateOperatorNotAny PageDataViewPredicateOperatorValue = "NotAny"
 
@@ -184,7 +187,7 @@ func (o *PageDataViewPredicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
+	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -247,7 +250,7 @@ var PageDataViewPredicateAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"Operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
 		Description:    `The operator of the page data view predicate.`,
@@ -284,7 +287,7 @@ var PageDataViewPredicateLowerCaseAttributesMap = map[string]elemental.Attribute
 		Type:           "string",
 	},
 	"operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
 		Description:    `The operator of the page data view predicate.`,

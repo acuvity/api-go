@@ -197,15 +197,17 @@ func (o *ExtractionRequest) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.ToolResults {
+	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolResults", i))
 		}
 	}
 
-	for _, sub := range o.ToolUses {
+	for i, sub := range o.ToolUses {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolUses", i))
 		}
 	}
 

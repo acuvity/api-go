@@ -178,15 +178,17 @@ func (o *AppComponentEgress) Validate() error {
 	if o.DefaultPolicy != nil {
 		if err := o.DefaultPolicy.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "defaultPolicy")
 		}
 	}
 
-	for _, sub := range o.Policies {
+	for i, sub := range o.Policies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policies", i))
 		}
 	}
 

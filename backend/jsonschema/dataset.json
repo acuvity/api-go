@@ -118,7 +118,7 @@
     "sensitivity": {
       "$defaultValue": "High",
       "$friendlyName": "Sensitivity",
-      "description": "Describe the sensitity of the dataSet.",
+      "description": "Describe the sensitivity of the dataSet.",
       "enum": [
         "Low",
         "Medium",

@@ -1,7 +1,7 @@
 {
   "$extends": [],
-  "$friendlyName": "Digest Report Requesty",
-  "$friendlyNamePlural": "Digest Report Requesties",
+  "$friendlyName": "Digest Report Request",
+  "$friendlyNamePlural": "Digest Report Requests",
   "$modelName": "DigestReportRequest",
   "$modelPackage": "relae",
   "$modelResourceName": "digestreportrequests",

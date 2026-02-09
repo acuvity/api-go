@@ -409,12 +409,13 @@ func (o *PageDataView) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.Predicates {
+	for i, sub := range o.Predicates {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "predicates", i))
 		}
 	}
 

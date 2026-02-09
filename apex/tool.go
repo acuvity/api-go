@@ -200,12 +200,14 @@ func (o *Tool) Validate() error {
 	if o.MCPAnnotations != nil {
 		if err := o.MCPAnnotations.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "MCPAnnotations")
 		}
 	}
 
 	if o.MCPServer != nil {
 		if err := o.MCPServer.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "MCPServer")
 		}
 	}
 

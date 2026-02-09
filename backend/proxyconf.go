@@ -583,90 +583,100 @@ func (o *ProxyConf) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.MCPGateways {
+	for i, sub := range o.MCPGateways {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "MCPGateways", i))
 		}
 	}
 
-	for _, sub := range o.PACConfigs {
+	for i, sub := range o.PACConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "PACConfigs", i))
 		}
 	}
 
-	for _, sub := range o.AgentConfigs {
+	for i, sub := range o.AgentConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentConfigs", i))
 		}
 	}
 
-	for _, sub := range o.CustomDataTypes {
+	for i, sub := range o.CustomDataTypes {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
-	for _, sub := range o.DataSets {
+	for i, sub := range o.DataSets {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataSets", i))
 		}
 	}
 
-	for _, sub := range o.ExtractorLibs {
+	for i, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractorLibs", i))
 		}
 	}
 
-	for _, sub := range o.Extractors {
+	for i, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
 	if o.OrgSettings != nil {
 		if err := o.OrgSettings.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "orgSettings")
 		}
 	}
 
-	for _, sub := range o.Providers {
+	for i, sub := range o.Providers {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providers", i))
 		}
 	}
 
-	for _, sub := range o.WebExtensionConfigs {
+	for i, sub := range o.WebExtensionConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 		}
 	}
 

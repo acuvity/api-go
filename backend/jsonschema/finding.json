@@ -24,6 +24,24 @@
         "null"
       ]
     },
+    "analyzerGroup": {
+      "$friendlyName": "Analyzer Group",
+      "description": "The analyzer group.",
+      "title": "analyzerGroup",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "analyzerName": {
+      "$friendlyName": "Analyzer Name",
+      "description": "The analyzer name.",
+      "title": "analyzerName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "description": {
       "$friendlyName": "Description",
       "description": "The description of the finding.",

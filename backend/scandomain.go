@@ -269,27 +269,31 @@ func (o *ScanDomain) Validate() error {
 	if o.HTTPScanResult != nil {
 		if err := o.HTTPScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "HTTPScanResult")
 		}
 	}
 
 	if o.PingScanResult != nil {
 		if err := o.PingScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "PingScanResult")
 		}
 	}
 
 	if o.TLSScanResult != nil {
 		if err := o.TLSScanResult.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "TLSScanResult")
 		}
 	}
 
-	for _, sub := range o.AdvancedScanResults {
+	for i, sub := range o.AdvancedScanResults {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "advancedScanResults", i))
 		}
 	}
 
@@ -313,12 +317,13 @@ func (o *ScanDomain) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Users {
+	for i, sub := range o.Users {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "users", i))
 		}
 	}
 

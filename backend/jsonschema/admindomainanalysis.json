@@ -24,7 +24,7 @@
     "domain": {
       "$friendlyName": "domain",
       "$required": true,
-      "description": "Domain to analyze. The analyzis will be sent to refactai.",
+      "description": "Domain to analyze. The analysis will be sent to refractai.",
       "title": "domain",
       "type": "string"
     },

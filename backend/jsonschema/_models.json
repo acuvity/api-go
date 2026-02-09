@@ -501,6 +501,9 @@
     "usertoken": {
       "$ref": "usertoken.json"
     },
+    "validate": {
+      "$ref": "validate.json"
+    },
     "visitedurl": {
       "$ref": "visitedurl.json"
     },

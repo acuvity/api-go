@@ -117,6 +117,7 @@ var (
 		"tracetagvalues": TraceTagValuesIdentity,
 
 		"usertoken":          UserTokenIdentity,
+		"validate":           ValidateIdentity,
 		"visitedurl":         VisitedURLIdentity,
 		"watchedorg":         WatchedOrgIdentity,
 		"webextension":       WebExtensionIdentity,
@@ -234,6 +235,7 @@ var (
 		"tracetagvalues": TraceTagValuesIdentity,
 
 		"usertokens":          UserTokenIdentity,
+		"validate":            ValidateIdentity,
 		"visitedurls":         VisitedURLIdentity,
 		"watchedorgs":         WatchedOrgIdentity,
 		"webextensions":       WebExtensionIdentity,
@@ -472,6 +474,7 @@ var (
 			{"namespace"},
 			{"namespace", "email"},
 		},
+		"validate": nil,
 		"visitedurl": {
 			{"namespace", "importLabel"},
 		},
@@ -686,6 +689,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewTraceTagValues()
 	case UserTokenIdentity:
 		return NewUserToken()
+	case ValidateIdentity:
+		return NewValidate()
 	case VisitedURLIdentity:
 		return NewVisitedURL()
 	case WatchedOrgIdentity:
@@ -861,6 +866,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseTraceTagValues()
 	case UserTokenIdentity:
 		return NewSparseUserToken()
+	case ValidateIdentity:
+		return NewSparseValidate()
 	case VisitedURLIdentity:
 		return NewSparseVisitedURL()
 	case WatchedOrgIdentity:
@@ -1046,6 +1053,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &TraceTagValuesList{}
 	case UserTokenIdentity:
 		return &UserTokensList{}
+	case ValidateIdentity:
+		return &ValidatesList{}
 	case VisitedURLIdentity:
 		return &VisitedURLsList{}
 	case WatchedOrgIdentity:
@@ -1221,6 +1230,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseTraceTagValuesList{}
 	case UserTokenIdentity:
 		return &SparseUserTokensList{}
+	case ValidateIdentity:
+		return &SparseValidatesList{}
 	case VisitedURLIdentity:
 		return &SparseVisitedURLsList{}
 	case WatchedOrgIdentity:
@@ -1518,6 +1529,7 @@ func AllIdentities() []elemental.Identity {
 		TraceTagKeysIdentity,
 		TraceTagValuesIdentity,
 		UserTokenIdentity,
+		ValidateIdentity,
 		VisitedURLIdentity,
 		WatchedOrgIdentity,
 		WebExtensionIdentity,
@@ -1688,6 +1700,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case TraceTagValuesIdentity:
 		return []string{}
 	case UserTokenIdentity:
+		return []string{}
+	case ValidateIdentity:
 		return []string{}
 	case VisitedURLIdentity:
 		return []string{}

@@ -400,12 +400,13 @@ func (o *VisitedURL) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.DomainHits {
+	for i, sub := range o.DomainHits {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "domainHits", i))
 		}
 	}
 
@@ -420,6 +421,7 @@ func (o *VisitedURL) Validate() error {
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 

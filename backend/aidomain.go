@@ -120,7 +120,7 @@ type AIDomain struct {
 	// Certifications or Security Frameworks implemented by the provider.
 	Compliances []*AIDSectionCompliance `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
 
-	// Overall risk assessment for the compliences.
+	// Overall risk assessment for the compliances.
 	CompliancesRisk *AIDRisk `json:"compliancesRisk,omitempty" msgpack:"compliancesRisk,omitempty" bson:"compliancesrisk,omitempty" mapstructure:"compliancesRisk,omitempty"`
 
 	// Creation date of the object.
@@ -844,18 +844,20 @@ func (o *AIDomain) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.LLMProviders {
+	for i, sub := range o.LLMProviders {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "LLMProviders", i))
 		}
 	}
 
 	if o.LLMProvidersRisk != nil {
 		if err := o.LLMProvidersRisk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "LLMProvidersRisk")
 		}
 	}
 
@@ -867,48 +869,54 @@ func (o *AIDomain) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Compliances {
+	for i, sub := range o.Compliances {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "compliances", i))
 		}
 	}
 
 	if o.CompliancesRisk != nil {
 		if err := o.CompliancesRisk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "compliancesRisk")
 		}
 	}
 
-	for _, sub := range o.DataPolicies {
+	for i, sub := range o.DataPolicies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataPolicies", i))
 		}
 	}
 
 	if o.DataPoliciesRisk != nil {
 		if err := o.DataPoliciesRisk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "dataPoliciesRisk")
 		}
 	}
 
-	for _, sub := range o.DataProcessors {
+	for i, sub := range o.DataProcessors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataProcessors", i))
 		}
 	}
 
 	if o.DataProcessorsRisk != nil {
 		if err := o.DataProcessorsRisk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "dataProcessorsRisk")
 		}
 	}
 
@@ -916,18 +924,20 @@ func (o *AIDomain) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.Features {
+	for i, sub := range o.Features {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "features", i))
 		}
 	}
 
 	if o.Industry != nil {
 		if err := o.Industry.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "industry")
 		}
 	}
 
@@ -935,18 +945,20 @@ func (o *AIDomain) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.Plans {
+	for i, sub := range o.Plans {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "plans", i))
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
@@ -1145,7 +1157,7 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "compliancesrisk",
 		ConvertedName:  "CompliancesRisk",
-		Description:    `Overall risk assessment for the compliences.`,
+		Description:    `Overall risk assessment for the compliances.`,
 		Exposed:        true,
 		Name:           "compliancesRisk",
 		Stored:         true,
@@ -1476,7 +1488,7 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		AllowedChoices: []string{},
 		BSONFieldName:  "compliancesrisk",
 		ConvertedName:  "CompliancesRisk",
-		Description:    `Overall risk assessment for the compliences.`,
+		Description:    `Overall risk assessment for the compliances.`,
 		Exposed:        true,
 		Name:           "compliancesRisk",
 		Stored:         true,
@@ -1798,7 +1810,7 @@ type SparseAIDomain struct {
 	// Certifications or Security Frameworks implemented by the provider.
 	Compliances *[]*AIDSectionCompliance `json:"compliances,omitempty" msgpack:"compliances,omitempty" bson:"compliances,omitempty" mapstructure:"compliances,omitempty"`
 
-	// Overall risk assessment for the compliences.
+	// Overall risk assessment for the compliances.
 	CompliancesRisk *AIDRisk `json:"compliancesRisk,omitempty" msgpack:"compliancesRisk,omitempty" bson:"compliancesrisk,omitempty" mapstructure:"compliancesRisk,omitempty"`
 
 	// Creation date of the object.

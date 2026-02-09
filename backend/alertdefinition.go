@@ -571,6 +571,7 @@ func (o *AlertDefinition) Validate() error {
 	if o.Trigger != nil {
 		if err := o.Trigger.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trigger")
 		}
 	}
 

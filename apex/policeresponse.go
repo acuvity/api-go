@@ -642,12 +642,13 @@ func (o *PoliceResponse) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Alerts {
+	for i, sub := range o.Alerts {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "alerts", i))
 		}
 	}
 
@@ -655,51 +656,58 @@ func (o *PoliceResponse) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Extractions {
+	for i, sub := range o.Extractions {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
 		}
 	}
 
 	if o.Latency != nil {
 		if err := o.Latency.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "latency")
 		}
 	}
 
 	if o.McpMessage != nil {
 		if err := o.McpMessage.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "mcpMessage")
 		}
 	}
 
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
 	if o.ToolChoice != nil {
 		if err := o.ToolChoice.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "toolChoice")
 		}
 	}
 
-	for _, sub := range o.Tools {
+	for i, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 

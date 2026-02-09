@@ -117,6 +117,10 @@ type OrgSettings struct {
 	// the final policy.
 	AssignPolicy string `json:"assignPolicy" msgpack:"assignPolicy" bson:"assignpolicy" mapstructure:"assignPolicy,omitempty"`
 
+	// If set, defines the message that will be shown to the user during the consent
+	// acceptance. If empty a default message will be used.
+	ConsentMessage string `json:"consentMessage" msgpack:"consentMessage" bson:"consentmessage" mapstructure:"consentMessage,omitempty"`
+
 	// The policy that decides how to handle the request content, once access
 	// has been granted by accessPolicy and the content analysis was performed.
 	// If this empty, the dynamic policy transpiled from AccessPolicies API
@@ -237,6 +241,7 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.AllowSupportAccess = o.AllowSupportAccess
 	s.AskConsent = o.AskConsent
 	s.AssignPolicy = o.AssignPolicy
+	s.ConsentMessage = o.ConsentMessage
 	s.ContentPolicy = o.ContentPolicy
 	s.CreateTime = o.CreateTime
 	s.DisableURLDiscovery = o.DisableURLDiscovery
@@ -279,6 +284,7 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.AllowSupportAccess = s.AllowSupportAccess
 	o.AskConsent = s.AskConsent
 	o.AssignPolicy = s.AssignPolicy
+	o.ConsentMessage = s.ConsentMessage
 	o.ContentPolicy = s.ContentPolicy
 	o.CreateTime = s.CreateTime
 	o.DisableURLDiscovery = s.DisableURLDiscovery
@@ -416,6 +422,7 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AllowSupportAccess:       &o.AllowSupportAccess,
 			AskConsent:               &o.AskConsent,
 			AssignPolicy:             &o.AssignPolicy,
+			ConsentMessage:           &o.ConsentMessage,
 			ContentPolicy:            &o.ContentPolicy,
 			CreateTime:               &o.CreateTime,
 			DisableURLDiscovery:      &o.DisableURLDiscovery,
@@ -453,6 +460,8 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AskConsent = &(o.AskConsent)
 		case "assignPolicy":
 			sp.AssignPolicy = &(o.AssignPolicy)
+		case "consentMessage":
+			sp.ConsentMessage = &(o.ConsentMessage)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
 		case "createTime":
@@ -521,6 +530,9 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.AssignPolicy != nil {
 		o.AssignPolicy = *so.AssignPolicy
+	}
+	if so.ConsentMessage != nil {
+		o.ConsentMessage = *so.ConsentMessage
 	}
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
@@ -645,6 +657,11 @@ func (o *OrgSettings) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	// Custom object validation.
+	if err := ValidateOrgSetting(o); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -691,6 +708,8 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.AskConsent
 	case "assignPolicy":
 		return o.AssignPolicy
+	case "consentMessage":
+		return o.ConsentMessage
 	case "contentPolicy":
 		return o.ContentPolicy
 	case "createTime":
@@ -813,6 +832,17 @@ however, everything computed by API objects are ignored and this becomes
 the final policy.`,
 		Exposed: true,
 		Name:    "assignPolicy",
+		Stored:  true,
+		Type:    "string",
+	},
+	"ConsentMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "consentmessage",
+		ConvertedName:  "ConsentMessage",
+		Description: `If set, defines the message that will be shown to the user during the consent
+acceptance. If empty a default message will be used.`,
+		Exposed: true,
+		Name:    "consentMessage",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1106,6 +1136,17 @@ however, everything computed by API objects are ignored and this becomes
 the final policy.`,
 		Exposed: true,
 		Name:    "assignPolicy",
+		Stored:  true,
+		Type:    "string",
+	},
+	"consentmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "consentmessage",
+		ConvertedName:  "ConsentMessage",
+		Description: `If set, defines the message that will be shown to the user during the consent
+acceptance. If empty a default message will be used.`,
+		Exposed: true,
+		Name:    "consentMessage",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1415,6 +1456,10 @@ type SparseOrgSettings struct {
 	// the final policy.
 	AssignPolicy *string `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"assignpolicy,omitempty" mapstructure:"assignPolicy,omitempty"`
 
+	// If set, defines the message that will be shown to the user during the consent
+	// acceptance. If empty a default message will be used.
+	ConsentMessage *string `json:"consentMessage,omitempty" msgpack:"consentMessage,omitempty" bson:"consentmessage,omitempty" mapstructure:"consentMessage,omitempty"`
+
 	// The policy that decides how to handle the request content, once access
 	// has been granted by accessPolicy and the content analysis was performed.
 	// If this empty, the dynamic policy transpiled from AccessPolicies API
@@ -1544,6 +1589,9 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.AssignPolicy != nil {
 		s.AssignPolicy = o.AssignPolicy
 	}
+	if o.ConsentMessage != nil {
+		s.ConsentMessage = o.ConsentMessage
+	}
 	if o.ContentPolicy != nil {
 		s.ContentPolicy = o.ContentPolicy
 	}
@@ -1635,6 +1683,9 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.AssignPolicy != nil {
 		o.AssignPolicy = s.AssignPolicy
 	}
+	if s.ConsentMessage != nil {
+		o.ConsentMessage = s.ConsentMessage
+	}
 	if s.ContentPolicy != nil {
 		o.ContentPolicy = s.ContentPolicy
 	}
@@ -1723,6 +1774,9 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.AssignPolicy != nil {
 		out.AssignPolicy = *o.AssignPolicy
+	}
+	if o.ConsentMessage != nil {
+		out.ConsentMessage = *o.ConsentMessage
 	}
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
@@ -1924,6 +1978,7 @@ type mongoAttributesOrgSettings struct {
 	AllowSupportAccess       bool          `bson:"allowsupportaccess"`
 	AskConsent               bool          `bson:"askconsent"`
 	AssignPolicy             string        `bson:"assignpolicy"`
+	ConsentMessage           string        `bson:"consentmessage"`
 	ContentPolicy            string        `bson:"contentpolicy"`
 	CreateTime               time.Time     `bson:"createtime"`
 	DisableURLDiscovery      bool          `bson:"disableurldiscovery"`
@@ -1951,6 +2006,7 @@ type mongoAttributesSparseOrgSettings struct {
 	AllowSupportAccess       *bool         `bson:"allowsupportaccess,omitempty"`
 	AskConsent               *bool         `bson:"askconsent,omitempty"`
 	AssignPolicy             *string       `bson:"assignpolicy,omitempty"`
+	ConsentMessage           *string       `bson:"consentmessage,omitempty"`
 	ContentPolicy            *string       `bson:"contentpolicy,omitempty"`
 	CreateTime               *time.Time    `bson:"createtime,omitempty"`
 	DisableURLDiscovery      *bool         `bson:"disableurldiscovery,omitempty"`

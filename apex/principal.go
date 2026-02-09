@@ -424,6 +424,7 @@ func (o *Principal) Validate() error {
 	if o.App != nil {
 		if err := o.App.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "app")
 		}
 	}
 
@@ -434,6 +435,7 @@ func (o *Principal) Validate() error {
 	if o.External != nil {
 		if err := o.External.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "external")
 		}
 	}
 
@@ -448,6 +450,7 @@ func (o *Principal) Validate() error {
 	if o.User != nil {
 		if err := o.User.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "user")
 		}
 	}
 

@@ -1,0 +1,31 @@
+{
+  "$extends": [],
+  "$friendlyName": "Validate",
+  "$friendlyNamePlural": "Validates",
+  "$modelName": "Validate",
+  "$modelPackage": "lain",
+  "$modelResourceName": "validate",
+  "$modelRestName": "validate",
+  "additionalProperties": false,
+  "description": "Run the validation function for an identifiable object.",
+  "properties": {
+    "identifiable": {
+      "$friendlyName": "Identifiable",
+      "description": "The identifiable content to validate.",
+      "title": "identifiable",
+      "type": "object"
+    },
+    "restName": {
+      "$friendlyName": "Identity REST Name",
+      "description": "Identity REST name.",
+      "title": "restName",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Validate",
+  "type": "object"
+}

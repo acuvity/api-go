@@ -208,12 +208,13 @@ func (o *AIDSectionLLMProvider) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Citations {
+	for i, sub := range o.Citations {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "citations", i))
 		}
 	}
 
@@ -224,6 +225,7 @@ func (o *AIDSectionLLMProvider) Validate() error {
 	if o.Risk != nil {
 		if err := o.Risk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "risk")
 		}
 	}
 

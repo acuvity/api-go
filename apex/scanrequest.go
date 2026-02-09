@@ -121,11 +121,11 @@ type ScanRequest struct {
 	// prefix to modify its behavior:
 	//
 	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analyzis (slower but more acurate).
+	// for deeper analysis (slower but more acurate).
 	//   - '+' (enable): Activates an analyzer that is disabled by default.
 	//   - '-' (disable): Disables an analyzer that is enabled by default.
 	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analyzis (faster but less acurate).
+	// analysis (faster but less acurate).
 	//
 	// An analyzers entry can be specified using:
 	//   - The analyzer name (e.g., 'Toxicity detector')
@@ -491,21 +491,23 @@ func (o *ScanRequest) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Extractions {
+	for i, sub := range o.Extractions {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
 		}
 	}
 
-	for _, sub := range o.Tools {
+	for i, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 
@@ -605,11 +607,11 @@ overriding the default selection. Each analyzer entry can optionally include a
 prefix to modify its behavior:
 
   - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analyzis (slower but more acurate).
+for deeper analysis (slower but more acurate).
   - '+' (enable): Activates an analyzer that is disabled by default.
   - '-' (disable): Disables an analyzer that is enabled by default.
   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analyzis (faster but less acurate).
+analysis (faster but less acurate).
 
 An analyzers entry can be specified using:
   - The analyzer name (e.g., 'Toxicity detector')
@@ -777,11 +779,11 @@ overriding the default selection. Each analyzer entry can optionally include a
 prefix to modify its behavior:
 
   - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analyzis (slower but more acurate).
+for deeper analysis (slower but more acurate).
   - '+' (enable): Activates an analyzer that is disabled by default.
   - '-' (disable): Disables an analyzer that is enabled by default.
   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analyzis (faster but less acurate).
+analysis (faster but less acurate).
 
 An analyzers entry can be specified using:
   - The analyzer name (e.g., 'Toxicity detector')
@@ -1002,11 +1004,11 @@ type SparseScanRequest struct {
 	// prefix to modify its behavior:
 	//
 	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analyzis (slower but more acurate).
+	// for deeper analysis (slower but more acurate).
 	//   - '+' (enable): Activates an analyzer that is disabled by default.
 	//   - '-' (disable): Disables an analyzer that is enabled by default.
 	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analyzis (faster but less acurate).
+	// analysis (faster but less acurate).
 	//
 	// An analyzers entry can be specified using:
 	//   - The analyzer name (e.g., 'Toxicity detector')

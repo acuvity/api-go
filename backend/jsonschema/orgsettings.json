@@ -73,6 +73,15 @@
         "null"
       ]
     },
+    "consentMessage": {
+      "$friendlyName": "Consent Message",
+      "description": "If set, defines the message that will be shown to the user during the consent acceptance. If empty a default message will be used.",
+      "title": "consentMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "contentPolicy": {
       "$friendlyName": "Content Policy",
       "description": "The policy that decides how to handle the request content, once access has been granted by accessPolicy and the content analysis was performed. If this empty, the dynamic policy transpiled from AccessPolicies API objects will be used by Apexes. If set however, everything computed by API objects are ignored and this becomes the final policy.",

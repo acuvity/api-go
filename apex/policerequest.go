@@ -448,27 +448,30 @@ func (o *PoliceRequest) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Extractions {
+	for i, sub := range o.Extractions {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
 		}
 	}
 
-	for _, sub := range o.Tools {
+	for i, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 
 	if o.Trace != nil {
 		if err := o.Trace.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trace")
 		}
 	}
 
@@ -479,6 +482,7 @@ func (o *PoliceRequest) Validate() error {
 	if o.User != nil {
 		if err := o.User.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "user")
 		}
 	}
 

@@ -108,7 +108,7 @@ type Agent struct {
 	// The current version of the agent.
 	CurrentVersion string `json:"currentVersion" msgpack:"currentVersion" bson:"currentversion" mapstructure:"currentVersion,omitempty"`
 
-	// The name of the host where the agent is runnning.
+	// The name of the host where the agent is running.
 	Hostname string `json:"hostname" msgpack:"hostname" bson:"hostname" mapstructure:"hostname,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
@@ -527,6 +527,7 @@ func (o *Agent) Validate() error {
 	if o.AgentConfig != nil {
 		if err := o.AgentConfig.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "agentConfig")
 		}
 	}
 
@@ -545,6 +546,7 @@ func (o *Agent) Validate() error {
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 
@@ -678,7 +680,7 @@ var AgentAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
 		ConvertedName:  "Hostname",
-		Description:    `The name of the host where the agent is runnning.`,
+		Description:    `The name of the host where the agent is running.`,
 		Exposed:        true,
 		Name:           "hostname",
 		Required:       true,
@@ -869,7 +871,7 @@ var AgentLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
 		ConvertedName:  "Hostname",
-		Description:    `The name of the host where the agent is runnning.`,
+		Description:    `The name of the host where the agent is running.`,
 		Exposed:        true,
 		Name:           "hostname",
 		Required:       true,
@@ -1089,7 +1091,7 @@ type SparseAgent struct {
 	// The current version of the agent.
 	CurrentVersion *string `json:"currentVersion,omitempty" msgpack:"currentVersion,omitempty" bson:"currentversion,omitempty" mapstructure:"currentVersion,omitempty"`
 
-	// The name of the host where the agent is runnning.
+	// The name of the host where the agent is running.
 	Hostname *string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
 
 	// The hash of the structure used to compare with new import version.

@@ -470,36 +470,41 @@ func (o *Extraction) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Categories {
+	for i, sub := range o.Categories {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "categories", i))
 		}
 	}
 
-	for _, sub := range o.Detections {
+	for i, sub := range o.Detections {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "detections", i))
 		}
 	}
 
-	for _, sub := range o.Modalities {
+	for i, sub := range o.Modalities {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "modalities", i))
 		}
 	}
 
-	for _, sub := range o.ToolResults {
+	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolResults", i))
 		}
 	}
 
-	for _, sub := range o.ToolUses {
+	for i, sub := range o.ToolUses {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolUses", i))
 		}
 	}
 

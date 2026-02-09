@@ -169,6 +169,7 @@ func (o *AppSelector) Validate() error {
 	if o.Kubernetes != nil {
 		if err := o.Kubernetes.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "kubernetes")
 		}
 	}
 

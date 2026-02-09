@@ -115,7 +115,7 @@
             "type": "string"
           },
           "domain": {
-            "description": "Domain to analyze. The analyzis will be sent to refactai.",
+            "description": "Domain to analyze. The analysis will be sent to refractai.",
             "example": "chatgpt.com",
             "type": "string"
           },
@@ -262,7 +262,7 @@
             "type": "string"
           },
           "hostname": {
-            "description": "The name of the host where the agent is runnning.",
+            "description": "The name of the host where the agent is running.",
             "example": "this-hostname",
             "type": "string"
           },
@@ -2056,7 +2056,7 @@
             "type": "string"
           },
           "hostname": {
-            "description": "The name of the host where the agent is runnning.",
+            "description": "The name of the host where the agent is running.",
             "example": "this-hostname",
             "type": "string"
           },
@@ -3270,7 +3270,7 @@
           },
           "sensitivity": {
             "default": "High",
-            "description": "Describe the sensitity of the dataSet.",
+            "description": "Describe the sensitivity of the dataSet.",
             "enum": [
               "Low",
               "Medium",
@@ -3366,7 +3366,7 @@
             "type": "string"
           },
           "end": {
-            "description": "The end position of the poisitional detection.",
+            "description": "The end position of the positional detection.",
             "type": "integer"
           },
           "group": {
@@ -3386,7 +3386,7 @@
             "type": "boolean"
           },
           "raw_score": {
-            "description": "The raw score of the detection retuned by the model.",
+            "description": "The raw score of the detection returned by the model.",
             "type": "number"
           },
           "score": {
@@ -4084,13 +4084,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "analyzers": {
-            "description": "The analyzers parameter allows for customizing which analyzers should be used,\noverriding the default selection. Each analyzer entry can optionally include a\nprefix to modify its behavior:\n\n  - No prefix: Runs only the specified analyzers and any dependencies required\nfor deeper analyzis (slower but more acurate).\n  - '+' (enable): Activates an analyzer that is disabled by default.\n  - '-' (disable): Disables an analyzer that is enabled by default.\n  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper\nanalyzis (faster but less acurate).\n\nAn analyzers entry can be specified using:\n  - The analyzer name (e.g., 'Toxicity detector')\n  - The analyzer ID (e.g., 'en-text-toxicity-detector')\n  - The analyzer group (e.g., 'Detectors')\n  - A detector name (e.g., 'toxic')\n  - A detector label (e.g., 'insult')\n  - A detector group (e.g., 'Malcontents')\n\nIf left empty, all default analyzers will be executed.",
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "anonymization": {
             "default": "FixedSize",
             "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
@@ -4109,13 +4102,9 @@
             ]
           },
           "block": {
-            "default": "Allow",
-            "description": "Block the request to the provider if not Allow. If Before, the data will be\nblocked before running any extraction or analyzis. If After block the request\nafter analysizis.",
-            "enum": [
-              "Allow",
-              "Before",
-              "After"
-            ]
+            "default": false,
+            "description": "If true, block the request to the provider. If the script field does not\ndefine a block() function, the request is always blocked. If block()\nis defined, the request is blocked only if block() returns true.",
+            "type": "boolean"
           },
           "cancelBehavior": {
             "default": "Block",
@@ -4217,7 +4206,8 @@
             "description": "This property defines how the system should split protocol messages in the\nstream.",
             "enum": [
               "Line",
-              "SSE"
+              "SSE",
+              "GRPCFrame"
             ]
           },
           "type": {
@@ -4411,6 +4401,14 @@
             "readOnly": true,
             "type": "string"
           },
+          "analyzerGroup": {
+            "description": "The analyzer group.",
+            "type": "string"
+          },
+          "analyzerName": {
+            "description": "The analyzer name.",
+            "type": "string"
+          },
           "description": {
             "description": "The description of the finding.",
             "type": "string"
@@ -4509,6 +4507,14 @@
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
+            "type": "string"
+          },
+          "analyzerGroup": {
+            "description": "The analyzer group.",
+            "type": "string"
+          },
+          "analyzerName": {
+            "description": "The analyzer name.",
             "type": "string"
           },
           "description": {
@@ -6091,6 +6097,10 @@
             "description": "The rego policy that decides in which team an user should be in. The team\nwill be passed to the accessPolicy. If this empty, the dynamic policy\ntranspiled from AssignPolicies API objects will be used by Apexes. If set\nhowever, everything computed by API objects are ignored and this becomes\nthe final policy.",
             "type": "string"
           },
+          "consentMessage": {
+            "description": "If set, defines the message that will be shown to the user during the consent\nacceptance. If empty a default message will be used.",
+            "type": "string"
+          },
           "contentPolicy": {
             "description": "The policy that decides how to handle the request content, once access\nhas been granted by accessPolicy and the content analysis was performed.\nIf this empty, the dynamic policy transpiled from AccessPolicies API\nobjects will be used by Apexes. If set however, everything computed by\nAPI objects are ignored and this becomes the final policy.",
             "type": "string"
@@ -6423,6 +6433,7 @@
               "Equals",
               "EqualsOrGreaterThan",
               "EqualsOrLesserThan",
+              "Like",
               "NotAny",
               "NotEmpty",
               "NotEquals"
@@ -6939,7 +6950,7 @@
             "type": "string"
           },
           "upstreamUnsecure": {
-            "description": "If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for\ndev purposes.",
+            "description": "If enabled, force the upstream scheme to be HTTP instead of https. Mostly use\nfor\ndev purposes.",
             "type": "boolean"
           },
           "webHost": {
@@ -8922,6 +8933,20 @@
         "required": [
           "name"
         ],
+        "type": "object"
+      },
+      "validate": {
+        "description": "Run the validation function for an identifiable object.",
+        "properties": {
+          "identifiable": {
+            "description": "The identifiable content to validate.",
+            "type": "object"
+          },
+          "restName": {
+            "description": "Identity REST name.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "visitedurl": {
@@ -14406,7 +14431,7 @@
     },
     "/providerteams/{id}": {
       "delete": {
-        "description": "Delete a provier team given its identifier.",
+        "description": "Delete a provider team given its identifier.",
         "operationId": "delete-ProviderTeam",
         "responses": {
           "200": {
@@ -14425,7 +14450,7 @@
         ]
       },
       "get": {
-        "description": "Retrieve a provier team given its identifier.",
+        "description": "Retrieve a provider team given its identifier.",
         "operationId": "get-ProviderTeam",
         "responses": {
           "200": {
@@ -14454,7 +14479,7 @@
         }
       ],
       "put": {
-        "description": "Update a provier team given its identifier.",
+        "description": "Update a provider team given its identifier.",
         "operationId": "update-ProviderTeam",
         "requestBody": {
           "content": {
@@ -15785,6 +15810,37 @@
           }
         }
       ]
+    },
+    "/validate": {
+      "post": {
+        "description": "Validates an identifiable object.",
+        "operationId": "create-Validate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/validate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/validate"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     },
     "/visitedurls": {
       "get": {

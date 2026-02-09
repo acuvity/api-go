@@ -207,21 +207,23 @@ func (o *AppGraph) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Nodes {
+	for i, sub := range o.Nodes {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "nodes", i))
 		}
 	}
 
-	for _, sub := range o.TraceLinks {
+	for i, sub := range o.TraceLinks {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "traceLinks", i))
 		}
 	}
 

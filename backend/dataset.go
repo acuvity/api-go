@@ -131,7 +131,7 @@ type DataSet struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// Describe the sensitity of the dataSet.
+	// Describe the sensitivity of the dataSet.
 	Sensitivity DataSetSensitivityValue `json:"sensitivity" msgpack:"sensitivity" bson:"sensitivity" mapstructure:"sensitivity,omitempty"`
 
 	// Last update date of the object.
@@ -717,7 +717,7 @@ Name if empty.`,
 		BSONFieldName:  "sensitivity",
 		ConvertedName:  "Sensitivity",
 		DefaultValue:   DataSetSensitivityHigh,
-		Description:    `Describe the sensitity of the dataSet.`,
+		Description:    `Describe the sensitivity of the dataSet.`,
 		Exposed:        true,
 		Name:           "sensitivity",
 		Stored:         true,
@@ -878,7 +878,7 @@ Name if empty.`,
 		BSONFieldName:  "sensitivity",
 		ConvertedName:  "Sensitivity",
 		DefaultValue:   DataSetSensitivityHigh,
-		Description:    `Describe the sensitity of the dataSet.`,
+		Description:    `Describe the sensitivity of the dataSet.`,
 		Exposed:        true,
 		Name:           "sensitivity",
 		Stored:         true,
@@ -996,7 +996,7 @@ type SparseDataSet struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// Describe the sensitity of the dataSet.
+	// Describe the sensitivity of the dataSet.
 	Sensitivity *DataSetSensitivityValue `json:"sensitivity,omitempty" msgpack:"sensitivity,omitempty" bson:"sensitivity,omitempty" mapstructure:"sensitivity,omitempty"`
 
 	// Last update date of the object.

@@ -410,27 +410,30 @@ func (o *AppReport) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.DNSReports {
+	for i, sub := range o.DNSReports {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "DNSReports", i))
 		}
 	}
 
-	for _, sub := range o.ConnectionReports {
+	for i, sub := range o.ConnectionReports {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "connectionReports", i))
 		}
 	}
 
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 

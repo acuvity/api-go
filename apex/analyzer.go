@@ -380,21 +380,23 @@ func (o *Analyzer) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Detectors {
+	for i, sub := range o.Detectors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "detectors", i))
 		}
 	}
 
-	for _, sub := range o.Models {
+	for i, sub := range o.Models {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "models", i))
 		}
 	}
 

@@ -250,12 +250,13 @@ func (o *IngressProxyConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Policies {
+	for i, sub := range o.Policies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policies", i))
 		}
 	}
 

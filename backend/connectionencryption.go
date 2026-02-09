@@ -149,6 +149,7 @@ func (o *ConnectionEncryption) Validate() error {
 	if o.Tls != nil {
 		if err := o.Tls.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "tls")
 		}
 	}
 

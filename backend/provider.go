@@ -185,7 +185,8 @@ type Provider struct {
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
-	// If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
+	// If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
+	// for
 	// dev purposes.
 	UpstreamUnsecure bool `json:"upstreamUnsecure" msgpack:"upstreamUnsecure" bson:"upstreamunsecure" mapstructure:"upstreamUnsecure,omitempty"`
 
@@ -760,15 +761,17 @@ func (o *Provider) Validate() error {
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "errorTransformer")
 		}
 	}
 
-	for _, sub := range o.Extractors {
+	for i, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
@@ -776,30 +779,33 @@ func (o *Provider) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.Hosts {
+	for i, sub := range o.Hosts {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "hosts", i))
 		}
 	}
 
-	for _, sub := range o.Injectors {
+	for i, sub := range o.Injectors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "injectors", i))
 		}
 	}
 
-	for _, sub := range o.Mappers {
+	for i, sub := range o.Mappers {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "mappers", i))
 		}
 	}
 
@@ -1217,7 +1223,8 @@ is useful when working on a custom provider using a self signed CA chain.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "upstreamunsecure",
 		ConvertedName:  "UpstreamUnsecure",
-		Description: `If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
+		Description: `If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
+for
 dev purposes.`,
 		Exposed: true,
 		Name:    "upstreamUnsecure",
@@ -1532,7 +1539,8 @@ is useful when working on a custom provider using a self signed CA chain.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "upstreamunsecure",
 		ConvertedName:  "UpstreamUnsecure",
-		Description: `If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
+		Description: `If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
+for
 dev purposes.`,
 		Exposed: true,
 		Name:    "upstreamUnsecure",
@@ -1694,7 +1702,8 @@ type SparseProvider struct {
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
-	// If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for
+	// If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
+	// for
 	// dev purposes.
 	UpstreamUnsecure *bool `json:"upstreamUnsecure,omitempty" msgpack:"upstreamUnsecure,omitempty" bson:"upstreamunsecure,omitempty" mapstructure:"upstreamUnsecure,omitempty"`
 

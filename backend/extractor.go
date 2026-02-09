@@ -38,20 +38,6 @@ const (
 	ExtractorBehaviorThrow ExtractorBehaviorValue = "Throw"
 )
 
-// ExtractorBlockValue represents the possible values for attribute "block".
-type ExtractorBlockValue string
-
-const (
-	// ExtractorBlockAfter represents the value After.
-	ExtractorBlockAfter ExtractorBlockValue = "After"
-
-	// ExtractorBlockAllow represents the value Allow.
-	ExtractorBlockAllow ExtractorBlockValue = "Allow"
-
-	// ExtractorBlockBefore represents the value Before.
-	ExtractorBlockBefore ExtractorBlockValue = "Before"
-)
-
 // ExtractorCancelBehaviorValue represents the possible values for attribute "cancelBehavior".
 type ExtractorCancelBehaviorValue string
 
@@ -93,6 +79,9 @@ const (
 type ExtractorStreamSplitterValue string
 
 const (
+	// ExtractorStreamSplitterGRPCFrame represents the value GRPCFrame.
+	ExtractorStreamSplitterGRPCFrame ExtractorStreamSplitterValue = "GRPCFrame"
+
 	// ExtractorStreamSplitterLine represents the value Line.
 	ExtractorStreamSplitterLine ExtractorStreamSplitterValue = "Line"
 
@@ -186,28 +175,6 @@ type Extractor struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The analyzers parameter allows for customizing which analyzers should be used,
-	// overriding the default selection. Each analyzer entry can optionally include a
-	// prefix to modify its behavior:
-	//
-	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analyzis (slower but more acurate).
-	//   - '+' (enable): Activates an analyzer that is disabled by default.
-	//   - '-' (disable): Disables an analyzer that is enabled by default.
-	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analyzis (faster but less acurate).
-	//
-	// An analyzers entry can be specified using:
-	//   - The analyzer name (e.g., 'Toxicity detector')
-	//   - The analyzer ID (e.g., 'en-text-toxicity-detector')
-	//   - The analyzer group (e.g., 'Detectors')
-	//   - A detector name (e.g., 'toxic')
-	//   - A detector label (e.g., 'insult')
-	//   - A detector group (e.g., 'Malcontents')
-	//
-	// If left empty, all default analyzers will be executed.
-	Analyzers []string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"analyzers,omitempty" mapstructure:"analyzers,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization ExtractorAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
@@ -215,10 +182,10 @@ type Extractor struct {
 	// will be shown in a popup. If throw, a javascript error will be returned.
 	Behavior ExtractorBehaviorValue `json:"behavior,omitempty" msgpack:"behavior,omitempty" bson:"behavior,omitempty" mapstructure:"behavior,omitempty"`
 
-	// Block the request to the provider if not Allow. If Before, the data will be
-	// blocked before running any extraction or analyzis. If After block the request
-	// after analysizis.
-	Block ExtractorBlockValue `json:"block" msgpack:"block" bson:"block" mapstructure:"block,omitempty"`
+	// If true, block the request to the provider. If the script field does not
+	// define a block() function, the request is always blocked. If block()
+	// is defined, the request is blocked only if block() returns true.
+	Block bool `json:"block" msgpack:"block" bson:"block" mapstructure:"block,omitempty"`
 
 	// The behavior to take when cancel is chosen from the popup.
 	CancelBehavior ExtractorCancelBehaviorValue `json:"cancelBehavior" msgpack:"cancelBehavior" bson:"cancelbehavior" mapstructure:"cancelBehavior,omitempty"`
@@ -300,10 +267,9 @@ func NewExtractor() *Extractor {
 
 	return &Extractor{
 		ModelVersion:   1,
-		Analyzers:      []string{},
 		Anonymization:  ExtractorAnonymizationFixedSize,
 		Behavior:       ExtractorBehaviorPopup,
-		Block:          ExtractorBlockAllow,
+		Block:          false,
 		CancelBehavior: ExtractorCancelBehaviorBlock,
 		Libs:           []string{},
 		Propagate:      true,
@@ -342,7 +308,6 @@ func (o *Extractor) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.Analyzers = o.Analyzers
 	s.Anonymization = o.Anonymization
 	s.Behavior = o.Behavior
 	s.Block = o.Block
@@ -386,7 +351,6 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
-	o.Analyzers = s.Analyzers
 	o.Anonymization = s.Anonymization
 	o.Behavior = s.Behavior
 	o.Block = s.Block
@@ -531,7 +495,6 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseExtractor{
 			ID:                 &o.ID,
-			Analyzers:          &o.Analyzers,
 			Anonymization:      &o.Anonymization,
 			Behavior:           &o.Behavior,
 			Block:              &o.Block,
@@ -565,8 +528,6 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "analyzers":
-			sp.Analyzers = &(o.Analyzers)
 		case "anonymization":
 			sp.Anonymization = &(o.Anonymization)
 		case "behavior":
@@ -632,9 +593,6 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseExtractor)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.Analyzers != nil {
-		o.Analyzers = *so.Analyzers
 	}
 	if so.Anonymization != nil {
 		o.Anonymization = *so.Anonymization
@@ -765,10 +723,6 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("block", string(o.Block), []string{"Allow", "Before", "After"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateStringInList("cancelBehavior", string(o.CancelBehavior), []string{"Block", "SendRedacted"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -797,7 +751,7 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("streamSplitter", string(o.StreamSplitter), []string{"Line", "SSE"}, false); err != nil {
+	if err := elemental.ValidateStringInList("streamSplitter", string(o.StreamSplitter), []string{"Line", "SSE", "GRPCFrame"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -850,8 +804,6 @@ func (o *Extractor) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
-	case "analyzers":
-		return o.Analyzers
 	case "anonymization":
 		return o.Anonymization
 	case "behavior":
@@ -924,36 +876,6 @@ var ExtractorAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"Analyzers": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "analyzers",
-		ConvertedName:  "Analyzers",
-		Description: `The analyzers parameter allows for customizing which analyzers should be used,
-overriding the default selection. Each analyzer entry can optionally include a
-prefix to modify its behavior:
-
-  - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analyzis (slower but more acurate).
-  - '+' (enable): Activates an analyzer that is disabled by default.
-  - '-' (disable): Disables an analyzer that is enabled by default.
-  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analyzis (faster but less acurate).
-
-An analyzers entry can be specified using:
-  - The analyzer name (e.g., 'Toxicity detector')
-  - The analyzer ID (e.g., 'en-text-toxicity-detector')
-  - The analyzer group (e.g., 'Detectors')
-  - A detector name (e.g., 'toxic')
-  - A detector label (e.g., 'insult')
-  - A detector group (e.g., 'Malcontents')
-
-If left empty, all default analyzers will be executed.`,
-		Exposed: true,
-		Name:    "analyzers",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
 	"Anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -978,17 +900,16 @@ will be shown in a popup. If throw, a javascript error will be returned.`,
 		Type:    "enum",
 	},
 	"Block": {
-		AllowedChoices: []string{"Allow", "Before", "After"},
+		AllowedChoices: []string{},
 		BSONFieldName:  "block",
 		ConvertedName:  "Block",
-		DefaultValue:   ExtractorBlockAllow,
-		Description: `Block the request to the provider if not Allow. If Before, the data will be
-blocked before running any extraction or analyzis. If After block the request
-after analysizis.`,
+		Description: `If true, block the request to the provider. If the script field does not
+define a block() function, the request is always blocked. If block()
+is defined, the request is blocked only if block() returns true.`,
 		Exposed: true,
 		Name:    "block",
 		Stored:  true,
-		Type:    "enum",
+		Type:    "boolean",
 	},
 	"CancelBehavior": {
 		AllowedChoices: []string{"Block", "SendRedacted"},
@@ -1195,7 +1116,7 @@ as-is.`,
 		Type:    "boolean",
 	},
 	"StreamSplitter": {
-		AllowedChoices: []string{"Line", "SSE"},
+		AllowedChoices: []string{"Line", "SSE", "GRPCFrame"},
 		BSONFieldName:  "streamsplitter",
 		ConvertedName:  "StreamSplitter",
 		DefaultValue:   ExtractorStreamSplitterSSE,
@@ -1251,36 +1172,6 @@ var ExtractorLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "string",
 	},
-	"analyzers": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "analyzers",
-		ConvertedName:  "Analyzers",
-		Description: `The analyzers parameter allows for customizing which analyzers should be used,
-overriding the default selection. Each analyzer entry can optionally include a
-prefix to modify its behavior:
-
-  - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analyzis (slower but more acurate).
-  - '+' (enable): Activates an analyzer that is disabled by default.
-  - '-' (disable): Disables an analyzer that is enabled by default.
-  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analyzis (faster but less acurate).
-
-An analyzers entry can be specified using:
-  - The analyzer name (e.g., 'Toxicity detector')
-  - The analyzer ID (e.g., 'en-text-toxicity-detector')
-  - The analyzer group (e.g., 'Detectors')
-  - A detector name (e.g., 'toxic')
-  - A detector label (e.g., 'insult')
-  - A detector group (e.g., 'Malcontents')
-
-If left empty, all default analyzers will be executed.`,
-		Exposed: true,
-		Name:    "analyzers",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
 	"anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -1305,17 +1196,16 @@ will be shown in a popup. If throw, a javascript error will be returned.`,
 		Type:    "enum",
 	},
 	"block": {
-		AllowedChoices: []string{"Allow", "Before", "After"},
+		AllowedChoices: []string{},
 		BSONFieldName:  "block",
 		ConvertedName:  "Block",
-		DefaultValue:   ExtractorBlockAllow,
-		Description: `Block the request to the provider if not Allow. If Before, the data will be
-blocked before running any extraction or analyzis. If After block the request
-after analysizis.`,
+		Description: `If true, block the request to the provider. If the script field does not
+define a block() function, the request is always blocked. If block()
+is defined, the request is blocked only if block() returns true.`,
 		Exposed: true,
 		Name:    "block",
 		Stored:  true,
-		Type:    "enum",
+		Type:    "boolean",
 	},
 	"cancelbehavior": {
 		AllowedChoices: []string{"Block", "SendRedacted"},
@@ -1522,7 +1412,7 @@ as-is.`,
 		Type:    "boolean",
 	},
 	"streamsplitter": {
-		AllowedChoices: []string{"Line", "SSE"},
+		AllowedChoices: []string{"Line", "SSE", "GRPCFrame"},
 		BSONFieldName:  "streamsplitter",
 		ConvertedName:  "StreamSplitter",
 		DefaultValue:   ExtractorStreamSplitterSSE,
@@ -1627,28 +1517,6 @@ type SparseExtractor struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The analyzers parameter allows for customizing which analyzers should be used,
-	// overriding the default selection. Each analyzer entry can optionally include a
-	// prefix to modify its behavior:
-	//
-	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analyzis (slower but more acurate).
-	//   - '+' (enable): Activates an analyzer that is disabled by default.
-	//   - '-' (disable): Disables an analyzer that is enabled by default.
-	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analyzis (faster but less acurate).
-	//
-	// An analyzers entry can be specified using:
-	//   - The analyzer name (e.g., 'Toxicity detector')
-	//   - The analyzer ID (e.g., 'en-text-toxicity-detector')
-	//   - The analyzer group (e.g., 'Detectors')
-	//   - A detector name (e.g., 'toxic')
-	//   - A detector label (e.g., 'insult')
-	//   - A detector group (e.g., 'Malcontents')
-	//
-	// If left empty, all default analyzers will be executed.
-	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"analyzers,omitempty" mapstructure:"analyzers,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization *ExtractorAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
@@ -1656,10 +1524,10 @@ type SparseExtractor struct {
 	// will be shown in a popup. If throw, a javascript error will be returned.
 	Behavior *ExtractorBehaviorValue `json:"behavior,omitempty" msgpack:"behavior,omitempty" bson:"behavior,omitempty" mapstructure:"behavior,omitempty"`
 
-	// Block the request to the provider if not Allow. If Before, the data will be
-	// blocked before running any extraction or analyzis. If After block the request
-	// after analysizis.
-	Block *ExtractorBlockValue `json:"block,omitempty" msgpack:"block,omitempty" bson:"block,omitempty" mapstructure:"block,omitempty"`
+	// If true, block the request to the provider. If the script field does not
+	// define a block() function, the request is always blocked. If block()
+	// is defined, the request is blocked only if block() returns true.
+	Block *bool `json:"block,omitempty" msgpack:"block,omitempty" bson:"block,omitempty" mapstructure:"block,omitempty"`
 
 	// The behavior to take when cancel is chosen from the popup.
 	CancelBehavior *ExtractorCancelBehaviorValue `json:"cancelBehavior,omitempty" msgpack:"cancelBehavior,omitempty" bson:"cancelbehavior,omitempty" mapstructure:"cancelBehavior,omitempty"`
@@ -1779,9 +1647,6 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.Analyzers != nil {
-		s.Analyzers = o.Analyzers
-	}
 	if o.Anonymization != nil {
 		s.Anonymization = o.Anonymization
 	}
@@ -1876,9 +1741,6 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.Analyzers != nil {
-		o.Analyzers = s.Analyzers
-	}
 	if s.Anonymization != nil {
 		o.Anonymization = s.Anonymization
 	}
@@ -1970,9 +1832,6 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	out := NewExtractor()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.Analyzers != nil {
-		out.Analyzers = *o.Analyzers
 	}
 	if o.Anonymization != nil {
 		out.Anonymization = *o.Anonymization
@@ -2197,10 +2056,9 @@ func (o *SparseExtractor) DeepCopyInto(out *SparseExtractor) {
 
 type mongoAttributesExtractor struct {
 	ID                 bson.ObjectId                `bson:"_id,omitempty"`
-	Analyzers          []string                     `bson:"analyzers,omitempty"`
 	Anonymization      ExtractorAnonymizationValue  `bson:"anonymization"`
 	Behavior           ExtractorBehaviorValue       `bson:"behavior,omitempty"`
-	Block              ExtractorBlockValue          `bson:"block"`
+	Block              bool                         `bson:"block"`
 	CancelBehavior     ExtractorCancelBehaviorValue `bson:"cancelbehavior"`
 	CreateTime         time.Time                    `bson:"createtime"`
 	Deanonymize        bool                         `bson:"deanonymize"`
@@ -2226,10 +2084,9 @@ type mongoAttributesExtractor struct {
 }
 type mongoAttributesSparseExtractor struct {
 	ID                 bson.ObjectId                 `bson:"_id,omitempty"`
-	Analyzers          *[]string                     `bson:"analyzers,omitempty"`
 	Anonymization      *ExtractorAnonymizationValue  `bson:"anonymization,omitempty"`
 	Behavior           *ExtractorBehaviorValue       `bson:"behavior,omitempty"`
-	Block              *ExtractorBlockValue          `bson:"block,omitempty"`
+	Block              *bool                         `bson:"block,omitempty"`
 	CancelBehavior     *ExtractorCancelBehaviorValue `bson:"cancelbehavior,omitempty"`
 	CreateTime         *time.Time                    `bson:"createtime,omitempty"`
 	Deanonymize        *bool                         `bson:"deanonymize,omitempty"`

@@ -821,12 +821,13 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.ScanInstalledApps {
+	for i, sub := range o.ScanInstalledApps {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "scanInstalledApps", i))
 		}
 	}
 
@@ -849,6 +850,7 @@ func (o *AgentConfig) Validate() error {
 	if o.TunnelProxyAuth != nil {
 		if err := o.TunnelProxyAuth.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "tunnelProxyAuth")
 		}
 	}
 

@@ -218,6 +218,7 @@ func (o *AppGraphTraceLink) Validate() error {
 	if o.Log != nil {
 		if err := o.Log.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "log")
 		}
 	}
 

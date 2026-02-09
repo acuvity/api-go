@@ -609,6 +609,7 @@ func (o *AIPlugin) Validate() error {
 	if o.IDE != nil {
 		if err := o.IDE.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "IDE")
 		}
 	}
 
@@ -639,6 +640,7 @@ func (o *AIPlugin) Validate() error {
 	if o.WebExtension != nil {
 		if err := o.WebExtension.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "webExtension")
 		}
 	}
 

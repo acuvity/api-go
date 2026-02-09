@@ -33,7 +33,7 @@
     },
     "end": {
       "$friendlyName": "End",
-      "description": "The end position of the poisitional detection.",
+      "description": "The end position of the positional detection.",
       "title": "end",
       "type": [
         "integer",
@@ -78,7 +78,7 @@
     },
     "raw_score": {
       "$friendlyName": "Raw Score",
-      "description": "The raw score of the detection retuned by the model.",
+      "description": "The raw score of the detection returned by the model.",
       "title": "raw_score",
       "type": [
         "number",

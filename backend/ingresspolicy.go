@@ -193,12 +193,13 @@ func (o *IngressPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Rules {
+	for i, sub := range o.Rules {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "rules", i))
 		}
 	}
 

@@ -266,6 +266,7 @@ func (o *Resolve) Validate() error {
 	if o.Import != nil {
 		if err := o.Import.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "import")
 		}
 	}
 

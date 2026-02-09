@@ -1175,174 +1175,193 @@ func (o *Import) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.AIApps {
+	for i, sub := range o.AIApps {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIApps", i))
 		}
 	}
 
-	for _, sub := range o.AIDomains {
+	for i, sub := range o.AIDomains {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIDomains", i))
 		}
 	}
 
-	for _, sub := range o.AIPlugins {
+	for i, sub := range o.AIPlugins {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIPlugins", i))
 		}
 	}
 
-	for _, sub := range o.APIAuthorizations {
+	for i, sub := range o.APIAuthorizations {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "APIAuthorizations", i))
 		}
 	}
 
-	for _, sub := range o.PACConfigs {
+	for i, sub := range o.PACConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "PACConfigs", i))
 		}
 	}
 
-	for _, sub := range o.AccessPolicies {
+	for i, sub := range o.AccessPolicies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "accessPolicies", i))
 		}
 	}
 
-	for _, sub := range o.AgentConfigs {
+	for i, sub := range o.AgentConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentConfigs", i))
 		}
 	}
 
-	for _, sub := range o.AgentDiscoveries {
+	for i, sub := range o.AgentDiscoveries {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentDiscoveries", i))
 		}
 	}
 
-	for _, sub := range o.AlertDefinitions {
+	for i, sub := range o.AlertDefinitions {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "alertDefinitions", i))
 		}
 	}
 
-	for _, sub := range o.Appagents {
+	for i, sub := range o.Appagents {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "appagents", i))
 		}
 	}
 
-	for _, sub := range o.Appreports {
+	for i, sub := range o.Appreports {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "appreports", i))
 		}
 	}
 
-	for _, sub := range o.Apps {
+	for i, sub := range o.Apps {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "apps", i))
 		}
 	}
 
-	for _, sub := range o.ContentPolicies {
+	for i, sub := range o.ContentPolicies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "contentPolicies", i))
 		}
 	}
 
-	for _, sub := range o.CustomDataTypes {
+	for i, sub := range o.CustomDataTypes {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
-	for _, sub := range o.DataSets {
+	for i, sub := range o.DataSets {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataSets", i))
 		}
 	}
 
-	for _, sub := range o.ExtractorLibs {
+	for i, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractorLibs", i))
 		}
 	}
 
-	for _, sub := range o.Extractors {
+	for i, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
-	for _, sub := range o.Findingdefinitions {
+	for i, sub := range o.Findingdefinitions {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "findingdefinitions", i))
 		}
 	}
 
-	for _, sub := range o.IgnoredDomains {
+	for i, sub := range o.IgnoredDomains {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ignoredDomains", i))
 		}
 	}
 
@@ -1350,93 +1369,103 @@ func (o *Import) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	for _, sub := range o.OrgSettings {
+	for i, sub := range o.OrgSettings {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "orgSettings", i))
 		}
 	}
 
-	for _, sub := range o.Projects {
+	for i, sub := range o.Projects {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "projects", i))
 		}
 	}
 
-	for _, sub := range o.ProviderTeams {
+	for i, sub := range o.ProviderTeams {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providerTeams", i))
 		}
 	}
 
-	for _, sub := range o.ProviderTokens {
+	for i, sub := range o.ProviderTokens {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providerTokens", i))
 		}
 	}
 
-	for _, sub := range o.Providers {
+	for i, sub := range o.Providers {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providers", i))
 		}
 	}
 
-	for _, sub := range o.Proxyroundtrips {
+	for i, sub := range o.Proxyroundtrips {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "proxyroundtrips", i))
 		}
 	}
 
-	for _, sub := range o.Sinks {
+	for i, sub := range o.Sinks {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "sinks", i))
 		}
 	}
 
-	for _, sub := range o.Teams {
+	for i, sub := range o.Teams {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "teams", i))
 		}
 	}
 
-	for _, sub := range o.Visitedurls {
+	for i, sub := range o.Visitedurls {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "visitedurls", i))
 		}
 	}
 
-	for _, sub := range o.WebExtensionConfigs {
+	for i, sub := range o.WebExtensionConfigs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 		}
 	}
 

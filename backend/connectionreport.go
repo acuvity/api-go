@@ -334,6 +334,7 @@ func (o *ConnectionReport) Validate() error {
 	if o.Encryption != nil {
 		if err := o.Encryption.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "encryption")
 		}
 	}
 

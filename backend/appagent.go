@@ -118,7 +118,7 @@ type AppAgent struct {
 	// platform and workload specific and subject to change.
 	HealthDetails string `json:"healthDetails,omitempty" msgpack:"healthDetails,omitempty" bson:"healthdetails,omitempty" mapstructure:"healthDetails,omitempty"`
 
-	// The name of the host where the agent is runnning.
+	// The name of the host where the agent is running.
 	Hostname string `json:"hostname" msgpack:"hostname" bson:"hostname" mapstructure:"hostname,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
@@ -547,6 +547,7 @@ func (o *AppAgent) Validate() error {
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 
@@ -558,12 +559,13 @@ func (o *AppAgent) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Workloads {
+	for i, sub := range o.Workloads {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "workloads", i))
 		}
 	}
 
@@ -719,7 +721,7 @@ platform and workload specific and subject to change.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
 		ConvertedName:  "Hostname",
-		Description:    `The name of the host where the agent is runnning.`,
+		Description:    `The name of the host where the agent is running.`,
 		Exposed:        true,
 		Name:           "hostname",
 		Required:       true,
@@ -912,7 +914,7 @@ platform and workload specific and subject to change.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
 		ConvertedName:  "Hostname",
-		Description:    `The name of the host where the agent is runnning.`,
+		Description:    `The name of the host where the agent is running.`,
 		Exposed:        true,
 		Name:           "hostname",
 		Required:       true,
@@ -1113,7 +1115,7 @@ type SparseAppAgent struct {
 	// platform and workload specific and subject to change.
 	HealthDetails *string `json:"healthDetails,omitempty" msgpack:"healthDetails,omitempty" bson:"healthdetails,omitempty" mapstructure:"healthDetails,omitempty"`
 
-	// The name of the host where the agent is runnning.
+	// The name of the host where the agent is running.
 	Hostname *string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
 
 	// The hash of the structure used to compare with new import version.

@@ -15,6 +15,7 @@ import (
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/robfig/cron/v3"
+	a3sapi "go.acuvity.ai/a3s/pkgs/api"
 	"go.acuvity.ai/elemental"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 )
@@ -920,25 +921,29 @@ func ValidatePredicate(p *Predicate) error {
 		}
 
 	case PredicateKeyCategories:
-		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Categories' only supports operator 'Equals' and 'NotEquals'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Categories' only supports operator 'Any' and 'NotAny'")
 		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Categories' only supports one single value")
+		if len(p.Values) < 1 {
+			return makeErr("values", "Key 'Categories' must have at least one value")
 		}
-		if _, ok := p.Values[0].(string); !ok {
-			return makeErr("values", "Key 'Categories' only supports string value")
+		for _, v := range p.Values {
+			if _, ok := v.(string); !ok {
+				return makeErr("values", "Key 'Categories' only supports string value")
+			}
 		}
 
 	case PredicateKeyModality:
-		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Modality' only supports operator 'Equals' and 'NotEquals'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Modality' only supports operator 'Any' and 'NotAny'")
 		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Modality' only supports one single value")
+		if len(p.Values) < 1 {
+			return makeErr("values", "Key 'Modality' must have at least one value")
 		}
-		if _, ok := p.Values[0].(string); !ok {
-			return makeErr("values", "Key 'Modality' only supports string value")
+		for _, v := range p.Values {
+			if _, ok := v.(string); !ok {
+				return makeErr("values", "Key 'Modality' only supports string value")
+			}
 		}
 
 	case PredicateKeyModel:
@@ -1886,6 +1891,35 @@ func ValidateIngressProxyConfig(ingressProxyConfig *IngressProxyConfig) error {
 	// 	(ingressProxyConfig.ListenTLSKey != "" && ingressProxyConfig.ListenTLSCert == "") {
 	// 	return makeErr("listenTLSCert", "'ListenTLSCert' and 'ListenTLSKey' must both be defined or both be empty.")
 	// }
+	return nil
+}
+
+// ValidateOrgSetting validates the orgsetting object
+func ValidateOrgSetting(o *OrgSettings) error {
+
+	if strings.ContainsAny(o.ConsentMessage, "`") {
+		return makeErr("consentMessage", "The consent message must not contain any backtick ('`')")
+	}
+
+	return nil
+}
+
+// ValidateRESTName validates the rest name is a known identity
+func ValidateRESTName(attribute, restName string) error {
+
+	identifiable := Manager().IdentifiableFromString(restName)
+
+	if identifiable == nil {
+		identifiable = a3sapi.Manager().IdentifiableFromString(restName)
+		if identifiable == nil {
+			return makeErr(attribute, fmt.Sprintf("No known identifiables match the REST name %s", restName))
+		}
+	}
+
+	if _, ok := identifiable.(elemental.Validatable); !ok {
+		return makeErr(attribute, fmt.Sprintf("identifiable %s does not have a validate capability", restName))
+	}
+
 	return nil
 }
 

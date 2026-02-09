@@ -579,6 +579,7 @@ func (o *Sink) Validate() error {
 	if o.Email != nil {
 		if err := o.Email.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "email")
 		}
 	}
 
@@ -600,18 +601,21 @@ func (o *Sink) Validate() error {
 	if o.PagerDuty != nil {
 		if err := o.PagerDuty.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "pagerDuty")
 		}
 	}
 
 	if o.Slack != nil {
 		if err := o.Slack.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "slack")
 		}
 	}
 
 	if o.Splunk != nil {
 		if err := o.Splunk.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "splunk")
 		}
 	}
 

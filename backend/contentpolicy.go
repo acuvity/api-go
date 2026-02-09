@@ -524,12 +524,13 @@ func (o *ContentPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Moderations {
+	for i, sub := range o.Moderations {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "moderations", i))
 		}
 	}
 

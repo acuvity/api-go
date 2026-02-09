@@ -36,7 +36,7 @@ type Detection struct {
 	// The description of the detection.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
-	// The end position of the poisitional detection.
+	// The end position of the positional detection.
 	End int `json:"end" msgpack:"end" bson:"-" mapstructure:"end,omitempty"`
 
 	// The group the detection belongs to.
@@ -51,7 +51,7 @@ type Detection struct {
 	// Tell if the detection is positional.
 	Positional bool `json:"positional" msgpack:"positional" bson:"-" mapstructure:"positional,omitempty"`
 
-	// The raw score of the detection retuned by the model.
+	// The raw score of the detection returned by the model.
 	Raw_score float64 `json:"raw_score" msgpack:"raw_score" bson:"-" mapstructure:"raw_score,omitempty"`
 
 	// The normalized score of the detection against its confidence level thresholds.
@@ -258,7 +258,7 @@ var DetectionAttributesMap = map[string]elemental.AttributeSpecification{
 	"End": {
 		AllowedChoices: []string{},
 		ConvertedName:  "End",
-		Description:    `The end position of the poisitional detection.`,
+		Description:    `The end position of the positional detection.`,
 		Exposed:        true,
 		Name:           "end",
 		Type:           "integer",
@@ -298,7 +298,7 @@ var DetectionAttributesMap = map[string]elemental.AttributeSpecification{
 	"Raw_score": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Raw_score",
-		Description:    `The raw score of the detection retuned by the model.`,
+		Description:    `The raw score of the detection returned by the model.`,
 		Exposed:        true,
 		Name:           "raw_score",
 		Type:           "float",
@@ -343,7 +343,7 @@ var DetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 	"end": {
 		AllowedChoices: []string{},
 		ConvertedName:  "End",
-		Description:    `The end position of the poisitional detection.`,
+		Description:    `The end position of the positional detection.`,
 		Exposed:        true,
 		Name:           "end",
 		Type:           "integer",
@@ -383,7 +383,7 @@ var DetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 	"raw_score": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Raw_score",
-		Description:    `The raw score of the detection retuned by the model.`,
+		Description:    `The raw score of the detection returned by the model.`,
 		Exposed:        true,
 		Name:           "raw_score",
 		Type:           "float",

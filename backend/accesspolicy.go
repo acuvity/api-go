@@ -586,12 +586,13 @@ func (o *AccessPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Match {
+	for i, sub := range o.Match {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "match", i))
 		}
 	}
 

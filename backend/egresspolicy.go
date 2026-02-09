@@ -204,12 +204,13 @@ func (o *EgressPolicy) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.ACLs {
+	for i, sub := range o.ACLs {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ACLs", i))
 		}
 	}
 
@@ -225,12 +226,13 @@ func (o *EgressPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Rules {
+	for i, sub := range o.Rules {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "rules", i))
 		}
 	}
 

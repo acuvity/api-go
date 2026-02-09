@@ -200,30 +200,33 @@ func (o *Analysis) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Analyses {
+	for i, sub := range o.Analyses {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "analyses", i))
 		}
 	}
 
-	for _, sub := range o.Detections {
+	for i, sub := range o.Detections {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "detections", i))
 		}
 	}
 
-	for _, sub := range o.MatchingDetections {
+	for i, sub := range o.MatchingDetections {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "matchingDetections", i))
 		}
 	}
 

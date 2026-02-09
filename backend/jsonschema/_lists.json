@@ -996,6 +996,12 @@
       },
       "type": "array"
     },
+    "validate": {
+      "items": {
+        "$ref": "validate.json"
+      },
+      "type": "array"
+    },
     "visitedurls": {
       "items": {
         "$ref": "visitedurl.json"

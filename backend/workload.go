@@ -203,11 +203,13 @@ func (o *Workload) Validate() error {
 	if o.Kubernetes != nil {
 		if err := o.Kubernetes.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "kubernetes")
 		}
 	}
 
 	if err := o.Status.Validate(); err != nil {
 		errors = errors.Append(err)
+		elemental.InjectAttributePath(errors, "status")
 	}
 
 	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {

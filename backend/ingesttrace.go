@@ -347,6 +347,7 @@ func (o *IngestTrace) Validate() error {
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 
@@ -354,9 +355,10 @@ func (o *IngestTrace) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for _, sub := range o.Traces {
+	for i, sub := range o.Traces {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "traces", i))
 		}
 	}
 

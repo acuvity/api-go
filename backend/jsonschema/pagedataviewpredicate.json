@@ -27,6 +27,7 @@
         "Equals",
         "EqualsOrGreaterThan",
         "EqualsOrLesserThan",
+        "Like",
         "NotAny",
         "NotEmpty",
         "NotEquals"

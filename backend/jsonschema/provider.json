@@ -239,7 +239,7 @@
     },
     "upstreamUnsecure": {
       "$friendlyName": "UpstreamUnsecure",
-      "description": "If enabled, force the ustream scheme to be HTTP instead of https. Mostly use for dev purposes.",
+      "description": "If enabled, force the upstream scheme to be HTTP instead of https. Mostly use for dev purposes.",
       "title": "upstreamUnsecure",
       "type": [
         "boolean",

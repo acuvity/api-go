@@ -201,12 +201,13 @@ func (o *IngressListener) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for _, sub := range o.Extractors {
+	for i, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
@@ -241,6 +242,7 @@ func (o *IngressListener) Validate() error {
 	if o.Proxy != nil {
 		if err := o.Proxy.Validate(); err != nil {
 			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "proxy")
 		}
 	}
 

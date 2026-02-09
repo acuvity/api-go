@@ -104,6 +104,12 @@ type FindingDefinition struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The analyzer group.
+	AnalyzerGroup string `json:"analyzerGroup,omitempty" msgpack:"analyzerGroup,omitempty" bson:"analyzergroup,omitempty" mapstructure:"analyzerGroup,omitempty"`
+
+	// The analyzer name.
+	AnalyzerName string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
+
 	// The description of the finding.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
@@ -190,6 +196,8 @@ func (o *FindingDefinition) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AnalyzerGroup = o.AnalyzerGroup
+	s.AnalyzerName = o.AnalyzerName
 	s.FriendlyName = o.FriendlyName
 	s.Identities = o.Identities
 	s.ImportHash = o.ImportHash
@@ -220,6 +228,8 @@ func (o *FindingDefinition) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.AnalyzerGroup = s.AnalyzerGroup
+	o.AnalyzerName = s.AnalyzerName
 	o.FriendlyName = s.FriendlyName
 	o.Identities = s.Identities
 	o.ImportHash = s.ImportHash
@@ -321,6 +331,8 @@ func (o *FindingDefinition) ToSparse(fields ...string) elemental.SparseIdentifia
 		// nolint: goimports
 		return &SparseFindingDefinition{
 			ID:                   &o.ID,
+			AnalyzerGroup:        &o.AnalyzerGroup,
+			AnalyzerName:         &o.AnalyzerName,
 			Description:          &o.Description,
 			FriendlyName:         &o.FriendlyName,
 			Identities:           &o.Identities,
@@ -342,6 +354,10 @@ func (o *FindingDefinition) ToSparse(fields ...string) elemental.SparseIdentifia
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "analyzerGroup":
+			sp.AnalyzerGroup = &(o.AnalyzerGroup)
+		case "analyzerName":
+			sp.AnalyzerName = &(o.AnalyzerName)
 		case "description":
 			sp.Description = &(o.Description)
 		case "friendlyName":
@@ -383,6 +399,12 @@ func (o *FindingDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseFindingDefinition)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AnalyzerGroup != nil {
+		o.AnalyzerGroup = *so.AnalyzerGroup
+	}
+	if so.AnalyzerName != nil {
+		o.AnalyzerName = *so.AnalyzerName
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -532,6 +554,10 @@ func (o *FindingDefinition) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "analyzerGroup":
+		return o.AnalyzerGroup
+	case "analyzerName":
+		return o.AnalyzerName
 	case "description":
 		return o.Description
 	case "friendlyName":
@@ -577,6 +603,26 @@ var FindingDefinitionAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"AnalyzerGroup": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzergroup",
+		ConvertedName:  "AnalyzerGroup",
+		Description:    `The analyzer group.`,
+		Exposed:        true,
+		Name:           "analyzerGroup",
+		Stored:         true,
+		Type:           "string",
+	},
+	"AnalyzerName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzername",
+		ConvertedName:  "AnalyzerName",
+		Description:    `The analyzer name.`,
+		Exposed:        true,
+		Name:           "analyzerName",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -727,6 +773,26 @@ var FindingDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"analyzergroup": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzergroup",
+		ConvertedName:  "AnalyzerGroup",
+		Description:    `The analyzer group.`,
+		Exposed:        true,
+		Name:           "analyzerGroup",
+		Stored:         true,
+		Type:           "string",
+	},
+	"analyzername": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzername",
+		ConvertedName:  "AnalyzerName",
+		Description:    `The analyzer name.`,
+		Exposed:        true,
+		Name:           "analyzerName",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -929,6 +995,12 @@ type SparseFindingDefinition struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The analyzer group.
+	AnalyzerGroup *string `json:"analyzerGroup,omitempty" msgpack:"analyzerGroup,omitempty" bson:"analyzergroup,omitempty" mapstructure:"analyzerGroup,omitempty"`
+
+	// The analyzer name.
+	AnalyzerName *string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
+
 	// The description of the finding.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"-" mapstructure:"description,omitempty"`
 
@@ -1016,6 +1088,12 @@ func (o *SparseFindingDefinition) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.AnalyzerGroup != nil {
+		s.AnalyzerGroup = o.AnalyzerGroup
+	}
+	if o.AnalyzerName != nil {
+		s.AnalyzerName = o.AnalyzerName
+	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
 	}
@@ -1071,6 +1149,12 @@ func (o *SparseFindingDefinition) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AnalyzerGroup != nil {
+		o.AnalyzerGroup = s.AnalyzerGroup
+	}
+	if s.AnalyzerName != nil {
+		o.AnalyzerName = s.AnalyzerName
+	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
 	}
@@ -1123,6 +1207,12 @@ func (o *SparseFindingDefinition) ToPlain() elemental.PlainIdentifiable {
 	out := NewFindingDefinition()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.AnalyzerGroup != nil {
+		out.AnalyzerGroup = *o.AnalyzerGroup
+	}
+	if o.AnalyzerName != nil {
+		out.AnalyzerName = *o.AnalyzerName
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1269,6 +1359,8 @@ func (o *SparseFindingDefinition) DeepCopyInto(out *SparseFindingDefinition) {
 
 type mongoAttributesFindingDefinition struct {
 	ID                   bson.ObjectId                  `bson:"_id,omitempty"`
+	AnalyzerGroup        string                         `bson:"analyzergroup,omitempty"`
+	AnalyzerName         string                         `bson:"analyzername,omitempty"`
 	FriendlyName         string                         `bson:"friendlyname"`
 	Identities           []string                       `bson:"identities"`
 	ImportHash           string                         `bson:"importhash,omitempty"`
@@ -1284,6 +1376,8 @@ type mongoAttributesFindingDefinition struct {
 }
 type mongoAttributesSparseFindingDefinition struct {
 	ID                   bson.ObjectId                   `bson:"_id,omitempty"`
+	AnalyzerGroup        *string                         `bson:"analyzergroup,omitempty"`
+	AnalyzerName         *string                         `bson:"analyzername,omitempty"`
 	FriendlyName         *string                         `bson:"friendlyname,omitempty"`
 	Identities           *[]string                       `bson:"identities,omitempty"`
 	ImportHash           *string                         `bson:"importhash,omitempty"`
