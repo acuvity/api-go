@@ -548,6 +548,10 @@
             "description": "The name of the application.",
             "type": "string"
           },
+          "pathInstall": {
+            "description": "The install path of the application.",
+            "type": "string"
+          },
           "plugins": {
             "description": "The list of installed genAI plugins/extensions for the application.",
             "items": {
@@ -4740,6 +4744,13 @@
             "description": "OIDC Sources to import.",
             "type": "object"
           },
+          "OSProbes": {
+            "description": "OS probes to import.",
+            "items": {
+              "$ref": "#/components/schemas/osprobe"
+            },
+            "type": "array"
+          },
           "PACConfigs": {
             "description": "PACConfigs to import.",
             "items": {
@@ -6247,6 +6258,104 @@
         ],
         "type": "object"
       },
+      "osprobe": {
+        "description": "Describes what should be looked for on the operating system.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "aliases": {
+            "description": "The various names to look for when looking up the probe type.",
+            "example": [
+              "brain max",
+              "max"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "associatedAppName": {
+            "description": "The name of the application associated with this probe.",
+            "example": "chatgpt",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "A brief description about the OS probe and its purpose.",
+            "example": "A description text",
+            "type": "string"
+          },
+          "fileContentMatch": {
+            "description": "If defined, and the probe matches a file, will run a regexp on the content to\nfind a match.",
+            "example": "\"mcpEnabled\":true",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the OS probe.",
+            "example": "Ollama install locations",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "paths": {
+            "description": "The location(s) where the probe should look.\nSupports the following generics:\n- prefix `~` to denote user path.\n- `*` to denotes crawling siblings for files/folders.",
+            "example": [
+              "/Applications/Windsurf.app",
+              "~/AppData/Local/Programs/Windsurf"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "type": {
+            "default": "App",
+            "description": "The type of OS probe.",
+            "enum": [
+              "App",
+              "MCP",
+              "PluginBrowser",
+              "PluginIDE",
+              "Process"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "associatedAppName",
+          "name"
+        ],
+        "type": "object"
+      },
       "otlpendpoint": {
         "description": "Represents an OTLP endpoint.",
         "properties": {
@@ -7154,6 +7263,13 @@
             "description": "The list of MCP Gateways registered in the system.",
             "items": {
               "$ref": "#/components/schemas/mcpgateway"
+            },
+            "type": "array"
+          },
+          "OSProbes": {
+            "description": "The OS probes.",
+            "items": {
+              "$ref": "#/components/schemas/osprobe"
             },
             "type": "array"
           },
@@ -13737,6 +13853,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/orgstorage"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/osprobes": {
+      "get": {
+        "description": "List all available osprobes.",
+        "operationId": "get-all-OSProbes",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/osprobe"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new osprobe.",
+        "operationId": "create-OSProbe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/osprobe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/osprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/osprobes/{id}": {
+      "delete": {
+        "description": "Delete an OS probe given its identifier.",
+        "operationId": "delete-OSProbe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/osprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an OS probe given its identifier.",
+        "operationId": "get-OSProbe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/osprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an OS probe given its identifier.",
+        "operationId": "update-OSProbe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/osprobe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/osprobe"
                 }
               }
             },

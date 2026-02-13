@@ -27,6 +27,15 @@
         "null"
       ]
     },
+    "pathInstall": {
+      "$friendlyName": "Install Path",
+      "description": "The install path of the application.",
+      "title": "pathInstall",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "plugins": {
       "$friendlyName": "Plugins",
       "$readOnly": true,

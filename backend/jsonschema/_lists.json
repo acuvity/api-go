@@ -660,6 +660,12 @@
       },
       "type": "array"
     },
+    "osprobes": {
+      "items": {
+        "$ref": "osprobe.json"
+      },
+      "type": "array"
+    },
     "otlpendpoints": {
       "items": {
         "$ref": "otlpendpoint.json"

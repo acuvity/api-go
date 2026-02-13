@@ -30,6 +30,15 @@
       "title": "MCPGateways",
       "type": "array"
     },
+    "OSProbes": {
+      "$friendlyName": "OS Probes",
+      "description": "The OS probes.",
+      "items": {
+        "$ref": "osprobe.json"
+      },
+      "title": "OSProbes",
+      "type": "array"
+    },
     "PACConfigs": {
       "$friendlyName": "PACConfigs",
       "description": "The PAC configurations of the organizations.",

@@ -90,6 +90,9 @@ type ProxyConf struct {
 	// The list of MCP Gateways registered in the system.
 	MCPGateways MCPGatewaysList `json:"MCPGateways,omitempty" msgpack:"MCPGateways,omitempty" bson:"-" mapstructure:"MCPGateways,omitempty"`
 
+	// The OS probes.
+	OSProbes OSProbesList `json:"OSProbes,omitempty" msgpack:"OSProbes,omitempty" bson:"-" mapstructure:"OSProbes,omitempty"`
+
 	// The PAC configurations of the organizations.
 	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
 
@@ -250,6 +253,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseProxyConf{
 			ID:                  &o.ID,
 			MCPGateways:         &o.MCPGateways,
+			OSProbes:            &o.OSProbes,
 			PACConfigs:          &o.PACConfigs,
 			AccessPolicy:        &o.AccessPolicy,
 			AgentConfigs:        &o.AgentConfigs,
@@ -274,6 +278,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "MCPGateways":
 			sp.MCPGateways = &(o.MCPGateways)
+		case "OSProbes":
+			sp.OSProbes = &(o.OSProbes)
 		case "PACConfigs":
 			sp.PACConfigs = &(o.PACConfigs)
 		case "accessPolicy":
@@ -320,6 +326,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.MCPGateways != nil {
 		o.MCPGateways = *so.MCPGateways
+	}
+	if so.OSProbes != nil {
+		o.OSProbes = *so.OSProbes
 	}
 	if so.PACConfigs != nil {
 		o.PACConfigs = *so.PACConfigs
@@ -374,6 +383,15 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'OSProbes' for 'ProxyConf' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -467,6 +485,15 @@ func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OSProbes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -590,6 +617,16 @@ func (o *ProxyConf) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "MCPGateways", i))
+		}
+	}
+
+	for i, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "OSProbes", i))
 		}
 	}
 
@@ -718,6 +755,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.ID
 	case "MCPGateways":
 		return o.MCPGateways
+	case "OSProbes":
+		return o.OSProbes
 	case "PACConfigs":
 		return o.PACConfigs
 	case "accessPolicy":
@@ -775,6 +814,15 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "MCPGateways",
 		SubType:        "mcpgateway",
+		Type:           "refList",
+	},
+	"OSProbes": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OSProbes",
+		Description:    `The OS probes.`,
+		Exposed:        true,
+		Name:           "OSProbes",
+		SubType:        "osprobe",
 		Type:           "refList",
 	},
 	"PACConfigs": {
@@ -932,6 +980,15 @@ var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "MCPGateways",
 		SubType:        "mcpgateway",
+		Type:           "refList",
+	},
+	"osprobes": {
+		AllowedChoices: []string{},
+		ConvertedName:  "OSProbes",
+		Description:    `The OS probes.`,
+		Exposed:        true,
+		Name:           "OSProbes",
+		SubType:        "osprobe",
 		Type:           "refList",
 	},
 	"pacconfigs": {
@@ -1134,6 +1191,9 @@ type SparseProxyConf struct {
 	// The list of MCP Gateways registered in the system.
 	MCPGateways *MCPGatewaysList `json:"MCPGateways,omitempty" msgpack:"MCPGateways,omitempty" bson:"-" mapstructure:"MCPGateways,omitempty"`
 
+	// The OS probes.
+	OSProbes *OSProbesList `json:"OSProbes,omitempty" msgpack:"OSProbes,omitempty" bson:"-" mapstructure:"OSProbes,omitempty"`
+
 	// The PAC configurations of the organizations.
 	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"-" mapstructure:"PACConfigs,omitempty"`
 
@@ -1267,6 +1327,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.MCPGateways != nil {
 		out.MCPGateways = *o.MCPGateways
 	}
+	if o.OSProbes != nil {
+		out.OSProbes = *o.OSProbes
+	}
 	if o.PACConfigs != nil {
 		out.PACConfigs = *o.PACConfigs
 	}
@@ -1323,6 +1386,17 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OSProbes != nil {
+		for _, sub := range *o.OSProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'OSProbes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1434,6 +1508,17 @@ func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypt
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPGateways' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OSProbes != nil {
+		for _, sub := range *o.OSProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OSProbes' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}

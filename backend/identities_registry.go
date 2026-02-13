@@ -73,6 +73,7 @@ var (
 
 		"orgsettings": OrgSettingsIdentity,
 		"orgstorage":  OrgStorageIdentity,
+		"osprobe":     OSProbeIdentity,
 
 		"pacconfig":    PACConfigIdentity,
 		"pagedataview": PageDataViewIdentity,
@@ -191,6 +192,7 @@ var (
 
 		"orgsettings": OrgSettingsIdentity,
 		"orgstorages": OrgStorageIdentity,
+		"osprobes":    OSProbeIdentity,
 
 		"pacconfigs":    PACConfigIdentity,
 		"pagedataviews": PageDataViewIdentity,
@@ -396,6 +398,12 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+		},
+		"osprobe": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "associatedAppName"},
+			{"namespace", "importLabel"},
+			{"namespace", "type"},
 		},
 		"pacconfig": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -619,6 +627,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewOrgSettings()
 	case OrgStorageIdentity:
 		return NewOrgStorage()
+	case OSProbeIdentity:
+		return NewOSProbe()
 	case PACConfigIdentity:
 		return NewPACConfig()
 	case PageDataViewIdentity:
@@ -798,6 +808,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseOrgSettings()
 	case OrgStorageIdentity:
 		return NewSparseOrgStorage()
+	case OSProbeIdentity:
+		return NewSparseOSProbe()
 	case PACConfigIdentity:
 		return NewSparsePACConfig()
 	case PageDataViewIdentity:
@@ -985,6 +997,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &OrgSettingsList{}
 	case OrgStorageIdentity:
 		return &OrgStoragesList{}
+	case OSProbeIdentity:
+		return &OSProbesList{}
 	case PACConfigIdentity:
 		return &PACConfigsList{}
 	case PageDataViewIdentity:
@@ -1162,6 +1176,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseOrgSettingsList{}
 	case OrgStorageIdentity:
 		return &SparseOrgStoragesList{}
+	case OSProbeIdentity:
+		return &SparseOSProbesList{}
 	case PACConfigIdentity:
 		return &SparsePACConfigsList{}
 	case PageDataViewIdentity:
@@ -1494,6 +1510,7 @@ func AllIdentities() []elemental.Identity {
 		MetricSerieIdentity,
 		OrgSettingsIdentity,
 		OrgStorageIdentity,
+		OSProbeIdentity,
 		PACConfigIdentity,
 		PageDataViewIdentity,
 		PolicyRefIdentity,
@@ -1630,6 +1647,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case OrgSettingsIdentity:
 		return []string{}
 	case OrgStorageIdentity:
+		return []string{}
+	case OSProbeIdentity:
 		return []string{}
 	case PACConfigIdentity:
 		return []string{}

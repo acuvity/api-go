@@ -333,6 +333,9 @@
     "orgstorage": {
       "$ref": "orgstorage.json"
     },
+    "osprobe": {
+      "$ref": "osprobe.json"
+    },
     "otlpendpoint": {
       "$ref": "otlpendpoint.json"
     },

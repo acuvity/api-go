@@ -63,6 +63,15 @@
       "title": "OIDCSources",
       "type": "object"
     },
+    "OSProbes": {
+      "$friendlyName": "OS Probes",
+      "description": "OS probes to import.",
+      "items": {
+        "$ref": "osprobe.json"
+      },
+      "title": "OSProbes",
+      "type": "array"
+    },
     "PACConfigs": {
       "$friendlyName": "PAC Configs",
       "description": "PACConfigs to import.",

@@ -106,6 +106,9 @@ type Import struct {
 	// OIDC Sources to import.
 	OIDCSources api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"oidcsources,omitempty" mapstructure:"OIDCSources,omitempty"`
 
+	// OS probes to import.
+	OSProbes OSProbesList `json:"OSProbes,omitempty" msgpack:"OSProbes,omitempty" bson:"osprobes,omitempty" mapstructure:"OSProbes,omitempty"`
+
 	// PACConfigs to import.
 	PACConfigs PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"pacconfigs,omitempty" mapstructure:"PACConfigs,omitempty"`
 
@@ -203,6 +206,7 @@ func NewImport() *Import {
 		LDAPSources:         api.LDAPSourcesList{},
 		MTLSSources:         api.MTLSSourcesList{},
 		OIDCSources:         api.OIDCSourcesList{},
+		OSProbes:            OSProbesList{},
 		PACConfigs:          PACConfigsList{},
 		SAMLSources:         api.SAMLSourcesList{},
 		AccessPolicies:      AccessPoliciesList{},
@@ -266,6 +270,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.LDAPSources = o.LDAPSources
 	s.MTLSSources = o.MTLSSources
 	s.OIDCSources = o.OIDCSources
+	s.OSProbes = o.OSProbes
 	s.PACConfigs = o.PACConfigs
 	s.SAMLSources = o.SAMLSources
 	s.AccessPolicies = o.AccessPolicies
@@ -317,6 +322,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.LDAPSources = s.LDAPSources
 	o.MTLSSources = s.MTLSSources
 	o.OIDCSources = s.OIDCSources
+	o.OSProbes = s.OSProbes
 	o.PACConfigs = s.PACConfigs
 	o.SAMLSources = s.SAMLSources
 	o.AccessPolicies = s.AccessPolicies
@@ -391,6 +397,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			LDAPSources:         &o.LDAPSources,
 			MTLSSources:         &o.MTLSSources,
 			OIDCSources:         &o.OIDCSources,
+			OSProbes:            &o.OSProbes,
 			PACConfigs:          &o.PACConfigs,
 			SAMLSources:         &o.SAMLSources,
 			AccessPolicies:      &o.AccessPolicies,
@@ -438,6 +445,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.MTLSSources = &(o.MTLSSources)
 		case "OIDCSources":
 			sp.OIDCSources = &(o.OIDCSources)
+		case "OSProbes":
+			sp.OSProbes = &(o.OSProbes)
 		case "PACConfigs":
 			sp.PACConfigs = &(o.PACConfigs)
 		case "SAMLSources":
@@ -525,6 +534,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.OIDCSources != nil {
 		o.OIDCSources = *so.OIDCSources
+	}
+	if so.OSProbes != nil {
+		o.OSProbes = *so.OSProbes
 	}
 	if so.PACConfigs != nil {
 		o.PACConfigs = *so.PACConfigs
@@ -645,6 +657,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'OSProbes' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -912,6 +933,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'OSProbes' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1212,6 +1242,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "APIAuthorizations", i))
+		}
+	}
+
+	for i, sub := range o.OSProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "OSProbes", i))
 		}
 	}
 
@@ -1517,6 +1557,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.MTLSSources
 	case "OIDCSources":
 		return o.OIDCSources
+	case "OSProbes":
+		return o.OSProbes
 	case "PACConfigs":
 		return o.PACConfigs
 	case "SAMLSources":
@@ -1654,6 +1696,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "a3s.OIDCSources",
 		Type:           "external",
+	},
+	"OSProbes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "osprobes",
+		ConvertedName:  "OSProbes",
+		Description:    `OS probes to import.`,
+		Exposed:        true,
+		Name:           "OSProbes",
+		Stored:         true,
+		SubType:        "osprobe",
+		Type:           "refList",
 	},
 	"PACConfigs": {
 		AllowedChoices: []string{},
@@ -2033,6 +2086,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "a3s.OIDCSources",
 		Type:           "external",
+	},
+	"osprobes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "osprobes",
+		ConvertedName:  "OSProbes",
+		Description:    `OS probes to import.`,
+		Exposed:        true,
+		Name:           "OSProbes",
+		Stored:         true,
+		SubType:        "osprobe",
+		Type:           "refList",
 	},
 	"pacconfigs": {
 		AllowedChoices: []string{},
@@ -2418,6 +2482,9 @@ type SparseImport struct {
 	// OIDC Sources to import.
 	OIDCSources *api.OIDCSourcesList `json:"OIDCSources,omitempty" msgpack:"OIDCSources,omitempty" bson:"oidcsources,omitempty" mapstructure:"OIDCSources,omitempty"`
 
+	// OS probes to import.
+	OSProbes *OSProbesList `json:"OSProbes,omitempty" msgpack:"OSProbes,omitempty" bson:"osprobes,omitempty" mapstructure:"OSProbes,omitempty"`
+
 	// PACConfigs to import.
 	PACConfigs *PACConfigsList `json:"PACConfigs,omitempty" msgpack:"PACConfigs,omitempty" bson:"pacconfigs,omitempty" mapstructure:"PACConfigs,omitempty"`
 
@@ -2556,6 +2623,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.OIDCSources != nil {
 		s.OIDCSources = o.OIDCSources
 	}
+	if o.OSProbes != nil {
+		s.OSProbes = o.OSProbes
+	}
 	if o.PACConfigs != nil {
 		s.PACConfigs = o.PACConfigs
 	}
@@ -2675,6 +2745,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.OIDCSources != nil {
 		o.OIDCSources = s.OIDCSources
 	}
+	if s.OSProbes != nil {
+		o.OSProbes = s.OSProbes
+	}
 	if s.PACConfigs != nil {
 		o.PACConfigs = s.PACConfigs
 	}
@@ -2790,6 +2863,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.OIDCSources != nil {
 		out.OIDCSources = *o.OIDCSources
+	}
+	if o.OSProbes != nil {
+		out.OSProbes = *o.OSProbes
 	}
 	if o.PACConfigs != nil {
 		out.PACConfigs = *o.PACConfigs
@@ -2919,6 +2995,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.OSProbes != nil {
+		for _, sub := range *o.OSProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'OSProbes' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -3248,6 +3335,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.OSProbes != nil {
+		for _, sub := range *o.OSProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'OSProbes' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.PACConfigs != nil {
 		for _, sub := range *o.PACConfigs {
 			if sub == nil {
@@ -3558,6 +3656,7 @@ type mongoAttributesImport struct {
 	LDAPSources         api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
 	MTLSSources         api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
 	OIDCSources         api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	OSProbes            OSProbesList            `bson:"osprobes,omitempty"`
 	PACConfigs          PACConfigsList          `bson:"pacconfigs,omitempty"`
 	SAMLSources         api.SAMLSourcesList     `bson:"samlsources,omitempty"`
 	AccessPolicies      AccessPoliciesList      `bson:"accesspolicies,omitempty"`
@@ -3594,6 +3693,7 @@ type mongoAttributesSparseImport struct {
 	LDAPSources         *api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
 	MTLSSources         *api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
 	OIDCSources         *api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	OSProbes            *OSProbesList            `bson:"osprobes,omitempty"`
 	PACConfigs          *PACConfigsList          `bson:"pacconfigs,omitempty"`
 	SAMLSources         *api.SAMLSourcesList     `bson:"samlsources,omitempty"`
 	AccessPolicies      *AccessPoliciesList      `bson:"accesspolicies,omitempty"`
