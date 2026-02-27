@@ -40,6 +40,10 @@ func ValidateURL(attribute string, u string) error {
 		return makeErr(attribute, "invalid url: invalid scheme")
 	}
 
+	if uu.Hostname() == "" {
+		return makeErr(attribute, "invalid url: missing hostname")
+	}
+
 	return nil
 }
 
@@ -155,37 +159,39 @@ func ValidateTag(attribute string, tag string) error {
 // ValidateContentPolicy validates the entire content policy object.
 func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 
-	for _, moderation := range contentPolicy.Moderations {
+	index := 0
+	for i, moderation := range contentPolicy.Moderations {
 
-		if err := validateToolMisalignmentExploit(moderation); err != nil {
+		if err := ValidateToolMisalignmentExploit(moderation, i); err != nil {
 			return err
 		}
 
 		if moderation.Redact {
 			var hasRedactedValue bool
-			for _, predicate := range moderation.Predicates {
+			for j, predicate := range moderation.Predicates {
 				if predicate.Key != PredicateKeyKeywords && predicate.Key != PredicateKeyPIIs && predicate.Key != PredicateKeySecrets && predicate.Key != PredicateKeyCustomDataTypes {
 					continue
 				}
 				if predicate.Operator == PredicateOperatorEqualsOrGreaterThan {
-					return makeErr("predicates", fmt.Sprintf("Cannot pair %s '%s' with redaction; use '%s' or '%s' instead",
+					return makeErr(fmt.Sprintf("moderation/%d/predicates/%d", i, j), fmt.Sprintf("Cannot pair %s '%s' with redaction; use '%s' or '%s' instead",
 						predicate.Key, predicate.Operator, PredicateOperatorAny, PredicateOperatorNotEmpty,
 					))
 				}
 				hasRedactedValue = true
+				index = j
 				break
 			}
 			if !hasRedactedValue {
-				return makeErr("predicates", "'Redact' must have at least one keyword, PII, CDT or secret tied to it")
+				return makeErr(fmt.Sprintf("moderation/%d/predicates/%d", i, index), "'Redact' must have at least one keyword, PII, CDT or secret tied to it")
 			}
 		}
 
 		if moderation.Action == ModerationActionWarn && strings.ReplaceAll(moderation.Message, " ", "") == "" {
-			return makeErr("message", "'Message' must not be empty when 'Action' is 'Warn'")
+			return makeErr(fmt.Sprintf("moderation/%d/message", i), "'Message' must not be empty when 'Action' is 'Warn'")
 		}
 
 		if moderation.Action == ModerationActionBlock && strings.ReplaceAll(moderation.Message, " ", "") == "" {
-			return makeErr("message", "'Message' must not be empty when 'Action' is 'Block'")
+			return makeErr(fmt.Sprintf("moderation/%d/message", i), "'Message' must not be empty when 'Action' is 'Block'")
 		}
 	}
 
@@ -1174,7 +1180,7 @@ func ValidateApp(app *App) error {
 
 	m := make(map[string]struct{}, len(app.Components))
 	wgm := make(map[string]struct{}, len(app.Components))
-	for _, component := range app.Components {
+	for i, component := range app.Components {
 		if component.Name == "_default" {
 			return makeErr("name", "_default is a reserved component name")
 		}
@@ -1183,7 +1189,7 @@ func ValidateApp(app *App) error {
 		switch app.Selector.Type {
 		case AppSelectorTypeKubernetes:
 			if component.Selector.Type != AppComponentSelectorTypeKubernetes {
-				return makeErr("selector", fmt.Sprintf("component '%s' selector type must be 'Kubernetes' to match the app selector type", component.Name))
+				return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' selector type must be 'Kubernetes' to match the app selector type", component.Name))
 			}
 		}
 
@@ -1196,17 +1202,17 @@ func ValidateApp(app *App) error {
 		// ensure component selectors are unique
 		wgh := WorkloadGroupHashFromSelector(&component.Selector)
 		if wgh == "" {
-			return makeErr("selector", fmt.Sprintf("component '%s' has an invalid Kubernetes selector (workload group hash computation failed)", component.Name))
+			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' has an invalid Kubernetes selector (workload group hash computation failed)", component.Name))
 		}
 		if _, ok := wgm[wgh]; ok {
-			return makeErr("selector", fmt.Sprintf("another component is already using the same Kubernetes selector as component '%s'", component.Name))
+			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("another component is already using the same Kubernetes selector as component '%s'", component.Name))
 		}
 		wgm[wgh] = struct{}{}
 
 		// ensure Kubernetes component selectors all carry the same namespace
 		if component.Selector.Type == AppComponentSelectorTypeKubernetes {
 			if app.Selector.Kubernetes.KubernetesNamespace != component.Selector.Kubernetes.KubernetesNamespace {
-				return makeErr("selector", "Kubernetes component selectors must carry the same Kubernetes namespace as the Kubernetes app selector")
+				return makeErr(fmt.Sprintf("components/%d/selector", i), "Kubernetes component selectors must carry the same Kubernetes namespace as the Kubernetes app selector")
 			}
 		}
 	}
@@ -1603,9 +1609,9 @@ var (
 	validHostnameLabel = `[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?`
 
 	// for the egress policies, a valid hostname is:
-	// optional leading wildcard followed immediately by a dot (*.|**.), then at least two labels, no trailing dot
+	// optional leading wildcard followed immediately by a dot (*.|**.), then at least one label, no trailing dot
 	validPolicyHostnameRegex = regexp.MustCompile(
-		`^(?:(?:\*\*|\*)\.)?(?:` + validHostnameLabel + `\.)+` + validHostnameLabel + `$`,
+		`^(?:(?:\*\*|\*)\.)?(?:` + validHostnameLabel + `\.)*` + validHostnameLabel + `$`,
 	)
 
 	// Allow a single label or multiple labels separated by dots; no trailing dot
@@ -1625,7 +1631,7 @@ func ValidatePolicyHostnames(attribute string, hostnames []string) error {
 		}
 
 		if !validPolicyHostnameRegex.MatchString(hostname) {
-			return makeErr(attribute, fmt.Sprintf("Hostname at index %d is an invalid policy hostname: it can have an optional leading wildcard (*.|**.), and must consist of at least two labels.", i))
+			return makeErr(attribute, fmt.Sprintf("Hostname at index %d is an invalid policy hostname: it can have an optional leading wildcard (*.|**.), and must consist of at least one label.", i))
 		}
 	}
 
@@ -1941,7 +1947,7 @@ func makeErr(attribute string, message string) elemental.Error {
 
 // validateToolMisalignmentExploit - validate that Tool misalignement exploit is paired
 // with some tool use names.
-func validateToolMisalignmentExploit(moderation *Moderation) error {
+func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int) error {
 
 	const exploitValueIntentToolMismatch = "intent_tool_mismatch"
 
@@ -1952,8 +1958,9 @@ func validateToolMisalignmentExploit(moderation *Moderation) error {
 
 	hasIntentToolMismatch := false
 	hasToolUsesWithNames := false
+	exploitIndex := -1
 
-	for _, p := range moderation.Predicates {
+	for i, p := range moderation.Predicates {
 		if _, ok := allowed[p.Operator]; !ok {
 			continue
 		}
@@ -1963,6 +1970,7 @@ func validateToolMisalignmentExploit(moderation *Moderation) error {
 			for _, v := range p.Values {
 				if v == exploitValueIntentToolMismatch {
 					hasIntentToolMismatch = true
+					exploitIndex = i
 					break
 				}
 			}
@@ -1980,7 +1988,7 @@ func validateToolMisalignmentExploit(moderation *Moderation) error {
 
 	if hasIntentToolMismatch && !hasToolUsesWithNames {
 		return makeErr(
-			"predicates",
+			fmt.Sprintf("moderation/%d/predicates/%d", moderationIndex, exploitIndex),
 			fmt.Sprintf(
 				"Tool misalignment exploit need to be paired with Tool Use with '%s' or '%s' operator",
 				PredicateOperatorAny,

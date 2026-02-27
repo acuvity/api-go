@@ -304,6 +304,14 @@ func (o *SinkSplunk) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateRequiredString("HECURL", o.HECURL); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateURL("HECURL", o.HECURL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -364,7 +372,6 @@ var SinkSplunkAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Secret:         true,
 		Stored:         true,
-		Transient:      true,
 		Type:           "string",
 	},
 	"CertificateAuthority": {
@@ -416,7 +423,6 @@ var SinkSplunkLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Required:       true,
 		Secret:         true,
 		Stored:         true,
-		Transient:      true,
 		Type:           "string",
 	},
 	"certificateauthority": {
