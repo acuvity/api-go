@@ -1,0 +1,75 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Admin Skill Analysis",
+  "$friendlyNamePlural": "Admin Skill Analysis",
+  "$modelName": "AdminSkillAnalysis",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "adminskillanalyses",
+  "$modelRestName": "adminskillanalysis",
+  "additionalProperties": false,
+  "description": "Administrative API to send a request to analyze a skill.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appName": {
+      "$friendlyName": "Application Name",
+      "$required": true,
+      "description": "The name of the application associated with this skill.",
+      "title": "appName",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the skill to analyze. The analysis will be sent to refractai.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "processing": {
+      "$defaultValue": "Queue",
+      "$friendlyName": "Processing",
+      "description": "Type of processing for refractai. Queue means the the processing will be batched and will be done later on. Immediate skips the queue and is done as soon as possible. Finally RequireValidation will put it a queue and will require manual intervention.",
+      "enum": [
+        "Queue",
+        "Immediate",
+        "RequireValidation"
+      ],
+      "title": "processing"
+    },
+    "repo": {
+      "$friendlyName": "Repo",
+      "description": "The source repo of the skill.",
+      "title": "repo",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "appName",
+    "name"
+  ],
+  "title": "AdminSkillAnalysis",
+  "type": "object"
+}

@@ -6,14 +6,14 @@
     "@importable",
     "@auto-propagated"
   ],
-  "$friendlyName": "OS Probe",
-  "$friendlyNamePlural": "OS Probes",
-  "$modelName": "OSProbe",
+  "$friendlyName": "AI Skill",
+  "$friendlyNamePlural": "AI Skills",
+  "$modelName": "AISkill",
   "$modelPackage": "lain",
-  "$modelResourceName": "osprobes",
-  "$modelRestName": "osprobe",
+  "$modelResourceName": "aiskills",
+  "$modelRestName": "aiskill",
   "additionalProperties": false,
-  "description": "Describes what should be looked for on the operating system.",
+  "description": "AI skill provides an AI risk score given a skill.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -25,22 +25,10 @@
         "null"
       ]
     },
-    "aliases": {
-      "$friendlyName": "Aliases",
-      "description": "The various names to look for when looking up the probe type.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "aliases",
-      "type": "array"
-    },
     "associatedAppName": {
       "$friendlyName": "Associated Application Name",
       "$required": true,
-      "description": "The name of the application associated with this probe.",
+      "description": "The name of the application associated with this skill.",
       "title": "associatedAppName",
       "type": "string"
     },
@@ -56,17 +44,8 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "A brief description about the OS probe and its purpose.",
+      "description": "A description about the AI skill.",
       "title": "description",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "fileContentMatch": {
-      "$friendlyName": "File Content Match",
-      "description": "If defined, and the probe matches a file, will run a regexp on the content to find a match.",
-      "title": "fileContentMatch",
       "type": [
         "string",
         "null"
@@ -95,7 +74,7 @@
     "name": {
       "$friendlyName": "Name",
       "$required": true,
-      "description": "The name of the OS probe.",
+      "description": "The name of the AI skill.",
       "title": "name",
       "type": "string"
     },
@@ -109,18 +88,6 @@
         "null"
       ]
     },
-    "paths": {
-      "$friendlyName": "Paths",
-      "description": "The location(s) where the probe should look. Supports the following generics: - prefix `~` to denote user path. - `*` to denotes crawling siblings for files/folders.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "paths",
-      "type": "array"
-    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -131,19 +98,26 @@
         "null"
       ]
     },
-    "type": {
-      "$defaultValue": "App",
-      "$friendlyName": "Type",
-      "description": "The type of OS probe.",
+    "repo": {
+      "$friendlyName": "Repo",
+      "description": "The source repo of the skill.",
+      "title": "repo",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "riskScore": {
+      "$friendlyName": "Risk Score",
+      "$required": true,
+      "description": "The risk score of the skill.",
       "enum": [
-        "App",
-        "MCP",
-        "PluginBrowser",
-        "PluginIDE",
-        "Process",
-        "Skill"
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
       ],
-      "title": "type"
+      "title": "riskScore"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -158,8 +132,9 @@
   },
   "required": [
     "associatedAppName",
-    "name"
+    "name",
+    "riskScore"
   ],
-  "title": "OSProbe",
+  "title": "AISkill",
   "type": "object"
 }

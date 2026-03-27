@@ -36,6 +36,15 @@
       "title": "AIPlugins",
       "type": "array"
     },
+    "AISkills": {
+      "$friendlyName": "AI Skills",
+      "description": "AI skills to import.",
+      "items": {
+        "$ref": "aiskill.json"
+      },
+      "title": "AISkills",
+      "type": "array"
+    },
     "APIAuthorizations": {
       "$friendlyName": "APIAuthorizations",
       "description": "APIAuthorizations to import.",

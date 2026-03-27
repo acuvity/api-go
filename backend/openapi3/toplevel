@@ -249,6 +249,49 @@
         ],
         "type": "object"
       },
+      "adminskillanalysis": {
+        "description": "Administrative API to send a request to analyze a skill.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "appName": {
+            "description": "The name of the application associated with this skill.",
+            "example": "openclaw",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the skill to analyze. The analysis will be sent to refractai.",
+            "example": "gh-issues",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "processing": {
+            "default": "Queue",
+            "description": "Type of processing for refractai. Queue means the the processing will be batched\nand will be done later on. Immediate skips the queue and is done as soon as\npossible. Finally RequireValidation will put it a queue and will require manual\nintervention.",
+            "enum": [
+              "Queue",
+              "Immediate",
+              "RequireValidation"
+            ]
+          },
+          "repo": {
+            "description": "The source repo of the skill.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "appName",
+          "name"
+        ],
+        "type": "object"
+      },
       "agent": {
         "description": "Displays the status of Acushield agents deployed on users’ machines, providing\ninsights into their operational state and activity.",
         "properties": {
@@ -564,6 +607,13 @@
             "readOnly": true,
             "type": "array"
           },
+          "skills": {
+            "description": "The list of configured skills for the application.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscoveredskill"
+            },
+            "type": "array"
+          },
           "type": {
             "default": "IDE",
             "description": "The type of application.",
@@ -613,6 +663,24 @@
               "Container",
               "Remote"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "agentdiscoveredskill": {
+        "description": "Represents a skill that the agent discovered.",
+        "properties": {
+          "name": {
+            "description": "The name of the skill.",
+            "type": "string"
+          },
+          "path": {
+            "description": "The path to the skill.",
+            "type": "string"
+          },
+          "repo": {
+            "description": "The source repo of the skill.",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1422,6 +1490,81 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "aiskill": {
+        "description": "AI skill provides an AI risk score given a skill.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "associatedAppName": {
+            "description": "The name of the application associated with this skill.",
+            "example": "chatgpt",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "A description about the AI skill.",
+            "example": "A description text",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the AI skill.",
+            "example": "gh-issues",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "repo": {
+            "description": "The source repo of the skill.",
+            "type": "string"
+          },
+          "riskScore": {
+            "description": "The risk score of the skill.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "associatedAppName",
+          "name",
+          "riskScore"
+        ],
         "type": "object"
       },
       "alert": {
@@ -4759,6 +4902,13 @@
             },
             "type": "array"
           },
+          "AISkills": {
+            "description": "AI skills to import.",
+            "items": {
+              "$ref": "#/components/schemas/aiskill"
+            },
+            "type": "array"
+          },
           "APIAuthorizations": {
             "description": "APIAuthorizations to import.",
             "items": {
@@ -6374,7 +6524,8 @@
               "MCP",
               "PluginBrowser",
               "PluginIDE",
-              "Process"
+              "Process",
+              "Skill"
             ]
           },
           "updateTime": {
@@ -9810,6 +9961,37 @@
         ]
       }
     },
+    "/adminskillanalyses": {
+      "post": {
+        "description": "Sends a skill to refractai for analysis.",
+        "operationId": "create-AdminSkillAnalysis",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/adminskillanalysis"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/adminskillanalysis"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/agentconfigs": {
       "get": {
         "description": "List all agent configurations.",
@@ -10525,6 +10707,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/aiplugin"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aiskills": {
+      "get": {
+        "description": "List all AI skills.",
+        "operationId": "get-all-AISkills",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aiskill"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new AI skill.",
+        "operationId": "create-AISkill",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiskill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiskill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aiskills/{id}": {
+      "delete": {
+        "description": "Delete an AI skill given its identifier.",
+        "operationId": "delete-AISkill",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiskill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI skill given its identifier.",
+        "operationId": "get-AISkill",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiskill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI skill given its identifier.",
+        "operationId": "update-AISkill",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aiskill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aiskill"
                 }
               }
             },

@@ -13,66 +13,60 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// OSProbeTypeValue represents the possible values for attribute "type".
-type OSProbeTypeValue string
+// AISkillRiskScoreValue represents the possible values for attribute "riskScore".
+type AISkillRiskScoreValue string
 
 const (
-	// OSProbeTypeApp represents the value App.
-	OSProbeTypeApp OSProbeTypeValue = "App"
+	// AISkillRiskScoreCritical represents the value Critical.
+	AISkillRiskScoreCritical AISkillRiskScoreValue = "Critical"
 
-	// OSProbeTypeMCP represents the value MCP.
-	OSProbeTypeMCP OSProbeTypeValue = "MCP"
+	// AISkillRiskScoreHigh represents the value High.
+	AISkillRiskScoreHigh AISkillRiskScoreValue = "High"
 
-	// OSProbeTypePluginBrowser represents the value PluginBrowser.
-	OSProbeTypePluginBrowser OSProbeTypeValue = "PluginBrowser"
+	// AISkillRiskScoreLow represents the value Low.
+	AISkillRiskScoreLow AISkillRiskScoreValue = "Low"
 
-	// OSProbeTypePluginIDE represents the value PluginIDE.
-	OSProbeTypePluginIDE OSProbeTypeValue = "PluginIDE"
-
-	// OSProbeTypeProcess represents the value Process.
-	OSProbeTypeProcess OSProbeTypeValue = "Process"
-
-	// OSProbeTypeSkill represents the value Skill.
-	OSProbeTypeSkill OSProbeTypeValue = "Skill"
+	// AISkillRiskScoreMedium represents the value Medium.
+	AISkillRiskScoreMedium AISkillRiskScoreValue = "Medium"
 )
 
-// OSProbeIdentity represents the Identity of the object.
-var OSProbeIdentity = elemental.Identity{
-	Name:     "osprobe",
-	Category: "osprobes",
+// AISkillIdentity represents the Identity of the object.
+var AISkillIdentity = elemental.Identity{
+	Name:     "aiskill",
+	Category: "aiskills",
 	Package:  "lain",
 	Private:  false,
 }
 
-// OSProbesList represents a list of OSProbes
-type OSProbesList []*OSProbe
+// AISkillsList represents a list of AISkills
+type AISkillsList []*AISkill
 
 // Identity returns the identity of the objects in the list.
-func (o OSProbesList) Identity() elemental.Identity {
+func (o AISkillsList) Identity() elemental.Identity {
 
-	return OSProbeIdentity
+	return AISkillIdentity
 }
 
-// Copy returns a pointer to a copy the OSProbesList.
-func (o OSProbesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the AISkillsList.
+func (o AISkillsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the OSProbesList.
-func (o OSProbesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the AISkillsList.
+func (o AISkillsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*OSProbe))
+		out = append(out, obj.(*AISkill))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o OSProbesList) List() elemental.IdentifiablesList {
+func (o AISkillsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -83,49 +77,42 @@ func (o OSProbesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o OSProbesList) DefaultOrder() []string {
+func (o AISkillsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the OSProbesList converted to SparseOSProbesList.
+// ToSparse returns the AISkillsList converted to SparseAISkillsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o OSProbesList) ToSparse(fields ...string) elemental.Identifiables {
+func (o AISkillsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseOSProbesList, len(o))
+	out := make(SparseAISkillsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseOSProbe)
+		out[i] = o[i].ToSparse(fields...).(*SparseAISkill)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o OSProbesList) Version() int {
+func (o AISkillsList) Version() int {
 
 	return 1
 }
 
-// OSProbe represents the model of a osprobe
-type OSProbe struct {
+// AISkill represents the model of a aiskill
+type AISkill struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The various names to look for when looking up the probe type.
-	Aliases []string `json:"aliases" msgpack:"aliases" bson:"aliases" mapstructure:"aliases,omitempty"`
-
-	// The name of the application associated with this probe.
+	// The name of the application associated with this skill.
 	AssociatedAppName string `json:"associatedAppName" msgpack:"associatedAppName" bson:"associatedappname" mapstructure:"associatedAppName,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// A brief description about the OS probe and its purpose.
+	// A description about the AI skill.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// If defined, and the probe matches a file, will run a regexp on the content to
-	// find a match.
-	FileContentMatch string `json:"fileContentMatch,omitempty" msgpack:"fileContentMatch,omitempty" bson:"filecontentmatch,omitempty" mapstructure:"fileContentMatch,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -134,23 +121,20 @@ type OSProbe struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the OS probe.
+	// The name of the AI skill.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The location(s) where the probe should look.
-	// Supports the following generics:
-	// - prefix `~` to denote user path.
-	// - `*` to denotes crawling siblings for files/folders.
-	Paths []string `json:"paths" msgpack:"paths" bson:"paths" mapstructure:"paths,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// The type of OS probe.
-	Type OSProbeTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
+	// The source repo of the skill.
+	Repo string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"-" mapstructure:"repo,omitempty"`
+
+	// The risk score of the skill.
+	RiskScore AISkillRiskScoreValue `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -164,61 +148,55 @@ type OSProbe struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewOSProbe returns a new *OSProbe
-func NewOSProbe() *OSProbe {
+// NewAISkill returns a new *AISkill
+func NewAISkill() *AISkill {
 
-	return &OSProbe{
+	return &AISkill{
 		ModelVersion: 1,
-		Aliases:      []string{},
-		Paths:        []string{},
 		Propagate:    true,
-		Type:         OSProbeTypeApp,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *OSProbe) Identity() elemental.Identity {
+func (o *AISkill) Identity() elemental.Identity {
 
-	return OSProbeIdentity
+	return AISkillIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *OSProbe) Identifier() string {
+func (o *AISkill) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *OSProbe) SetIdentifier(id string) {
+func (o *AISkill) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OSProbe) GetBSON() (any, error) {
+func (o *AISkill) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesOSProbe{}
+	s := &mongoAttributesAISkill{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.Aliases = o.Aliases
 	s.AssociatedAppName = o.AssociatedAppName
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.FileContentMatch = o.FileContentMatch
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.Paths = o.Paths
 	s.Propagate = o.Propagate
-	s.Type = o.Type
+	s.RiskScore = o.RiskScore
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -228,30 +206,27 @@ func (o *OSProbe) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *OSProbe) SetBSON(raw bson.Raw) error {
+func (o *AISkill) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesOSProbe{}
+	s := &mongoAttributesAISkill{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
-	o.Aliases = s.Aliases
 	o.AssociatedAppName = s.AssociatedAppName
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.FileContentMatch = s.FileContentMatch
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.Paths = s.Paths
 	o.Propagate = s.Propagate
-	o.Type = s.Type
+	o.RiskScore = s.RiskScore
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -260,147 +235,141 @@ func (o *OSProbe) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *OSProbe) Version() int {
+func (o *AISkill) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *OSProbe) BleveType() string {
+func (o *AISkill) BleveType() string {
 
-	return "osprobe"
+	return "aiskill"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *OSProbe) DefaultOrder() []string {
+func (o *AISkill) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *OSProbe) Doc() string {
+func (o *AISkill) Doc() string {
 
-	return `Describes what should be looked for on the operating system.`
+	return `AI skill provides an AI risk score given a skill.`
 }
 
-func (o *OSProbe) String() string {
+func (o *AISkill) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *OSProbe) GetCreateTime() time.Time {
+func (o *AISkill) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *OSProbe) SetCreateTime(createTime time.Time) {
+func (o *AISkill) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *OSProbe) GetImportHash() string {
+func (o *AISkill) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *OSProbe) SetImportHash(importHash string) {
+func (o *AISkill) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *OSProbe) GetImportLabel() string {
+func (o *AISkill) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *OSProbe) SetImportLabel(importLabel string) {
+func (o *AISkill) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *OSProbe) GetNamespace() string {
+func (o *AISkill) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *OSProbe) SetNamespace(namespace string) {
+func (o *AISkill) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *OSProbe) GetPropagate() bool {
+func (o *AISkill) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *OSProbe) SetPropagate(propagate bool) {
+func (o *AISkill) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *OSProbe) GetUpdateTime() time.Time {
+func (o *AISkill) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *OSProbe) SetUpdateTime(updateTime time.Time) {
+func (o *AISkill) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *OSProbe) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseOSProbe{
+		return &SparseAISkill{
 			ID:                &o.ID,
-			Aliases:           &o.Aliases,
 			AssociatedAppName: &o.AssociatedAppName,
 			CreateTime:        &o.CreateTime,
 			Description:       &o.Description,
-			FileContentMatch:  &o.FileContentMatch,
 			ImportHash:        &o.ImportHash,
 			ImportLabel:       &o.ImportLabel,
 			Name:              &o.Name,
 			Namespace:         &o.Namespace,
-			Paths:             &o.Paths,
 			Propagate:         &o.Propagate,
-			Type:              &o.Type,
+			Repo:              &o.Repo,
+			RiskScore:         &o.RiskScore,
 			UpdateTime:        &o.UpdateTime,
 			ZHash:             &o.ZHash,
 			Zone:              &o.Zone,
 		}
 	}
 
-	sp := &SparseOSProbe{}
+	sp := &SparseAISkill{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "aliases":
-			sp.Aliases = &(o.Aliases)
 		case "associatedAppName":
 			sp.AssociatedAppName = &(o.AssociatedAppName)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "fileContentMatch":
-			sp.FileContentMatch = &(o.FileContentMatch)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -409,12 +378,12 @@ func (o *OSProbe) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "paths":
-			sp.Paths = &(o.Paths)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "type":
-			sp.Type = &(o.Type)
+		case "repo":
+			sp.Repo = &(o.Repo)
+		case "riskScore":
+			sp.RiskScore = &(o.RiskScore)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -427,18 +396,15 @@ func (o *OSProbe) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseOSProbe to the object.
-func (o *OSProbe) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseAISkill to the object.
+func (o *AISkill) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseOSProbe)
+	so := sparse.(*SparseAISkill)
 	if so.ID != nil {
 		o.ID = *so.ID
-	}
-	if so.Aliases != nil {
-		o.Aliases = *so.Aliases
 	}
 	if so.AssociatedAppName != nil {
 		o.AssociatedAppName = *so.AssociatedAppName
@@ -448,9 +414,6 @@ func (o *OSProbe) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
-	}
-	if so.FileContentMatch != nil {
-		o.FileContentMatch = *so.FileContentMatch
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -464,14 +427,14 @@ func (o *OSProbe) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.Paths != nil {
-		o.Paths = *so.Paths
-	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.Type != nil {
-		o.Type = *so.Type
+	if so.Repo != nil {
+		o.Repo = *so.Repo
+	}
+	if so.RiskScore != nil {
+		o.RiskScore = *so.RiskScore
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -485,43 +448,43 @@ func (o *OSProbe) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *OSProbe) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *AISkill) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *OSProbe) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *AISkill) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the OSProbe.
-func (o *OSProbe) DeepCopy() *OSProbe {
+// DeepCopy returns a deep copy if the AISkill.
+func (o *AISkill) DeepCopy() *AISkill {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &OSProbe{}
+	out := &AISkill{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *OSProbe.
-func (o *OSProbe) DeepCopyInto(out *OSProbe) {
+// DeepCopyInto copies the receiver into the given *AISkill.
+func (o *AISkill) DeepCopyInto(out *AISkill) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy OSProbe: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy AISkill: %s", err))
 	}
 
-	*out = *target.(*OSProbe)
+	*out = *target.(*AISkill)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *OSProbe) Validate() error {
+func (o *AISkill) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
@@ -532,15 +495,15 @@ func (o *OSProbe) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := ValidateRegexp("fileContentMatch", o.FileContentMatch); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"App", "MCP", "PluginBrowser", "PluginIDE", "Process", "Skill"}, false); err != nil {
+	if err := elemental.ValidateRequiredString("riskScore", string(o.RiskScore)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("riskScore", string(o.RiskScore), []string{"Low", "Medium", "High", "Critical"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -556,40 +519,36 @@ func (o *OSProbe) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*OSProbe) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*AISkill) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := OSProbeAttributesMap[name]; ok {
+	if v, ok := AISkillAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return OSProbeLowerCaseAttributesMap[name]
+	return AISkillLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*OSProbe) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*AISkill) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return OSProbeAttributesMap
+	return AISkillAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *OSProbe) ValueForAttribute(name string) any {
+func (o *AISkill) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
-	case "aliases":
-		return o.Aliases
 	case "associatedAppName":
 		return o.AssociatedAppName
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "fileContentMatch":
-		return o.FileContentMatch
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -598,12 +557,12 @@ func (o *OSProbe) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "paths":
-		return o.Paths
 	case "propagate":
 		return o.Propagate
-	case "type":
-		return o.Type
+	case "repo":
+		return o.Repo
+	case "riskScore":
+		return o.RiskScore
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -615,8 +574,8 @@ func (o *OSProbe) ValueForAttribute(name string) any {
 	return nil
 }
 
-// OSProbeAttributesMap represents the map of attribute for OSProbe.
-var OSProbeAttributesMap = map[string]elemental.AttributeSpecification{
+// AISkillAttributesMap represents the map of attribute for AISkill.
+var AISkillAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -632,22 +591,11 @@ var OSProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"Aliases": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "aliases",
-		ConvertedName:  "Aliases",
-		Description:    `The various names to look for when looking up the probe type.`,
-		Exposed:        true,
-		Name:           "aliases",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"AssociatedAppName": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "associatedappname",
 		ConvertedName:  "AssociatedAppName",
-		Description:    `The name of the application associated with this probe.`,
+		Description:    `The name of the application associated with this skill.`,
 		Exposed:        true,
 		Name:           "associatedAppName",
 		Required:       true,
@@ -673,22 +621,11 @@ var OSProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `A brief description about the OS probe and its purpose.`,
+		Description:    `A description about the AI skill.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"FileContentMatch": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "filecontentmatch",
-		ConvertedName:  "FileContentMatch",
-		Description: `If defined, and the probe matches a file, will run a regexp on the content to
-find a match.`,
-		Exposed: true,
-		Name:    "fileContentMatch",
-		Stored:  true,
-		Type:    "string",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -722,7 +659,7 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the OS probe.`,
+		Description:    `The name of the AI skill.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
@@ -744,20 +681,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"Paths": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "paths",
-		ConvertedName:  "Paths",
-		Description: `The location(s) where the probe should look.
-Supports the following generics:
-- prefix ` + "`" + `~` + "`" + ` to denote user path.
-- ` + "`" + `*` + "`" + ` to denotes crawling siblings for files/folders.`,
-		Exposed: true,
-		Name:    "paths",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -771,14 +694,22 @@ Supports the following generics:
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Type": {
-		AllowedChoices: []string{"App", "MCP", "PluginBrowser", "PluginIDE", "Process", "Skill"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   OSProbeTypeApp,
-		Description:    `The type of OS probe.`,
+	"Repo": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Repo",
+		Description:    `The source repo of the skill.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "repo",
+		Type:           "string",
+	},
+	"RiskScore": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		BSONFieldName:  "riskscore",
+		ConvertedName:  "RiskScore",
+		Description:    `The risk score of the skill.`,
+		Exposed:        true,
+		Name:           "riskScore",
+		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
@@ -799,8 +730,8 @@ Supports the following generics:
 	},
 }
 
-// OSProbeLowerCaseAttributesMap represents the map of attribute for OSProbe.
-var OSProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// AISkillLowerCaseAttributesMap represents the map of attribute for AISkill.
+var AISkillLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -816,22 +747,11 @@ var OSProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"aliases": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "aliases",
-		ConvertedName:  "Aliases",
-		Description:    `The various names to look for when looking up the probe type.`,
-		Exposed:        true,
-		Name:           "aliases",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"associatedappname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "associatedappname",
 		ConvertedName:  "AssociatedAppName",
-		Description:    `The name of the application associated with this probe.`,
+		Description:    `The name of the application associated with this skill.`,
 		Exposed:        true,
 		Name:           "associatedAppName",
 		Required:       true,
@@ -857,22 +777,11 @@ var OSProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `A brief description about the OS probe and its purpose.`,
+		Description:    `A description about the AI skill.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
-	},
-	"filecontentmatch": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "filecontentmatch",
-		ConvertedName:  "FileContentMatch",
-		Description: `If defined, and the probe matches a file, will run a regexp on the content to
-find a match.`,
-		Exposed: true,
-		Name:    "fileContentMatch",
-		Stored:  true,
-		Type:    "string",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -906,7 +815,7 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the OS probe.`,
+		Description:    `The name of the AI skill.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
@@ -928,20 +837,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"paths": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "paths",
-		ConvertedName:  "Paths",
-		Description: `The location(s) where the probe should look.
-Supports the following generics:
-- prefix ` + "`" + `~` + "`" + ` to denote user path.
-- ` + "`" + `*` + "`" + ` to denotes crawling siblings for files/folders.`,
-		Exposed: true,
-		Name:    "paths",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -955,14 +850,22 @@ Supports the following generics:
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"type": {
-		AllowedChoices: []string{"App", "MCP", "PluginBrowser", "PluginIDE", "Process", "Skill"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   OSProbeTypeApp,
-		Description:    `The type of OS probe.`,
+	"repo": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Repo",
+		Description:    `The source repo of the skill.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "repo",
+		Type:           "string",
+	},
+	"riskscore": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		BSONFieldName:  "riskscore",
+		ConvertedName:  "RiskScore",
+		Description:    `The risk score of the skill.`,
+		Exposed:        true,
+		Name:           "riskScore",
+		Required:       true,
 		Stored:         true,
 		Type:           "enum",
 	},
@@ -983,35 +886,35 @@ Supports the following generics:
 	},
 }
 
-// SparseOSProbesList represents a list of SparseOSProbes
-type SparseOSProbesList []*SparseOSProbe
+// SparseAISkillsList represents a list of SparseAISkills
+type SparseAISkillsList []*SparseAISkill
 
 // Identity returns the identity of the objects in the list.
-func (o SparseOSProbesList) Identity() elemental.Identity {
+func (o SparseAISkillsList) Identity() elemental.Identity {
 
-	return OSProbeIdentity
+	return AISkillIdentity
 }
 
-// Copy returns a pointer to a copy the SparseOSProbesList.
-func (o SparseOSProbesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseAISkillsList.
+func (o SparseAISkillsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseOSProbesList.
-func (o SparseOSProbesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseAISkillsList.
+func (o SparseAISkillsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseOSProbe))
+		out = append(out, obj.(*SparseAISkill))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseOSProbesList) List() elemental.IdentifiablesList {
+func (o SparseAISkillsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1022,13 +925,13 @@ func (o SparseOSProbesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseOSProbesList) DefaultOrder() []string {
+func (o SparseAISkillsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseOSProbesList converted to OSProbesList.
-func (o SparseOSProbesList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseAISkillsList converted to AISkillsList.
+func (o SparseAISkillsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1039,31 +942,24 @@ func (o SparseOSProbesList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseOSProbesList) Version() int {
+func (o SparseAISkillsList) Version() int {
 
 	return 1
 }
 
-// SparseOSProbe represents the sparse version of a osprobe.
-type SparseOSProbe struct {
+// SparseAISkill represents the sparse version of a aiskill.
+type SparseAISkill struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The various names to look for when looking up the probe type.
-	Aliases *[]string `json:"aliases,omitempty" msgpack:"aliases,omitempty" bson:"aliases,omitempty" mapstructure:"aliases,omitempty"`
-
-	// The name of the application associated with this probe.
+	// The name of the application associated with this skill.
 	AssociatedAppName *string `json:"associatedAppName,omitempty" msgpack:"associatedAppName,omitempty" bson:"associatedappname,omitempty" mapstructure:"associatedAppName,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// A brief description about the OS probe and its purpose.
+	// A description about the AI skill.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
-
-	// If defined, and the probe matches a file, will run a regexp on the content to
-	// find a match.
-	FileContentMatch *string `json:"fileContentMatch,omitempty" msgpack:"fileContentMatch,omitempty" bson:"filecontentmatch,omitempty" mapstructure:"fileContentMatch,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1072,23 +968,20 @@ type SparseOSProbe struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the OS probe.
+	// The name of the AI skill.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The location(s) where the probe should look.
-	// Supports the following generics:
-	// - prefix `~` to denote user path.
-	// - `*` to denotes crawling siblings for files/folders.
-	Paths *[]string `json:"paths,omitempty" msgpack:"paths,omitempty" bson:"paths,omitempty" mapstructure:"paths,omitempty"`
-
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// The type of OS probe.
-	Type *OSProbeTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
+	// The source repo of the skill.
+	Repo *string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"-" mapstructure:"repo,omitempty"`
+
+	// The risk score of the skill.
+	RiskScore *AISkillRiskScoreValue `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1102,19 +995,19 @@ type SparseOSProbe struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseOSProbe returns a new  SparseOSProbe.
-func NewSparseOSProbe() *SparseOSProbe {
-	return &SparseOSProbe{}
+// NewSparseAISkill returns a new  SparseAISkill.
+func NewSparseAISkill() *SparseAISkill {
+	return &SparseAISkill{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseOSProbe) Identity() elemental.Identity {
+func (o *SparseAISkill) Identity() elemental.Identity {
 
-	return OSProbeIdentity
+	return AISkillIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseOSProbe) Identifier() string {
+func (o *SparseAISkill) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1123,7 +1016,7 @@ func (o *SparseOSProbe) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseOSProbe) SetIdentifier(id string) {
+func (o *SparseAISkill) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1134,19 +1027,16 @@ func (o *SparseOSProbe) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOSProbe) GetBSON() (any, error) {
+func (o *SparseAISkill) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseOSProbe{}
+	s := &mongoAttributesSparseAISkill{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
-	}
-	if o.Aliases != nil {
-		s.Aliases = o.Aliases
 	}
 	if o.AssociatedAppName != nil {
 		s.AssociatedAppName = o.AssociatedAppName
@@ -1156,9 +1046,6 @@ func (o *SparseOSProbe) GetBSON() (any, error) {
 	}
 	if o.Description != nil {
 		s.Description = o.Description
-	}
-	if o.FileContentMatch != nil {
-		s.FileContentMatch = o.FileContentMatch
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -1172,14 +1059,11 @@ func (o *SparseOSProbe) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.Paths != nil {
-		s.Paths = o.Paths
-	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.Type != nil {
-		s.Type = o.Type
+	if o.RiskScore != nil {
+		s.RiskScore = o.RiskScore
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1196,22 +1080,19 @@ func (o *SparseOSProbe) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseOSProbe) SetBSON(raw bson.Raw) error {
+func (o *SparseAISkill) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseOSProbe{}
+	s := &mongoAttributesSparseAISkill{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.Aliases != nil {
-		o.Aliases = s.Aliases
-	}
 	if s.AssociatedAppName != nil {
 		o.AssociatedAppName = s.AssociatedAppName
 	}
@@ -1220,9 +1101,6 @@ func (o *SparseOSProbe) SetBSON(raw bson.Raw) error {
 	}
 	if s.Description != nil {
 		o.Description = s.Description
-	}
-	if s.FileContentMatch != nil {
-		o.FileContentMatch = s.FileContentMatch
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1236,14 +1114,11 @@ func (o *SparseOSProbe) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.Paths != nil {
-		o.Paths = s.Paths
-	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.Type != nil {
-		o.Type = s.Type
+	if s.RiskScore != nil {
+		o.RiskScore = s.RiskScore
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1259,20 +1134,17 @@ func (o *SparseOSProbe) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseOSProbe) Version() int {
+func (o *SparseAISkill) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseOSProbe) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseAISkill) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewOSProbe()
+	out := NewAISkill()
 	if o.ID != nil {
 		out.ID = *o.ID
-	}
-	if o.Aliases != nil {
-		out.Aliases = *o.Aliases
 	}
 	if o.AssociatedAppName != nil {
 		out.AssociatedAppName = *o.AssociatedAppName
@@ -1282,9 +1154,6 @@ func (o *SparseOSProbe) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
-	}
-	if o.FileContentMatch != nil {
-		out.FileContentMatch = *o.FileContentMatch
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1298,14 +1167,14 @@ func (o *SparseOSProbe) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.Paths != nil {
-		out.Paths = *o.Paths
-	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.Type != nil {
-		out.Type = *o.Type
+	if o.Repo != nil {
+		out.Repo = *o.Repo
+	}
+	if o.RiskScore != nil {
+		out.RiskScore = *o.RiskScore
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1321,19 +1190,19 @@ func (o *SparseOSProbe) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseOSProbe) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseAISkill) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseOSProbe) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseAISkill) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseOSProbe) GetCreateTime() (out time.Time) {
+func (o *SparseAISkill) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1343,13 +1212,13 @@ func (o *SparseOSProbe) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetCreateTime(createTime time.Time) {
+func (o *SparseAISkill) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseOSProbe) GetImportHash() (out string) {
+func (o *SparseAISkill) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1359,13 +1228,13 @@ func (o *SparseOSProbe) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetImportHash(importHash string) {
+func (o *SparseAISkill) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseOSProbe) GetImportLabel() (out string) {
+func (o *SparseAISkill) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1375,13 +1244,13 @@ func (o *SparseOSProbe) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetImportLabel(importLabel string) {
+func (o *SparseAISkill) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseOSProbe) GetNamespace() (out string) {
+func (o *SparseAISkill) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1391,13 +1260,13 @@ func (o *SparseOSProbe) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetNamespace(namespace string) {
+func (o *SparseAISkill) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseOSProbe) GetPropagate() (out bool) {
+func (o *SparseAISkill) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1407,13 +1276,13 @@ func (o *SparseOSProbe) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetPropagate(propagate bool) {
+func (o *SparseAISkill) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseOSProbe) GetUpdateTime() (out time.Time) {
+func (o *SparseAISkill) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1423,68 +1292,62 @@ func (o *SparseOSProbe) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseOSProbe) SetUpdateTime(updateTime time.Time) {
+func (o *SparseAISkill) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseOSProbe.
-func (o *SparseOSProbe) DeepCopy() *SparseOSProbe {
+// DeepCopy returns a deep copy if the SparseAISkill.
+func (o *SparseAISkill) DeepCopy() *SparseAISkill {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseOSProbe{}
+	out := &SparseAISkill{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseOSProbe.
-func (o *SparseOSProbe) DeepCopyInto(out *SparseOSProbe) {
+// DeepCopyInto copies the receiver into the given *SparseAISkill.
+func (o *SparseAISkill) DeepCopyInto(out *SparseAISkill) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseOSProbe: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseAISkill: %s", err))
 	}
 
-	*out = *target.(*SparseOSProbe)
+	*out = *target.(*SparseAISkill)
 }
 
-type mongoAttributesOSProbe struct {
-	ID                bson.ObjectId    `bson:"_id,omitempty"`
-	Aliases           []string         `bson:"aliases"`
-	AssociatedAppName string           `bson:"associatedappname"`
-	CreateTime        time.Time        `bson:"createtime"`
-	Description       string           `bson:"description,omitempty"`
-	FileContentMatch  string           `bson:"filecontentmatch,omitempty"`
-	ImportHash        string           `bson:"importhash,omitempty"`
-	ImportLabel       string           `bson:"importlabel,omitempty"`
-	Name              string           `bson:"name"`
-	Namespace         string           `bson:"namespace,omitempty"`
-	Paths             []string         `bson:"paths"`
-	Propagate         bool             `bson:"propagate"`
-	Type              OSProbeTypeValue `bson:"type"`
-	UpdateTime        time.Time        `bson:"updatetime"`
-	ZHash             int              `bson:"zhash"`
-	Zone              int              `bson:"zone"`
+type mongoAttributesAISkill struct {
+	ID                bson.ObjectId         `bson:"_id,omitempty"`
+	AssociatedAppName string                `bson:"associatedappname"`
+	CreateTime        time.Time             `bson:"createtime"`
+	Description       string                `bson:"description,omitempty"`
+	ImportHash        string                `bson:"importhash,omitempty"`
+	ImportLabel       string                `bson:"importlabel,omitempty"`
+	Name              string                `bson:"name"`
+	Namespace         string                `bson:"namespace,omitempty"`
+	Propagate         bool                  `bson:"propagate"`
+	RiskScore         AISkillRiskScoreValue `bson:"riskscore"`
+	UpdateTime        time.Time             `bson:"updatetime"`
+	ZHash             int                   `bson:"zhash"`
+	Zone              int                   `bson:"zone"`
 }
-type mongoAttributesSparseOSProbe struct {
-	ID                bson.ObjectId     `bson:"_id,omitempty"`
-	Aliases           *[]string         `bson:"aliases,omitempty"`
-	AssociatedAppName *string           `bson:"associatedappname,omitempty"`
-	CreateTime        *time.Time        `bson:"createtime,omitempty"`
-	Description       *string           `bson:"description,omitempty"`
-	FileContentMatch  *string           `bson:"filecontentmatch,omitempty"`
-	ImportHash        *string           `bson:"importhash,omitempty"`
-	ImportLabel       *string           `bson:"importlabel,omitempty"`
-	Name              *string           `bson:"name,omitempty"`
-	Namespace         *string           `bson:"namespace,omitempty"`
-	Paths             *[]string         `bson:"paths,omitempty"`
-	Propagate         *bool             `bson:"propagate,omitempty"`
-	Type              *OSProbeTypeValue `bson:"type,omitempty"`
-	UpdateTime        *time.Time        `bson:"updatetime,omitempty"`
-	ZHash             *int              `bson:"zhash,omitempty"`
-	Zone              *int              `bson:"zone,omitempty"`
+type mongoAttributesSparseAISkill struct {
+	ID                bson.ObjectId          `bson:"_id,omitempty"`
+	AssociatedAppName *string                `bson:"associatedappname,omitempty"`
+	CreateTime        *time.Time             `bson:"createtime,omitempty"`
+	Description       *string                `bson:"description,omitempty"`
+	ImportHash        *string                `bson:"importhash,omitempty"`
+	ImportLabel       *string                `bson:"importlabel,omitempty"`
+	Name              *string                `bson:"name,omitempty"`
+	Namespace         *string                `bson:"namespace,omitempty"`
+	Propagate         *bool                  `bson:"propagate,omitempty"`
+	RiskScore         *AISkillRiskScoreValue `bson:"riskscore,omitempty"`
+	UpdateTime        *time.Time             `bson:"updatetime,omitempty"`
+	ZHash             *int                   `bson:"zhash,omitempty"`
+	Zone              *int                   `bson:"zone,omitempty"`
 }

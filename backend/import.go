@@ -94,6 +94,9 @@ type Import struct {
 	// AI plugins to import.
 	AIPlugins AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
 
+	// AI skills to import.
+	AISkills AISkillsList `json:"AISkills,omitempty" msgpack:"AISkills,omitempty" bson:"aiskills,omitempty" mapstructure:"AISkills,omitempty"`
+
 	// APIAuthorizations to import.
 	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
@@ -202,6 +205,7 @@ func NewImport() *Import {
 		AIApps:              AIAppsList{},
 		AIDomains:           AIDomainsList{},
 		AIPlugins:           AIPluginsList{},
+		AISkills:            AISkillsList{},
 		APIAuthorizations:   APIAuthorizationsList{},
 		LDAPSources:         api.LDAPSourcesList{},
 		MTLSSources:         api.MTLSSourcesList{},
@@ -266,6 +270,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.AIApps = o.AIApps
 	s.AIDomains = o.AIDomains
 	s.AIPlugins = o.AIPlugins
+	s.AISkills = o.AISkills
 	s.APIAuthorizations = o.APIAuthorizations
 	s.LDAPSources = o.LDAPSources
 	s.MTLSSources = o.MTLSSources
@@ -318,6 +323,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.AIApps = s.AIApps
 	o.AIDomains = s.AIDomains
 	o.AIPlugins = s.AIPlugins
+	o.AISkills = s.AISkills
 	o.APIAuthorizations = s.APIAuthorizations
 	o.LDAPSources = s.LDAPSources
 	o.MTLSSources = s.MTLSSources
@@ -393,6 +399,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AIApps:              &o.AIApps,
 			AIDomains:           &o.AIDomains,
 			AIPlugins:           &o.AIPlugins,
+			AISkills:            &o.AISkills,
 			APIAuthorizations:   &o.APIAuthorizations,
 			LDAPSources:         &o.LDAPSources,
 			MTLSSources:         &o.MTLSSources,
@@ -437,6 +444,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AIDomains = &(o.AIDomains)
 		case "AIPlugins":
 			sp.AIPlugins = &(o.AIPlugins)
+		case "AISkills":
+			sp.AISkills = &(o.AISkills)
 		case "APIAuthorizations":
 			sp.APIAuthorizations = &(o.APIAuthorizations)
 		case "LDAPSources":
@@ -522,6 +531,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.AIPlugins != nil {
 		o.AIPlugins = *so.AIPlugins
+	}
+	if so.AISkills != nil {
+		o.AISkills = *so.AISkills
 	}
 	if so.APIAuthorizations != nil {
 		o.APIAuthorizations = *so.APIAuthorizations
@@ -648,6 +660,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AISkills {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AISkills' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -924,6 +945,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AISkills {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AISkills' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1232,6 +1262,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIPlugins", i))
+		}
+	}
+
+	for i, sub := range o.AISkills {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AISkills", i))
 		}
 	}
 
@@ -1549,6 +1589,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AIDomains
 	case "AIPlugins":
 		return o.AIPlugins
+	case "AISkills":
+		return o.AISkills
 	case "APIAuthorizations":
 		return o.APIAuthorizations
 	case "LDAPSources":
@@ -1651,6 +1693,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "AIPlugins",
 		Stored:         true,
 		SubType:        "aiplugin",
+		Type:           "refList",
+	},
+	"AISkills": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aiskills",
+		ConvertedName:  "AISkills",
+		Description:    `AI skills to import.`,
+		Exposed:        true,
+		Name:           "AISkills",
+		Stored:         true,
+		SubType:        "aiskill",
 		Type:           "refList",
 	},
 	"APIAuthorizations": {
@@ -2041,6 +2094,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "AIPlugins",
 		Stored:         true,
 		SubType:        "aiplugin",
+		Type:           "refList",
+	},
+	"aiskills": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aiskills",
+		ConvertedName:  "AISkills",
+		Description:    `AI skills to import.`,
+		Exposed:        true,
+		Name:           "AISkills",
+		Stored:         true,
+		SubType:        "aiskill",
 		Type:           "refList",
 	},
 	"apiauthorizations": {
@@ -2470,6 +2534,9 @@ type SparseImport struct {
 	// AI plugins to import.
 	AIPlugins *AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
 
+	// AI skills to import.
+	AISkills *AISkillsList `json:"AISkills,omitempty" msgpack:"AISkills,omitempty" bson:"aiskills,omitempty" mapstructure:"AISkills,omitempty"`
+
 	// APIAuthorizations to import.
 	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
@@ -2611,6 +2678,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.AIPlugins != nil {
 		s.AIPlugins = o.AIPlugins
 	}
+	if o.AISkills != nil {
+		s.AISkills = o.AISkills
+	}
 	if o.APIAuthorizations != nil {
 		s.APIAuthorizations = o.APIAuthorizations
 	}
@@ -2733,6 +2803,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.AIPlugins != nil {
 		o.AIPlugins = s.AIPlugins
 	}
+	if s.AISkills != nil {
+		o.AISkills = s.AISkills
+	}
 	if s.APIAuthorizations != nil {
 		o.APIAuthorizations = s.APIAuthorizations
 	}
@@ -2851,6 +2924,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.AIPlugins != nil {
 		out.AIPlugins = *o.AIPlugins
+	}
+	if o.AISkills != nil {
+		out.AISkills = *o.AISkills
 	}
 	if o.APIAuthorizations != nil {
 		out.APIAuthorizations = *o.APIAuthorizations
@@ -2984,6 +3060,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AISkills != nil {
+		for _, sub := range *o.AISkills {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AISkills' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -3324,6 +3411,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.AISkills != nil {
+		for _, sub := range *o.AISkills {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AISkills' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.APIAuthorizations != nil {
 		for _, sub := range *o.APIAuthorizations {
 			if sub == nil {
@@ -3652,6 +3750,7 @@ type mongoAttributesImport struct {
 	AIApps              AIAppsList              `bson:"aiapps,omitempty"`
 	AIDomains           AIDomainsList           `bson:"aidomains,omitempty"`
 	AIPlugins           AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISkills            AISkillsList            `bson:"aiskills,omitempty"`
 	APIAuthorizations   APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
 	LDAPSources         api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
 	MTLSSources         api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
@@ -3689,6 +3788,7 @@ type mongoAttributesSparseImport struct {
 	AIApps              *AIAppsList              `bson:"aiapps,omitempty"`
 	AIDomains           *AIDomainsList           `bson:"aidomains,omitempty"`
 	AIPlugins           *AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISkills            *AISkillsList            `bson:"aiskills,omitempty"`
 	APIAuthorizations   *APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
 	LDAPSources         *api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
 	MTLSSources         *api.MTLSSourcesList     `bson:"mtlssources,omitempty"`

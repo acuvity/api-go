@@ -19,6 +19,7 @@ var (
 
 		"aiplugin": AIPluginIdentity,
 
+		"aiskill":         AISkillIdentity,
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
 
@@ -138,6 +139,7 @@ var (
 
 		"aiplugins": AIPluginIdentity,
 
+		"aiskills":         AISkillIdentity,
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
 
@@ -282,6 +284,11 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 			{"namespace", "vetted"},
+		},
+		"aiskill": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
 		},
 		"alert": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -551,6 +558,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAIDomain()
 	case AIPluginIdentity:
 		return NewAIPlugin()
+	case AISkillIdentity:
+		return NewAISkill()
 	case AlertIdentity:
 		return NewAlert()
 	case AlertDefinitionIdentity:
@@ -732,6 +741,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAIDomain()
 	case AIPluginIdentity:
 		return NewSparseAIPlugin()
+	case AISkillIdentity:
+		return NewSparseAISkill()
 	case AlertIdentity:
 		return NewSparseAlert()
 	case AlertDefinitionIdentity:
@@ -921,6 +932,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIDomainsList{}
 	case AIPluginIdentity:
 		return &AIPluginsList{}
+	case AISkillIdentity:
+		return &AISkillsList{}
 	case AlertIdentity:
 		return &AlertsList{}
 	case AlertDefinitionIdentity:
@@ -1100,6 +1113,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIDomainsList{}
 	case AIPluginIdentity:
 		return &SparseAIPluginsList{}
+	case AISkillIdentity:
+		return &SparseAISkillsList{}
 	case AlertIdentity:
 		return &SparseAlertsList{}
 	case AlertDefinitionIdentity:
@@ -1283,6 +1298,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAgentDiscoveredApp()
 	case "agentdiscoveredmcp", "AgentDiscoveredMCP":
 		return NewAgentDiscoveredMCP()
+	case "agentdiscoveredskill", "AgentDiscoveredSkill":
+		return NewAgentDiscoveredSkill()
 	case "aidcitation", "AIDCitation":
 		return NewAIDCitation()
 	case "aidrisk", "AIDRisk":
@@ -1472,6 +1489,7 @@ func AllIdentities() []elemental.Identity {
 		AIAppIdentity,
 		AIDomainIdentity,
 		AIPluginIdentity,
+		AISkillIdentity,
 		AlertIdentity,
 		AlertDefinitionIdentity,
 		AlertTriggerIdentity,
@@ -1571,6 +1589,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AIDomainIdentity:
 		return []string{}
 	case AIPluginIdentity:
+		return []string{}
+	case AISkillIdentity:
 		return []string{}
 	case AlertIdentity:
 		return []string{}

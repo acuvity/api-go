@@ -49,6 +49,15 @@
       "title": "plugins",
       "type": "array"
     },
+    "skills": {
+      "$friendlyName": "Skills",
+      "description": "The list of configured skills for the application.",
+      "items": {
+        "$ref": "agentdiscoveredskill.json"
+      },
+      "title": "skills",
+      "type": "array"
+    },
     "type": {
       "$defaultValue": "IDE",
       "$friendlyName": "Type",

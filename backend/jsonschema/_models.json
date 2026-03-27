@@ -12,6 +12,9 @@
     "adminorg": {
       "$ref": "adminorg.json"
     },
+    "adminskillanalysis": {
+      "$ref": "adminskillanalysis.json"
+    },
     "agent": {
       "$ref": "agent.json"
     },
@@ -23,6 +26,9 @@
     },
     "agentdiscoveredmcp": {
       "$ref": "agentdiscoveredmcp.json"
+    },
+    "agentdiscoveredskill": {
+      "$ref": "agentdiscoveredskill.json"
     },
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
@@ -68,6 +74,9 @@
     },
     "aipluginwebext": {
       "$ref": "aipluginwebext.json"
+    },
+    "aiskill": {
+      "$ref": "aiskill.json"
     },
     "alert": {
       "$ref": "alert.json"

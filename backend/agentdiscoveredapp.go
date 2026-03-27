@@ -39,6 +39,9 @@ type AgentDiscoveredApp struct {
 	// The list of installed genAI plugins/extensions for the application.
 	Plugins []string `json:"plugins,omitempty" msgpack:"plugins,omitempty" bson:"-" mapstructure:"plugins,omitempty"`
 
+	// The list of configured skills for the application.
+	Skills []*AgentDiscoveredSkill `json:"skills,omitempty" msgpack:"skills,omitempty" bson:"-" mapstructure:"skills,omitempty"`
+
 	// The type of application.
 	Type AgentDiscoveredAppTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
@@ -133,6 +136,15 @@ func (o *AgentDiscoveredApp) EncryptAttributes(encrypter elemental.AttributeEncr
 		}
 	}
 
+	for _, sub := range o.Skills {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Skills' for 'AgentDiscoveredApp' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -145,6 +157,15 @@ func (o *AgentDiscoveredApp) DecryptAttributes(encrypter elemental.AttributeEncr
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPServers' for 'AgentDiscoveredApp' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Skills {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Skills' for 'AgentDiscoveredApp' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -229,6 +250,8 @@ func (o *AgentDiscoveredApp) ValueForAttribute(name string) any {
 		return o.PathInstall
 	case "plugins":
 		return o.Plugins
+	case "skills":
+		return o.Skills
 	case "type":
 		return o.Type
 	}
@@ -279,6 +302,16 @@ var AgentDiscoveredAppAttributesMap = map[string]elemental.AttributeSpecificatio
 		SubType:        "string",
 		Transient:      true,
 		Type:           "list",
+	},
+	"Skills": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Skills",
+		Description:    `The list of configured skills for the application.`,
+		Exposed:        true,
+		Name:           "skills",
+		SubType:        "agentdiscoveredskill",
+		Transient:      true,
+		Type:           "refList",
 	},
 	"Type": {
 		AllowedChoices: []string{"IDE", "Browser", "Native"},
@@ -336,6 +369,16 @@ var AgentDiscoveredAppLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		SubType:        "string",
 		Transient:      true,
 		Type:           "list",
+	},
+	"skills": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Skills",
+		Description:    `The list of configured skills for the application.`,
+		Exposed:        true,
+		Name:           "skills",
+		SubType:        "agentdiscoveredskill",
+		Transient:      true,
+		Type:           "refList",
 	},
 	"type": {
 		AllowedChoices: []string{"IDE", "Browser", "Native"},

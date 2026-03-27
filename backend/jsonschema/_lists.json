@@ -24,6 +24,12 @@
       },
       "type": "array"
     },
+    "adminskillanalyses": {
+      "items": {
+        "$ref": "adminskillanalysis.json"
+      },
+      "type": "array"
+    },
     "agentconfigs": {
       "items": {
         "$ref": "agentconfig.json"
@@ -39,6 +45,12 @@
     "agentdiscoveredmcps": {
       "items": {
         "$ref": "agentdiscoveredmcp.json"
+      },
+      "type": "array"
+    },
+    "agentdiscoveredskills": {
+      "items": {
+        "$ref": "agentdiscoveredskill.json"
       },
       "type": "array"
     },
@@ -135,6 +147,12 @@
     "aipluginwebext": {
       "items": {
         "$ref": "aipluginwebext.json"
+      },
+      "type": "array"
+    },
+    "aiskills": {
+      "items": {
+        "$ref": "aiskill.json"
       },
       "type": "array"
     },

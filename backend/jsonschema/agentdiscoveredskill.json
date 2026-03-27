@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Agent Discovered Skill",
+  "$friendlyNamePlural": "Agent Discovered Skills",
+  "$modelName": "AgentDiscoveredSkill",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "agentdiscoveredskills",
+  "$modelRestName": "agentdiscoveredskill",
+  "additionalProperties": false,
+  "description": "Represents a skill that the agent discovered.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the skill.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "path": {
+      "$friendlyName": "Path",
+      "description": "The path to the skill.",
+      "title": "path",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "repo": {
+      "$friendlyName": "Repo",
+      "description": "The source repo of the skill.",
+      "title": "repo",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AgentDiscoveredSkill",
+  "type": "object"
+}
