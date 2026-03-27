@@ -21,6 +21,9 @@ const (
 
 	// ConnectionReportActionDeny represents the value Deny.
 	ConnectionReportActionDeny ConnectionReportActionValue = "Deny"
+
+	// ConnectionReportActionError represents the value Error.
+	ConnectionReportActionError ConnectionReportActionValue = "Error"
 )
 
 // ConnectionReportDirectionValue represents the possible values for attribute "direction".
@@ -307,7 +310,7 @@ func (o *ConnectionReport) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny"}, false); err != nil {
+	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Error"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -327,19 +330,11 @@ func (o *ConnectionReport) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateMinimumInt("dstPort", o.DstPort, int(1), false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if o.Encryption != nil {
 		if err := o.Encryption.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "encryption")
 		}
-	}
-
-	if err := elemental.ValidateMinimumInt("socketCookie", o.SocketCookie, int(1), false); err != nil {
-		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("socketType", string(o.SocketType)); err != nil {
@@ -355,10 +350,6 @@ func (o *ConnectionReport) Validate() error {
 	}
 
 	if err := elemental.ValidateMaximumInt("srcPort", o.SrcPort, int(65535), false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateMinimumInt("srcPort", o.SrcPort, int(1), false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -450,7 +441,7 @@ func (o *ConnectionReport) ValueForAttribute(name string) any {
 // ConnectionReportAttributesMap represents the map of attribute for ConnectionReport.
 var ConnectionReportAttributesMap = map[string]elemental.AttributeSpecification{
 	"Action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Error"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   ConnectionReportActionAllow,
@@ -509,7 +500,6 @@ var ConnectionReportAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `The destination port of the connection.`,
 		Exposed:        true,
 		MaxValue:       65535,
-		MinValue:       1,
 		Name:           "dstPort",
 		Stored:         true,
 		Type:           "integer",
@@ -608,7 +598,6 @@ token is a JWT.`,
 		ConvertedName:  "SocketCookie",
 		Description:    `The unique identifier for the socket connection on the operating host.`,
 		Exposed:        true,
-		MinValue:       1,
 		Name:           "socketCookie",
 		Stored:         true,
 		Type:           "integer",
@@ -651,7 +640,6 @@ token is a JWT.`,
 		Description:    `The source port of the connection.`,
 		Exposed:        true,
 		MaxValue:       65535,
-		MinValue:       1,
 		Name:           "srcPort",
 		Stored:         true,
 		Type:           "integer",
@@ -701,7 +689,7 @@ token is a JWT.`,
 // ConnectionReportLowerCaseAttributesMap represents the map of attribute for ConnectionReport.
 var ConnectionReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Error"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   ConnectionReportActionAllow,
@@ -760,7 +748,6 @@ var ConnectionReportLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Description:    `The destination port of the connection.`,
 		Exposed:        true,
 		MaxValue:       65535,
-		MinValue:       1,
 		Name:           "dstPort",
 		Stored:         true,
 		Type:           "integer",
@@ -859,7 +846,6 @@ token is a JWT.`,
 		ConvertedName:  "SocketCookie",
 		Description:    `The unique identifier for the socket connection on the operating host.`,
 		Exposed:        true,
-		MinValue:       1,
 		Name:           "socketCookie",
 		Stored:         true,
 		Type:           "integer",
@@ -902,7 +888,6 @@ token is a JWT.`,
 		Description:    `The source port of the connection.`,
 		Exposed:        true,
 		MaxValue:       65535,
-		MinValue:       1,
 		Name:           "srcPort",
 		Stored:         true,
 		Type:           "integer",

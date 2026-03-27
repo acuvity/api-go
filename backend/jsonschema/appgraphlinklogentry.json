@@ -40,7 +40,10 @@
       "$friendlyName": "Findings",
       "description": "The findings categorized by type detected in the logs for this node.",
       "items": {
-        "type": "integer"
+        "items": {
+          "type": "int"
+        },
+        "type": "object"
       },
       "title": "findings",
       "type": "object"

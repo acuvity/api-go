@@ -23,7 +23,7 @@ type AppGraphLinkLogEntry struct {
 	Encrypted int `json:"encrypted" msgpack:"encrypted" bson:"-" mapstructure:"encrypted,omitempty"`
 
 	// The findings categorized by type detected in the logs for this node.
-	Findings map[string]int `json:"findings,omitempty" msgpack:"findings,omitempty" bson:"-" mapstructure:"findings,omitempty"`
+	Findings map[string]map[string]int `json:"findings,omitempty" msgpack:"findings,omitempty" bson:"-" mapstructure:"findings,omitempty"`
 
 	// The number of connections to this node with insecure encryption (e.g., TLS 1.0
 	// or 1.1).
@@ -253,7 +253,7 @@ var AppGraphLinkLogEntryAttributesMap = map[string]elemental.AttributeSpecificat
 		Description:    `The findings categorized by type detected in the logs for this node.`,
 		Exposed:        true,
 		Name:           "findings",
-		SubType:        "map[string]int",
+		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
 	"InsecureEncryption": {
@@ -316,7 +316,7 @@ var AppGraphLinkLogEntryLowerCaseAttributesMap = map[string]elemental.AttributeS
 		Description:    `The findings categorized by type detected in the logs for this node.`,
 		Exposed:        true,
 		Name:           "findings",
-		SubType:        "map[string]int",
+		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
 	"insecureencryption": {

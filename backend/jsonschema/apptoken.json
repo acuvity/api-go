@@ -95,6 +95,16 @@
         "null"
       ]
     },
+    "opaque": {
+      "$creationOnly": true,
+      "$friendlyName": "Opaque",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "This fields allows to set opaque key value pair that will be incorporated in the token. All the keys will be prefixed with 'usr/' to make sure the system can identify these opaque values. For instance if you add {k: v} then the token will have {usr/k: v}. They are not stored as they may contain sensitive user information.",
+      "title": "opaque",
+      "type": "object"
+    },
     "sourceIP": {
       "$friendlyName": "SourceIP",
       "$readOnly": true,

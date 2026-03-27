@@ -11,6 +11,20 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AppGraphTraceLinkEncryptedValue represents the possible values for attribute "encrypted".
+type AppGraphTraceLinkEncryptedValue string
+
+const (
+	// AppGraphTraceLinkEncryptedFalse represents the value False.
+	AppGraphTraceLinkEncryptedFalse AppGraphTraceLinkEncryptedValue = "False"
+
+	// AppGraphTraceLinkEncryptedTrue represents the value True.
+	AppGraphTraceLinkEncryptedTrue AppGraphTraceLinkEncryptedValue = "True"
+
+	// AppGraphTraceLinkEncryptedUndefined represents the value Undefined.
+	AppGraphTraceLinkEncryptedUndefined AppGraphTraceLinkEncryptedValue = "Undefined"
+)
+
 // AppGraphTraceLinkProcessingNodeValue represents the possible values for attribute "processingNode".
 type AppGraphTraceLinkProcessingNodeValue string
 
@@ -43,10 +57,10 @@ type AppGraphTraceLink struct {
 	DstNodeID string `json:"dstNodeID" msgpack:"dstNodeID" bson:"-" mapstructure:"dstNodeID,omitempty"`
 
 	// True if this link is a connection which is using encryption.
-	Encrypted bool `json:"encrypted" msgpack:"encrypted" bson:"-" mapstructure:"encrypted,omitempty"`
+	Encrypted AppGraphTraceLinkEncryptedValue `json:"encrypted" msgpack:"encrypted" bson:"-" mapstructure:"encrypted,omitempty"`
 
 	// The findings categorized by type detected for this link.
-	Findings map[string]int `json:"findings,omitempty" msgpack:"findings,omitempty" bson:"-" mapstructure:"findings,omitempty"`
+	Findings map[string]map[string]int `json:"findings,omitempty" msgpack:"findings,omitempty" bson:"-" mapstructure:"findings,omitempty"`
 
 	// True if this link is a connection using insecure encryption (e.g., TLS 1.0 or
 	// 1.1).
@@ -93,6 +107,7 @@ func NewAppGraphTraceLink() *AppGraphTraceLink {
 
 	return &AppGraphTraceLink{
 		ModelVersion: 1,
+		Encrypted:    AppGraphTraceLinkEncryptedUndefined,
 	}
 }
 func (o *AppGraphTraceLink) Identity() elemental.Identity {
@@ -213,6 +228,10 @@ func (o *AppGraphTraceLink) Validate() error {
 
 	if err := elemental.ValidateRequiredString("dstNodeID", o.DstNodeID); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("encrypted", string(o.Encrypted), []string{"True", "False", "Undefined"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Log != nil {
@@ -346,12 +365,13 @@ destination for this link.`,
 		Type:     "string",
 	},
 	"Encrypted": {
-		AllowedChoices: []string{},
+		AllowedChoices: []string{"True", "False", "Undefined"},
 		ConvertedName:  "Encrypted",
+		DefaultValue:   AppGraphTraceLinkEncryptedUndefined,
 		Description:    `True if this link is a connection which is using encryption.`,
 		Exposed:        true,
 		Name:           "encrypted",
-		Type:           "boolean",
+		Type:           "enum",
 	},
 	"Findings": {
 		AllowedChoices: []string{},
@@ -359,7 +379,7 @@ destination for this link.`,
 		Description:    `The findings categorized by type detected for this link.`,
 		Exposed:        true,
 		Name:           "findings",
-		SubType:        "map[string]int",
+		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
 	"InsecureEncryption": {
@@ -479,12 +499,13 @@ destination for this link.`,
 		Type:     "string",
 	},
 	"encrypted": {
-		AllowedChoices: []string{},
+		AllowedChoices: []string{"True", "False", "Undefined"},
 		ConvertedName:  "Encrypted",
+		DefaultValue:   AppGraphTraceLinkEncryptedUndefined,
 		Description:    `True if this link is a connection which is using encryption.`,
 		Exposed:        true,
 		Name:           "encrypted",
-		Type:           "boolean",
+		Type:           "enum",
 	},
 	"findings": {
 		AllowedChoices: []string{},
@@ -492,7 +513,7 @@ destination for this link.`,
 		Description:    `The findings categorized by type detected for this link.`,
 		Exposed:        true,
 		Name:           "findings",
-		SubType:        "map[string]int",
+		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
 	"insecureencryption": {

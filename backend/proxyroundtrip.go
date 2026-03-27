@@ -29,6 +29,9 @@ const (
 	// ProxyRoundtripDecisionDeny represents the value Deny.
 	ProxyRoundtripDecisionDeny ProxyRoundtripDecisionValue = "Deny"
 
+	// ProxyRoundtripDecisionError represents the value Error.
+	ProxyRoundtripDecisionError ProxyRoundtripDecisionValue = "Error"
+
 	// ProxyRoundtripDecisionForbiddenUser represents the value ForbiddenUser.
 	ProxyRoundtripDecisionForbiddenUser ProxyRoundtripDecisionValue = "ForbiddenUser"
 
@@ -37,6 +40,9 @@ const (
 
 	// ProxyRoundtripDecisionSkipped represents the value Skipped.
 	ProxyRoundtripDecisionSkipped ProxyRoundtripDecisionValue = "Skipped"
+
+	// ProxyRoundtripDecisionUpstreamError represents the value UpstreamError.
+	ProxyRoundtripDecisionUpstreamError ProxyRoundtripDecisionValue = "UpstreamError"
 )
 
 // ProxyRoundtripProxyFunctionValue represents the possible values for attribute "proxyFunction".
@@ -878,7 +884,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1144,7 +1150,7 @@ var ProxyRoundtripAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1503,7 +1509,7 @@ var ProxyRoundtripLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,

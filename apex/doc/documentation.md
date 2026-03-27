@@ -309,7 +309,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError)`
 
 Tell what was the decision about the data.
 
@@ -645,7 +645,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError)`
 
 Tell what was the decision about the data.
 
@@ -1916,7 +1916,11 @@ Describes the principal information of an external request.
     "email=john.doe@acme.com",
     "@validated=false"
   ],
-  "username": "john.doe@acme.com"
+  "username": "john.doe@acme.com",
+  "workloadGroupHash": "wg-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+  "workloadGroupSetHash": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupSetLabel": "k8s:namespace=demo"
 }
 ```
 
@@ -1934,6 +1938,30 @@ claims can be mapped to different keys.
 Type: `string`
 
 The optional username of the request.
+
+##### `workloadGroupHash`
+
+Type: `string`
+
+The hash of the workload group this application belongs to.
+
+##### `workloadGroupLabel`
+
+Type: `string`
+
+The label format of the workload group this application belongs to.
+
+##### `workloadGroupSetHash`
+
+Type: `string`
+
+The hash of the workload group set this application belongs to.
+
+##### `workloadGroupSetLabel`
+
+Type: `string`
+
+The label format of the workload group set this application belongs to.
 
 ### PrincipalUser
 

@@ -844,7 +844,9 @@
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
-              "Redirected"
+              "Redirected",
+              "Error",
+              "UpstreamError"
             ]
           },
           "extractions": {
@@ -1074,6 +1076,26 @@
             "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
             "type": "string"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1244,7 +1266,9 @@
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
-              "Redirected"
+              "Redirected",
+              "Error",
+              "UpstreamError"
             ]
           },
           "extractions": {

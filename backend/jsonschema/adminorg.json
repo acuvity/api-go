@@ -11,6 +11,16 @@
   "additionalProperties": false,
   "description": "Administrative API to create new organizations.",
   "properties": {
+    "CTSID": {
+      "$creationOnly": true,
+      "$friendlyName": "CTS ID",
+      "description": "External customer/tenant identifier for DSG customer mapping.",
+      "title": "CTSID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,

@@ -70,7 +70,9 @@
         "Bypassed",
         "ForbiddenUser",
         "Skipped",
-        "Redirected"
+        "Redirected",
+        "Error",
+        "UpstreamError"
       ],
       "title": "decision"
     },

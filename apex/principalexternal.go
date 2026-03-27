@@ -91,6 +91,18 @@ type PrincipalExternal struct {
 	// The optional username of the request.
 	Username string `json:"username,omitempty" msgpack:"username,omitempty" bson:"username,omitempty" mapstructure:"username,omitempty"`
 
+	// The hash of the workload group this application belongs to.
+	WorkloadGroupHash string `json:"workloadGroupHash,omitempty" msgpack:"workloadGroupHash,omitempty" bson:"workloadgrouphash,omitempty" mapstructure:"workloadGroupHash,omitempty"`
+
+	// The label format of the workload group this application belongs to.
+	WorkloadGroupLabel string `json:"workloadGroupLabel,omitempty" msgpack:"workloadGroupLabel,omitempty" bson:"workloadgrouplabel,omitempty" mapstructure:"workloadGroupLabel,omitempty"`
+
+	// The hash of the workload group set this application belongs to.
+	WorkloadGroupSetHash string `json:"workloadGroupSetHash,omitempty" msgpack:"workloadGroupSetHash,omitempty" bson:"workloadgroupsethash,omitempty" mapstructure:"workloadGroupSetHash,omitempty"`
+
+	// The label format of the workload group set this application belongs to.
+	WorkloadGroupSetLabel string `json:"workloadGroupSetLabel,omitempty" msgpack:"workloadGroupSetLabel,omitempty" bson:"workloadgroupsetlabel,omitempty" mapstructure:"workloadGroupSetLabel,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -132,6 +144,10 @@ func (o *PrincipalExternal) GetBSON() (any, error) {
 
 	s.UserClaims = o.UserClaims
 	s.Username = o.Username
+	s.WorkloadGroupHash = o.WorkloadGroupHash
+	s.WorkloadGroupLabel = o.WorkloadGroupLabel
+	s.WorkloadGroupSetHash = o.WorkloadGroupSetHash
+	s.WorkloadGroupSetLabel = o.WorkloadGroupSetLabel
 
 	return s, nil
 }
@@ -151,6 +167,10 @@ func (o *PrincipalExternal) SetBSON(raw bson.Raw) error {
 
 	o.UserClaims = s.UserClaims
 	o.Username = s.Username
+	o.WorkloadGroupHash = s.WorkloadGroupHash
+	o.WorkloadGroupLabel = s.WorkloadGroupLabel
+	o.WorkloadGroupSetHash = s.WorkloadGroupSetHash
+	o.WorkloadGroupSetLabel = s.WorkloadGroupSetLabel
 
 	return nil
 }
@@ -191,8 +211,12 @@ func (o *PrincipalExternal) ToSparse(fields ...string) elemental.SparseIdentifia
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePrincipalExternal{
-			UserClaims: &o.UserClaims,
-			Username:   &o.Username,
+			UserClaims:            &o.UserClaims,
+			Username:              &o.Username,
+			WorkloadGroupHash:     &o.WorkloadGroupHash,
+			WorkloadGroupLabel:    &o.WorkloadGroupLabel,
+			WorkloadGroupSetHash:  &o.WorkloadGroupSetHash,
+			WorkloadGroupSetLabel: &o.WorkloadGroupSetLabel,
 		}
 	}
 
@@ -203,6 +227,14 @@ func (o *PrincipalExternal) ToSparse(fields ...string) elemental.SparseIdentifia
 			sp.UserClaims = &(o.UserClaims)
 		case "username":
 			sp.Username = &(o.Username)
+		case "workloadGroupHash":
+			sp.WorkloadGroupHash = &(o.WorkloadGroupHash)
+		case "workloadGroupLabel":
+			sp.WorkloadGroupLabel = &(o.WorkloadGroupLabel)
+		case "workloadGroupSetHash":
+			sp.WorkloadGroupSetHash = &(o.WorkloadGroupSetHash)
+		case "workloadGroupSetLabel":
+			sp.WorkloadGroupSetLabel = &(o.WorkloadGroupSetLabel)
 		}
 	}
 
@@ -221,6 +253,18 @@ func (o *PrincipalExternal) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Username != nil {
 		o.Username = *so.Username
+	}
+	if so.WorkloadGroupHash != nil {
+		o.WorkloadGroupHash = *so.WorkloadGroupHash
+	}
+	if so.WorkloadGroupLabel != nil {
+		o.WorkloadGroupLabel = *so.WorkloadGroupLabel
+	}
+	if so.WorkloadGroupSetHash != nil {
+		o.WorkloadGroupSetHash = *so.WorkloadGroupSetHash
+	}
+	if so.WorkloadGroupSetLabel != nil {
+		o.WorkloadGroupSetLabel = *so.WorkloadGroupSetLabel
 	}
 }
 
@@ -306,6 +350,14 @@ func (o *PrincipalExternal) ValueForAttribute(name string) any {
 		return o.UserClaims
 	case "username":
 		return o.Username
+	case "workloadGroupHash":
+		return o.WorkloadGroupHash
+	case "workloadGroupLabel":
+		return o.WorkloadGroupLabel
+	case "workloadGroupSetHash":
+		return o.WorkloadGroupSetHash
+	case "workloadGroupSetLabel":
+		return o.WorkloadGroupSetLabel
 	}
 
 	return nil
@@ -335,6 +387,46 @@ claims can be mapped to different keys.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"WorkloadGroupHash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouphash",
+		ConvertedName:  "WorkloadGroupHash",
+		Description:    `The hash of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouplabel",
+		ConvertedName:  "WorkloadGroupLabel",
+		Description:    `The label format of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupLabel",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupSetHash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsethash",
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description:    `The hash of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"WorkloadGroupSetLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsetlabel",
+		ConvertedName:  "WorkloadGroupSetLabel",
+		Description:    `The label format of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetLabel",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
 // PrincipalExternalLowerCaseAttributesMap represents the map of attribute for PrincipalExternal.
@@ -358,6 +450,46 @@ claims can be mapped to different keys.`,
 		Description:    `The optional username of the request.`,
 		Exposed:        true,
 		Name:           "username",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgrouphash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouphash",
+		ConvertedName:  "WorkloadGroupHash",
+		Description:    `The hash of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgrouplabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgrouplabel",
+		ConvertedName:  "WorkloadGroupLabel",
+		Description:    `The label format of the workload group this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupLabel",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgroupsethash": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsethash",
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description:    `The hash of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetHash",
+		Stored:         true,
+		Type:           "string",
+	},
+	"workloadgroupsetlabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "workloadgroupsetlabel",
+		ConvertedName:  "WorkloadGroupSetLabel",
+		Description:    `The label format of the workload group set this application belongs to.`,
+		Exposed:        true,
+		Name:           "workloadGroupSetLabel",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -433,6 +565,18 @@ type SparsePrincipalExternal struct {
 	// The optional username of the request.
 	Username *string `json:"username,omitempty" msgpack:"username,omitempty" bson:"username,omitempty" mapstructure:"username,omitempty"`
 
+	// The hash of the workload group this application belongs to.
+	WorkloadGroupHash *string `json:"workloadGroupHash,omitempty" msgpack:"workloadGroupHash,omitempty" bson:"workloadgrouphash,omitempty" mapstructure:"workloadGroupHash,omitempty"`
+
+	// The label format of the workload group this application belongs to.
+	WorkloadGroupLabel *string `json:"workloadGroupLabel,omitempty" msgpack:"workloadGroupLabel,omitempty" bson:"workloadgrouplabel,omitempty" mapstructure:"workloadGroupLabel,omitempty"`
+
+	// The hash of the workload group set this application belongs to.
+	WorkloadGroupSetHash *string `json:"workloadGroupSetHash,omitempty" msgpack:"workloadGroupSetHash,omitempty" bson:"workloadgroupsethash,omitempty" mapstructure:"workloadGroupSetHash,omitempty"`
+
+	// The label format of the workload group set this application belongs to.
+	WorkloadGroupSetLabel *string `json:"workloadGroupSetLabel,omitempty" msgpack:"workloadGroupSetLabel,omitempty" bson:"workloadgroupsetlabel,omitempty" mapstructure:"workloadGroupSetLabel,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -474,6 +618,18 @@ func (o *SparsePrincipalExternal) GetBSON() (any, error) {
 	if o.Username != nil {
 		s.Username = o.Username
 	}
+	if o.WorkloadGroupHash != nil {
+		s.WorkloadGroupHash = o.WorkloadGroupHash
+	}
+	if o.WorkloadGroupLabel != nil {
+		s.WorkloadGroupLabel = o.WorkloadGroupLabel
+	}
+	if o.WorkloadGroupSetHash != nil {
+		s.WorkloadGroupSetHash = o.WorkloadGroupSetHash
+	}
+	if o.WorkloadGroupSetLabel != nil {
+		s.WorkloadGroupSetLabel = o.WorkloadGroupSetLabel
+	}
 
 	return s, nil
 }
@@ -497,6 +653,18 @@ func (o *SparsePrincipalExternal) SetBSON(raw bson.Raw) error {
 	if s.Username != nil {
 		o.Username = s.Username
 	}
+	if s.WorkloadGroupHash != nil {
+		o.WorkloadGroupHash = s.WorkloadGroupHash
+	}
+	if s.WorkloadGroupLabel != nil {
+		o.WorkloadGroupLabel = s.WorkloadGroupLabel
+	}
+	if s.WorkloadGroupSetHash != nil {
+		o.WorkloadGroupSetHash = s.WorkloadGroupSetHash
+	}
+	if s.WorkloadGroupSetLabel != nil {
+		o.WorkloadGroupSetLabel = s.WorkloadGroupSetLabel
+	}
 
 	return nil
 }
@@ -516,6 +684,18 @@ func (o *SparsePrincipalExternal) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Username != nil {
 		out.Username = *o.Username
+	}
+	if o.WorkloadGroupHash != nil {
+		out.WorkloadGroupHash = *o.WorkloadGroupHash
+	}
+	if o.WorkloadGroupLabel != nil {
+		out.WorkloadGroupLabel = *o.WorkloadGroupLabel
+	}
+	if o.WorkloadGroupSetHash != nil {
+		out.WorkloadGroupSetHash = *o.WorkloadGroupSetHash
+	}
+	if o.WorkloadGroupSetLabel != nil {
+		out.WorkloadGroupSetLabel = *o.WorkloadGroupSetLabel
 	}
 
 	return out
@@ -558,10 +738,18 @@ func (o *SparsePrincipalExternal) DeepCopyInto(out *SparsePrincipalExternal) {
 }
 
 type mongoAttributesPrincipalExternal struct {
-	UserClaims []string `bson:"userclaims,omitempty"`
-	Username   string   `bson:"username,omitempty"`
+	UserClaims            []string `bson:"userclaims,omitempty"`
+	Username              string   `bson:"username,omitempty"`
+	WorkloadGroupHash     string   `bson:"workloadgrouphash,omitempty"`
+	WorkloadGroupLabel    string   `bson:"workloadgrouplabel,omitempty"`
+	WorkloadGroupSetHash  string   `bson:"workloadgroupsethash,omitempty"`
+	WorkloadGroupSetLabel string   `bson:"workloadgroupsetlabel,omitempty"`
 }
 type mongoAttributesSparsePrincipalExternal struct {
-	UserClaims *[]string `bson:"userclaims,omitempty"`
-	Username   *string   `bson:"username,omitempty"`
+	UserClaims            *[]string `bson:"userclaims,omitempty"`
+	Username              *string   `bson:"username,omitempty"`
+	WorkloadGroupHash     *string   `bson:"workloadgrouphash,omitempty"`
+	WorkloadGroupLabel    *string   `bson:"workloadgrouplabel,omitempty"`
+	WorkloadGroupSetHash  *string   `bson:"workloadgroupsethash,omitempty"`
+	WorkloadGroupSetLabel *string   `bson:"workloadgroupsetlabel,omitempty"`
 }

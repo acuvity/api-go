@@ -29,6 +29,9 @@ const (
 	// ScanResponseDecisionDeny represents the value Deny.
 	ScanResponseDecisionDeny ScanResponseDecisionValue = "Deny"
 
+	// ScanResponseDecisionError represents the value Error.
+	ScanResponseDecisionError ScanResponseDecisionValue = "Error"
+
 	// ScanResponseDecisionForbiddenUser represents the value ForbiddenUser.
 	ScanResponseDecisionForbiddenUser ScanResponseDecisionValue = "ForbiddenUser"
 
@@ -37,6 +40,9 @@ const (
 
 	// ScanResponseDecisionSkipped represents the value Skipped.
 	ScanResponseDecisionSkipped ScanResponseDecisionValue = "Skipped"
+
+	// ScanResponseDecisionUpstreamError represents the value UpstreamError.
+	ScanResponseDecisionUpstreamError ScanResponseDecisionValue = "UpstreamError"
 )
 
 // ScanResponseTypeValue represents the possible values for attribute "type".
@@ -675,7 +681,7 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -888,7 +894,7 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1132,7 +1138,7 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,

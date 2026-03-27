@@ -21,7 +21,8 @@
       "description": "The action taken.",
       "enum": [
         "Allow",
-        "Deny"
+        "Deny",
+        "Error"
       ],
       "title": "action"
     },
@@ -66,7 +67,6 @@
       "$friendlyName": "Destination Port",
       "description": "The destination port of the connection.",
       "maximum": 65535,
-      "minimum": 1,
       "title": "dstPort",
       "type": [
         "integer",
@@ -154,7 +154,6 @@
     "socketCookie": {
       "$friendlyName": "Socket Cookie",
       "description": "The unique identifier for the socket connection on the operating host.",
-      "minimum": 1,
       "title": "socketCookie",
       "type": [
         "integer",
@@ -195,7 +194,6 @@
       "$friendlyName": "Source Port",
       "description": "The source port of the connection.",
       "maximum": 65535,
-      "minimum": 1,
       "title": "srcPort",
       "type": [
         "integer",

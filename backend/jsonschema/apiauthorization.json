@@ -107,6 +107,7 @@
       "description": "The role for the subjects.",
       "enum": [
         "Administrator",
+        "SecurityAdministrator",
         "Application",
         "Custom",
         "Employee",

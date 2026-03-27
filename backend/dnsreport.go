@@ -20,6 +20,9 @@ const (
 
 	// DNSReportActionDeny represents the value Deny.
 	DNSReportActionDeny DNSReportActionValue = "Deny"
+
+	// DNSReportActionError represents the value Error.
+	DNSReportActionError DNSReportActionValue = "Error"
 )
 
 // DNSReport represents the model of a dnsreport
@@ -216,7 +219,7 @@ func (o *DNSReport) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny"}, false); err != nil {
+	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Error"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -333,7 +336,7 @@ var DNSReportAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "list",
 	},
 	"Action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Error"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   DNSReportActionAllow,
@@ -484,7 +487,7 @@ var DNSReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Type:           "list",
 	},
 	"action": {
-		AllowedChoices: []string{"Allow", "Deny"},
+		AllowedChoices: []string{"Allow", "Deny", "Error"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   DNSReportActionAllow,

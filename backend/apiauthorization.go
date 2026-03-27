@@ -47,6 +47,9 @@ const (
 	// APIAuthorizationRoleRiskAuditor represents the value RiskAuditor.
 	APIAuthorizationRoleRiskAuditor APIAuthorizationRoleValue = "RiskAuditor"
 
+	// APIAuthorizationRoleSecurityAdministrator represents the value SecurityAdministrator.
+	APIAuthorizationRoleSecurityAdministrator APIAuthorizationRoleValue = "SecurityAdministrator"
+
 	// APIAuthorizationRoleViewer represents the value Viewer.
 	APIAuthorizationRoleViewer APIAuthorizationRoleValue = "Viewer"
 )
@@ -524,7 +527,7 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"}, false); err != nil {
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -719,7 +722,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"Role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
+		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -888,7 +891,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"role": {
-		AllowedChoices: []string{"Administrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
+		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "RiskAuditor", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,

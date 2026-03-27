@@ -166,6 +166,10 @@
       "adminorg": {
         "description": "Administrative API to create new organizations.",
         "properties": {
+          "CTSID": {
+            "description": "External customer/tenant identifier for DSG customer mapping.",
+            "type": "string"
+          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -1881,6 +1885,7 @@
             "description": "The role for the subjects.",
             "enum": [
               "Administrator",
+              "SecurityAdministrator",
               "Application",
               "Custom",
               "Employee",
@@ -2059,6 +2064,10 @@
             "description": "Internal details about the status of the app agent which can assist in\ntroubleshooting problems. The format of the internal details are version,\nplatform and workload specific and subject to change.",
             "type": "string"
           },
+          "healthy": {
+            "description": "True if the agent is considered healthy from the perspective of the app\nagent.",
+            "type": "boolean"
+          },
           "hostname": {
             "description": "The name of the host where the agent is running.",
             "example": "this-hostname",
@@ -2100,7 +2109,8 @@
             "description": "The status of the app agent.",
             "enum": [
               "Alive",
-              "Stopped"
+              "Stopped",
+              "Unresponsive"
             ],
             "example": "Alive"
           },
@@ -2397,10 +2407,15 @@
           "findings": {
             "description": "The findings categorized by type detected in the logs for this node.",
             "example": {
-              "pii": 42
+              "pii": {
+                "credit_card": 1
+              }
             },
             "items": {
-              "type": "integer"
+              "items": {
+                "type": "int"
+              },
+              "type": "object"
             },
             "type": "object"
           },
@@ -2640,16 +2655,26 @@
             "type": "string"
           },
           "encrypted": {
+            "default": "Undefined",
             "description": "True if this link is a connection which is using encryption.",
-            "type": "boolean"
+            "enum": [
+              "True",
+              "False",
+              "Undefined"
+            ]
           },
           "findings": {
             "description": "The findings categorized by type detected for this link.",
             "example": {
-              "pii": 42
+              "pii": {
+                "credit_card": 1
+              }
             },
             "items": {
-              "type": "integer"
+              "items": {
+                "type": "int"
+              },
+              "type": "object"
             },
             "type": "object"
           },
@@ -2839,6 +2864,13 @@
             "readOnly": true,
             "type": "string"
           },
+          "opaque": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "This fields allows to set opaque key value pair that will be incorporated in the\ntoken. All the keys will be prefixed with 'usr/' to make sure the system can\nidentify these opaque values. For instance if you add {k: v} then the\ntoken will have {usr/k: v}. They are not stored as they may contain sensitive\nuser information.",
+            "type": "object"
+          },
           "sourceIP": {
             "description": "The source IP of the request that initiated the creation of the token.",
             "readOnly": true,
@@ -2920,7 +2952,8 @@
             "description": "The action taken.",
             "enum": [
               "Allow",
-              "Deny"
+              "Deny",
+              "Error"
             ]
           },
           "actionOrigin": {
@@ -3532,7 +3565,8 @@
             "description": "The action taken.",
             "enum": [
               "Allow",
-              "Deny"
+              "Deny",
+              "Error"
             ]
           },
           "actionOrigin": {
@@ -5039,10 +5073,10 @@
             "description": "List of extractors for the provider.",
             "example": [
               {
-                "ref": "mcp/input"
+                "ref": "mcp/input-sse"
               },
               {
-                "ref": "mcp/output"
+                "ref": "mcp/output-sse"
               }
             ],
             "items": {
@@ -6864,6 +6898,26 @@
             "description": "The optional username of the request.",
             "example": "john.doe@acme.com",
             "type": "string"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
           }
         },
         "type": "object"
@@ -7407,7 +7461,9 @@
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
-              "Redirected"
+              "Redirected",
+              "Error",
+              "UpstreamError"
             ]
           },
           "destination": {

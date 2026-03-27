@@ -75,6 +75,15 @@
         "null"
       ]
     },
+    "healthy": {
+      "$friendlyName": "Healthy",
+      "description": "True if the agent is considered healthy from the perspective of the app agent.",
+      "title": "healthy",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "hostname": {
       "$friendlyName": "Hostname",
       "$required": true,
@@ -152,7 +161,8 @@
       "description": "The status of the app agent.",
       "enum": [
         "Alive",
-        "Stopped"
+        "Stopped",
+        "Unresponsive"
       ],
       "title": "status"
     },

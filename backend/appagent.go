@@ -22,6 +22,9 @@ const (
 
 	// AppAgentStatusStopped represents the value Stopped.
 	AppAgentStatusStopped AppAgentStatusValue = "Stopped"
+
+	// AppAgentStatusUnresponsive represents the value Unresponsive.
+	AppAgentStatusUnresponsive AppAgentStatusValue = "Unresponsive"
 )
 
 // AppAgentIdentity represents the Identity of the object.
@@ -100,23 +103,27 @@ type AppAgent struct {
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// The list of app components that this app agent can impersonate.
-	AccessibleAppComponents []string `json:"accessibleAppComponents,omitempty" msgpack:"accessibleAppComponents,omitempty" bson:"accessibleappcomponents,omitempty" mapstructure:"accessibleAppComponents,omitempty"`
+	AccessibleAppComponents []string `json:"accessibleAppComponents" msgpack:"accessibleAppComponents" bson:"accessibleappcomponents" mapstructure:"accessibleAppComponents,omitempty"`
 
 	// The configuration that the app agent was started with. The format of the config
 	// is version specific and subject to change.
-	Config string `json:"config,omitempty" msgpack:"config,omitempty" bson:"config,omitempty" mapstructure:"config,omitempty"`
+	Config string `json:"config" msgpack:"config" bson:"config" mapstructure:"config,omitempty"`
 
 	// The current version of the agent.
-	CurrentVersion string `json:"currentVersion,omitempty" msgpack:"currentVersion,omitempty" bson:"currentversion,omitempty" mapstructure:"currentVersion,omitempty"`
+	CurrentVersion string `json:"currentVersion" msgpack:"currentVersion" bson:"currentversion" mapstructure:"currentVersion,omitempty"`
 
 	// The list of app components that this app agent does not have access to
 	// impersonate.
-	ForbiddenAppComponents []string `json:"forbiddenAppComponents,omitempty" msgpack:"forbiddenAppComponents,omitempty" bson:"forbiddenappcomponents,omitempty" mapstructure:"forbiddenAppComponents,omitempty"`
+	ForbiddenAppComponents []string `json:"forbiddenAppComponents" msgpack:"forbiddenAppComponents" bson:"forbiddenappcomponents" mapstructure:"forbiddenAppComponents,omitempty"`
 
 	// Internal details about the status of the app agent which can assist in
 	// troubleshooting problems. The format of the internal details are version,
 	// platform and workload specific and subject to change.
-	HealthDetails string `json:"healthDetails,omitempty" msgpack:"healthDetails,omitempty" bson:"healthdetails,omitempty" mapstructure:"healthDetails,omitempty"`
+	HealthDetails string `json:"healthDetails" msgpack:"healthDetails" bson:"healthdetails" mapstructure:"healthDetails,omitempty"`
+
+	// True if the agent is considered healthy from the perspective of the app
+	// agent.
+	Healthy bool `json:"healthy" msgpack:"healthy" bson:"healthy" mapstructure:"healthy,omitempty"`
 
 	// The name of the host where the agent is running.
 	Hostname string `json:"hostname" msgpack:"hostname" bson:"hostname" mapstructure:"hostname,omitempty"`
@@ -135,13 +142,13 @@ type AppAgent struct {
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The last ping recorded for the app agent.
-	Ping time.Time `json:"ping,omitempty" msgpack:"ping,omitempty" bson:"ping,omitempty" mapstructure:"ping,omitempty"`
+	Ping time.Time `json:"ping" msgpack:"ping" bson:"ping" mapstructure:"ping,omitempty"`
 
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
 	// The start time for the app agent.
-	Start time.Time `json:"start,omitempty" msgpack:"start,omitempty" bson:"start,omitempty" mapstructure:"start,omitempty"`
+	Start time.Time `json:"start" msgpack:"start" bson:"start" mapstructure:"start,omitempty"`
 
 	// The status of the app agent.
 	Status AppAgentStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
@@ -205,6 +212,7 @@ func (o *AppAgent) GetBSON() (any, error) {
 	s.CurrentVersion = o.CurrentVersion
 	s.ForbiddenAppComponents = o.ForbiddenAppComponents
 	s.HealthDetails = o.HealthDetails
+	s.Healthy = o.Healthy
 	s.Hostname = o.Hostname
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -240,6 +248,7 @@ func (o *AppAgent) SetBSON(raw bson.Raw) error {
 	o.CurrentVersion = s.CurrentVersion
 	o.ForbiddenAppComponents = s.ForbiddenAppComponents
 	o.HealthDetails = s.HealthDetails
+	o.Healthy = s.Healthy
 	o.Hostname = s.Hostname
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -335,6 +344,7 @@ func (o *AppAgent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			CurrentVersion:          &o.CurrentVersion,
 			ForbiddenAppComponents:  &o.ForbiddenAppComponents,
 			HealthDetails:           &o.HealthDetails,
+			Healthy:                 &o.Healthy,
 			Hostname:                &o.Hostname,
 			ImportHash:              &o.ImportHash,
 			ImportLabel:             &o.ImportLabel,
@@ -365,6 +375,8 @@ func (o *AppAgent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ForbiddenAppComponents = &(o.ForbiddenAppComponents)
 		case "healthDetails":
 			sp.HealthDetails = &(o.HealthDetails)
+		case "healthy":
+			sp.Healthy = &(o.Healthy)
 		case "hostname":
 			sp.Hostname = &(o.Hostname)
 		case "importHash":
@@ -419,6 +431,9 @@ func (o *AppAgent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.HealthDetails != nil {
 		o.HealthDetails = *so.HealthDetails
+	}
+	if so.Healthy != nil {
+		o.Healthy = *so.Healthy
 	}
 	if so.Hostname != nil {
 		o.Hostname = *so.Hostname
@@ -555,7 +570,7 @@ func (o *AppAgent) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Stopped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Stopped", "Unresponsive"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -615,6 +630,8 @@ func (o *AppAgent) ValueForAttribute(name string) any {
 		return o.ForbiddenAppComponents
 	case "healthDetails":
 		return o.HealthDetails
+	case "healthy":
+		return o.Healthy
 	case "hostname":
 		return o.Hostname
 	case "importHash":
@@ -717,6 +734,17 @@ platform and workload specific and subject to change.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"Healthy": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "healthy",
+		ConvertedName:  "Healthy",
+		Description: `True if the agent is considered healthy from the perspective of the app
+agent.`,
+		Exposed: true,
+		Name:    "healthy",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Hostname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
@@ -814,7 +842,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"Status": {
-		AllowedChoices: []string{"Alive", "Stopped"},
+		AllowedChoices: []string{"Alive", "Stopped", "Unresponsive"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the app agent.`,
@@ -909,6 +937,17 @@ platform and workload specific and subject to change.`,
 		Name:    "healthDetails",
 		Stored:  true,
 		Type:    "string",
+	},
+	"healthy": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "healthy",
+		ConvertedName:  "Healthy",
+		Description: `True if the agent is considered healthy from the perspective of the app
+agent.`,
+		Exposed: true,
+		Name:    "healthy",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"hostname": {
 		AllowedChoices: []string{},
@@ -1007,7 +1046,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"status": {
-		AllowedChoices: []string{"Alive", "Stopped"},
+		AllowedChoices: []string{"Alive", "Stopped", "Unresponsive"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the app agent.`,
@@ -1115,6 +1154,10 @@ type SparseAppAgent struct {
 	// platform and workload specific and subject to change.
 	HealthDetails *string `json:"healthDetails,omitempty" msgpack:"healthDetails,omitempty" bson:"healthdetails,omitempty" mapstructure:"healthDetails,omitempty"`
 
+	// True if the agent is considered healthy from the perspective of the app
+	// agent.
+	Healthy *bool `json:"healthy,omitempty" msgpack:"healthy,omitempty" bson:"healthy,omitempty" mapstructure:"healthy,omitempty"`
+
 	// The name of the host where the agent is running.
 	Hostname *string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
 
@@ -1213,6 +1256,9 @@ func (o *SparseAppAgent) GetBSON() (any, error) {
 	if o.HealthDetails != nil {
 		s.HealthDetails = o.HealthDetails
 	}
+	if o.Healthy != nil {
+		s.Healthy = o.Healthy
+	}
 	if o.Hostname != nil {
 		s.Hostname = o.Hostname
 	}
@@ -1283,6 +1329,9 @@ func (o *SparseAppAgent) SetBSON(raw bson.Raw) error {
 	if s.HealthDetails != nil {
 		o.HealthDetails = s.HealthDetails
 	}
+	if s.Healthy != nil {
+		o.Healthy = s.Healthy
+	}
 	if s.Hostname != nil {
 		o.Hostname = s.Hostname
 	}
@@ -1350,6 +1399,9 @@ func (o *SparseAppAgent) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.HealthDetails != nil {
 		out.HealthDetails = *o.HealthDetails
+	}
+	if o.Healthy != nil {
+		out.Healthy = *o.Healthy
 	}
 	if o.Hostname != nil {
 		out.Hostname = *o.Hostname
@@ -1511,19 +1563,20 @@ func (o *SparseAppAgent) DeepCopyInto(out *SparseAppAgent) {
 
 type mongoAttributesAppAgent struct {
 	ID                      bson.ObjectId       `bson:"_id,omitempty"`
-	AccessibleAppComponents []string            `bson:"accessibleappcomponents,omitempty"`
-	Config                  string              `bson:"config,omitempty"`
-	CurrentVersion          string              `bson:"currentversion,omitempty"`
-	ForbiddenAppComponents  []string            `bson:"forbiddenappcomponents,omitempty"`
-	HealthDetails           string              `bson:"healthdetails,omitempty"`
+	AccessibleAppComponents []string            `bson:"accessibleappcomponents"`
+	Config                  string              `bson:"config"`
+	CurrentVersion          string              `bson:"currentversion"`
+	ForbiddenAppComponents  []string            `bson:"forbiddenappcomponents"`
+	HealthDetails           string              `bson:"healthdetails"`
+	Healthy                 bool                `bson:"healthy"`
 	Hostname                string              `bson:"hostname"`
 	ImportHash              string              `bson:"importhash,omitempty"`
 	ImportLabel             string              `bson:"importlabel,omitempty"`
 	IsAnalyzerReachable     bool                `bson:"isanalyzerreachable"`
 	Namespace               string              `bson:"namespace,omitempty"`
-	Ping                    time.Time           `bson:"ping,omitempty"`
+	Ping                    time.Time           `bson:"ping"`
 	Principal               *Principal          `bson:"principal"`
-	Start                   time.Time           `bson:"start,omitempty"`
+	Start                   time.Time           `bson:"start"`
 	Status                  AppAgentStatusValue `bson:"status"`
 	Workloads               []*Workload         `bson:"workloads"`
 	ZHash                   int                 `bson:"zhash"`
@@ -1536,6 +1589,7 @@ type mongoAttributesSparseAppAgent struct {
 	CurrentVersion          *string              `bson:"currentversion,omitempty"`
 	ForbiddenAppComponents  *[]string            `bson:"forbiddenappcomponents,omitempty"`
 	HealthDetails           *string              `bson:"healthdetails,omitempty"`
+	Healthy                 *bool                `bson:"healthy,omitempty"`
 	Hostname                *string              `bson:"hostname,omitempty"`
 	ImportHash              *string              `bson:"importhash,omitempty"`
 	ImportLabel             *string              `bson:"importlabel,omitempty"`

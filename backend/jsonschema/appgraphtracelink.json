@@ -26,19 +26,24 @@
       "type": "string"
     },
     "encrypted": {
+      "$defaultValue": "Undefined",
       "$friendlyName": "Encrypted",
       "description": "True if this link is a connection which is using encryption.",
-      "title": "encrypted",
-      "type": [
-        "boolean",
-        "null"
-      ]
+      "enum": [
+        "True",
+        "False",
+        "Undefined"
+      ],
+      "title": "encrypted"
     },
     "findings": {
       "$friendlyName": "Findings",
       "description": "The findings categorized by type detected for this link.",
       "items": {
-        "type": "integer"
+        "items": {
+          "type": "int"
+        },
+        "type": "object"
       },
       "title": "findings",
       "type": "object"
