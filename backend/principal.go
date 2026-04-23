@@ -142,6 +142,9 @@ type Principal struct {
 	// The teams that were used to authorize the request.
 	Teams []string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
+	// The ID (jid) of the token, if any.
+	TokenID string `json:"tokenID" msgpack:"tokenID" bson:"tokenid" mapstructure:"tokenID,omitempty"`
+
 	// The name of the token, if any.
 	TokenName string `json:"tokenName" msgpack:"tokenName" bson:"tokenname" mapstructure:"tokenName,omitempty"`
 
@@ -197,6 +200,7 @@ func (o *Principal) GetBSON() (any, error) {
 	s.Claims = o.Claims
 	s.External = o.External
 	s.Teams = o.Teams
+	s.TokenID = o.TokenID
 	s.TokenName = o.TokenName
 	s.Type = o.Type
 	s.User = o.User
@@ -223,6 +227,7 @@ func (o *Principal) SetBSON(raw bson.Raw) error {
 	o.Claims = s.Claims
 	o.External = s.External
 	o.Teams = s.Teams
+	o.TokenID = s.TokenID
 	o.TokenName = s.TokenName
 	o.Type = s.Type
 	o.User = s.User
@@ -272,6 +277,7 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Claims:    &o.Claims,
 			External:  o.External,
 			Teams:     &o.Teams,
+			TokenID:   &o.TokenID,
 			TokenName: &o.TokenName,
 			Type:      &o.Type,
 			User:      o.User,
@@ -293,6 +299,8 @@ func (o *Principal) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.External = o.External
 		case "teams":
 			sp.Teams = &(o.Teams)
+		case "tokenID":
+			sp.TokenID = &(o.TokenID)
 		case "tokenName":
 			sp.TokenName = &(o.TokenName)
 		case "type":
@@ -329,6 +337,9 @@ func (o *Principal) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Teams != nil {
 		o.Teams = *so.Teams
+	}
+	if so.TokenID != nil {
+		o.TokenID = *so.TokenID
 	}
 	if so.TokenName != nil {
 		o.TokenName = *so.TokenName
@@ -505,6 +516,8 @@ func (o *Principal) ValueForAttribute(name string) any {
 		return o.External
 	case "teams":
 		return o.Teams
+	case "tokenID":
+		return o.TokenID
 	case "tokenName":
 		return o.TokenName
 	case "type":
@@ -581,6 +594,16 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"TokenID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenid",
+		ConvertedName:  "TokenID",
+		Description:    `The ID (jid) of the token, if any.`,
+		Exposed:        true,
+		Name:           "tokenID",
+		Stored:         true,
+		Type:           "string",
 	},
 	"TokenName": {
 		AllowedChoices: []string{},
@@ -681,6 +704,16 @@ var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"tokenid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenid",
+		ConvertedName:  "TokenID",
+		Description:    `The ID (jid) of the token, if any.`,
+		Exposed:        true,
+		Name:           "tokenID",
+		Stored:         true,
+		Type:           "string",
 	},
 	"tokenname": {
 		AllowedChoices: []string{},
@@ -797,6 +830,9 @@ type SparsePrincipal struct {
 	// The teams that were used to authorize the request.
 	Teams *[]string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
+	// The ID (jid) of the token, if any.
+	TokenID *string `json:"tokenID,omitempty" msgpack:"tokenID,omitempty" bson:"tokenid,omitempty" mapstructure:"tokenID,omitempty"`
+
 	// The name of the token, if any.
 	TokenName *string `json:"tokenName,omitempty" msgpack:"tokenName,omitempty" bson:"tokenname,omitempty" mapstructure:"tokenName,omitempty"`
 
@@ -859,6 +895,9 @@ func (o *SparsePrincipal) GetBSON() (any, error) {
 	if o.Teams != nil {
 		s.Teams = o.Teams
 	}
+	if o.TokenID != nil {
+		s.TokenID = o.TokenID
+	}
 	if o.TokenName != nil {
 		s.TokenName = o.TokenName
 	}
@@ -903,6 +942,9 @@ func (o *SparsePrincipal) SetBSON(raw bson.Raw) error {
 	if s.Teams != nil {
 		o.Teams = s.Teams
 	}
+	if s.TokenID != nil {
+		o.TokenID = s.TokenID
+	}
 	if s.TokenName != nil {
 		o.TokenName = s.TokenName
 	}
@@ -943,6 +985,9 @@ func (o *SparsePrincipal) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Teams != nil {
 		out.Teams = *o.Teams
+	}
+	if o.TokenID != nil {
+		out.TokenID = *o.TokenID
 	}
 	if o.TokenName != nil {
 		out.TokenName = *o.TokenName
@@ -1036,6 +1081,7 @@ type mongoAttributesPrincipal struct {
 	Claims    []string               `bson:"claims,omitempty"`
 	External  *PrincipalExternal     `bson:"external,omitempty"`
 	Teams     []string               `bson:"teams,omitempty"`
+	TokenID   string                 `bson:"tokenid"`
 	TokenName string                 `bson:"tokenname"`
 	Type      PrincipalTypeValue     `bson:"type"`
 	User      *PrincipalUser         `bson:"user,omitempty"`
@@ -1047,6 +1093,7 @@ type mongoAttributesSparsePrincipal struct {
 	Claims    *[]string               `bson:"claims,omitempty"`
 	External  *PrincipalExternal      `bson:"external,omitempty"`
 	Teams     *[]string               `bson:"teams,omitempty"`
+	TokenID   *string                 `bson:"tokenid,omitempty"`
 	TokenName *string                 `bson:"tokenname,omitempty"`
 	Type      *PrincipalTypeValue     `bson:"type,omitempty"`
 	User      *PrincipalUser          `bson:"user,omitempty"`

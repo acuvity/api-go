@@ -49,12 +49,13 @@
       "title": "status"
     },
     "type": {
-      "$defaultValue": "Kubernetes",
+      "$defaultValue": "None",
       "$friendlyName": "Type",
       "$required": true,
       "description": "The type of selector.",
       "enum": [
-        "Kubernetes"
+        "Kubernetes",
+        "None"
       ],
       "title": "type"
     },

@@ -18,6 +18,9 @@ const (
 	// PredicateKeyCategories represents the value Categories.
 	PredicateKeyCategories PredicateKeyValue = "Categories"
 
+	// PredicateKeyClientType represents the value ClientType.
+	PredicateKeyClientType PredicateKeyValue = "ClientType"
+
 	// PredicateKeyConfidentiality represents the value Confidentiality.
 	PredicateKeyConfidentiality PredicateKeyValue = "Confidentiality"
 
@@ -95,6 +98,9 @@ const (
 
 	// PredicateKeyTeam represents the value Team.
 	PredicateKeyTeam PredicateKeyValue = "Team"
+
+	// PredicateKeyTier represents the value Tier.
+	PredicateKeyTier PredicateKeyValue = "Tier"
 
 	// PredicateKeyToolUses represents the value ToolUses.
 	PredicateKeyToolUses PredicateKeyValue = "ToolUses"
@@ -284,7 +290,7 @@ func (o *Predicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"}, false); err != nil {
+	if err := elemental.ValidateStringInList("key", string(o.Key), []string{"Categories", "ClientType", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tier", "Tools", "ToolUses", "Topics", "Workspace"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -351,7 +357,7 @@ func (o *Predicate) ValueForAttribute(name string) any {
 // PredicateAttributesMap represents the map of attribute for Predicate.
 var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 	"Key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "ClientType", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tier", "Tools", "ToolUses", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,
@@ -399,7 +405,7 @@ predicate true.`,
 // PredicateLowerCaseAttributesMap represents the map of attribute for Predicate.
 var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"key": {
-		AllowedChoices: []string{"Categories", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tools", "ToolUses", "Topics", "Workspace"},
+		AllowedChoices: []string{"Categories", "ClientType", "Confidentiality", "CustomDataTypes", "DstApp", "DstComponent", "DstIPRange", "Exploits", "IsIngress", "Keywords", "Languages", "MCPGateway", "MCPServer", "Malcontents", "Modality", "Model", "PIIs", "Plugin", "Provider", "Relevance", "RiskScore", "Secrets", "Size", "SrcApp", "SrcComponent", "SrcIPRange", "Status", "Team", "Tier", "Tools", "ToolUses", "Topics", "Workspace"},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
 		Description:    `The key of the predicate.`,

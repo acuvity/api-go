@@ -1756,6 +1756,7 @@ Describe the principal.
   "IP": "192.0.2.42",
   "authType": "Certificate",
   "teams": "admins",
+  "tokenID": "1234-1224-123-1",
   "tokenName": "my-user-token",
   "type": [
     "User"
@@ -1800,6 +1801,12 @@ The external principal information if type is External.
 Type: `[]string`
 
 The teams that were used to authorize the request.
+
+##### `tokenID`
+
+Type: `string`
+
+The ID (jid) of the token, if any.
 
 ##### `tokenName`
 

@@ -15,6 +15,7 @@
       "description": "The key of the predicate.",
       "enum": [
         "Categories",
+        "ClientType",
         "Confidentiality",
         "CustomDataTypes",
         "DstApp",
@@ -41,6 +42,7 @@
         "SrcIPRange",
         "Status",
         "Team",
+        "Tier",
         "Tools",
         "ToolUses",
         "Topics",

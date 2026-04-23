@@ -68,6 +68,15 @@
       "title": "teams",
       "type": "array"
     },
+    "tokenID": {
+      "$friendlyName": "Token ID",
+      "description": "The ID (jid) of the token, if any.",
+      "title": "tokenID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "tokenName": {
       "$friendlyName": "Token Name",
       "description": "The name of the token, if any.",

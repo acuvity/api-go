@@ -968,6 +968,11 @@
             },
             "type": "array"
           },
+          "tokenID": {
+            "description": "The ID (jid) of the token, if any.",
+            "example": "1234-1224-123-1",
+            "type": "string"
+          },
           "tokenName": {
             "description": "The name of the token, if any.",
             "example": "my-user-token",

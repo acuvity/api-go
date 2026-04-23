@@ -56,6 +56,8 @@ var (
 		"findingdefinition": FindingDefinitionIdentity,
 		"gitbooktoken":      GitbookTokenIdentity,
 
+		"identitymodifier": IdentityModifierIdentity,
+
 		"ignoreddomain": IgnoredDomainIdentity,
 		"import":        ImportIdentity,
 		"ingesttrace":   IngestTraceIdentity,
@@ -72,6 +74,9 @@ var (
 		"metricrange":      MetricRangeIdentity,
 		"metricserie":      MetricSerieIdentity,
 
+		"mtlssource": MTLSSourceIdentity,
+
+		"oidcsource":  OIDCSourceIdentity,
 		"orgsettings": OrgSettingsIdentity,
 		"orgstorage":  OrgStorageIdentity,
 		"osprobe":     OSProbeIdentity,
@@ -99,6 +104,7 @@ var (
 		"resolve":        ResolveIdentity,
 		"role":           RoleIdentity,
 		"root":           RootIdentity,
+		"samlsource":     SAMLSourceIdentity,
 
 		"scanreport": ScanReportIdentity,
 
@@ -106,6 +112,7 @@ var (
 		"serie":         SerieIdentity,
 		"signup":        SignupIdentity,
 		"sink":          SinkIdentity,
+		"sinkdatabahn":  SinkDatabahnIdentity,
 		"sinkemail":     SinkEmailIdentity,
 		"sinkpagerduty": SinkPagerDutyIdentity,
 		"sinkslack":     SinkSlackIdentity,
@@ -176,6 +183,8 @@ var (
 		"findingdefinitions": FindingDefinitionIdentity,
 		"gitbooktokens":      GitbookTokenIdentity,
 
+		"identitymodifier": IdentityModifierIdentity,
+
 		"ignoreddomains": IgnoredDomainIdentity,
 		"import":         ImportIdentity,
 		"ingesttraces":   IngestTraceIdentity,
@@ -192,6 +201,9 @@ var (
 		"metricranges":      MetricRangeIdentity,
 		"metricseries":      MetricSerieIdentity,
 
+		"mtlssources": MTLSSourceIdentity,
+
+		"oidcsources": OIDCSourceIdentity,
 		"orgsettings": OrgSettingsIdentity,
 		"orgstorages": OrgStorageIdentity,
 		"osprobes":    OSProbeIdentity,
@@ -219,6 +231,7 @@ var (
 		"resolve":         ResolveIdentity,
 		"roles":           RoleIdentity,
 		"root":            RootIdentity,
+		"samlsources":     SAMLSourceIdentity,
 
 		"scanreports": ScanReportIdentity,
 
@@ -226,6 +239,7 @@ var (
 		"series":         SerieIdentity,
 		"signups":        SignupIdentity,
 		"sinks":          SinkIdentity,
+		"sinkdatabahn":   SinkDatabahnIdentity,
 		"sinkemail":      SinkEmailIdentity,
 		"sinkpagerduty":  SinkPagerDutyIdentity,
 		"sinkslack":      SinkSlackIdentity,
@@ -251,117 +265,168 @@ var (
 	indexesMap = map[string][][]string{
 		"accesspolicy": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"agent": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "hostname"},
 			{"namespace", "importLabel"},
 		},
 		"agentconfig": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"agentdiscovery": {
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
 		"aiapp": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 			{"namespace", "processNames"},
 		},
 		"aidomain": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 			{"namespace", "providerName"},
 		},
 		"aiplugin": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 			{"namespace", "vetted"},
 		},
 		"aiskill": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"alert": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "alertDefinitionName"},
 		},
 		"alertdefinition": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"alerttrigger": nil,
-		"analyzer":     nil,
+		"analyzer": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"apiauthorization": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"app": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
 		"appagent": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "hostname"},
 			{"namespace", "importLabel"},
 		},
-		"appcomponent":  nil,
-		"appgraphquery": nil,
+		"appcomponent": nil,
+		"appgraphquery": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"appreport": {
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
 		"apptoken": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "email"},
 		},
 		"authsettings": nil,
 		"contentpolicy": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"customdatatype": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"dataset": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"digestreport": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"digestreportrequest": nil,
 		"errortransformer":    nil,
 		"extractor": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"extractorlib": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"feedback": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "logHash", "key", "value"},
 		},
 		"finding": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 			{"namespace", "severity"},
@@ -369,138 +434,257 @@ var (
 		},
 		"findingdefinition": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"gitbooktoken": nil,
+		"gitbooktoken":     nil,
+		"identitymodifier": nil,
 		"ignoreddomain": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 		},
-		"import":      nil,
-		"ingesttrace": nil,
-		"labelvalue":  nil,
-		"landing":     nil,
-		"latency":     nil,
+		"import": nil,
+		"ingesttrace": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"labelvalue": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"landing": nil,
+		"latency": nil,
 		"logbundle": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"mcpgateway": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"metric":           nil,
-		"metriclabelvalue": nil,
-		"metricrange":      nil,
-		"metricserie":      nil,
+		"metric": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"metriclabelvalue": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"metricrange": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"metricserie": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"mtlssource": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"fingerprints"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"subjectKeyIDs"},
+		},
+		"oidcsource": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"orgsettings": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"fingerprints"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"orgstorage": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"osprobe": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "associatedAppName"},
 			{"namespace", "importLabel"},
 			{"namespace", "type"},
 		},
 		"pacconfig": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"pagedataview": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "name"},
 			{"namespace", "pageID"},
 		},
-		"policyref":         nil,
-		"policyupdate":      nil,
+		"policyref": nil,
+		"policyupdate": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"principal":         nil,
 		"principalapp":      nil,
 		"principalexternal": nil,
 		"principaluser":     nil,
 		"project": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"provider": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"providerteam": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"providertoken": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"proxyconf": nil,
+		"proxyconf": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"proxyroundtrip": {
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
-		"query":      nil,
-		"queryrange": nil,
-		"resolve":    nil,
-		"role":       nil,
-		"root":       nil,
+		"query": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"queryrange": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"resolve": nil,
+		"role": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"root": nil,
+		"samlsource": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"scanreport": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"schemaversion": nil,
-		"serie":         nil,
+		"serie": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"signup": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"sink": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"sinkdatabahn":  nil,
 		"sinkemail":     nil,
 		"sinkpagerduty": nil,
 		"sinkslack":     nil,
 		"sinksplunk":    nil,
 		"team": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"trace":          nil,
-		"traceref":       nil,
-		"tracesearch":    nil,
-		"tracetagkeys":   nil,
-		"tracetagvalues": nil,
+		"trace": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"traceref": nil,
+		"tracesearch": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"tracetagkeys": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"tracetagvalues": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"usertoken": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "email"},
 		},
 		"validate": nil,
 		"visitedurl": {
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
-		"watchedorg": nil,
+		"watchedorg": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"webextension": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "installationID"},
 		},
 		"webextensionconfig": {
 			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
@@ -608,6 +792,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewFindingDefinition()
 	case GitbookTokenIdentity:
 		return NewGitbookToken()
+	case IdentityModifierIdentity:
+		return NewIdentityModifier()
 	case IgnoredDomainIdentity:
 		return NewIgnoredDomain()
 	case ImportIdentity:
@@ -632,6 +818,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewMetricRange()
 	case MetricSerieIdentity:
 		return NewMetricSerie()
+	case MTLSSourceIdentity:
+		return NewMTLSSource()
+	case OIDCSourceIdentity:
+		return NewOIDCSource()
 	case OrgSettingsIdentity:
 		return NewOrgSettings()
 	case OrgStorageIdentity:
@@ -676,6 +866,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewRole()
 	case RootIdentity:
 		return NewRoot()
+	case SAMLSourceIdentity:
+		return NewSAMLSource()
 	case ScanReportIdentity:
 		return NewScanReport()
 	case SchemaVersionIdentity:
@@ -686,6 +878,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSignup()
 	case SinkIdentity:
 		return NewSink()
+	case SinkDatabahnIdentity:
+		return NewSinkDatabahn()
 	case SinkEmailIdentity:
 		return NewSinkEmail()
 	case SinkPagerDutyIdentity:
@@ -791,6 +985,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseFindingDefinition()
 	case GitbookTokenIdentity:
 		return NewSparseGitbookToken()
+	case IdentityModifierIdentity:
+		return NewSparseIdentityModifier()
 	case IgnoredDomainIdentity:
 		return NewSparseIgnoredDomain()
 	case ImportIdentity:
@@ -815,6 +1011,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseMetricRange()
 	case MetricSerieIdentity:
 		return NewSparseMetricSerie()
+	case MTLSSourceIdentity:
+		return NewSparseMTLSSource()
+	case OIDCSourceIdentity:
+		return NewSparseOIDCSource()
 	case OrgSettingsIdentity:
 		return NewSparseOrgSettings()
 	case OrgStorageIdentity:
@@ -857,6 +1057,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseResolve()
 	case RoleIdentity:
 		return NewSparseRole()
+	case SAMLSourceIdentity:
+		return NewSparseSAMLSource()
 	case ScanReportIdentity:
 		return NewSparseScanReport()
 	case SchemaVersionIdentity:
@@ -867,6 +1069,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSignup()
 	case SinkIdentity:
 		return NewSparseSink()
+	case SinkDatabahnIdentity:
+		return NewSparseSinkDatabahn()
 	case SinkEmailIdentity:
 		return NewSparseSinkEmail()
 	case SinkPagerDutyIdentity:
@@ -982,6 +1186,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &FindingDefinitionsList{}
 	case GitbookTokenIdentity:
 		return &GitbookTokensList{}
+	case IdentityModifierIdentity:
+		return &IdentityModifiersList{}
 	case IgnoredDomainIdentity:
 		return &IgnoredDomainsList{}
 	case ImportIdentity:
@@ -1006,6 +1212,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &MetricRangesList{}
 	case MetricSerieIdentity:
 		return &MetricSeriesList{}
+	case MTLSSourceIdentity:
+		return &MTLSSourcesList{}
+	case OIDCSourceIdentity:
+		return &OIDCSourcesList{}
 	case OrgSettingsIdentity:
 		return &OrgSettingsList{}
 	case OrgStorageIdentity:
@@ -1048,6 +1258,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ResolvesList{}
 	case RoleIdentity:
 		return &RolesList{}
+	case SAMLSourceIdentity:
+		return &SAMLSourcesList{}
 	case ScanReportIdentity:
 		return &ScanReportsList{}
 	case SchemaVersionIdentity:
@@ -1058,6 +1270,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SignupsList{}
 	case SinkIdentity:
 		return &SinksList{}
+	case SinkDatabahnIdentity:
+		return &SinkDatabahnsList{}
 	case SinkEmailIdentity:
 		return &SinkEmailsList{}
 	case SinkPagerDutyIdentity:
@@ -1163,6 +1377,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseFindingDefinitionsList{}
 	case GitbookTokenIdentity:
 		return &SparseGitbookTokensList{}
+	case IdentityModifierIdentity:
+		return &SparseIdentityModifiersList{}
 	case IgnoredDomainIdentity:
 		return &SparseIgnoredDomainsList{}
 	case ImportIdentity:
@@ -1187,6 +1403,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseMetricRangesList{}
 	case MetricSerieIdentity:
 		return &SparseMetricSeriesList{}
+	case MTLSSourceIdentity:
+		return &SparseMTLSSourcesList{}
+	case OIDCSourceIdentity:
+		return &SparseOIDCSourcesList{}
 	case OrgSettingsIdentity:
 		return &SparseOrgSettingsList{}
 	case OrgStorageIdentity:
@@ -1229,6 +1449,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseResolvesList{}
 	case RoleIdentity:
 		return &SparseRolesList{}
+	case SAMLSourceIdentity:
+		return &SparseSAMLSourcesList{}
 	case ScanReportIdentity:
 		return &SparseScanReportsList{}
 	case SchemaVersionIdentity:
@@ -1239,6 +1461,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSignupsList{}
 	case SinkIdentity:
 		return &SparseSinksList{}
+	case SinkDatabahnIdentity:
+		return &SparseSinkDatabahnsList{}
 	case SinkEmailIdentity:
 		return &SparseSinkEmailsList{}
 	case SinkPagerDutyIdentity:
@@ -1422,6 +1646,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewModality()
 	case "moderation", "Moderation":
 		return NewModeration()
+	case "mtlssourceentra", "MTLSSourceEntra":
+		return NewMTLSSourceEntra()
+	case "mtlssourceokta", "MTLSSourceOkta":
+		return NewMTLSSourceOkta()
 	case "otlpendpoint", "OTLPEndpoint":
 		return NewOTLPEndpoint()
 	case "otlpreceiver", "OTLPReceiver":
@@ -1514,6 +1742,7 @@ func AllIdentities() []elemental.Identity {
 		FindingIdentity,
 		FindingDefinitionIdentity,
 		GitbookTokenIdentity,
+		IdentityModifierIdentity,
 		IgnoredDomainIdentity,
 		ImportIdentity,
 		IngestTraceIdentity,
@@ -1526,6 +1755,8 @@ func AllIdentities() []elemental.Identity {
 		MetricLabelValueIdentity,
 		MetricRangeIdentity,
 		MetricSerieIdentity,
+		MTLSSourceIdentity,
+		OIDCSourceIdentity,
 		OrgSettingsIdentity,
 		OrgStorageIdentity,
 		OSProbeIdentity,
@@ -1548,11 +1779,13 @@ func AllIdentities() []elemental.Identity {
 		ResolveIdentity,
 		RoleIdentity,
 		RootIdentity,
+		SAMLSourceIdentity,
 		ScanReportIdentity,
 		SchemaVersionIdentity,
 		SerieIdentity,
 		SignupIdentity,
 		SinkIdentity,
+		SinkDatabahnIdentity,
 		SinkEmailIdentity,
 		SinkPagerDutyIdentity,
 		SinkSlackIdentity,
@@ -1640,6 +1873,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case GitbookTokenIdentity:
 		return []string{}
+	case IdentityModifierIdentity:
+		return []string{}
 	case IgnoredDomainIdentity:
 		return []string{}
 	case ImportIdentity:
@@ -1663,6 +1898,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case MetricRangeIdentity:
 		return []string{}
 	case MetricSerieIdentity:
+		return []string{}
+	case MTLSSourceIdentity:
+		return []string{}
+	case OIDCSourceIdentity:
 		return []string{}
 	case OrgSettingsIdentity:
 		return []string{}
@@ -1708,6 +1947,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case RootIdentity:
 		return []string{}
+	case SAMLSourceIdentity:
+		return []string{}
 	case ScanReportIdentity:
 		return []string{}
 	case SchemaVersionIdentity:
@@ -1717,6 +1958,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SignupIdentity:
 		return []string{}
 	case SinkIdentity:
+		return []string{}
+	case SinkDatabahnIdentity:
 		return []string{}
 	case SinkEmailIdentity:
 		return []string{}

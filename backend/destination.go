@@ -178,6 +178,11 @@ func (o *Destination) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	// Custom object validation.
+	if err := ValidateDestination(o); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}

@@ -17,6 +17,9 @@ import (
 type SinkTypeValue string
 
 const (
+	// SinkTypeDatabahn represents the value Databahn.
+	SinkTypeDatabahn SinkTypeValue = "Databahn"
+
 	// SinkTypeEmail represents the value Email.
 	SinkTypeEmail SinkTypeValue = "Email"
 
@@ -107,6 +110,9 @@ type Sink struct {
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
+	// Contains additional configuration for sending an alert to Databahn.
+	Databahn *SinkDatabahn `json:"databahn,omitempty" msgpack:"databahn,omitempty" bson:"databahn,omitempty" mapstructure:"databahn,omitempty"`
 
 	// The description of the sink.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
@@ -200,6 +206,7 @@ func (o *Sink) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
+	s.Databahn = o.Databahn
 	s.Description = o.Description
 	s.Email = o.Email
 	s.FriendlyName = o.FriendlyName
@@ -234,6 +241,7 @@ func (o *Sink) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
+	o.Databahn = s.Databahn
 	o.Description = s.Description
 	o.Email = s.Email
 	o.FriendlyName = s.FriendlyName
@@ -363,6 +371,7 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseSink{
 			ID:           &o.ID,
 			CreateTime:   &o.CreateTime,
+			Databahn:     o.Databahn,
 			Description:  &o.Description,
 			Email:        o.Email,
 			FriendlyName: &o.FriendlyName,
@@ -388,6 +397,8 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "databahn":
+			sp.Databahn = o.Databahn
 		case "description":
 			sp.Description = &(o.Description)
 		case "email":
@@ -436,6 +447,9 @@ func (o *Sink) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
+	}
+	if so.Databahn != nil {
+		o.Databahn = so.Databahn
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -487,6 +501,12 @@ func (o *Sink) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Sink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Databahn != nil {
+		if err := o.Databahn.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Databahn' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Email != nil {
 		if err := o.Email.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
@@ -516,6 +536,12 @@ func (o *Sink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Sink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Databahn != nil {
+		if err := o.Databahn.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Databahn' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Email != nil {
 		if err := o.Email.DecryptAttributes(encrypter); err != nil {
@@ -576,6 +602,13 @@ func (o *Sink) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.Databahn != nil {
+		if err := o.Databahn.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "databahn")
+		}
+	}
+
 	if o.Email != nil {
 		if err := o.Email.Validate(); err != nil {
 			errors = errors.Append(err)
@@ -623,7 +656,7 @@ func (o *Sink) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Email", "PagerDuty", "Slack", "Splunk"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -670,6 +703,8 @@ func (o *Sink) ValueForAttribute(name string) any {
 		return o.ID
 	case "createTime":
 		return o.CreateTime
+	case "databahn":
+		return o.Databahn
 	case "description":
 		return o.Description
 	case "email":
@@ -736,6 +771,17 @@ var SinkAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Databahn": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "databahn",
+		ConvertedName:  "Databahn",
+		Description:    `Contains additional configuration for sending an alert to Databahn.`,
+		Exposed:        true,
+		Name:           "databahn",
+		Stored:         true,
+		SubType:        "sinkdatabahn",
+		Type:           "ref",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -872,7 +918,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Email", "PagerDuty", "Slack", "Splunk"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -931,6 +977,17 @@ var SinkLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"databahn": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "databahn",
+		ConvertedName:  "Databahn",
+		Description:    `Contains additional configuration for sending an alert to Databahn.`,
+		Exposed:        true,
+		Name:           "databahn",
+		Stored:         true,
+		SubType:        "sinkdatabahn",
+		Type:           "ref",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1067,7 +1124,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Email", "PagerDuty", "Slack", "Splunk"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -1163,6 +1220,9 @@ type SparseSink struct {
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
+	// Contains additional configuration for sending an alert to Databahn.
+	Databahn *SinkDatabahn `json:"databahn,omitempty" msgpack:"databahn,omitempty" bson:"databahn,omitempty" mapstructure:"databahn,omitempty"`
 
 	// The description of the sink.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
@@ -1260,6 +1320,9 @@ func (o *SparseSink) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.Databahn != nil {
+		s.Databahn = o.Databahn
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1327,6 +1390,9 @@ func (o *SparseSink) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.Databahn != nil {
+		o.Databahn = s.Databahn
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1392,6 +1458,9 @@ func (o *SparseSink) ToPlain() elemental.PlainIdentifiable {
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
+	if o.Databahn != nil {
+		out.Databahn = o.Databahn
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
@@ -1444,6 +1513,12 @@ func (o *SparseSink) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Databahn != nil {
+		if err := o.Databahn.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Databahn' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Email != nil {
 		if err := o.Email.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
@@ -1473,6 +1548,12 @@ func (o *SparseSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseSink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Databahn != nil {
+		if err := o.Databahn.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Databahn' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Email != nil {
 		if err := o.Email.DecryptAttributes(encrypter); err != nil {
@@ -1624,6 +1705,7 @@ func (o *SparseSink) DeepCopyInto(out *SparseSink) {
 type mongoAttributesSink struct {
 	ID           bson.ObjectId  `bson:"_id,omitempty"`
 	CreateTime   time.Time      `bson:"createtime"`
+	Databahn     *SinkDatabahn  `bson:"databahn,omitempty"`
 	Description  string         `bson:"description"`
 	Email        *SinkEmail     `bson:"email,omitempty"`
 	FriendlyName string         `bson:"friendlyname"`
@@ -1643,6 +1725,7 @@ type mongoAttributesSink struct {
 type mongoAttributesSparseSink struct {
 	ID           bson.ObjectId  `bson:"_id,omitempty"`
 	CreateTime   *time.Time     `bson:"createtime,omitempty"`
+	Databahn     *SinkDatabahn  `bson:"databahn,omitempty"`
 	Description  *string        `bson:"description,omitempty"`
 	Email        *SinkEmail     `bson:"email,omitempty"`
 	FriendlyName *string        `bson:"friendlyname,omitempty"`

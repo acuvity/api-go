@@ -30,7 +30,7 @@
     "claims": {
       "$friendlyName": "Claims",
       "$required": true,
-      "description": "The list of claims.",
+      "description": "The list of claims to check permissions for.",
       "items": {
         "type": "string"
       },

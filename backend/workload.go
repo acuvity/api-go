@@ -17,6 +17,9 @@ type WorkloadTypeValue string
 const (
 	// WorkloadTypeKubernetes represents the value Kubernetes.
 	WorkloadTypeKubernetes WorkloadTypeValue = "Kubernetes"
+
+	// WorkloadTypeNone represents the value None.
+	WorkloadTypeNone WorkloadTypeValue = "None"
 )
 
 // Workload represents the model of a workload
@@ -56,7 +59,7 @@ func NewWorkload() *Workload {
 		ModelVersion: 1,
 		IPAddresses:  []string{},
 		Labels:       []string{},
-		Type:         WorkloadTypeKubernetes,
+		Type:         WorkloadTypeNone,
 	}
 }
 func (o *Workload) Identity() elemental.Identity {
@@ -216,7 +219,7 @@ func (o *Workload) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes", "None"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -323,10 +326,10 @@ configuration.`,
 		Type:           "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   WorkloadTypeKubernetes,
+		DefaultValue:   WorkloadTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",
@@ -414,10 +417,10 @@ configuration.`,
 		Type:           "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   WorkloadTypeKubernetes,
+		DefaultValue:   WorkloadTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",

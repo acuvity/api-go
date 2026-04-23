@@ -17,15 +17,15 @@
     },
     "restName": {
       "$friendlyName": "Identity REST Name",
+      "$required": true,
       "description": "Identity REST name.",
       "title": "restName",
-      "type": [
-        "string",
-        "null"
-      ]
+      "type": "string"
     }
   },
-  "required": [],
+  "required": [
+    "restName"
+  ],
   "title": "Validate",
   "type": "object"
 }

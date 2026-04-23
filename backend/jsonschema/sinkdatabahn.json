@@ -1,0 +1,33 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Databahn",
+  "$friendlyNamePlural": "Sink Databahns",
+  "$modelName": "SinkDatabahn",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkdatabahn",
+  "$modelRestName": "sinkdatabahn",
+  "additionalProperties": false,
+  "description": "Additional configuration for sending an alert to Databahn.",
+  "properties": {
+    "token": {
+      "$friendlyName": "Token",
+      "$required": true,
+      "description": "The bearer token for Databahn webhook authentication.",
+      "title": "token",
+      "type": "string"
+    },
+    "webhookURL": {
+      "$friendlyName": "Webhook URL",
+      "$required": true,
+      "description": "The complete Databahn webhook endpoint URL to send the alert to.",
+      "title": "webhookURL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "token",
+    "webhookURL"
+  ],
+  "title": "SinkDatabahn",
+  "type": "object"
+}

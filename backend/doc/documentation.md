@@ -101,6 +101,706 @@ Type: `string`
 
 The namespace of the object.
 
+## authn/issue
+
+### MTLSSourceEntra
+
+Additional authentication information for MTLS source getting information from
+Entra.
+
+You will need to set clientTenantID, clientID and clientSecret.
+
+You will also need an Entra application that has the following permissions:
+Directory.Read.All and User.Read.
+
+#### Example
+
+```json
+{
+  "clientID": "a83e57d8-24af-4aec-bc8f-822db8d165b0",
+  "clientSecret": "Ytgbfjtj4652jHDFGls99jF",
+  "clientTenantID": "a83e57d8-24af-4aec-bc8f-822db8d165b0",
+  "graphEventsEnabled": false
+}
+```
+
+#### Attributes
+
+##### `clientID`
+
+Type: `string`
+
+The oauth clientID if any. This may be required for autologin, depending on the
+mode.
+
+##### `clientSecret` [`required`]
+
+Type: `string`
+
+Client secret associated with the client ID. This may be required for autologin,
+depending on the mode.
+
+##### `clientTenantID`
+
+Type: `string`
+
+ID of the tenant for the identity provider, if any. This may be required for
+autologin, depending on the mode.
+
+##### `graphEventsEnabled`
+
+Type: `boolean`
+
+Enables background jobs to maintain subscriptions to Entra to be notified of
+changes in groups, users and memmber assignation. This requires A3S to be
+configured with an event hook endpoint.
+
+### MTLSSourceOkta
+
+Additional authentication information for MTLS source getting information from
+Okta.
+
+#### Example
+
+```json
+{
+  "KID": "RuxZhjjgWRnJGxGruqg4UpS821E7RtfY9cXbyfKwafo",
+  "clientID": "0oaqqm0r0sYY2OuHT5d7",
+  "domain": "my-org.okta.com",
+  "privateKey": "-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----"
+}
+```
+
+#### Attributes
+
+##### `KID` [`required`]
+
+Type: `string`
+
+The Key ID associated to the private key.
+
+##### `clientID` [`required`]
+
+Type: `string`
+
+The application client id.
+
+##### `domain` [`required`]
+
+Type: `string`
+
+Your custom okta domain.
+
+##### `privateKey` [`required`]
+
+Type: `string`
+
+The Application private key.
+
+## authn/source
+
+### IdentityModifier
+
+Information about a remote endpoint to call to eventually modify the identity
+claims about to be issued when using the parent source.
+
+#### Example
+
+```json
+{
+  "CA": "-----BEGIN CERTIFICATE-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END CERTIFICATE-----",
+  "URL": "https://modifier.acme.com/modify",
+  "certificate": "-----BEGIN CERTIFICATE-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END CERTIFICATE-----",
+  "key": "-----BEGIN PRIVATE KEY-----
+MIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w
+CwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN
+MAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks
+Xb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu
+XEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG
+CCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS
+/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=
+-----END PRIVATE KEY-----",
+  "method": "POST"
+}
+```
+
+#### Attributes
+
+##### `CA`
+
+Type: `string`
+
+CA to use to validate the identity modfier service.
+
+##### `URL` [`required`]
+
+Type: `string`
+
+URL of the remote service. This URL will receive a call containing the
+claims that are about to be delivered. It must reply with 204 if it does not
+wish to modify the claims, or 200 alongside a body containing the modified
+claims.
+
+##### `certificate` [`required`]
+
+Type: `string`
+
+Client certificate required to call URL. A3S will refuse to send data if the
+endpoint does not support client certificate authentication.
+
+##### `key` [`required`]
+
+Type: `string`
+
+Key associated to the client certificate.
+
+##### `method` [`required`]
+
+Type: `enum(GET | POST | PUT | PATCH)`
+
+The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote
+server will receive the claims as a JSON encoded array in the body. For a GET,
+the claims will be passed as a query parameter named `claim`.
+
+Default value:
+
+```json
+"POST"
+```
+
+### MTLSSource
+
+An MTLS Auth source can be used to issue tokens based on user certificates.
+
+#### Example
+
+```json
+{
+  "CA": "-----BEGIN CERTIFICATE-----
+MIIBZTCCAQugAwIBAgIRANYvXLTa16Ykvc9hQ4BBLJEwCgYIKoZIzj0EAwIwEjEQ
+MA4GA1UEAxMHQUNNRSBDQTAeFw0yMTExMDEyMzAwMTlaFw0zMTA5MTAyMzAwMTla
+MBIxEDAOBgNVBAMTB0FDTUUgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASa
+7wknroxwB1znupZ67NzTG9Kuc+tNRlbI22eTDNMKYpIexzWDOyiQ95N3GQIdmAz5
+wVu9l2V3VuKUpD9mNgkRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw
+AwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID
+SAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS
+bOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==
+-----END CERTIFICATE-----",
+  "claimsRetrievalMode": "X509",
+  "name": "mypki",
+  "principalUserX509Field": "Email"
+}
+```
+
+#### Relations
+
+##### `GET /mtlssources`
+
+List all mtlssources.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /mtlssources`
+
+Creates a new mtlssource.
+
+##### `DELETE /mtlssources/:id`
+
+Delete a particular mtlssource object.
+
+##### `GET /mtlssources/:id`
+
+Get a particular mtlssource object.
+
+##### `PUT /mtlssources/:id`
+
+Update a particular mtlssource object.
+
+#### Attributes
+
+##### `CA` [`required`]
+
+Type: `string`
+
+The Certificate authority to use to validate user certificates in PEM format.
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `claimsRetrievalMode`
+
+Type: `enum(Entra | Okta | X509)`
+
+Defines if and how you want to enable auto login with client certificates.
+
+Default value:
+
+```json
+"X509"
+```
+
+##### `createTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Creation date of the object.
+
+##### `description`
+
+Type: `string`
+
+The description of the object.
+
+##### `entraApplicationCredentials`
+
+Type: [`mtlssourceentra`](#mtlssourceentra)
+
+Additional information required when claims retrieval mode is set to Entra.
+
+##### `fingerprints` [`autogenerated`,`read_only`]
+
+Type: `[]string`
+
+The fingerprint of the CAs in the chain.
+
+##### `ignoredKeys`
+
+Type: `[]string`
+
+A list of claims that will be filtered out from the identity token. A claim will
+be ignored if it is prefixed with one of the items in the ignoredKeys list. This
+runs before includedKeys computation.
+
+##### `importHash` [`autogenerated`,`creation_only`]
+
+Type: `string`
+
+The hash of the structure used to compare with new import version.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
+##### `includedKeys`
+
+Type: `[]string`
+
+A list of claims that defines which claims will be added to the identity
+token. A claim will be included if it is prefixed with one of the items in the
+includedKeys list. This runs after ignoreddKeys computation.
+
+##### `modifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the source.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `oktaApplicationCredentials`
+
+Type: [`mtlssourceokta`](#mtlssourceokta)
+
+Additional information required when claims retrieval mode is set to Okta.
+
+##### `principalUserX509Field`
+
+Type: `enum(CommonName | Email | MicrosoftUPN)`
+
+The X.509 field to look for to extract the user principal name.
+
+Default value:
+
+```json
+"Email"
+```
+
+##### `subjectKeyIDs` [`autogenerated`,`read_only`]
+
+Type: `[]string`
+
+Value of the CAs X.509 SubjectKeyIDs in the chain.
+
+##### `updateTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Last update date of the object.
+
+### OIDCSource
+
+An OIDC Auth source can be used to issue tokens based on existing OIDC accounts.
+
+#### Example
+
+```json
+{
+  "clientID": "12345677890.apps.googleusercontent.com",
+  "clientSecret": "Ytgbfjtj4652jHDFGls99jF",
+  "endpoint": "https://accounts.google.com",
+  "name": "myoidc",
+  "scopes": [
+    "email",
+    "profile"
+  ]
+}
+```
+
+#### Relations
+
+##### `GET /oidcsources`
+
+List all oidcsources.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /oidcsources`
+
+Creates a new oidcsource.
+
+##### `DELETE /oidcsources/:id`
+
+Delete a particular oidcsource object.
+
+##### `GET /oidcsources/:id`
+
+Get a particular oidcsource object.
+
+##### `PUT /oidcsources/:id`
+
+Update a particular oidcsource object.
+
+#### Attributes
+
+##### `CA`
+
+Type: `string`
+
+The Certificate authority to use to validate the authenticity of the OIDC
+server. If left empty, the system trust stroe will be used. In most of the
+cases, you don't need to set this.
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `clientID` [`required`]
+
+Type: `string`
+
+Unique client ID.
+
+##### `clientSecret` [`required`]
+
+Type: `string`
+
+Client secret associated with the client ID.
+
+##### `createTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Creation date of the object.
+
+##### `description`
+
+Type: `string`
+
+The description of the object.
+
+##### `endpoint` [`required`]
+
+Type: `string`
+
+OIDC [discovery
+endpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).
+
+##### `ignoredKeys`
+
+Type: `[]string`
+
+A list of claims that will be filtered out from the identity token. A claim will
+be ignored if it is prefixed with one of the items in the ignoredKeys list. This
+runs before includedKeys computation.
+
+##### `importHash` [`autogenerated`,`creation_only`]
+
+Type: `string`
+
+The hash of the structure used to compare with new import version.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
+##### `includedKeys`
+
+Type: `[]string`
+
+A list of claims that defines which claims will be added to the identity
+token. A claim will be included if it is prefixed with one of the items in the
+includedKeys list. This runs after ignoreddKeys computation.
+
+##### `modifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the source.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `scopes`
+
+Type: `[]string`
+
+List of scopes to allow.
+
+##### `updateTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Last update date of the object.
+
+### SAMLSource
+
+Defines a remote SAML to use as an authentication source.
+
+#### Example
+
+```json
+{
+  "IDPCertificate": "-----BEGIN CERTIFICATE REQUEST-----
+MIICvDCCAaQCAQAwdzELMAkGA1UEBhMCVVMxDTALBgNVBAgMBFV0YWgxDzANBgNV
+...
+97Ob1alpHPoZ7mWiEuJwjBPii6a9M9G30nUo39lBi1w=
+-----END CERTIFICATE REQUEST-----",
+  "IDPIssuer": "https://accounts.google.com/o/saml2/idp?idpid=AbDcef123",
+  "IDPURL": "https://accounts.google.com/o/saml2/idp?idpid=AbDcef123",
+  "audienceURI": "spn:abc-3423-fdsfs-fdsfs",
+  "keysTranslationEnabled": false,
+  "name": "mypki",
+  "serviceProviderIssuer": "abc-3423-fdsfs-fdsfs",
+  "skipResponseSignatureCheck": false
+}
+```
+
+#### Relations
+
+##### `GET /samlsources`
+
+List all samlsources.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /samlsources`
+
+Creates a new samlsource.
+
+##### `DELETE /samlsources/:id`
+
+Deletes the SAML source with the given ID.
+
+##### `GET /samlsources/:id`
+
+Retrieves the SAML source with the given ID.
+
+##### `PUT /samlsources/:id`
+
+Updates the SAML source with the given ID.
+
+#### Attributes
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `IDPCertificate`
+
+Type: `string`
+
+Identity Provider Certificate in PEM format.
+
+##### `IDPIssuer`
+
+Type: `string`
+
+Identity Provider Issuer (also called Entity ID).
+
+##### `IDPMetadata`
+
+Type: `string`
+
+Pass some XML data containing the IDP metadata that can be used for automatic
+configuration. If you pass this attribute, every other one will be overwritten
+with the data contained in the metadata file, but it does not take precendence
+over IDPMetadataURL.
+
+##### `IDPMetadataURL`
+
+Type: `string`
+
+The URL where to fetch the IDPMetadata. If this is set, all other IDP fields are
+ignored and the metadata will be retrieved when needed for logging in.
+
+##### `IDPURL`
+
+Type: `string`
+
+URL of the identity provider.
+
+##### `audienceURI`
+
+Type: `string`
+
+The AudienceURI expected for the response. If not provided, Acuvity will send
+the issuer URL.
+
+##### `createTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Creation date of the object.
+
+##### `description`
+
+Type: `string`
+
+The description of the object.
+
+##### `ignoredKeys`
+
+Type: `[]string`
+
+A list of claims that will be filtered out from the identity token. A claim will
+be ignored if it is prefixed with one of the items in the ignoredKeys list. This
+runs before includedKeys computation.
+
+##### `importHash` [`autogenerated`,`creation_only`]
+
+Type: `string`
+
+The hash of the structure used to compare with new import version.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
+##### `includedKeys`
+
+Type: `[]string`
+
+A list of claims that defines which claims will be added to the identity
+token. A claim will be included if it is prefixed with one of the items in the
+includedKeys list. This runs after ignoreddKeys computation.
+
+##### `keysTranslationEnabled`
+
+Type: `boolean`
+
+When true, translate some common keys to shorter versions. For instance,
+`htps://schemas.microsoft.com/ws/2008/06/identity/claims/name=x` would become
+`@ad:name=x`.
+
+##### `modifier`
+
+Type: [`identitymodifier`](#identitymodifier)
+
+Contains optional information about a remote service that can be used to modify
+the claims that are about to be delivered using this authentication source.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the source.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `serviceProviderIssuer`
+
+Type: `string`
+
+The Service Provider Issuer which is represented by the client ID. If not
+provided, Acuvity will send the issuer URL.
+
+##### `skipResponseSignatureCheck`
+
+Type: `boolean`
+
+If true, the issue request won't check the ResponseSignatureValidated.
+
+##### `updateTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Last update date of the object.
+
 ## core
 
 ### AccessPolicy
@@ -2271,6 +2971,12 @@ Type: `string`
 
 The ID of the analyzer.
 
+##### `coverageRatio`
+
+Type: `float`
+
+The percentage of text analyzed.
+
 ##### `detections`
 
 Type: [`[]detection`](#detection)
@@ -3101,7 +3807,7 @@ Represents an app component selector used to identify workloads.
 
 ```json
 {
-  "type": "Kubernetes",
+  "type": "None",
   "workloadGroupHash": "0ff92a76a3765740e26d84947d92e5fc",
   "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo"
 }
@@ -3118,14 +3824,14 @@ configuration.
 
 ##### `type` [`required`]
 
-Type: `enum(Kubernetes)`
+Type: `enum(Kubernetes | None)`
 
 The type of selector.
 
 Default value:
 
 ```json
-"Kubernetes"
+"None"
 ```
 
 ##### `workloadGroupHash` [`autogenerated`,`read_only`]
@@ -3876,7 +4582,7 @@ Represents an app selector used to identify and group workload groups.
 
 ```json
 {
-  "type": "Kubernetes",
+  "type": "None",
   "workloadGroupSetHash": "0ff92a76a3765740e26d84947d92e5fc",
   "workloadGroupSetLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo"
 }
@@ -3893,14 +4599,14 @@ configuration.
 
 ##### `type` [`required`]
 
-Type: `enum(Kubernetes)`
+Type: `enum(Kubernetes | None)`
 
 The type of selector.
 
 Default value:
 
 ```json
-"Kubernetes"
+"None"
 ```
 
 ##### `workloadGroupSetHash` [`autogenerated`,`read_only`]
@@ -9111,7 +9817,7 @@ Represents a Predicate.
 
 ##### `key` [`required`]
 
-Type: `enum(Categories | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | Exploits | IsIngress | Keywords | Languages | MCPGateway | MCPServer | Malcontents | Modality | Model | PIIs | Plugin | Provider | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | Status | Team | Tools | ToolUses | Topics | Workspace)`
+Type: `enum(Categories | ClientType | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | Exploits | IsIngress | Keywords | Languages | MCPGateway | MCPServer | Malcontents | Modality | Model | PIIs | Plugin | Provider | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | Status | Team | Tier | Tools | ToolUses | Topics | Workspace)`
 
 The key of the predicate.
 
@@ -9145,6 +9851,7 @@ Describe the principal.
   "IP": "192.0.2.42",
   "authType": "Certificate",
   "teams": "admins",
+  "tokenID": "1234-1224-123-1",
   "tokenName": "my-user-token",
   "type": [
     "User"
@@ -9189,6 +9896,12 @@ The external principal information if type is External.
 Type: `[]string`
 
 The teams that were used to authorize the request.
+
+##### `tokenID`
+
+Type: `string`
+
+The ID (jid) of the token, if any.
 
 ##### `tokenName`
 
@@ -9481,6 +10194,7 @@ end
 return M",
   "name": "openai",
   "propagate": true,
+  "providerType": "LLM",
   "status": "Stable",
   "tokenSwap": false,
   "upstreamUnsecure": false
@@ -9638,6 +10352,18 @@ Default value:
 
 ```json
 true
+```
+
+##### `providerType`
+
+Type: `enum(LLM | MCPServer)`
+
+The type of the provider.
+
+Default value:
+
+```json
+"LLM"
 ```
 
 ##### `riskScore`
@@ -12340,6 +13066,14 @@ Default value:
 
 Run the validation function for an identifiable object.
 
+#### Example
+
+```json
+{
+  "restName": "accesspolicy"
+}
+```
+
 #### Relations
 
 ##### `POST /validate`
@@ -12354,7 +13088,7 @@ Type: `map[string]any`
 
 The identifiable content to validate.
 
-##### `restName`
+##### `restName` [`required`]
 
 Type: `string`
 
@@ -12770,7 +13504,7 @@ Represents a workload that is managed by an app agent.
     "@k8s:deployment=mcp-demo-agent",
     "@container:image=docker.io/acuvity/mcp-demo-agent:latest"
   ],
-  "type": "Kubernetes",
+  "type": "None",
   "workloadGroupHash": "wg-0ff92a76a3765740e26d84947d92e5fc",
   "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo"
 }
@@ -12805,14 +13539,14 @@ The current status of this workload.
 
 ##### `type` [`required`]
 
-Type: `enum(Kubernetes)`
+Type: `enum(Kubernetes | None)`
 
 The type of selector.
 
 Default value:
 
 ```json
-"Kubernetes"
+"None"
 ```
 
 ##### `workloadGroupHash`
@@ -13757,6 +14491,12 @@ Type: `time`
 
 Creation date of the object.
 
+##### `databahn`
+
+Type: [`sinkdatabahn`](#sinkdatabahn)
+
+Contains additional configuration for sending an alert to Databahn.
+
 ##### `description`
 
 Type: `string`
@@ -13833,7 +14573,7 @@ Contains additional configuration for sending the alert to Splunk.
 
 ##### `type` [`required`]
 
-Type: `enum(Email | PagerDuty | Slack | Splunk)`
+Type: `enum(Databahn | Email | PagerDuty | Slack | Splunk)`
 
 The type of sink.
 
@@ -13848,6 +14588,33 @@ Default value:
 Type: `time`
 
 Last update date of the object.
+
+### SinkDatabahn
+
+Additional configuration for sending an alert to Databahn.
+
+#### Example
+
+```json
+{
+  "token": "your-webhook-bearer-token",
+  "webhookURL": "https://your-collector-endpoint.databahn.com/databahn-collector/acuvity/tenant-001/alert-sink"
+}
+```
+
+#### Attributes
+
+##### `token` [`required`]
+
+Type: `string`
+
+The bearer token for Databahn webhook authentication.
+
+##### `webhookURL` [`required`]
+
+Type: `string`
+
+The complete Databahn webhook endpoint URL to send the alert to.
 
 ### SinkEmail
 

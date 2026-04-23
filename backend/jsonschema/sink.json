@@ -36,6 +36,12 @@
         "null"
       ]
     },
+    "databahn": {
+      "$friendlyName": "Databahn",
+      "$ref": "sinkdatabahn.json",
+      "description": "Contains additional configuration for sending an alert to Databahn.",
+      "title": "databahn"
+    },
     "description": {
       "$friendlyName": "Description",
       "description": "The description of the sink.",
@@ -133,6 +139,7 @@
       "$required": true,
       "description": "The type of sink.",
       "enum": [
+        "Databahn",
         "Email",
         "PagerDuty",
         "Slack",

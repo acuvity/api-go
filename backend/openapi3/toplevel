@@ -1791,6 +1791,10 @@
             "description": "The ID of the analyzer.",
             "type": "string"
           },
+          "coverageRatio": {
+            "description": "The percentage of text analyzed.",
+            "type": "number"
+          },
           "detections": {
             "description": "The list of detections the analyzer returned.",
             "items": {
@@ -2389,10 +2393,11 @@
             "$ref": "#/components/schemas/kubernetesworkloadgroupselector"
           },
           "type": {
-            "default": "Kubernetes",
+            "default": "None",
             "description": "The type of selector.",
             "enum": [
-              "Kubernetes"
+              "Kubernetes",
+              "None"
             ]
           },
           "workloadGroupHash": {
@@ -2936,10 +2941,11 @@
             "$ref": "#/components/schemas/kubernetesworkloadgroupsetselector"
           },
           "type": {
-            "default": "Kubernetes",
+            "default": "None",
             "description": "The type of selector.",
             "enum": [
-              "Kubernetes"
+              "Kubernetes",
+              "None"
             ]
           },
           "workloadGroupSetHash": {
@@ -4803,6 +4809,48 @@
         ],
         "type": "object"
       },
+      "identitymodifier": {
+        "description": "Information about a remote endpoint to call to eventually modify the identity\nclaims about to be issued when using the parent source.",
+        "properties": {
+          "CA": {
+            "description": "CA to use to validate the identity modfier service.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "URL": {
+            "description": "URL of the remote service. This URL will receive a call containing the\nclaims that are about to be delivered. It must reply with 204 if it does not\nwish to modify the claims, or 200 alongside a body containing the modified\nclaims.",
+            "example": "https://modifier.acme.com/modify",
+            "type": "string"
+          },
+          "certificate": {
+            "description": "Client certificate required to call URL. A3S will refuse to send data if the\nendpoint does not support client certificate authentication.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "key": {
+            "description": "Key associated to the client certificate.",
+            "example": "-----BEGIN PRIVATE KEY-----\nMIIBPzCB5qADAgECAhEAwbx3c+QW24ePXyD94geytzAKBggqhkjOPQQDAjAPMQ0w\nCwYDVQQDEwR0b3RvMB4XDTE5MDIyMjIzNDA1MFoXDTI4MTIzMTIzNDA1MFowDzEN\nMAsGA1UEAxMEdG90bzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJi6CwRDeKks\nXb3pDEslmFGR7k9Aeh5RK+XmdqKKPGb3NQWEFPGolnqOR34iVuf7KSxTuzaaVWfu\nXEa94faUQEqjIzAhMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MAoG\nCCqGSM49BAMCA0gAMEUCIQD+nL9RF9EvQXHyYuJ31Lz9yWd9hsK91stnpAs890gS\n/AIgQIKjBBpiyQNZZWso5H04qke9QYMVPegiQQufFFBj32c=\n-----END PRIVATE KEY-----",
+            "type": "string"
+          },
+          "method": {
+            "default": "POST",
+            "description": "The HTTP method to use to call the endpoint. For POST/PUT/PATCH the remote\nserver will receive the claims as a JSON encoded array in the body. For a GET,\nthe claims will be passed as a query parameter named `claim`.",
+            "enum": [
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH"
+            ]
+          }
+        },
+        "required": [
+          "URL",
+          "certificate",
+          "key",
+          "method"
+        ],
+        "type": "object"
+      },
       "identityref": {
         "description": "This is an identity reference.",
         "properties": {
@@ -6261,6 +6309,275 @@
         ],
         "type": "object"
       },
+      "mtlssource": {
+        "description": "An MTLS Auth source can be used to issue tokens based on user certificates.",
+        "properties": {
+          "CA": {
+            "description": "The Certificate authority to use to validate user certificates in PEM format.",
+            "example": "-----BEGIN CERTIFICATE-----\nMIIBZTCCAQugAwIBAgIRANYvXLTa16Ykvc9hQ4BBLJEwCgYIKoZIzj0EAwIwEjEQ\nMA4GA1UEAxMHQUNNRSBDQTAeFw0yMTExMDEyMzAwMTlaFw0zMTA5MTAyMzAwMTla\nMBIxEDAOBgNVBAMTB0FDTUUgQ0EwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASa\n7wknroxwB1znupZ67NzTG9Kuc+tNRlbI22eTDNMKYpIexzWDOyiQ95N3GQIdmAz5\nwVu9l2V3VuKUpD9mNgkRo0IwQDAOBgNVHQ8BAf8EBAMCAQYwDwYDVR0TAQH/BAUw\nAwEB/zAdBgNVHQ4EFgQURIT2kL76vMj9A3r9AUnaiHnHf4EwCgYIKoZIzj0EAwID\nSAAwRQIgS4SGaJ/B1Ul88Jal11Q5BwiY9bY2y9w+4xPNBxSyAIcCIQCSWVq+00xS\nbOmROq+EsxO4L/GzJx7MBbeJ6x142VKSBQ==\n-----END CERTIFICATE-----",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "claimsRetrievalMode": {
+            "default": "X509",
+            "description": "Defines if and how you want to enable auto login with client certificates.",
+            "enum": [
+              "Entra",
+              "Okta",
+              "X509"
+            ]
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "entraApplicationCredentials": {
+            "$ref": "#/components/schemas/mtlssourceentra"
+          },
+          "fingerprints": {
+            "description": "The fingerprint of the CAs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "ignoredKeys": {
+            "description": "A list of claims that will be filtered out from the identity token. A claim will\nbe ignored if it is prefixed with one of the items in the ignoredKeys list. This\nruns before includedKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "includedKeys": {
+            "description": "A list of claims that defines which claims will be added to the identity\ntoken. A claim will be included if it is prefixed with one of the items in the\nincludedKeys list. This runs after ignoreddKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "mypki",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "oktaApplicationCredentials": {
+            "$ref": "#/components/schemas/mtlssourceokta"
+          },
+          "principalUserX509Field": {
+            "default": "Email",
+            "description": "The X.509 field to look for to extract the user principal name.",
+            "enum": [
+              "CommonName",
+              "Email",
+              "MicrosoftUPN"
+            ]
+          },
+          "subjectKeyIDs": {
+            "description": "Value of the CAs X.509 SubjectKeyIDs in the chain.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "CA",
+          "name"
+        ],
+        "type": "object"
+      },
+      "mtlssourceentra": {
+        "description": "Additional authentication information for MTLS source getting information from\nEntra.\n\nYou will need to set clientTenantID, clientID and clientSecret.\n\nYou will also need an Entra application that has the following permissions:\nDirectory.Read.All and User.Read.",
+        "properties": {
+          "clientID": {
+            "description": "The oauth clientID if any. This may be required for autologin, depending on the\nmode.",
+            "example": "a83e57d8-24af-4aec-bc8f-822db8d165b0",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Client secret associated with the client ID. This may be required for autologin,\ndepending on the mode.",
+            "example": "Ytgbfjtj4652jHDFGls99jF",
+            "type": "string"
+          },
+          "clientTenantID": {
+            "description": "ID of the tenant for the identity provider, if any. This may be required for\nautologin, depending on the mode.",
+            "example": "a83e57d8-24af-4aec-bc8f-822db8d165b0",
+            "type": "string"
+          },
+          "graphEventsEnabled": {
+            "description": "Enables background jobs to maintain subscriptions to Entra to be notified of\nchanges in groups, users and memmber assignation. This requires A3S to be\nconfigured with an event hook endpoint.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "clientSecret"
+        ],
+        "type": "object"
+      },
+      "mtlssourceokta": {
+        "description": "Additional authentication information for MTLS source getting information from\nOkta.",
+        "properties": {
+          "KID": {
+            "description": "The Key ID associated to the private key.",
+            "example": "RuxZhjjgWRnJGxGruqg4UpS821E7RtfY9cXbyfKwafo",
+            "type": "string"
+          },
+          "clientID": {
+            "description": "The application client id.",
+            "example": "0oaqqm0r0sYY2OuHT5d7",
+            "type": "string"
+          },
+          "domain": {
+            "description": "Your custom okta domain.",
+            "example": "my-org.okta.com",
+            "type": "string"
+          },
+          "privateKey": {
+            "description": "The Application private key.",
+            "example": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+            "type": "string"
+          }
+        },
+        "required": [
+          "KID",
+          "clientID",
+          "domain",
+          "privateKey"
+        ],
+        "type": "object"
+      },
+      "oidcsource": {
+        "description": "An OIDC Auth source can be used to issue tokens based on existing OIDC accounts.",
+        "properties": {
+          "CA": {
+            "description": "The Certificate authority to use to validate the authenticity of the OIDC\nserver. If left empty, the system trust stroe will be used. In most of the\ncases, you don't need to set this.",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Unique client ID.",
+            "example": "12345677890.apps.googleusercontent.com",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Client secret associated with the client ID.",
+            "example": "Ytgbfjtj4652jHDFGls99jF",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "endpoint": {
+            "description": "OIDC [discovery\nendpoint](https://openid.net/specs/openid-connect-discovery-1_0.html#IssuerDiscovery).",
+            "example": "https://accounts.google.com",
+            "type": "string"
+          },
+          "ignoredKeys": {
+            "description": "A list of claims that will be filtered out from the identity token. A claim will\nbe ignored if it is prefixed with one of the items in the ignoredKeys list. This\nruns before includedKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "includedKeys": {
+            "description": "A list of claims that defines which claims will be added to the identity\ntoken. A claim will be included if it is prefixed with one of the items in the\nincludedKeys list. This runs after ignoreddKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "myoidc",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "scopes": {
+            "description": "List of scopes to allow.",
+            "example": [
+              "email",
+              "profile"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientID",
+          "clientSecret",
+          "endpoint",
+          "name"
+        ],
+        "type": "object"
+      },
       "orgsettings": {
         "description": "Manage the default settings for the entire organization.",
         "properties": {
@@ -6832,6 +7149,7 @@
             "description": "The key of the predicate.",
             "enum": [
               "Categories",
+              "ClientType",
               "Confidentiality",
               "CustomDataTypes",
               "DstApp",
@@ -6858,6 +7176,7 @@
               "SrcIPRange",
               "Status",
               "Team",
+              "Tier",
               "Tools",
               "ToolUses",
               "Topics",
@@ -6940,6 +7259,11 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "tokenID": {
+            "description": "The ID (jid) of the token, if any.",
+            "example": "1234-1224-123-1",
+            "type": "string"
           },
           "tokenName": {
             "description": "The name of the token, if any.",
@@ -7236,6 +7560,14 @@
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "providerType": {
+            "default": "LLM",
+            "description": "The type of the provider.",
+            "enum": [
+              "LLM",
+              "MCPServer"
+            ]
           },
           "riskScore": {
             "description": "The latest risk score of the provider.",
@@ -7910,6 +8242,112 @@
         },
         "type": "object"
       },
+      "samlsource": {
+        "description": "Defines a remote SAML to use as an authentication source.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "IDPCertificate": {
+            "description": "Identity Provider Certificate in PEM format.",
+            "example": "-----BEGIN CERTIFICATE REQUEST-----\nMIICvDCCAaQCAQAwdzELMAkGA1UEBhMCVVMxDTALBgNVBAgMBFV0YWgxDzANBgNV\n...\n97Ob1alpHPoZ7mWiEuJwjBPii6a9M9G30nUo39lBi1w=\n-----END CERTIFICATE REQUEST-----",
+            "type": "string"
+          },
+          "IDPIssuer": {
+            "description": "Identity Provider Issuer (also called Entity ID).",
+            "example": "https://accounts.google.com/o/saml2/idp?idpid=AbDcef123",
+            "type": "string"
+          },
+          "IDPMetadata": {
+            "description": "Pass some XML data containing the IDP metadata that can be used for automatic\nconfiguration. If you pass this attribute, every other one will be overwritten\nwith the data contained in the metadata file, but it does not take precendence\nover IDPMetadataURL.",
+            "type": "string"
+          },
+          "IDPMetadataURL": {
+            "description": "The URL where to fetch the IDPMetadata. If this is set, all other IDP fields are\nignored and the metadata will be retrieved when needed for logging in.",
+            "type": "string"
+          },
+          "IDPURL": {
+            "description": "URL of the identity provider.",
+            "example": "https://accounts.google.com/o/saml2/idp?idpid=AbDcef123",
+            "type": "string"
+          },
+          "audienceURI": {
+            "description": "The AudienceURI expected for the response. If not provided, Acuvity will send\nthe issuer URL.",
+            "example": "spn:abc-3423-fdsfs-fdsfs",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "ignoredKeys": {
+            "description": "A list of claims that will be filtered out from the identity token. A claim will\nbe ignored if it is prefixed with one of the items in the ignoredKeys list. This\nruns before includedKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "includedKeys": {
+            "description": "A list of claims that defines which claims will be added to the identity\ntoken. A claim will be included if it is prefixed with one of the items in the\nincludedKeys list. This runs after ignoreddKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "keysTranslationEnabled": {
+            "description": "When true, translate some common keys to shorter versions. For instance,\n`htps://schemas.microsoft.com/ws/2008/06/identity/claims/name=x` would become\n`@ad:name=x`.",
+            "type": "boolean"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "mypki",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "serviceProviderIssuer": {
+            "description": "The Service Provider Issuer which is represented by the client ID. If not\nprovided, Acuvity will send the issuer URL.",
+            "example": "abc-3423-fdsfs-fdsfs",
+            "type": "string"
+          },
+          "skipResponseSignatureCheck": {
+            "description": "If true, the issue request won't check the ResponseSignatureValidated.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "scandomain": {
         "description": "Report sent by the Acuvity scanner.",
         "properties": {
@@ -8316,6 +8754,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "databahn": {
+            "$ref": "#/components/schemas/sinkdatabahn"
+          },
           "description": {
             "description": "The description of the sink.",
             "type": "string"
@@ -8364,6 +8805,7 @@
             "default": "Email",
             "description": "The type of sink.",
             "enum": [
+              "Databahn",
               "Email",
               "PagerDuty",
               "Slack",
@@ -8380,6 +8822,26 @@
         "required": [
           "friendlyName",
           "type"
+        ],
+        "type": "object"
+      },
+      "sinkdatabahn": {
+        "description": "Additional configuration for sending an alert to Databahn.",
+        "properties": {
+          "token": {
+            "description": "The bearer token for Databahn webhook authentication.",
+            "example": "your-webhook-bearer-token",
+            "type": "string"
+          },
+          "webhookURL": {
+            "description": "The complete Databahn webhook endpoint URL to send the alert to.",
+            "example": "https://your-collector-endpoint.databahn.com/databahn-collector/acuvity/tenant-001/alert-sink",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "webhookURL"
         ],
         "type": "object"
       },
@@ -9267,9 +9729,13 @@
           },
           "restName": {
             "description": "Identity REST name.",
+            "example": "accesspolicy",
             "type": "string"
           }
         },
+        "required": [
+          "restName"
+        ],
         "type": "object"
       },
       "visitedurl": {
@@ -9539,10 +10005,11 @@
             "$ref": "#/components/schemas/workloadstatus"
           },
           "type": {
-            "default": "Kubernetes",
+            "default": "None",
             "description": "The type of selector.",
             "enum": [
-              "Kubernetes"
+              "Kubernetes",
+              "None"
             ]
           },
           "workloadGroupHash": {
@@ -13959,6 +14426,292 @@
         ]
       }
     },
+    "/mtlssources": {
+      "get": {
+        "description": "List all mtlssources.",
+        "operationId": "get-all-MTLSSources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mtlssource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "post": {
+        "description": "Creates a new mtlssource.",
+        "operationId": "create-MTLSSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mtlssource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
+    "/mtlssources/{id}": {
+      "delete": {
+        "description": "Delete a particular mtlssource object.",
+        "operationId": "delete-MTLSSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "get": {
+        "description": "Get a particular mtlssource object.",
+        "operationId": "get-MTLSSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular mtlssource object.",
+        "operationId": "update-MTLSSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mtlssource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mtlssource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
+    "/oidcsources": {
+      "get": {
+        "description": "List all oidcsources.",
+        "operationId": "get-all-OIDCSources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/oidcsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "post": {
+        "description": "Creates a new oidcsource.",
+        "operationId": "create-OIDCSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/oidcsource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
+    "/oidcsources/{id}": {
+      "delete": {
+        "description": "Delete a particular oidcsource object.",
+        "operationId": "delete-OIDCSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "get": {
+        "description": "Get a particular oidcsource object.",
+        "operationId": "get-OIDCSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular oidcsource object.",
+        "operationId": "update-OIDCSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/oidcsource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/oidcsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
     "/orgsettings": {
       "get": {
         "description": "List all orgsettings.",
@@ -15667,6 +16420,149 @@
         ]
       }
     },
+    "/samlsources": {
+      "get": {
+        "description": "List all samlsources.",
+        "operationId": "get-all-SAMLSources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/samlsource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "post": {
+        "description": "Creates a new samlsource.",
+        "operationId": "create-SAMLSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/samlsource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/samlsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
+    "/samlsources/{id}": {
+      "delete": {
+        "description": "Deletes the SAML source with the given ID.",
+        "operationId": "delete-SAMLSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/samlsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the SAML source with the given ID.",
+        "operationId": "get-SAMLSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/samlsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the SAML source with the given ID.",
+        "operationId": "update-SAMLSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/samlsource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/samlsource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
     "/scanreports": {
       "get": {
         "description": "List all available scan reports.",
@@ -16878,6 +17774,14 @@
     {
       "description": "This tag is for group 'apex'",
       "name": "apex"
+    },
+    {
+      "description": "This tag is for group 'authn/issue'",
+      "name": "authn/issue"
+    },
+    {
+      "description": "This tag is for group 'authn/source'",
+      "name": "authn/source"
     },
     {
       "description": "This tag is for group 'core'",

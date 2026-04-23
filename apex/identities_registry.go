@@ -47,18 +47,27 @@ var (
 	aliasesMap = map[string]elemental.Identity{}
 
 	indexesMap = map[string][][]string{
-		"analyzer":          nil,
-		"latency":           nil,
-		"policerequest":     nil,
-		"policeresponse":    nil,
+		"analyzer": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"latency":       nil,
+		"policerequest": nil,
+		"policeresponse": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"principal":         nil,
 		"principalapp":      nil,
 		"principalexternal": nil,
 		"principaluser":     nil,
 		"root":              nil,
 		"scanrequest":       nil,
-		"scanresponse":      nil,
-		"traceref":          nil,
+		"scanresponse": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"traceref": nil,
 	}
 )
 

@@ -27,6 +27,15 @@
         "null"
       ]
     },
+    "coverageRatio": {
+      "$friendlyName": "Coverage Ratio",
+      "description": "The percentage of text analyzed.",
+      "title": "coverageRatio",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
     "detections": {
       "$friendlyName": "Detections",
       "description": "The list of detections the analyzer returned.",

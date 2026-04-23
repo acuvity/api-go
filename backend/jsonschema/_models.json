@@ -249,6 +249,9 @@
     "host": {
       "$ref": "host.json"
     },
+    "identitymodifier": {
+      "$ref": "identitymodifier.json"
+    },
     "identityref": {
       "$ref": "identityref.json"
     },
@@ -336,6 +339,18 @@
     "moderation": {
       "$ref": "moderation.json"
     },
+    "mtlssource": {
+      "$ref": "mtlssource.json"
+    },
+    "mtlssourceentra": {
+      "$ref": "mtlssourceentra.json"
+    },
+    "mtlssourceokta": {
+      "$ref": "mtlssourceokta.json"
+    },
+    "oidcsource": {
+      "$ref": "oidcsource.json"
+    },
     "orgsettings": {
       "$ref": "orgsettings.json"
     },
@@ -420,6 +435,9 @@
     "root": {
       "$ref": "root.json"
     },
+    "samlsource": {
+      "$ref": "samlsource.json"
+    },
     "scandomain": {
       "$ref": "scandomain.json"
     },
@@ -452,6 +470,9 @@
     },
     "sink": {
       "$ref": "sink.json"
+    },
+    "sinkdatabahn": {
+      "$ref": "sinkdatabahn.json"
     },
     "sinkemail": {
       "$ref": "sinkemail.json"
@@ -534,26 +555,8 @@
     "workloadstatus": {
       "$ref": "workloadstatus.json"
     },
-    "identitymodifier": {
-      "$ref": "identitymodifier.json"
-    },
-    "samlsource": {
-      "$ref": "samlsource.json"
-    },
-    "oidcsource": {
-      "$ref": "oidcsource.json"
-    },
     "oauth2source": {
       "$ref": "oauth2source.json"
-    },
-    "mtlssource": {
-      "$ref": "mtlssource.json"
-    },
-    "mtlssourceentra": {
-      "$ref": "mtlssourceentra.json"
-    },
-    "mtlssourceokta": {
-      "$ref": "mtlssourceokta.json"
     },
     "permissions": {
       "$ref": "permissions.json"

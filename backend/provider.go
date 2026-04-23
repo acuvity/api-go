@@ -24,6 +24,17 @@ const (
 	ProviderCategoryUser ProviderCategoryValue = "User"
 )
 
+// ProviderProviderTypeValue represents the possible values for attribute "providerType".
+type ProviderProviderTypeValue string
+
+const (
+	// ProviderProviderTypeLLM represents the value LLM.
+	ProviderProviderTypeLLM ProviderProviderTypeValue = "LLM"
+
+	// ProviderProviderTypeMCPServer represents the value MCPServer.
+	ProviderProviderTypeMCPServer ProviderProviderTypeValue = "MCPServer"
+)
+
 // ProviderStatusValue represents the possible values for attribute "status".
 type ProviderStatusValue string
 
@@ -168,6 +179,9 @@ type Provider struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
+	// The type of the provider.
+	ProviderType ProviderProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
+
 	// The latest risk score of the provider.
 	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
@@ -212,6 +226,7 @@ func NewProvider() *Provider {
 		ExcludedHosts: []string{},
 		Hosts:         []*Host{},
 		Propagate:     true,
+		ProviderType:  ProviderProviderTypeLLM,
 		Status:        ProviderStatusStable,
 	}
 }
@@ -265,6 +280,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
+	s.ProviderType = o.ProviderType
 	s.RiskScore = o.RiskScore
 	s.Status = o.Status
 	s.TokenSwap = o.TokenSwap
@@ -310,6 +326,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
+	o.ProviderType = s.ProviderType
 	o.RiskScore = s.RiskScore
 	o.Status = s.Status
 	o.TokenSwap = s.TokenSwap
@@ -452,6 +469,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Name:             &o.Name,
 			Namespace:        &o.Namespace,
 			Propagate:        &o.Propagate,
+			ProviderType:     &o.ProviderType,
 			RiskScore:        &o.RiskScore,
 			Status:           &o.Status,
 			TokenSwap:        &o.TokenSwap,
@@ -505,6 +523,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "providerType":
+			sp.ProviderType = &(o.ProviderType)
 		case "riskScore":
 			sp.RiskScore = &(o.RiskScore)
 		case "status":
@@ -592,6 +612,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
+	}
+	if so.ProviderType != nil {
+		o.ProviderType = *so.ProviderType
 	}
 	if so.RiskScore != nil {
 		o.RiskScore = *so.RiskScore
@@ -813,6 +836,10 @@ func (o *Provider) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("status", string(o.Status)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -906,6 +933,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
+	case "providerType":
+		return o.ProviderType
 	case "riskScore":
 		return o.RiskScore
 	case "status":
@@ -1159,6 +1188,17 @@ available to all extractor by doing local plib = require('plib').`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"ProviderType": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		DefaultValue:   ProviderProviderTypeLLM,
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"RiskScore": {
 		AllowedChoices: []string{},
@@ -1476,6 +1516,17 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"providertype": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		DefaultValue:   ProviderProviderTypeLLM,
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"riskscore": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "riskscore",
@@ -1685,6 +1736,9 @@ type SparseProvider struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
+	// The type of the provider.
+	ProviderType *ProviderProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
+
 	// The latest risk score of the provider.
 	RiskScore *float64 `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
 
@@ -1818,6 +1872,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
+	if o.ProviderType != nil {
+		s.ProviderType = o.ProviderType
+	}
 	if o.RiskScore != nil {
 		s.RiskScore = o.RiskScore
 	}
@@ -1918,6 +1975,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
+	if s.ProviderType != nil {
+		o.ProviderType = s.ProviderType
+	}
 	if s.RiskScore != nil {
 		o.RiskScore = s.RiskScore
 	}
@@ -2015,6 +2075,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
+	}
+	if o.ProviderType != nil {
+		out.ProviderType = *o.ProviderType
 	}
 	if o.RiskScore != nil {
 		out.RiskScore = *o.RiskScore
@@ -2280,62 +2343,64 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 }
 
 type mongoAttributesProvider struct {
-	ID               bson.ObjectId         `bson:"_id,omitempty"`
-	Category         ProviderCategoryValue `bson:"category"`
-	CreateTime       time.Time             `bson:"createtime"`
-	Description      string                `bson:"description"`
-	ErrorTransformer *ErrorTransformer     `bson:"errortransformer,omitempty"`
-	ExcludedHosts    []string              `bson:"excludedhosts"`
-	Experimental     bool                  `bson:"experimental"`
-	Extractors       []*ExtractorRef       `bson:"extractors,omitempty"`
-	FriendlyName     string                `bson:"friendlyname"`
-	Hosts            []*Host               `bson:"hosts"`
-	Icon             string                `bson:"icon,omitempty"`
-	ImportHash       string                `bson:"importhash,omitempty"`
-	ImportLabel      string                `bson:"importlabel,omitempty"`
-	Injectors        []*Injector           `bson:"injectors,omitempty"`
-	Lib              string                `bson:"lib"`
-	Mappers          []*Mapper             `bson:"mappers,omitempty"`
-	Name             string                `bson:"name"`
-	Namespace        string                `bson:"namespace,omitempty"`
-	Propagate        bool                  `bson:"propagate"`
-	RiskScore        float64               `bson:"riskscore"`
-	Status           ProviderStatusValue   `bson:"status"`
-	TokenSwap        bool                  `bson:"tokenswap"`
-	TrustedCA        string                `bson:"trustedca,omitempty"`
-	UpdateTime       time.Time             `bson:"updatetime"`
-	UpstreamUnsecure bool                  `bson:"upstreamunsecure"`
-	WebHost          string                `bson:"webhost"`
-	ZHash            int                   `bson:"zhash"`
-	Zone             int                   `bson:"zone"`
+	ID               bson.ObjectId             `bson:"_id,omitempty"`
+	Category         ProviderCategoryValue     `bson:"category"`
+	CreateTime       time.Time                 `bson:"createtime"`
+	Description      string                    `bson:"description"`
+	ErrorTransformer *ErrorTransformer         `bson:"errortransformer,omitempty"`
+	ExcludedHosts    []string                  `bson:"excludedhosts"`
+	Experimental     bool                      `bson:"experimental"`
+	Extractors       []*ExtractorRef           `bson:"extractors,omitempty"`
+	FriendlyName     string                    `bson:"friendlyname"`
+	Hosts            []*Host                   `bson:"hosts"`
+	Icon             string                    `bson:"icon,omitempty"`
+	ImportHash       string                    `bson:"importhash,omitempty"`
+	ImportLabel      string                    `bson:"importlabel,omitempty"`
+	Injectors        []*Injector               `bson:"injectors,omitempty"`
+	Lib              string                    `bson:"lib"`
+	Mappers          []*Mapper                 `bson:"mappers,omitempty"`
+	Name             string                    `bson:"name"`
+	Namespace        string                    `bson:"namespace,omitempty"`
+	Propagate        bool                      `bson:"propagate"`
+	ProviderType     ProviderProviderTypeValue `bson:"providertype"`
+	RiskScore        float64                   `bson:"riskscore"`
+	Status           ProviderStatusValue       `bson:"status"`
+	TokenSwap        bool                      `bson:"tokenswap"`
+	TrustedCA        string                    `bson:"trustedca,omitempty"`
+	UpdateTime       time.Time                 `bson:"updatetime"`
+	UpstreamUnsecure bool                      `bson:"upstreamunsecure"`
+	WebHost          string                    `bson:"webhost"`
+	ZHash            int                       `bson:"zhash"`
+	Zone             int                       `bson:"zone"`
 }
 type mongoAttributesSparseProvider struct {
-	ID               bson.ObjectId          `bson:"_id,omitempty"`
-	Category         *ProviderCategoryValue `bson:"category,omitempty"`
-	CreateTime       *time.Time             `bson:"createtime,omitempty"`
-	Description      *string                `bson:"description,omitempty"`
-	ErrorTransformer *ErrorTransformer      `bson:"errortransformer,omitempty"`
-	ExcludedHosts    *[]string              `bson:"excludedhosts,omitempty"`
-	Experimental     *bool                  `bson:"experimental,omitempty"`
-	Extractors       *[]*ExtractorRef       `bson:"extractors,omitempty"`
-	FriendlyName     *string                `bson:"friendlyname,omitempty"`
-	Hosts            *[]*Host               `bson:"hosts,omitempty"`
-	Icon             *string                `bson:"icon,omitempty"`
-	ImportHash       *string                `bson:"importhash,omitempty"`
-	ImportLabel      *string                `bson:"importlabel,omitempty"`
-	Injectors        *[]*Injector           `bson:"injectors,omitempty"`
-	Lib              *string                `bson:"lib,omitempty"`
-	Mappers          *[]*Mapper             `bson:"mappers,omitempty"`
-	Name             *string                `bson:"name,omitempty"`
-	Namespace        *string                `bson:"namespace,omitempty"`
-	Propagate        *bool                  `bson:"propagate,omitempty"`
-	RiskScore        *float64               `bson:"riskscore,omitempty"`
-	Status           *ProviderStatusValue   `bson:"status,omitempty"`
-	TokenSwap        *bool                  `bson:"tokenswap,omitempty"`
-	TrustedCA        *string                `bson:"trustedca,omitempty"`
-	UpdateTime       *time.Time             `bson:"updatetime,omitempty"`
-	UpstreamUnsecure *bool                  `bson:"upstreamunsecure,omitempty"`
-	WebHost          *string                `bson:"webhost,omitempty"`
-	ZHash            *int                   `bson:"zhash,omitempty"`
-	Zone             *int                   `bson:"zone,omitempty"`
+	ID               bson.ObjectId              `bson:"_id,omitempty"`
+	Category         *ProviderCategoryValue     `bson:"category,omitempty"`
+	CreateTime       *time.Time                 `bson:"createtime,omitempty"`
+	Description      *string                    `bson:"description,omitempty"`
+	ErrorTransformer *ErrorTransformer          `bson:"errortransformer,omitempty"`
+	ExcludedHosts    *[]string                  `bson:"excludedhosts,omitempty"`
+	Experimental     *bool                      `bson:"experimental,omitempty"`
+	Extractors       *[]*ExtractorRef           `bson:"extractors,omitempty"`
+	FriendlyName     *string                    `bson:"friendlyname,omitempty"`
+	Hosts            *[]*Host                   `bson:"hosts,omitempty"`
+	Icon             *string                    `bson:"icon,omitempty"`
+	ImportHash       *string                    `bson:"importhash,omitempty"`
+	ImportLabel      *string                    `bson:"importlabel,omitempty"`
+	Injectors        *[]*Injector               `bson:"injectors,omitempty"`
+	Lib              *string                    `bson:"lib,omitempty"`
+	Mappers          *[]*Mapper                 `bson:"mappers,omitempty"`
+	Name             *string                    `bson:"name,omitempty"`
+	Namespace        *string                    `bson:"namespace,omitempty"`
+	Propagate        *bool                      `bson:"propagate,omitempty"`
+	ProviderType     *ProviderProviderTypeValue `bson:"providertype,omitempty"`
+	RiskScore        *float64                   `bson:"riskscore,omitempty"`
+	Status           *ProviderStatusValue       `bson:"status,omitempty"`
+	TokenSwap        *bool                      `bson:"tokenswap,omitempty"`
+	TrustedCA        *string                    `bson:"trustedca,omitempty"`
+	UpdateTime       *time.Time                 `bson:"updatetime,omitempty"`
+	UpstreamUnsecure *bool                      `bson:"upstreamunsecure,omitempty"`
+	WebHost          *string                    `bson:"webhost,omitempty"`
+	ZHash            *int                       `bson:"zhash,omitempty"`
+	Zone             *int                       `bson:"zone,omitempty"`
 }

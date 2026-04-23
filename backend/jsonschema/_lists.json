@@ -492,6 +492,12 @@
       },
       "type": "array"
     },
+    "identitymodifier": {
+      "items": {
+        "$ref": "identitymodifier.json"
+      },
+      "type": "array"
+    },
     "identityrefs": {
       "items": {
         "$ref": "identityref.json"
@@ -666,6 +672,30 @@
       },
       "type": "array"
     },
+    "mtlssourceentra": {
+      "items": {
+        "$ref": "mtlssourceentra.json"
+      },
+      "type": "array"
+    },
+    "mtlssourceokta": {
+      "items": {
+        "$ref": "mtlssourceokta.json"
+      },
+      "type": "array"
+    },
+    "mtlssources": {
+      "items": {
+        "$ref": "mtlssource.json"
+      },
+      "type": "array"
+    },
+    "oidcsources": {
+      "items": {
+        "$ref": "oidcsource.json"
+      },
+      "type": "array"
+    },
     "orgsettings": {
       "items": {
         "$ref": "orgsettings.json"
@@ -834,6 +864,12 @@
       },
       "type": "array"
     },
+    "samlsources": {
+      "items": {
+        "$ref": "samlsource.json"
+      },
+      "type": "array"
+    },
     "scandomain": {
       "items": {
         "$ref": "scandomain.json"
@@ -891,6 +927,12 @@
     "signups": {
       "items": {
         "$ref": "signup.json"
+      },
+      "type": "array"
+    },
+    "sinkdatabahn": {
+      "items": {
+        "$ref": "sinkdatabahn.json"
       },
       "type": "array"
     },
@@ -1062,45 +1104,9 @@
       },
       "type": "array"
     },
-    "identitymodifier": {
-      "items": {
-        "$ref": "identitymodifier.json"
-      },
-      "type": "array"
-    },
-    "samlsource": {
-      "items": {
-        "$ref": "samlsource.json"
-      },
-      "type": "array"
-    },
-    "oidcsource": {
-      "items": {
-        "$ref": "oidcsource.json"
-      },
-      "type": "array"
-    },
     "oauth2source": {
       "items": {
         "$ref": "oauth2source.json"
-      },
-      "type": "array"
-    },
-    "mtlssource": {
-      "items": {
-        "$ref": "mtlssource.json"
-      },
-      "type": "array"
-    },
-    "mtlssourceentra": {
-      "items": {
-        "$ref": "mtlssourceentra.json"
-      },
-      "type": "array"
-    },
-    "mtlssourceokta": {
-      "items": {
-        "$ref": "mtlssourceokta.json"
       },
       "type": "array"
     },

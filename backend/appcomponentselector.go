@@ -17,6 +17,9 @@ type AppComponentSelectorTypeValue string
 const (
 	// AppComponentSelectorTypeKubernetes represents the value Kubernetes.
 	AppComponentSelectorTypeKubernetes AppComponentSelectorTypeValue = "Kubernetes"
+
+	// AppComponentSelectorTypeNone represents the value None.
+	AppComponentSelectorTypeNone AppComponentSelectorTypeValue = "None"
 )
 
 // AppComponentSelector represents the model of a appcomponentselector
@@ -42,7 +45,7 @@ func NewAppComponentSelector() *AppComponentSelector {
 
 	return &AppComponentSelector{
 		ModelVersion: 1,
-		Type:         AppComponentSelectorTypeKubernetes,
+		Type:         AppComponentSelectorTypeNone,
 	}
 }
 func (o *AppComponentSelector) Identity() elemental.Identity {
@@ -177,7 +180,7 @@ func (o *AppComponentSelector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes", "None"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -248,10 +251,10 @@ configuration.`,
 		Type:    "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   AppComponentSelectorTypeKubernetes,
+		DefaultValue:   AppComponentSelectorTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",
@@ -298,10 +301,10 @@ configuration.`,
 		Type:    "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   AppComponentSelectorTypeKubernetes,
+		DefaultValue:   AppComponentSelectorTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",

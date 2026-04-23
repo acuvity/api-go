@@ -1114,6 +1114,15 @@ func ValidatePrincipal(principal *Principal) error {
 		}
 	}
 
+	if app := principal.App; app != nil {
+		if err := validateWorkloadHash(app.WorkloadGroupLabel, app.WorkloadGroupHash, "principal.app.workloadGroupHash", false); err != nil {
+			return err
+		}
+		if err := validateWorkloadHash(app.WorkloadGroupSetLabel, app.WorkloadGroupSetHash, "principal.app.workloadGroupSetHash", true); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -1142,32 +1151,39 @@ func ValidateAlertDefinition(alertDefinition *AlertDefinition) error {
 func ValidateSink(sink *Sink) error {
 
 	switch sink.Type {
+	case SinkTypeDatabahn:
+		if sink.Databahn == nil {
+			return makeErr("databahn", "'Databahn' must have its configuration defined.")
+		}
+		if sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
+			return makeErr("type", "If type is 'Databahn', only the databahn property must be set.")
+		}
 	case SinkTypeEmail:
 		if sink.Email == nil {
 			return makeErr("email", "'Email' must have its configuration defined.")
 		}
-		if sink.Slack != nil || sink.Splunk != nil || sink.PagerDuty != nil {
+		if sink.Databahn != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
 			return makeErr("type", "If type is 'Email', only the email property must be set.")
 		}
 	case SinkTypePagerDuty:
 		if sink.PagerDuty == nil {
 			return makeErr("pagerDuty", "'PagerDuty' must have its configuration defined.")
 		}
-		if sink.Slack != nil || sink.Splunk != nil || sink.Email != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.Slack != nil || sink.Splunk != nil {
 			return makeErr("type", "If type is 'PageDuty', only the pagerDuty property must be set.")
 		}
 	case SinkTypeSlack:
 		if sink.Slack == nil {
 			return makeErr("slack", "'Slack' must have its configuration defined.")
 		}
-		if sink.PagerDuty != nil || sink.Splunk != nil || sink.Email != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Splunk != nil {
 			return makeErr("type", "If type is 'Slack', only the slack property must be set.")
 		}
 	case SinkTypeSplunk:
 		if sink.Splunk == nil {
 			return makeErr("splunk", "'Splunk' must have its configuration defined.")
 		}
-		if sink.PagerDuty != nil || sink.Slack != nil || sink.Email != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil {
 			return makeErr("type", "If type is 'Splunk', only the splunk property must be set.")
 		}
 	}
@@ -1191,6 +1207,10 @@ func ValidateApp(app *App) error {
 			if component.Selector.Type != AppComponentSelectorTypeKubernetes {
 				return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' selector type must be 'Kubernetes' to match the app selector type", component.Name))
 			}
+		case AppSelectorTypeNone:
+			if component.Selector.Type != AppComponentSelectorTypeNone {
+				return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' selector type must be 'None' to match the app selector type", component.Name))
+			}
 		}
 
 		// ensure component names are unique
@@ -1200,12 +1220,12 @@ func ValidateApp(app *App) error {
 		m[component.Name] = struct{}{}
 
 		// ensure component selectors are unique
-		wgh := WorkloadGroupHashFromSelector(&component.Selector)
+		wgh := WorkloadGroupHashFromSelector(&component.Selector, app.Name, component.Name)
 		if wgh == "" {
-			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' has an invalid Kubernetes selector (workload group hash computation failed)", component.Name))
+			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("component '%s' has an invalid selector (workload group hash computation failed)", component.Name))
 		}
 		if _, ok := wgm[wgh]; ok {
-			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("another component is already using the same Kubernetes selector as component '%s'", component.Name))
+			return makeErr(fmt.Sprintf("components/%d/selector", i), fmt.Sprintf("another component is already using the same selector as component '%s'", component.Name))
 		}
 		wgm[wgh] = struct{}{}
 
@@ -1267,6 +1287,46 @@ func ValidatePEM(attribute string, pemdata string) error {
 		}
 		i++
 	}
+}
+
+// ValidateCert validates the given PEM bytes contain a valid X.509 certificate.
+func ValidateCert(attribute string, pemdata string) error {
+	return a3sapi.ValidateCert(attribute, pemdata)
+}
+
+// ValidateMTLSSource validates the given MTLSSource.
+func ValidateMTLSSource(source *MTLSSource) error {
+	var entra *a3sapi.MTLSSourceEntra
+	if source.EntraApplicationCredentials != nil {
+		entra = &a3sapi.MTLSSourceEntra{}
+	}
+
+	var okta *a3sapi.MTLSSourceOkta
+	if source.OktaApplicationCredentials != nil {
+		okta = &a3sapi.MTLSSourceOkta{}
+	}
+
+	return a3sapi.ValidateMTLSSource(&a3sapi.MTLSSource{
+		ClaimsRetrievalMode:         a3sapi.MTLSSourceClaimsRetrievalModeValue(source.ClaimsRetrievalMode),
+		EntraApplicationCredentials: entra,
+		OktaApplicationCredentials:  okta,
+	})
+}
+
+// ValidateSAMLSource validates the given SAMLSource.
+func ValidateSAMLSource(source *SAMLSource) error {
+	return a3sapi.ValidateSAMLSource(&a3sapi.SAMLSource{
+		IDPCertificate: source.IDPCertificate,
+		IDPIssuer:      source.IDPIssuer,
+		IDPMetadata:    source.IDPMetadata,
+		IDPMetadataURL: source.IDPMetadataURL,
+		IDPURL:         source.IDPURL,
+	})
+}
+
+// ValidateKeys validates the given included keys.
+func ValidateKeys(attribute string, keys []string) error {
+	return a3sapi.ValidateKeys(attribute, keys)
 }
 
 // ValidateAgentConfig validates the agent configuration object.
@@ -1732,6 +1792,11 @@ func ValidateAppSelector(appSelector *AppSelector) error {
 			return makeErr("kubernetes", "Kubernetes app selector must be defined if app selector 'type' is set to 'Kubernetes'.")
 		}
 		return nil
+	case AppSelectorTypeNone:
+		if appSelector.Kubernetes != nil {
+			return makeErr("kubernetes", "Kubernetes app selector must not be defined if app selector 'type' is set to 'None'.")
+		}
+		return nil
 	default:
 		return makeErr("type", fmt.Sprintf("Unknown app selector type '%s'.", appSelector.Type))
 	}
@@ -1744,6 +1809,11 @@ func ValidateAppComponentSelector(appComponentSelector *AppComponentSelector) er
 	case AppComponentSelectorTypeKubernetes:
 		if appComponentSelector.Kubernetes == nil {
 			return makeErr("kubernetes", "Kubernetes app component selector must be defined if app component selector 'type' is set to 'Kubernetes'.")
+		}
+		return nil
+	case AppComponentSelectorTypeNone:
+		if appComponentSelector.Kubernetes != nil {
+			return makeErr("kubernetes", "Kubernetes app component selector must not be defined if app component selector 'type' is set to 'None'.")
 		}
 		return nil
 	default:
@@ -1785,12 +1855,63 @@ func ValidateAppReport(appReport *AppReport) error {
 	return nil
 }
 
+func validateWorkloadHash(label, hash, field string, isSet bool) error {
+	if label == "" && hash == "" {
+		return nil
+	}
+	if label == "" || hash == "" {
+		return makeErr(field, "workload group label and hash must both be set or both be empty")
+	}
+	expectedWGS := WorkloadGroupSetHashFromLabel(label)
+	expectedWG := WorkloadGroupHashFromLabel(label)
+	if isSet {
+		if expectedWGS != hash {
+			return makeErr(field, "workload group set hash does not match the provided label")
+		}
+		return nil
+	}
+	if expectedWG != hash {
+		return makeErr(field, "workload group hash does not match the provided label")
+	}
+	return nil
+}
+
+// ValidateDestination validates the destination object.
+func ValidateDestination(destination *Destination) error {
+	if err := validateWorkloadHash(destination.WorkloadGroupLabel, destination.WorkloadGroupHash, "workloadGroupHash", false); err != nil {
+		return err
+	}
+	if err := validateWorkloadHash(destination.WorkloadGroupSetLabel, destination.WorkloadGroupSetHash, "workloadGroupSetHash", true); err != nil {
+		return err
+	}
+	return nil
+}
+
 // ValidateDNSReport validates the DNS report object.
 func ValidateDNSReport(dnsReport *DNSReport) error {
 	if dnsReport.Action == DNSReportActionAllow && len(dnsReport.IPAddresses) == 0 && len(dnsReport.CNAMEs) == 0 {
 		return makeErr("ipAddresses", "At least one IP address or one CNAME must be provided when action is 'Allow'")
 	}
+	if err := validateWorkloadHash(dnsReport.WorkloadGroupLabel, dnsReport.WorkloadGroupHash, "workloadGroupHash", false); err != nil {
+		return err
+	}
+	if err := validateWorkloadHash(dnsReport.WorkloadGroupSetLabel, dnsReport.WorkloadGroupSetHash, "workloadGroupSetHash", true); err != nil {
+		return err
+	}
 	return nil
+}
+
+// ValidateConnectionReport validates the connection report object.
+func ValidateConnectionReport(connectionReport *ConnectionReport) error {
+
+	if err := validateWorkloadHash(connectionReport.WorkloadGroupLabel, connectionReport.WorkloadGroupHash, "workloadGroupHash", false); err != nil {
+		return err
+	}
+	if err := validateWorkloadHash(connectionReport.WorkloadGroupSetLabel, connectionReport.WorkloadGroupSetHash, "workloadGroupSetHash", true); err != nil {
+		return err
+	}
+	return nil
+
 }
 
 // ValidateEgressPolicy validates the egress policy object.
@@ -1905,25 +2026,6 @@ func ValidateOrgSetting(o *OrgSettings) error {
 
 	if strings.ContainsAny(o.ConsentMessage, "`") {
 		return makeErr("consentMessage", "The consent message must not contain any backtick ('`')")
-	}
-
-	return nil
-}
-
-// ValidateRESTName validates the rest name is a known identity
-func ValidateRESTName(attribute, restName string) error {
-
-	identifiable := Manager().IdentifiableFromString(restName)
-
-	if identifiable == nil {
-		identifiable = a3sapi.Manager().IdentifiableFromString(restName)
-		if identifiable == nil {
-			return makeErr(attribute, fmt.Sprintf("No known identifiables match the REST name %s", restName))
-		}
-	}
-
-	if _, ok := identifiable.(elemental.Validatable); !ok {
-		return makeErr(attribute, fmt.Sprintf("identifiable %s does not have a validate capability", restName))
 	}
 
 	return nil

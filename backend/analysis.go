@@ -19,6 +19,9 @@ type Analysis struct {
 	// The ID of the analyzer.
 	AnalyzerID string `json:"analyzerID" msgpack:"analyzerID" bson:"-" mapstructure:"analyzerID,omitempty"`
 
+	// The percentage of text analyzed.
+	CoverageRatio float64 `json:"coverageRatio,omitempty" msgpack:"coverageRatio,omitempty" bson:"-" mapstructure:"coverageRatio,omitempty"`
+
 	// The list of detections the analyzer returned.
 	Detections []*Detection `json:"detections,omitempty" msgpack:"detections,omitempty" bson:"-" mapstructure:"detections,omitempty"`
 
@@ -268,6 +271,8 @@ func (o *Analysis) ValueForAttribute(name string) any {
 		return o.Analyses
 	case "analyzerID":
 		return o.AnalyzerID
+	case "coverageRatio":
+		return o.CoverageRatio
 	case "detections":
 		return o.Detections
 	case "duration":
@@ -299,6 +304,14 @@ var AnalysisAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "analyzerID",
 		Type:           "string",
+	},
+	"CoverageRatio": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CoverageRatio",
+		Description:    `The percentage of text analyzed.`,
+		Exposed:        true,
+		Name:           "coverageRatio",
+		Type:           "float",
 	},
 	"Detections": {
 		AllowedChoices: []string{},
@@ -356,6 +369,14 @@ var AnalysisLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Exposed:        true,
 		Name:           "analyzerID",
 		Type:           "string",
+	},
+	"coverageratio": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CoverageRatio",
+		Description:    `The percentage of text analyzed.`,
+		Exposed:        true,
+		Name:           "coverageRatio",
+		Type:           "float",
 	},
 	"detections": {
 		AllowedChoices: []string{},

@@ -17,6 +17,9 @@ type AppSelectorTypeValue string
 const (
 	// AppSelectorTypeKubernetes represents the value Kubernetes.
 	AppSelectorTypeKubernetes AppSelectorTypeValue = "Kubernetes"
+
+	// AppSelectorTypeNone represents the value None.
+	AppSelectorTypeNone AppSelectorTypeValue = "None"
 )
 
 // AppSelector represents the model of a appselector
@@ -42,7 +45,7 @@ func NewAppSelector() *AppSelector {
 
 	return &AppSelector{
 		ModelVersion: 1,
-		Type:         AppSelectorTypeKubernetes,
+		Type:         AppSelectorTypeNone,
 	}
 }
 func (o *AppSelector) Identity() elemental.Identity {
@@ -177,7 +180,7 @@ func (o *AppSelector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Kubernetes", "None"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -248,10 +251,10 @@ configuration.`,
 		Type:    "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   AppSelectorTypeKubernetes,
+		DefaultValue:   AppSelectorTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",
@@ -298,10 +301,10 @@ configuration.`,
 		Type:    "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Kubernetes"},
+		AllowedChoices: []string{"Kubernetes", "None"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		DefaultValue:   AppSelectorTypeKubernetes,
+		DefaultValue:   AppSelectorTypeNone,
 		Description:    `The type of selector.`,
 		Exposed:        true,
 		Name:           "type",

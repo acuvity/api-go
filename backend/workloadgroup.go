@@ -1,35 +1,42 @@
 package api
 
 import (
-	"encoding/binary"
-	"encoding/hex"
 	"fmt"
-
-	"github.com/spaolacci/murmur3"
 )
 
 // WorkloadGroupLabelFromSelector returns the stable label for the given workload selector.
 // If the selector is nil or invalid, an empty string is returned.
-func WorkloadGroupLabelFromSelector(selector *AppComponentSelector) string {
+// The appName and componentName parameters are used for None type selectors where the label is derived from names.
+func WorkloadGroupLabelFromSelector(selector *AppComponentSelector, appName string, componentName string) string {
 
-	// currently we only have Kubernetes selectors
-	if selector == nil || selector.Type != AppComponentSelectorTypeKubernetes {
+	if selector == nil {
 		return ""
 	}
 
-	return WorkloadGroupLabelFromKubernetesSelector(selector.Kubernetes)
+	switch selector.Type {
+	case AppComponentSelectorTypeKubernetes:
+		return WorkloadGroupLabelFromKubernetesSelector(selector.Kubernetes)
+	case AppComponentSelectorTypeNone:
+		if appName == "" || componentName == "" {
+			return ""
+		}
+		return fmt.Sprintf("none:app=%s,component=%s", appName, componentName)
+	default:
+		return ""
+	}
 }
 
 // WorkloadGroupHashFromSelector returns a stable hash for the given workload selector.
 // If the selector is nil or invalid, an empty string is returned. The hash is generated from the label.
-func WorkloadGroupHashFromSelector(selector *AppComponentSelector) string {
+// The appName and componentName parameters are used for None type selectors where the label is derived from names.
+func WorkloadGroupHashFromSelector(selector *AppComponentSelector, appName string, componentName string) string {
 
-	// currently we only have Kubernetes selectors
-	if selector == nil || selector.Type != AppComponentSelectorTypeKubernetes {
+	label := WorkloadGroupLabelFromSelector(selector, appName, componentName)
+	if label == "" {
 		return ""
 	}
 
-	return WorkloadGroupHashFromKubernetesSelector(selector.Kubernetes)
+	return WorkloadGroupHashFromLabel(label)
 }
 
 // WorkloadGroupLabelFromKubernetesSelector returns the stabel label for the given Kubernetes workload selector.
@@ -73,11 +80,7 @@ func WorkloadGroupHashFromKubernetesSelector(selector *KubernetesWorkloadGroupSe
 		return ""
 	}
 
-	h1, h2 := murmur3.Sum128([]byte(label))
-	var b [16]byte
-	binary.BigEndian.PutUint64(b[0:8], h1)
-	binary.BigEndian.PutUint64(b[8:16], h2)
-	return "wg-" + hex.EncodeToString(b[:])
+	return WorkloadGroupHashFromLabel(label)
 }
 
 func formatCustom(custom *KubernetesWorkloadGroupSelectorCustomType) string {

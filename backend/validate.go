@@ -261,8 +261,8 @@ func (o *Validate) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidateRESTName("restName", o.RestName); err != nil {
-		errors = errors.Append(err)
+	if err := elemental.ValidateRequiredString("restName", o.RestName); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -325,6 +325,7 @@ var ValidateAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `Identity REST name.`,
 		Exposed:        true,
 		Name:           "restName",
+		Required:       true,
 		Type:           "string",
 	},
 }
@@ -346,6 +347,7 @@ var ValidateLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Description:    `Identity REST name.`,
 		Exposed:        true,
 		Name:           "restName",
+		Required:       true,
 		Type:           "string",
 	},
 }
