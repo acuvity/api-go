@@ -545,9 +545,25 @@ func init() {
 					},
 				},
 			},
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
 		},
 		Info: map[string]*elemental.RelationshipInfo{
 			"app": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
 						Name: "q",

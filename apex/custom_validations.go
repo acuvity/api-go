@@ -72,6 +72,76 @@ func ValidatePrincipal(principal *Principal) error {
 	return nil
 }
 
+// ValidateRequestApp validates the request app.
+func ValidateRequestApp(o *RequestApp) error {
+
+	if o.Direction == RequestAppDirectionIngress {
+		if o.Port <= 0 {
+			return makeErr("port", "'port' must be set and > 0 when direction is Ingress")
+		}
+	}
+
+	return nil
+}
+
+// ValidateScanRequest validates the scan request.
+func ValidateScanRequest(o *ScanRequest) error {
+
+	// Existing validations.
+	if len(o.Redactions) > 0 && o.ContentPolicy != "" {
+		return makeErr("redactions", "if redactions are set, you cannot use contentPolicy and vice versa")
+	}
+	if len(o.Keywords) > 0 && o.AccessPolicy != "" {
+		return makeErr("keywords", "if keywords are set, you cannot use accessPolicy and vice versa")
+	}
+	if len(o.Analyzers) > 0 && o.AccessPolicy != "" {
+		return makeErr("analyzers", "if analyzers are set, you cannot use accessPolicy and vice versa")
+	}
+
+	// When app/destination/provider are optionally provided, same rules as police apply.
+	hasDestApp := o.Destination != nil && o.Destination.App != "" && o.Destination.Component != ""
+	hasProvider := o.Provider != ""
+	isIngress := o.App != nil && o.App.Direction == RequestAppDirectionIngress
+
+	if hasDestApp && hasProvider {
+		return makeErr("provider", "'provider' must not be set when destination app and component are set")
+	}
+
+	if isIngress {
+		if hasProvider {
+			return makeErr("provider", "'provider' must not be set when direction is Ingress")
+		}
+		if hasDestApp {
+			return makeErr("destination", "'destination' must not be set when direction is Ingress; the app field is the destination")
+		}
+	}
+
+	return nil
+}
+
+// ValidatePoliceRequest validates the police request.
+func ValidatePoliceRequest(o *PoliceRequest) error {
+
+	hasDestApp := o.Destination != nil && o.Destination.App != "" && o.Destination.Component != ""
+	hasProvider := o.Provider != ""
+	isIngress := o.App != nil && o.App.Direction == RequestAppDirectionIngress
+
+	if hasDestApp && hasProvider {
+		return makeErr("provider", "'provider' must not be set when destination app and component are set")
+	}
+
+	if isIngress {
+		if hasProvider {
+			return makeErr("provider", "'provider' must not be set when direction is Ingress")
+		}
+		if hasDestApp {
+			return makeErr("destination", "'destination' must not be set when direction is Ingress; the app field is the destination")
+		}
+	}
+
+	return nil
+}
+
 func makeErr(attribute string, message string) elemental.Error {
 
 	err := elemental.NewError(

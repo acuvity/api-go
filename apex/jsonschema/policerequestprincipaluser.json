@@ -1,0 +1,39 @@
+{
+  "$extends": [
+    "@userinfo"
+  ],
+  "$friendlyName": "PoliceRequestPrincipalUser",
+  "$friendlyNamePlural": "PoliceRequestPrincipalUsers",
+  "$modelName": "PoliceRequestPrincipalUser",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policerequestprincipalusers",
+  "$modelRestName": "policerequestprincipaluser",
+  "additionalProperties": false,
+  "description": "PoliceRequestPrincipalUser holds the user principal information for a PoliceRequest. This is used for requests in an employees namespace.",
+  "properties": {
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PoliceRequestPrincipalUser",
+  "type": "object"
+}

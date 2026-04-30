@@ -1,0 +1,33 @@
+{
+  "$extends": [],
+  "$friendlyName": "PoliceApp",
+  "$friendlyNamePlural": "PoliceApps",
+  "$modelName": "PoliceApp",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policeapps",
+  "$modelRestName": "policeapp",
+  "additionalProperties": false,
+  "description": "PoliceApp holds the application information that this police request represents.",
+  "properties": {
+    "component": {
+      "$friendlyName": "Component",
+      "$required": true,
+      "description": "The name of the component.",
+      "title": "component",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the application.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "component",
+    "name"
+  ],
+  "title": "PoliceApp",
+  "type": "object"
+}

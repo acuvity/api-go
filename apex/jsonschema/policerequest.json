@@ -2,7 +2,7 @@
   "$extends": [
     "@anonymizationable",
     "@pipelinepasstype",
-    "@scanrequestcore",
+    "@requestcore",
     "@traceable"
   ],
   "$friendlyName": "PoliceRequest",
@@ -12,7 +12,7 @@
   "$modelResourceName": "policerequests",
   "$modelRestName": "policerequest",
   "additionalProperties": false,
-  "description": "This is a scan and police request.",
+  "description": "This is a police request.",
   "properties": {
     "annotations": {
       "$friendlyName": "Annotations",
@@ -33,6 +33,12 @@
       ],
       "title": "anonymization"
     },
+    "app": {
+      "$friendlyName": "App",
+      "$ref": "requestapp.json",
+      "description": "The application processing information for this request. For police requests in an apps namespace, this is required when using an AppToken. For scan requests, this is optional and enhances logging with app/component context.",
+      "title": "app"
+    },
     "bypassHash": {
       "$friendlyName": "Bypass Hash",
       "description": "In the case of a contentPolicy that asks for a confirmation, this is the hash you must send back to bypass the block. This is only useful when a content policy has been set or is evaluated remotely.",
@@ -41,6 +47,12 @@
         "string",
         "null"
       ]
+    },
+    "destination": {
+      "$friendlyName": "Destination",
+      "$ref": "requestdestination.json",
+      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set.",
+      "title": "destination"
     },
     "extractions": {
       "$friendlyName": "Extractions",
@@ -74,7 +86,7 @@
     },
     "provider": {
       "$friendlyName": "Provider",
-      "description": "The name of the provider to use for policy resolutions. If not set, it will default to the principal name (the application itself).",
+      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set.",
       "title": "provider",
       "type": [
         "string",
@@ -107,8 +119,8 @@
     },
     "user": {
       "$friendlyName": "User",
-      "$ref": "policeexternaluser.json",
-      "description": "The user information that the PoliceRequest is passing on to the policy engine that can be used for additional policy resolution.",
+      "$ref": "requestuser.json",
+      "description": "The user information for this request. For police requests in an employees namespace, this represents the end user on whose behalf the request is made and is used for policy resolution via team assignment.",
       "title": "user"
     }
   },

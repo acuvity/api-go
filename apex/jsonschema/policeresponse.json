@@ -1,8 +1,9 @@
 {
   "$extends": [
     "@identifiable",
-    "@principalable",
     "@pipelinepasstype",
+    "@principalable",
+    "@traceable",
     "@tubularpipelinepass"
   ],
   "$friendlyName": "PoliceResponse",
@@ -72,7 +73,8 @@
         "Skipped",
         "Redirected",
         "Error",
-        "UpstreamError"
+        "UpstreamError",
+        "NotApplicable"
       ],
       "title": "decision"
     },
@@ -134,6 +136,15 @@
         "null"
       ]
     },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "List of references to the policies used to make this roundtrip.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
+    },
     "principal": {
       "$friendlyName": "Principal",
       "$ref": "principal.json",
@@ -191,6 +202,12 @@
       "description": "The various tools used by the request.",
       "title": "tools",
       "type": "object"
+    },
+    "trace": {
+      "$friendlyName": "Trace",
+      "$ref": "traceref.json",
+      "description": "References to the trace of the request.",
+      "title": "trace"
     },
     "type": {
       "$friendlyName": "Type",

@@ -1,6 +1,6 @@
 module go.acuvity.ai/api
 
-go 1.26.1
+go 1.26.2
 
 require (
 	github.com/ghodss/yaml v1.0.0
@@ -8,9 +8,9 @@ require (
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20260423214345-9c5116a7f0cd
+	go.acuvity.ai/a3s v0.0.0-20260429202200-34acb4736678
 	go.acuvity.ai/elemental v0.0.0-20260423213045-b41d7aac5a19
-	go.opentelemetry.io/collector/pdata v1.56.0
+	go.opentelemetry.io/collector/pdata v1.57.0
 )
 
 require (
@@ -47,7 +47,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.acuvity.ai/regolithe v0.0.0-20260423212828-c6b9b4d7394e // indirect
 	go.acuvity.ai/tg v1.0.1-0.20260423213220-f6124d6982b8 // indirect
-	go.opentelemetry.io/collector/featuregate v1.56.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.57.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.49.0 // indirect
 	golang.org/x/net v0.51.0 // indirect

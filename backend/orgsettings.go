@@ -657,6 +657,10 @@ func (o *OrgSettings) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateURL("safeUsageURL", o.SafeUsageURL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	// Custom object validation.
 	if err := ValidateOrgSetting(o); err != nil {
 		errors = errors.Append(err)

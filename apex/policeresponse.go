@@ -35,6 +35,9 @@ const (
 	// PoliceResponseDecisionForbiddenUser represents the value ForbiddenUser.
 	PoliceResponseDecisionForbiddenUser PoliceResponseDecisionValue = "ForbiddenUser"
 
+	// PoliceResponseDecisionNotApplicable represents the value NotApplicable.
+	PoliceResponseDecisionNotApplicable PoliceResponseDecisionValue = "NotApplicable"
+
 	// PoliceResponseDecisionRedirected represents the value Redirected.
 	PoliceResponseDecisionRedirected PoliceResponseDecisionValue = "Redirected"
 
@@ -167,6 +170,9 @@ type PoliceResponse struct {
 	// The name of the particular pipeline that extracted the text.
 	PipelineName string `json:"pipelineName" msgpack:"pipelineName" bson:"pipelinename" mapstructure:"pipelineName,omitempty"`
 
+	// List of references to the policies used to make this roundtrip.
+	PolicyRefs PolicyRefsList `json:"policyRefs" msgpack:"policyRefs" bson:"policyrefs" mapstructure:"policyRefs,omitempty"`
+
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
@@ -188,6 +194,9 @@ type PoliceResponse struct {
 	// The various tools used by the request.
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
+
 	// The type of text.
 	Type PoliceResponseTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
@@ -200,6 +209,7 @@ func NewPoliceResponse() *PoliceResponse {
 	return &PoliceResponse{
 		ModelVersion: 1,
 		Annotations:  map[string]string{},
+		PolicyRefs:   PolicyRefsList{},
 		Principal:    NewPrincipal(),
 	}
 }
@@ -247,12 +257,14 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.Model = o.Model
 	s.Namespace = o.Namespace
 	s.PipelineName = o.PipelineName
+	s.PolicyRefs = o.PolicyRefs
 	s.Principal = o.Principal
 	s.Provider = o.Provider
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
 	s.ToolChoice = o.ToolChoice
 	s.Tools = o.Tools
+	s.Trace = o.Trace
 	s.Type = o.Type
 
 	return s, nil
@@ -284,12 +296,14 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.Model = s.Model
 	o.Namespace = s.Namespace
 	o.PipelineName = s.PipelineName
+	o.PolicyRefs = s.PolicyRefs
 	o.Principal = s.Principal
 	o.Provider = s.Provider
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
 	o.ToolChoice = s.ToolChoice
 	o.Tools = s.Tools
+	o.Trace = s.Trace
 	o.Type = s.Type
 
 	return nil
@@ -356,6 +370,7 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Model:         &o.Model,
 			Namespace:     &o.Namespace,
 			PipelineName:  &o.PipelineName,
+			PolicyRefs:    &o.PolicyRefs,
 			Principal:     o.Principal,
 			Provider:      &o.Provider,
 			Reasons:       &o.Reasons,
@@ -363,6 +378,7 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Time:          &o.Time,
 			ToolChoice:    o.ToolChoice,
 			Tools:         &o.Tools,
+			Trace:         o.Trace,
 			Type:          &o.Type,
 		}
 	}
@@ -396,6 +412,8 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Namespace = &(o.Namespace)
 		case "pipelineName":
 			sp.PipelineName = &(o.PipelineName)
+		case "policyRefs":
+			sp.PolicyRefs = &(o.PolicyRefs)
 		case "principal":
 			sp.Principal = o.Principal
 		case "provider":
@@ -410,6 +428,8 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ToolChoice = o.ToolChoice
 		case "tools":
 			sp.Tools = &(o.Tools)
+		case "trace":
+			sp.Trace = o.Trace
 		case "type":
 			sp.Type = &(o.Type)
 		}
@@ -464,6 +484,9 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.PipelineName != nil {
 		o.PipelineName = *so.PipelineName
 	}
+	if so.PolicyRefs != nil {
+		o.PolicyRefs = *so.PolicyRefs
+	}
 	if so.Principal != nil {
 		o.Principal = so.Principal
 	}
@@ -484,6 +507,9 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
+	}
+	if so.Trace != nil {
+		o.Trace = so.Trace
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -523,6 +549,15 @@ func (o *PoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	if o.Principal != nil {
 		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
@@ -547,6 +582,12 @@ func (o *PoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -586,6 +627,15 @@ func (o *PoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Principal != nil {
 		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
@@ -610,6 +660,12 @@ func (o *PoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -658,7 +714,7 @@ func (o *PoliceResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -683,6 +739,16 @@ func (o *PoliceResponse) Validate() error {
 		if err := o.McpMessage.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "mcpMessage")
+		}
+	}
+
+	for i, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policyRefs", i))
 		}
 	}
 
@@ -714,6 +780,13 @@ func (o *PoliceResponse) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trace")
 		}
 	}
 
@@ -781,6 +854,8 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "pipelineName":
 		return o.PipelineName
+	case "policyRefs":
+		return o.PolicyRefs
 	case "principal":
 		return o.Principal
 	case "provider":
@@ -795,6 +870,8 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.ToolChoice
 	case "tools":
 		return o.Tools
+	case "trace":
+		return o.Trace
 	case "type":
 		return o.Type
 	}
@@ -862,7 +939,7 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -949,6 +1026,17 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"PolicyRefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this roundtrip.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
+	},
 	"Principal": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "principal",
@@ -1023,6 +1111,17 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "tool",
 		Type:           "refMap",
 	},
+	"Trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
+	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
 		BSONFieldName:  "type",
@@ -1095,7 +1194,7 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1182,6 +1281,17 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Stored:         true,
 		Type:           "string",
 	},
+	"policyrefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this roundtrip.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
+	},
 	"principal": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "principal",
@@ -1255,6 +1365,17 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Stored:         true,
 		SubType:        "tool",
 		Type:           "refMap",
+	},
+	"trace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trace",
+		ConvertedName:  "Trace",
+		Description:    `References to the trace of the request.`,
+		Exposed:        true,
+		Name:           "trace",
+		Stored:         true,
+		SubType:        "traceref",
+		Type:           "ref",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1370,6 +1491,9 @@ type SparsePoliceResponse struct {
 	// The name of the particular pipeline that extracted the text.
 	PipelineName *string `json:"pipelineName,omitempty" msgpack:"pipelineName,omitempty" bson:"pipelinename,omitempty" mapstructure:"pipelineName,omitempty"`
 
+	// List of references to the policies used to make this roundtrip.
+	PolicyRefs *PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
+
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
@@ -1390,6 +1514,9 @@ type SparsePoliceResponse struct {
 
 	// The various tools used by the request.
 	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
+	// References to the trace of the request.
+	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type *PoliceResponseTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
@@ -1476,6 +1603,9 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	if o.PipelineName != nil {
 		s.PipelineName = o.PipelineName
 	}
+	if o.PolicyRefs != nil {
+		s.PolicyRefs = o.PolicyRefs
+	}
 	if o.Principal != nil {
 		s.Principal = o.Principal
 	}
@@ -1493,6 +1623,9 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
+	}
+	if o.Trace != nil {
+		s.Trace = o.Trace
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1552,6 +1685,9 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	if s.PipelineName != nil {
 		o.PipelineName = s.PipelineName
 	}
+	if s.PolicyRefs != nil {
+		o.PolicyRefs = s.PolicyRefs
+	}
 	if s.Principal != nil {
 		o.Principal = s.Principal
 	}
@@ -1569,6 +1705,9 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
+	}
+	if s.Trace != nil {
+		o.Trace = s.Trace
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1626,6 +1765,9 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.PipelineName != nil {
 		out.PipelineName = *o.PipelineName
 	}
+	if o.PolicyRefs != nil {
+		out.PolicyRefs = *o.PolicyRefs
+	}
 	if o.Principal != nil {
 		out.Principal = o.Principal
 	}
@@ -1646,6 +1788,9 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
+	}
+	if o.Trace != nil {
+		out.Trace = o.Trace
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -1691,6 +1836,17 @@ func (o *SparsePoliceResponse) EncryptAttributes(encrypter elemental.AttributeEn
 		}
 	}
 
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Principal != nil {
 		if err := o.Principal.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
@@ -1717,6 +1873,12 @@ func (o *SparsePoliceResponse) EncryptAttributes(encrypter elemental.AttributeEn
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1760,6 +1922,17 @@ func (o *SparsePoliceResponse) DecryptAttributes(encrypter elemental.AttributeEn
 		}
 	}
 
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Principal != nil {
 		if err := o.Principal.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Principal' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
@@ -1786,6 +1959,12 @@ func (o *SparsePoliceResponse) DecryptAttributes(encrypter elemental.AttributeEn
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1846,12 +2025,14 @@ type mongoAttributesPoliceResponse struct {
 	Model         string                      `bson:"model,omitempty"`
 	Namespace     string                      `bson:"namespace,omitempty"`
 	PipelineName  string                      `bson:"pipelinename"`
+	PolicyRefs    PolicyRefsList              `bson:"policyrefs"`
 	Principal     *Principal                  `bson:"principal"`
 	Provider      string                      `bson:"provider"`
 	Reasons       []string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
 	ToolChoice    *ToolChoice                 `bson:"toolchoice,omitempty"`
 	Tools         map[string]*Tool            `bson:"tools,omitempty"`
+	Trace         *TraceRef                   `bson:"trace,omitempty"`
 	Type          PoliceResponseTypeValue     `bson:"type"`
 }
 type mongoAttributesSparsePoliceResponse struct {
@@ -1868,11 +2049,13 @@ type mongoAttributesSparsePoliceResponse struct {
 	Model         *string                      `bson:"model,omitempty"`
 	Namespace     *string                      `bson:"namespace,omitempty"`
 	PipelineName  *string                      `bson:"pipelinename,omitempty"`
+	PolicyRefs    *PolicyRefsList              `bson:"policyrefs,omitempty"`
 	Principal     *Principal                   `bson:"principal,omitempty"`
 	Provider      *string                      `bson:"provider,omitempty"`
 	Reasons       *[]string                    `bson:"reasons,omitempty"`
 	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
 	ToolChoice    *ToolChoice                  `bson:"toolchoice,omitempty"`
 	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
+	Trace         *TraceRef                    `bson:"trace,omitempty"`
 	Type          *PoliceResponseTypeValue     `bson:"type,omitempty"`
 }

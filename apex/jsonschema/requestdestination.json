@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "RequestDestination",
+  "$friendlyNamePlural": "RequestDestinations",
+  "$modelName": "RequestDestination",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "requestdestinations",
+  "$modelRestName": "requestdestination",
+  "additionalProperties": false,
+  "description": "RequestDestination holds the destination information for a request. When app and component are set, the request is evaluated against the app component's policies instead of a provider. In that case, the provider field must not be set.",
+  "properties": {
+    "app": {
+      "$friendlyName": "App",
+      "description": "The name of the destination application.",
+      "title": "app",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "component": {
+      "$friendlyName": "Component",
+      "description": "The component of the destination application.",
+      "title": "component",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "host": {
+      "$friendlyName": "Host",
+      "description": "The host name of the destination. Optional, for logging enrichment.",
+      "title": "host",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ip": {
+      "$friendlyName": "IP",
+      "description": "The destination IP address. Optional, for logging enrichment.",
+      "title": "ip",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "RequestDestination",
+  "type": "object"
+}

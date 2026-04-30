@@ -84,12 +84,6 @@
       },
       "type": "array"
     },
-    "policeexternalusers": {
-      "items": {
-        "$ref": "policeexternaluser.json"
-      },
-      "type": "array"
-    },
     "policerequests": {
       "items": {
         "$ref": "policerequest.json"
@@ -99,6 +93,12 @@
     "policeresponses": {
       "items": {
         "$ref": "policeresponse.json"
+      },
+      "type": "array"
+    },
+    "policyrefs": {
+      "items": {
+        "$ref": "policyref.json"
       },
       "type": "array"
     },
@@ -123,6 +123,24 @@
     "principalusers": {
       "items": {
         "$ref": "principaluser.json"
+      },
+      "type": "array"
+    },
+    "requestapps": {
+      "items": {
+        "$ref": "requestapp.json"
+      },
+      "type": "array"
+    },
+    "requestdestinations": {
+      "items": {
+        "$ref": "requestdestination.json"
+      },
+      "type": "array"
+    },
+    "requestusers": {
+      "items": {
+        "$ref": "requestuser.json"
       },
       "type": "array"
     },

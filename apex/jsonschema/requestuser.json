@@ -1,0 +1,39 @@
+{
+  "$extends": [
+    "@userinfo"
+  ],
+  "$friendlyName": "RequestUser",
+  "$friendlyNamePlural": "RequestUsers",
+  "$modelName": "RequestUser",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "requestusers",
+  "$modelRestName": "requestuser",
+  "additionalProperties": false,
+  "description": "RequestUser holds the user information for a request. For police requests in an employees namespace, this represents the end user on whose behalf the request is made and is used for policy resolution. For scan requests, this is optional and enhances logging with user context.",
+  "properties": {
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "RequestUser",
+  "type": "object"
+}

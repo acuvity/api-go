@@ -2,7 +2,7 @@
   "$extends": [
     "@anonymizationable",
     "@pipelinepasstype",
-    "@scanrequestcore"
+    "@requestcore"
   ],
   "$friendlyName": "ScanRequest",
   "$friendlyNamePlural": "ScanRequests",
@@ -53,6 +53,12 @@
       ],
       "title": "anonymization"
     },
+    "app": {
+      "$friendlyName": "App",
+      "$ref": "requestapp.json",
+      "description": "The application processing information for this request. For police requests in an apps namespace, this is required when using an AppToken. For scan requests, this is optional and enhances logging with app/component context.",
+      "title": "app"
+    },
     "bypassHash": {
       "$friendlyName": "Bypass Hash",
       "description": "In the case of a contentPolicy that asks for a confirmation, this is the hash you must send back to bypass the block. This is only useful when a content policy has been set or is evaluated remotely.",
@@ -70,6 +76,12 @@
         "string",
         "null"
       ]
+    },
+    "destination": {
+      "$friendlyName": "Destination",
+      "$ref": "requestdestination.json",
+      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set.",
+      "title": "destination"
     },
     "extractions": {
       "$friendlyName": "Extractions",
@@ -106,7 +118,7 @@
     },
     "minimalLogging": {
       "$friendlyName": "MinimalLogging",
-      "description": "If true, the system will not log the contents that were scanned.",
+      "description": "If true, the system will skip logging roundtrips with an Allow decision. Denials, errors, and other non-Allow decisions are still logged. When combined with no embedded policy, this effectively disables all logging.",
       "title": "minimalLogging",
       "type": [
         "boolean",
@@ -117,6 +129,15 @@
       "$friendlyName": "Model",
       "description": "The model used by the request.",
       "title": "model",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set.",
+      "title": "provider",
       "type": [
         "string",
         "null"

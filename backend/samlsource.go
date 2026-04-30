@@ -588,6 +588,10 @@ func (o *SAMLSource) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := ValidateURL("IDPMetadataURL", o.IDPMetadataURL); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := ValidateKeys("ignoredKeys", o.IgnoredKeys); err != nil {
 		errors = errors.Append(err)
 	}

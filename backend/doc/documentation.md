@@ -3656,6 +3656,15 @@ Represents a particular component of the application.
 
 #### Relations
 
+##### `GET /appcomponents`
+
+Retrieves app components. When called with a ComponentToken, returns the
+single component identified by the token claims with transpiled policies.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
 ##### `GET /apps/:id/appcomponents`
 
 Retrieve the list of app components for that application with their respective
@@ -10863,6 +10872,7 @@ This is a Proxy roundtrip.
       \"user\": \"someone@somewhere.com\"
   }
 }",
+  "processor": "Proxy",
   "provider": "openai",
   "proxyFunction": "ForwardProxy",
   "tools": "{
@@ -10915,7 +10925,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
 
 Tell what was the decision about the data.
 
@@ -11024,6 +11034,20 @@ Type: [`principal`](#principal)
 
 The principal of the object.
 
+##### `processor`
+
+Type: `enum(Proxy | API)`
+
+Denotes the processor of the log. If the processor is Proxy, then the proxy
+function will further denote if this was a forward proxy or a reverse proxy. If
+the processor is API, the proxy function will be set to NotApplicable.
+
+Default value:
+
+```json
+"Proxy"
+```
+
 ##### `provider`
 
 Type: `string`
@@ -11032,13 +11056,15 @@ The provider to use.
 
 ##### `proxyFunction`
 
-Type: `enum(ForwardProxy | ReverseProxy)`
+Type: `enum(ForwardProxy | ReverseProxy | NotApplicable)`
 
 Denotes the function of this proxy in the chain of servers. By default the apex
 always sits on the egress side between a client or application and the origin
 server in which case the apex acts as a forwarding proxy. However, in the case
 of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy.
+ingress provider in which case the apex acts as a reverse proxy. If this log is
+the result of a ScanRequest or PoliceRequest API call, this will be set to
+NonApplicable and the processor will be API.
 
 Default value:
 

@@ -14,13 +14,15 @@ var (
 
 		"policerequest":     PoliceRequestIdentity,
 		"policeresponse":    PoliceResponseIdentity,
+		"policyref":         PolicyRefIdentity,
 		"principal":         PrincipalIdentity,
 		"principalapp":      PrincipalAppIdentity,
 		"principalexternal": PrincipalExternalIdentity,
 		"principaluser":     PrincipalUserIdentity,
-		"root":              RootIdentity,
-		"scanrequest":       ScanRequestIdentity,
-		"scanresponse":      ScanResponseIdentity,
+
+		"root":         RootIdentity,
+		"scanrequest":  ScanRequestIdentity,
+		"scanresponse": ScanResponseIdentity,
 
 		"traceref": TraceRefIdentity,
 	}
@@ -33,13 +35,15 @@ var (
 
 		"policerequests":     PoliceRequestIdentity,
 		"policeresponses":    PoliceResponseIdentity,
+		"policyrefs":         PolicyRefIdentity,
 		"principals":         PrincipalIdentity,
 		"principalapps":      PrincipalAppIdentity,
 		"principalexternals": PrincipalExternalIdentity,
 		"principalusers":     PrincipalUserIdentity,
-		"root":               RootIdentity,
-		"scanrequests":       ScanRequestIdentity,
-		"scanresponses":      ScanResponseIdentity,
+
+		"root":          RootIdentity,
+		"scanrequests":  ScanRequestIdentity,
+		"scanresponses": ScanResponseIdentity,
 
 		"tracerefs": TraceRefIdentity,
 	}
@@ -57,6 +61,7 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 		},
+		"policyref":         nil,
 		"principal":         nil,
 		"principalapp":      nil,
 		"principalexternal": nil,
@@ -116,6 +121,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewPoliceRequest()
 	case PoliceResponseIdentity:
 		return NewPoliceResponse()
+	case PolicyRefIdentity:
+		return NewPolicyRef()
 	case PrincipalIdentity:
 		return NewPrincipal()
 	case PrincipalAppIdentity:
@@ -149,6 +156,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparsePoliceRequest()
 	case PoliceResponseIdentity:
 		return NewSparsePoliceResponse()
+	case PolicyRefIdentity:
+		return NewSparsePolicyRef()
 	case PrincipalIdentity:
 		return NewSparsePrincipal()
 	case PrincipalAppIdentity:
@@ -190,6 +199,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &PoliceRequestsList{}
 	case PoliceResponseIdentity:
 		return &PoliceResponsesList{}
+	case PolicyRefIdentity:
+		return &PolicyRefsList{}
 	case PrincipalIdentity:
 		return &PrincipalsList{}
 	case PrincipalAppIdentity:
@@ -221,6 +232,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparsePoliceRequestsList{}
 	case PoliceResponseIdentity:
 		return &SparsePoliceResponsesList{}
+	case PolicyRefIdentity:
+		return &SparsePolicyRefsList{}
 	case PrincipalIdentity:
 		return &SparsePrincipalsList{}
 	case PrincipalAppIdentity:
@@ -282,8 +295,12 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMCPToolAnnotations()
 	case "modality", "Modality":
 		return NewModality()
-	case "policeexternaluser", "PoliceExternalUser":
-		return NewPoliceExternalUser()
+	case "requestapp", "RequestApp":
+		return NewRequestApp()
+	case "requestdestination", "RequestDestination":
+		return NewRequestDestination()
+	case "requestuser", "RequestUser":
+		return NewRequestUser()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
 	case "tool", "Tool":
@@ -312,6 +329,7 @@ func AllIdentities() []elemental.Identity {
 		LatencyIdentity,
 		PoliceRequestIdentity,
 		PoliceResponseIdentity,
+		PolicyRefIdentity,
 		PrincipalIdentity,
 		PrincipalAppIdentity,
 		PrincipalExternalIdentity,
@@ -334,6 +352,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case PoliceRequestIdentity:
 		return []string{}
 	case PoliceResponseIdentity:
+		return []string{}
+	case PolicyRefIdentity:
 		return []string{}
 	case PrincipalIdentity:
 		return []string{}

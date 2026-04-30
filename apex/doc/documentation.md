@@ -97,41 +97,9 @@ Type: `string`
 
 The namespace of the object.
 
-### PoliceExternalUser
-
-PoliceExternalUser holds the information about the remote user for a
-PoliceRequest.
-
-#### Example
-
-```json
-{
-  "claims": [
-    "@org=acuvity.ai",
-    "given_name=John",
-    "family_name=Doe"
-  ],
-  "name": "John Doe"
-}
-```
-
-#### Attributes
-
-##### `claims` [`required`]
-
-Type: `[]string`
-
-List of claims extracted from the user query.
-
-##### `name` [`required`]
-
-Type: `string`
-
-The name of the external user.
-
 ### PoliceRequest
 
-This is a scan and police request.
+This is a police request.
 
 #### Example
 
@@ -185,6 +153,14 @@ Default value:
 "FixedSize"
 ```
 
+##### `app`
+
+Type: [`requestapp`](#requestapp)
+
+The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.
+
 ##### `bypassHash`
 
 Type: `string`
@@ -192,6 +168,13 @@ Type: `string`
 In the case of a contentPolicy that asks for a confirmation, this is the
 hash you must send back to bypass the block. This is only useful when a
 content policy has been set or is evaluated remotely.
+
+##### `destination`
+
+Type: [`requestdestination`](#requestdestination)
+
+The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.
 
 ##### `extractions`
 
@@ -216,8 +199,8 @@ The model used by the request.
 
 Type: `string`
 
-The name of the provider to use for policy resolutions. If not set, it will
-default to the principal name (the application itself).
+The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.
 
 ##### `tools`
 
@@ -239,10 +222,11 @@ The type of text.
 
 ##### `user`
 
-Type: [`policeexternaluser`](#policeexternaluser)
+Type: [`requestuser`](#requestuser)
 
-The user information that the PoliceRequest is passing on to the policy
-engine that can be used for additional policy resolution.
+The user information for this request. For police requests in an employees
+namespace, this represents the end user on whose behalf the request is made
+and is used for policy resolution via team assignment.
 
 ### PoliceResponse
 
@@ -309,7 +293,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
 
 Tell what was the decision about the data.
 
@@ -355,6 +339,12 @@ Type: `string`
 
 The name of the particular pipeline that extracted the text.
 
+##### `policyRefs`
+
+Type: [`[]policyref`](#policyref)
+
+List of references to the policies used to make this roundtrip.
+
 ##### `principal` [`required`]
 
 Type: [`principal`](#principal)
@@ -397,11 +387,184 @@ Type: [`map[string]tool`](#tool)
 
 The various tools used by the request.
 
+##### `trace`
+
+Type: [`traceref`](#traceref)
+
+References to the trace of the request.
+
 ##### `type`
 
 Type: `enum(Input | Output)`
 
 The type of text.
+
+### RequestApp
+
+RequestApp holds the application processing information for a request. For
+police requests in an apps namespace, this is required when using an AppToken.
+When using a ComponentToken, the app and component are inferred from the token
+claims; if provided, they must match. For scan requests, this is optional and
+enhances logging with app/component context.
+
+#### Example
+
+```json
+{
+  "IP": "192.0.2.42",
+  "component": "email-agent",
+  "direction": "Egress",
+  "name": "acme-ai-app",
+  "userClaims": [
+    "name=John Doe",
+    "email=john.doe@acme.com",
+    "@validated=false"
+  ],
+  "username": "john.doe@acme.com"
+}
+```
+
+#### Attributes
+
+##### `IP`
+
+Type: `string`
+
+The source IP address of the request.
+
+##### `component` [`required`]
+
+Type: `string`
+
+The name of the component.
+
+##### `direction` [`required`]
+
+Type: `enum(Egress | Ingress)`
+
+The direction of the traffic for this request. Determines whether ingress or
+egress policies are evaluated for the app component.
+
+Default value:
+
+```json
+"Egress"
+```
+
+##### `ingressSourceToken`
+
+Type: `string`
+
+A valid component token representing the source application component for
+ingress requests. When set, it will be validated and used to populate the
+request principal with the source app/component identity. Only applicable
+when the direction is Ingress.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the application.
+
+##### `port`
+
+Type: `integer`
+
+The port of the ingress listener for this request. Required when direction
+is Ingress to select the correct listener configuration. Mirrors the
+X-Acuvity-Ingress-Port header used by the cloud-apex agent.
+
+##### `userClaims`
+
+Type: `[]string`
+
+The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.
+
+##### `username`
+
+Type: `string`
+
+The optional username of the request.
+
+### RequestDestination
+
+RequestDestination holds the destination information for a request. When app
+and component are set, the request is evaluated against the app component's
+policies instead of a provider. In that case, the provider field must not be
+set.
+
+#### Example
+
+```json
+{
+  "app": "other-ai-app",
+  "component": "backend",
+  "host": "api.openai.com",
+  "ip": "192.0.2.42"
+}
+```
+
+#### Attributes
+
+##### `app`
+
+Type: `string`
+
+The name of the destination application.
+
+##### `component`
+
+Type: `string`
+
+The component of the destination application.
+
+##### `host`
+
+Type: `string`
+
+The host name of the destination. Optional, for logging enrichment.
+
+##### `ip`
+
+Type: `string`
+
+The destination IP address. Optional, for logging enrichment.
+
+### RequestUser
+
+RequestUser holds the user information for a request. For police requests in an
+employees namespace, this represents the end user on whose behalf the request
+is made and is used for policy resolution. For scan requests, this is optional
+and enhances logging with user context.
+
+#### Example
+
+```json
+{
+  "userClaims": [
+    "name=John Doe",
+    "email=john.doe@acme.com",
+    "@validated=false"
+  ],
+  "username": "john.doe@acme.com"
+}
+```
+
+#### Attributes
+
+##### `userClaims`
+
+Type: `[]string`
+
+The optional user claims of the request. This can be an incomplete list, and
+claims can be mapped to different keys.
+
+##### `username`
+
+Type: `string`
+
+The optional username of the request.
 
 ### ScanRequest
 
@@ -431,6 +594,7 @@ This is a scan request.
   ],
   "minimalLogging": false,
   "model": "claude-3-7-sonnet",
+  "provider": "openai",
   "redactions": [
     "person",
     "ssn",
@@ -510,6 +674,14 @@ Default value:
 "FixedSize"
 ```
 
+##### `app`
+
+Type: [`requestapp`](#requestapp)
+
+The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.
+
 ##### `bypassHash`
 
 Type: `string`
@@ -530,6 +702,13 @@ If the rego code does not start with package main, then the needed
 classic package definition and  acuvity imports will be added
 automatically.
 If the code starts with package main, then everything remains untouched.
+
+##### `destination`
+
+Type: [`requestdestination`](#requestdestination)
+
+The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.
 
 ##### `extractions`
 
@@ -554,13 +733,22 @@ processing binary data.
 
 Type: `boolean`
 
-If true, the system will not log the contents that were scanned.
+If true, the system will skip logging roundtrips with an Allow decision.
+Denials, errors, and other non-Allow decisions are still logged. When
+combined with no embedded policy, this effectively disables all logging.
 
 ##### `model`
 
 Type: `string`
 
 The model used by the request.
+
+##### `provider`
+
+Type: `string`
+
+The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.
 
 ##### `redactions`
 
@@ -645,7 +833,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError)`
+Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
 
 Tell what was the decision about the data.
 
@@ -1744,6 +1932,78 @@ toml, torrent, tsv, tsx, ttf, twig, txt, txtascii, txtutf16, txtutf8,
 typescript, vba, vbe, vcxproj, verilog, vhdl, visio, vtt, vue, wad, wasm, wav,
 webm, webp, webtemplate, winregistry, wma, wmf, wmv, woff, woff2, xar, xcf, xls,
 xlsb, xlsx, xml, xpi, xz, yaml, yara, zig, zip, zlibstream, zst.
+
+### PolicyRef
+
+Reference a policy.
+
+#### Example
+
+```json
+{
+  "appPolicyID": "xxx-xxx-xxx-xxx",
+  "appPolicyName": "email-agent",
+  "appPolicyType": "ingress",
+  "matchingTeams": [
+    "team-a",
+    "team-b"
+  ],
+  "policyID": "xxx-xxx-xxx-xxx",
+  "policyIdentity": "default",
+  "policyName": "frontend",
+  "policyNamespace": "frontend"
+}
+```
+
+#### Attributes
+
+##### `appPolicyID`
+
+Type: `string`
+
+The app policy ID of the referenced policy.
+
+##### `appPolicyName`
+
+Type: `string`
+
+The app policy name of the referenced policy.
+
+##### `appPolicyType`
+
+Type: `string`
+
+The app policy type of the referenced policy.
+
+##### `matchingTeams`
+
+Type: `[]string`
+
+Teams that were used to trigger this policy.
+
+##### `policyID` [`required`]
+
+Type: `string`
+
+The ID of the referenced policy.
+
+##### `policyIdentity` [`required`]
+
+Type: `string`
+
+The identity name of the referenced policy.
+
+##### `policyName` [`required`]
+
+Type: `string`
+
+The name of the referenced policy.
+
+##### `policyNamespace` [`required`]
+
+Type: `string`
+
+The namespace of the referenced policy.
 
 ### Principal
 

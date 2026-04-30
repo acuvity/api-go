@@ -144,6 +144,11 @@ type ScanRequest struct {
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization ScanRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
+	// The application processing information for this request. For police requests
+	// in an apps namespace, this is required when using an AppToken. For scan
+	// requests, this is optional and enhances logging with app/component context.
+	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
+
 	// In the case of a contentPolicy that asks for a confirmation, this is the
 	// hash you must send back to bypass the block. This is only useful when a
 	// content policy has been set or is evaluated remotely.
@@ -159,6 +164,10 @@ type ScanRequest struct {
 	// If the code starts with package main, then everything remains untouched.
 	ContentPolicy string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
+	// The destination for this request. When destination app and component are set,
+	// they become the policy target and the provider field must not be set.
+	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
 
@@ -169,11 +178,17 @@ type ScanRequest struct {
 	// processing binary data.
 	Messages []string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// If true, the system will not log the contents that were scanned.
+	// If true, the system will skip logging roundtrips with an Allow decision.
+	// Denials, errors, and other non-Allow decisions are still logged. When
+	// combined with no embedded policy, this effectively disables all logging.
 	MinimalLogging bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
 
 	// The model used by the request.
 	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
+	// The name of the provider to use for policy resolutions. Must not be set when
+	// destination app and component are set.
+	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The redactions to perform if they are detected.
 	Redactions []string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
@@ -298,13 +313,16 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Analyzers:      &o.Analyzers,
 			Annotations:    &o.Annotations,
 			Anonymization:  &o.Anonymization,
+			App:            o.App,
 			BypassHash:     &o.BypassHash,
 			ContentPolicy:  &o.ContentPolicy,
+			Destination:    o.Destination,
 			Extractions:    &o.Extractions,
 			Keywords:       &o.Keywords,
 			Messages:       &o.Messages,
 			MinimalLogging: &o.MinimalLogging,
 			Model:          &o.Model,
+			Provider:       &o.Provider,
 			Redactions:     &o.Redactions,
 			Tools:          &o.Tools,
 			Type:           &o.Type,
@@ -322,10 +340,14 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Annotations = &(o.Annotations)
 		case "anonymization":
 			sp.Anonymization = &(o.Anonymization)
+		case "app":
+			sp.App = o.App
 		case "bypassHash":
 			sp.BypassHash = &(o.BypassHash)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
+		case "destination":
+			sp.Destination = o.Destination
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "keywords":
@@ -336,6 +358,8 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.MinimalLogging = &(o.MinimalLogging)
 		case "model":
 			sp.Model = &(o.Model)
+		case "provider":
+			sp.Provider = &(o.Provider)
 		case "redactions":
 			sp.Redactions = &(o.Redactions)
 		case "tools":
@@ -367,11 +391,17 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Anonymization != nil {
 		o.Anonymization = *so.Anonymization
 	}
+	if so.App != nil {
+		o.App = so.App
+	}
 	if so.BypassHash != nil {
 		o.BypassHash = *so.BypassHash
 	}
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
+	}
+	if so.Destination != nil {
+		o.Destination = so.Destination
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
@@ -388,6 +418,9 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Model != nil {
 		o.Model = *so.Model
 	}
+	if so.Provider != nil {
+		o.Provider = *so.Provider
+	}
 	if so.Redactions != nil {
 		o.Redactions = *so.Redactions
 	}
@@ -401,6 +434,18 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Extractions {
 		if sub == nil {
@@ -425,6 +470,18 @@ func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) 
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *ScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Extractions {
 		if sub == nil {
@@ -487,8 +544,22 @@ func (o *ScanRequest) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.App != nil {
+		if err := o.App.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "app")
+		}
+	}
+
 	if err := ValidateRego("contentPolicy", o.ContentPolicy); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "destination")
+		}
 	}
 
 	for i, sub := range o.Extractions {
@@ -512,6 +583,11 @@ func (o *ScanRequest) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateScanRequest(o); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -557,10 +633,14 @@ func (o *ScanRequest) ValueForAttribute(name string) any {
 		return o.Annotations
 	case "anonymization":
 		return o.Anonymization
+	case "app":
+		return o.App
 	case "bypassHash":
 		return o.BypassHash
 	case "contentPolicy":
 		return o.ContentPolicy
+	case "destination":
+		return o.Destination
 	case "extractions":
 		return o.Extractions
 	case "keywords":
@@ -571,6 +651,8 @@ func (o *ScanRequest) ValueForAttribute(name string) any {
 		return o.MinimalLogging
 	case "model":
 		return o.Model
+	case "provider":
+		return o.Provider
 	case "redactions":
 		return o.Redactions
 	case "tools":
@@ -647,6 +729,17 @@ If left empty, all default analyzers will be executed.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"App": {
+		AllowedChoices: []string{},
+		ConvertedName:  "App",
+		Description: `The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.`,
+		Exposed: true,
+		Name:    "app",
+		SubType: "requestapp",
+		Type:    "ref",
+	},
 	"BypassHash": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "bypasshash",
@@ -673,6 +766,16 @@ If the code starts with package main, then everything remains untouched.`,
 		Exposed: true,
 		Name:    "contentPolicy",
 		Type:    "string",
+	},
+	"Destination": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Destination",
+		Description: `The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.`,
+		Exposed: true,
+		Name:    "destination",
+		SubType: "requestdestination",
+		Type:    "ref",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -705,10 +808,12 @@ processing binary data.`,
 	"MinimalLogging": {
 		AllowedChoices: []string{},
 		ConvertedName:  "MinimalLogging",
-		Description:    `If true, the system will not log the contents that were scanned.`,
-		Exposed:        true,
-		Name:           "minimalLogging",
-		Type:           "boolean",
+		Description: `If true, the system will skip logging roundtrips with an Allow decision.
+Denials, errors, and other non-Allow decisions are still logged. When
+combined with no embedded policy, this effectively disables all logging.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Type:    "boolean",
 	},
 	"Model": {
 		AllowedChoices: []string{},
@@ -719,6 +824,15 @@ processing binary data.`,
 		Name:           "model",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Provider": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Provider",
+		Description: `The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.`,
+		Exposed: true,
+		Name:    "provider",
+		Type:    "string",
 	},
 	"Redactions": {
 		AllowedChoices: []string{},
@@ -819,6 +933,17 @@ If left empty, all default analyzers will be executed.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"app": {
+		AllowedChoices: []string{},
+		ConvertedName:  "App",
+		Description: `The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.`,
+		Exposed: true,
+		Name:    "app",
+		SubType: "requestapp",
+		Type:    "ref",
+	},
 	"bypasshash": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "bypasshash",
@@ -845,6 +970,16 @@ If the code starts with package main, then everything remains untouched.`,
 		Exposed: true,
 		Name:    "contentPolicy",
 		Type:    "string",
+	},
+	"destination": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Destination",
+		Description: `The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.`,
+		Exposed: true,
+		Name:    "destination",
+		SubType: "requestdestination",
+		Type:    "ref",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -877,10 +1012,12 @@ processing binary data.`,
 	"minimallogging": {
 		AllowedChoices: []string{},
 		ConvertedName:  "MinimalLogging",
-		Description:    `If true, the system will not log the contents that were scanned.`,
-		Exposed:        true,
-		Name:           "minimalLogging",
-		Type:           "boolean",
+		Description: `If true, the system will skip logging roundtrips with an Allow decision.
+Denials, errors, and other non-Allow decisions are still logged. When
+combined with no embedded policy, this effectively disables all logging.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Type:    "boolean",
 	},
 	"model": {
 		AllowedChoices: []string{},
@@ -891,6 +1028,15 @@ processing binary data.`,
 		Name:           "model",
 		Stored:         true,
 		Type:           "string",
+	},
+	"provider": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Provider",
+		Description: `The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.`,
+		Exposed: true,
+		Name:    "provider",
+		Type:    "string",
 	},
 	"redactions": {
 		AllowedChoices: []string{},
@@ -1027,6 +1173,11 @@ type SparseScanRequest struct {
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization *ScanRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
+	// The application processing information for this request. For police requests
+	// in an apps namespace, this is required when using an AppToken. For scan
+	// requests, this is optional and enhances logging with app/component context.
+	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
+
 	// In the case of a contentPolicy that asks for a confirmation, this is the
 	// hash you must send back to bypass the block. This is only useful when a
 	// content policy has been set or is evaluated remotely.
@@ -1042,6 +1193,10 @@ type SparseScanRequest struct {
 	// If the code starts with package main, then everything remains untouched.
 	ContentPolicy *string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
 
+	// The destination for this request. When destination app and component are set,
+	// they become the policy target and the provider field must not be set.
+	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
 
@@ -1052,11 +1207,17 @@ type SparseScanRequest struct {
 	// processing binary data.
 	Messages *[]string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// If true, the system will not log the contents that were scanned.
+	// If true, the system will skip logging roundtrips with an Allow decision.
+	// Denials, errors, and other non-Allow decisions are still logged. When
+	// combined with no embedded policy, this effectively disables all logging.
 	MinimalLogging *bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
 
 	// The model used by the request.
 	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
+
+	// The name of the provider to use for policy resolutions. Must not be set when
+	// destination app and component are set.
+	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The redactions to perform if they are detected.
 	Redactions *[]string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
@@ -1181,11 +1342,17 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Anonymization != nil {
 		out.Anonymization = *o.Anonymization
 	}
+	if o.App != nil {
+		out.App = o.App
+	}
 	if o.BypassHash != nil {
 		out.BypassHash = *o.BypassHash
 	}
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
+	}
+	if o.Destination != nil {
+		out.Destination = o.Destination
 	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
@@ -1202,6 +1369,9 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Model != nil {
 		out.Model = *o.Model
 	}
+	if o.Provider != nil {
+		out.Provider = *o.Provider
+	}
 	if o.Redactions != nil {
 		out.Redactions = *o.Redactions
 	}
@@ -1217,6 +1387,18 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Extractions != nil {
 		for _, sub := range *o.Extractions {
@@ -1245,6 +1427,18 @@ func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncry
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Extractions != nil {
 		for _, sub := range *o.Extractions {

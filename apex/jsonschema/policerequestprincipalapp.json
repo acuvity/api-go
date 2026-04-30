@@ -1,0 +1,95 @@
+{
+  "$extends": [
+    "@userinfo"
+  ],
+  "$friendlyName": "PoliceRequestPrincipalApp",
+  "$friendlyNamePlural": "PoliceRequestPrincipalApps",
+  "$modelName": "PoliceRequestPrincipalApp",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policerequestprincipalapps",
+  "$modelRestName": "policerequestprincipalapp",
+  "additionalProperties": false,
+  "description": "PoliceRequestPrincipalApp holds the application principal information for a PoliceRequest. This is required for requests in an apps namespace when using an AppToken. When using a ComponentToken, the app and component are inferred from the token claims; if provided, they must match.",
+  "properties": {
+    "IP": {
+      "$friendlyName": "IP",
+      "description": "The source IP address of the request.",
+      "title": "IP",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "component": {
+      "$friendlyName": "Component",
+      "$required": true,
+      "description": "The name of the component.",
+      "title": "component",
+      "type": "string"
+    },
+    "direction": {
+      "$defaultValue": "Egress",
+      "$friendlyName": "Direction",
+      "$required": true,
+      "description": "The direction of the traffic for this request. Determines whether ingress or egress policies are evaluated for the app component.",
+      "enum": [
+        "Egress",
+        "Ingress"
+      ],
+      "title": "direction"
+    },
+    "ingressSourceToken": {
+      "$friendlyName": "Ingress Source Token",
+      "description": "A valid component token representing the source application component for ingress requests. When set, it will be validated and used to populate the request principal with the source app/component identity. Only applicable when the direction is Ingress.",
+      "title": "ingressSourceToken",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the application.",
+      "title": "name",
+      "type": "string"
+    },
+    "port": {
+      "$friendlyName": "Port",
+      "description": "The port of the ingress listener for this request. Required when direction is Ingress to select the correct listener configuration. Mirrors the X-Acuvity-Ingress-Port header used by the cloud-apex agent.",
+      "title": "port",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "component",
+    "direction",
+    "name"
+  ],
+  "title": "PoliceRequestPrincipalApp",
+  "type": "object"
+}

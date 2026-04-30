@@ -30,6 +30,8 @@ func init() {
 
 	relationshipsRegistry[PoliceResponseIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[PolicyRefIdentity] = &elemental.Relationship{}
+
 	relationshipsRegistry[PrincipalIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalAppIdentity] = &elemental.Relationship{}

@@ -35,6 +35,9 @@ const (
 	// ProxyRoundtripDecisionForbiddenUser represents the value ForbiddenUser.
 	ProxyRoundtripDecisionForbiddenUser ProxyRoundtripDecisionValue = "ForbiddenUser"
 
+	// ProxyRoundtripDecisionNotApplicable represents the value NotApplicable.
+	ProxyRoundtripDecisionNotApplicable ProxyRoundtripDecisionValue = "NotApplicable"
+
 	// ProxyRoundtripDecisionRedirected represents the value Redirected.
 	ProxyRoundtripDecisionRedirected ProxyRoundtripDecisionValue = "Redirected"
 
@@ -45,12 +48,26 @@ const (
 	ProxyRoundtripDecisionUpstreamError ProxyRoundtripDecisionValue = "UpstreamError"
 )
 
+// ProxyRoundtripProcessorValue represents the possible values for attribute "processor".
+type ProxyRoundtripProcessorValue string
+
+const (
+	// ProxyRoundtripProcessorAPI represents the value API.
+	ProxyRoundtripProcessorAPI ProxyRoundtripProcessorValue = "API"
+
+	// ProxyRoundtripProcessorProxy represents the value Proxy.
+	ProxyRoundtripProcessorProxy ProxyRoundtripProcessorValue = "Proxy"
+)
+
 // ProxyRoundtripProxyFunctionValue represents the possible values for attribute "proxyFunction".
 type ProxyRoundtripProxyFunctionValue string
 
 const (
 	// ProxyRoundtripProxyFunctionForwardProxy represents the value ForwardProxy.
 	ProxyRoundtripProxyFunctionForwardProxy ProxyRoundtripProxyFunctionValue = "ForwardProxy"
+
+	// ProxyRoundtripProxyFunctionNotApplicable represents the value NotApplicable.
+	ProxyRoundtripProxyFunctionNotApplicable ProxyRoundtripProxyFunctionValue = "NotApplicable"
 
 	// ProxyRoundtripProxyFunctionReverseProxy represents the value ReverseProxy.
 	ProxyRoundtripProxyFunctionReverseProxy ProxyRoundtripProxyFunctionValue = "ReverseProxy"
@@ -214,6 +231,11 @@ type ProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
+	// Denotes the processor of the log. If the processor is Proxy, then the proxy
+	// function will further denote if this was a forward proxy or a reverse proxy. If
+	// the processor is API, the proxy function will be set to NotApplicable.
+	Processor ProxyRoundtripProcessorValue `json:"processor,omitempty" msgpack:"processor,omitempty" bson:"processor,omitempty" mapstructure:"processor,omitempty"`
+
 	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
@@ -221,7 +243,9 @@ type ProxyRoundtrip struct {
 	// always sits on the egress side between a client or application and the origin
 	// server in which case the apex acts as a forwarding proxy. However, in the case
 	// of applications the proxy can also be located before the application as an
-	// ingress provider in which case the apex acts as a reverse proxy.
+	// ingress provider in which case the apex acts as a reverse proxy. If this log is
+	// the result of a ScanRequest or PoliceRequest API call, this will be set to
+	// NonApplicable and the processor will be API.
 	ProxyFunction ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -256,6 +280,7 @@ func NewProxyRoundtrip() *ProxyRoundtrip {
 		Annotations:   map[string]string{},
 		PolicyRefs:    PolicyRefsList{},
 		Principal:     NewPrincipal(),
+		Processor:     ProxyRoundtripProcessorProxy,
 		ProxyFunction: ProxyRoundtripProxyFunctionForwardProxy,
 	}
 }
@@ -312,6 +337,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.PipelineName = o.PipelineName
 	s.PolicyRefs = o.PolicyRefs
 	s.Principal = o.Principal
+	s.Processor = o.Processor
 	s.Provider = o.Provider
 	s.ProxyFunction = o.ProxyFunction
 	s.Reasons = o.Reasons
@@ -359,6 +385,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.PipelineName = s.PipelineName
 	o.PolicyRefs = s.PolicyRefs
 	o.Principal = s.Principal
+	o.Processor = s.Processor
 	o.Provider = s.Provider
 	o.ProxyFunction = s.ProxyFunction
 	o.Reasons = s.Reasons
@@ -465,6 +492,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			PipelineName:      &o.PipelineName,
 			PolicyRefs:        &o.PolicyRefs,
 			Principal:         o.Principal,
+			Processor:         &o.Processor,
 			Provider:          &o.Provider,
 			ProxyFunction:     &o.ProxyFunction,
 			Reasons:           &o.Reasons,
@@ -524,6 +552,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.PolicyRefs = &(o.PolicyRefs)
 		case "principal":
 			sp.Principal = o.Principal
+		case "processor":
+			sp.Processor = &(o.Processor)
 		case "provider":
 			sp.Provider = &(o.Provider)
 		case "proxyFunction":
@@ -620,6 +650,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Principal != nil {
 		o.Principal = so.Principal
+	}
+	if so.Processor != nil {
+		o.Processor = *so.Processor
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
@@ -884,7 +917,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -950,7 +983,11 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("proxyFunction", string(o.ProxyFunction), []string{"ForwardProxy", "ReverseProxy"}, false); err != nil {
+	if err := elemental.ValidateStringInList("processor", string(o.Processor), []string{"Proxy", "API"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("proxyFunction", string(o.ProxyFunction), []string{"ForwardProxy", "ReverseProxy", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1067,6 +1104,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.PolicyRefs
 	case "principal":
 		return o.Principal
+	case "processor":
+		return o.Processor
 	case "provider":
 		return o.Provider
 	case "proxyFunction":
@@ -1150,7 +1189,7 @@ var ProxyRoundtripAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1349,6 +1388,19 @@ untouched.`,
 		SubType:        "principal",
 		Type:           "ref",
 	},
+	"Processor": {
+		AllowedChoices: []string{"Proxy", "API"},
+		BSONFieldName:  "processor",
+		ConvertedName:  "Processor",
+		DefaultValue:   ProxyRoundtripProcessorProxy,
+		Description: `Denotes the processor of the log. If the processor is Proxy, then the proxy
+function will further denote if this was a forward proxy or a reverse proxy. If
+the processor is API, the proxy function will be set to NotApplicable.`,
+		Exposed: true,
+		Name:    "processor",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"Provider": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
@@ -1360,7 +1412,7 @@ untouched.`,
 		Type:           "string",
 	},
 	"ProxyFunction": {
-		AllowedChoices: []string{"ForwardProxy", "ReverseProxy"},
+		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
 		ConvertedName:  "ProxyFunction",
 		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
@@ -1368,7 +1420,9 @@ untouched.`,
 always sits on the egress side between a client or application and the origin
 server in which case the apex acts as a forwarding proxy. However, in the case
 of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy.`,
+ingress provider in which case the apex acts as a reverse proxy. If this log is
+the result of a ScanRequest or PoliceRequest API call, this will be set to
+NonApplicable and the processor will be API.`,
 		Exposed: true,
 		Name:    "proxyFunction",
 		Stored:  true,
@@ -1509,7 +1563,7 @@ var ProxyRoundtripLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1708,6 +1762,19 @@ untouched.`,
 		SubType:        "principal",
 		Type:           "ref",
 	},
+	"processor": {
+		AllowedChoices: []string{"Proxy", "API"},
+		BSONFieldName:  "processor",
+		ConvertedName:  "Processor",
+		DefaultValue:   ProxyRoundtripProcessorProxy,
+		Description: `Denotes the processor of the log. If the processor is Proxy, then the proxy
+function will further denote if this was a forward proxy or a reverse proxy. If
+the processor is API, the proxy function will be set to NotApplicable.`,
+		Exposed: true,
+		Name:    "processor",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"provider": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
@@ -1719,7 +1786,7 @@ untouched.`,
 		Type:           "string",
 	},
 	"proxyfunction": {
-		AllowedChoices: []string{"ForwardProxy", "ReverseProxy"},
+		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
 		ConvertedName:  "ProxyFunction",
 		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
@@ -1727,7 +1794,9 @@ untouched.`,
 always sits on the egress side between a client or application and the origin
 server in which case the apex acts as a forwarding proxy. However, in the case
 of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy.`,
+ingress provider in which case the apex acts as a reverse proxy. If this log is
+the result of a ScanRequest or PoliceRequest API call, this will be set to
+NonApplicable and the processor will be API.`,
 		Exposed: true,
 		Name:    "proxyFunction",
 		Stored:  true,
@@ -1946,6 +2015,11 @@ type SparseProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
+	// Denotes the processor of the log. If the processor is Proxy, then the proxy
+	// function will further denote if this was a forward proxy or a reverse proxy. If
+	// the processor is API, the proxy function will be set to NotApplicable.
+	Processor *ProxyRoundtripProcessorValue `json:"processor,omitempty" msgpack:"processor,omitempty" bson:"processor,omitempty" mapstructure:"processor,omitempty"`
+
 	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
@@ -1953,7 +2027,9 @@ type SparseProxyRoundtrip struct {
 	// always sits on the egress side between a client or application and the origin
 	// server in which case the apex acts as a forwarding proxy. However, in the case
 	// of applications the proxy can also be located before the application as an
-	// ingress provider in which case the apex acts as a reverse proxy.
+	// ingress provider in which case the apex acts as a reverse proxy. If this log is
+	// the result of a ScanRequest or PoliceRequest API call, this will be set to
+	// NonApplicable and the processor will be API.
 	ProxyFunction *ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -2086,6 +2162,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Principal != nil {
 		s.Principal = o.Principal
 	}
+	if o.Processor != nil {
+		s.Processor = o.Processor
+	}
 	if o.Provider != nil {
 		s.Provider = o.Provider
 	}
@@ -2192,6 +2271,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Principal != nil {
 		o.Principal = s.Principal
 	}
+	if s.Processor != nil {
+		o.Processor = s.Processor
+	}
 	if s.Provider != nil {
 		o.Provider = s.Provider
 	}
@@ -2295,6 +2377,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Principal != nil {
 		out.Principal = o.Principal
+	}
+	if o.Processor != nil {
+		out.Processor = *o.Processor
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
@@ -2630,6 +2715,7 @@ type mongoAttributesProxyRoundtrip struct {
 	PipelineName      string                           `bson:"pipelinename"`
 	PolicyRefs        PolicyRefsList                   `bson:"policyrefs"`
 	Principal         *Principal                       `bson:"principal"`
+	Processor         ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
 	Provider          string                           `bson:"provider"`
 	ProxyFunction     ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
 	Reasons           []string                         `bson:"reasons,omitempty"`
@@ -2662,6 +2748,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	PipelineName      *string                           `bson:"pipelinename,omitempty"`
 	PolicyRefs        *PolicyRefsList                   `bson:"policyrefs,omitempty"`
 	Principal         *Principal                        `bson:"principal,omitempty"`
+	Processor         *ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
 	Provider          *string                           `bson:"provider,omitempty"`
 	ProxyFunction     *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
 	Reasons           *[]string                         `bson:"reasons,omitempty"`

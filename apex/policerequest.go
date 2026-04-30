@@ -112,10 +112,19 @@ type PoliceRequest struct {
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization PoliceRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
+	// The application processing information for this request. For police requests
+	// in an apps namespace, this is required when using an AppToken. For scan
+	// requests, this is optional and enhances logging with app/component context.
+	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
+
 	// In the case of a contentPolicy that asks for a confirmation, this is the
 	// hash you must send back to bypass the block. This is only useful when a
 	// content policy has been set or is evaluated remotely.
 	BypassHash string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
+
+	// The destination for this request. When destination app and component are set,
+	// they become the policy target and the provider field must not be set.
+	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
 
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
@@ -127,8 +136,8 @@ type PoliceRequest struct {
 	// The model used by the request.
 	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
-	// The name of the provider to use for policy resolutions. If not set, it will
-	// default to the principal name (the application itself).
+	// The name of the provider to use for policy resolutions. Must not be set when
+	// destination app and component are set.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The various tools used by the request.
@@ -140,9 +149,10 @@ type PoliceRequest struct {
 	// The type of text.
 	Type PoliceRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
-	// The user information that the PoliceRequest is passing on to the policy
-	// engine that can be used for additional policy resolution.
-	User *PoliceExternalUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
+	// The user information for this request. For police requests in an employees
+	// namespace, this represents the end user on whose behalf the request is made
+	// and is used for policy resolution via team assignment.
+	User *RequestUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -238,7 +248,7 @@ func (o *PoliceRequest) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *PoliceRequest) Doc() string {
 
-	return `This is a scan and police request.`
+	return `This is a police request.`
 }
 
 func (o *PoliceRequest) String() string {
@@ -255,7 +265,9 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		return &SparsePoliceRequest{
 			Annotations:   &o.Annotations,
 			Anonymization: &o.Anonymization,
+			App:           o.App,
 			BypassHash:    &o.BypassHash,
+			Destination:   o.Destination,
 			Extractions:   &o.Extractions,
 			Messages:      &o.Messages,
 			Model:         &o.Model,
@@ -274,8 +286,12 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.Annotations = &(o.Annotations)
 		case "anonymization":
 			sp.Anonymization = &(o.Anonymization)
+		case "app":
+			sp.App = o.App
 		case "bypassHash":
 			sp.BypassHash = &(o.BypassHash)
+		case "destination":
+			sp.Destination = o.Destination
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "messages":
@@ -311,8 +327,14 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Anonymization != nil {
 		o.Anonymization = *so.Anonymization
 	}
+	if so.App != nil {
+		o.App = so.App
+	}
 	if so.BypassHash != nil {
 		o.BypassHash = *so.BypassHash
+	}
+	if so.Destination != nil {
+		o.Destination = so.Destination
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
@@ -342,6 +364,18 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Extractions {
 		if sub == nil {
@@ -378,6 +412,18 @@ func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *PoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Extractions {
 		if sub == nil {
@@ -448,6 +494,20 @@ func (o *PoliceRequest) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.App != nil {
+		if err := o.App.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "app")
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "destination")
+		}
+	}
+
 	for i, sub := range o.Extractions {
 		if sub == nil {
 			continue
@@ -484,6 +544,11 @@ func (o *PoliceRequest) Validate() error {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "user")
 		}
+	}
+
+	// Custom object validation.
+	if err := ValidatePoliceRequest(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -524,8 +589,12 @@ func (o *PoliceRequest) ValueForAttribute(name string) any {
 		return o.Annotations
 	case "anonymization":
 		return o.Anonymization
+	case "app":
+		return o.App
 	case "bypassHash":
 		return o.BypassHash
+	case "destination":
+		return o.Destination
 	case "extractions":
 		return o.Extractions
 	case "messages":
@@ -569,6 +638,17 @@ var PoliceRequestAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "enum",
 	},
+	"App": {
+		AllowedChoices: []string{},
+		ConvertedName:  "App",
+		Description: `The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.`,
+		Exposed: true,
+		Name:    "app",
+		SubType: "requestapp",
+		Type:    "ref",
+	},
 	"BypassHash": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "bypasshash",
@@ -580,6 +660,16 @@ content policy has been set or is evaluated remotely.`,
 		Name:    "bypassHash",
 		Stored:  true,
 		Type:    "string",
+	},
+	"Destination": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Destination",
+		Description: `The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.`,
+		Exposed: true,
+		Name:    "destination",
+		SubType: "requestdestination",
+		Type:    "ref",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -613,8 +703,8 @@ processing binary data.`,
 	"Provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
-		Description: `The name of the provider to use for policy resolutions. If not set, it will
-default to the principal name (the application itself).`,
+		Description: `The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
@@ -654,11 +744,12 @@ default to the principal name (the application itself).`,
 	"User": {
 		AllowedChoices: []string{},
 		ConvertedName:  "User",
-		Description: `The user information that the PoliceRequest is passing on to the policy
-engine that can be used for additional policy resolution.`,
+		Description: `The user information for this request. For police requests in an employees
+namespace, this represents the end user on whose behalf the request is made
+and is used for policy resolution via team assignment.`,
 		Exposed: true,
 		Name:    "user",
-		SubType: "policeexternaluser",
+		SubType: "requestuser",
 		Type:    "ref",
 	},
 }
@@ -685,6 +776,17 @@ var PoliceRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "enum",
 	},
+	"app": {
+		AllowedChoices: []string{},
+		ConvertedName:  "App",
+		Description: `The application processing information for this request. For police requests
+in an apps namespace, this is required when using an AppToken. For scan
+requests, this is optional and enhances logging with app/component context.`,
+		Exposed: true,
+		Name:    "app",
+		SubType: "requestapp",
+		Type:    "ref",
+	},
 	"bypasshash": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "bypasshash",
@@ -696,6 +798,16 @@ content policy has been set or is evaluated remotely.`,
 		Name:    "bypassHash",
 		Stored:  true,
 		Type:    "string",
+	},
+	"destination": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Destination",
+		Description: `The destination for this request. When destination app and component are set,
+they become the policy target and the provider field must not be set.`,
+		Exposed: true,
+		Name:    "destination",
+		SubType: "requestdestination",
+		Type:    "ref",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -729,8 +841,8 @@ processing binary data.`,
 	"provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
-		Description: `The name of the provider to use for policy resolutions. If not set, it will
-default to the principal name (the application itself).`,
+		Description: `The name of the provider to use for policy resolutions. Must not be set when
+destination app and component are set.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
@@ -770,11 +882,12 @@ default to the principal name (the application itself).`,
 	"user": {
 		AllowedChoices: []string{},
 		ConvertedName:  "User",
-		Description: `The user information that the PoliceRequest is passing on to the policy
-engine that can be used for additional policy resolution.`,
+		Description: `The user information for this request. For police requests in an employees
+namespace, this represents the end user on whose behalf the request is made
+and is used for policy resolution via team assignment.`,
 		Exposed: true,
 		Name:    "user",
-		SubType: "policeexternaluser",
+		SubType: "requestuser",
 		Type:    "ref",
 	},
 }
@@ -848,10 +961,19 @@ type SparsePoliceRequest struct {
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization *PoliceRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
+	// The application processing information for this request. For police requests
+	// in an apps namespace, this is required when using an AppToken. For scan
+	// requests, this is optional and enhances logging with app/component context.
+	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
+
 	// In the case of a contentPolicy that asks for a confirmation, this is the
 	// hash you must send back to bypass the block. This is only useful when a
 	// content policy has been set or is evaluated remotely.
 	BypassHash *string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
+
+	// The destination for this request. When destination app and component are set,
+	// they become the policy target and the provider field must not be set.
+	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
 
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
@@ -863,8 +985,8 @@ type SparsePoliceRequest struct {
 	// The model used by the request.
 	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
 
-	// The name of the provider to use for policy resolutions. If not set, it will
-	// default to the principal name (the application itself).
+	// The name of the provider to use for policy resolutions. Must not be set when
+	// destination app and component are set.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The various tools used by the request.
@@ -876,9 +998,10 @@ type SparsePoliceRequest struct {
 	// The type of text.
 	Type *PoliceRequestTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
-	// The user information that the PoliceRequest is passing on to the policy
-	// engine that can be used for additional policy resolution.
-	User *PoliceExternalUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
+	// The user information for this request. For police requests in an employees
+	// namespace, this represents the end user on whose behalf the request is made
+	// and is used for policy resolution via team assignment.
+	User *RequestUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -988,8 +1111,14 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Anonymization != nil {
 		out.Anonymization = *o.Anonymization
 	}
+	if o.App != nil {
+		out.App = o.App
+	}
 	if o.BypassHash != nil {
 		out.BypassHash = *o.BypassHash
+	}
+	if o.Destination != nil {
+		out.Destination = o.Destination
 	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
@@ -1021,6 +1150,18 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Extractions != nil {
 		for _, sub := range *o.Extractions {
@@ -1061,6 +1202,18 @@ func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEnc
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparsePoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.App != nil {
+		if err := o.App.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Extractions != nil {
 		for _, sub := range *o.Extractions {

@@ -1,0 +1,28 @@
+{
+  "$extends": [],
+  "$friendlyName": "PoliceRequestPrincipal",
+  "$friendlyNamePlural": "PoliceRequestPrincipals",
+  "$modelName": "PoliceRequestPrincipal",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "policerequestprincipals",
+  "$modelRestName": "policerequestprincipal",
+  "additionalProperties": false,
+  "description": "PoliceRequestPrincipal holds the principal information for a PoliceRequest. For an apps namespace, the app field must be set. For an employees namespace, the user field is optional and represents the end user on whose behalf the request is made.",
+  "properties": {
+    "app": {
+      "$friendlyName": "App",
+      "$ref": "policerequestprincipalapp.json",
+      "description": "The app principal information. Required for apps namespaces.",
+      "title": "app"
+    },
+    "user": {
+      "$friendlyName": "User",
+      "$ref": "policerequestprincipaluser.json",
+      "description": "The user principal information. Optional for employees namespaces and represents the end user on whose behalf the request is made.",
+      "title": "user"
+    }
+  },
+  "required": [],
+  "title": "PoliceRequestPrincipal",
+  "type": "object"
+}

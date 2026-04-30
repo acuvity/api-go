@@ -697,35 +697,8 @@
         ],
         "type": "object"
       },
-      "policeexternaluser": {
-        "description": "PoliceExternalUser holds the information about the remote user for a\nPoliceRequest.",
-        "properties": {
-          "claims": {
-            "description": "List of claims extracted from the user query.",
-            "example": [
-              "@org=acuvity.ai",
-              "given_name=John",
-              "family_name=Doe"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "name": {
-            "description": "The name of the external user.",
-            "example": "John Doe",
-            "type": "string"
-          }
-        },
-        "required": [
-          "claims",
-          "name"
-        ],
-        "type": "object"
-      },
       "policerequest": {
-        "description": "This is a scan and police request.",
+        "description": "This is a police request.",
         "properties": {
           "annotations": {
             "additionalProperties": {
@@ -746,10 +719,16 @@
               "VariableSize"
             ]
           },
+          "app": {
+            "$ref": "#/components/schemas/requestapp"
+          },
           "bypassHash": {
             "description": "In the case of a contentPolicy that asks for a confirmation, this is the\nhash you must send back to bypass the block. This is only useful when a\ncontent policy has been set or is evaluated remotely.",
             "example": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
             "type": "string"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/requestdestination"
           },
           "extractions": {
             "description": "The extractions to request.",
@@ -775,7 +754,7 @@
             "type": "string"
           },
           "provider": {
-            "description": "The name of the provider to use for policy resolutions. If not set, it will\ndefault to the principal name (the application itself).",
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.",
             "example": "openai",
             "type": "string"
           },
@@ -798,7 +777,7 @@
             ]
           },
           "user": {
-            "$ref": "#/components/schemas/policeexternaluser"
+            "$ref": "#/components/schemas/requestuser"
           }
         },
         "type": "object"
@@ -846,7 +825,8 @@
               "Skipped",
               "Redirected",
               "Error",
-              "UpstreamError"
+              "UpstreamError",
+              "NotApplicable"
             ]
           },
           "extractions": {
@@ -879,6 +859,13 @@
           "pipelineName": {
             "description": "The name of the particular pipeline that extracted the text.",
             "type": "string"
+          },
+          "policyRefs": {
+            "description": "List of references to the policies used to make this roundtrip.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
           },
           "principal": {
             "$ref": "#/components/schemas/principal"
@@ -914,6 +901,9 @@
             "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
             "type": "object"
           },
+          "trace": {
+            "$ref": "#/components/schemas/traceref"
+          },
           "type": {
             "description": "The type of text.",
             "enum": [
@@ -924,6 +914,64 @@
         },
         "required": [
           "principal"
+        ],
+        "type": "object"
+      },
+      "policyref": {
+        "description": "Reference a policy.",
+        "properties": {
+          "appPolicyID": {
+            "description": "The app policy ID of the referenced policy.",
+            "example": "xxx-xxx-xxx-xxx",
+            "type": "string"
+          },
+          "appPolicyName": {
+            "description": "The app policy name of the referenced policy.",
+            "example": "email-agent",
+            "type": "string"
+          },
+          "appPolicyType": {
+            "description": "The app policy type of the referenced policy.",
+            "example": "ingress",
+            "type": "string"
+          },
+          "matchingTeams": {
+            "description": "Teams that were used to trigger this policy.",
+            "example": [
+              "team-a",
+              "team-b"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "policyID": {
+            "description": "The ID of the referenced policy.",
+            "example": "xxx-xxx-xxx-xxx",
+            "type": "string"
+          },
+          "policyIdentity": {
+            "description": "The identity name of the referenced policy.",
+            "example": "default",
+            "type": "string"
+          },
+          "policyName": {
+            "description": "The name of the referenced policy.",
+            "example": "frontend",
+            "type": "string"
+          },
+          "policyNamespace": {
+            "description": "The namespace of the referenced policy.",
+            "example": "frontend",
+            "type": "string"
+          }
+        },
+        "required": [
+          "policyID",
+          "policyIdentity",
+          "policyName",
+          "policyNamespace"
         ],
         "type": "object"
       },
@@ -1116,6 +1164,114 @@
         },
         "type": "object"
       },
+      "requestapp": {
+        "description": "RequestApp holds the application processing information for a request. For\npolice requests in an apps namespace, this is required when using an AppToken.\nWhen using a ComponentToken, the app and component are inferred from the token\nclaims; if provided, they must match. For scan requests, this is optional and\nenhances logging with app/component context.",
+        "properties": {
+          "IP": {
+            "description": "The source IP address of the request.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
+          "component": {
+            "description": "The name of the component.",
+            "example": "email-agent",
+            "type": "string"
+          },
+          "direction": {
+            "default": "Egress",
+            "description": "The direction of the traffic for this request. Determines whether ingress or\negress policies are evaluated for the app component.",
+            "enum": [
+              "Egress",
+              "Ingress"
+            ]
+          },
+          "ingressSourceToken": {
+            "description": "A valid component token representing the source application component for\ningress requests. When set, it will be validated and used to populate the\nrequest principal with the source app/component identity. Only applicable\nwhen the direction is Ingress.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the application.",
+            "example": "acme-ai-app",
+            "type": "string"
+          },
+          "port": {
+            "description": "The port of the ingress listener for this request. Required when direction\nis Ingress to select the correct listener configuration. Mirrors the\nX-Acuvity-Ingress-Port header used by the cloud-apex agent.",
+            "type": "integer"
+          },
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
+            "example": "john.doe@acme.com",
+            "type": "string"
+          }
+        },
+        "required": [
+          "component",
+          "direction",
+          "name"
+        ],
+        "type": "object"
+      },
+      "requestdestination": {
+        "description": "RequestDestination holds the destination information for a request. When app\nand component are set, the request is evaluated against the app component's\npolicies instead of a provider. In that case, the provider field must not be\nset.",
+        "properties": {
+          "app": {
+            "description": "The name of the destination application.",
+            "example": "other-ai-app",
+            "type": "string"
+          },
+          "component": {
+            "description": "The component of the destination application.",
+            "example": "backend",
+            "type": "string"
+          },
+          "host": {
+            "description": "The host name of the destination. Optional, for logging enrichment.",
+            "example": "api.openai.com",
+            "type": "string"
+          },
+          "ip": {
+            "description": "The destination IP address. Optional, for logging enrichment.",
+            "example": "192.0.2.42",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "requestuser": {
+        "description": "RequestUser holds the user information for a request. For police requests in an\nemployees namespace, this represents the end user on whose behalf the request\nis made and is used for policy resolution. For scan requests, this is optional\nand enhances logging with user context.",
+        "properties": {
+          "userClaims": {
+            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
+            "example": [
+              "name=John Doe",
+              "email=john.doe@acme.com",
+              "@validated=false"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "username": {
+            "description": "The optional username of the request.",
+            "example": "john.doe@acme.com",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "scanrequest": {
         "description": "This is a scan request.",
         "properties": {
@@ -1152,6 +1308,9 @@
               "VariableSize"
             ]
           },
+          "app": {
+            "$ref": "#/components/schemas/requestapp"
+          },
           "bypassHash": {
             "description": "In the case of a contentPolicy that asks for a confirmation, this is the\nhash you must send back to bypass the block. This is only useful when a\ncontent policy has been set or is evaluated remotely.",
             "example": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
@@ -1160,6 +1319,9 @@
           "contentPolicy": {
             "description": "ContentPolicy allows to pass optional Rego content policy. If not set,\nThe action is always Allow, and there cannot be any alerts raised etc\nIf it is set, it will be run, and the final decision will be computed based\non that policy.\nIf the rego code does not start with package main, then the needed\nclassic package definition and  acuvity imports will be added\nautomatically.\nIf the code starts with package main, then everything remains untouched.",
             "type": "string"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/requestdestination"
           },
           "extractions": {
             "description": "The extractions to request.",
@@ -1192,12 +1354,17 @@
             "type": "array"
           },
           "minimalLogging": {
-            "description": "If true, the system will not log the contents that were scanned.",
+            "description": "If true, the system will skip logging roundtrips with an Allow decision.\nDenials, errors, and other non-Allow decisions are still logged. When\ncombined with no embedded policy, this effectively disables all logging.",
             "type": "boolean"
           },
           "model": {
             "description": "The model used by the request.",
             "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
+          "provider": {
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.",
+            "example": "openai",
             "type": "string"
           },
           "redactions": {
@@ -1273,7 +1440,8 @@
               "Skipped",
               "Redirected",
               "Error",
-              "UpstreamError"
+              "UpstreamError",
+              "NotApplicable"
             ]
           },
           "extractions": {

@@ -42,14 +42,14 @@
     "modality": {
       "$ref": "modality.json"
     },
-    "policeexternaluser": {
-      "$ref": "policeexternaluser.json"
-    },
     "policerequest": {
       "$ref": "policerequest.json"
     },
     "policeresponse": {
       "$ref": "policeresponse.json"
+    },
+    "policyref": {
+      "$ref": "policyref.json"
     },
     "principal": {
       "$ref": "principal.json"
@@ -62,6 +62,15 @@
     },
     "principaluser": {
       "$ref": "principaluser.json"
+    },
+    "requestapp": {
+      "$ref": "requestapp.json"
+    },
+    "requestdestination": {
+      "$ref": "requestdestination.json"
+    },
+    "requestuser": {
+      "$ref": "requestuser.json"
     },
     "root": {
       "$ref": "root.json"

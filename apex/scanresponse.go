@@ -35,6 +35,9 @@ const (
 	// ScanResponseDecisionForbiddenUser represents the value ForbiddenUser.
 	ScanResponseDecisionForbiddenUser ScanResponseDecisionValue = "ForbiddenUser"
 
+	// ScanResponseDecisionNotApplicable represents the value NotApplicable.
+	ScanResponseDecisionNotApplicable ScanResponseDecisionValue = "NotApplicable"
+
 	// ScanResponseDecisionRedirected represents the value Redirected.
 	ScanResponseDecisionRedirected ScanResponseDecisionValue = "Redirected"
 
@@ -681,7 +684,7 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -894,7 +897,7 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1138,7 +1141,7 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
