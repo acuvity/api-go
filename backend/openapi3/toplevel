@@ -408,6 +408,10 @@
             "description": "If true, upgrades will only take place with user confirmation.",
             "type": "boolean"
           },
+          "blockTrafficOnFailure": {
+            "description": "If true, traffic will fail-close until connection to apex is recovered. This is\nonly applicable when authenticated.",
+            "type": "boolean"
+          },
           "configRefreshInterval": {
             "default": "1h",
             "description": "Defines the refresh interval for the configuration of the deployed agents (i.e:\n30m, 6h).",

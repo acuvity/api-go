@@ -1150,6 +1150,7 @@ Stores the configuration information for the acushield agent.
   "DNSMonitorDisabled": false,
   "DNSMonitorPolicy": "Warn",
   "attendedUpgrades": false,
+  "blockTrafficOnFailure": false,
   "configRefreshInterval": "30m",
   "domainDiscoveryDisabled": false,
   "domainReportInterval": "30m",
@@ -1236,6 +1237,13 @@ ID is the identifier of the object.
 Type: `boolean`
 
 If true, upgrades will only take place with user confirmation.
+
+##### `blockTrafficOnFailure`
+
+Type: `boolean`
+
+If true, traffic will fail-close until connection to apex is recovered. This is
+only applicable when authenticated.
 
 ##### `configRefreshInterval`
 

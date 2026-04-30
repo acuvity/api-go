@@ -123,6 +123,10 @@ type AgentConfig struct {
 	// If true, upgrades will only take place with user confirmation.
 	AttendedUpgrades bool `json:"attendedUpgrades" msgpack:"attendedUpgrades" bson:"attendedupgrades" mapstructure:"attendedUpgrades,omitempty"`
 
+	// If true, traffic will fail-close until connection to apex is recovered. This is
+	// only applicable when authenticated.
+	BlockTrafficOnFailure bool `json:"blockTrafficOnFailure" msgpack:"blockTrafficOnFailure" bson:"blocktrafficonfailure" mapstructure:"blockTrafficOnFailure,omitempty"`
+
 	// Defines the refresh interval for the configuration of the deployed agents (i.e:
 	// 30m, 6h).
 	ConfigRefreshInterval string `json:"configRefreshInterval" msgpack:"configRefreshInterval" bson:"configrefreshinterval" mapstructure:"configRefreshInterval,omitempty"`
@@ -291,6 +295,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.AttendedUpgrades = o.AttendedUpgrades
+	s.BlockTrafficOnFailure = o.BlockTrafficOnFailure
 	s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -343,6 +348,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
 	o.AttendedUpgrades = s.AttendedUpgrades
+	o.BlockTrafficOnFailure = s.BlockTrafficOnFailure
 	o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -478,6 +484,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DNSMonitorPolicy:              &o.DNSMonitorPolicy,
 			ID:                            &o.ID,
 			AttendedUpgrades:              &o.AttendedUpgrades,
+			BlockTrafficOnFailure:         &o.BlockTrafficOnFailure,
 			ConfigRefreshInterval:         &o.ConfigRefreshInterval,
 			CreateTime:                    &o.CreateTime,
 			Description:                   &o.Description,
@@ -524,6 +531,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "attendedUpgrades":
 			sp.AttendedUpgrades = &(o.AttendedUpgrades)
+		case "blockTrafficOnFailure":
+			sp.BlockTrafficOnFailure = &(o.BlockTrafficOnFailure)
 		case "configRefreshInterval":
 			sp.ConfigRefreshInterval = &(o.ConfigRefreshInterval)
 		case "createTime":
@@ -612,6 +621,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.AttendedUpgrades != nil {
 		o.AttendedUpgrades = *so.AttendedUpgrades
+	}
+	if so.BlockTrafficOnFailure != nil {
+		o.BlockTrafficOnFailure = *so.BlockTrafficOnFailure
 	}
 	if so.ConfigRefreshInterval != nil {
 		o.ConfigRefreshInterval = *so.ConfigRefreshInterval
@@ -905,6 +917,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ID
 	case "attendedUpgrades":
 		return o.AttendedUpgrades
+	case "blockTrafficOnFailure":
+		return o.BlockTrafficOnFailure
 	case "configRefreshInterval":
 		return o.ConfigRefreshInterval
 	case "createTime":
@@ -1022,6 +1036,17 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Name:           "attendedUpgrades",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"BlockTrafficOnFailure": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "blocktrafficonfailure",
+		ConvertedName:  "BlockTrafficOnFailure",
+		Description: `If true, traffic will fail-close until connection to apex is recovered. This is
+only applicable when authenticated.`,
+		Exposed: true,
+		Name:    "blockTrafficOnFailure",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"ConfigRefreshInterval": {
 		AllowedChoices: []string{},
@@ -1429,6 +1454,17 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Name:           "attendedUpgrades",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"blocktrafficonfailure": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "blocktrafficonfailure",
+		ConvertedName:  "BlockTrafficOnFailure",
+		Description: `If true, traffic will fail-close until connection to apex is recovered. This is
+only applicable when authenticated.`,
+		Exposed: true,
+		Name:    "blockTrafficOnFailure",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"configrefreshinterval": {
 		AllowedChoices: []string{},
@@ -1864,6 +1900,10 @@ type SparseAgentConfig struct {
 	// If true, upgrades will only take place with user confirmation.
 	AttendedUpgrades *bool `json:"attendedUpgrades,omitempty" msgpack:"attendedUpgrades,omitempty" bson:"attendedupgrades,omitempty" mapstructure:"attendedUpgrades,omitempty"`
 
+	// If true, traffic will fail-close until connection to apex is recovered. This is
+	// only applicable when authenticated.
+	BlockTrafficOnFailure *bool `json:"blockTrafficOnFailure,omitempty" msgpack:"blockTrafficOnFailure,omitempty" bson:"blocktrafficonfailure,omitempty" mapstructure:"blockTrafficOnFailure,omitempty"`
+
 	// Defines the refresh interval for the configuration of the deployed agents (i.e:
 	// 30m, 6h).
 	ConfigRefreshInterval *string `json:"configRefreshInterval,omitempty" msgpack:"configRefreshInterval,omitempty" bson:"configrefreshinterval,omitempty" mapstructure:"configRefreshInterval,omitempty"`
@@ -2031,6 +2071,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.AttendedUpgrades != nil {
 		s.AttendedUpgrades = o.AttendedUpgrades
 	}
+	if o.BlockTrafficOnFailure != nil {
+		s.BlockTrafficOnFailure = o.BlockTrafficOnFailure
+	}
 	if o.ConfigRefreshInterval != nil {
 		s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	}
@@ -2152,6 +2195,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.AttendedUpgrades != nil {
 		o.AttendedUpgrades = s.AttendedUpgrades
 	}
+	if s.BlockTrafficOnFailure != nil {
+		o.BlockTrafficOnFailure = s.BlockTrafficOnFailure
+	}
 	if s.ConfigRefreshInterval != nil {
 		o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	}
@@ -2270,6 +2316,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.AttendedUpgrades != nil {
 		out.AttendedUpgrades = *o.AttendedUpgrades
+	}
+	if o.BlockTrafficOnFailure != nil {
+		out.BlockTrafficOnFailure = *o.BlockTrafficOnFailure
 	}
 	if o.ConfigRefreshInterval != nil {
 		out.ConfigRefreshInterval = *o.ConfigRefreshInterval
@@ -2526,6 +2575,7 @@ type mongoAttributesAgentConfig struct {
 	DNSMonitorPolicy              AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
 	ID                            bson.ObjectId                    `bson:"_id,omitempty"`
 	AttendedUpgrades              bool                             `bson:"attendedupgrades"`
+	BlockTrafficOnFailure         bool                             `bson:"blocktrafficonfailure"`
 	ConfigRefreshInterval         string                           `bson:"configrefreshinterval"`
 	CreateTime                    time.Time                        `bson:"createtime"`
 	Description                   string                           `bson:"description"`
@@ -2563,6 +2613,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorPolicy              *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
 	ID                            bson.ObjectId                     `bson:"_id,omitempty"`
 	AttendedUpgrades              *bool                             `bson:"attendedupgrades,omitempty"`
+	BlockTrafficOnFailure         *bool                             `bson:"blocktrafficonfailure,omitempty"`
 	ConfigRefreshInterval         *string                           `bson:"configrefreshinterval,omitempty"`
 	CreateTime                    *time.Time                        `bson:"createtime,omitempty"`
 	Description                   *string                           `bson:"description,omitempty"`

@@ -52,6 +52,15 @@
         "null"
       ]
     },
+    "blockTrafficOnFailure": {
+      "$friendlyName": "Block Traffic on Failure",
+      "description": "If true, traffic will fail-close until connection to apex is recovered. This is only applicable when authenticated.",
+      "title": "blockTrafficOnFailure",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "configRefreshInterval": {
       "$defaultValue": "1h",
       "$friendlyName": "Configuration Refresh Interval",
