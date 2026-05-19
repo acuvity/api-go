@@ -110,6 +110,13 @@ type WebExtensionConfig struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Set the priority for this webextension configuration. When multiple agent
+	// configurations match an webextension user's claims, the priority determines
+	// which configuration takes precedence. A lower numeric value indicates a higher
+	// priority, meaning configurations with smaller numbers will be applied first.
+	// Values can be negative.
+	Priority int `json:"priority" msgpack:"priority" bson:"priority" mapstructure:"priority,omitempty"`
+
 	// Defines the refresh interval in minutes for the configuration of the deployed
 	// WebExtensions.
 	RefreshWebExtensionConfigInterval int `json:"refreshWebExtensionConfigInterval" msgpack:"refreshWebExtensionConfigInterval" bson:"refreshwebextensionconfiginterval" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
@@ -181,6 +188,7 @@ func (o *WebExtensionConfig) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Priority = o.Priority
 	s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
 	s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
 	s.Subject = o.Subject
@@ -212,6 +220,7 @@ func (o *WebExtensionConfig) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Priority = s.Priority
 	o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
 	o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
 	o.Subject = s.Subject
@@ -326,6 +335,7 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			ImportLabel:                       &o.ImportLabel,
 			Name:                              &o.Name,
 			Namespace:                         &o.Namespace,
+			Priority:                          &o.Priority,
 			RefreshWebExtensionConfigInterval: &o.RefreshWebExtensionConfigInterval,
 			ReportVisitedURLsInterval:         &o.ReportVisitedURLsInterval,
 			Subject:                           &o.Subject,
@@ -354,6 +364,8 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "priority":
+			sp.Priority = &(o.Priority)
 		case "refreshWebExtensionConfigInterval":
 			sp.RefreshWebExtensionConfigInterval = &(o.RefreshWebExtensionConfigInterval)
 		case "reportVisitedURLsInterval":
@@ -402,6 +414,9 @@ func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Priority != nil {
+		o.Priority = *so.Priority
 	}
 	if so.RefreshWebExtensionConfigInterval != nil {
 		o.RefreshWebExtensionConfigInterval = *so.RefreshWebExtensionConfigInterval
@@ -537,6 +552,8 @@ func (o *WebExtensionConfig) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "priority":
+		return o.Priority
 	case "refreshWebExtensionConfigInterval":
 		return o.RefreshWebExtensionConfigInterval
 	case "reportVisitedURLsInterval":
@@ -659,6 +676,20 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Set the priority for this webextension configuration. When multiple agent
+configurations match an webextension user's claims, the priority determines
+which configuration takes precedence. A lower numeric value indicates a higher
+priority, meaning configurations with smaller numbers will be applied first.
+Values can be negative.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"RefreshWebExtensionConfigInterval": {
 		AllowedChoices: []string{},
@@ -821,6 +852,20 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Set the priority for this webextension configuration. When multiple agent
+configurations match an webextension user's claims, the priority determines
+which configuration takes precedence. A lower numeric value indicates a higher
+priority, meaning configurations with smaller numbers will be applied first.
+Values can be negative.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
+	},
 	"refreshwebextensionconfiginterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "refreshwebextensionconfiginterval",
@@ -964,6 +1009,13 @@ type SparseWebExtensionConfig struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Set the priority for this webextension configuration. When multiple agent
+	// configurations match an webextension user's claims, the priority determines
+	// which configuration takes precedence. A lower numeric value indicates a higher
+	// priority, meaning configurations with smaller numbers will be applied first.
+	// Values can be negative.
+	Priority *int `json:"priority,omitempty" msgpack:"priority,omitempty" bson:"priority,omitempty" mapstructure:"priority,omitempty"`
+
 	// Defines the refresh interval in minutes for the configuration of the deployed
 	// WebExtensions.
 	RefreshWebExtensionConfigInterval *int `json:"refreshWebExtensionConfigInterval,omitempty" msgpack:"refreshWebExtensionConfigInterval,omitempty" bson:"refreshwebextensionconfiginterval,omitempty" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
@@ -1050,6 +1102,9 @@ func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Priority != nil {
+		s.Priority = o.Priority
+	}
 	if o.RefreshWebExtensionConfigInterval != nil {
 		s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
 	}
@@ -1108,6 +1163,9 @@ func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Priority != nil {
+		o.Priority = s.Priority
+	}
 	if s.RefreshWebExtensionConfigInterval != nil {
 		o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
 	}
@@ -1163,6 +1221,9 @@ func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Priority != nil {
+		out.Priority = *o.Priority
 	}
 	if o.RefreshWebExtensionConfigInterval != nil {
 		out.RefreshWebExtensionConfigInterval = *o.RefreshWebExtensionConfigInterval
@@ -1311,6 +1372,7 @@ type mongoAttributesWebExtensionConfig struct {
 	ImportLabel                       string        `bson:"importlabel,omitempty"`
 	Name                              string        `bson:"name"`
 	Namespace                         string        `bson:"namespace,omitempty"`
+	Priority                          int           `bson:"priority"`
 	RefreshWebExtensionConfigInterval int           `bson:"refreshwebextensionconfiginterval"`
 	ReportVisitedURLsInterval         int           `bson:"reportvisitedurlsinterval"`
 	Subject                           [][]string    `bson:"subject"`
@@ -1327,6 +1389,7 @@ type mongoAttributesSparseWebExtensionConfig struct {
 	ImportLabel                       *string       `bson:"importlabel,omitempty"`
 	Name                              *string       `bson:"name,omitempty"`
 	Namespace                         *string       `bson:"namespace,omitempty"`
+	Priority                          *int          `bson:"priority,omitempty"`
 	RefreshWebExtensionConfigInterval *int          `bson:"refreshwebextensionconfiginterval,omitempty"`
 	ReportVisitedURLsInterval         *int          `bson:"reportvisitedurlsinterval,omitempty"`
 	Subject                           *[][]string   `bson:"subject,omitempty"`

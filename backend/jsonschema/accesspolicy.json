@@ -167,6 +167,24 @@
         "null"
       ]
     },
+    "redactContent": {
+      "$friendlyName": "Redact Content",
+      "description": "If true, the system will remove all user data from the reported data, while keeping the analysis and metadata.",
+      "title": "redactContent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactContentBypass": {
+      "$friendlyName": "Redact Content Bypass",
+      "description": "If true, and redactContent is true, ignore redaction if there are some violations.",
+      "title": "redactContentBypass",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "redirectMessage": {
       "$friendlyName": "Redirect Message",
       "description": "If set, show this message to user before the redirection.",

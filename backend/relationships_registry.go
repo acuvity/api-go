@@ -952,16 +952,10 @@ func init() {
 	}
 
 	relationshipsRegistry[FindingIdentity] = &elemental.Relationship{
-		Create: map[string]*elemental.RelationshipInfo{
-			"root": {},
-		},
 		Update: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
 		Patch: map[string]*elemental.RelationshipInfo{
-			"root": {},
-		},
-		Delete: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
 		Retrieve: map[string]*elemental.RelationshipInfo{
@@ -1656,6 +1650,12 @@ func init() {
 					},
 				},
 			},
+		},
+	}
+
+	relationshipsRegistry[ProviderUsageReportIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
 		},
 	}
 

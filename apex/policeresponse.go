@@ -41,11 +41,25 @@ const (
 	// PoliceResponseDecisionRedirected represents the value Redirected.
 	PoliceResponseDecisionRedirected PoliceResponseDecisionValue = "Redirected"
 
+	// PoliceResponseDecisionReport represents the value Report.
+	PoliceResponseDecisionReport PoliceResponseDecisionValue = "Report"
+
 	// PoliceResponseDecisionSkipped represents the value Skipped.
 	PoliceResponseDecisionSkipped PoliceResponseDecisionValue = "Skipped"
 
 	// PoliceResponseDecisionUpstreamError represents the value UpstreamError.
 	PoliceResponseDecisionUpstreamError PoliceResponseDecisionValue = "UpstreamError"
+)
+
+// PoliceResponseProviderTypeValue represents the possible values for attribute "providerType".
+type PoliceResponseProviderTypeValue string
+
+const (
+	// PoliceResponseProviderTypeLLM represents the value LLM.
+	PoliceResponseProviderTypeLLM PoliceResponseProviderTypeValue = "LLM"
+
+	// PoliceResponseProviderTypeMCPServer represents the value MCPServer.
+	PoliceResponseProviderTypeMCPServer PoliceResponseProviderTypeValue = "MCPServer"
 )
 
 // PoliceResponseTypeValue represents the possible values for attribute "type".
@@ -179,6 +193,9 @@ type PoliceResponse struct {
 	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
+	// The type of the provider.
+	ProviderType PoliceResponseProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
+
 	// The various reasons returned by the policy engine.
 	Reasons []string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
 
@@ -260,6 +277,7 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.PolicyRefs = o.PolicyRefs
 	s.Principal = o.Principal
 	s.Provider = o.Provider
+	s.ProviderType = o.ProviderType
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
 	s.ToolChoice = o.ToolChoice
@@ -299,6 +317,7 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.PolicyRefs = s.PolicyRefs
 	o.Principal = s.Principal
 	o.Provider = s.Provider
+	o.ProviderType = s.ProviderType
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
 	o.ToolChoice = s.ToolChoice
@@ -373,6 +392,7 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			PolicyRefs:    &o.PolicyRefs,
 			Principal:     o.Principal,
 			Provider:      &o.Provider,
+			ProviderType:  &o.ProviderType,
 			Reasons:       &o.Reasons,
 			Summary:       o.Summary,
 			Time:          &o.Time,
@@ -418,6 +438,8 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Principal = o.Principal
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "providerType":
+			sp.ProviderType = &(o.ProviderType)
 		case "reasons":
 			sp.Reasons = &(o.Reasons)
 		case "summary":
@@ -492,6 +514,9 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.ProviderType != nil {
+		o.ProviderType = *so.ProviderType
 	}
 	if so.Reasons != nil {
 		o.Reasons = *so.Reasons
@@ -714,7 +739,7 @@ func (o *PoliceResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -757,6 +782,14 @@ func (o *PoliceResponse) Validate() error {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "principal")
 		}
+	}
+
+	if err := elemental.ValidateRequiredString("providerType", string(o.ProviderType)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Summary != nil {
@@ -860,6 +893,8 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Principal
 	case "provider":
 		return o.Provider
+	case "providerType":
+		return o.ProviderType
 	case "reasons":
 		return o.Reasons
 	case "summary":
@@ -939,7 +974,7 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1058,6 +1093,17 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "provider",
 		Stored:         true,
 		Type:           "string",
+	},
+	"ProviderType": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"Reasons": {
 		AllowedChoices: []string{},
@@ -1194,7 +1240,7 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1313,6 +1359,17 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Name:           "provider",
 		Stored:         true,
 		Type:           "string",
+	},
+	"providertype": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 	"reasons": {
 		AllowedChoices: []string{},
@@ -1500,6 +1557,9 @@ type SparsePoliceResponse struct {
 	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
+	// The type of the provider.
+	ProviderType *PoliceResponseProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
+
 	// The various reasons returned by the policy engine.
 	Reasons *[]string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
 
@@ -1612,6 +1672,9 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	if o.Provider != nil {
 		s.Provider = o.Provider
 	}
+	if o.ProviderType != nil {
+		s.ProviderType = o.ProviderType
+	}
 	if o.Reasons != nil {
 		s.Reasons = o.Reasons
 	}
@@ -1694,6 +1757,9 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	if s.Provider != nil {
 		o.Provider = s.Provider
 	}
+	if s.ProviderType != nil {
+		o.ProviderType = s.ProviderType
+	}
 	if s.Reasons != nil {
 		o.Reasons = s.Reasons
 	}
@@ -1773,6 +1839,9 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.ProviderType != nil {
+		out.ProviderType = *o.ProviderType
 	}
 	if o.Reasons != nil {
 		out.Reasons = *o.Reasons
@@ -2012,50 +2081,52 @@ func (o *SparsePoliceResponse) DeepCopyInto(out *SparsePoliceResponse) {
 }
 
 type mongoAttributesPoliceResponse struct {
-	ID            bson.ObjectId               `bson:"_id,omitempty"`
-	Alerts        []*AlertEvent               `bson:"alerts,omitempty"`
-	Annotations   map[string]string           `bson:"annotations,omitempty"`
-	Client        string                      `bson:"client,omitempty"`
-	ClientVersion string                      `bson:"clientversion,omitempty"`
-	Decision      PoliceResponseDecisionValue `bson:"decision"`
-	Extractions   []*Extraction               `bson:"extractions,omitempty"`
-	Hash          string                      `bson:"hash"`
-	Latency       *Latency                    `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                 `bson:"mcpmessage,omitempty"`
-	Model         string                      `bson:"model,omitempty"`
-	Namespace     string                      `bson:"namespace,omitempty"`
-	PipelineName  string                      `bson:"pipelinename"`
-	PolicyRefs    PolicyRefsList              `bson:"policyrefs"`
-	Principal     *Principal                  `bson:"principal"`
-	Provider      string                      `bson:"provider"`
-	Reasons       []string                    `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary          `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                 `bson:"toolchoice,omitempty"`
-	Tools         map[string]*Tool            `bson:"tools,omitempty"`
-	Trace         *TraceRef                   `bson:"trace,omitempty"`
-	Type          PoliceResponseTypeValue     `bson:"type"`
+	ID            bson.ObjectId                   `bson:"_id,omitempty"`
+	Alerts        []*AlertEvent                   `bson:"alerts,omitempty"`
+	Annotations   map[string]string               `bson:"annotations,omitempty"`
+	Client        string                          `bson:"client,omitempty"`
+	ClientVersion string                          `bson:"clientversion,omitempty"`
+	Decision      PoliceResponseDecisionValue     `bson:"decision"`
+	Extractions   []*Extraction                   `bson:"extractions,omitempty"`
+	Hash          string                          `bson:"hash"`
+	Latency       *Latency                        `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage                     `bson:"mcpmessage,omitempty"`
+	Model         string                          `bson:"model,omitempty"`
+	Namespace     string                          `bson:"namespace,omitempty"`
+	PipelineName  string                          `bson:"pipelinename"`
+	PolicyRefs    PolicyRefsList                  `bson:"policyrefs"`
+	Principal     *Principal                      `bson:"principal"`
+	Provider      string                          `bson:"provider"`
+	ProviderType  PoliceResponseProviderTypeValue `bson:"providertype"`
+	Reasons       []string                        `bson:"reasons,omitempty"`
+	Summary       *ExtractionSummary              `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice                     `bson:"toolchoice,omitempty"`
+	Tools         map[string]*Tool                `bson:"tools,omitempty"`
+	Trace         *TraceRef                       `bson:"trace,omitempty"`
+	Type          PoliceResponseTypeValue         `bson:"type"`
 }
 type mongoAttributesSparsePoliceResponse struct {
-	ID            bson.ObjectId                `bson:"_id,omitempty"`
-	Alerts        *[]*AlertEvent               `bson:"alerts,omitempty"`
-	Annotations   *map[string]string           `bson:"annotations,omitempty"`
-	Client        *string                      `bson:"client,omitempty"`
-	ClientVersion *string                      `bson:"clientversion,omitempty"`
-	Decision      *PoliceResponseDecisionValue `bson:"decision,omitempty"`
-	Extractions   *[]*Extraction               `bson:"extractions,omitempty"`
-	Hash          *string                      `bson:"hash,omitempty"`
-	Latency       *Latency                     `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                  `bson:"mcpmessage,omitempty"`
-	Model         *string                      `bson:"model,omitempty"`
-	Namespace     *string                      `bson:"namespace,omitempty"`
-	PipelineName  *string                      `bson:"pipelinename,omitempty"`
-	PolicyRefs    *PolicyRefsList              `bson:"policyrefs,omitempty"`
-	Principal     *Principal                   `bson:"principal,omitempty"`
-	Provider      *string                      `bson:"provider,omitempty"`
-	Reasons       *[]string                    `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary           `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                  `bson:"toolchoice,omitempty"`
-	Tools         *map[string]*Tool            `bson:"tools,omitempty"`
-	Trace         *TraceRef                    `bson:"trace,omitempty"`
-	Type          *PoliceResponseTypeValue     `bson:"type,omitempty"`
+	ID            bson.ObjectId                    `bson:"_id,omitempty"`
+	Alerts        *[]*AlertEvent                   `bson:"alerts,omitempty"`
+	Annotations   *map[string]string               `bson:"annotations,omitempty"`
+	Client        *string                          `bson:"client,omitempty"`
+	ClientVersion *string                          `bson:"clientversion,omitempty"`
+	Decision      *PoliceResponseDecisionValue     `bson:"decision,omitempty"`
+	Extractions   *[]*Extraction                   `bson:"extractions,omitempty"`
+	Hash          *string                          `bson:"hash,omitempty"`
+	Latency       *Latency                         `bson:"latency,omitempty"`
+	McpMessage    *MCPMessage                      `bson:"mcpmessage,omitempty"`
+	Model         *string                          `bson:"model,omitempty"`
+	Namespace     *string                          `bson:"namespace,omitempty"`
+	PipelineName  *string                          `bson:"pipelinename,omitempty"`
+	PolicyRefs    *PolicyRefsList                  `bson:"policyrefs,omitempty"`
+	Principal     *Principal                       `bson:"principal,omitempty"`
+	Provider      *string                          `bson:"provider,omitempty"`
+	ProviderType  *PoliceResponseProviderTypeValue `bson:"providertype,omitempty"`
+	Reasons       *[]string                        `bson:"reasons,omitempty"`
+	Summary       *ExtractionSummary               `bson:"summary,omitempty"`
+	ToolChoice    *ToolChoice                      `bson:"toolchoice,omitempty"`
+	Tools         *map[string]*Tool                `bson:"tools,omitempty"`
+	Trace         *TraceRef                        `bson:"trace,omitempty"`
+	Type          *PoliceResponseTypeValue         `bson:"type,omitempty"`
 }

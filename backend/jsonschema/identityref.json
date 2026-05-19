@@ -3,7 +3,7 @@
   "$friendlyName": "Identity Reference",
   "$friendlyNamePlural": "Identity References",
   "$modelName": "IdentityRef",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanni",
   "$modelResourceName": "identityrefs",
   "$modelRestName": "identityref",
   "additionalProperties": false,

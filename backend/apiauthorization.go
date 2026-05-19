@@ -523,6 +523,10 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := ValidateTrimmed("name", o.Name); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("role", string(o.Role)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}

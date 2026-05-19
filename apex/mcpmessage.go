@@ -54,6 +54,9 @@ type MCPMessage struct {
 	// form method/params.name.
 	Method string `json:"method,omitempty" msgpack:"method,omitempty" bson:"method,omitempty" mapstructure:"method,omitempty"`
 
+	// This is the parameters name of the request or notification.
+	ParamsName string `json:"paramsName,omitempty" msgpack:"paramsName,omitempty" bson:"paramsname,omitempty" mapstructure:"paramsName,omitempty"`
+
 	// The ID of a request or a response. We always extract this as a string even
 	// though this can be a string or number in MCP. It is derived from the id field of
 	// a request or a response.
@@ -101,6 +104,7 @@ func (o *MCPMessage) GetBSON() (any, error) {
 	s.Direction = o.Direction
 	s.IsError = o.IsError
 	s.Method = o.Method
+	s.ParamsName = o.ParamsName
 	s.RequestID = o.RequestID
 	s.SessionID = o.SessionID
 	s.Type = o.Type
@@ -124,6 +128,7 @@ func (o *MCPMessage) SetBSON(raw bson.Raw) error {
 	o.Direction = s.Direction
 	o.IsError = s.IsError
 	o.Method = s.Method
+	o.ParamsName = s.ParamsName
 	o.RequestID = s.RequestID
 	o.SessionID = s.SessionID
 	o.Type = s.Type
@@ -249,6 +254,8 @@ func (o *MCPMessage) ValueForAttribute(name string) any {
 		return o.IsError
 	case "method":
 		return o.Method
+	case "paramsName":
+		return o.ParamsName
 	case "requestID":
 		return o.RequestID
 	case "sessionID":
@@ -299,6 +306,16 @@ form method/params.name.`,
 		Name:    "method",
 		Stored:  true,
 		Type:    "string",
+	},
+	"ParamsName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "paramsname",
+		ConvertedName:  "ParamsName",
+		Description:    `This is the parameters name of the request or notification.`,
+		Exposed:        true,
+		Name:           "paramsName",
+		Stored:         true,
+		Type:           "string",
 	},
 	"RequestID": {
 		AllowedChoices: []string{},
@@ -376,6 +393,16 @@ form method/params.name.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"paramsname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "paramsname",
+		ConvertedName:  "ParamsName",
+		Description:    `This is the parameters name of the request or notification.`,
+		Exposed:        true,
+		Name:           "paramsName",
+		Stored:         true,
+		Type:           "string",
+	},
 	"requestid": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "requestid",
@@ -413,10 +440,11 @@ part of MCP, and this can be empty.`,
 }
 
 type mongoAttributesMCPMessage struct {
-	Direction MCPMessageDirectionValue `bson:"direction"`
-	IsError   bool                     `bson:"iserror,omitempty"`
-	Method    string                   `bson:"method,omitempty"`
-	RequestID string                   `bson:"requestid,omitempty"`
-	SessionID string                   `bson:"sessionid,omitempty"`
-	Type      MCPMessageTypeValue      `bson:"type"`
+	Direction  MCPMessageDirectionValue `bson:"direction"`
+	IsError    bool                     `bson:"iserror,omitempty"`
+	Method     string                   `bson:"method,omitempty"`
+	ParamsName string                   `bson:"paramsname,omitempty"`
+	RequestID  string                   `bson:"requestid,omitempty"`
+	SessionID  string                   `bson:"sessionid,omitempty"`
+	Type       MCPMessageTypeValue      `bson:"type"`
 }

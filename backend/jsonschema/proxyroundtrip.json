@@ -63,6 +63,15 @@
         "null"
       ]
     },
+    "contentRedacted": {
+      "$friendlyName": "Content Redacted",
+      "description": "This flag is set when a policy is configured to redact the content of the user data, while keeping and reporting all the analysis and other metadata.",
+      "title": "contentRedacted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "decision": {
       "$friendlyName": "Decision",
       "description": "Tell what was the decision about the data.",
@@ -70,6 +79,7 @@
         "Deny",
         "Allow",
         "Ask",
+        "Report",
         "Bypassed",
         "ForbiddenUser",
         "Skipped",
@@ -229,6 +239,16 @@
         "null"
       ]
     },
+    "providerType": {
+      "$friendlyName": "Provider Type",
+      "$required": true,
+      "description": "The type of the provider.",
+      "enum": [
+        "LLM",
+        "MCPServer"
+      ],
+      "title": "providerType"
+    },
     "proxyFunction": {
       "$defaultValue": "ForwardProxy",
       "$friendlyName": "Proxy Function",
@@ -299,7 +319,8 @@
     }
   },
   "required": [
-    "principal"
+    "principal",
+    "providerType"
   ],
   "title": "ProxyRoundtrip",
   "type": "object"

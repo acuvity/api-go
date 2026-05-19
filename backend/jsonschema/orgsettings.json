@@ -82,6 +82,18 @@
         "null"
       ]
     },
+    "contentModerationsSuggestions": {
+      "$friendlyName": "Content Moderations Suggestions",
+      "description": "List of content moderation policies names that the UI will offer as suggestions when creating a new access policy.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "contentModerationsSuggestions",
+      "type": "array"
+    },
     "contentPolicy": {
       "$friendlyName": "Content Policy",
       "description": "The policy that decides how to handle the request content, once access has been granted by accessPolicy and the content analysis was performed. If this empty, the dynamic policy transpiled from AccessPolicies API objects will be used by Apexes. If set however, everything computed by API objects are ignored and this becomes the final policy.",

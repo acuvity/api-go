@@ -595,6 +595,11 @@
             "example": "tools/call",
             "type": "string"
           },
+          "paramsName": {
+            "description": "This is the parameters name of the request or notification.",
+            "example": "search",
+            "type": "string"
+          },
           "requestID": {
             "description": "The ID of a request or a response. We always extract this as a string even\nthough this can be a string or number in MCP. It is derived from the id field of\na request or a response.",
             "example": "2",
@@ -820,6 +825,7 @@
               "Deny",
               "Allow",
               "Ask",
+              "Report",
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
@@ -875,6 +881,14 @@
             "example": "openai",
             "type": "string"
           },
+          "providerType": {
+            "description": "The type of the provider.",
+            "enum": [
+              "LLM",
+              "MCPServer"
+            ],
+            "example": "LLM"
+          },
           "reasons": {
             "description": "The various reasons returned by the policy engine.",
             "items": {
@@ -913,7 +927,8 @@
           }
         },
         "required": [
-          "principal"
+          "principal",
+          "providerType"
         ],
         "type": "object"
       },
@@ -1435,6 +1450,7 @@
               "Deny",
               "Allow",
               "Ask",
+              "Report",
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
@@ -1483,6 +1499,14 @@
             "example": "openai",
             "type": "string"
           },
+          "providerType": {
+            "description": "The type of the provider.",
+            "enum": [
+              "LLM",
+              "MCPServer"
+            ],
+            "example": "LLM"
+          },
           "reasons": {
             "description": "The various reasons returned by the policy engine.",
             "items": {
@@ -1521,7 +1545,8 @@
           }
         },
         "required": [
-          "principal"
+          "principal",
+          "providerType"
         ],
         "type": "object"
       },

@@ -8,7 +8,7 @@
   "$friendlyName": "Finding",
   "$friendlyNamePlural": "Findings",
   "$modelName": "Finding",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanni",
   "$modelResourceName": "findings",
   "$modelRestName": "finding",
   "additionalProperties": false,

@@ -51,7 +51,7 @@ const (
 var FindingIdentity = elemental.Identity{
 	Name:     "finding",
 	Category: "findings",
-	Package:  "lain",
+	Package:  "hanni",
 	Private:  false,
 }
 

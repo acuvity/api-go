@@ -68,6 +68,7 @@
         "Deny",
         "Allow",
         "Ask",
+        "Report",
         "Bypassed",
         "ForbiddenUser",
         "Skipped",
@@ -161,6 +162,16 @@
         "null"
       ]
     },
+    "providerType": {
+      "$friendlyName": "Provider Type",
+      "$required": true,
+      "description": "The type of the provider.",
+      "enum": [
+        "LLM",
+        "MCPServer"
+      ],
+      "title": "providerType"
+    },
     "reasons": {
       "$friendlyName": "Reasons",
       "description": "The various reasons returned by the policy engine.",
@@ -220,7 +231,8 @@
     }
   },
   "required": [
-    "principal"
+    "principal",
+    "providerType"
   ],
   "title": "PoliceResponse",
   "type": "object"

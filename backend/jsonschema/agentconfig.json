@@ -210,6 +210,15 @@
         "null"
       ]
     },
+    "priority": {
+      "$friendlyName": "Priority",
+      "description": "Set the priority for this agent configuration. When multiple agent configurations match an acushield user's claims, the priority determines which configuration takes precedence. A lower numeric value indicates a higher priority, meaning configurations with smaller numbers will be applied first. Values can be negative.",
+      "title": "priority",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "releaseTrain": {
       "$defaultValue": "Stable",
       "$friendlyName": "Release Train",

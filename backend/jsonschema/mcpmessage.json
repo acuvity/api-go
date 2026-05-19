@@ -37,6 +37,15 @@
         "null"
       ]
     },
+    "paramsName": {
+      "$friendlyName": "Parameters Name",
+      "description": "This is the parameters name of the request or notification.",
+      "title": "paramsName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "requestID": {
       "$friendlyName": "Request ID",
       "description": "The ID of a request or a response. We always extract this as a string even though this can be a string or number in MCP. It is derived from the id field of a request or a response.",

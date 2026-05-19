@@ -414,6 +414,9 @@
     "providertrainingpolicy": {
       "$ref": "providertrainingpolicy.json"
     },
+    "providerusagereport": {
+      "$ref": "providerusagereport.json"
+    },
     "proxyconf": {
       "$ref": "proxyconf.json"
     },

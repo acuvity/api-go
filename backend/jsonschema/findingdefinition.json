@@ -9,7 +9,7 @@
   "$friendlyName": "Finding Definition",
   "$friendlyNamePlural": "Finding Definitions",
   "$modelName": "FindingDefinition",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanni",
   "$modelResourceName": "findingdefinitions",
   "$modelRestName": "findingdefinition",
   "additionalProperties": false,

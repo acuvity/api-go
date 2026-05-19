@@ -822,6 +822,12 @@
       },
       "type": "array"
     },
+    "providerusagereports": {
+      "items": {
+        "$ref": "providerusagereport.json"
+      },
+      "type": "array"
+    },
     "proxyconfs": {
       "items": {
         "$ref": "proxyconf.json"

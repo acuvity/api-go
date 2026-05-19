@@ -86,6 +86,14 @@
             "description": "If set, just log the decision, but don't enforce it.",
             "type": "boolean"
           },
+          "redactContent": {
+            "description": "If true, the system will remove all user data from the reported data, while\nkeeping the analysis and metadata.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
+            "type": "boolean"
+          },
           "redirectMessage": {
             "description": "If set, show this message to user before the redirection.",
             "type": "string"
@@ -487,6 +495,10 @@
             "description": "The ping interval at which acushield should check in with the backend.",
             "example": "6h",
             "type": "string"
+          },
+          "priority": {
+            "description": "Set the priority for this agent configuration. When multiple agent\nconfigurations match an acushield user's claims, the priority determines which\nconfiguration takes precedence. A lower numeric value indicates a higher\npriority, meaning configurations with smaller numbers will be applied first.\nValues can be negative.",
+            "type": "integer"
           },
           "releaseTrain": {
             "default": "Stable",
@@ -5938,6 +5950,11 @@
             "example": "tools/call",
             "type": "string"
           },
+          "paramsName": {
+            "description": "This is the parameters name of the request or notification.",
+            "example": "search",
+            "type": "string"
+          },
           "requestID": {
             "description": "The ID of a request or a response. We always extract this as a string even\nthough this can be a string or number in MCP. It is derived from the id field of\na request or a response.",
             "example": "2",
@@ -6617,6 +6634,13 @@
             "description": "If set, defines the message that will be shown to the user during the consent\nacceptance. If empty a default message will be used.",
             "type": "string"
           },
+          "contentModerationsSuggestions": {
+            "description": "List of content moderation policies names that the UI will offer as\nsuggestions when creating a new access policy.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "contentPolicy": {
             "description": "The policy that decides how to handle the request content, once access\nhas been granted by accessPolicy and the content analysis was performed.\nIf this empty, the dynamic policy transpiled from AccessPolicies API\nobjects will be used by Apexes. If set however, everything computed by\nAPI objects are ignored and this becomes the final policy.",
             "type": "string"
@@ -7142,6 +7166,11 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
           }
         },
         "type": "object"
@@ -7792,6 +7821,89 @@
         },
         "type": "object"
       },
+      "providerusagereport": {
+        "description": "Aggregated provider usage report merging metrics.\nmetrics.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "end": {
+            "description": "The end of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": "May 8, 2009 5:57:51 PM",
+            "type": "string"
+          },
+          "endRelative": {
+            "description": "The relative end of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "groupBy": {
+            "default": "Provider",
+            "description": "Dimension to group results by.",
+            "enum": [
+              "Provider",
+              "Team"
+            ]
+          },
+          "limit": {
+            "default": 20,
+            "description": "Maximum number of items in nested top-N lists.",
+            "type": "integer"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "providerCategory": {
+            "description": "Category of provider to filter by.",
+            "enum": [
+              "User",
+              "App"
+            ]
+          },
+          "providerNames": {
+            "description": "List of specific provider names to filter by.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providerType": {
+            "description": "Type of provider to filter by.",
+            "enum": [
+              "MCPServer"
+            ]
+          },
+          "result": {
+            "description": "Merged provider usage rows, one per provider or team.",
+            "items": {
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "start": {
+            "description": "The start of the time window in any format supported by\nhttps://github.com/araddon/dateparse.",
+            "example": 1700083708672317036,
+            "type": "string"
+          },
+          "startRelative": {
+            "description": "The relative start of the time window as time.Duration.",
+            "example": "10h",
+            "type": "string"
+          },
+          "teamNames": {
+            "description": "List of specific team names to filter by.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
       "proxyconf": {
         "description": "ProxyConf is an API for proxy.",
         "properties": {
@@ -7939,12 +8051,17 @@
             "example": "7.64.1",
             "type": "string"
           },
+          "contentRedacted": {
+            "description": "This flag is set when a policy is configured to redact the content of the user\ndata,\nwhile keeping and reporting all the analysis and other metadata.",
+            "type": "boolean"
+          },
           "decision": {
             "description": "Tell what was the decision about the data.",
             "enum": [
               "Deny",
               "Allow",
               "Ask",
+              "Report",
               "Bypassed",
               "ForbiddenUser",
               "Skipped",
@@ -8033,6 +8150,14 @@
             "example": "openai",
             "type": "string"
           },
+          "providerType": {
+            "description": "The type of the provider.",
+            "enum": [
+              "LLM",
+              "MCPServer"
+            ],
+            "example": "LLM"
+          },
           "proxyFunction": {
             "default": "ForwardProxy",
             "description": "Denotes the function of this proxy in the chain of servers. By default the apex\nalways sits on the egress side between a client or application and the origin\nserver in which case the apex acts as a forwarding proxy. However, in the case\nof applications the proxy can also be located before the application as an\ningress provider in which case the apex acts as a reverse proxy. If this log is\nthe result of a ScanRequest or PoliceRequest API call, this will be set to\nNonApplicable and the processor will be API.",
@@ -8080,7 +8205,8 @@
           }
         },
         "required": [
-          "principal"
+          "principal",
+          "providerType"
         ],
         "type": "object"
       },
@@ -9943,6 +10069,10 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "priority": {
+            "description": "Set the priority for this webextension configuration. When multiple agent\nconfigurations match an webextension user's claims, the priority determines\nwhich configuration takes precedence. A lower numeric value indicates a higher\npriority, meaning configurations with smaller numbers will be applied first.\nValues can be negative.",
+            "type": "integer"
           },
           "refreshWebExtensionConfigInterval": {
             "default": 120,
@@ -13685,57 +13815,9 @@
         "tags": [
           "core"
         ]
-      },
-      "post": {
-        "description": "Creates a new sfinding.",
-        "operationId": "create-Finding",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/finding"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/finding"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
       }
     },
     "/findings/{id}": {
-      "delete": {
-        "description": "Delete a finding given its identifier.",
-        "operationId": "delete-Finding",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/finding"
-                }
-              }
-            },
-            "description": "n/a"
-          }
-        },
-        "tags": [
-          "core"
-        ]
-      },
       "get": {
         "description": "Retrieve a finding given its identifier.",
         "operationId": "get-Finding",
@@ -16063,6 +16145,37 @@
           }
         }
       ]
+    },
+    "/providerusagereports": {
+      "post": {
+        "description": "Returns an aggregated provider usage report.",
+        "operationId": "create-ProviderUsageReport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/providerusagereport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providerusagereport"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     },
     "/proxyconfs": {
       "get": {

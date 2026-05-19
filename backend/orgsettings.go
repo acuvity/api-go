@@ -121,6 +121,10 @@ type OrgSettings struct {
 	// acceptance. If empty a default message will be used.
 	ConsentMessage string `json:"consentMessage" msgpack:"consentMessage" bson:"consentmessage" mapstructure:"consentMessage,omitempty"`
 
+	// List of content moderation policies names that the UI will offer as
+	// suggestions when creating a new access policy.
+	ContentModerationsSuggestions []string `json:"contentModerationsSuggestions" msgpack:"contentModerationsSuggestions" bson:"contentmoderationssuggestions" mapstructure:"contentModerationsSuggestions,omitempty"`
+
 	// The policy that decides how to handle the request content, once access
 	// has been granted by accessPolicy and the content analysis was performed.
 	// If this empty, the dynamic policy transpiled from AccessPolicies API
@@ -196,12 +200,13 @@ type OrgSettings struct {
 func NewOrgSettings() *OrgSettings {
 
 	return &OrgSettings{
-		ModelVersion:            1,
-		AIDomainsIndustryFilter: []string{},
-		Propagate:               true,
-		ProviderWhitelist:       []string{},
-		ProvidersWithoutConsent: []string{},
-		ReportRecipientEmails:   []string{},
+		ModelVersion:                  1,
+		AIDomainsIndustryFilter:       []string{},
+		ContentModerationsSuggestions: []string{},
+		Propagate:                     true,
+		ProviderWhitelist:             []string{},
+		ProvidersWithoutConsent:       []string{},
+		ReportRecipientEmails:         []string{},
 	}
 }
 
@@ -242,6 +247,7 @@ func (o *OrgSettings) GetBSON() (any, error) {
 	s.AskConsent = o.AskConsent
 	s.AssignPolicy = o.AssignPolicy
 	s.ConsentMessage = o.ConsentMessage
+	s.ContentModerationsSuggestions = o.ContentModerationsSuggestions
 	s.ContentPolicy = o.ContentPolicy
 	s.CreateTime = o.CreateTime
 	s.DisableURLDiscovery = o.DisableURLDiscovery
@@ -285,6 +291,7 @@ func (o *OrgSettings) SetBSON(raw bson.Raw) error {
 	o.AskConsent = s.AskConsent
 	o.AssignPolicy = s.AssignPolicy
 	o.ConsentMessage = s.ConsentMessage
+	o.ContentModerationsSuggestions = s.ContentModerationsSuggestions
 	o.ContentPolicy = s.ContentPolicy
 	o.CreateTime = s.CreateTime
 	o.DisableURLDiscovery = s.DisableURLDiscovery
@@ -416,32 +423,33 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseOrgSettings{
-			AIDomainsIndustryFilter:  &o.AIDomainsIndustryFilter,
-			ID:                       &o.ID,
-			AccessPolicy:             &o.AccessPolicy,
-			AllowSupportAccess:       &o.AllowSupportAccess,
-			AskConsent:               &o.AskConsent,
-			AssignPolicy:             &o.AssignPolicy,
-			ConsentMessage:           &o.ConsentMessage,
-			ContentPolicy:            &o.ContentPolicy,
-			CreateTime:               &o.CreateTime,
-			DisableURLDiscovery:      &o.DisableURLDiscovery,
-			ImportHash:               &o.ImportHash,
-			ImportLabel:              &o.ImportLabel,
-			Namespace:                &o.Namespace,
-			Profile:                  &o.Profile,
-			Propagate:                &o.Propagate,
-			ProviderWhitelist:        &o.ProviderWhitelist,
-			ProviderWhitelistEnabled: &o.ProviderWhitelistEnabled,
-			ProvidersWithoutConsent:  &o.ProvidersWithoutConsent,
-			ReportRecipientEmails:    &o.ReportRecipientEmails,
-			SafeUsageURL:             &o.SafeUsageURL,
-			StoreInputFiles:          &o.StoreInputFiles,
-			StoreOutputFiles:         &o.StoreOutputFiles,
-			UpdateTime:               &o.UpdateTime,
-			UseRegoCodeOnly:          &o.UseRegoCodeOnly,
-			ZHash:                    &o.ZHash,
-			Zone:                     &o.Zone,
+			AIDomainsIndustryFilter:       &o.AIDomainsIndustryFilter,
+			ID:                            &o.ID,
+			AccessPolicy:                  &o.AccessPolicy,
+			AllowSupportAccess:            &o.AllowSupportAccess,
+			AskConsent:                    &o.AskConsent,
+			AssignPolicy:                  &o.AssignPolicy,
+			ConsentMessage:                &o.ConsentMessage,
+			ContentModerationsSuggestions: &o.ContentModerationsSuggestions,
+			ContentPolicy:                 &o.ContentPolicy,
+			CreateTime:                    &o.CreateTime,
+			DisableURLDiscovery:           &o.DisableURLDiscovery,
+			ImportHash:                    &o.ImportHash,
+			ImportLabel:                   &o.ImportLabel,
+			Namespace:                     &o.Namespace,
+			Profile:                       &o.Profile,
+			Propagate:                     &o.Propagate,
+			ProviderWhitelist:             &o.ProviderWhitelist,
+			ProviderWhitelistEnabled:      &o.ProviderWhitelistEnabled,
+			ProvidersWithoutConsent:       &o.ProvidersWithoutConsent,
+			ReportRecipientEmails:         &o.ReportRecipientEmails,
+			SafeUsageURL:                  &o.SafeUsageURL,
+			StoreInputFiles:               &o.StoreInputFiles,
+			StoreOutputFiles:              &o.StoreOutputFiles,
+			UpdateTime:                    &o.UpdateTime,
+			UseRegoCodeOnly:               &o.UseRegoCodeOnly,
+			ZHash:                         &o.ZHash,
+			Zone:                          &o.Zone,
 		}
 	}
 
@@ -462,6 +470,8 @@ func (o *OrgSettings) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AssignPolicy = &(o.AssignPolicy)
 		case "consentMessage":
 			sp.ConsentMessage = &(o.ConsentMessage)
+		case "contentModerationsSuggestions":
+			sp.ContentModerationsSuggestions = &(o.ContentModerationsSuggestions)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
 		case "createTime":
@@ -533,6 +543,9 @@ func (o *OrgSettings) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ConsentMessage != nil {
 		o.ConsentMessage = *so.ConsentMessage
+	}
+	if so.ContentModerationsSuggestions != nil {
+		o.ContentModerationsSuggestions = *so.ContentModerationsSuggestions
 	}
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
@@ -714,6 +727,8 @@ func (o *OrgSettings) ValueForAttribute(name string) any {
 		return o.AssignPolicy
 	case "consentMessage":
 		return o.ConsentMessage
+	case "contentModerationsSuggestions":
+		return o.ContentModerationsSuggestions
 	case "contentPolicy":
 		return o.ContentPolicy
 	case "createTime":
@@ -849,6 +864,18 @@ acceptance. If empty a default message will be used.`,
 		Name:    "consentMessage",
 		Stored:  true,
 		Type:    "string",
+	},
+	"ContentModerationsSuggestions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentmoderationssuggestions",
+		ConvertedName:  "ContentModerationsSuggestions",
+		Description: `List of content moderation policies names that the UI will offer as
+suggestions when creating a new access policy.`,
+		Exposed: true,
+		Name:    "contentModerationsSuggestions",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"ContentPolicy": {
 		AllowedChoices: []string{},
@@ -1153,6 +1180,18 @@ acceptance. If empty a default message will be used.`,
 		Name:    "consentMessage",
 		Stored:  true,
 		Type:    "string",
+	},
+	"contentmoderationssuggestions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentmoderationssuggestions",
+		ConvertedName:  "ContentModerationsSuggestions",
+		Description: `List of content moderation policies names that the UI will offer as
+suggestions when creating a new access policy.`,
+		Exposed: true,
+		Name:    "contentModerationsSuggestions",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"contentpolicy": {
 		AllowedChoices: []string{},
@@ -1464,6 +1503,10 @@ type SparseOrgSettings struct {
 	// acceptance. If empty a default message will be used.
 	ConsentMessage *string `json:"consentMessage,omitempty" msgpack:"consentMessage,omitempty" bson:"consentmessage,omitempty" mapstructure:"consentMessage,omitempty"`
 
+	// List of content moderation policies names that the UI will offer as
+	// suggestions when creating a new access policy.
+	ContentModerationsSuggestions *[]string `json:"contentModerationsSuggestions,omitempty" msgpack:"contentModerationsSuggestions,omitempty" bson:"contentmoderationssuggestions,omitempty" mapstructure:"contentModerationsSuggestions,omitempty"`
+
 	// The policy that decides how to handle the request content, once access
 	// has been granted by accessPolicy and the content analysis was performed.
 	// If this empty, the dynamic policy transpiled from AccessPolicies API
@@ -1596,6 +1639,9 @@ func (o *SparseOrgSettings) GetBSON() (any, error) {
 	if o.ConsentMessage != nil {
 		s.ConsentMessage = o.ConsentMessage
 	}
+	if o.ContentModerationsSuggestions != nil {
+		s.ContentModerationsSuggestions = o.ContentModerationsSuggestions
+	}
 	if o.ContentPolicy != nil {
 		s.ContentPolicy = o.ContentPolicy
 	}
@@ -1690,6 +1736,9 @@ func (o *SparseOrgSettings) SetBSON(raw bson.Raw) error {
 	if s.ConsentMessage != nil {
 		o.ConsentMessage = s.ConsentMessage
 	}
+	if s.ContentModerationsSuggestions != nil {
+		o.ContentModerationsSuggestions = s.ContentModerationsSuggestions
+	}
 	if s.ContentPolicy != nil {
 		o.ContentPolicy = s.ContentPolicy
 	}
@@ -1781,6 +1830,9 @@ func (o *SparseOrgSettings) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ConsentMessage != nil {
 		out.ConsentMessage = *o.ConsentMessage
+	}
+	if o.ContentModerationsSuggestions != nil {
+		out.ContentModerationsSuggestions = *o.ContentModerationsSuggestions
 	}
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
@@ -1976,58 +2028,60 @@ func (o *SparseOrgSettings) DeepCopyInto(out *SparseOrgSettings) {
 }
 
 type mongoAttributesOrgSettings struct {
-	AIDomainsIndustryFilter  []string      `bson:"aidomainsindustryfilter"`
-	ID                       bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy             string        `bson:"accesspolicy"`
-	AllowSupportAccess       bool          `bson:"allowsupportaccess"`
-	AskConsent               bool          `bson:"askconsent"`
-	AssignPolicy             string        `bson:"assignpolicy"`
-	ConsentMessage           string        `bson:"consentmessage"`
-	ContentPolicy            string        `bson:"contentpolicy"`
-	CreateTime               time.Time     `bson:"createtime"`
-	DisableURLDiscovery      bool          `bson:"disableurldiscovery"`
-	ImportHash               string        `bson:"importhash,omitempty"`
-	ImportLabel              string        `bson:"importlabel,omitempty"`
-	Namespace                string        `bson:"namespace,omitempty"`
-	Profile                  string        `bson:"profile"`
-	Propagate                bool          `bson:"propagate"`
-	ProviderWhitelist        []string      `bson:"providerwhitelist"`
-	ProviderWhitelistEnabled bool          `bson:"providerwhitelistenabled"`
-	ProvidersWithoutConsent  []string      `bson:"providerswithoutconsent"`
-	ReportRecipientEmails    []string      `bson:"reportrecipientemails"`
-	SafeUsageURL             string        `bson:"safeusageurl"`
-	StoreInputFiles          bool          `bson:"storeinputfiles"`
-	StoreOutputFiles         bool          `bson:"storeoutputfiles"`
-	UpdateTime               time.Time     `bson:"updatetime"`
-	UseRegoCodeOnly          bool          `bson:"useregocodeonly"`
-	ZHash                    int           `bson:"zhash"`
-	Zone                     int           `bson:"zone"`
+	AIDomainsIndustryFilter       []string      `bson:"aidomainsindustryfilter"`
+	ID                            bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy                  string        `bson:"accesspolicy"`
+	AllowSupportAccess            bool          `bson:"allowsupportaccess"`
+	AskConsent                    bool          `bson:"askconsent"`
+	AssignPolicy                  string        `bson:"assignpolicy"`
+	ConsentMessage                string        `bson:"consentmessage"`
+	ContentModerationsSuggestions []string      `bson:"contentmoderationssuggestions"`
+	ContentPolicy                 string        `bson:"contentpolicy"`
+	CreateTime                    time.Time     `bson:"createtime"`
+	DisableURLDiscovery           bool          `bson:"disableurldiscovery"`
+	ImportHash                    string        `bson:"importhash,omitempty"`
+	ImportLabel                   string        `bson:"importlabel,omitempty"`
+	Namespace                     string        `bson:"namespace,omitempty"`
+	Profile                       string        `bson:"profile"`
+	Propagate                     bool          `bson:"propagate"`
+	ProviderWhitelist             []string      `bson:"providerwhitelist"`
+	ProviderWhitelistEnabled      bool          `bson:"providerwhitelistenabled"`
+	ProvidersWithoutConsent       []string      `bson:"providerswithoutconsent"`
+	ReportRecipientEmails         []string      `bson:"reportrecipientemails"`
+	SafeUsageURL                  string        `bson:"safeusageurl"`
+	StoreInputFiles               bool          `bson:"storeinputfiles"`
+	StoreOutputFiles              bool          `bson:"storeoutputfiles"`
+	UpdateTime                    time.Time     `bson:"updatetime"`
+	UseRegoCodeOnly               bool          `bson:"useregocodeonly"`
+	ZHash                         int           `bson:"zhash"`
+	Zone                          int           `bson:"zone"`
 }
 type mongoAttributesSparseOrgSettings struct {
-	AIDomainsIndustryFilter  *[]string     `bson:"aidomainsindustryfilter,omitempty"`
-	ID                       bson.ObjectId `bson:"_id,omitempty"`
-	AccessPolicy             *string       `bson:"accesspolicy,omitempty"`
-	AllowSupportAccess       *bool         `bson:"allowsupportaccess,omitempty"`
-	AskConsent               *bool         `bson:"askconsent,omitempty"`
-	AssignPolicy             *string       `bson:"assignpolicy,omitempty"`
-	ConsentMessage           *string       `bson:"consentmessage,omitempty"`
-	ContentPolicy            *string       `bson:"contentpolicy,omitempty"`
-	CreateTime               *time.Time    `bson:"createtime,omitempty"`
-	DisableURLDiscovery      *bool         `bson:"disableurldiscovery,omitempty"`
-	ImportHash               *string       `bson:"importhash,omitempty"`
-	ImportLabel              *string       `bson:"importlabel,omitempty"`
-	Namespace                *string       `bson:"namespace,omitempty"`
-	Profile                  *string       `bson:"profile,omitempty"`
-	Propagate                *bool         `bson:"propagate,omitempty"`
-	ProviderWhitelist        *[]string     `bson:"providerwhitelist,omitempty"`
-	ProviderWhitelistEnabled *bool         `bson:"providerwhitelistenabled,omitempty"`
-	ProvidersWithoutConsent  *[]string     `bson:"providerswithoutconsent,omitempty"`
-	ReportRecipientEmails    *[]string     `bson:"reportrecipientemails,omitempty"`
-	SafeUsageURL             *string       `bson:"safeusageurl,omitempty"`
-	StoreInputFiles          *bool         `bson:"storeinputfiles,omitempty"`
-	StoreOutputFiles         *bool         `bson:"storeoutputfiles,omitempty"`
-	UpdateTime               *time.Time    `bson:"updatetime,omitempty"`
-	UseRegoCodeOnly          *bool         `bson:"useregocodeonly,omitempty"`
-	ZHash                    *int          `bson:"zhash,omitempty"`
-	Zone                     *int          `bson:"zone,omitempty"`
+	AIDomainsIndustryFilter       *[]string     `bson:"aidomainsindustryfilter,omitempty"`
+	ID                            bson.ObjectId `bson:"_id,omitempty"`
+	AccessPolicy                  *string       `bson:"accesspolicy,omitempty"`
+	AllowSupportAccess            *bool         `bson:"allowsupportaccess,omitempty"`
+	AskConsent                    *bool         `bson:"askconsent,omitempty"`
+	AssignPolicy                  *string       `bson:"assignpolicy,omitempty"`
+	ConsentMessage                *string       `bson:"consentmessage,omitempty"`
+	ContentModerationsSuggestions *[]string     `bson:"contentmoderationssuggestions,omitempty"`
+	ContentPolicy                 *string       `bson:"contentpolicy,omitempty"`
+	CreateTime                    *time.Time    `bson:"createtime,omitempty"`
+	DisableURLDiscovery           *bool         `bson:"disableurldiscovery,omitempty"`
+	ImportHash                    *string       `bson:"importhash,omitempty"`
+	ImportLabel                   *string       `bson:"importlabel,omitempty"`
+	Namespace                     *string       `bson:"namespace,omitempty"`
+	Profile                       *string       `bson:"profile,omitempty"`
+	Propagate                     *bool         `bson:"propagate,omitempty"`
+	ProviderWhitelist             *[]string     `bson:"providerwhitelist,omitempty"`
+	ProviderWhitelistEnabled      *bool         `bson:"providerwhitelistenabled,omitempty"`
+	ProvidersWithoutConsent       *[]string     `bson:"providerswithoutconsent,omitempty"`
+	ReportRecipientEmails         *[]string     `bson:"reportrecipientemails,omitempty"`
+	SafeUsageURL                  *string       `bson:"safeusageurl,omitempty"`
+	StoreInputFiles               *bool         `bson:"storeinputfiles,omitempty"`
+	StoreOutputFiles              *bool         `bson:"storeoutputfiles,omitempty"`
+	UpdateTime                    *time.Time    `bson:"updatetime,omitempty"`
+	UseRegoCodeOnly               *bool         `bson:"useregocodeonly,omitempty"`
+	ZHash                         *int          `bson:"zhash,omitempty"`
+	Zone                          *int          `bson:"zone,omitempty"`
 }

@@ -249,6 +249,7 @@ This is a scan and police response.
   }
 }",
   "provider": "openai",
+  "providerType": "LLM",
   "tools": "{
   \"tool1\": {
       \"name\": \"tool1\",
@@ -293,7 +294,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
+Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
 
 Tell what was the decision about the data.
 
@@ -356,6 +357,12 @@ The principal of the object.
 Type: `string`
 
 The provider to use.
+
+##### `providerType` [`required`]
+
+Type: `enum(LLM | MCPServer)`
+
+The type of the provider.
 
 ##### `reasons`
 
@@ -789,6 +796,7 @@ This is a scan response.
   }
 }",
   "provider": "openai",
+  "providerType": "LLM",
   "tools": "{
   \"tool1\": {
       \"name\": \"tool1\",
@@ -833,7 +841,7 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
+Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
 
 Tell what was the decision about the data.
 
@@ -890,6 +898,12 @@ The principal of the object.
 Type: `string`
 
 The provider to use.
+
+##### `providerType` [`required`]
+
+Type: `enum(LLM | MCPServer)`
+
+The type of the provider.
 
 ##### `reasons`
 
@@ -1733,6 +1747,7 @@ Represents MCP message details.
   "direction": "Client2Server",
   "isError": false,
   "method": "tools/call",
+  "paramsName": "search",
   "requestID": "2",
   "sessionID": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
   "type": "Request"
@@ -1765,6 +1780,12 @@ Type: `string`
 This is the method name of the request or notification. Contrary to MCP this is
 set on responses as well if possible in which case the format will be of the
 form method/params.name.
+
+##### `paramsName`
+
+Type: `string`
+
+This is the parameters name of the request or notification.
 
 ##### `requestID`
 

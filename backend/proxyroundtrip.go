@@ -41,6 +41,9 @@ const (
 	// ProxyRoundtripDecisionRedirected represents the value Redirected.
 	ProxyRoundtripDecisionRedirected ProxyRoundtripDecisionValue = "Redirected"
 
+	// ProxyRoundtripDecisionReport represents the value Report.
+	ProxyRoundtripDecisionReport ProxyRoundtripDecisionValue = "Report"
+
 	// ProxyRoundtripDecisionSkipped represents the value Skipped.
 	ProxyRoundtripDecisionSkipped ProxyRoundtripDecisionValue = "Skipped"
 
@@ -57,6 +60,17 @@ const (
 
 	// ProxyRoundtripProcessorProxy represents the value Proxy.
 	ProxyRoundtripProcessorProxy ProxyRoundtripProcessorValue = "Proxy"
+)
+
+// ProxyRoundtripProviderTypeValue represents the possible values for attribute "providerType".
+type ProxyRoundtripProviderTypeValue string
+
+const (
+	// ProxyRoundtripProviderTypeLLM represents the value LLM.
+	ProxyRoundtripProviderTypeLLM ProxyRoundtripProviderTypeValue = "LLM"
+
+	// ProxyRoundtripProviderTypeMCPServer represents the value MCPServer.
+	ProxyRoundtripProviderTypeMCPServer ProxyRoundtripProviderTypeValue = "MCPServer"
 )
 
 // ProxyRoundtripProxyFunctionValue represents the possible values for attribute "proxyFunction".
@@ -171,6 +185,11 @@ type ProxyRoundtrip struct {
 	// The version of the client used to send the request.
 	ClientVersion string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
+	// This flag is set when a policy is configured to redact the content of the user
+	// data,
+	// while keeping and reporting all the analysis and other metadata.
+	ContentRedacted bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
+
 	// Tell what was the decision about the data.
 	Decision ProxyRoundtripDecisionValue `json:"decision" msgpack:"decision" bson:"decision" mapstructure:"decision,omitempty"`
 
@@ -238,6 +257,9 @@ type ProxyRoundtrip struct {
 
 	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
+
+	// The type of the provider.
+	ProviderType ProxyRoundtripProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
 	// Denotes the function of this proxy in the chain of servers. By default the apex
 	// always sits on the egress side between a client or application and the origin
@@ -320,6 +342,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Annotations = o.Annotations
 	s.Client = o.Client
 	s.ClientVersion = o.ClientVersion
+	s.ContentRedacted = o.ContentRedacted
 	s.Decision = o.Decision
 	s.Destination = o.Destination
 	s.EncryptionEgress = o.EncryptionEgress
@@ -339,6 +362,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Principal = o.Principal
 	s.Processor = o.Processor
 	s.Provider = o.Provider
+	s.ProviderType = o.ProviderType
 	s.ProxyFunction = o.ProxyFunction
 	s.Reasons = o.Reasons
 	s.Summary = o.Summary
@@ -368,6 +392,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Annotations = s.Annotations
 	o.Client = s.Client
 	o.ClientVersion = s.ClientVersion
+	o.ContentRedacted = s.ContentRedacted
 	o.Decision = s.Decision
 	o.Destination = s.Destination
 	o.EncryptionEgress = s.EncryptionEgress
@@ -387,6 +412,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Principal = s.Principal
 	o.Processor = s.Processor
 	o.Provider = s.Provider
+	o.ProviderType = s.ProviderType
 	o.ProxyFunction = s.ProxyFunction
 	o.Reasons = s.Reasons
 	o.Summary = s.Summary
@@ -475,6 +501,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Annotations:       &o.Annotations,
 			Client:            &o.Client,
 			ClientVersion:     &o.ClientVersion,
+			ContentRedacted:   &o.ContentRedacted,
 			Decision:          &o.Decision,
 			Destination:       o.Destination,
 			EncryptionEgress:  o.EncryptionEgress,
@@ -494,6 +521,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Principal:         o.Principal,
 			Processor:         &o.Processor,
 			Provider:          &o.Provider,
+			ProviderType:      &o.ProviderType,
 			ProxyFunction:     &o.ProxyFunction,
 			Reasons:           &o.Reasons,
 			Summary:           o.Summary,
@@ -518,6 +546,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Client = &(o.Client)
 		case "clientVersion":
 			sp.ClientVersion = &(o.ClientVersion)
+		case "contentRedacted":
+			sp.ContentRedacted = &(o.ContentRedacted)
 		case "decision":
 			sp.Decision = &(o.Decision)
 		case "destination":
@@ -556,6 +586,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Processor = &(o.Processor)
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "providerType":
+			sp.ProviderType = &(o.ProviderType)
 		case "proxyFunction":
 			sp.ProxyFunction = &(o.ProxyFunction)
 		case "reasons":
@@ -599,6 +631,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ClientVersion != nil {
 		o.ClientVersion = *so.ClientVersion
+	}
+	if so.ContentRedacted != nil {
+		o.ContentRedacted = *so.ContentRedacted
 	}
 	if so.Decision != nil {
 		o.Decision = *so.Decision
@@ -656,6 +691,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.ProviderType != nil {
+		o.ProviderType = *so.ProviderType
 	}
 	if so.ProxyFunction != nil {
 		o.ProxyFunction = *so.ProxyFunction
@@ -917,7 +955,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -984,6 +1022,14 @@ func (o *ProxyRoundtrip) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("processor", string(o.Processor), []string{"Proxy", "API"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("providerType", string(o.ProviderType)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1070,6 +1116,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Client
 	case "clientVersion":
 		return o.ClientVersion
+	case "contentRedacted":
+		return o.ContentRedacted
 	case "decision":
 		return o.Decision
 	case "destination":
@@ -1108,6 +1156,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Processor
 	case "provider":
 		return o.Provider
+	case "providerType":
+		return o.ProviderType
 	case "proxyFunction":
 		return o.ProxyFunction
 	case "reasons":
@@ -1188,8 +1238,20 @@ var ProxyRoundtripAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"ContentRedacted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentredacted",
+		ConvertedName:  "ContentRedacted",
+		Description: `This flag is set when a policy is configured to redact the content of the user
+data,
+while keeping and reporting all the analysis and other metadata.`,
+		Exposed: true,
+		Name:    "contentRedacted",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1411,6 +1473,17 @@ the processor is API, the proxy function will be set to NotApplicable.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"ProviderType": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
 	"ProxyFunction": {
 		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
@@ -1562,8 +1635,20 @@ var ProxyRoundtripLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Stored:         true,
 		Type:           "string",
 	},
+	"contentredacted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentredacted",
+		ConvertedName:  "ContentRedacted",
+		Description: `This flag is set when a policy is configured to redact the content of the user
+data,
+while keeping and reporting all the analysis and other metadata.`,
+		Exposed: true,
+		Name:    "contentRedacted",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
 		Description:    `Tell what was the decision about the data.`,
@@ -1785,6 +1870,17 @@ the processor is API, the proxy function will be set to NotApplicable.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"providertype": {
+		AllowedChoices: []string{"LLM", "MCPServer"},
+		BSONFieldName:  "providertype",
+		ConvertedName:  "ProviderType",
+		Description:    `The type of the provider.`,
+		Exposed:        true,
+		Name:           "providerType",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
+	},
 	"proxyfunction": {
 		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
@@ -1955,6 +2051,11 @@ type SparseProxyRoundtrip struct {
 	// The version of the client used to send the request.
 	ClientVersion *string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
+	// This flag is set when a policy is configured to redact the content of the user
+	// data,
+	// while keeping and reporting all the analysis and other metadata.
+	ContentRedacted *bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
+
 	// Tell what was the decision about the data.
 	Decision *ProxyRoundtripDecisionValue `json:"decision,omitempty" msgpack:"decision,omitempty" bson:"decision,omitempty" mapstructure:"decision,omitempty"`
 
@@ -2022,6 +2123,9 @@ type SparseProxyRoundtrip struct {
 
 	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
+
+	// The type of the provider.
+	ProviderType *ProxyRoundtripProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
 
 	// Denotes the function of this proxy in the chain of servers. By default the apex
 	// always sits on the egress side between a client or application and the origin
@@ -2111,6 +2215,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.ClientVersion != nil {
 		s.ClientVersion = o.ClientVersion
 	}
+	if o.ContentRedacted != nil {
+		s.ContentRedacted = o.ContentRedacted
+	}
 	if o.Decision != nil {
 		s.Decision = o.Decision
 	}
@@ -2168,6 +2275,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Provider != nil {
 		s.Provider = o.Provider
 	}
+	if o.ProviderType != nil {
+		s.ProviderType = o.ProviderType
+	}
 	if o.ProxyFunction != nil {
 		s.ProxyFunction = o.ProxyFunction
 	}
@@ -2219,6 +2329,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	}
 	if s.ClientVersion != nil {
 		o.ClientVersion = s.ClientVersion
+	}
+	if s.ContentRedacted != nil {
+		o.ContentRedacted = s.ContentRedacted
 	}
 	if s.Decision != nil {
 		o.Decision = s.Decision
@@ -2277,6 +2390,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Provider != nil {
 		o.Provider = s.Provider
 	}
+	if s.ProviderType != nil {
+		o.ProviderType = s.ProviderType
+	}
 	if s.ProxyFunction != nil {
 		o.ProxyFunction = s.ProxyFunction
 	}
@@ -2326,6 +2442,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ClientVersion != nil {
 		out.ClientVersion = *o.ClientVersion
+	}
+	if o.ContentRedacted != nil {
+		out.ContentRedacted = *o.ContentRedacted
 	}
 	if o.Decision != nil {
 		out.Decision = *o.Decision
@@ -2383,6 +2502,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.ProviderType != nil {
+		out.ProviderType = *o.ProviderType
 	}
 	if o.ProxyFunction != nil {
 		out.ProxyFunction = *o.ProxyFunction
@@ -2698,6 +2820,7 @@ type mongoAttributesProxyRoundtrip struct {
 	Annotations       map[string]string                `bson:"annotations,omitempty"`
 	Client            string                           `bson:"client,omitempty"`
 	ClientVersion     string                           `bson:"clientversion,omitempty"`
+	ContentRedacted   bool                             `bson:"contentredacted,omitempty"`
 	Decision          ProxyRoundtripDecisionValue      `bson:"decision"`
 	Destination       *Destination                     `bson:"destination,omitempty"`
 	EncryptionEgress  *TLSState                        `bson:"encryptionegress,omitempty"`
@@ -2717,6 +2840,7 @@ type mongoAttributesProxyRoundtrip struct {
 	Principal         *Principal                       `bson:"principal"`
 	Processor         ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
 	Provider          string                           `bson:"provider"`
+	ProviderType      ProxyRoundtripProviderTypeValue  `bson:"providertype"`
 	ProxyFunction     ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
 	Reasons           []string                         `bson:"reasons,omitempty"`
 	Summary           *ExtractionSummary               `bson:"summary,omitempty"`
@@ -2731,6 +2855,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Annotations       *map[string]string                `bson:"annotations,omitempty"`
 	Client            *string                           `bson:"client,omitempty"`
 	ClientVersion     *string                           `bson:"clientversion,omitempty"`
+	ContentRedacted   *bool                             `bson:"contentredacted,omitempty"`
 	Decision          *ProxyRoundtripDecisionValue      `bson:"decision,omitempty"`
 	Destination       *Destination                      `bson:"destination,omitempty"`
 	EncryptionEgress  *TLSState                         `bson:"encryptionegress,omitempty"`
@@ -2750,6 +2875,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Principal         *Principal                        `bson:"principal,omitempty"`
 	Processor         *ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
 	Provider          *string                           `bson:"provider,omitempty"`
+	ProviderType      *ProxyRoundtripProviderTypeValue  `bson:"providertype,omitempty"`
 	ProxyFunction     *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
 	Reasons           *[]string                         `bson:"reasons,omitempty"`
 	Summary           *ExtractionSummary                `bson:"summary,omitempty"`

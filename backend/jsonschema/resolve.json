@@ -3,7 +3,7 @@
   "$friendlyName": "Resolve",
   "$friendlyNamePlural": "Resolves",
   "$modelName": "Resolve",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanni",
   "$modelResourceName": "resolve",
   "$modelRestName": "resolve",
   "additionalProperties": false,

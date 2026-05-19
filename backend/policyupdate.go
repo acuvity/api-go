@@ -90,6 +90,9 @@ type PolicyUpdate struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -98,6 +101,7 @@ func NewPolicyUpdate() *PolicyUpdate {
 
 	return &PolicyUpdate{
 		ModelVersion: 1,
+		Propagate:    true,
 	}
 }
 
@@ -133,6 +137,7 @@ func (o *PolicyUpdate) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.Namespace = o.Namespace
+	s.Propagate = o.Propagate
 
 	return s, nil
 }
@@ -152,6 +157,7 @@ func (o *PolicyUpdate) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.Namespace = s.Namespace
+	o.Propagate = s.Propagate
 
 	return nil
 }
@@ -197,6 +203,18 @@ func (o *PolicyUpdate) SetNamespace(namespace string) {
 	o.Namespace = namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *PolicyUpdate) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *PolicyUpdate) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
 func (o *PolicyUpdate) ToSparse(fields ...string) elemental.SparseIdentifiable {
@@ -206,6 +224,7 @@ func (o *PolicyUpdate) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparsePolicyUpdate{
 			ID:        &o.ID,
 			Namespace: &o.Namespace,
+			Propagate: &o.Propagate,
 		}
 	}
 
@@ -216,6 +235,8 @@ func (o *PolicyUpdate) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		}
 	}
 
@@ -234,6 +255,9 @@ func (o *PolicyUpdate) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 }
 
@@ -319,6 +343,8 @@ func (o *PolicyUpdate) ValueForAttribute(name string) any {
 		return o.ID
 	case "namespace":
 		return o.Namespace
+	case "propagate":
+		return o.Propagate
 	}
 
 	return nil
@@ -356,6 +382,19 @@ var PolicyUpdateAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
+	},
 }
 
 // PolicyUpdateLowerCaseAttributesMap represents the map of attribute for PolicyUpdate.
@@ -389,6 +428,19 @@ var PolicyUpdateLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 }
 
@@ -461,6 +513,9 @@ type SparsePolicyUpdate struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -510,6 +565,9 @@ func (o *SparsePolicyUpdate) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
 
 	return s, nil
 }
@@ -532,6 +590,9 @@ func (o *SparsePolicyUpdate) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
 
 	return nil
 }
@@ -551,6 +612,9 @@ func (o *SparsePolicyUpdate) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
 	}
 
 	return out
@@ -584,6 +648,22 @@ func (o *SparsePolicyUpdate) SetNamespace(namespace string) {
 	o.Namespace = &namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparsePolicyUpdate) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparsePolicyUpdate) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // DeepCopy returns a deep copy if the SparsePolicyUpdate.
 func (o *SparsePolicyUpdate) DeepCopy() *SparsePolicyUpdate {
 
@@ -611,8 +691,10 @@ func (o *SparsePolicyUpdate) DeepCopyInto(out *SparsePolicyUpdate) {
 type mongoAttributesPolicyUpdate struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Namespace string        `bson:"namespace,omitempty"`
+	Propagate bool          `bson:"propagate"`
 }
 type mongoAttributesSparsePolicyUpdate struct {
 	ID        bson.ObjectId `bson:"_id,omitempty"`
 	Namespace *string       `bson:"namespace,omitempty"`
+	Propagate *bool         `bson:"propagate,omitempty"`
 }

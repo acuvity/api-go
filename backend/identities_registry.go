@@ -54,7 +54,8 @@ var (
 		"feedback":          FeedbackIdentity,
 		"finding":           FindingIdentity,
 		"findingdefinition": FindingDefinitionIdentity,
-		"gitbooktoken":      GitbookTokenIdentity,
+
+		"gitbooktoken": GitbookTokenIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -97,14 +98,15 @@ var (
 		"providerteam":  ProviderTeamIdentity,
 		"providertoken": ProviderTokenIdentity,
 
-		"proxyconf":      ProxyConfIdentity,
-		"proxyroundtrip": ProxyRoundtripIdentity,
-		"query":          QueryIdentity,
-		"queryrange":     QueryRangeIdentity,
-		"resolve":        ResolveIdentity,
-		"role":           RoleIdentity,
-		"root":           RootIdentity,
-		"samlsource":     SAMLSourceIdentity,
+		"providerusagereport": ProviderUsageReportIdentity,
+		"proxyconf":           ProxyConfIdentity,
+		"proxyroundtrip":      ProxyRoundtripIdentity,
+		"query":               QueryIdentity,
+		"queryrange":          QueryRangeIdentity,
+		"resolve":             ResolveIdentity,
+		"role":                RoleIdentity,
+		"root":                RootIdentity,
+		"samlsource":          SAMLSourceIdentity,
 
 		"scanreport": ScanReportIdentity,
 
@@ -181,7 +183,8 @@ var (
 		"feedbacks":          FeedbackIdentity,
 		"findings":           FindingIdentity,
 		"findingdefinitions": FindingDefinitionIdentity,
-		"gitbooktokens":      GitbookTokenIdentity,
+
+		"gitbooktokens": GitbookTokenIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -224,14 +227,15 @@ var (
 		"providerteams":  ProviderTeamIdentity,
 		"providertokens": ProviderTokenIdentity,
 
-		"proxyconfs":      ProxyConfIdentity,
-		"proxyroundtrips": ProxyRoundtripIdentity,
-		"queries":         QueryIdentity,
-		"queryranges":     QueryRangeIdentity,
-		"resolve":         ResolveIdentity,
-		"roles":           RoleIdentity,
-		"root":            RootIdentity,
-		"samlsources":     SAMLSourceIdentity,
+		"providerusagereports": ProviderUsageReportIdentity,
+		"proxyconfs":           ProxyConfIdentity,
+		"proxyroundtrips":      ProxyRoundtripIdentity,
+		"queries":              QueryIdentity,
+		"queryranges":          QueryRangeIdentity,
+		"resolve":              ResolveIdentity,
+		"roles":                RoleIdentity,
+		"root":                 RootIdentity,
+		"samlsources":          SAMLSourceIdentity,
 
 		"scanreports": ScanReportIdentity,
 
@@ -577,6 +581,10 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"providerusagereport": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
 		"proxyconf": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -852,6 +860,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewProviderTeam()
 	case ProviderTokenIdentity:
 		return NewProviderToken()
+	case ProviderUsageReportIdentity:
+		return NewProviderUsageReport()
 	case ProxyConfIdentity:
 		return NewProxyConf()
 	case ProxyRoundtripIdentity:
@@ -1045,6 +1055,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseProviderTeam()
 	case ProviderTokenIdentity:
 		return NewSparseProviderToken()
+	case ProviderUsageReportIdentity:
+		return NewSparseProviderUsageReport()
 	case ProxyConfIdentity:
 		return NewSparseProxyConf()
 	case ProxyRoundtripIdentity:
@@ -1246,6 +1258,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ProviderTeamsList{}
 	case ProviderTokenIdentity:
 		return &ProviderTokensList{}
+	case ProviderUsageReportIdentity:
+		return &ProviderUsageReportsList{}
 	case ProxyConfIdentity:
 		return &ProxyConfsList{}
 	case ProxyRoundtripIdentity:
@@ -1437,6 +1451,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseProviderTeamsList{}
 	case ProviderTokenIdentity:
 		return &SparseProviderTokensList{}
+	case ProviderUsageReportIdentity:
+		return &SparseProviderUsageReportsList{}
 	case ProxyConfIdentity:
 		return &SparseProxyConfsList{}
 	case ProxyRoundtripIdentity:
@@ -1772,6 +1788,7 @@ func AllIdentities() []elemental.Identity {
 		ProviderIdentity,
 		ProviderTeamIdentity,
 		ProviderTokenIdentity,
+		ProviderUsageReportIdentity,
 		ProxyConfIdentity,
 		ProxyRoundtripIdentity,
 		QueryIdentity,
@@ -1932,6 +1949,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case ProviderTeamIdentity:
 		return []string{}
 	case ProviderTokenIdentity:
+		return []string{}
+	case ProviderUsageReportIdentity:
 		return []string{}
 	case ProxyConfIdentity:
 		return []string{}

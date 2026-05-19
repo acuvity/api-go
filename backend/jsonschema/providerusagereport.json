@@ -1,0 +1,145 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@timerangeable"
+  ],
+  "$friendlyName": "Provider Usage Report",
+  "$friendlyNamePlural": "Provider Usage Reports",
+  "$modelName": "ProviderUsageReport",
+  "$modelPackage": "mappa",
+  "$modelResourceName": "providerusagereports",
+  "$modelRestName": "providerusagereport",
+  "additionalProperties": false,
+  "description": "Aggregated provider usage report merging metrics. metrics.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "end",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "endRelative": {
+      "$friendlyName": "EndRelative",
+      "description": "The relative end of the time window as time.Duration.",
+      "title": "endRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groupBy": {
+      "$defaultValue": "Provider",
+      "$friendlyName": "Group By",
+      "description": "Dimension to group results by.",
+      "enum": [
+        "Provider",
+        "Team"
+      ],
+      "title": "groupBy"
+    },
+    "limit": {
+      "$defaultValue": 20,
+      "$friendlyName": "Limit",
+      "description": "Maximum number of items in nested top-N lists.",
+      "title": "limit",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "providerCategory": {
+      "$friendlyName": "Provider Category Filter",
+      "description": "Category of provider to filter by.",
+      "enum": [
+        "User",
+        "App"
+      ],
+      "title": "providerCategory"
+    },
+    "providerNames": {
+      "$friendlyName": "Provider Names",
+      "description": "List of specific provider names to filter by.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providerNames",
+      "type": "array"
+    },
+    "providerType": {
+      "$friendlyName": "Provider Type Filter",
+      "description": "Type of provider to filter by.",
+      "enum": [
+        "MCPServer"
+      ],
+      "title": "providerType"
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "description": "Merged provider usage rows, one per provider or team.",
+      "items": {
+        "type": "object"
+      },
+      "title": "result",
+      "type": "array"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start of the time window in any format supported by https://github.com/araddon/dateparse.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "startRelative": {
+      "$friendlyName": "StartRelative",
+      "description": "The relative start of the time window as time.Duration.",
+      "title": "startRelative",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "teamNames": {
+      "$friendlyName": "Team Names",
+      "description": "List of specific team names to filter by.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "teamNames",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "ProviderUsageReport",
+  "type": "object"
+}

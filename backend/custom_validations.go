@@ -2101,3 +2101,17 @@ func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int
 
 	return nil
 }
+
+// ValidateProviderUsageReport validates the entire provider usage report object.
+func ValidateProviderUsageReport(report *ProviderUsageReport) error {
+
+	if report.GroupBy == ProviderUsageReportGroupByProvider && len(report.TeamNames) > 0 {
+		return makeErr("teamNames", "teamNames filter cannot be used when groupBy is Provider")
+	}
+
+	if report.GroupBy == ProviderUsageReportGroupByTeam && len(report.ProviderNames) > 0 {
+		return makeErr("providerNames", "providerNames filter cannot be used when groupBy is Team")
+	}
+
+	return nil
+}

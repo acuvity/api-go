@@ -16,7 +16,7 @@ import (
 var ResolveIdentity = elemental.Identity{
 	Name:     "resolve",
 	Category: "resolve",
-	Package:  "lain",
+	Package:  "hanni",
 	Private:  false,
 }
 

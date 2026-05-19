@@ -181,6 +181,13 @@ type AgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
+	// Set the priority for this agent configuration. When multiple agent
+	// configurations match an acushield user's claims, the priority determines which
+	// configuration takes precedence. A lower numeric value indicates a higher
+	// priority, meaning configurations with smaller numbers will be applied first.
+	// Values can be negative.
+	Priority int `json:"priority" msgpack:"priority" bson:"priority" mapstructure:"priority,omitempty"`
+
 	// The release train to follow when updating. Manual means it will not auto-update,
 	// essentially pinning to a version.
 	ReleaseTrain AgentConfigReleaseTrainValue `json:"releaseTrain" msgpack:"releaseTrain" bson:"releasetrain" mapstructure:"releaseTrain,omitempty"`
@@ -312,6 +319,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.PacName = o.PacName
 	s.PauseEnabled = o.PauseEnabled
 	s.PingInterval = o.PingInterval
+	s.Priority = o.Priority
 	s.ReleaseTrain = o.ReleaseTrain
 	s.ScanDisabled = o.ScanDisabled
 	s.ScanInstalledApps = o.ScanInstalledApps
@@ -365,6 +373,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.PacName = s.PacName
 	o.PauseEnabled = s.PauseEnabled
 	o.PingInterval = s.PingInterval
+	o.Priority = s.Priority
 	o.ReleaseTrain = s.ReleaseTrain
 	o.ScanDisabled = s.ScanDisabled
 	o.ScanInstalledApps = s.ScanInstalledApps
@@ -501,6 +510,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PacName:                       &o.PacName,
 			PauseEnabled:                  &o.PauseEnabled,
 			PingInterval:                  &o.PingInterval,
+			Priority:                      &o.Priority,
 			ReleaseTrain:                  &o.ReleaseTrain,
 			ScanDisabled:                  &o.ScanDisabled,
 			ScanInstalledApps:             &o.ScanInstalledApps,
@@ -565,6 +575,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PauseEnabled = &(o.PauseEnabled)
 		case "pingInterval":
 			sp.PingInterval = &(o.PingInterval)
+		case "priority":
+			sp.Priority = &(o.Priority)
 		case "releaseTrain":
 			sp.ReleaseTrain = &(o.ReleaseTrain)
 		case "scanDisabled":
@@ -672,6 +684,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.PingInterval != nil {
 		o.PingInterval = *so.PingInterval
+	}
+	if so.Priority != nil {
+		o.Priority = *so.Priority
 	}
 	if so.ReleaseTrain != nil {
 		o.ReleaseTrain = *so.ReleaseTrain
@@ -951,6 +966,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.PauseEnabled
 	case "pingInterval":
 		return o.PingInterval
+	case "priority":
+		return o.Priority
 	case "releaseTrain":
 		return o.ReleaseTrain
 	case "scanDisabled":
@@ -1237,6 +1254,20 @@ system.`,
 		Name:           "pingInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Set the priority for this agent configuration. When multiple agent
+configurations match an acushield user's claims, the priority determines which
+configuration takes precedence. A lower numeric value indicates a higher
+priority, meaning configurations with smaller numbers will be applied first.
+Values can be negative.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"ReleaseTrain": {
 		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
@@ -1656,6 +1687,20 @@ system.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Set the priority for this agent configuration. When multiple agent
+configurations match an acushield user's claims, the priority determines which
+configuration takes precedence. A lower numeric value indicates a higher
+priority, meaning configurations with smaller numbers will be applied first.
+Values can be negative.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
+	},
 	"releasetrain": {
 		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
 		BSONFieldName:  "releasetrain",
@@ -1958,6 +2003,13 @@ type SparseAgentConfig struct {
 	// The ping interval at which acushield should check in with the backend.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
 
+	// Set the priority for this agent configuration. When multiple agent
+	// configurations match an acushield user's claims, the priority determines which
+	// configuration takes precedence. A lower numeric value indicates a higher
+	// priority, meaning configurations with smaller numbers will be applied first.
+	// Values can be negative.
+	Priority *int `json:"priority,omitempty" msgpack:"priority,omitempty" bson:"priority,omitempty" mapstructure:"priority,omitempty"`
+
 	// The release train to follow when updating. Manual means it will not auto-update,
 	// essentially pinning to a version.
 	ReleaseTrain *AgentConfigReleaseTrainValue `json:"releaseTrain,omitempty" msgpack:"releaseTrain,omitempty" bson:"releasetrain,omitempty" mapstructure:"releaseTrain,omitempty"`
@@ -2122,6 +2174,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.PingInterval != nil {
 		s.PingInterval = o.PingInterval
 	}
+	if o.Priority != nil {
+		s.Priority = o.Priority
+	}
 	if o.ReleaseTrain != nil {
 		s.ReleaseTrain = o.ReleaseTrain
 	}
@@ -2246,6 +2301,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.PingInterval != nil {
 		o.PingInterval = s.PingInterval
 	}
+	if s.Priority != nil {
+		o.Priority = s.Priority
+	}
 	if s.ReleaseTrain != nil {
 		o.ReleaseTrain = s.ReleaseTrain
 	}
@@ -2367,6 +2425,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.PingInterval != nil {
 		out.PingInterval = *o.PingInterval
+	}
+	if o.Priority != nil {
+		out.Priority = *o.Priority
 	}
 	if o.ReleaseTrain != nil {
 		out.ReleaseTrain = *o.ReleaseTrain
@@ -2592,6 +2653,7 @@ type mongoAttributesAgentConfig struct {
 	PacName                       string                           `bson:"pacname"`
 	PauseEnabled                  bool                             `bson:"pauseenabled"`
 	PingInterval                  string                           `bson:"pinginterval"`
+	Priority                      int                              `bson:"priority"`
 	ReleaseTrain                  AgentConfigReleaseTrainValue     `bson:"releasetrain"`
 	ScanDisabled                  bool                             `bson:"scandisabled"`
 	ScanInstalledApps             []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
@@ -2630,6 +2692,7 @@ type mongoAttributesSparseAgentConfig struct {
 	PacName                       *string                           `bson:"pacname,omitempty"`
 	PauseEnabled                  *bool                             `bson:"pauseenabled,omitempty"`
 	PingInterval                  *string                           `bson:"pinginterval,omitempty"`
+	Priority                      *int                              `bson:"priority,omitempty"`
 	ReleaseTrain                  *AgentConfigReleaseTrainValue     `bson:"releasetrain,omitempty"`
 	ScanDisabled                  *bool                             `bson:"scandisabled,omitempty"`
 	ScanInstalledApps             *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`

@@ -153,6 +153,14 @@ type AccessPolicy struct {
 	// If set, just log the decision, but don't enforce it.
 	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
+	// If true, the system will remove all user data from the reported data, while
+	// keeping the analysis and metadata.
+	RedactContent bool `json:"redactContent" msgpack:"redactContent" bson:"redactcontent" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is true, ignore redaction if there are some
+	// violations.
+	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
+
 	// If set, show this message to user before the redirection.
 	RedirectMessage string `json:"redirectMessage" msgpack:"redirectMessage" bson:"redirectmessage" mapstructure:"redirectMessage,omitempty"`
 
@@ -227,6 +235,8 @@ func (o *AccessPolicy) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.OffbandAnalysis = o.OffbandAnalysis
 	s.Permissive = o.Permissive
+	s.RedactContent = o.RedactContent
+	s.RedactContentBypass = o.RedactContentBypass
 	s.RedirectMessage = o.RedirectMessage
 	s.RedirectURL = o.RedirectURL
 	s.UpdateTime = o.UpdateTime
@@ -265,6 +275,8 @@ func (o *AccessPolicy) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.OffbandAnalysis = s.OffbandAnalysis
 	o.Permissive = s.Permissive
+	o.RedactContent = s.RedactContent
+	o.RedactContentBypass = s.RedactContentBypass
 	o.RedirectMessage = s.RedirectMessage
 	o.RedirectURL = s.RedirectURL
 	o.UpdateTime = s.UpdateTime
@@ -389,6 +401,8 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:           &o.Namespace,
 			OffbandAnalysis:     &o.OffbandAnalysis,
 			Permissive:          &o.Permissive,
+			RedactContent:       &o.RedactContent,
+			RedactContentBypass: &o.RedactContentBypass,
 			RedirectMessage:     &o.RedirectMessage,
 			RedirectURL:         &o.RedirectURL,
 			UpdateTime:          &o.UpdateTime,
@@ -432,6 +446,10 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.OffbandAnalysis = &(o.OffbandAnalysis)
 		case "permissive":
 			sp.Permissive = &(o.Permissive)
+		case "redactContent":
+			sp.RedactContent = &(o.RedactContent)
+		case "redactContentBypass":
+			sp.RedactContentBypass = &(o.RedactContentBypass)
 		case "redirectMessage":
 			sp.RedirectMessage = &(o.RedirectMessage)
 		case "redirectURL":
@@ -502,6 +520,12 @@ func (o *AccessPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Permissive != nil {
 		o.Permissive = *so.Permissive
+	}
+	if so.RedactContent != nil {
+		o.RedactContent = *so.RedactContent
+	}
+	if so.RedactContentBypass != nil {
+		o.RedactContentBypass = *so.RedactContentBypass
 	}
 	if so.RedirectMessage != nil {
 		o.RedirectMessage = *so.RedirectMessage
@@ -683,6 +707,10 @@ func (o *AccessPolicy) ValueForAttribute(name string) any {
 		return o.OffbandAnalysis
 	case "permissive":
 		return o.Permissive
+	case "redactContent":
+		return o.RedactContent
+	case "redactContentBypass":
+		return o.RedactContentBypass
 	case "redirectMessage":
 		return o.RedirectMessage
 	case "redirectURL":
@@ -892,6 +920,28 @@ to do any form of content moderation.`,
 		Name:           "permissive",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"RedactContent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"RedactContentBypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"RedirectMessage": {
 		AllowedChoices: []string{},
@@ -1125,6 +1175,28 @@ to do any form of content moderation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"redactcontent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"redactcontentbypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"redirectmessage": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "redirectmessage",
@@ -1279,6 +1351,14 @@ type SparseAccessPolicy struct {
 	// If set, just log the decision, but don't enforce it.
 	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
+	// If true, the system will remove all user data from the reported data, while
+	// keeping the analysis and metadata.
+	RedactContent *bool `json:"redactContent,omitempty" msgpack:"redactContent,omitempty" bson:"redactcontent,omitempty" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is true, ignore redaction if there are some
+	// violations.
+	RedactContentBypass *bool `json:"redactContentBypass,omitempty" msgpack:"redactContentBypass,omitempty" bson:"redactcontentbypass,omitempty" mapstructure:"redactContentBypass,omitempty"`
+
 	// If set, show this message to user before the redirection.
 	RedirectMessage *string `json:"redirectMessage,omitempty" msgpack:"redirectMessage,omitempty" bson:"redirectmessage,omitempty" mapstructure:"redirectMessage,omitempty"`
 
@@ -1385,6 +1465,12 @@ func (o *SparseAccessPolicy) GetBSON() (any, error) {
 	if o.Permissive != nil {
 		s.Permissive = o.Permissive
 	}
+	if o.RedactContent != nil {
+		s.RedactContent = o.RedactContent
+	}
+	if o.RedactContentBypass != nil {
+		s.RedactContentBypass = o.RedactContentBypass
+	}
 	if o.RedirectMessage != nil {
 		s.RedirectMessage = o.RedirectMessage
 	}
@@ -1464,6 +1550,12 @@ func (o *SparseAccessPolicy) SetBSON(raw bson.Raw) error {
 	if s.Permissive != nil {
 		o.Permissive = s.Permissive
 	}
+	if s.RedactContent != nil {
+		o.RedactContent = s.RedactContent
+	}
+	if s.RedactContentBypass != nil {
+		o.RedactContentBypass = s.RedactContentBypass
+	}
 	if s.RedirectMessage != nil {
 		o.RedirectMessage = s.RedirectMessage
 	}
@@ -1540,6 +1632,12 @@ func (o *SparseAccessPolicy) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Permissive != nil {
 		out.Permissive = *o.Permissive
+	}
+	if o.RedactContent != nil {
+		out.RedactContent = *o.RedactContent
+	}
+	if o.RedactContentBypass != nil {
+		out.RedactContentBypass = *o.RedactContentBypass
 	}
 	if o.RedirectMessage != nil {
 		out.RedirectMessage = *o.RedirectMessage
@@ -1715,6 +1813,8 @@ type mongoAttributesAccessPolicy struct {
 	Namespace           string                  `bson:"namespace,omitempty"`
 	OffbandAnalysis     bool                    `bson:"offbandanalysis"`
 	Permissive          bool                    `bson:"permissive"`
+	RedactContent       bool                    `bson:"redactcontent"`
+	RedactContentBypass bool                    `bson:"redactcontentbypass"`
 	RedirectMessage     string                  `bson:"redirectmessage"`
 	RedirectURL         string                  `bson:"redirecturl"`
 	UpdateTime          time.Time               `bson:"updatetime"`
@@ -1738,6 +1838,8 @@ type mongoAttributesSparseAccessPolicy struct {
 	Namespace           *string                  `bson:"namespace,omitempty"`
 	OffbandAnalysis     *bool                    `bson:"offbandanalysis,omitempty"`
 	Permissive          *bool                    `bson:"permissive,omitempty"`
+	RedactContent       *bool                    `bson:"redactcontent,omitempty"`
+	RedactContentBypass *bool                    `bson:"redactcontentbypass,omitempty"`
 	RedirectMessage     *string                  `bson:"redirectmessage,omitempty"`
 	RedirectURL         *string                  `bson:"redirecturl,omitempty"`
 	UpdateTime          *time.Time               `bson:"updatetime,omitempty"`
