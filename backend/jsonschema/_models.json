@@ -204,6 +204,9 @@
     "domainhits": {
       "$ref": "domainhits.json"
     },
+    "driverportrange": {
+      "$ref": "driverportrange.json"
+    },
     "egressdefaultpolicy": {
       "$ref": "egressdefaultpolicy.json"
     },

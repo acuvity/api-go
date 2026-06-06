@@ -109,6 +109,43 @@
         "null"
       ]
     },
+    "driverEnabled": {
+      "$friendlyName": "Driver Enabled",
+      "description": "If enabled, the agent will leverage a network driver to steer AI traffic to the proxy.",
+      "title": "driverEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "driverExcludeAddressTimeout": {
+      "$defaultValue": "1h",
+      "$friendlyName": "Driver Exclude Address Timeout",
+      "description": "The length of time to exclude an address from being proxied. Fractional seconds will be truncated.",
+      "title": "driverExcludeAddressTimeout",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "driverPortRanges": {
+      "$friendlyName": "Driver Port Ranges",
+      "description": "The list of port ranges for the driver to listen on.",
+      "items": {
+        "$ref": "driverportrange.json"
+      },
+      "title": "driverPortRanges",
+      "type": "array"
+    },
+    "driverQUICBlockDisabled": {
+      "$friendlyName": "Driver QUIC Block Disabled",
+      "description": "If disabled, QUIC will not be blocked by the driver.",
+      "title": "driverQUICBlockDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "emergencyPauseEnabled": {
       "$friendlyName": "Emergency Pause Enabled",
       "description": "Use this option in emergencies if your users are being blocked. When enabled, it will force all agents to pause at the next refresh of their configuration or when the user clicks “Reload” on their laptop. When paused, agents are not enforcing security rules.",
@@ -281,6 +318,16 @@
       "title": "scanRunningProcesses",
       "type": "array"
     },
+    "scanThrottle": {
+      "$defaultValue": "50ms",
+      "$friendlyName": "Scan Throttle",
+      "description": "The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full speed.",
+      "title": "scanThrottle",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "subject": {
       "$friendlyName": "Subject",
       "$required": true,
@@ -300,6 +347,26 @@
       "title": "systemProxyManagementDisabled",
       "type": [
         "boolean",
+        "null"
+      ]
+    },
+    "tokenTTLFetchInterval": {
+      "$defaultValue": "4h",
+      "$friendlyName": "Token TTL Fetch Interval",
+      "description": "The interval in which the agent will check for token time to live changes. Useful for revocation management.",
+      "title": "tokenTTLFetchInterval",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenValidity": {
+      "$defaultValue": "48h",
+      "$friendlyName": "Token Validity",
+      "description": "How long all future tokens will be valid. Can be in a range from 30s to 720h.",
+      "title": "tokenValidity",
+      "type": [
+        "string",
         "null"
       ]
     },

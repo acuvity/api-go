@@ -1449,6 +1449,14 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		return makeErr("scanReportInterval", "'ScanReportInterval' cannot be lower than 5m")
 	}
 
+	if d, _ := time.ParseDuration(agentConfig.TokenTTLFetchInterval); d < 10*time.Minute {
+		return makeErr("tokenTTLFetchInterval", "'TokenTTLFetchInterval' cannot be lower than 10m")
+	}
+
+	if d, _ := time.ParseDuration(agentConfig.TokenValidity); d < 30*time.Second || d > 720*time.Hour {
+		return makeErr("tokenValidity", "'TokenValidity' cannot be lower than 30s or greater than 720h")
+	}
+
 	// Port
 	if agentConfig.ListeningPort != "" {
 		port, err := strconv.Atoi(agentConfig.ListeningPort)
@@ -1459,6 +1467,20 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 
 		if port < 1024 || port > 49151 {
 			return makeErr("listeningPort", "'ListeningPort' should be in the range 1024-49151.")
+		}
+	}
+
+	for i, portRange := range agentConfig.DriverPortRanges {
+		if portRange.Start <= 0 || portRange.Start >= 65535 {
+			return makeErr("driverPortRanges", fmt.Sprintf("Invalid start port '%d' (position %d): must be within range of 0 and 65535", portRange.Start, i))
+		}
+
+		if portRange.End <= 0 || portRange.End >= 65535 {
+			return makeErr("driverPortRanges", fmt.Sprintf("Invalid end port '%d' (position %d): must be within range of 0 and 65535", portRange.End, i))
+		}
+
+		if portRange.Start > portRange.End {
+			return makeErr("driverPortRanges", fmt.Sprintf("port start '%d' (position %d) must be less than or equal to port end '%d'", portRange.Start, i, portRange.End))
 		}
 	}
 

@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "Driver Port Range",
+  "$friendlyNamePlural": "Driver Port Ranges",
+  "$modelName": "DriverPortRange",
+  "$modelPackage": "lain",
+  "$modelResourceName": "driverportranges",
+  "$modelRestName": "driverportrange",
+  "additionalProperties": false,
+  "description": "The port range for the driver to listen on.",
+  "properties": {
+    "end": {
+      "$friendlyName": "End",
+      "description": "The ending port of the range.",
+      "title": "end",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The starting port of the range.",
+      "title": "start",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DriverPortRange",
+  "type": "object"
+}

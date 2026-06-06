@@ -408,6 +408,12 @@
       },
       "type": "array"
     },
+    "driverportranges": {
+      "items": {
+        "$ref": "driverportrange.json"
+      },
+      "type": "array"
+    },
     "egressdefaultpolicies": {
       "items": {
         "$ref": "egressdefaultpolicy.json"

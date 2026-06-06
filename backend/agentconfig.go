@@ -143,6 +143,20 @@ type AgentConfig struct {
 	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval string `json:"domainReportInterval" msgpack:"domainReportInterval" bson:"domainreportinterval" mapstructure:"domainReportInterval,omitempty"`
 
+	// If enabled, the agent will leverage a network driver to steer AI traffic to the
+	// proxy.
+	DriverEnabled bool `json:"driverEnabled" msgpack:"driverEnabled" bson:"driverenabled" mapstructure:"driverEnabled,omitempty"`
+
+	// The length of time to exclude an address from being proxied. Fractional seconds
+	// will be truncated.
+	DriverExcludeAddressTimeout string `json:"driverExcludeAddressTimeout" msgpack:"driverExcludeAddressTimeout" bson:"driverexcludeaddresstimeout" mapstructure:"driverExcludeAddressTimeout,omitempty"`
+
+	// The list of port ranges for the driver to listen on.
+	DriverPortRanges []*DriverPortRange `json:"driverPortRanges" msgpack:"driverPortRanges" bson:"driverportranges" mapstructure:"driverPortRanges,omitempty"`
+
+	// If disabled, QUIC will not be blocked by the driver.
+	DriverQUICBlockDisabled bool `json:"driverQUICBlockDisabled" msgpack:"driverQUICBlockDisabled" bson:"driverquicblockdisabled" mapstructure:"driverQUICBlockDisabled,omitempty"`
+
 	// Use this option in emergencies if your users are being blocked.
 	// When enabled, it will force all agents to pause at the next refresh of their
 	// configuration or when the user clicks “Reload” on their laptop.
@@ -207,11 +221,22 @@ type AgentConfig struct {
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses []string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"-" mapstructure:"scanRunningProcesses,omitempty"`
 
+	// The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full
+	// speed.
+	ScanThrottle string `json:"scanThrottle" msgpack:"scanThrottle" bson:"scanthrottle" mapstructure:"scanThrottle,omitempty"`
+
 	// A tag expression that identifies the user(s) tied to this config.
 	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
 
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled bool `json:"systemProxyManagementDisabled" msgpack:"systemProxyManagementDisabled" bson:"systemproxymanagementdisabled" mapstructure:"systemProxyManagementDisabled,omitempty"`
+
+	// The interval in which the agent will check for token time to live changes.
+	// Useful for revocation management.
+	TokenTTLFetchInterval string `json:"tokenTTLFetchInterval" msgpack:"tokenTTLFetchInterval" bson:"tokenttlfetchinterval" mapstructure:"tokenTTLFetchInterval,omitempty"`
+
+	// How long all future tokens will be valid. Can be in a range from 30s to 720h.
+	TokenValidity string `json:"tokenValidity" msgpack:"tokenValidity" bson:"tokenvalidity" mapstructure:"tokenValidity,omitempty"`
 
 	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
 	// apex will make its requests to the destination back through the agent over the
@@ -253,18 +278,22 @@ type AgentConfig struct {
 func NewAgentConfig() *AgentConfig {
 
 	return &AgentConfig{
-		ModelVersion:          1,
-		DNSMonitorPolicy:      AgentConfigDNSMonitorPolicyWarn,
-		ConfigRefreshInterval: "1h",
-		DomainReportInterval:  "10m",
-		ListeningPort:         "8081",
-		PingInterval:          "6h",
-		ReleaseTrain:          AgentConfigReleaseTrainStable,
-		ScanInterval:          "5m",
-		ScanReportInterval:    "12h",
-		ScanRunningProcesses:  []string{},
-		Subject:               [][]string{},
-		TunnelProxyHeaders:    map[string]string{},
+		ModelVersion:                1,
+		DNSMonitorPolicy:            AgentConfigDNSMonitorPolicyWarn,
+		ConfigRefreshInterval:       "1h",
+		DomainReportInterval:        "10m",
+		DriverExcludeAddressTimeout: "1h",
+		ListeningPort:               "8081",
+		PingInterval:                "6h",
+		ReleaseTrain:                AgentConfigReleaseTrainStable,
+		ScanInterval:                "5m",
+		ScanReportInterval:          "12h",
+		ScanRunningProcesses:        []string{},
+		ScanThrottle:                "50ms",
+		Subject:                     [][]string{},
+		TokenTTLFetchInterval:       "4h",
+		TokenValidity:               "48h",
+		TunnelProxyHeaders:          map[string]string{},
 	}
 }
 
@@ -308,6 +337,10 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.Description = o.Description
 	s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	s.DomainReportInterval = o.DomainReportInterval
+	s.DriverEnabled = o.DriverEnabled
+	s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
+	s.DriverPortRanges = o.DriverPortRanges
+	s.DriverQUICBlockDisabled = o.DriverQUICBlockDisabled
 	s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -325,8 +358,11 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
 	s.ScanReportInterval = o.ScanReportInterval
+	s.ScanThrottle = o.ScanThrottle
 	s.Subject = o.Subject
 	s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
+	s.TokenTTLFetchInterval = o.TokenTTLFetchInterval
+	s.TokenValidity = o.TokenValidity
 	s.TunnelEnabled = o.TunnelEnabled
 	s.TunnelProxyAuth = o.TunnelProxyAuth
 	s.TunnelProxyHeaders = o.TunnelProxyHeaders
@@ -362,6 +398,10 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	o.DomainReportInterval = s.DomainReportInterval
+	o.DriverEnabled = s.DriverEnabled
+	o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	o.DriverPortRanges = s.DriverPortRanges
+	o.DriverQUICBlockDisabled = s.DriverQUICBlockDisabled
 	o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -379,8 +419,11 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
 	o.ScanReportInterval = s.ScanReportInterval
+	o.ScanThrottle = s.ScanThrottle
 	o.Subject = s.Subject
 	o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
+	o.TokenTTLFetchInterval = s.TokenTTLFetchInterval
+	o.TokenValidity = s.TokenValidity
 	o.TunnelEnabled = s.TunnelEnabled
 	o.TunnelProxyAuth = s.TunnelProxyAuth
 	o.TunnelProxyHeaders = s.TunnelProxyHeaders
@@ -499,6 +542,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Description:                   &o.Description,
 			DomainDiscoveryDisabled:       &o.DomainDiscoveryDisabled,
 			DomainReportInterval:          &o.DomainReportInterval,
+			DriverEnabled:                 &o.DriverEnabled,
+			DriverExcludeAddressTimeout:   &o.DriverExcludeAddressTimeout,
+			DriverPortRanges:              &o.DriverPortRanges,
+			DriverQUICBlockDisabled:       &o.DriverQUICBlockDisabled,
 			EmergencyPauseEnabled:         &o.EmergencyPauseEnabled,
 			ImportHash:                    &o.ImportHash,
 			ImportLabel:                   &o.ImportLabel,
@@ -517,8 +564,11 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ScanInterval:                  &o.ScanInterval,
 			ScanReportInterval:            &o.ScanReportInterval,
 			ScanRunningProcesses:          &o.ScanRunningProcesses,
+			ScanThrottle:                  &o.ScanThrottle,
 			Subject:                       &o.Subject,
 			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
+			TokenTTLFetchInterval:         &o.TokenTTLFetchInterval,
+			TokenValidity:                 &o.TokenValidity,
 			TunnelEnabled:                 &o.TunnelEnabled,
 			TunnelProxyAuth:               o.TunnelProxyAuth,
 			TunnelProxyHeaders:            &o.TunnelProxyHeaders,
@@ -553,6 +603,14 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DomainDiscoveryDisabled = &(o.DomainDiscoveryDisabled)
 		case "domainReportInterval":
 			sp.DomainReportInterval = &(o.DomainReportInterval)
+		case "driverEnabled":
+			sp.DriverEnabled = &(o.DriverEnabled)
+		case "driverExcludeAddressTimeout":
+			sp.DriverExcludeAddressTimeout = &(o.DriverExcludeAddressTimeout)
+		case "driverPortRanges":
+			sp.DriverPortRanges = &(o.DriverPortRanges)
+		case "driverQUICBlockDisabled":
+			sp.DriverQUICBlockDisabled = &(o.DriverQUICBlockDisabled)
 		case "emergencyPauseEnabled":
 			sp.EmergencyPauseEnabled = &(o.EmergencyPauseEnabled)
 		case "importHash":
@@ -589,10 +647,16 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ScanReportInterval = &(o.ScanReportInterval)
 		case "scanRunningProcesses":
 			sp.ScanRunningProcesses = &(o.ScanRunningProcesses)
+		case "scanThrottle":
+			sp.ScanThrottle = &(o.ScanThrottle)
 		case "subject":
 			sp.Subject = &(o.Subject)
 		case "systemProxyManagementDisabled":
 			sp.SystemProxyManagementDisabled = &(o.SystemProxyManagementDisabled)
+		case "tokenTTLFetchInterval":
+			sp.TokenTTLFetchInterval = &(o.TokenTTLFetchInterval)
+		case "tokenValidity":
+			sp.TokenValidity = &(o.TokenValidity)
 		case "tunnelEnabled":
 			sp.TunnelEnabled = &(o.TunnelEnabled)
 		case "tunnelProxyAuth":
@@ -652,6 +716,18 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.DomainReportInterval != nil {
 		o.DomainReportInterval = *so.DomainReportInterval
 	}
+	if so.DriverEnabled != nil {
+		o.DriverEnabled = *so.DriverEnabled
+	}
+	if so.DriverExcludeAddressTimeout != nil {
+		o.DriverExcludeAddressTimeout = *so.DriverExcludeAddressTimeout
+	}
+	if so.DriverPortRanges != nil {
+		o.DriverPortRanges = *so.DriverPortRanges
+	}
+	if so.DriverQUICBlockDisabled != nil {
+		o.DriverQUICBlockDisabled = *so.DriverQUICBlockDisabled
+	}
 	if so.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = *so.EmergencyPauseEnabled
 	}
@@ -706,11 +782,20 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ScanRunningProcesses != nil {
 		o.ScanRunningProcesses = *so.ScanRunningProcesses
 	}
+	if so.ScanThrottle != nil {
+		o.ScanThrottle = *so.ScanThrottle
+	}
 	if so.Subject != nil {
 		o.Subject = *so.Subject
 	}
 	if so.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = *so.SystemProxyManagementDisabled
+	}
+	if so.TokenTTLFetchInterval != nil {
+		o.TokenTTLFetchInterval = *so.TokenTTLFetchInterval
+	}
+	if so.TokenValidity != nil {
+		o.TokenValidity = *so.TokenValidity
 	}
 	if so.TunnelEnabled != nil {
 		o.TunnelEnabled = *so.TunnelEnabled
@@ -741,6 +826,15 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *AgentConfig) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.DriverPortRanges {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'DriverPortRanges' for 'AgentConfig' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.ScanInstalledApps {
 		if sub == nil {
 			continue
@@ -761,6 +855,15 @@ func (o *AgentConfig) EncryptAttributes(encrypter elemental.AttributeEncrypter) 
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *AgentConfig) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.DriverPortRanges {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'DriverPortRanges' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.ScanInstalledApps {
 		if sub == nil {
@@ -824,6 +927,20 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateDuration("driverExcludeAddressTimeout", o.DriverExcludeAddressTimeout); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.DriverPortRanges {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "driverPortRanges", i))
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("listeningPort", o.ListeningPort); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -866,11 +983,23 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateDuration("scanThrottle", o.ScanThrottle); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredExternal("subject", o.Subject); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateDuration("tokenTTLFetchInterval", o.TokenTTLFetchInterval); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateDuration("tokenValidity", o.TokenValidity); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -944,6 +1073,14 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DomainDiscoveryDisabled
 	case "domainReportInterval":
 		return o.DomainReportInterval
+	case "driverEnabled":
+		return o.DriverEnabled
+	case "driverExcludeAddressTimeout":
+		return o.DriverExcludeAddressTimeout
+	case "driverPortRanges":
+		return o.DriverPortRanges
+	case "driverQUICBlockDisabled":
+		return o.DriverQUICBlockDisabled
 	case "emergencyPauseEnabled":
 		return o.EmergencyPauseEnabled
 	case "importHash":
@@ -980,10 +1117,16 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ScanReportInterval
 	case "scanRunningProcesses":
 		return o.ScanRunningProcesses
+	case "scanThrottle":
+		return o.ScanThrottle
 	case "subject":
 		return o.Subject
 	case "systemProxyManagementDisabled":
 		return o.SystemProxyManagementDisabled
+	case "tokenTTLFetchInterval":
+		return o.TokenTTLFetchInterval
+	case "tokenValidity":
+		return o.TokenValidity
 	case "tunnelEnabled":
 		return o.TunnelEnabled
 	case "tunnelProxyAuth":
@@ -1122,6 +1265,50 @@ only applicable when authenticated.`,
 		Name:           "domainReportInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DriverEnabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverenabled",
+		ConvertedName:  "DriverEnabled",
+		Description: `If enabled, the agent will leverage a network driver to steer AI traffic to the
+proxy.`,
+		Exposed: true,
+		Name:    "driverEnabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"DriverExcludeAddressTimeout": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludeaddresstimeout",
+		ConvertedName:  "DriverExcludeAddressTimeout",
+		DefaultValue:   "1h",
+		Description: `The length of time to exclude an address from being proxied. Fractional seconds
+will be truncated.`,
+		Exposed: true,
+		Name:    "driverExcludeAddressTimeout",
+		Stored:  true,
+		Type:    "string",
+	},
+	"DriverPortRanges": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverportranges",
+		ConvertedName:  "DriverPortRanges",
+		Description:    `The list of port ranges for the driver to listen on.`,
+		Exposed:        true,
+		Name:           "driverPortRanges",
+		Stored:         true,
+		SubType:        "driverportrange",
+		Type:           "refList",
+	},
+	"DriverQUICBlockDisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverquicblockdisabled",
+		ConvertedName:  "DriverQUICBlockDisabled",
+		Description:    `If disabled, QUIC will not be blocked by the driver.`,
+		Exposed:        true,
+		Name:           "driverQUICBlockDisabled",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"EmergencyPauseEnabled": {
 		AllowedChoices: []string{},
@@ -1336,6 +1523,18 @@ essentially pinning to a version.`,
 		Transient:      true,
 		Type:           "list",
 	},
+	"ScanThrottle": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanthrottle",
+		ConvertedName:  "ScanThrottle",
+		DefaultValue:   "50ms",
+		Description: `The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full
+speed.`,
+		Exposed: true,
+		Name:    "scanThrottle",
+		Stored:  true,
+		Type:    "string",
+	},
 	"Subject": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "subject",
@@ -1358,6 +1557,29 @@ essentially pinning to a version.`,
 		Name:           "systemProxyManagementDisabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"TokenTTLFetchInterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenttlfetchinterval",
+		ConvertedName:  "TokenTTLFetchInterval",
+		DefaultValue:   "4h",
+		Description: `The interval in which the agent will check for token time to live changes.
+Useful for revocation management.`,
+		Exposed: true,
+		Name:    "tokenTTLFetchInterval",
+		Stored:  true,
+		Type:    "string",
+	},
+	"TokenValidity": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenvalidity",
+		ConvertedName:  "TokenValidity",
+		DefaultValue:   "48h",
+		Description:    `How long all future tokens will be valid. Can be in a range from 30s to 720h.`,
+		Exposed:        true,
+		Name:           "tokenValidity",
+		Stored:         true,
+		Type:           "string",
 	},
 	"TunnelEnabled": {
 		AllowedChoices: []string{},
@@ -1554,6 +1776,50 @@ only applicable when authenticated.`,
 		Name:           "domainReportInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"driverenabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverenabled",
+		ConvertedName:  "DriverEnabled",
+		Description: `If enabled, the agent will leverage a network driver to steer AI traffic to the
+proxy.`,
+		Exposed: true,
+		Name:    "driverEnabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"driverexcludeaddresstimeout": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludeaddresstimeout",
+		ConvertedName:  "DriverExcludeAddressTimeout",
+		DefaultValue:   "1h",
+		Description: `The length of time to exclude an address from being proxied. Fractional seconds
+will be truncated.`,
+		Exposed: true,
+		Name:    "driverExcludeAddressTimeout",
+		Stored:  true,
+		Type:    "string",
+	},
+	"driverportranges": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverportranges",
+		ConvertedName:  "DriverPortRanges",
+		Description:    `The list of port ranges for the driver to listen on.`,
+		Exposed:        true,
+		Name:           "driverPortRanges",
+		Stored:         true,
+		SubType:        "driverportrange",
+		Type:           "refList",
+	},
+	"driverquicblockdisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverquicblockdisabled",
+		ConvertedName:  "DriverQUICBlockDisabled",
+		Description:    `If disabled, QUIC will not be blocked by the driver.`,
+		Exposed:        true,
+		Name:           "driverQUICBlockDisabled",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"emergencypauseenabled": {
 		AllowedChoices: []string{},
@@ -1768,6 +2034,18 @@ essentially pinning to a version.`,
 		Transient:      true,
 		Type:           "list",
 	},
+	"scanthrottle": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "scanthrottle",
+		ConvertedName:  "ScanThrottle",
+		DefaultValue:   "50ms",
+		Description: `The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full
+speed.`,
+		Exposed: true,
+		Name:    "scanThrottle",
+		Stored:  true,
+		Type:    "string",
+	},
 	"subject": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "subject",
@@ -1790,6 +2068,29 @@ essentially pinning to a version.`,
 		Name:           "systemProxyManagementDisabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"tokenttlfetchinterval": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenttlfetchinterval",
+		ConvertedName:  "TokenTTLFetchInterval",
+		DefaultValue:   "4h",
+		Description: `The interval in which the agent will check for token time to live changes.
+Useful for revocation management.`,
+		Exposed: true,
+		Name:    "tokenTTLFetchInterval",
+		Stored:  true,
+		Type:    "string",
+	},
+	"tokenvalidity": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tokenvalidity",
+		ConvertedName:  "TokenValidity",
+		DefaultValue:   "48h",
+		Description:    `How long all future tokens will be valid. Can be in a range from 30s to 720h.`,
+		Exposed:        true,
+		Name:           "tokenValidity",
+		Stored:         true,
+		Type:           "string",
 	},
 	"tunnelenabled": {
 		AllowedChoices: []string{},
@@ -1965,6 +2266,20 @@ type SparseAgentConfig struct {
 	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval *string `json:"domainReportInterval,omitempty" msgpack:"domainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"domainReportInterval,omitempty"`
 
+	// If enabled, the agent will leverage a network driver to steer AI traffic to the
+	// proxy.
+	DriverEnabled *bool `json:"driverEnabled,omitempty" msgpack:"driverEnabled,omitempty" bson:"driverenabled,omitempty" mapstructure:"driverEnabled,omitempty"`
+
+	// The length of time to exclude an address from being proxied. Fractional seconds
+	// will be truncated.
+	DriverExcludeAddressTimeout *string `json:"driverExcludeAddressTimeout,omitempty" msgpack:"driverExcludeAddressTimeout,omitempty" bson:"driverexcludeaddresstimeout,omitempty" mapstructure:"driverExcludeAddressTimeout,omitempty"`
+
+	// The list of port ranges for the driver to listen on.
+	DriverPortRanges *[]*DriverPortRange `json:"driverPortRanges,omitempty" msgpack:"driverPortRanges,omitempty" bson:"driverportranges,omitempty" mapstructure:"driverPortRanges,omitempty"`
+
+	// If disabled, QUIC will not be blocked by the driver.
+	DriverQUICBlockDisabled *bool `json:"driverQUICBlockDisabled,omitempty" msgpack:"driverQUICBlockDisabled,omitempty" bson:"driverquicblockdisabled,omitempty" mapstructure:"driverQUICBlockDisabled,omitempty"`
+
 	// Use this option in emergencies if your users are being blocked.
 	// When enabled, it will force all agents to pause at the next refresh of their
 	// configuration or when the user clicks “Reload” on their laptop.
@@ -2029,11 +2344,22 @@ type SparseAgentConfig struct {
 	// The list of running processes the scanner will look for.
 	ScanRunningProcesses *[]string `json:"scanRunningProcesses,omitempty" msgpack:"scanRunningProcesses,omitempty" bson:"-" mapstructure:"scanRunningProcesses,omitempty"`
 
+	// The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full
+	// speed.
+	ScanThrottle *string `json:"scanThrottle,omitempty" msgpack:"scanThrottle,omitempty" bson:"scanthrottle,omitempty" mapstructure:"scanThrottle,omitempty"`
+
 	// A tag expression that identifies the user(s) tied to this config.
 	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
 
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled *bool `json:"systemProxyManagementDisabled,omitempty" msgpack:"systemProxyManagementDisabled,omitempty" bson:"systemproxymanagementdisabled,omitempty" mapstructure:"systemProxyManagementDisabled,omitempty"`
+
+	// The interval in which the agent will check for token time to live changes.
+	// Useful for revocation management.
+	TokenTTLFetchInterval *string `json:"tokenTTLFetchInterval,omitempty" msgpack:"tokenTTLFetchInterval,omitempty" bson:"tokenttlfetchinterval,omitempty" mapstructure:"tokenTTLFetchInterval,omitempty"`
+
+	// How long all future tokens will be valid. Can be in a range from 30s to 720h.
+	TokenValidity *string `json:"tokenValidity,omitempty" msgpack:"tokenValidity,omitempty" bson:"tokenvalidity,omitempty" mapstructure:"tokenValidity,omitempty"`
 
 	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
 	// apex will make its requests to the destination back through the agent over the
@@ -2141,6 +2467,18 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DomainReportInterval != nil {
 		s.DomainReportInterval = o.DomainReportInterval
 	}
+	if o.DriverEnabled != nil {
+		s.DriverEnabled = o.DriverEnabled
+	}
+	if o.DriverExcludeAddressTimeout != nil {
+		s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
+	}
+	if o.DriverPortRanges != nil {
+		s.DriverPortRanges = o.DriverPortRanges
+	}
+	if o.DriverQUICBlockDisabled != nil {
+		s.DriverQUICBlockDisabled = o.DriverQUICBlockDisabled
+	}
 	if o.EmergencyPauseEnabled != nil {
 		s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
 	}
@@ -2192,11 +2530,20 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ScanReportInterval != nil {
 		s.ScanReportInterval = o.ScanReportInterval
 	}
+	if o.ScanThrottle != nil {
+		s.ScanThrottle = o.ScanThrottle
+	}
 	if o.Subject != nil {
 		s.Subject = o.Subject
 	}
 	if o.SystemProxyManagementDisabled != nil {
 		s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
+	}
+	if o.TokenTTLFetchInterval != nil {
+		s.TokenTTLFetchInterval = o.TokenTTLFetchInterval
+	}
+	if o.TokenValidity != nil {
+		s.TokenValidity = o.TokenValidity
 	}
 	if o.TunnelEnabled != nil {
 		s.TunnelEnabled = o.TunnelEnabled
@@ -2268,6 +2615,18 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.DomainReportInterval != nil {
 		o.DomainReportInterval = s.DomainReportInterval
 	}
+	if s.DriverEnabled != nil {
+		o.DriverEnabled = s.DriverEnabled
+	}
+	if s.DriverExcludeAddressTimeout != nil {
+		o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	}
+	if s.DriverPortRanges != nil {
+		o.DriverPortRanges = s.DriverPortRanges
+	}
+	if s.DriverQUICBlockDisabled != nil {
+		o.DriverQUICBlockDisabled = s.DriverQUICBlockDisabled
+	}
 	if s.EmergencyPauseEnabled != nil {
 		o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
 	}
@@ -2319,11 +2678,20 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ScanReportInterval != nil {
 		o.ScanReportInterval = s.ScanReportInterval
 	}
+	if s.ScanThrottle != nil {
+		o.ScanThrottle = s.ScanThrottle
+	}
 	if s.Subject != nil {
 		o.Subject = s.Subject
 	}
 	if s.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
+	}
+	if s.TokenTTLFetchInterval != nil {
+		o.TokenTTLFetchInterval = s.TokenTTLFetchInterval
+	}
+	if s.TokenValidity != nil {
+		o.TokenValidity = s.TokenValidity
 	}
 	if s.TunnelEnabled != nil {
 		o.TunnelEnabled = s.TunnelEnabled
@@ -2393,6 +2761,18 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.DomainReportInterval != nil {
 		out.DomainReportInterval = *o.DomainReportInterval
 	}
+	if o.DriverEnabled != nil {
+		out.DriverEnabled = *o.DriverEnabled
+	}
+	if o.DriverExcludeAddressTimeout != nil {
+		out.DriverExcludeAddressTimeout = *o.DriverExcludeAddressTimeout
+	}
+	if o.DriverPortRanges != nil {
+		out.DriverPortRanges = *o.DriverPortRanges
+	}
+	if o.DriverQUICBlockDisabled != nil {
+		out.DriverQUICBlockDisabled = *o.DriverQUICBlockDisabled
+	}
 	if o.EmergencyPauseEnabled != nil {
 		out.EmergencyPauseEnabled = *o.EmergencyPauseEnabled
 	}
@@ -2447,11 +2827,20 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.ScanRunningProcesses != nil {
 		out.ScanRunningProcesses = *o.ScanRunningProcesses
 	}
+	if o.ScanThrottle != nil {
+		out.ScanThrottle = *o.ScanThrottle
+	}
 	if o.Subject != nil {
 		out.Subject = *o.Subject
 	}
 	if o.SystemProxyManagementDisabled != nil {
 		out.SystemProxyManagementDisabled = *o.SystemProxyManagementDisabled
+	}
+	if o.TokenTTLFetchInterval != nil {
+		out.TokenTTLFetchInterval = *o.TokenTTLFetchInterval
+	}
+	if o.TokenValidity != nil {
+		out.TokenValidity = *o.TokenValidity
 	}
 	if o.TunnelEnabled != nil {
 		out.TunnelEnabled = *o.TunnelEnabled
@@ -2484,6 +2873,17 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseAgentConfig) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.DriverPortRanges != nil {
+		for _, sub := range *o.DriverPortRanges {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'DriverPortRanges' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.ScanInstalledApps != nil {
 		for _, sub := range *o.ScanInstalledApps {
 			if sub == nil {
@@ -2506,6 +2906,17 @@ func (o *SparseAgentConfig) EncryptAttributes(encrypter elemental.AttributeEncry
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseAgentConfig) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.DriverPortRanges != nil {
+		for _, sub := range *o.DriverPortRanges {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'DriverPortRanges' for 'AgentConfig' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.ScanInstalledApps != nil {
 		for _, sub := range *o.ScanInstalledApps {
@@ -2642,6 +3053,10 @@ type mongoAttributesAgentConfig struct {
 	Description                   string                           `bson:"description"`
 	DomainDiscoveryDisabled       bool                             `bson:"domaindiscoverydisabled"`
 	DomainReportInterval          string                           `bson:"domainreportinterval"`
+	DriverEnabled                 bool                             `bson:"driverenabled"`
+	DriverExcludeAddressTimeout   string                           `bson:"driverexcludeaddresstimeout"`
+	DriverPortRanges              []*DriverPortRange               `bson:"driverportranges"`
+	DriverQUICBlockDisabled       bool                             `bson:"driverquicblockdisabled"`
 	EmergencyPauseEnabled         bool                             `bson:"emergencypauseenabled"`
 	ImportHash                    string                           `bson:"importhash,omitempty"`
 	ImportLabel                   string                           `bson:"importlabel,omitempty"`
@@ -2659,8 +3074,11 @@ type mongoAttributesAgentConfig struct {
 	ScanInstalledApps             []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
 	ScanInterval                  string                           `bson:"scaninterval"`
 	ScanReportInterval            string                           `bson:"scanreportinterval"`
+	ScanThrottle                  string                           `bson:"scanthrottle"`
 	Subject                       [][]string                       `bson:"subject"`
 	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
+	TokenTTLFetchInterval         string                           `bson:"tokenttlfetchinterval"`
+	TokenValidity                 string                           `bson:"tokenvalidity"`
 	TunnelEnabled                 bool                             `bson:"tunnelenabled"`
 	TunnelProxyAuth               *TunnelProxyAuth                 `bson:"tunnelproxyauth"`
 	TunnelProxyHeaders            map[string]string                `bson:"tunnelproxyheaders"`
@@ -2681,6 +3099,10 @@ type mongoAttributesSparseAgentConfig struct {
 	Description                   *string                           `bson:"description,omitempty"`
 	DomainDiscoveryDisabled       *bool                             `bson:"domaindiscoverydisabled,omitempty"`
 	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
+	DriverEnabled                 *bool                             `bson:"driverenabled,omitempty"`
+	DriverExcludeAddressTimeout   *string                           `bson:"driverexcludeaddresstimeout,omitempty"`
+	DriverPortRanges              *[]*DriverPortRange               `bson:"driverportranges,omitempty"`
+	DriverQUICBlockDisabled       *bool                             `bson:"driverquicblockdisabled,omitempty"`
 	EmergencyPauseEnabled         *bool                             `bson:"emergencypauseenabled,omitempty"`
 	ImportHash                    *string                           `bson:"importhash,omitempty"`
 	ImportLabel                   *string                           `bson:"importlabel,omitempty"`
@@ -2698,8 +3120,11 @@ type mongoAttributesSparseAgentConfig struct {
 	ScanInstalledApps             *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
 	ScanInterval                  *string                           `bson:"scaninterval,omitempty"`
 	ScanReportInterval            *string                           `bson:"scanreportinterval,omitempty"`
+	ScanThrottle                  *string                           `bson:"scanthrottle,omitempty"`
 	Subject                       *[][]string                       `bson:"subject,omitempty"`
 	SystemProxyManagementDisabled *bool                             `bson:"systemproxymanagementdisabled,omitempty"`
+	TokenTTLFetchInterval         *string                           `bson:"tokenttlfetchinterval,omitempty"`
+	TokenValidity                 *string                           `bson:"tokenvalidity,omitempty"`
 	TunnelEnabled                 *bool                             `bson:"tunnelenabled,omitempty"`
 	TunnelProxyAuth               *TunnelProxyAuth                  `bson:"tunnelproxyauth,omitempty"`
 	TunnelProxyHeaders            *map[string]string                `bson:"tunnelproxyheaders,omitempty"`

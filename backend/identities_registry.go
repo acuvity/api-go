@@ -1717,6 +1717,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewDNSReport()
 	case "domainhits", "DomainHits":
 		return NewDomainHits()
+	case "driverportrange", "DriverPortRange":
+		return NewDriverPortRange()
 	case "egressdefaultpolicy", "EgressDefaultPolicy":
 		return NewEgressDefaultPolicy()
 	case "egresspolicy", "EgressPolicy":

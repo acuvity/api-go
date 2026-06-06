@@ -1182,6 +1182,9 @@ Stores the configuration information for the acushield agent.
   "configRefreshInterval": "30m",
   "domainDiscoveryDisabled": false,
   "domainReportInterval": "30m",
+  "driverEnabled": false,
+  "driverExcludeAddressTimeout": "10m",
+  "driverQUICBlockDisabled": false,
   "emergencyPauseEnabled": false,
   "listeningPort": "8081",
   "managedCADisabled": false,
@@ -1194,6 +1197,7 @@ Stores the configuration information for the acushield agent.
   "scanDisabled": false,
   "scanInterval": "10m",
   "scanReportInterval": "1h",
+  "scanThrottle": "20ms",
   "subject": [
     [
       "@scope=employees",
@@ -1201,6 +1205,8 @@ Stores the configuration information for the acushield agent.
     ]
   ],
   "systemProxyManagementDisabled": false,
+  "tokenTTLFetchInterval": "1h",
+  "tokenValidity": "24h",
   "tunnelEnabled": false,
   "tunnelProxyURL": "http://proxy.example.com:8080",
   "useDynamicPort": false
@@ -1315,6 +1321,38 @@ Default value:
 ```json
 "10m"
 ```
+
+##### `driverEnabled`
+
+Type: `boolean`
+
+If enabled, the agent will leverage a network driver to steer AI traffic to the
+proxy.
+
+##### `driverExcludeAddressTimeout`
+
+Type: `string`
+
+The length of time to exclude an address from being proxied. Fractional seconds
+will be truncated.
+
+Default value:
+
+```json
+"1h"
+```
+
+##### `driverPortRanges`
+
+Type: [`[]driverportrange`](#driverportrange)
+
+The list of port ranges for the driver to listen on.
+
+##### `driverQUICBlockDisabled`
+
+Type: `boolean`
+
+If disabled, QUIC will not be blocked by the driver.
 
 ##### `emergencyPauseEnabled`
 
@@ -1464,6 +1502,19 @@ Type: `[]string`
 
 The list of running processes the scanner will look for.
 
+##### `scanThrottle`
+
+Type: `string`
+
+The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full
+speed.
+
+Default value:
+
+```json
+"50ms"
+```
+
 ##### `subject` [`required`]
 
 Type: `[][]string`
@@ -1475,6 +1526,31 @@ A tag expression that identifies the user(s) tied to this config.
 Type: `boolean`
 
 If disabled, the system proxy needs to be configured manually.
+
+##### `tokenTTLFetchInterval`
+
+Type: `string`
+
+The interval in which the agent will check for token time to live changes.
+Useful for revocation management.
+
+Default value:
+
+```json
+"4h"
+```
+
+##### `tokenValidity`
+
+Type: `string`
+
+How long all future tokens will be valid. Can be in a range from 30s to 720h.
+
+Default value:
+
+```json
+"48h"
+```
 
 ##### `tunnelEnabled`
 
@@ -5959,6 +6035,24 @@ Domain that has been visited.
 Type: `integer`
 
 The number of hits for this report.
+
+### DriverPortRange
+
+The port range for the driver to listen on.
+
+#### Attributes
+
+##### `end`
+
+Type: `integer`
+
+The ending port of the range.
+
+##### `start`
+
+Type: `integer`
+
+The starting port of the range.
 
 ### EgressDefaultPolicy
 

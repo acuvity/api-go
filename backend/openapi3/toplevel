@@ -450,6 +450,27 @@
             "example": "30m",
             "type": "string"
           },
+          "driverEnabled": {
+            "description": "If enabled, the agent will leverage a network driver to steer AI traffic to the\nproxy.",
+            "type": "boolean"
+          },
+          "driverExcludeAddressTimeout": {
+            "default": "1h",
+            "description": "The length of time to exclude an address from being proxied. Fractional seconds\nwill be truncated.",
+            "example": "10m",
+            "type": "string"
+          },
+          "driverPortRanges": {
+            "description": "The list of port ranges for the driver to listen on.",
+            "items": {
+              "$ref": "#/components/schemas/driverportrange"
+            },
+            "type": "array"
+          },
+          "driverQUICBlockDisabled": {
+            "description": "If disabled, QUIC will not be blocked by the driver.",
+            "type": "boolean"
+          },
           "emergencyPauseEnabled": {
             "description": "Use this option in emergencies if your users are being blocked.\nWhen enabled, it will force all agents to pause at the next refresh of their\nconfiguration or when the user clicks “Reload” on their laptop.\nWhen paused, agents are not enforcing security rules.",
             "type": "boolean"
@@ -544,6 +565,12 @@
             "readOnly": true,
             "type": "array"
           },
+          "scanThrottle": {
+            "default": "50ms",
+            "description": "The amount to throttle the scanner to avoid CPU load. Can be set to 0 to go full\nspeed.",
+            "example": "20ms",
+            "type": "string"
+          },
           "subject": {
             "description": "A tag expression that identifies the user(s) tied to this config.",
             "example": [
@@ -563,6 +590,18 @@
           "systemProxyManagementDisabled": {
             "description": "If disabled, the system proxy needs to be configured manually.",
             "type": "boolean"
+          },
+          "tokenTTLFetchInterval": {
+            "default": "4h",
+            "description": "The interval in which the agent will check for token time to live changes.\nUseful for revocation management.",
+            "example": "1h",
+            "type": "string"
+          },
+          "tokenValidity": {
+            "default": "48h",
+            "description": "How long all future tokens will be valid. Can be in a range from 30s to 720h.",
+            "example": "24h",
+            "type": "string"
           },
           "tunnelEnabled": {
             "description": "If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the\napex will make its requests to the destination back through the agent over the\nsame tunnel.",
@@ -3889,6 +3928,20 @@
           "domain",
           "hits"
         ],
+        "type": "object"
+      },
+      "driverportrange": {
+        "description": "The port range for the driver to listen on.",
+        "properties": {
+          "end": {
+            "description": "The ending port of the range.",
+            "type": "integer"
+          },
+          "start": {
+            "description": "The starting port of the range.",
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "egressdefaultpolicy": {
