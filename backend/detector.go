@@ -16,6 +16,9 @@ type Detector struct {
 	// The description of the detection.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
+	// The friendly name of the detection.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"-" mapstructure:"friendlyName,omitempty"`
+
 	// The group the detection belongs to.
 	Group string `json:"group" msgpack:"group" bson:"-" mapstructure:"group,omitempty"`
 
@@ -177,6 +180,8 @@ func (o *Detector) ValueForAttribute(name string) any {
 	switch name {
 	case "description":
 		return o.Description
+	case "friendlyName":
+		return o.FriendlyName
 	case "group":
 		return o.Group
 	case "label":
@@ -198,6 +203,14 @@ var DetectorAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `The description of the detection.`,
 		Exposed:        true,
 		Name:           "description",
+		Type:           "string",
+	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FriendlyName",
+		Description:    `The friendly name of the detection.`,
+		Exposed:        true,
+		Name:           "friendlyName",
 		Type:           "string",
 	},
 	"Group": {
@@ -242,6 +255,14 @@ var DetectorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Description:    `The description of the detection.`,
 		Exposed:        true,
 		Name:           "description",
+		Type:           "string",
+	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FriendlyName",
+		Description:    `The friendly name of the detection.`,
+		Exposed:        true,
+		Name:           "friendlyName",
 		Type:           "string",
 	},
 	"group": {

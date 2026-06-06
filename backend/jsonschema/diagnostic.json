@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Diagnostic",
+  "$friendlyNamePlural": "Diagnostics",
+  "$modelName": "Diagnostic",
+  "$modelPackage": "lain",
+  "$modelResourceName": "diagnostics",
+  "$modelRestName": "diagnostic",
+  "additionalProperties": false,
+  "description": "Represents a diagnostic message for a gateway instance.",
+  "properties": {
+    "message": {
+      "$friendlyName": "Message",
+      "$required": true,
+      "description": "The diagnostic message.",
+      "title": "message",
+      "type": "string"
+    }
+  },
+  "required": [
+    "message"
+  ],
+  "title": "Diagnostic",
+  "type": "object"
+}

@@ -114,7 +114,14 @@ type ProviderTeam struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// A tag expression that identifies user(s).
+	// Sets the priority of this team. When a user matches multiple teams, the priority
+	// determines which team takes precedence. Lower numeric values indicate higher
+	// priority, so teams with smaller numbers are applied first. Negative values are
+	// allowed.
+	Priority int `json:"priority" msgpack:"priority" bson:"priority" mapstructure:"priority,omitempty"`
+
+	// Define who is part of this team by providing the JWT claims the members should
+	// have.
 	Subject [][]string `json:"subject" msgpack:"subject" bson:"subject" mapstructure:"subject,omitempty"`
 
 	// Last update date of the object.
@@ -178,6 +185,7 @@ func (o *ProviderTeam) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Priority = o.Priority
 	s.Subject = o.Subject
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -208,6 +216,7 @@ func (o *ProviderTeam) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Priority = s.Priority
 	o.Subject = s.Subject
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -323,6 +332,7 @@ func (o *ProviderTeam) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportLabel:     &o.ImportLabel,
 			Name:            &o.Name,
 			Namespace:       &o.Namespace,
+			Priority:        &o.Priority,
 			Subject:         &o.Subject,
 			UpdateTime:      &o.UpdateTime,
 			ZHash:           &o.ZHash,
@@ -351,6 +361,8 @@ func (o *ProviderTeam) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "priority":
+			sp.Priority = &(o.Priority)
 		case "subject":
 			sp.Subject = &(o.Subject)
 		case "updateTime":
@@ -398,6 +410,9 @@ func (o *ProviderTeam) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Priority != nil {
+		o.Priority = *so.Priority
 	}
 	if so.Subject != nil {
 		o.Subject = *so.Subject
@@ -532,6 +547,8 @@ func (o *ProviderTeam) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "priority":
+		return o.Priority
 	case "subject":
 		return o.Subject
 	case "updateTime":
@@ -666,17 +683,31 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"Priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Sets the priority of this team. When a user matches multiple teams, the priority
+determines which team takes precedence. Lower numeric values indicate higher
+priority, so teams with smaller numbers are applied first. Negative values are
+allowed.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
+	},
 	"Subject": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "subject",
 		ConvertedName:  "Subject",
-		Description:    `A tag expression that identifies user(s).`,
-		Exposed:        true,
-		Name:           "subject",
-		Orderable:      true,
-		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		Description: `Define who is part of this team by providing the JWT claims the members should
+have.`,
+		Exposed:   true,
+		Name:      "subject",
+		Orderable: true,
+		Stored:    true,
+		SubType:   "[][]string",
+		Type:      "external",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -816,17 +847,31 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"priority": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "priority",
+		ConvertedName:  "Priority",
+		Description: `Sets the priority of this team. When a user matches multiple teams, the priority
+determines which team takes precedence. Lower numeric values indicate higher
+priority, so teams with smaller numbers are applied first. Negative values are
+allowed.`,
+		Exposed: true,
+		Name:    "priority",
+		Stored:  true,
+		Type:    "integer",
+	},
 	"subject": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "subject",
 		ConvertedName:  "Subject",
-		Description:    `A tag expression that identifies user(s).`,
-		Exposed:        true,
-		Name:           "subject",
-		Orderable:      true,
-		Stored:         true,
-		SubType:        "[][]string",
-		Type:           "external",
+		Description: `Define who is part of this team by providing the JWT claims the members should
+have.`,
+		Exposed:   true,
+		Name:      "subject",
+		Orderable: true,
+		Stored:    true,
+		SubType:   "[][]string",
+		Type:      "external",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -937,7 +982,14 @@ type SparseProviderTeam struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// A tag expression that identifies user(s).
+	// Sets the priority of this team. When a user matches multiple teams, the priority
+	// determines which team takes precedence. Lower numeric values indicate higher
+	// priority, so teams with smaller numbers are applied first. Negative values are
+	// allowed.
+	Priority *int `json:"priority,omitempty" msgpack:"priority,omitempty" bson:"priority,omitempty" mapstructure:"priority,omitempty"`
+
+	// Define who is part of this team by providing the JWT claims the members should
+	// have.
 	Subject *[][]string `json:"subject,omitempty" msgpack:"subject,omitempty" bson:"subject,omitempty" mapstructure:"subject,omitempty"`
 
 	// Last update date of the object.
@@ -1019,6 +1071,9 @@ func (o *SparseProviderTeam) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Priority != nil {
+		s.Priority = o.Priority
+	}
 	if o.Subject != nil {
 		s.Subject = o.Subject
 	}
@@ -1074,6 +1129,9 @@ func (o *SparseProviderTeam) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Priority != nil {
+		o.Priority = s.Priority
+	}
 	if s.Subject != nil {
 		o.Subject = s.Subject
 	}
@@ -1126,6 +1184,9 @@ func (o *SparseProviderTeam) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Priority != nil {
+		out.Priority = *o.Priority
 	}
 	if o.Subject != nil {
 		out.Subject = *o.Subject
@@ -1269,6 +1330,7 @@ type mongoAttributesProviderTeam struct {
 	ImportLabel     string        `bson:"importlabel,omitempty"`
 	Name            string        `bson:"name"`
 	Namespace       string        `bson:"namespace,omitempty"`
+	Priority        int           `bson:"priority"`
 	Subject         [][]string    `bson:"subject"`
 	UpdateTime      time.Time     `bson:"updatetime"`
 	ZHash           int           `bson:"zhash"`
@@ -1284,6 +1346,7 @@ type mongoAttributesSparseProviderTeam struct {
 	ImportLabel     *string       `bson:"importlabel,omitempty"`
 	Name            *string       `bson:"name,omitempty"`
 	Namespace       *string       `bson:"namespace,omitempty"`
+	Priority        *int          `bson:"priority,omitempty"`
 	Subject         *[][]string   `bson:"subject,omitempty"`
 	UpdateTime      *time.Time    `bson:"updatetime,omitempty"`
 	ZHash           *int          `bson:"zhash,omitempty"`

@@ -1,0 +1,135 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@parentable"
+  ],
+  "$friendlyName": "Gateway Instance",
+  "$friendlyNamePlural": "Gateway Instances",
+  "$modelName": "GatewayInstance",
+  "$modelPackage": "lain",
+  "$modelResourceName": "gatewayinstances",
+  "$modelRestName": "gatewayinstance",
+  "additionalProperties": false,
+  "description": "Displays the status of a running gateway instance. A gateway instance is a running process that has registered itself with the platform using a gateway token. One gateway can have multiple instances running on different hosts.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "config": {
+      "$friendlyName": "Config",
+      "description": "The configuration that the gateway was started with. The format of the config is version specific and subject to change.",
+      "title": "config",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currentVersion": {
+      "$friendlyName": "Current Version",
+      "description": "The current version of the gateway.",
+      "title": "currentVersion",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "diagnostics": {
+      "$friendlyName": "Diagnostics",
+      "description": "List of diagnostics for this instance.",
+      "items": {
+        "$ref": "diagnostic.json"
+      },
+      "title": "diagnostics",
+      "type": "array"
+    },
+    "healthy": {
+      "$friendlyName": "Healthy",
+      "description": "True if the gateway instance is considered healthy.",
+      "title": "healthy",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "$required": true,
+      "description": "The name of the host where the gateway is running.",
+      "title": "hostname",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parentID": {
+      "$friendlyName": "Parent ID",
+      "$readOnly": true,
+      "description": "The ID of the parent resource.",
+      "title": "parentID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "description": "The last ping recorded for the gateway instance.",
+      "title": "ping",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start time for the gateway instance.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the gateway instance.",
+      "enum": [
+        "Alive",
+        "Stopped",
+        "Unresponsive"
+      ],
+      "title": "status"
+    },
+    "tokenID": {
+      "$friendlyName": "Token ID",
+      "$readOnly": true,
+      "description": "The ID of the gateway token this gw instance authenticated with.",
+      "title": "tokenID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "hostname",
+    "status"
+  ],
+  "title": "GatewayInstance",
+  "type": "object"
+}

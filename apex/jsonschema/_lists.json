@@ -150,6 +150,12 @@
       },
       "type": "array"
     },
+    "roundtriperrors": {
+      "items": {
+        "$ref": "roundtriperror.json"
+      },
+      "type": "array"
+    },
     "scanrequests": {
       "items": {
         "$ref": "scanrequest.json"
@@ -165,6 +171,12 @@
     "textualdetections": {
       "items": {
         "$ref": "textualdetection.json"
+      },
+      "type": "array"
+    },
+    "toolarguments": {
+      "items": {
+        "$ref": "toolargument.json"
       },
       "type": "array"
     },

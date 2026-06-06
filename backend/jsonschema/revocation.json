@@ -1,0 +1,135 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Revocation",
+  "$friendlyNamePlural": "Revocations",
+  "$modelName": "Revocation",
+  "$modelPackage": "a3s",
+  "$modelResourceName": "revocations",
+  "$modelRestName": "revocation",
+  "additionalProperties": false,
+  "description": "A Revocation allows to mark a token as revoked based on its ID (jti).",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activeAfter": {
+      "$friendlyName": "Active After",
+      "description": "Only apply the revocation after the given time if non zero. If zero, the revocation is active immediately.",
+      "title": "activeAfter",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activeAfterRel": {
+      "$friendlyName": "Active After Relative",
+      "description": "Only apply the revocation after the given relative time if non zero. If zero the revocation is active immediately. Cannot be set if activeAfter is set.",
+      "title": "activeAfterRel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expiration": {
+      "$friendlyName": "Expiration",
+      "description": "The expiration date of the token.",
+      "title": "expiration",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "expirationRel": {
+      "$friendlyName": "Expiration Relative",
+      "description": "The relative expiration of the revocation. Cannot be set if expiration is set.",
+      "title": "expirationRel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issuedBefore": {
+      "$friendlyName": "Issued Before",
+      "description": "Only apply the revocation if the token has been issued before the given date, if non zero. Cannot be set if issuedBeforeRel is set.",
+      "title": "issuedBefore",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issuedBeforeRel": {
+      "$friendlyName": "Issued Before Relative",
+      "description": "Only apply the revocation if the token has been issued before the given relative date, if non zero. Cannot be set if issuedBefore is set.",
+      "title": "issuedBeforeRel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "subject": {
+      "$friendlyName": "Subject",
+      "description": "A tag expression that identifies the authorized user(s).",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "subject",
+      "type": "array"
+    },
+    "tokenID": {
+      "$friendlyName": "TokenID",
+      "description": "The ID of the revoked token.",
+      "title": "tokenID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Revocation",
+  "type": "object"
+}

@@ -40,6 +40,15 @@
         "null"
       ]
     },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "description": "The friendly name of the detection.",
+      "title": "friendlyName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "group": {
       "$friendlyName": "Group",
       "description": "The group the detection belongs to.",

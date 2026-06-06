@@ -103,9 +103,18 @@
         "null"
       ]
     },
+    "priority": {
+      "$friendlyName": "Priority",
+      "description": "Sets the priority of this team. When a user matches multiple teams, the priority determines which team takes precedence. Lower numeric values indicate higher priority, so teams with smaller numbers are applied first. Negative values are allowed.",
+      "title": "priority",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "subject": {
       "$friendlyName": "Subject",
-      "description": "A tag expression that identifies user(s).",
+      "description": "Define who is part of this team by providing the JWT claims the members should have.",
       "items": {
         "items": {
           "type": "string"

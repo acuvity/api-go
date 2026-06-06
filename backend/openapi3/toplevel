@@ -48,6 +48,10 @@
             "description": "If true, the policy is disabled.",
             "type": "boolean"
           },
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
@@ -1921,7 +1925,7 @@
         "type": "object"
       },
       "analyzermatcher": {
-        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections and/or metadata should trigger an analyzer. It allows for\nflexible pattern\nmatching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses metadata attributes such as type, hasTools and\nhasToolUses.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections and/or\nmetadata.",
+        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections, metadata and/or pipeline constraints should trigger an\nanalyzer. It allows for flexible pattern matching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses a key/operator/values expression (k8s-style) to match\na metadata field such as type, role, tools or toolUses.\n- for scope Constraint, uses pipeline execution constraints such as maxDepth.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections, metadata\nand/or pipeline constraints.",
         "properties": {
           "confidence": {
             "default": "Low",
@@ -1943,6 +1947,11 @@
             "example": "Text",
             "type": "string"
           },
+          "key": {
+            "description": "For scope Metadata, the metadata field to match against (e.g. 'type', 'role',\n'tools', 'toolUses').",
+            "example": "type",
+            "type": "string"
+          },
           "label": {
             "default": "*",
             "description": "The label pattern used to match detection label. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection label.",
@@ -1957,28 +1966,35 @@
           },
           "operator": {
             "default": "Min",
-            "description": "Specifies how to compare the detection's confidence value against the matcher's\nthreshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nThe default value is 'Min'.",
+            "description": "Specifies how to compare the matched attribute. The meaning depends on the\nscope.\nFor scope Detection, compares the detection's confidence value against the\nmatcher's threshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nFor scope Metadata, compares the metadata field (key) against values:\n- 'In': the field value is one of values\n- 'NotIn': the field value is none of values\n- 'Exists': the field is set (values is ignored)\n- 'DoesNotExist': the field is not set (values is ignored)\nThe default value is 'Min'.",
             "enum": [
               "Is",
               "Min",
-              "Max"
+              "Max",
+              "In",
+              "NotIn",
+              "Exists",
+              "DoesNotExist"
             ]
           },
           "scope": {
             "default": "Detection",
-            "description": "The scope of the matcher, can be either Detection or Metadata.",
+            "description": "The scope of the matcher, can be Detection, Metadata or Constraint.",
             "enum": [
               "Detection",
-              "Metadata"
+              "Metadata",
+              "Constraint"
             ]
           },
-          "type": {
-            "default": "Input",
-            "description": "The type of data, either Input or Output.",
-            "enum": [
-              "Input",
-              "Output"
-            ]
+          "values": {
+            "description": "For scope Metadata, the list of values to compare the metadata field against.\nUsed by the 'In' and 'NotIn' operators and ignored by 'Exists' and\n'DoesNotExist'.",
+            "example": [
+              "Input"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -2323,6 +2339,14 @@
             "example": "mailerd",
             "type": "string"
           },
+          "renewToken": {
+            "description": "Set to true on update to issue a new credential.",
+            "type": "boolean"
+          },
+          "renewTokenTag": {
+            "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
           "selector": {
             "$ref": "#/components/schemas/appcomponentselector"
           },
@@ -2330,6 +2354,14 @@
             "description": "The token for the current component. Only populated by the backend when the\ncaller's\nclaim match the parents app.subject.",
             "readOnly": true,
             "type": "string"
+          },
+          "tokenref": {
+            "description": "The list of tokens issued for this component.",
+            "items": {
+              "$ref": "#/components/schemas/tokenref"
+            },
+            "readOnly": true,
+            "type": "array"
           }
         },
         "required": [
@@ -2381,6 +2413,10 @@
               "Allow",
               "Deny"
             ]
+          },
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
           },
           "listeners": {
             "description": "The defined listeners for this ingress workload.",
@@ -3114,7 +3150,7 @@
         "properties": {
           "action": {
             "default": "Allow",
-            "description": "The action taken.",
+            "description": "The action taken. Error stays in the allowed_choices list for\nbackward compatibility with clients that still PUT reports with\nthat value; new reports never emit it — platform/upstream\nfailures surface via the structured Error field instead.\nNOTE: safe to drop Error from this enum on or after 2026-07-19\n(two months after the structured RoundtripError landed on\n2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Allow",
               "Deny",
@@ -3151,6 +3187,9 @@
           },
           "encryption": {
             "$ref": "#/components/schemas/connectionencryption"
+          },
+          "error": {
+            "$ref": "#/components/schemas/roundtriperror"
           },
           "hostname": {
             "description": "The hostname that the connection is made to, if available.",
@@ -3571,6 +3610,10 @@
             "description": "The end position of the positional detection.",
             "type": "integer"
           },
+          "friendlyName": {
+            "description": "The friendly name of the detection.",
+            "type": "string"
+          },
           "group": {
             "description": "The group the detection belongs to.",
             "type": "string"
@@ -3609,6 +3652,10 @@
             "description": "The description of the detection.",
             "type": "string"
           },
+          "friendlyName": {
+            "description": "The friendly name of the detection.",
+            "type": "string"
+          },
           "group": {
             "description": "The group the detection belongs to.",
             "type": "string"
@@ -3626,6 +3673,20 @@
             "type": "boolean"
           }
         },
+        "type": "object"
+      },
+      "diagnostic": {
+        "description": "Represents a diagnostic message for a gateway instance.",
+        "properties": {
+          "message": {
+            "description": "The diagnostic message.",
+            "example": "Bad message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
         "type": "object"
       },
       "digestreport": {
@@ -3727,7 +3788,7 @@
           },
           "action": {
             "default": "Allow",
-            "description": "The action taken.",
+            "description": "The action taken. Error stays in the allowed_choices list for\nbackward compatibility with clients that still PUT reports with\nthat value; new reports never emit it — platform/upstream\nfailures surface via the structured Error field instead.\nNOTE: safe to drop Error from this enum on or after 2026-07-19\n(two months after the structured RoundtripError landed on\n2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Allow",
               "Deny",
@@ -3748,6 +3809,9 @@
             "description": "The domain that was queried.",
             "example": "example.com",
             "type": "string"
+          },
+          "error": {
+            "$ref": "#/components/schemas/roundtriperror"
           },
           "hits": {
             "description": "The number of times this domain was queried.",
@@ -3837,6 +3901,10 @@
               "Allow",
               "Deny"
             ]
+          },
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
           }
         },
         "required": [
@@ -3882,7 +3950,7 @@
             "type": "string"
           },
           "rules": {
-            "description": "The list of rules for the egress policy.",
+            "description": "Rules that define how egress traffic is handled.",
             "items": {
               "$ref": "#/components/schemas/egresspolicyrule"
             },
@@ -4123,6 +4191,20 @@
             },
             "type": "object"
           },
+          "kind": {
+            "default": "Message",
+            "description": "The kind of content carried by this extraction. Used together with role to\nlabel what the extracted blob represents so the UI can render it correctly and\nanalyzers can dispatch appropriately:\n- Message: free-form natural language (default).\n- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,\nGemini thought).\n- ToolDefinition: tool/function schema advertised to the model (name,\ndescription, JSON schema).\n- ToolInput: structured arguments the model passes when invoking a tool.\n- ToolOutput: result returned to the model after a tool call.\n- File: uploaded or attached file payload.\n- Resource: externally-supplied context injected into the prompt (RAG\ndocument, search result, MCP resource).\n- Event: control or lifecycle marker with no analyzable content.",
+            "enum": [
+              "Message",
+              "Thinking",
+              "ToolDefinition",
+              "ToolInput",
+              "ToolOutput",
+              "File",
+              "Resource",
+              "Event"
+            ]
+          },
           "label": {
             "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
@@ -4164,6 +4246,16 @@
             "description": "The level of general organization relevance of the input.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": 0.9,
             "type": "number"
+          },
+          "role": {
+            "default": "User",
+            "description": "The role of the message represented by this extraction.",
+            "enum": [
+              "User",
+              "Assistant",
+              "System",
+              "Tool"
+            ]
           },
           "secrets": {
             "description": "The secrets found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Secrets' accross all analyzers.\n\nExample of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,\naws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,\ncredentials, database_url_with_credentials, databricks, denodeploy, dfuse,\ndigitalocean, discord_webhook, docker_hub, doppler, dropbox, endorlabs,\nfleetbase, flutterwave, frameio, freshdesk, fullstory, github, gitlab,\ngocardless, google_api, grafana, groq, huggingface, intra42, jwt, klaviyo,\nlaunchdarkly, linearapi, locationiq, mailchimp, mailgun, mapbox, maxmind,\nmicrosoft_teams_webhook, nightfall, notion, npm, openai, otp_auth_url, pagarme,\npaystack, planetscale, planetscaledb, portainer, posthog, postman, prefect,\nprivate_key, pubnub_publish, pubnub_subscribe, pulumi, ramp, razorpay, readme,\nrechargepayments, replicate, rubygems, salesforce, sendgrid, sendinblue,\nshopify, slack_access, slack_bot, slack_refresh, slack_user, slack_webhook,\nslack_workflow_webhook, sourcegraph, sourcegraphcody, squareapp, squareup,\nstripe, supabase, tailscale, tines_webhook, trufflehog, twilio, ubidots,\nvoiceflow, web_url_with_credentials, zapierwebhook.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
@@ -4328,7 +4420,11 @@
             "type": "boolean"
           },
           "description": {
-            "description": "The description of the provider.",
+            "description": "The description of the extractor.",
+            "type": "string"
+          },
+          "featureName": {
+            "description": "The feature name being extracted on. This allows us to label specific extractors\nso we can group and apply policies per provider feature.",
             "type": "string"
           },
           "honorPriorDecision": {
@@ -4382,8 +4478,8 @@
           "path": {
             "description": "A regular expression to match a URL path to log.",
             "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
+              "/v1/*/hello/*",
+              "/api/v1"
             ],
             "type": "string"
           },
@@ -4787,6 +4883,155 @@
         ],
         "type": "object"
       },
+      "gateway": {
+        "description": "Gateway represents an AI Security Gateway.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the gateway.",
+            "example": "Production apex-agent for cluster-east-1",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the gateway.",
+            "example": "aisg",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "renewToken": {
+            "description": "Set to true on update to issue a new credential.",
+            "type": "boolean"
+          },
+          "renewTokenTag": {
+            "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
+          "token": {
+            "description": "The issued JWT, populated only in the response of an update where\nrenewToken was set to true.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "tokenRefs": {
+            "description": "The list of references to issued tokens.",
+            "items": {
+              "$ref": "#/components/schemas/tokenref"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "gatewayinstance": {
+        "description": "Displays the status of a running gateway instance. A gateway instance is a\nrunning process that has registered itself with the platform using a gateway\ntoken. One gateway can have multiple instances running on different hosts.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "config": {
+            "description": "The configuration that the gateway was started with. The format of the config\nis version specific and subject to change.",
+            "example": "{\"log_level\":\"info\"}",
+            "type": "string"
+          },
+          "currentVersion": {
+            "description": "The current version of the gateway.",
+            "example": "0.1.0",
+            "type": "string"
+          },
+          "diagnostics": {
+            "description": "List of diagnostics for this instance.",
+            "items": {
+              "$ref": "#/components/schemas/diagnostic"
+            },
+            "type": "array"
+          },
+          "healthy": {
+            "description": "True if the gateway instance is considered healthy.",
+            "type": "boolean"
+          },
+          "hostname": {
+            "description": "The name of the host where the gateway is running.",
+            "example": "this-hostname",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ping": {
+            "description": "The last ping recorded for the gateway instance.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "start": {
+            "description": "The start time for the gateway instance.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of the gateway instance.",
+            "enum": [
+              "Alive",
+              "Stopped",
+              "Unresponsive"
+            ],
+            "example": "Alive"
+          },
+          "tokenID": {
+            "description": "The ID of the gateway token this gw instance authenticated with.",
+            "example": "8ef1a635-6d7c-4795-bda8-af048f0169f2",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "hostname",
+          "status"
+        ],
+        "type": "object"
+      },
       "gitbooktoken": {
         "description": "Allows to exchange an Acuvity token for a token signed for our documentation.",
         "properties": {
@@ -4806,12 +5051,13 @@
             "type": "boolean"
           },
           "name": {
-            "description": "The hostname.",
+            "description": "The hostname. Supports wildcards like *.example.com.",
             "example": "chat.openai.com",
             "type": "string"
           },
           "prefix": {
             "description": "URL prefix for additional matching.",
+            "example": "/v1",
             "type": "string"
           },
           "proxyLabel": {
@@ -5513,8 +5759,8 @@
           "path": {
             "description": "A regular expression to match a URL path to log.",
             "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
+              "/v1/*/hello/*",
+              "/api/v1"
             ],
             "type": "string"
           },
@@ -5804,8 +6050,8 @@
           "path": {
             "description": "A regular expression to match a URL path to log.",
             "example": [
-              "/api/v1",
-              "/v1/*/hello/*"
+              "/v1/*/hello/*",
+              "/api/v1"
             ],
             "type": "string"
           },
@@ -5856,6 +6102,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "oauthApplication": {
+            "$ref": "#/components/schemas/identityref"
+          },
           "ping": {
             "description": "The last ping recorded for the agent.",
             "example": "2024-06-21T00:36:15.021Z",
@@ -5894,6 +6143,258 @@
           "ping",
           "publicURL",
           "status"
+        ],
+        "type": "object"
+      },
+      "mcpgatewaybackend": {
+        "description": "Represents a Maxibridge backend attached to an MCP gateway.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Upstream OAuth client ID.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Upstream OAuth client secret.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
+            "type": "string"
+          },
+          "providerRef": {
+            "$ref": "#/components/schemas/identityref"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientID",
+          "providerRef"
+        ],
+        "type": "object"
+      },
+      "mcpgatewayclient": {
+        "description": "Represents OAuth clients connected to MCP gateways.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Client identifier used in OAuth requests.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Client secret associated with the client ID.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the MCP gateway client.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "oauthClient": {
+            "$ref": "#/components/schemas/identityref"
+          },
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
+            "type": "string"
+          },
+          "redirectURIs": {
+            "description": "List of allowed redirect URIs for the client.",
+            "example": [
+              "https://client.example.com/callback"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientID",
+          "redirectURIs"
+        ],
+        "type": "object"
+      },
+      "mcpgatewayconf": {
+        "description": "MCPGatewayConf is an API for MCP gateways.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "backends": {
+            "description": "The rendered Maxibridge backends attached to this MCP gateway.",
+            "items": {
+              "$ref": "#/components/schemas/mcpgatewayconfbackend"
+            },
+            "type": "array"
+          },
+          "gatewayName": {
+            "description": "The name of the parent MCP gateway for configuration invalidation events.",
+            "example": "Dev Gateway",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "revision": {
+            "description": "A stable hash of the effective rendered configuration.",
+            "example": "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae",
+            "type": "string"
+          },
+          "schemaVersion": {
+            "default": 1,
+            "description": "The MCP gateway configuration wire schema version.",
+            "example": 1,
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "mcpgatewayconfbackend": {
+        "description": "The rendered backend shape consumed by Maxibridge in an MCP gateway\nconfiguration.",
+        "properties": {
+          "URL": {
+            "description": "The upstream URL of the backend.",
+            "example": "https://mcp.example.com/mcp",
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Upstream OAuth client ID.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Upstream OAuth client secret.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the backend.",
+            "example": "fetch-provider",
+            "type": "string"
+          },
+          "oauthTokenEncryptionClaim": {
+            "description": "The claim used to derive the encryption key for stored OAuth tokens.",
+            "example": "mcp:session:secret",
+            "type": "string"
+          },
+          "oauthTokenIndexingClaims": {
+            "description": "The claims used to index stored OAuth tokens.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providerName": {
+            "description": "The name of the provider backing this backend.",
+            "example": "fetch-provider",
+            "type": "string"
+          },
+          "serverName": {
+            "description": "The normalized MCP server name exposed to clients.",
+            "example": "fetch_provider",
+            "type": "string"
+          },
+          "tools": {
+            "description": "The rendered tools attached to this backend.",
+            "items": {
+              "$ref": "#/components/schemas/mcpgatewayconftool"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "mcpgatewayconftool": {
+        "description": "The rendered tool shape consumed by Maxibridge in an MCP gateway configuration.",
+        "properties": {
+          "MCPAnnotations": {
+            "$ref": "#/components/schemas/mcptoolannotations"
+          },
+          "description": {
+            "description": "The description of the tool.",
+            "example": "Fetch a website and return Markdown.",
+            "type": "string"
+          },
+          "inputSchema": {
+            "description": "The JSON schema of the tool input arguments.",
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the tool.",
+            "example": "fetch_provider__fetch_markdown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
         ],
         "type": "object"
       },
@@ -6465,7 +6966,9 @@
           }
         },
         "required": [
-          "clientSecret"
+          "clientID",
+          "clientSecret",
+          "clientTenantID"
         ],
         "type": "object"
       },
@@ -7189,6 +7692,7 @@
               "DstComponent",
               "DstIPRange",
               "Exploits",
+              "FeatureName",
               "IsIngress",
               "Keywords",
               "Languages",
@@ -7497,6 +8001,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "MCPURL": {
+            "description": "The MCP endpoint URL for MCP server providers.",
+            "example": "https://mcp.example.com/mcp",
+            "type": "string"
+          },
           "category": {
             "description": "The category of the provider.",
             "enum": [
@@ -7618,6 +8127,13 @@
             "description": "If true, consider the incoming calls to use an acuvity token and swap them using\nregistered providertokens.",
             "type": "boolean"
           },
+          "tools": {
+            "description": "The list of available tools for MCP server providers.",
+            "items": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "type": "array"
+          },
           "trustedCA": {
             "description": "If set, additionally trust the Certificate Authorities from the PEM data. This\nis useful when working on a custom provider using a self signed CA chain.",
             "type": "string"
@@ -7719,8 +8235,12 @@
             "readOnly": true,
             "type": "string"
           },
+          "priority": {
+            "description": "Sets the priority of this team. When a user matches multiple teams, the priority\ndetermines which team takes precedence. Lower numeric values indicate higher\npriority, so teams with smaller numbers are applied first. Negative values are\nallowed.",
+            "type": "integer"
+          },
           "subject": {
-            "description": "A tag expression that identifies user(s).",
+            "description": "Define who is part of this team by providing the JWT claims the members should\nhave.",
             "items": {
               "items": {
                 "type": "string"
@@ -8056,7 +8576,7 @@
             "type": "boolean"
           },
           "decision": {
-            "description": "Tell what was the decision about the data.",
+            "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Deny",
               "Allow",
@@ -8066,9 +8586,9 @@
               "ForbiddenUser",
               "Skipped",
               "Redirected",
+              "NotApplicable",
               "Error",
-              "UpstreamError",
-              "NotApplicable"
+              "UpstreamError"
             ]
           },
           "destination": {
@@ -8079,6 +8599,9 @@
           },
           "encryptionIngress": {
             "$ref": "#/components/schemas/tlsstate"
+          },
+          "error": {
+            "$ref": "#/components/schemas/roundtriperror"
           },
           "extractions": {
             "description": "The extractions to log.",
@@ -8344,6 +8867,77 @@
         },
         "type": "object"
       },
+      "revocation": {
+        "description": "A Revocation allows to mark a token as revoked based on its ID (jti).",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "activeAfter": {
+            "description": "Only apply the revocation after the given time if non zero. If zero, the\nrevocation is active immediately.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "activeAfterRel": {
+            "description": "Only apply the revocation after the given relative time if non zero. If zero the\nrevocation is active immediately. Cannot be set if activeAfter is set.",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "expiration": {
+            "description": "The expiration date of the token.",
+            "example": "2023-11-08T18:38:04.51Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "expirationRel": {
+            "description": "The relative expiration of the revocation. Cannot be set if expiration is set.",
+            "type": "string"
+          },
+          "issuedBefore": {
+            "description": "Only apply the revocation if the token has been issued before the given date, if\nnon zero. Cannot be set if issuedBeforeRel is set.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "issuedBeforeRel": {
+            "description": "Only apply the revocation if the token has been issued before the given relative\ndate, if non zero. Cannot be set if issuedBefore is set.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "subject": {
+            "description": "A tag expression that identifies the authorized user(s).",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
+          "tokenID": {
+            "description": "The ID of the revoked token.",
+            "example": "ff199ae8-8e15-4daf-9c90-155d9cba90c2",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "role": {
         "description": "Role for API Authorizations.",
         "properties": {
@@ -8378,6 +8972,49 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "roundtriperror": {
+        "description": "Structured error info attached to a roundtrip when a non-user-facing\nplatform stage or the upstream provider failed. Carries the platform-side\ndetail (type, stage, message) for debugging and provider-health\nderivation. The Decision field still reflects the policy/processing\noutcome per existing semantics.",
+        "properties": {
+          "message": {
+            "description": "Human-readable error message.",
+            "type": "string"
+          },
+          "previousDecision": {
+            "description": "The decision produced before the failClose or failOpen mutation\nflipped it. Set only when the user-facing Decision is the result\nof a platform-error override, so the audit log can surface what\nthe policy would have decided otherwise.",
+            "enum": [
+              "Deny",
+              "Allow",
+              "Ask",
+              "Report",
+              "Bypassed",
+              "ForbiddenUser",
+              "Skipped",
+              "Redirected",
+              "NotApplicable"
+            ],
+            "readOnly": true
+          },
+          "stage": {
+            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nAcuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
+            "enum": [
+              "Extraction",
+              "Analysis",
+              "ContentPolicy",
+              "AssignPolicy",
+              "AccessPolicy",
+              "Upstream"
+            ]
+          },
+          "type": {
+            "description": "The source of the failure. PlatformError covers apex-side stages\n(Extraction, Analysis, ContentPolicy, AccessPolicy). UpstreamError\ncovers anything attributable to the upstream provider (transport\nfailures or non-2xx HTTP responses).",
+            "enum": [
+              "PlatformError",
+              "UpstreamError"
+            ]
           }
         },
         "type": "object"
@@ -9046,7 +9683,7 @@
             "type": "string"
           },
           "insecureSkipVerify": {
-            "description": "If true, will attempt to skip TLS verification when communicating.",
+            "description": "If true, will attempt to skip TLS verification when communicating. Not\nrecommended.",
             "type": "boolean"
           },
           "token": {
@@ -9292,6 +9929,41 @@
         ],
         "type": "object"
       },
+      "tokenref": {
+        "description": "Represents a reference to a token.",
+        "properties": {
+          "claims": {
+            "description": "The claims of the token.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "expiresAt": {
+            "description": "The expiration time of the referenced token.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "issuedAt": {
+            "description": "The issuing time of the referenced token.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "tag": {
+            "description": "Used to identify what this token is used for.",
+            "type": "string"
+          },
+          "tokenID": {
+            "description": "The ID (JID) of the referenced token.",
+            "example": "abcdefgh1234567890",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tokenID"
+        ],
+        "type": "object"
+      },
       "tool": {
         "description": "Represents a tool that can enhance a genAI model's capabilities.",
         "properties": {
@@ -9300,6 +9972,13 @@
           },
           "MCPServer": {
             "$ref": "#/components/schemas/mcpserver"
+          },
+          "arguments": {
+            "description": "The input arguments accepted by this tool.",
+            "items": {
+              "$ref": "#/components/schemas/toolargument"
+            },
+            "type": "array"
           },
           "category": {
             "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
@@ -9326,6 +10005,38 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "toolargument": {
+        "description": "Represents a tool input argument.",
+        "properties": {
+          "description": {
+            "description": "The description of the argument.",
+            "example": "URL to fetch.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the argument.",
+            "example": "url",
+            "type": "string"
+          },
+          "required": {
+            "description": "Whether this argument is required by the tool.",
+            "type": "boolean"
+          },
+          "schema": {
+            "description": "The JSON schema for this argument, excluding fields promoted to top-level\nattributes.",
+            "type": "object"
+          },
+          "type": {
+            "description": "The JSON schema type of the argument.",
+            "example": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
         "type": "object"
       },
       "toolchoice": {
@@ -12621,6 +13332,85 @@
         ]
       }
     },
+    "/clients/{id}": {
+      "delete": {
+        "description": "Delete an MCP Gateway Client given its identifier.",
+        "operationId": "delete-MCPGatewayClient",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an MCP Gateway Client given its identifier.",
+        "operationId": "get-MCPGatewayClient",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an MCP Gateway Client given its identifier.",
+        "operationId": "update-MCPGatewayClient",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpgatewayclient"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      }
+    },
     "/contentpolicies": {
       "get": {
         "description": "List all available content policies.",
@@ -13940,6 +14730,291 @@
         ]
       }
     },
+    "/gatewayinstances/{id}": {
+      "delete": {
+        "description": "Deletes the Gateway Instance with the given ID.",
+        "operationId": "delete-GatewayInstance",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gatewayinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the Gateway Instance with the given ID.",
+        "operationId": "get-GatewayInstance",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gatewayinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the Gateway Instance with the given ID.",
+        "operationId": "update-GatewayInstance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/gatewayinstance"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gatewayinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/gateways": {
+      "get": {
+        "description": "List all gateways.",
+        "operationId": "get-all-Gateways",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/gateway"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new gateway.",
+        "operationId": "create-Gateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/gateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/gateways/{id}": {
+      "delete": {
+        "description": "Deletes the Gateway with the given ID and revokes all tokens issued for this gateway.",
+        "operationId": "delete-Gateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the Gateway with the given ID.",
+        "operationId": "get-Gateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the Gateway with the given ID. Set renewToken to true to issue a\nnew JWT for this gateway; the new token will be returned in the response\nvia the transient token field and a Principal entry referencing its\ntokenID will be appended to principals.",
+        "operationId": "update-Gateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/gateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/gateways/{id}/gatewayinstances": {
+      "get": {
+        "description": "Retrieves the list of instances for this gateway.",
+        "operationId": "get-all-GatewayInstances-in-gateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/gatewayinstance"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Creates a new instance for this gateway.",
+        "operationId": "create-GatewayInstance-in-gateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/gatewayinstance"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/gatewayinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/gitbooktokens": {
       "get": {
         "description": "List all available access policies.",
@@ -14319,6 +15394,85 @@
         }
       ]
     },
+    "/mcpgatewaybackends/{id}": {
+      "delete": {
+        "description": "Delete an MCP Gateway Backend given its identifier.",
+        "operationId": "delete-MCPGatewayBackend",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewaybackend"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an MCP Gateway Backend given its identifier.",
+        "operationId": "get-MCPGatewayBackend",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewaybackend"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an MCP Gateway Backend given its identifier.",
+        "operationId": "update-MCPGatewayBackend",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpgatewaybackend"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewaybackend"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      }
+    },
     "/mcpgateways": {
       "get": {
         "description": "List all available mcp gateways.",
@@ -14412,6 +15566,166 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/mcpgateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/mcpgateways/{id}/clients": {
+      "get": {
+        "description": "Retrieves the list of MCP gateway clients for this MCP gateway.",
+        "operationId": "get-all-MCPGatewayClients-in-mcpgateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcpgatewayclient"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Creates a new MCP gateway client for this MCP gateway.",
+        "operationId": "create-MCPGatewayClient-in-mcpgateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpgatewayclient"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      }
+    },
+    "/mcpgateways/{id}/mcpgatewaybackends": {
+      "get": {
+        "description": "Retrieves the list of MCP gateway backends for this MCP gateway.",
+        "operationId": "get-all-MCPGatewayBackends-in-mcpgateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcpgatewaybackend"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Creates a new MCP gateway backend for this MCP gateway.",
+        "operationId": "create-MCPGatewayBackend-in-mcpgateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcpgatewaybackend"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcpgatewaybackend"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "mcp"
+        ]
+      }
+    },
+    "/mcpgateways/{id}/mcpgatewayconfs": {
+      "get": {
+        "description": "Retrieves the runtime configuration for this MCP gateway.",
+        "operationId": "get-all-MCPGatewayConfs-in-mcpgateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcpgatewayconf"
+                  },
+                  "type": "array"
                 }
               }
             },
@@ -16557,6 +17871,56 @@
           "core"
         ]
       }
+    },
+    "/revocations/{id}": {
+      "delete": {
+        "description": "Deletes a particular revocation.",
+        "operationId": "delete-Revocation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/revocation"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Get a particular revocation object.",
+        "operationId": "get-Revocation",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/revocation"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
     },
     "/roles": {
       "get": {

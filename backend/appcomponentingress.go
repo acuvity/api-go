@@ -31,6 +31,14 @@ type AppComponentIngress struct {
 	// not match any of the ACLs.
 	DefaultACLAction AppComponentIngressDefaultACLActionValue `json:"defaultACLAction,omitempty" msgpack:"defaultACLAction,omitempty" bson:"defaultaclaction,omitempty" mapstructure:"defaultACLAction,omitempty"`
 
+	// If true, when any non-user-facing platform stage fails during request
+	// handling (extractor, mapper, analyzer, content policy, body read, etc.),
+	// the request is rejected. When false (default), the request is allowed
+	// through unanalyzed (fail-open), trading safety for availability.
+	// User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+	// and continue to be enforced. Default false.
+	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
+
 	// The defined listeners for this ingress workload.
 	Listeners []*IngressListener `json:"listeners,omitempty" msgpack:"listeners,omitempty" bson:"listeners,omitempty" mapstructure:"listeners,omitempty"`
 
@@ -75,6 +83,7 @@ func (o *AppComponentIngress) GetBSON() (any, error) {
 
 	s.ACLs = o.ACLs
 	s.DefaultACLAction = o.DefaultACLAction
+	s.FailClose = o.FailClose
 	s.Listeners = o.Listeners
 
 	return s, nil
@@ -95,6 +104,7 @@ func (o *AppComponentIngress) SetBSON(raw bson.Raw) error {
 
 	o.ACLs = s.ACLs
 	o.DefaultACLAction = s.DefaultACLAction
+	o.FailClose = s.FailClose
 	o.Listeners = s.Listeners
 
 	return nil
@@ -264,6 +274,8 @@ func (o *AppComponentIngress) ValueForAttribute(name string) any {
 		return o.ACLs
 	case "defaultACLAction":
 		return o.DefaultACLAction
+	case "failClose":
+		return o.FailClose
 	case "listeners":
 		return o.Listeners
 	case "proxyAccessPolicy":
@@ -299,6 +311,21 @@ not match any of the ACLs.`,
 		Name:    "defaultACLAction",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"FailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Listeners": {
 		AllowedChoices: []string{},
@@ -360,6 +387,21 @@ not match any of the ACLs.`,
 		Stored:  true,
 		Type:    "enum",
 	},
+	"failclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"listeners": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "listeners",
@@ -398,5 +440,6 @@ not match any of the ACLs.`,
 type mongoAttributesAppComponentIngress struct {
 	ACLs             []*IngressACL                            `bson:"acls,omitempty"`
 	DefaultACLAction AppComponentIngressDefaultACLActionValue `bson:"defaultaclaction,omitempty"`
+	FailClose        bool                                     `bson:"failclose"`
 	Listeners        []*IngressListener                       `bson:"listeners,omitempty"`
 }

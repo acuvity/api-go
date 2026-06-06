@@ -55,7 +55,9 @@ var (
 		"finding":           FindingIdentity,
 		"findingdefinition": FindingDefinitionIdentity,
 
-		"gitbooktoken": GitbookTokenIdentity,
+		"gateway":         GatewayIdentity,
+		"gatewayinstance": GatewayInstanceIdentity,
+		"gitbooktoken":    GitbookTokenIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -68,7 +70,10 @@ var (
 		"latency":    LatencyIdentity,
 		"logbundle":  LogBundleIdentity,
 
-		"mcpgateway": MCPGatewayIdentity,
+		"mcpgateway":        MCPGatewayIdentity,
+		"mcpgatewaybackend": MCPGatewayBackendIdentity,
+		"mcpgatewayclient":  MCPGatewayClientIdentity,
+		"mcpgatewayconf":    MCPGatewayConfIdentity,
 
 		"metric":           MetricIdentity,
 		"metriclabelvalue": MetricLabelValueIdentity,
@@ -104,9 +109,11 @@ var (
 		"query":               QueryIdentity,
 		"queryrange":          QueryRangeIdentity,
 		"resolve":             ResolveIdentity,
+		"revocation":          RevocationIdentity,
 		"role":                RoleIdentity,
 		"root":                RootIdentity,
-		"samlsource":          SAMLSourceIdentity,
+
+		"samlsource": SAMLSourceIdentity,
 
 		"scanreport": ScanReportIdentity,
 
@@ -184,7 +191,9 @@ var (
 		"findings":           FindingIdentity,
 		"findingdefinitions": FindingDefinitionIdentity,
 
-		"gitbooktokens": GitbookTokenIdentity,
+		"gateways":         GatewayIdentity,
+		"gatewayinstances": GatewayInstanceIdentity,
+		"gitbooktokens":    GitbookTokenIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -197,7 +206,10 @@ var (
 		"latencies":   LatencyIdentity,
 		"logbundles":  LogBundleIdentity,
 
-		"mcpgateways": MCPGatewayIdentity,
+		"mcpgateways":        MCPGatewayIdentity,
+		"mcpgatewaybackends": MCPGatewayBackendIdentity,
+		"clients":            MCPGatewayClientIdentity,
+		"mcpgatewayconfs":    MCPGatewayConfIdentity,
 
 		"metrics":           MetricIdentity,
 		"metriclabelvalues": MetricLabelValueIdentity,
@@ -233,9 +245,11 @@ var (
 		"queries":              QueryIdentity,
 		"queryranges":          QueryRangeIdentity,
 		"resolve":              ResolveIdentity,
+		"revocations":          RevocationIdentity,
 		"roles":                RoleIdentity,
 		"root":                 RootIdentity,
-		"samlsources":          SAMLSourceIdentity,
+
+		"samlsources": SAMLSourceIdentity,
 
 		"scanreports": ScanReportIdentity,
 
@@ -443,6 +457,20 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"gateway": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "tokenrefs.tokenid"},
+		},
+		"gatewayinstance": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "parentID", "hostname"},
+			{"namespace", "tokenID"},
+		},
 		"gitbooktoken":     nil,
 		"identitymodifier": nil,
 		"ignoreddomain": {
@@ -474,6 +502,24 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+		},
+		"mcpgatewaybackend": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "parentID", "providerRef.id"},
+		},
+		"mcpgatewayclient": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "parentID", "clientID"},
+		},
+		"mcpgatewayconf": {
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"metric": {
 			{"namespace"},
@@ -603,6 +649,17 @@ var (
 			{"namespace", "ID"},
 		},
 		"resolve": nil,
+		"revocation": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"flattenedSubject"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "activeafter"},
+			{"namespace", "expiration"},
+			{"namespace", "flattenedSubject"},
+			{"namespace", "tokenid"},
+			{"tokenid"},
+		},
 		"role": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -798,6 +855,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewFinding()
 	case FindingDefinitionIdentity:
 		return NewFindingDefinition()
+	case GatewayIdentity:
+		return NewGateway()
+	case GatewayInstanceIdentity:
+		return NewGatewayInstance()
 	case GitbookTokenIdentity:
 		return NewGitbookToken()
 	case IdentityModifierIdentity:
@@ -818,6 +879,12 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewLogBundle()
 	case MCPGatewayIdentity:
 		return NewMCPGateway()
+	case MCPGatewayBackendIdentity:
+		return NewMCPGatewayBackend()
+	case MCPGatewayClientIdentity:
+		return NewMCPGatewayClient()
+	case MCPGatewayConfIdentity:
+		return NewMCPGatewayConf()
 	case MetricIdentity:
 		return NewMetric()
 	case MetricLabelValueIdentity:
@@ -872,6 +939,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewQueryRange()
 	case ResolveIdentity:
 		return NewResolve()
+	case RevocationIdentity:
+		return NewRevocation()
 	case RoleIdentity:
 		return NewRole()
 	case RootIdentity:
@@ -993,6 +1062,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseFinding()
 	case FindingDefinitionIdentity:
 		return NewSparseFindingDefinition()
+	case GatewayIdentity:
+		return NewSparseGateway()
+	case GatewayInstanceIdentity:
+		return NewSparseGatewayInstance()
 	case GitbookTokenIdentity:
 		return NewSparseGitbookToken()
 	case IdentityModifierIdentity:
@@ -1013,6 +1086,12 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseLogBundle()
 	case MCPGatewayIdentity:
 		return NewSparseMCPGateway()
+	case MCPGatewayBackendIdentity:
+		return NewSparseMCPGatewayBackend()
+	case MCPGatewayClientIdentity:
+		return NewSparseMCPGatewayClient()
+	case MCPGatewayConfIdentity:
+		return NewSparseMCPGatewayConf()
 	case MetricIdentity:
 		return NewSparseMetric()
 	case MetricLabelValueIdentity:
@@ -1067,6 +1146,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseQueryRange()
 	case ResolveIdentity:
 		return NewSparseResolve()
+	case RevocationIdentity:
+		return NewSparseRevocation()
 	case RoleIdentity:
 		return NewSparseRole()
 	case SAMLSourceIdentity:
@@ -1196,6 +1277,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &FindingsList{}
 	case FindingDefinitionIdentity:
 		return &FindingDefinitionsList{}
+	case GatewayIdentity:
+		return &GatewaysList{}
+	case GatewayInstanceIdentity:
+		return &GatewayInstancesList{}
 	case GitbookTokenIdentity:
 		return &GitbookTokensList{}
 	case IdentityModifierIdentity:
@@ -1216,6 +1301,12 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &LogBundlesList{}
 	case MCPGatewayIdentity:
 		return &MCPGatewaysList{}
+	case MCPGatewayBackendIdentity:
+		return &MCPGatewayBackendsList{}
+	case MCPGatewayClientIdentity:
+		return &MCPGatewayClientsList{}
+	case MCPGatewayConfIdentity:
+		return &MCPGatewayConfsList{}
 	case MetricIdentity:
 		return &MetricsList{}
 	case MetricLabelValueIdentity:
@@ -1270,6 +1361,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &QueryRangesList{}
 	case ResolveIdentity:
 		return &ResolvesList{}
+	case RevocationIdentity:
+		return &RevocationsList{}
 	case RoleIdentity:
 		return &RolesList{}
 	case SAMLSourceIdentity:
@@ -1389,6 +1482,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseFindingsList{}
 	case FindingDefinitionIdentity:
 		return &SparseFindingDefinitionsList{}
+	case GatewayIdentity:
+		return &SparseGatewaysList{}
+	case GatewayInstanceIdentity:
+		return &SparseGatewayInstancesList{}
 	case GitbookTokenIdentity:
 		return &SparseGitbookTokensList{}
 	case IdentityModifierIdentity:
@@ -1409,6 +1506,12 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseLogBundlesList{}
 	case MCPGatewayIdentity:
 		return &SparseMCPGatewaysList{}
+	case MCPGatewayBackendIdentity:
+		return &SparseMCPGatewayBackendsList{}
+	case MCPGatewayClientIdentity:
+		return &SparseMCPGatewayClientsList{}
+	case MCPGatewayConfIdentity:
+		return &SparseMCPGatewayConfsList{}
 	case MetricIdentity:
 		return &SparseMetricsList{}
 	case MetricLabelValueIdentity:
@@ -1463,6 +1566,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseQueryRangesList{}
 	case ResolveIdentity:
 		return &SparseResolvesList{}
+	case RevocationIdentity:
+		return &SparseRevocationsList{}
 	case RoleIdentity:
 		return &SparseRolesList{}
 	case SAMLSourceIdentity:
@@ -1606,6 +1711,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewDetection()
 	case "detector", "Detector":
 		return NewDetector()
+	case "diagnostic", "Diagnostic":
+		return NewDiagnostic()
 	case "dnsreport", "DNSReport":
 		return NewDNSReport()
 	case "domainhits", "DomainHits":
@@ -1650,6 +1757,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewKubernetesWorkloadGroupSetSelector()
 	case "mapper", "Mapper":
 		return NewMapper()
+	case "mcpgatewayconfbackend", "MCPGatewayConfBackend":
+		return NewMCPGatewayConfBackend()
+	case "mcpgatewayconftool", "MCPGatewayConfTool":
+		return NewMCPGatewayConfTool()
 	case "mcpgatewayserver", "MCPGatewayServer":
 		return NewMCPGatewayServer()
 	case "mcpmessage", "MCPMessage":
@@ -1678,6 +1789,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewProviderRetentionPolicy()
 	case "providertrainingpolicy", "ProviderTrainingPolicy":
 		return NewProviderTrainingPolicy()
+	case "roundtriperror", "RoundtripError":
+		return NewRoundtripError()
 	case "scandomain", "ScanDomain":
 		return NewScanDomain()
 	case "scanresultadvanced", "ScanResultAdvanced":
@@ -1696,8 +1809,12 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewTLSCertInfo()
 	case "tlsstate", "TLSState":
 		return NewTLSState()
+	case "tokenref", "TokenRef":
+		return NewTokenRef()
 	case "tool", "Tool":
 		return NewTool()
+	case "toolargument", "ToolArgument":
+		return NewToolArgument()
 	case "toolchoice", "ToolChoice":
 		return NewToolChoice()
 	case "toolresult", "ToolResult":
@@ -1757,6 +1874,8 @@ func AllIdentities() []elemental.Identity {
 		FeedbackIdentity,
 		FindingIdentity,
 		FindingDefinitionIdentity,
+		GatewayIdentity,
+		GatewayInstanceIdentity,
 		GitbookTokenIdentity,
 		IdentityModifierIdentity,
 		IgnoredDomainIdentity,
@@ -1767,6 +1886,9 @@ func AllIdentities() []elemental.Identity {
 		LatencyIdentity,
 		LogBundleIdentity,
 		MCPGatewayIdentity,
+		MCPGatewayBackendIdentity,
+		MCPGatewayClientIdentity,
+		MCPGatewayConfIdentity,
 		MetricIdentity,
 		MetricLabelValueIdentity,
 		MetricRangeIdentity,
@@ -1794,6 +1916,7 @@ func AllIdentities() []elemental.Identity {
 		QueryIdentity,
 		QueryRangeIdentity,
 		ResolveIdentity,
+		RevocationIdentity,
 		RoleIdentity,
 		RootIdentity,
 		SAMLSourceIdentity,
@@ -1888,6 +2011,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case FindingDefinitionIdentity:
 		return []string{}
+	case GatewayIdentity:
+		return []string{}
+	case GatewayInstanceIdentity:
+		return []string{}
 	case GitbookTokenIdentity:
 		return []string{}
 	case IdentityModifierIdentity:
@@ -1907,6 +2034,12 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case LogBundleIdentity:
 		return []string{}
 	case MCPGatewayIdentity:
+		return []string{}
+	case MCPGatewayBackendIdentity:
+		return []string{}
+	case MCPGatewayClientIdentity:
+		return []string{}
+	case MCPGatewayConfIdentity:
 		return []string{}
 	case MetricIdentity:
 		return []string{}
@@ -1961,6 +2094,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case QueryRangeIdentity:
 		return []string{}
 	case ResolveIdentity:
+		return []string{}
+	case RevocationIdentity:
 		return []string{}
 	case RoleIdentity:
 		return []string{}

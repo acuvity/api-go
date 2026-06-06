@@ -10,7 +10,7 @@
   "description": "Represents an egress policy of an application component.",
   "properties": {
     "ACLs": {
-      "$friendlyName": "ACLs",
+      "$friendlyName": "Access Control Lists",
       "description": "The list of ACLs to apply for the egress policy.",
       "items": {
         "$ref": "egresspolicyacl.json"
@@ -74,7 +74,7 @@
     },
     "rules": {
       "$friendlyName": "Rules",
-      "description": "The list of rules for the egress policy.",
+      "description": "Rules that define how egress traffic is handled.",
       "items": {
         "$ref": "egresspolicyrule.json"
       },

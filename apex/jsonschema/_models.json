@@ -75,6 +75,9 @@
     "root": {
       "$ref": "root.json"
     },
+    "roundtriperror": {
+      "$ref": "roundtriperror.json"
+    },
     "scanrequest": {
       "$ref": "scanrequest.json"
     },
@@ -86,6 +89,9 @@
     },
     "tool": {
       "$ref": "tool.json"
+    },
+    "toolargument": {
+      "$ref": "toolargument.json"
     },
     "toolchoice": {
       "$ref": "toolchoice.json"

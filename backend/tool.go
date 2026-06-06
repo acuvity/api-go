@@ -33,6 +33,9 @@ type Tool struct {
 	// If category is RemoteMCP, then this describes the remote MCP server.
 	MCPServer *MCPServer `json:"MCPServer,omitempty" msgpack:"MCPServer,omitempty" bson:"mcpserver,omitempty" mapstructure:"MCPServer,omitempty"`
 
+	// The input arguments accepted by this tool.
+	Arguments []*ToolArgument `json:"arguments,omitempty" msgpack:"arguments,omitempty" bson:"arguments,omitempty" mapstructure:"arguments,omitempty"`
+
 	// The category of the tool. This relays information about where the tool is being
 	// used. This can be empty if unknown or if this is a tool listing of MCP servers.
 	Category ToolCategoryValue `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
@@ -80,6 +83,7 @@ func (o *Tool) GetBSON() (any, error) {
 
 	s.MCPAnnotations = o.MCPAnnotations
 	s.MCPServer = o.MCPServer
+	s.Arguments = o.Arguments
 	s.Category = o.Category
 	s.Description = o.Description
 	s.Name = o.Name
@@ -103,6 +107,7 @@ func (o *Tool) SetBSON(raw bson.Raw) error {
 
 	o.MCPAnnotations = s.MCPAnnotations
 	o.MCPServer = s.MCPServer
+	o.Arguments = s.Arguments
 	o.Category = s.Category
 	o.Description = s.Description
 	o.Name = s.Name
@@ -144,6 +149,15 @@ func (o *Tool) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 		}
 	}
 
+	for _, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Arguments' for 'Tool' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -159,6 +173,15 @@ func (o *Tool) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 	if o.MCPServer != nil {
 		if err := o.MCPServer.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'MCPServer' for 'Tool' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Arguments' for 'Tool' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -211,6 +234,16 @@ func (o *Tool) Validate() error {
 		}
 	}
 
+	for i, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "arguments", i))
+		}
+	}
+
 	if err := elemental.ValidateStringInList("category", string(o.Category), []string{"Client", "Server", "RemoteMCP"}, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -253,6 +286,8 @@ func (o *Tool) ValueForAttribute(name string) any {
 		return o.MCPAnnotations
 	case "MCPServer":
 		return o.MCPServer
+	case "arguments":
+		return o.Arguments
 	case "category":
 		return o.Category
 	case "description":
@@ -289,6 +324,17 @@ var ToolAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "mcpserver",
 		Type:           "ref",
+	},
+	"Arguments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "arguments",
+		ConvertedName:  "Arguments",
+		Description:    `The input arguments accepted by this tool.`,
+		Exposed:        true,
+		Name:           "arguments",
+		Stored:         true,
+		SubType:        "toolargument",
+		Type:           "refList",
 	},
 	"Category": {
 		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
@@ -357,6 +403,17 @@ var ToolLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "mcpserver",
 		Type:           "ref",
 	},
+	"arguments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "arguments",
+		ConvertedName:  "Arguments",
+		Description:    `The input arguments accepted by this tool.`,
+		Exposed:        true,
+		Name:           "arguments",
+		Stored:         true,
+		SubType:        "toolargument",
+		Type:           "refList",
+	},
 	"category": {
 		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
 		BSONFieldName:  "category",
@@ -403,6 +460,7 @@ used. This can be empty if unknown or if this is a tool listing of MCP servers.`
 type mongoAttributesTool struct {
 	MCPAnnotations *MCPToolAnnotations `bson:"mcpannotations,omitempty"`
 	MCPServer      *MCPServer          `bson:"mcpserver,omitempty"`
+	Arguments      []*ToolArgument     `bson:"arguments,omitempty"`
 	Category       ToolCategoryValue   `bson:"category,omitempty"`
 	Description    string              `bson:"description,omitempty"`
 	Name           string              `bson:"name,omitempty"`

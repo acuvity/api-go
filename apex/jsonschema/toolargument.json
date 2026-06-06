@@ -1,0 +1,59 @@
+{
+  "$extends": [],
+  "$friendlyName": "Tool Argument",
+  "$friendlyNamePlural": "Tool Arguments",
+  "$modelName": "ToolArgument",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "toolarguments",
+  "$modelRestName": "toolargument",
+  "additionalProperties": false,
+  "description": "Represents a tool input argument.",
+  "properties": {
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the argument.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the argument.",
+      "title": "name",
+      "type": "string"
+    },
+    "required": {
+      "$friendlyName": "Required",
+      "description": "Whether this argument is required by the tool.",
+      "title": "required",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "schema": {
+      "$friendlyName": "Schema",
+      "additionalProperties": true,
+      "description": "The JSON schema for this argument, excluding fields promoted to top-level attributes.",
+      "title": "schema",
+      "type": "object"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The JSON schema type of the argument.",
+      "title": "type",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "ToolArgument",
+  "type": "object"
+}

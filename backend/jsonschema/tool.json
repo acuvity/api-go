@@ -21,6 +21,15 @@
       "description": "If category is RemoteMCP, then this describes the remote MCP server.",
       "title": "MCPServer"
     },
+    "arguments": {
+      "$friendlyName": "Arguments",
+      "description": "The input arguments accepted by this tool.",
+      "items": {
+        "$ref": "toolargument.json"
+      },
+      "title": "arguments",
+      "type": "array"
+    },
     "category": {
       "$friendlyName": "Category",
       "description": "The category of the tool. This relays information about where the tool is being used. This can be empty if unknown or if this is a tool listing of MCP servers.",

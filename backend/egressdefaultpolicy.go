@@ -28,6 +28,14 @@ type EgressDefaultPolicy struct {
 	// are not covered by other policy rules or ACLs.
 	ACLAction EgressDefaultPolicyACLActionValue `json:"ACLAction" msgpack:"ACLAction" bson:"aclaction" mapstructure:"ACLAction,omitempty"`
 
+	// If true, when any non-user-facing platform stage fails during request
+	// handling (extractor, mapper, analyzer, content policy, body read, etc.),
+	// the request is rejected. When false (default), the request is allowed
+	// through unanalyzed (fail-open), trading safety for availability.
+	// User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+	// and continue to be enforced. Default false.
+	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -62,6 +70,7 @@ func (o *EgressDefaultPolicy) GetBSON() (any, error) {
 	s := &mongoAttributesEgressDefaultPolicy{}
 
 	s.ACLAction = o.ACLAction
+	s.FailClose = o.FailClose
 
 	return s, nil
 }
@@ -80,6 +89,7 @@ func (o *EgressDefaultPolicy) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ACLAction = s.ACLAction
+	o.FailClose = s.FailClose
 
 	return nil
 }
@@ -190,6 +200,8 @@ func (o *EgressDefaultPolicy) ValueForAttribute(name string) any {
 	switch name {
 	case "ACLAction":
 		return o.ACLAction
+	case "failClose":
+		return o.FailClose
 	}
 
 	return nil
@@ -210,6 +222,21 @@ are not covered by other policy rules or ACLs.`,
 		Stored:   true,
 		Type:     "enum",
 	},
+	"FailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
 }
 
 // EgressDefaultPolicyLowerCaseAttributesMap represents the map of attribute for EgressDefaultPolicy.
@@ -227,8 +254,24 @@ are not covered by other policy rules or ACLs.`,
 		Stored:   true,
 		Type:     "enum",
 	},
+	"failclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
 }
 
 type mongoAttributesEgressDefaultPolicy struct {
 	ACLAction EgressDefaultPolicyACLActionValue `bson:"aclaction"`
+	FailClose bool                              `bson:"failclose"`
 }

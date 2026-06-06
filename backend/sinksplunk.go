@@ -90,7 +90,8 @@ type SinkSplunk struct {
 	// If set, will use this as the CA for TLS communication.
 	CertificateAuthority string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
 
-	// If true, will attempt to skip TLS verification when communicating.
+	// If true, will attempt to skip TLS verification when communicating. Not
+	// recommended.
 	InsecureSkipVerify bool `json:"insecureSkipVerify" msgpack:"insecureSkipVerify" bson:"insecureskipverify" mapstructure:"insecureSkipVerify,omitempty"`
 
 	// The token to communicate with the HTTP event collector.
@@ -388,11 +389,12 @@ var SinkSplunkAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "insecureskipverify",
 		ConvertedName:  "InsecureSkipVerify",
-		Description:    `If true, will attempt to skip TLS verification when communicating.`,
-		Exposed:        true,
-		Name:           "insecureSkipVerify",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If true, will attempt to skip TLS verification when communicating. Not
+recommended.`,
+		Exposed: true,
+		Name:    "insecureSkipVerify",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Token": {
 		AllowedChoices: []string{},
@@ -439,11 +441,12 @@ var SinkSplunkLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		AllowedChoices: []string{},
 		BSONFieldName:  "insecureskipverify",
 		ConvertedName:  "InsecureSkipVerify",
-		Description:    `If true, will attempt to skip TLS verification when communicating.`,
-		Exposed:        true,
-		Name:           "insecureSkipVerify",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If true, will attempt to skip TLS verification when communicating. Not
+recommended.`,
+		Exposed: true,
+		Name:    "insecureSkipVerify",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"token": {
 		AllowedChoices: []string{},
@@ -530,7 +533,8 @@ type SparseSinkSplunk struct {
 	// If set, will use this as the CA for TLS communication.
 	CertificateAuthority *string `json:"certificateAuthority,omitempty" msgpack:"certificateAuthority,omitempty" bson:"certificateauthority,omitempty" mapstructure:"certificateAuthority,omitempty"`
 
-	// If true, will attempt to skip TLS verification when communicating.
+	// If true, will attempt to skip TLS verification when communicating. Not
+	// recommended.
 	InsecureSkipVerify *bool `json:"insecureSkipVerify,omitempty" msgpack:"insecureSkipVerify,omitempty" bson:"insecureskipverify,omitempty" mapstructure:"insecureSkipVerify,omitempty"`
 
 	// The token to communicate with the HTTP event collector.

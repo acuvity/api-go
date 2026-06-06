@@ -294,9 +294,29 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
+Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | NotApplicable | Error | UpstreamError)`
 
-Tell what was the decision about the data.
+User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.
+
+##### `error`
+
+Type: [`roundtriperror`](#roundtriperror)
+
+Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.
 
 ##### `extractions`
 
@@ -841,9 +861,29 @@ The version of the client used to send the request.
 
 ##### `decision`
 
-Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | Error | UpstreamError | NotApplicable)`
+Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | NotApplicable | Error | UpstreamError)`
 
-Tell what was the decision about the data.
+User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.
+
+##### `error`
+
+Type: [`roundtriperror`](#roundtriperror)
+
+Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.
 
 ##### `extractions`
 
@@ -1005,18 +1045,18 @@ When the alert event was raised.
 
 Represent an analyzer matcher.
 An analyzer Matcher serves as a filtering mechanism for analyzers, determining
-which detections and/or metadata should trigger an analyzer. It allows for
-flexible pattern
-matching on:
+which detections, metadata and/or pipeline constraints should trigger an
+analyzer. It allows for flexible pattern matching on:
 - for scope Detection, uses detection attributes such as name, label, and group
 using glob-style
 wildcards and confidence-based filtering by defining
 thresholds and comparison operators.
-- for scope Metadata, uses metadata attributes such as type, hasTools and
-hasToolUses.
+- for scope Metadata, uses a key/operator/values expression (k8s-style) to match
+a metadata field such as type, role, tools or toolUses.
+- for scope Constraint, uses pipeline execution constraints such as maxDepth.
 Matchers provide a structured way
-to control when and how analyzers engage with incoming detections and/or
-metadata.
+to control when and how analyzers engage with incoming detections, metadata
+and/or pipeline constraints.
 
 #### Example
 
@@ -1024,11 +1064,14 @@ metadata.
 {
   "confidence": "Low",
   "group": "Text",
+  "key": "type",
   "label": "txt",
   "name": "txt",
   "operator": "Min",
   "scope": "Detection",
-  "type": "Input"
+  "values": [
+    "Input"
+  ]
 }
 ```
 
@@ -1067,6 +1110,13 @@ Default value:
 "*"
 ```
 
+##### `key`
+
+Type: `string`
+
+For scope Metadata, the metadata field to match against (e.g. 'type', 'role',
+'tools', 'toolUses').
+
 ##### `label`
 
 Type: `string`
@@ -1097,14 +1147,21 @@ Default value:
 
 ##### `operator`
 
-Type: `enum(Is | Min | Max)`
+Type: `enum(Is | Min | Max | In | NotIn | Exists | DoesNotExist)`
 
-Specifies how to compare the detection's confidence value against the matcher's
-threshold:
+Specifies how to compare the matched attribute. The meaning depends on the
+scope.
+For scope Detection, compares the detection's confidence value against the
+matcher's threshold:
 - 'Is': All Detections confidence must exactly match the threshold
 - 'Min': At least one detection confidence must be greater than or equal to the
 threshold
 - 'Max': At least one detection confidence must be less than the threshold
+For scope Metadata, compares the metadata field (key) against values:
+- 'In': the field value is one of values
+- 'NotIn': the field value is none of values
+- 'Exists': the field is set (values is ignored)
+- 'DoesNotExist': the field is not set (values is ignored)
 The default value is 'Min'.
 
 Default value:
@@ -1115,9 +1172,9 @@ Default value:
 
 ##### `scope`
 
-Type: `enum(Detection | Metadata)`
+Type: `enum(Detection | Metadata | Constraint)`
 
-The scope of the matcher, can be either Detection or Metadata.
+The scope of the matcher, can be Detection, Metadata or Constraint.
 
 Default value:
 
@@ -1125,17 +1182,13 @@ Default value:
 "Detection"
 ```
 
-##### `type`
+##### `values`
 
-Type: `enum(Input | Output)`
+Type: `[]string`
 
-The type of data, either Input or Output.
-
-Default value:
-
-```json
-"Input"
-```
+For scope Metadata, the list of values to compare the metadata field against.
+Used by the 'In' and 'NotIn' operators and ignored by 'Exists' and
+'DoesNotExist'.
 
 ### AnalyzerModel
 
@@ -1174,6 +1227,12 @@ Represent a detector an analyzer can use.
 Type: `string`
 
 The description of the detection.
+
+##### `friendlyName`
+
+Type: `string`
+
+The friendly name of the detection.
 
 ##### `group`
 
@@ -1232,6 +1291,7 @@ Represents the extracted information to log.
   "keywords": {
     "my_keywork": 0.8
   },
+  "kind": "Message",
   "languages": {
     "english": 0.8
   },
@@ -1239,6 +1299,7 @@ Represents the extracted information to log.
     "toxic": 0.8
   },
   "relevance": 0.9,
+  "role": "User",
   "secrets": {
     "credentials": 0.7
   },
@@ -1398,6 +1459,31 @@ scores:
   - confidence: 'medium', 0.33 <= score < 0.66
   - confidence: 'high', 0.66 <= score <= 1.
 
+##### `kind`
+
+Type: `enum(Message | Thinking | ToolDefinition | ToolInput | ToolOutput | File | Resource | Event)`
+
+The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.
+
+Default value:
+
+```json
+"Message"
+```
+
 ##### `label`
 
 Type: `string`
@@ -1460,6 +1546,18 @@ scores:
   - confidence: 'low', 0 < score <0.33
   - confidence: 'medium', 0.33 <= score < 0.66
   - confidence: 'high', 0.66 <= score <= 1.
+
+##### `role`
+
+Type: `enum(User | Assistant | System | Tool)`
+
+The role of the message represented by this extraction.
+
+Default value:
+
+```json
+"User"
+```
 
 ##### `secrets`
 
@@ -1572,7 +1670,9 @@ Represents the extraction that the user wants to extract.
 {
   "internal": false,
   "isFile": false,
-  "isStored": false
+  "isStored": false,
+  "kind": "Message",
+  "role": "User"
 }
 ```
 
@@ -1609,12 +1709,49 @@ Type: `boolean`
 
 If true, indicates that the file has been stored.
 
+##### `kind`
+
+Type: `enum(Message | Thinking | ToolDefinition | ToolInput | ToolOutput | File | Resource | Event)`
+
+The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.
+
+Default value:
+
+```json
+"Message"
+```
+
 ##### `label`
 
 Type: `string`
 
 Contains events and other information that are not actual user content, and will
 not go through analysis.
+
+##### `role`
+
+Type: `enum(User | Assistant | System | Tool)`
+
+The role of the message represented by this extraction.
+
+Default value:
+
+```json
+"User"
+```
 
 ##### `toolResults`
 
@@ -2271,6 +2408,60 @@ Type: `string`
 
 Identification bit that will be used to identify the origin of the request.
 
+### RoundtripError
+
+Structured error info attached to a roundtrip when a non-user-facing
+platform stage or the upstream provider failed. Carries the platform-side
+detail (type, stage, message) for debugging and provider-health
+derivation. The Decision field still reflects the policy/processing
+outcome per existing semantics.
+
+#### Example
+
+```json
+{
+  "stage": "Extraction",
+  "type": "PlatformError"
+}
+```
+
+#### Attributes
+
+##### `message`
+
+Type: `string`
+
+Human-readable error message.
+
+##### `previousDecision` [`autogenerated`,`read_only`]
+
+Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | NotApplicable)`
+
+The decision produced before the failClose or failOpen mutation
+flipped it. Set only when the user-facing Decision is the result
+of a platform-error override, so the audit log can surface what
+the policy would have decided otherwise.
+
+##### `stage`
+
+Type: `enum(Extraction | Analysis | ContentPolicy | AssignPolicy | AccessPolicy | Upstream)`
+
+The pipeline component that produced the error. Combined with the
+Type axis on the parent round-trip (Input/Output) and the Offband
+flag, gives the full discrimination of where a platform/upstream
+failure originated. Each value maps to an ownership tier:
+Acuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+customer-owned (ContentPolicy), provider-owned (Upstream).
+
+##### `type`
+
+Type: `enum(PlatformError | UpstreamError)`
+
+The source of the failure. PlatformError covers apex-side stages
+(Extraction, Analysis, ContentPolicy, AccessPolicy). UpstreamError
+covers anything attributable to the upstream provider (transport
+failures or non-2xx HTTP responses).
+
 ### TextualDetection
 
 Represents a textual detection done by policy.
@@ -2369,6 +2560,12 @@ Type: [`mcpserver`](#mcpserver)
 
 If category is RemoteMCP, then this describes the remote MCP server.
 
+##### `arguments`
+
+Type: [`[]toolargument`](#toolargument)
+
+The input arguments accepted by this tool.
+
 ##### `category`
 
 Type: `enum(Client | Server | RemoteMCP)`
@@ -2393,6 +2590,54 @@ The name of the tool.
 Type: `string`
 
 The type of the tool as can be optionally passed by the provider.
+
+### ToolArgument
+
+Represents a tool input argument.
+
+#### Example
+
+```json
+{
+  "description": "URL to fetch.",
+  "name": "url",
+  "required": false,
+  "type": "string"
+}
+```
+
+#### Attributes
+
+##### `description`
+
+Type: `string`
+
+The description of the argument.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the argument.
+
+##### `required`
+
+Type: `boolean`
+
+Whether this argument is required by the tool.
+
+##### `schema`
+
+Type: `map[string]any`
+
+The JSON schema for this argument, excluding fields promoted to top-level
+attributes.
+
+##### `type`
+
+Type: `string`
+
+The JSON schema type of the argument.
 
 ### ToolChoice
 

@@ -56,7 +56,13 @@ const (
 
 // ConnectionReport represents the model of a connectionreport
 type ConnectionReport struct {
-	// The action taken.
+	// The action taken. Error stays in the allowed_choices list for
+	// backward compatibility with clients that still PUT reports with
+	// that value; new reports never emit it — platform/upstream
+	// failures surface via the structured Error field instead.
+	// NOTE: safe to drop Error from this enum on or after 2026-07-19
+	// (two months after the structured RoundtripError landed on
+	// 2026-05-19), once consumers have rolled forward.
 	Action ConnectionReportActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
 
 	// The origin where the action was taken.
@@ -77,6 +83,15 @@ type ConnectionReport struct {
 	// If the connection is encrypted, this field contains details about the discovered
 	// encryption details used of the connection.
 	Encryption *ConnectionEncryption `json:"encryption,omitempty" msgpack:"encryption,omitempty" bson:"encryption,omitempty" mapstructure:"encryption,omitempty"`
+
+	// Structured error info populated when the action is Error. Carries the
+	// source (PlatformError vs UpstreamError), the failing stage, and a
+	// human-readable message, same shape as proxyroundtrip.error so
+	// downstream consumers (UI, dashboards, agent/provider-health metrics)
+	// can treat both round-trip and connection-report failures uniformly.
+	// The Action field still reflects the per-event outcome per existing
+	// semantics.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The hostname that the connection is made to, if available.
 	Hostname string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
@@ -172,6 +187,7 @@ func (o *ConnectionReport) GetBSON() (any, error) {
 	s.DstIP = o.DstIP
 	s.DstPort = o.DstPort
 	s.Encryption = o.Encryption
+	s.Error = o.Error
 	s.Hostname = o.Hostname
 	s.PayloadAppTokenClaims = o.PayloadAppTokenClaims
 	s.PayloadAuthTokenClaims = o.PayloadAuthTokenClaims
@@ -212,6 +228,7 @@ func (o *ConnectionReport) SetBSON(raw bson.Raw) error {
 	o.DstIP = s.DstIP
 	o.DstPort = s.DstPort
 	o.Encryption = s.Encryption
+	o.Error = s.Error
 	o.Hostname = s.Hostname
 	o.PayloadAppTokenClaims = s.PayloadAppTokenClaims
 	o.PayloadAuthTokenClaims = s.PayloadAuthTokenClaims
@@ -259,6 +276,12 @@ func (o *ConnectionReport) EncryptAttributes(encrypter elemental.AttributeEncryp
 		}
 	}
 
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'ConnectionReport' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -268,6 +291,12 @@ func (o *ConnectionReport) DecryptAttributes(encrypter elemental.AttributeEncryp
 	if o.Encryption != nil {
 		if err := o.Encryption.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Encryption' for 'ConnectionReport' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'ConnectionReport' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -334,6 +363,13 @@ func (o *ConnectionReport) Validate() error {
 		if err := o.Encryption.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "encryption")
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "error")
 		}
 	}
 
@@ -406,6 +442,8 @@ func (o *ConnectionReport) ValueForAttribute(name string) any {
 		return o.DstPort
 	case "encryption":
 		return o.Encryption
+	case "error":
+		return o.Error
 	case "hostname":
 		return o.Hostname
 	case "payloadAppTokenClaims":
@@ -450,12 +488,18 @@ var ConnectionReportAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   ConnectionReportActionAllow,
-		Description:    `The action taken.`,
-		Exposed:        true,
-		Name:           "action",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The action taken. Error stays in the allowed_choices list for
+backward compatibility with clients that still PUT reports with
+that value; new reports never emit it — platform/upstream
+failures surface via the structured Error field instead.
+NOTE: safe to drop Error from this enum on or after 2026-07-19
+(two months after the structured RoundtripError landed on
+2026-05-19), once consumers have rolled forward.`,
+		Exposed:  true,
+		Name:     "action",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"ActionOrigin": {
 		AllowedChoices: []string{},
@@ -519,6 +563,23 @@ encryption details used of the connection.`,
 		Name:    "encryption",
 		Stored:  true,
 		SubType: "connectionencryption",
+		Type:    "ref",
+	},
+	"Error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when the action is Error. Carries the
+source (PlatformError vs UpstreamError), the failing stage, and a
+human-readable message, same shape as proxyroundtrip.error so
+downstream consumers (UI, dashboards, agent/provider-health metrics)
+can treat both round-trip and connection-report failures uniformly.
+The Action field still reflects the per-event outcome per existing
+semantics.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
 		Type:    "ref",
 	},
 	"Hostname": {
@@ -698,12 +759,18 @@ var ConnectionReportLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   ConnectionReportActionAllow,
-		Description:    `The action taken.`,
-		Exposed:        true,
-		Name:           "action",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The action taken. Error stays in the allowed_choices list for
+backward compatibility with clients that still PUT reports with
+that value; new reports never emit it — platform/upstream
+failures surface via the structured Error field instead.
+NOTE: safe to drop Error from this enum on or after 2026-07-19
+(two months after the structured RoundtripError landed on
+2026-05-19), once consumers have rolled forward.`,
+		Exposed:  true,
+		Name:     "action",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"actionorigin": {
 		AllowedChoices: []string{},
@@ -767,6 +834,23 @@ encryption details used of the connection.`,
 		Name:    "encryption",
 		Stored:  true,
 		SubType: "connectionencryption",
+		Type:    "ref",
+	},
+	"error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when the action is Error. Carries the
+source (PlatformError vs UpstreamError), the failing stage, and a
+human-readable message, same shape as proxyroundtrip.error so
+downstream consumers (UI, dashboards, agent/provider-health metrics)
+can treat both round-trip and connection-report failures uniformly.
+The Action field still reflects the per-event outcome per existing
+semantics.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
 		Type:    "ref",
 	},
 	"hostname": {
@@ -947,6 +1031,7 @@ type mongoAttributesConnectionReport struct {
 	DstIP                  string                          `bson:"dstip,omitempty"`
 	DstPort                int                             `bson:"dstport,omitempty"`
 	Encryption             *ConnectionEncryption           `bson:"encryption,omitempty"`
+	Error                  *RoundtripError                 `bson:"error,omitempty"`
 	Hostname               string                          `bson:"hostname,omitempty"`
 	PayloadAppTokenClaims  []string                        `bson:"payloadapptokenclaims,omitempty"`
 	PayloadAuthTokenClaims []string                        `bson:"payloadauthtokenclaims,omitempty"`

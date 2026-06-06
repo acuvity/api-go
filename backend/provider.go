@@ -121,6 +121,9 @@ type Provider struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The MCP endpoint URL for MCP server providers.
+	MCPURL string `json:"MCPURL,omitempty" msgpack:"MCPURL,omitempty" bson:"mcpurl,omitempty" mapstructure:"MCPURL,omitempty"`
+
 	// The category of the provider.
 	Category ProviderCategoryValue `json:"category" msgpack:"category" bson:"category" mapstructure:"category,omitempty"`
 
@@ -192,6 +195,9 @@ type Provider struct {
 	// registered providertokens.
 	TokenSwap bool `json:"tokenSwap" msgpack:"tokenSwap" bson:"tokenswap" mapstructure:"tokenSwap,omitempty"`
 
+	// The list of available tools for MCP server providers.
+	Tools []*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
 	// If set, additionally trust the Certificate Authorities from the PEM data. This
 	// is useful when working on a custom provider using a self signed CA chain.
 	TrustedCA string `json:"trustedCA,omitempty" msgpack:"trustedCA,omitempty" bson:"trustedca,omitempty" mapstructure:"trustedCA,omitempty"`
@@ -262,6 +268,7 @@ func (o *Provider) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.MCPURL = o.MCPURL
 	s.Category = o.Category
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -284,6 +291,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.RiskScore = o.RiskScore
 	s.Status = o.Status
 	s.TokenSwap = o.TokenSwap
+	s.Tools = o.Tools
 	s.TrustedCA = o.TrustedCA
 	s.UpdateTime = o.UpdateTime
 	s.UpstreamUnsecure = o.UpstreamUnsecure
@@ -308,6 +316,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.MCPURL = s.MCPURL
 	o.Category = s.Category
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -330,6 +339,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.RiskScore = s.RiskScore
 	o.Status = s.Status
 	o.TokenSwap = s.TokenSwap
+	o.Tools = s.Tools
 	o.TrustedCA = s.TrustedCA
 	o.UpdateTime = s.UpdateTime
 	o.UpstreamUnsecure = s.UpstreamUnsecure
@@ -451,6 +461,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseProvider{
 			ID:               &o.ID,
+			MCPURL:           &o.MCPURL,
 			Category:         &o.Category,
 			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
@@ -473,6 +484,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			RiskScore:        &o.RiskScore,
 			Status:           &o.Status,
 			TokenSwap:        &o.TokenSwap,
+			Tools:            &o.Tools,
 			TrustedCA:        &o.TrustedCA,
 			UpdateTime:       &o.UpdateTime,
 			UpstreamUnsecure: &o.UpstreamUnsecure,
@@ -487,6 +499,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "MCPURL":
+			sp.MCPURL = &(o.MCPURL)
 		case "category":
 			sp.Category = &(o.Category)
 		case "createTime":
@@ -531,6 +545,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Status = &(o.Status)
 		case "tokenSwap":
 			sp.TokenSwap = &(o.TokenSwap)
+		case "tools":
+			sp.Tools = &(o.Tools)
 		case "trustedCA":
 			sp.TrustedCA = &(o.TrustedCA)
 		case "updateTime":
@@ -558,6 +574,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseProvider)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.MCPURL != nil {
+		o.MCPURL = *so.MCPURL
 	}
 	if so.Category != nil {
 		o.Category = *so.Category
@@ -625,6 +644,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	if so.TokenSwap != nil {
 		o.TokenSwap = *so.TokenSwap
 	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
+	}
 	if so.TrustedCA != nil {
 		o.TrustedCA = *so.TrustedCA
 	}
@@ -690,6 +712,15 @@ func (o *Provider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 		}
 	}
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'Provider' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -738,6 +769,15 @@ func (o *Provider) DecryptAttributes(encrypter elemental.AttributeEncrypter) (er
 		}
 	}
 
+	for _, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -772,6 +812,10 @@ func (o *Provider) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if err := ValidateURL("MCPURL", o.MCPURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if err := elemental.ValidateRequiredString("category", string(o.Category)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -848,6 +892,16 @@ func (o *Provider) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	for i, sub := range o.Tools {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
+		}
+	}
+
 	if err := ValidatePEM("trustedCA", o.TrustedCA); err != nil {
 		errors = errors.Append(err)
 	}
@@ -897,6 +951,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "MCPURL":
+		return o.MCPURL
 	case "category":
 		return o.Category
 	case "createTime":
@@ -941,6 +997,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Status
 	case "tokenSwap":
 		return o.TokenSwap
+	case "tools":
+		return o.Tools
 	case "trustedCA":
 		return o.TrustedCA
 	case "updateTime":
@@ -972,6 +1030,16 @@ var ProviderAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"MCPURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpurl",
+		ConvertedName:  "MCPURL",
+		Description:    `The MCP endpoint URL for MCP server providers.`,
+		Exposed:        true,
+		Name:           "MCPURL",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1233,6 +1301,17 @@ registered providertokens.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of available tools for MCP server providers.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refList",
+	},
 	"TrustedCA": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "trustedca",
@@ -1299,6 +1378,16 @@ var ProviderLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"mcpurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpurl",
+		ConvertedName:  "MCPURL",
+		Description:    `The MCP endpoint URL for MCP server providers.`,
+		Exposed:        true,
+		Name:           "MCPURL",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1560,6 +1649,17 @@ registered providertokens.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of available tools for MCP server providers.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "tool",
+		Type:           "refList",
+	},
 	"trustedca": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "trustedca",
@@ -1678,6 +1778,9 @@ type SparseProvider struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The MCP endpoint URL for MCP server providers.
+	MCPURL *string `json:"MCPURL,omitempty" msgpack:"MCPURL,omitempty" bson:"mcpurl,omitempty" mapstructure:"MCPURL,omitempty"`
+
 	// The category of the provider.
 	Category *ProviderCategoryValue `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
 
@@ -1749,6 +1852,9 @@ type SparseProvider struct {
 	// registered providertokens.
 	TokenSwap *bool `json:"tokenSwap,omitempty" msgpack:"tokenSwap,omitempty" bson:"tokenswap,omitempty" mapstructure:"tokenSwap,omitempty"`
 
+	// The list of available tools for MCP server providers.
+	Tools *[]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
 	// If set, additionally trust the Certificate Authorities from the PEM data. This
 	// is useful when working on a custom provider using a self signed CA chain.
 	TrustedCA *string `json:"trustedCA,omitempty" msgpack:"trustedCA,omitempty" bson:"trustedca,omitempty" mapstructure:"trustedCA,omitempty"`
@@ -1818,6 +1924,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.MCPURL != nil {
+		s.MCPURL = o.MCPURL
+	}
 	if o.Category != nil {
 		s.Category = o.Category
 	}
@@ -1884,6 +1993,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.TokenSwap != nil {
 		s.TokenSwap = o.TokenSwap
 	}
+	if o.Tools != nil {
+		s.Tools = o.Tools
+	}
 	if o.TrustedCA != nil {
 		s.TrustedCA = o.TrustedCA
 	}
@@ -1921,6 +2033,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.MCPURL != nil {
+		o.MCPURL = s.MCPURL
+	}
 	if s.Category != nil {
 		o.Category = s.Category
 	}
@@ -1987,6 +2102,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.TokenSwap != nil {
 		o.TokenSwap = s.TokenSwap
 	}
+	if s.Tools != nil {
+		o.Tools = s.Tools
+	}
 	if s.TrustedCA != nil {
 		o.TrustedCA = s.TrustedCA
 	}
@@ -2021,6 +2139,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	out := NewProvider()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.MCPURL != nil {
+		out.MCPURL = *o.MCPURL
 	}
 	if o.Category != nil {
 		out.Category = *o.Category
@@ -2087,6 +2208,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.TokenSwap != nil {
 		out.TokenSwap = *o.TokenSwap
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
 	}
 	if o.TrustedCA != nil {
 		out.TrustedCA = *o.TrustedCA
@@ -2163,6 +2287,17 @@ func (o *SparseProvider) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tools' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -2215,6 +2350,17 @@ func (o *SparseProvider) DecryptAttributes(encrypter elemental.AttributeEncrypte
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Mappers' for 'Provider' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Tools != nil {
+		for _, sub := range *o.Tools {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'Provider' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -2344,6 +2490,7 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 
 type mongoAttributesProvider struct {
 	ID               bson.ObjectId             `bson:"_id,omitempty"`
+	MCPURL           string                    `bson:"mcpurl,omitempty"`
 	Category         ProviderCategoryValue     `bson:"category"`
 	CreateTime       time.Time                 `bson:"createtime"`
 	Description      string                    `bson:"description"`
@@ -2366,6 +2513,7 @@ type mongoAttributesProvider struct {
 	RiskScore        float64                   `bson:"riskscore"`
 	Status           ProviderStatusValue       `bson:"status"`
 	TokenSwap        bool                      `bson:"tokenswap"`
+	Tools            []*Tool                   `bson:"tools,omitempty"`
 	TrustedCA        string                    `bson:"trustedca,omitempty"`
 	UpdateTime       time.Time                 `bson:"updatetime"`
 	UpstreamUnsecure bool                      `bson:"upstreamunsecure"`
@@ -2375,6 +2523,7 @@ type mongoAttributesProvider struct {
 }
 type mongoAttributesSparseProvider struct {
 	ID               bson.ObjectId              `bson:"_id,omitempty"`
+	MCPURL           *string                    `bson:"mcpurl,omitempty"`
 	Category         *ProviderCategoryValue     `bson:"category,omitempty"`
 	CreateTime       *time.Time                 `bson:"createtime,omitempty"`
 	Description      *string                    `bson:"description,omitempty"`
@@ -2397,6 +2546,7 @@ type mongoAttributesSparseProvider struct {
 	RiskScore        *float64                   `bson:"riskscore,omitempty"`
 	Status           *ProviderStatusValue       `bson:"status,omitempty"`
 	TokenSwap        *bool                      `bson:"tokenswap,omitempty"`
+	Tools            *[]*Tool                   `bson:"tools,omitempty"`
 	TrustedCA        *string                    `bson:"trustedca,omitempty"`
 	UpdateTime       *time.Time                 `bson:"updatetime,omitempty"`
 	UpstreamUnsecure *bool                      `bson:"upstreamunsecure,omitempty"`

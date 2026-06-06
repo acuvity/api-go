@@ -1,0 +1,138 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@parentable"
+  ],
+  "$friendlyName": "MCP Gateway Client",
+  "$friendlyNamePlural": "MCP Gateway Clients",
+  "$modelName": "MCPGatewayClient",
+  "$modelPackage": "lain",
+  "$modelResourceName": "clients",
+  "$modelRestName": "mcpgatewayclient",
+  "additionalProperties": false,
+  "description": "Represents OAuth clients connected to MCP gateways.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$creationOnly": true,
+      "$friendlyName": "Client ID",
+      "$required": true,
+      "description": "Client identifier used in OAuth requests.",
+      "title": "clientID",
+      "type": "string"
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "description": "Client secret associated with the client ID.",
+      "title": "clientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the MCP gateway client.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "oauthClient": {
+      "$friendlyName": "OAuth Client",
+      "$readOnly": true,
+      "$ref": "identityref.json",
+      "description": "The a3s OAuth client associated with this MCP gateway client.",
+      "title": "oauthClient"
+    },
+    "parentID": {
+      "$friendlyName": "Parent ID",
+      "$readOnly": true,
+      "description": "The ID of the parent resource.",
+      "title": "parentID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "redirectURIs": {
+      "$friendlyName": "Redirect URIs",
+      "$required": true,
+      "description": "List of allowed redirect URIs for the client.",
+      "items": {
+        "type": "string"
+      },
+      "title": "redirectURIs",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "clientID",
+    "redirectURIs"
+  ],
+  "title": "MCPGatewayClient",
+  "type": "object"
+}

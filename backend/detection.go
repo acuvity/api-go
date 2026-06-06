@@ -39,6 +39,9 @@ type Detection struct {
 	// The end position of the positional detection.
 	End int `json:"end" msgpack:"end" bson:"-" mapstructure:"end,omitempty"`
 
+	// The friendly name of the detection.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"-" mapstructure:"friendlyName,omitempty"`
+
 	// The group the detection belongs to.
 	Group string `json:"group" msgpack:"group" bson:"-" mapstructure:"group,omitempty"`
 
@@ -218,6 +221,8 @@ func (o *Detection) ValueForAttribute(name string) any {
 		return o.Description
 	case "end":
 		return o.End
+	case "friendlyName":
+		return o.FriendlyName
 	case "group":
 		return o.Group
 	case "label":
@@ -262,6 +267,14 @@ var DetectionAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "end",
 		Type:           "integer",
+	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FriendlyName",
+		Description:    `The friendly name of the detection.`,
+		Exposed:        true,
+		Name:           "friendlyName",
+		Type:           "string",
 	},
 	"Group": {
 		AllowedChoices: []string{},
@@ -347,6 +360,14 @@ var DetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Exposed:        true,
 		Name:           "end",
 		Type:           "integer",
+	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FriendlyName",
+		Description:    `The friendly name of the detection.`,
+		Exposed:        true,
+		Name:           "friendlyName",
+		Type:           "string",
 	},
 	"group": {
 		AllowedChoices: []string{},

@@ -89,8 +89,17 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "The description of the provider.",
+      "description": "The description of the extractor.",
       "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "featureName": {
+      "$friendlyName": "Feature Name",
+      "description": "The feature name being extracted on. This allows us to label specific extractors so we can group and apply policies per provider feature.",
+      "title": "featureName",
       "type": [
         "string",
         "null"
@@ -135,7 +144,7 @@
       ]
     },
     "libs": {
-      "$friendlyName": "Libs",
+      "$friendlyName": "Libraries",
       "description": "References existing extractorlibs by name to make them importable in the extractor script.",
       "items": {
         "type": [
@@ -207,7 +216,7 @@
       ]
     },
     "script": {
-      "$friendlyName": "Script",
+      "$friendlyName": "Lua Script",
       "description": "If not empty, use this lua code to run the extraction.",
       "title": "script",
       "type": [

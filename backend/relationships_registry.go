@@ -1021,6 +1021,68 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[GatewayIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[GatewayInstanceIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"gateway": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"gateway": {},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"gateway": {},
+		},
+	}
+
 	relationshipsRegistry[GitbookTokenIdentity] = &elemental.Relationship{
 		RetrieveMany: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -1161,6 +1223,63 @@ func init() {
 					},
 				},
 			},
+		},
+	}
+
+	relationshipsRegistry[MCPGatewayBackendIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+	}
+
+	relationshipsRegistry[MCPGatewayClientIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+	}
+
+	relationshipsRegistry[MCPGatewayConfIdentity] = &elemental.Relationship{
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"mcpgateway": {},
 		},
 	}
 
@@ -1776,6 +1895,15 @@ func init() {
 		},
 		Info: map[string]*elemental.RelationshipInfo{
 			"finding": {},
+		},
+	}
+
+	relationshipsRegistry[RevocationIdentity] = &elemental.Relationship{
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
 		},
 	}
 

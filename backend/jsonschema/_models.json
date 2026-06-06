@@ -189,6 +189,9 @@
     "detector": {
       "$ref": "detector.json"
     },
+    "diagnostic": {
+      "$ref": "diagnostic.json"
+    },
     "digestreport": {
       "$ref": "digestreport.json"
     },
@@ -242,6 +245,12 @@
     },
     "findingdefinition": {
       "$ref": "findingdefinition.json"
+    },
+    "gateway": {
+      "$ref": "gateway.json"
+    },
+    "gatewayinstance": {
+      "$ref": "gatewayinstance.json"
     },
     "gitbooktoken": {
       "$ref": "gitbooktoken.json"
@@ -308,6 +317,21 @@
     },
     "mcpgateway": {
       "$ref": "mcpgateway.json"
+    },
+    "mcpgatewaybackend": {
+      "$ref": "mcpgatewaybackend.json"
+    },
+    "mcpgatewayclient": {
+      "$ref": "mcpgatewayclient.json"
+    },
+    "mcpgatewayconf": {
+      "$ref": "mcpgatewayconf.json"
+    },
+    "mcpgatewayconfbackend": {
+      "$ref": "mcpgatewayconfbackend.json"
+    },
+    "mcpgatewayconftool": {
+      "$ref": "mcpgatewayconftool.json"
     },
     "mcpgatewayserver": {
       "$ref": "mcpgatewayserver.json"
@@ -432,11 +456,17 @@
     "resolve": {
       "$ref": "resolve.json"
     },
+    "revocation": {
+      "$ref": "revocation.json"
+    },
     "role": {
       "$ref": "role.json"
     },
     "root": {
       "$ref": "root.json"
+    },
+    "roundtriperror": {
+      "$ref": "roundtriperror.json"
     },
     "samlsource": {
       "$ref": "samlsource.json"
@@ -501,8 +531,14 @@
     "tlsstate": {
       "$ref": "tlsstate.json"
     },
+    "tokenref": {
+      "$ref": "tokenref.json"
+    },
     "tool": {
       "$ref": "tool.json"
+    },
+    "toolargument": {
+      "$ref": "toolargument.json"
     },
     "toolchoice": {
       "$ref": "toolchoice.json"

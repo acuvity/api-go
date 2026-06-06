@@ -11,6 +11,52 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// ExtractionRequestKindValue represents the possible values for attribute "kind".
+type ExtractionRequestKindValue string
+
+const (
+	// ExtractionRequestKindEvent represents the value Event.
+	ExtractionRequestKindEvent ExtractionRequestKindValue = "Event"
+
+	// ExtractionRequestKindFile represents the value File.
+	ExtractionRequestKindFile ExtractionRequestKindValue = "File"
+
+	// ExtractionRequestKindMessage represents the value Message.
+	ExtractionRequestKindMessage ExtractionRequestKindValue = "Message"
+
+	// ExtractionRequestKindResource represents the value Resource.
+	ExtractionRequestKindResource ExtractionRequestKindValue = "Resource"
+
+	// ExtractionRequestKindThinking represents the value Thinking.
+	ExtractionRequestKindThinking ExtractionRequestKindValue = "Thinking"
+
+	// ExtractionRequestKindToolDefinition represents the value ToolDefinition.
+	ExtractionRequestKindToolDefinition ExtractionRequestKindValue = "ToolDefinition"
+
+	// ExtractionRequestKindToolInput represents the value ToolInput.
+	ExtractionRequestKindToolInput ExtractionRequestKindValue = "ToolInput"
+
+	// ExtractionRequestKindToolOutput represents the value ToolOutput.
+	ExtractionRequestKindToolOutput ExtractionRequestKindValue = "ToolOutput"
+)
+
+// ExtractionRequestRoleValue represents the possible values for attribute "role".
+type ExtractionRequestRoleValue string
+
+const (
+	// ExtractionRequestRoleAssistant represents the value Assistant.
+	ExtractionRequestRoleAssistant ExtractionRequestRoleValue = "Assistant"
+
+	// ExtractionRequestRoleSystem represents the value System.
+	ExtractionRequestRoleSystem ExtractionRequestRoleValue = "System"
+
+	// ExtractionRequestRoleTool represents the value Tool.
+	ExtractionRequestRoleTool ExtractionRequestRoleValue = "Tool"
+
+	// ExtractionRequestRoleUser represents the value User.
+	ExtractionRequestRoleUser ExtractionRequestRoleValue = "User"
+)
+
 // ExtractionRequest represents the model of a extractionrequest
 type ExtractionRequest struct {
 	// Annotations attached to the extraction.
@@ -29,12 +75,31 @@ type ExtractionRequest struct {
 	// If true, indicates that the file has been stored.
 	IsStored bool `json:"isStored,omitempty" msgpack:"isStored,omitempty" bson:"isstored,omitempty" mapstructure:"isStored,omitempty"`
 
+	// The kind of content carried by this extraction. Used together with role to
+	// label what the extracted blob represents so the UI can render it correctly and
+	// analyzers can dispatch appropriately:
+	// - Message: free-form natural language (default).
+	// - Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+	// Gemini thought).
+	// - ToolDefinition: tool/function schema advertised to the model (name,
+	// description, JSON schema).
+	// - ToolInput: structured arguments the model passes when invoking a tool.
+	// - ToolOutput: result returned to the model after a tool call.
+	// - File: uploaded or attached file payload.
+	// - Resource: externally-supplied context injected into the prompt (RAG
+	// document, search result, MCP resource).
+	// - Event: control or lifecycle marker with no analyzable content.
+	Kind ExtractionRequestKindValue `json:"kind" msgpack:"kind" bson:"kind" mapstructure:"kind,omitempty"`
+
 	// Contains events and other information that are not actual user content, and will
 	// not go through analysis.
 	Label string `json:"label,omitempty" msgpack:"label,omitempty" bson:"label,omitempty" mapstructure:"label,omitempty"`
 
 	// This is an internal field and has no api meaning.
 	OriginalData string `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
+
+	// The role of the message represented by this extraction.
+	Role ExtractionRequestRoleValue `json:"role" msgpack:"role" bson:"role" mapstructure:"role,omitempty"`
 
 	// Tool call results which are passed in to this request.
 	ToolResults []ToolResult `json:"toolResults,omitempty" msgpack:"toolResults,omitempty" bson:"toolresults,omitempty" mapstructure:"toolResults,omitempty"`
@@ -52,6 +117,8 @@ func NewExtractionRequest() *ExtractionRequest {
 		ModelVersion: 1,
 		Annotations:  map[string]string{},
 		Data:         []byte{},
+		Kind:         ExtractionRequestKindMessage,
+		Role:         ExtractionRequestRoleUser,
 	}
 }
 func (o *ExtractionRequest) Identity() elemental.Identity {
@@ -80,7 +147,9 @@ func (o *ExtractionRequest) GetBSON() (any, error) {
 	s.Internal = o.Internal
 	s.IsFile = o.IsFile
 	s.IsStored = o.IsStored
+	s.Kind = o.Kind
 	s.Label = o.Label
+	s.Role = o.Role
 	s.ToolResults = o.ToolResults
 	s.ToolUses = o.ToolUses
 
@@ -104,7 +173,9 @@ func (o *ExtractionRequest) SetBSON(raw bson.Raw) error {
 	o.Internal = s.Internal
 	o.IsFile = s.IsFile
 	o.IsStored = s.IsStored
+	o.Kind = s.Kind
 	o.Label = s.Label
+	o.Role = s.Role
 	o.ToolResults = s.ToolResults
 	o.ToolUses = s.ToolUses
 
@@ -197,6 +268,14 @@ func (o *ExtractionRequest) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("kind", string(o.Kind), []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"User", "Assistant", "System", "Tool"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
@@ -255,10 +334,14 @@ func (o *ExtractionRequest) ValueForAttribute(name string) any {
 		return o.IsFile
 	case "isStored":
 		return o.IsStored
+	case "kind":
+		return o.Kind
 	case "label":
 		return o.Label
 	case "originalData":
 		return o.OriginalData
+	case "role":
+		return o.Role
 	case "toolResults":
 		return o.ToolResults
 	case "toolUses":
@@ -321,6 +404,30 @@ systems to mark an extraction as internal only as opposed to user facing.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"Kind": {
+		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   ExtractionRequestKindMessage,
+		Description: `The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.`,
+		Exposed: true,
+		Name:    "kind",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"Label": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "label",
@@ -333,6 +440,17 @@ not go through analysis.`,
 		Type:    "string",
 	},
 
+	"Role": {
+		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
+		BSONFieldName:  "role",
+		ConvertedName:  "Role",
+		DefaultValue:   ExtractionRequestRoleUser,
+		Description:    `The role of the message represented by this extraction.`,
+		Exposed:        true,
+		Name:           "role",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"ToolResults": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "toolresults",
@@ -410,6 +528,30 @@ systems to mark an extraction as internal only as opposed to user facing.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"kind": {
+		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   ExtractionRequestKindMessage,
+		Description: `The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.`,
+		Exposed: true,
+		Name:    "kind",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"label": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "label",
@@ -422,6 +564,17 @@ not go through analysis.`,
 		Type:    "string",
 	},
 
+	"role": {
+		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
+		BSONFieldName:  "role",
+		ConvertedName:  "Role",
+		DefaultValue:   ExtractionRequestRoleUser,
+		Description:    `The role of the message represented by this extraction.`,
+		Exposed:        true,
+		Name:           "role",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"toolresults": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "toolresults",
@@ -447,11 +600,13 @@ not go through analysis.`,
 }
 
 type mongoAttributesExtractionRequest struct {
-	Annotations map[string]string `bson:"annotations,omitempty"`
-	Internal    bool              `bson:"internal,omitempty"`
-	IsFile      bool              `bson:"isfile,omitempty"`
-	IsStored    bool              `bson:"isstored,omitempty"`
-	Label       string            `bson:"label,omitempty"`
-	ToolResults []ToolResult      `bson:"toolresults,omitempty"`
-	ToolUses    []ToolUse         `bson:"tooluses,omitempty"`
+	Annotations map[string]string          `bson:"annotations,omitempty"`
+	Internal    bool                       `bson:"internal,omitempty"`
+	IsFile      bool                       `bson:"isfile,omitempty"`
+	IsStored    bool                       `bson:"isstored,omitempty"`
+	Kind        ExtractionRequestKindValue `bson:"kind"`
+	Label       string                     `bson:"label,omitempty"`
+	Role        ExtractionRequestRoleValue `bson:"role"`
+	ToolResults []ToolResult               `bson:"toolresults,omitempty"`
+	ToolUses    []ToolUse                  `bson:"tooluses,omitempty"`
 }

@@ -107,7 +107,7 @@
         "type": "object"
       },
       "analyzermatcher": {
-        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections and/or metadata should trigger an analyzer. It allows for\nflexible pattern\nmatching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses metadata attributes such as type, hasTools and\nhasToolUses.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections and/or\nmetadata.",
+        "description": "Represent an analyzer matcher.\nAn analyzer Matcher serves as a filtering mechanism for analyzers, determining\nwhich detections, metadata and/or pipeline constraints should trigger an\nanalyzer. It allows for flexible pattern matching on:\n- for scope Detection, uses detection attributes such as name, label, and group\nusing glob-style\nwildcards and confidence-based filtering by defining\nthresholds and comparison operators.\n- for scope Metadata, uses a key/operator/values expression (k8s-style) to match\na metadata field such as type, role, tools or toolUses.\n- for scope Constraint, uses pipeline execution constraints such as maxDepth.\nMatchers provide a structured way\nto control when and how analyzers engage with incoming detections, metadata\nand/or pipeline constraints.",
         "properties": {
           "confidence": {
             "default": "Low",
@@ -129,6 +129,11 @@
             "example": "Text",
             "type": "string"
           },
+          "key": {
+            "description": "For scope Metadata, the metadata field to match against (e.g. 'type', 'role',\n'tools', 'toolUses').",
+            "example": "type",
+            "type": "string"
+          },
           "label": {
             "default": "*",
             "description": "The label pattern used to match detection label. Supports glob-style wildcards\n(e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any\ndetection label.",
@@ -143,28 +148,35 @@
           },
           "operator": {
             "default": "Min",
-            "description": "Specifies how to compare the detection's confidence value against the matcher's\nthreshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nThe default value is 'Min'.",
+            "description": "Specifies how to compare the matched attribute. The meaning depends on the\nscope.\nFor scope Detection, compares the detection's confidence value against the\nmatcher's threshold:\n- 'Is': All Detections confidence must exactly match the threshold\n- 'Min': At least one detection confidence must be greater than or equal to the\nthreshold\n- 'Max': At least one detection confidence must be less than the threshold\nFor scope Metadata, compares the metadata field (key) against values:\n- 'In': the field value is one of values\n- 'NotIn': the field value is none of values\n- 'Exists': the field is set (values is ignored)\n- 'DoesNotExist': the field is not set (values is ignored)\nThe default value is 'Min'.",
             "enum": [
               "Is",
               "Min",
-              "Max"
+              "Max",
+              "In",
+              "NotIn",
+              "Exists",
+              "DoesNotExist"
             ]
           },
           "scope": {
             "default": "Detection",
-            "description": "The scope of the matcher, can be either Detection or Metadata.",
+            "description": "The scope of the matcher, can be Detection, Metadata or Constraint.",
             "enum": [
               "Detection",
-              "Metadata"
+              "Metadata",
+              "Constraint"
             ]
           },
-          "type": {
-            "default": "Input",
-            "description": "The type of data, either Input or Output.",
-            "enum": [
-              "Input",
-              "Output"
-            ]
+          "values": {
+            "description": "For scope Metadata, the list of values to compare the metadata field against.\nUsed by the 'In' and 'NotIn' operators and ignored by 'Exists' and\n'DoesNotExist'.",
+            "example": [
+              "Input"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -188,6 +200,10 @@
         "properties": {
           "description": {
             "description": "The description of the detection.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "The friendly name of the detection.",
             "type": "string"
           },
           "group": {
@@ -353,6 +369,20 @@
             },
             "type": "object"
           },
+          "kind": {
+            "default": "Message",
+            "description": "The kind of content carried by this extraction. Used together with role to\nlabel what the extracted blob represents so the UI can render it correctly and\nanalyzers can dispatch appropriately:\n- Message: free-form natural language (default).\n- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,\nGemini thought).\n- ToolDefinition: tool/function schema advertised to the model (name,\ndescription, JSON schema).\n- ToolInput: structured arguments the model passes when invoking a tool.\n- ToolOutput: result returned to the model after a tool call.\n- File: uploaded or attached file payload.\n- Resource: externally-supplied context injected into the prompt (RAG\ndocument, search result, MCP resource).\n- Event: control or lifecycle marker with no analyzable content.",
+            "enum": [
+              "Message",
+              "Thinking",
+              "ToolDefinition",
+              "ToolInput",
+              "ToolOutput",
+              "File",
+              "Resource",
+              "Event"
+            ]
+          },
           "label": {
             "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
@@ -388,6 +418,16 @@
             "description": "The level of general organization relevance of the input.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": 0.9,
             "type": "number"
+          },
+          "role": {
+            "default": "User",
+            "description": "The role of the message represented by this extraction.",
+            "enum": [
+              "User",
+              "Assistant",
+              "System",
+              "Tool"
+            ]
           },
           "secrets": {
             "additionalProperties": {
@@ -467,9 +507,33 @@
             "description": "If true, indicates that the file has been stored.",
             "type": "boolean"
           },
+          "kind": {
+            "default": "Message",
+            "description": "The kind of content carried by this extraction. Used together with role to\nlabel what the extracted blob represents so the UI can render it correctly and\nanalyzers can dispatch appropriately:\n- Message: free-form natural language (default).\n- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,\nGemini thought).\n- ToolDefinition: tool/function schema advertised to the model (name,\ndescription, JSON schema).\n- ToolInput: structured arguments the model passes when invoking a tool.\n- ToolOutput: result returned to the model after a tool call.\n- File: uploaded or attached file payload.\n- Resource: externally-supplied context injected into the prompt (RAG\ndocument, search result, MCP resource).\n- Event: control or lifecycle marker with no analyzable content.",
+            "enum": [
+              "Message",
+              "Thinking",
+              "ToolDefinition",
+              "ToolInput",
+              "ToolOutput",
+              "File",
+              "Resource",
+              "Event"
+            ]
+          },
           "label": {
             "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
             "type": "string"
+          },
+          "role": {
+            "default": "User",
+            "description": "The role of the message represented by this extraction.",
+            "enum": [
+              "User",
+              "Assistant",
+              "System",
+              "Tool"
+            ]
           },
           "toolResults": {
             "description": "Tool call results which are passed in to this request.",
@@ -820,7 +884,7 @@
             "type": "string"
           },
           "decision": {
-            "description": "Tell what was the decision about the data.",
+            "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Deny",
               "Allow",
@@ -830,10 +894,13 @@
               "ForbiddenUser",
               "Skipped",
               "Redirected",
+              "NotApplicable",
               "Error",
-              "UpstreamError",
-              "NotApplicable"
+              "UpstreamError"
             ]
+          },
+          "error": {
+            "$ref": "#/components/schemas/roundtriperror"
           },
           "extractions": {
             "description": "The extractions to log.",
@@ -1287,6 +1354,49 @@
         },
         "type": "object"
       },
+      "roundtriperror": {
+        "description": "Structured error info attached to a roundtrip when a non-user-facing\nplatform stage or the upstream provider failed. Carries the platform-side\ndetail (type, stage, message) for debugging and provider-health\nderivation. The Decision field still reflects the policy/processing\noutcome per existing semantics.",
+        "properties": {
+          "message": {
+            "description": "Human-readable error message.",
+            "type": "string"
+          },
+          "previousDecision": {
+            "description": "The decision produced before the failClose or failOpen mutation\nflipped it. Set only when the user-facing Decision is the result\nof a platform-error override, so the audit log can surface what\nthe policy would have decided otherwise.",
+            "enum": [
+              "Deny",
+              "Allow",
+              "Ask",
+              "Report",
+              "Bypassed",
+              "ForbiddenUser",
+              "Skipped",
+              "Redirected",
+              "NotApplicable"
+            ],
+            "readOnly": true
+          },
+          "stage": {
+            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nAcuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
+            "enum": [
+              "Extraction",
+              "Analysis",
+              "ContentPolicy",
+              "AssignPolicy",
+              "AccessPolicy",
+              "Upstream"
+            ]
+          },
+          "type": {
+            "description": "The source of the failure. PlatformError covers apex-side stages\n(Extraction, Analysis, ContentPolicy, AccessPolicy). UpstreamError\ncovers anything attributable to the upstream provider (transport\nfailures or non-2xx HTTP responses).",
+            "enum": [
+              "PlatformError",
+              "UpstreamError"
+            ]
+          }
+        },
+        "type": "object"
+      },
       "scanrequest": {
         "description": "This is a scan request.",
         "properties": {
@@ -1445,7 +1555,7 @@
             "type": "string"
           },
           "decision": {
-            "description": "Tell what was the decision about the data.",
+            "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Deny",
               "Allow",
@@ -1455,10 +1565,13 @@
               "ForbiddenUser",
               "Skipped",
               "Redirected",
+              "NotApplicable",
               "Error",
-              "UpstreamError",
-              "NotApplicable"
+              "UpstreamError"
             ]
+          },
+          "error": {
+            "$ref": "#/components/schemas/roundtriperror"
           },
           "extractions": {
             "description": "The extractions to log.",
@@ -1606,6 +1719,13 @@
           "MCPServer": {
             "$ref": "#/components/schemas/mcpserver"
           },
+          "arguments": {
+            "description": "The input arguments accepted by this tool.",
+            "items": {
+              "$ref": "#/components/schemas/toolargument"
+            },
+            "type": "array"
+          },
           "category": {
             "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
             "enum": [
@@ -1631,6 +1751,39 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "toolargument": {
+        "description": "Represents a tool input argument.",
+        "properties": {
+          "description": {
+            "description": "The description of the argument.",
+            "example": "URL to fetch.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the argument.",
+            "example": "url",
+            "type": "string"
+          },
+          "required": {
+            "description": "Whether this argument is required by the tool.",
+            "type": "boolean"
+          },
+          "schema": {
+            "additionalProperties": true,
+            "description": "The JSON schema for this argument, excluding fields promoted to top-level\nattributes.",
+            "type": "object"
+          },
+          "type": {
+            "description": "The JSON schema type of the argument.",
+            "example": "string",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
         "type": "object"
       },
       "toolchoice": {

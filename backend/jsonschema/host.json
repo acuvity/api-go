@@ -21,7 +21,7 @@
     "name": {
       "$friendlyName": "Name",
       "$required": true,
-      "description": "The hostname.",
+      "description": "The hostname. Supports wildcards like *.example.com.",
       "title": "name",
       "type": "string"
     },

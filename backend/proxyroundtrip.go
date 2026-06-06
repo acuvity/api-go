@@ -190,7 +190,19 @@ type ProxyRoundtrip struct {
 	// while keeping and reporting all the analysis and other metadata.
 	ContentRedacted bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
 
-	// Tell what was the decision about the data.
+	// User-facing outcome of the roundtrip. Reflects the policy
+	// engine's verdict, or in case of platform failure, the result of the
+	// failClose strategy (Deny on fail-close, Allow on fail-open, with
+	// structured error field carring the detail). NotApplicable is
+	// used by the scan and police APIs, which analyze content without
+	// rendering an enforcement decision. Error and UpstreamError stay
+	// in the allowed_choices list for backward compatibility with
+	// clients that still PUT those values; new round-trips never emit
+	// them — platform/upstream failures now surface via the structured
+	// Error field instead.
+	// NOTE: safe to drop Error and UpstreamError from this enum on or
+	// after 2026-07-19 (two months after the structured RoundtripError
+	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision ProxyRoundtripDecisionValue `json:"decision" msgpack:"decision" bson:"decision" mapstructure:"decision,omitempty"`
 
 	// Captures all details of the destination of the request.
@@ -201,6 +213,11 @@ type ProxyRoundtrip struct {
 
 	// The encryption details of the connection from the client to the proxy.
 	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Structured error info populated when a non-user-facing platform stage
+	// or the upstream provider failed. Carries the source (PlatformError vs
+	// UpstreamError), the failing stage, and a human-readable message.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The extractions to log.
 	Extractions []*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
@@ -347,6 +364,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Destination = o.Destination
 	s.EncryptionEgress = o.EncryptionEgress
 	s.EncryptionIngress = o.EncryptionIngress
+	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
 	s.ImportHash = o.ImportHash
@@ -397,6 +415,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Destination = s.Destination
 	o.EncryptionEgress = s.EncryptionEgress
 	o.EncryptionIngress = s.EncryptionIngress
+	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
 	o.ImportHash = s.ImportHash
@@ -506,6 +525,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Destination:       o.Destination,
 			EncryptionEgress:  o.EncryptionEgress,
 			EncryptionIngress: o.EncryptionIngress,
+			Error:             o.Error,
 			Extractions:       &o.Extractions,
 			Hash:              &o.Hash,
 			ImportHash:        &o.ImportHash,
@@ -556,6 +576,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.EncryptionEgress = o.EncryptionEgress
 		case "encryptionIngress":
 			sp.EncryptionIngress = o.EncryptionIngress
+		case "error":
+			sp.Error = o.Error
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "hash":
@@ -646,6 +668,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.EncryptionIngress != nil {
 		o.EncryptionIngress = so.EncryptionIngress
+	}
+	if so.Error != nil {
+		o.Error = so.Error
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
@@ -751,6 +776,12 @@ func (o *ProxyRoundtrip) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Extractions {
 		if sub == nil {
 			continue
@@ -844,6 +875,12 @@ func (o *ProxyRoundtrip) DecryptAttributes(encrypter elemental.AttributeEncrypte
 	if o.EncryptionIngress != nil {
 		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -955,7 +992,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -977,6 +1014,13 @@ func (o *ProxyRoundtrip) Validate() error {
 		if err := o.EncryptionIngress.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "encryptionIngress")
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "error")
 		}
 	}
 
@@ -1126,6 +1170,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.EncryptionEgress
 	case "encryptionIngress":
 		return o.EncryptionIngress
+	case "error":
+		return o.Error
 	case "extractions":
 		return o.Extractions
 	case "hash":
@@ -1251,14 +1297,26 @@ while keeping and reporting all the analysis and other metadata.`,
 		Type:    "boolean",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
-		Description:    `Tell what was the decision about the data.`,
-		Exposed:        true,
-		Name:           "decision",
-		Stored:         true,
-		Type:           "enum",
+		Description: `User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.`,
+		Exposed: true,
+		Name:    "decision",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Destination": {
 		AllowedChoices: []string{},
@@ -1292,6 +1350,19 @@ while keeping and reporting all the analysis and other metadata.`,
 		Stored:         true,
 		SubType:        "tlsstate",
 		Type:           "ref",
+	},
+	"Error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -1648,14 +1719,26 @@ while keeping and reporting all the analysis and other metadata.`,
 		Type:    "boolean",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
-		Description:    `Tell what was the decision about the data.`,
-		Exposed:        true,
-		Name:           "decision",
-		Stored:         true,
-		Type:           "enum",
+		Description: `User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.`,
+		Exposed: true,
+		Name:    "decision",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"destination": {
 		AllowedChoices: []string{},
@@ -1689,6 +1772,19 @@ while keeping and reporting all the analysis and other metadata.`,
 		Stored:         true,
 		SubType:        "tlsstate",
 		Type:           "ref",
+	},
+	"error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -2056,7 +2152,19 @@ type SparseProxyRoundtrip struct {
 	// while keeping and reporting all the analysis and other metadata.
 	ContentRedacted *bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
 
-	// Tell what was the decision about the data.
+	// User-facing outcome of the roundtrip. Reflects the policy
+	// engine's verdict, or in case of platform failure, the result of the
+	// failClose strategy (Deny on fail-close, Allow on fail-open, with
+	// structured error field carring the detail). NotApplicable is
+	// used by the scan and police APIs, which analyze content without
+	// rendering an enforcement decision. Error and UpstreamError stay
+	// in the allowed_choices list for backward compatibility with
+	// clients that still PUT those values; new round-trips never emit
+	// them — platform/upstream failures now surface via the structured
+	// Error field instead.
+	// NOTE: safe to drop Error and UpstreamError from this enum on or
+	// after 2026-07-19 (two months after the structured RoundtripError
+	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision *ProxyRoundtripDecisionValue `json:"decision,omitempty" msgpack:"decision,omitempty" bson:"decision,omitempty" mapstructure:"decision,omitempty"`
 
 	// Captures all details of the destination of the request.
@@ -2067,6 +2175,11 @@ type SparseProxyRoundtrip struct {
 
 	// The encryption details of the connection from the client to the proxy.
 	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Structured error info populated when a non-user-facing platform stage
+	// or the upstream provider failed. Carries the source (PlatformError vs
+	// UpstreamError), the failing stage, and a human-readable message.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The extractions to log.
 	Extractions *[]*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
@@ -2230,6 +2343,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.EncryptionIngress != nil {
 		s.EncryptionIngress = o.EncryptionIngress
 	}
+	if o.Error != nil {
+		s.Error = o.Error
+	}
 	if o.Extractions != nil {
 		s.Extractions = o.Extractions
 	}
@@ -2345,6 +2461,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.EncryptionIngress != nil {
 		o.EncryptionIngress = s.EncryptionIngress
 	}
+	if s.Error != nil {
+		o.Error = s.Error
+	}
 	if s.Extractions != nil {
 		o.Extractions = s.Extractions
 	}
@@ -2458,6 +2577,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.EncryptionIngress != nil {
 		out.EncryptionIngress = o.EncryptionIngress
 	}
+	if o.Error != nil {
+		out.Error = o.Error
+	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
 	}
@@ -2566,6 +2688,12 @@ func (o *SparseProxyRoundtrip) EncryptAttributes(encrypter elemental.AttributeEn
 		}
 	}
 
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Extractions != nil {
 		for _, sub := range *o.Extractions {
 			if sub == nil {
@@ -2667,6 +2795,12 @@ func (o *SparseProxyRoundtrip) DecryptAttributes(encrypter elemental.AttributeEn
 	if o.EncryptionIngress != nil {
 		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'ProxyRoundtrip' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2825,6 +2959,7 @@ type mongoAttributesProxyRoundtrip struct {
 	Destination       *Destination                     `bson:"destination,omitempty"`
 	EncryptionEgress  *TLSState                        `bson:"encryptionegress,omitempty"`
 	EncryptionIngress *TLSState                        `bson:"encryptioningress,omitempty"`
+	Error             *RoundtripError                  `bson:"error,omitempty"`
 	Extractions       []*Extraction                    `bson:"extractions,omitempty"`
 	Hash              string                           `bson:"hash"`
 	ImportHash        string                           `bson:"importhash,omitempty"`
@@ -2860,6 +2995,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Destination       *Destination                      `bson:"destination,omitempty"`
 	EncryptionEgress  *TLSState                         `bson:"encryptionegress,omitempty"`
 	EncryptionIngress *TLSState                         `bson:"encryptioningress,omitempty"`
+	Error             *RoundtripError                   `bson:"error,omitempty"`
 	Extractions       *[]*Extraction                    `bson:"extractions,omitempty"`
 	Hash              *string                           `bson:"hash,omitempty"`
 	ImportHash        *string                           `bson:"importhash,omitempty"`

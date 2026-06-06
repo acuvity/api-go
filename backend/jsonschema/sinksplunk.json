@@ -10,7 +10,7 @@
   "description": "Additional configuration for sending an alert to Splunk.",
   "properties": {
     "HECURL": {
-      "$friendlyName": "HEC URL",
+      "$friendlyName": "HTTP Event Collector URL",
       "$required": true,
       "description": "The HTTP event collector (HEC) URL to send the alert to.",
       "title": "HECURL",
@@ -27,7 +27,7 @@
     },
     "insecureSkipVerify": {
       "$friendlyName": "Insecure Skip Verify",
-      "description": "If true, will attempt to skip TLS verification when communicating.",
+      "description": "If true, will attempt to skip TLS verification when communicating. Not recommended.",
       "title": "insecureSkipVerify",
       "type": [
         "boolean",
@@ -35,7 +35,7 @@
       ]
     },
     "token": {
-      "$friendlyName": "Token",
+      "$friendlyName": "HTTP Event Collector Token",
       "$required": true,
       "description": "The token to communicate with the HTTP event collector.",
       "title": "token",

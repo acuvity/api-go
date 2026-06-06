@@ -324,6 +324,12 @@
       },
       "type": "array"
     },
+    "clients": {
+      "items": {
+        "$ref": "mcpgatewayclient.json"
+      },
+      "type": "array"
+    },
     "connectionencryptions": {
       "items": {
         "$ref": "connectionencryption.json"
@@ -369,6 +375,12 @@
     "detectors": {
       "items": {
         "$ref": "detector.json"
+      },
+      "type": "array"
+    },
+    "diagnostics": {
+      "items": {
+        "$ref": "diagnostic.json"
       },
       "type": "array"
     },
@@ -477,6 +489,18 @@
     "findings": {
       "items": {
         "$ref": "finding.json"
+      },
+      "type": "array"
+    },
+    "gatewayinstances": {
+      "items": {
+        "$ref": "gatewayinstance.json"
+      },
+      "type": "array"
+    },
+    "gateways": {
+      "items": {
+        "$ref": "gateway.json"
       },
       "type": "array"
     },
@@ -603,6 +627,30 @@
     "mappers": {
       "items": {
         "$ref": "mapper.json"
+      },
+      "type": "array"
+    },
+    "mcpgatewaybackends": {
+      "items": {
+        "$ref": "mcpgatewaybackend.json"
+      },
+      "type": "array"
+    },
+    "mcpgatewayconfbackends": {
+      "items": {
+        "$ref": "mcpgatewayconfbackend.json"
+      },
+      "type": "array"
+    },
+    "mcpgatewayconfs": {
+      "items": {
+        "$ref": "mcpgatewayconf.json"
+      },
+      "type": "array"
+    },
+    "mcpgatewayconftools": {
+      "items": {
+        "$ref": "mcpgatewayconftool.json"
       },
       "type": "array"
     },
@@ -858,6 +906,12 @@
       },
       "type": "array"
     },
+    "revocations": {
+      "items": {
+        "$ref": "revocation.json"
+      },
+      "type": "array"
+    },
     "roles": {
       "items": {
         "$ref": "role.json"
@@ -867,6 +921,12 @@
     "root": {
       "items": {
         "$ref": "root.json"
+      },
+      "type": "array"
+    },
+    "roundtriperrors": {
+      "items": {
+        "$ref": "roundtriperror.json"
       },
       "type": "array"
     },
@@ -993,6 +1053,18 @@
     "tlsstates": {
       "items": {
         "$ref": "tlsstate.json"
+      },
+      "type": "array"
+    },
+    "tokenrefs": {
+      "items": {
+        "$ref": "tokenref.json"
+      },
+      "type": "array"
+    },
+    "toolarguments": {
+      "items": {
+        "$ref": "toolargument.json"
       },
       "type": "array"
     },

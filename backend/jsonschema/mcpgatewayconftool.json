@@ -1,0 +1,46 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Gateway Conf Tool",
+  "$friendlyNamePlural": "MCP Gateway Conf Tools",
+  "$modelName": "MCPGatewayConfTool",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgatewayconftools",
+  "$modelRestName": "mcpgatewayconftool",
+  "additionalProperties": false,
+  "description": "The rendered tool shape consumed by Maxibridge in an MCP gateway configuration.",
+  "properties": {
+    "MCPAnnotations": {
+      "$friendlyName": "MCP Annotations",
+      "$ref": "mcptoolannotations.json",
+      "description": "The optional annotations defined for the tool.",
+      "title": "MCPAnnotations"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the tool.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inputSchema": {
+      "$friendlyName": "Input Schema",
+      "description": "The JSON schema of the tool input arguments.",
+      "title": "inputSchema",
+      "type": "object"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the tool.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "MCPGatewayConfTool",
+  "type": "object"
+}

@@ -17,7 +17,7 @@ type Host struct {
 	// probably want this on.
 	DisableFingerprintingResistance bool `json:"disableFingerprintingResistance" msgpack:"disableFingerprintingResistance" bson:"disablefingerprintingresistance" mapstructure:"disableFingerprintingResistance,omitempty"`
 
-	// The hostname.
+	// The hostname. Supports wildcards like *.example.com.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// URL prefix for additional matching.
@@ -217,7 +217,7 @@ probably want this on.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The hostname.`,
+		Description:    `The hostname. Supports wildcards like *.example.com.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
@@ -263,7 +263,7 @@ probably want this on.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The hostname.`,
+		Description:    `The hostname. Supports wildcards like *.example.com.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,

@@ -33,7 +33,13 @@ type DNSReport struct {
 	// The list of IP addresses associated with the domain.
 	IPAddresses []string `json:"IPAddresses,omitempty" msgpack:"IPAddresses,omitempty" bson:"ipaddresses,omitempty" mapstructure:"IPAddresses,omitempty"`
 
-	// The action taken.
+	// The action taken. Error stays in the allowed_choices list for
+	// backward compatibility with clients that still PUT reports with
+	// that value; new reports never emit it — platform/upstream
+	// failures surface via the structured Error field instead.
+	// NOTE: safe to drop Error from this enum on or after 2026-07-19
+	// (two months after the structured RoundtripError landed on
+	// 2026-05-19), once consumers have rolled forward.
 	Action DNSReportActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
 
 	// The origin where the action was taken.
@@ -44,6 +50,15 @@ type DNSReport struct {
 
 	// The domain that was queried.
 	Domain string `json:"domain" msgpack:"domain" bson:"domain" mapstructure:"domain,omitempty"`
+
+	// Structured error info populated when the action is Error. Carries the
+	// source (PlatformError vs UpstreamError), the failing stage, and a
+	// human-readable message, same shape as proxyroundtrip.error so
+	// downstream consumers (UI, dashboards, agent/provider-health metrics)
+	// can treat both round-trip and connection-report failures uniformly.
+	// The Action field still reflects the per-event outcome per existing
+	// semantics.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The number of times this domain was queried.
 	Hits int `json:"hits" msgpack:"hits" bson:"hits" mapstructure:"hits,omitempty"`
@@ -110,6 +125,7 @@ func (o *DNSReport) GetBSON() (any, error) {
 	s.ActionOrigin = o.ActionOrigin
 	s.AppComponent = o.AppComponent
 	s.Domain = o.Domain
+	s.Error = o.Error
 	s.Hits = o.Hits
 	s.PolicyID = o.PolicyID
 	s.Provider = o.Provider
@@ -141,6 +157,7 @@ func (o *DNSReport) SetBSON(raw bson.Raw) error {
 	o.ActionOrigin = s.ActionOrigin
 	o.AppComponent = s.AppComponent
 	o.Domain = s.Domain
+	o.Error = s.Error
 	o.Hits = s.Hits
 	o.PolicyID = s.PolicyID
 	o.Provider = s.Provider
@@ -174,11 +191,23 @@ func (o *DNSReport) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *DNSReport) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'DNSReport' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *DNSReport) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'DNSReport' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -229,6 +258,13 @@ func (o *DNSReport) Validate() error {
 
 	if err := ValidateDNSName("domain", o.Domain); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Error != nil {
+		if err := o.Error.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "error")
+		}
 	}
 
 	if err := elemental.ValidateRequiredInt("hits", o.Hits); err != nil {
@@ -290,6 +326,8 @@ func (o *DNSReport) ValueForAttribute(name string) any {
 		return o.AppComponent
 	case "domain":
 		return o.Domain
+	case "error":
+		return o.Error
 	case "hits":
 		return o.Hits
 	case "policyID":
@@ -340,12 +378,18 @@ var DNSReportAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   DNSReportActionAllow,
-		Description:    `The action taken.`,
-		Exposed:        true,
-		Name:           "action",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The action taken. Error stays in the allowed_choices list for
+backward compatibility with clients that still PUT reports with
+that value; new reports never emit it — platform/upstream
+failures surface via the structured Error field instead.
+NOTE: safe to drop Error from this enum on or after 2026-07-19
+(two months after the structured RoundtripError landed on
+2026-05-19), once consumers have rolled forward.`,
+		Exposed:  true,
+		Name:     "action",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"ActionOrigin": {
 		AllowedChoices: []string{},
@@ -377,6 +421,23 @@ var DNSReportAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when the action is Error. Carries the
+source (PlatformError vs UpstreamError), the failing stage, and a
+human-readable message, same shape as proxyroundtrip.error so
+downstream consumers (UI, dashboards, agent/provider-health metrics)
+can treat both round-trip and connection-report failures uniformly.
+The Action field still reflects the per-event outcome per existing
+semantics.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"Hits": {
 		AllowedChoices: []string{},
@@ -491,12 +552,18 @@ var DNSReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
 		DefaultValue:   DNSReportActionAllow,
-		Description:    `The action taken.`,
-		Exposed:        true,
-		Name:           "action",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The action taken. Error stays in the allowed_choices list for
+backward compatibility with clients that still PUT reports with
+that value; new reports never emit it — platform/upstream
+failures surface via the structured Error field instead.
+NOTE: safe to drop Error from this enum on or after 2026-07-19
+(two months after the structured RoundtripError landed on
+2026-05-19), once consumers have rolled forward.`,
+		Exposed:  true,
+		Name:     "action",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"actionorigin": {
 		AllowedChoices: []string{},
@@ -528,6 +595,23 @@ var DNSReportLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when the action is Error. Carries the
+source (PlatformError vs UpstreamError), the failing stage, and a
+human-readable message, same shape as proxyroundtrip.error so
+downstream consumers (UI, dashboards, agent/provider-health metrics)
+can treat both round-trip and connection-report failures uniformly.
+The Action field still reflects the per-event outcome per existing
+semantics.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"hits": {
 		AllowedChoices: []string{},
@@ -620,6 +704,7 @@ type mongoAttributesDNSReport struct {
 	ActionOrigin          string               `bson:"actionorigin,omitempty"`
 	AppComponent          string               `bson:"appcomponent,omitempty"`
 	Domain                string               `bson:"domain"`
+	Error                 *RoundtripError      `bson:"error,omitempty"`
 	Hits                  int                  `bson:"hits"`
 	PolicyID              string               `bson:"policyid,omitempty"`
 	Provider              string               `bson:"provider,omitempty"`

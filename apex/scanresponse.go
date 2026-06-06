@@ -160,8 +160,25 @@ type ScanResponse struct {
 	// The version of the client used to send the request.
 	ClientVersion string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
-	// Tell what was the decision about the data.
+	// User-facing outcome of the roundtrip. Reflects the policy
+	// engine's verdict, or in case of platform failure, the result of the
+	// failClose strategy (Deny on fail-close, Allow on fail-open, with
+	// structured error field carring the detail). NotApplicable is
+	// used by the scan and police APIs, which analyze content without
+	// rendering an enforcement decision. Error and UpstreamError stay
+	// in the allowed_choices list for backward compatibility with
+	// clients that still PUT those values; new round-trips never emit
+	// them — platform/upstream failures now surface via the structured
+	// Error field instead.
+	// NOTE: safe to drop Error and UpstreamError from this enum on or
+	// after 2026-07-19 (two months after the structured RoundtripError
+	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision ScanResponseDecisionValue `json:"decision" msgpack:"decision" bson:"decision" mapstructure:"decision,omitempty"`
+
+	// Structured error info populated when a non-user-facing platform stage
+	// or the upstream provider failed. Carries the source (PlatformError vs
+	// UpstreamError), the failing stage, and a human-readable message.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The extractions to log.
 	Extractions []*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
@@ -263,6 +280,7 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	s.Client = o.Client
 	s.ClientVersion = o.ClientVersion
 	s.Decision = o.Decision
+	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
 	s.Latency = o.Latency
@@ -302,6 +320,7 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	o.Client = s.Client
 	o.ClientVersion = s.ClientVersion
 	o.Decision = s.Decision
+	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
 	o.Latency = s.Latency
@@ -376,6 +395,7 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Client:        &o.Client,
 			ClientVersion: &o.ClientVersion,
 			Decision:      &o.Decision,
+			Error:         o.Error,
 			Extractions:   &o.Extractions,
 			Hash:          &o.Hash,
 			Latency:       o.Latency,
@@ -411,6 +431,8 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ClientVersion = &(o.ClientVersion)
 		case "decision":
 			sp.Decision = &(o.Decision)
+		case "error":
+			sp.Error = o.Error
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "hash":
@@ -476,6 +498,9 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Decision != nil {
 		o.Decision = *so.Decision
 	}
+	if so.Error != nil {
+		o.Error = so.Error
+	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
 	}
@@ -538,6 +563,12 @@ func (o *ScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -607,6 +638,12 @@ func (o *ScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -709,8 +746,15 @@ func (o *ScanResponse) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"}, false); err != nil {
+	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Error != nil {
+		if err := o.Error.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "error")
+		}
 	}
 
 	for i, sub := range o.Extractions {
@@ -833,6 +877,8 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 		return o.ClientVersion
 	case "decision":
 		return o.Decision
+	case "error":
+		return o.Error
 	case "extractions":
 		return o.Extractions
 	case "hash":
@@ -932,14 +978,39 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
-		Description:    `Tell what was the decision about the data.`,
-		Exposed:        true,
-		Name:           "decision",
-		Stored:         true,
-		Type:           "enum",
+		Description: `User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.`,
+		Exposed: true,
+		Name:    "decision",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"Error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -1187,14 +1258,39 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"decision": {
-		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "Error", "UpstreamError", "NotApplicable"},
+		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
 		ConvertedName:  "Decision",
-		Description:    `Tell what was the decision about the data.`,
-		Exposed:        true,
-		Name:           "decision",
-		Stored:         true,
-		Type:           "enum",
+		Description: `User-facing outcome of the roundtrip. Reflects the policy
+engine's verdict, or in case of platform failure, the result of the
+failClose strategy (Deny on fail-close, Allow on fail-open, with
+structured error field carring the detail). NotApplicable is
+used by the scan and police APIs, which analyze content without
+rendering an enforcement decision. Error and UpstreamError stay
+in the allowed_choices list for backward compatibility with
+clients that still PUT those values; new round-trips never emit
+them — platform/upstream failures now surface via the structured
+Error field instead.
+NOTE: safe to drop Error and UpstreamError from this enum on or
+after 2026-07-19 (two months after the structured RoundtripError
+landed on 2026-05-19), once consumers have rolled forward.`,
+		Exposed: true,
+		Name:    "decision",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"error": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "error",
+		ConvertedName:  "Error",
+		Description: `Structured error info populated when a non-user-facing platform stage
+or the upstream provider failed. Carries the source (PlatformError vs
+UpstreamError), the failing stage, and a human-readable message.`,
+		Exposed: true,
+		Name:    "error",
+		Stored:  true,
+		SubType: "roundtriperror",
+		Type:    "ref",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -1460,8 +1556,25 @@ type SparseScanResponse struct {
 	// The version of the client used to send the request.
 	ClientVersion *string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
-	// Tell what was the decision about the data.
+	// User-facing outcome of the roundtrip. Reflects the policy
+	// engine's verdict, or in case of platform failure, the result of the
+	// failClose strategy (Deny on fail-close, Allow on fail-open, with
+	// structured error field carring the detail). NotApplicable is
+	// used by the scan and police APIs, which analyze content without
+	// rendering an enforcement decision. Error and UpstreamError stay
+	// in the allowed_choices list for backward compatibility with
+	// clients that still PUT those values; new round-trips never emit
+	// them — platform/upstream failures now surface via the structured
+	// Error field instead.
+	// NOTE: safe to drop Error and UpstreamError from this enum on or
+	// after 2026-07-19 (two months after the structured RoundtripError
+	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision *ScanResponseDecisionValue `json:"decision,omitempty" msgpack:"decision,omitempty" bson:"decision,omitempty" mapstructure:"decision,omitempty"`
+
+	// Structured error info populated when a non-user-facing platform stage
+	// or the upstream provider failed. Carries the source (PlatformError vs
+	// UpstreamError), the failing stage, and a human-readable message.
+	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
 	// The extractions to log.
 	Extractions *[]*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
@@ -1575,6 +1688,9 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 	if o.Decision != nil {
 		s.Decision = o.Decision
 	}
+	if o.Error != nil {
+		s.Error = o.Error
+	}
 	if o.Extractions != nil {
 		s.Extractions = o.Extractions
 	}
@@ -1657,6 +1773,9 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 	if s.Decision != nil {
 		o.Decision = s.Decision
 	}
+	if s.Error != nil {
+		o.Error = s.Error
+	}
 	if s.Extractions != nil {
 		o.Extractions = s.Extractions
 	}
@@ -1737,6 +1856,9 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Decision != nil {
 		out.Decision = *o.Decision
 	}
+	if o.Error != nil {
+		out.Error = o.Error
+	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
 	}
@@ -1803,6 +1925,12 @@ func (o *SparseScanResponse) EncryptAttributes(encrypter elemental.AttributeEncr
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Error' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1878,6 +2006,12 @@ func (o *SparseScanResponse) DecryptAttributes(encrypter elemental.AttributeEncr
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Error != nil {
+		if err := o.Error.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1989,6 +2123,7 @@ type mongoAttributesScanResponse struct {
 	Client        string                        `bson:"client,omitempty"`
 	ClientVersion string                        `bson:"clientversion,omitempty"`
 	Decision      ScanResponseDecisionValue     `bson:"decision"`
+	Error         *RoundtripError               `bson:"error,omitempty"`
 	Extractions   []*Extraction                 `bson:"extractions,omitempty"`
 	Hash          string                        `bson:"hash"`
 	Latency       *Latency                      `bson:"latency,omitempty"`
@@ -2013,6 +2148,7 @@ type mongoAttributesSparseScanResponse struct {
 	Client        *string                        `bson:"client,omitempty"`
 	ClientVersion *string                        `bson:"clientversion,omitempty"`
 	Decision      *ScanResponseDecisionValue     `bson:"decision,omitempty"`
+	Error         *RoundtripError                `bson:"error,omitempty"`
 	Extractions   *[]*Extraction                 `bson:"extractions,omitempty"`
 	Hash          *string                        `bson:"hash,omitempty"`
 	Latency       *Latency                       `bson:"latency,omitempty"`

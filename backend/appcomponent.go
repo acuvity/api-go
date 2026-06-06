@@ -119,6 +119,12 @@ type AppComponent struct {
 	// The component name.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
+	// Set to true on update to issue a new credential.
+	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
+
+	// Set to value on update to associate a tag with the issued token.
+	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
 	// The selector configuration that identifies workload groups as this app
 	// component.
 	Selector AppComponentSelector `json:"selector" msgpack:"selector" bson:"selector" mapstructure:"selector,omitempty"`
@@ -127,6 +133,9 @@ type AppComponent struct {
 	// caller's
 	// claim match the parents app.subject.
 	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// The list of tokens issued for this component.
+	Tokenref []*TokenRef `json:"tokenref,omitempty" msgpack:"tokenref,omitempty" bson:"tokenref,omitempty" mapstructure:"tokenref,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -175,6 +184,7 @@ func (o *AppComponent) GetBSON() (any, error) {
 	s.Kind = o.Kind
 	s.Name = o.Name
 	s.Selector = o.Selector
+	s.Tokenref = o.Tokenref
 
 	return s, nil
 }
@@ -198,6 +208,7 @@ func (o *AppComponent) SetBSON(raw bson.Raw) error {
 	o.Kind = s.Kind
 	o.Name = s.Name
 	o.Selector = s.Selector
+	o.Tokenref = s.Tokenref
 
 	return nil
 }
@@ -238,13 +249,16 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAppComponent{
-			Description: &o.Description,
-			Egress:      o.Egress,
-			Ingress:     o.Ingress,
-			Kind:        &o.Kind,
-			Name:        &o.Name,
-			Selector:    &o.Selector,
-			Token:       &o.Token,
+			Description:   &o.Description,
+			Egress:        o.Egress,
+			Ingress:       o.Ingress,
+			Kind:          &o.Kind,
+			Name:          &o.Name,
+			RenewToken:    &o.RenewToken,
+			RenewTokenTag: &o.RenewTokenTag,
+			Selector:      &o.Selector,
+			Token:         &o.Token,
+			Tokenref:      &o.Tokenref,
 		}
 	}
 
@@ -261,10 +275,16 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Kind = &(o.Kind)
 		case "name":
 			sp.Name = &(o.Name)
+		case "renewToken":
+			sp.RenewToken = &(o.RenewToken)
+		case "renewTokenTag":
+			sp.RenewTokenTag = &(o.RenewTokenTag)
 		case "selector":
 			sp.Selector = &(o.Selector)
 		case "token":
 			sp.Token = &(o.Token)
+		case "tokenref":
+			sp.Tokenref = &(o.Tokenref)
 		}
 	}
 
@@ -293,11 +313,20 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
+	if so.RenewToken != nil {
+		o.RenewToken = *so.RenewToken
+	}
+	if so.RenewTokenTag != nil {
+		o.RenewTokenTag = *so.RenewTokenTag
+	}
 	if so.Selector != nil {
 		o.Selector = *so.Selector
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
+	}
+	if so.Tokenref != nil {
+		o.Tokenref = *so.Tokenref
 	}
 }
 
@@ -320,6 +349,15 @@ func (o *AppComponent) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
 	}
 
+	for _, sub := range o.Tokenref {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -340,6 +378,15 @@ func (o *AppComponent) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 
 	if err := o.Selector.DecryptAttributes(encrypter); err != nil {
 		return fmt.Errorf("unable to decrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
+	}
+
+	for _, sub := range o.Tokenref {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
 	}
 
 	return nil
@@ -408,6 +455,16 @@ func (o *AppComponent) Validate() error {
 		elemental.InjectAttributePath(errors, "selector")
 	}
 
+	for i, sub := range o.Tokenref {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenref", i))
+		}
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -452,10 +509,16 @@ func (o *AppComponent) ValueForAttribute(name string) any {
 		return o.Kind
 	case "name":
 		return o.Name
+	case "renewToken":
+		return o.RenewToken
+	case "renewTokenTag":
+		return o.RenewTokenTag
 	case "selector":
 		return o.Selector
 	case "token":
 		return o.Token
+	case "tokenref":
+		return o.Tokenref
 	}
 
 	return nil
@@ -518,6 +581,24 @@ var AppComponentAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"RenewToken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewToken",
+		Description:    `Set to true on update to issue a new credential.`,
+		Exposed:        true,
+		Name:           "renewToken",
+		Transient:      true,
+		Type:           "boolean",
+	},
+	"RenewTokenTag": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenTag",
+		Description:    `Set to value on update to associate a tag with the issued token.`,
+		Exposed:        true,
+		Name:           "renewTokenTag",
+		Transient:      true,
+		Type:           "string",
+	},
 	"Selector": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
@@ -543,6 +624,19 @@ claim match the parents app.subject.`,
 		ReadOnly:  true,
 		Transient: true,
 		Type:      "string",
+	},
+	"Tokenref": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "tokenref",
+		ConvertedName:  "Tokenref",
+		Description:    `The list of tokens issued for this component.`,
+		Exposed:        true,
+		Name:           "tokenref",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "tokenref",
+		Type:           "refList",
 	},
 }
 
@@ -603,6 +697,24 @@ var AppComponentLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
+	"renewtoken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewToken",
+		Description:    `Set to true on update to issue a new credential.`,
+		Exposed:        true,
+		Name:           "renewToken",
+		Transient:      true,
+		Type:           "boolean",
+	},
+	"renewtokentag": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenTag",
+		Description:    `Set to value on update to associate a tag with the issued token.`,
+		Exposed:        true,
+		Name:           "renewTokenTag",
+		Transient:      true,
+		Type:           "string",
+	},
 	"selector": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "selector",
@@ -628,6 +740,19 @@ claim match the parents app.subject.`,
 		ReadOnly:  true,
 		Transient: true,
 		Type:      "string",
+	},
+	"tokenref": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "tokenref",
+		ConvertedName:  "Tokenref",
+		Description:    `The list of tokens issued for this component.`,
+		Exposed:        true,
+		Name:           "tokenref",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "tokenref",
+		Type:           "refList",
 	},
 }
 
@@ -709,6 +834,12 @@ type SparseAppComponent struct {
 	// The component name.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// Set to true on update to issue a new credential.
+	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
+
+	// Set to value on update to associate a tag with the issued token.
+	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
 	// The selector configuration that identifies workload groups as this app
 	// component.
 	Selector *AppComponentSelector `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
@@ -717,6 +848,9 @@ type SparseAppComponent struct {
 	// caller's
 	// claim match the parents app.subject.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// The list of tokens issued for this component.
+	Tokenref *[]*TokenRef `json:"tokenref,omitempty" msgpack:"tokenref,omitempty" bson:"tokenref,omitempty" mapstructure:"tokenref,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -771,6 +905,9 @@ func (o *SparseAppComponent) GetBSON() (any, error) {
 	if o.Selector != nil {
 		s.Selector = o.Selector
 	}
+	if o.Tokenref != nil {
+		s.Tokenref = o.Tokenref
+	}
 
 	return s, nil
 }
@@ -806,6 +943,9 @@ func (o *SparseAppComponent) SetBSON(raw bson.Raw) error {
 	if s.Selector != nil {
 		o.Selector = s.Selector
 	}
+	if s.Tokenref != nil {
+		o.Tokenref = s.Tokenref
+	}
 
 	return nil
 }
@@ -835,11 +975,20 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
+	if o.RenewToken != nil {
+		out.RenewToken = *o.RenewToken
+	}
+	if o.RenewTokenTag != nil {
+		out.RenewTokenTag = *o.RenewTokenTag
+	}
 	if o.Selector != nil {
 		out.Selector = *o.Selector
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
+	}
+	if o.Tokenref != nil {
+		out.Tokenref = *o.Tokenref
 	}
 
 	return out
@@ -864,6 +1013,17 @@ func (o *SparseAppComponent) EncryptAttributes(encrypter elemental.AttributeEncr
 		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
 	}
 
+	if o.Tokenref != nil {
+		for _, sub := range *o.Tokenref {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -884,6 +1044,17 @@ func (o *SparseAppComponent) DecryptAttributes(encrypter elemental.AttributeEncr
 
 	if err := o.Selector.DecryptAttributes(encrypter); err != nil {
 		return fmt.Errorf("unable to decrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.Tokenref != nil {
+		for _, sub := range *o.Tokenref {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %w", o.Identifier(), err)
+			}
+		}
 	}
 
 	return nil
@@ -920,6 +1091,7 @@ type mongoAttributesAppComponent struct {
 	Kind        AppComponentKindValue `bson:"kind"`
 	Name        string                `bson:"name"`
 	Selector    AppComponentSelector  `bson:"selector"`
+	Tokenref    []*TokenRef           `bson:"tokenref,omitempty"`
 }
 type mongoAttributesSparseAppComponent struct {
 	Description *string                `bson:"description,omitempty"`
@@ -928,4 +1100,5 @@ type mongoAttributesSparseAppComponent struct {
 	Kind        *AppComponentKindValue `bson:"kind,omitempty"`
 	Name        *string                `bson:"name,omitempty"`
 	Selector    *AppComponentSelector  `bson:"selector,omitempty"`
+	Tokenref    *[]*TokenRef           `bson:"tokenref,omitempty"`
 }

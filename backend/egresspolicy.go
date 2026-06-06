@@ -34,7 +34,7 @@ type EgressPolicy struct {
 	// The Policy ID is the unique identifier for this policy.
 	PolicyID string `json:"policyID" msgpack:"policyID" bson:"policyid" mapstructure:"policyID,omitempty"`
 
-	// The list of rules for the egress policy.
+	// Rules that define how egress traffic is handled.
 	Rules []*EgressPolicyRule `json:"rules,omitempty" msgpack:"rules,omitempty" bson:"rules,omitempty" mapstructure:"rules,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -377,7 +377,7 @@ var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "rules",
 		ConvertedName:  "Rules",
-		Description:    `The list of rules for the egress policy.`,
+		Description:    `Rules that define how egress traffic is handled.`,
 		Exposed:        true,
 		Name:           "rules",
 		Stored:         true,
@@ -467,7 +467,7 @@ var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		AllowedChoices: []string{},
 		BSONFieldName:  "rules",
 		ConvertedName:  "Rules",
-		Description:    `The list of rules for the egress policy.`,
+		Description:    `Rules that define how egress traffic is handled.`,
 		Exposed:        true,
 		Name:           "rules",
 		Stored:         true,

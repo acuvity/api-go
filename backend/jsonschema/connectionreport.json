@@ -18,7 +18,7 @@
       "$defaultValue": "Allow",
       "$friendlyName": "Action",
       "$required": true,
-      "description": "The action taken.",
+      "description": "The action taken. Error stays in the allowed_choices list for backward compatibility with clients that still PUT reports with that value; new reports never emit it — platform/upstream failures surface via the structured Error field instead. NOTE: safe to drop Error from this enum on or after 2026-07-19 (two months after the structured RoundtripError landed on 2026-05-19), once consumers have rolled forward.",
       "enum": [
         "Allow",
         "Deny",
@@ -78,6 +78,12 @@
       "$ref": "connectionencryption.json",
       "description": "If the connection is encrypted, this field contains details about the discovered encryption details used of the connection.",
       "title": "encryption"
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "$ref": "roundtriperror.json",
+      "description": "Structured error info populated when the action is Error. Carries the source (PlatformError vs UpstreamError), the failing stage, and a human-readable message, same shape as proxyroundtrip.error so downstream consumers (UI, dashboards, agent/provider-health metrics) can treat both round-trip and connection-report failures uniformly. The Action field still reflects the per-event outcome per existing semantics.",
+      "title": "error"
     },
     "hostname": {
       "$friendlyName": "Hostname",

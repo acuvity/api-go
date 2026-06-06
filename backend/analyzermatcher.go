@@ -32,6 +32,15 @@ const (
 type MatcherOperatorValue string
 
 const (
+	// MatcherOperatorDoesNotExist represents the value DoesNotExist.
+	MatcherOperatorDoesNotExist MatcherOperatorValue = "DoesNotExist"
+
+	// MatcherOperatorExists represents the value Exists.
+	MatcherOperatorExists MatcherOperatorValue = "Exists"
+
+	// MatcherOperatorIn represents the value In.
+	MatcherOperatorIn MatcherOperatorValue = "In"
+
 	// MatcherOperatorIs represents the value Is.
 	MatcherOperatorIs MatcherOperatorValue = "Is"
 
@@ -40,28 +49,23 @@ const (
 
 	// MatcherOperatorMin represents the value Min.
 	MatcherOperatorMin MatcherOperatorValue = "Min"
+
+	// MatcherOperatorNotIn represents the value NotIn.
+	MatcherOperatorNotIn MatcherOperatorValue = "NotIn"
 )
 
 // MatcherScopeValue represents the possible values for attribute "scope".
 type MatcherScopeValue string
 
 const (
+	// MatcherScopeConstraint represents the value Constraint.
+	MatcherScopeConstraint MatcherScopeValue = "Constraint"
+
 	// MatcherScopeDetection represents the value Detection.
 	MatcherScopeDetection MatcherScopeValue = "Detection"
 
 	// MatcherScopeMetadata represents the value Metadata.
 	MatcherScopeMetadata MatcherScopeValue = "Metadata"
-)
-
-// MatcherTypeValue represents the possible values for attribute "type".
-type MatcherTypeValue string
-
-const (
-	// MatcherTypeInput represents the value Input.
-	MatcherTypeInput MatcherTypeValue = "Input"
-
-	// MatcherTypeOutput represents the value Output.
-	MatcherTypeOutput MatcherTypeValue = "Output"
 )
 
 // Matcher represents the model of a analyzermatcher
@@ -78,11 +82,9 @@ type Matcher struct {
 	// detection group.
 	Group string `json:"group,omitempty" msgpack:"group,omitempty" bson:"-" mapstructure:"group,omitempty"`
 
-	// If the metadata has tool uses set.
-	HasToolUses bool `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
-
-	// If the metadata has tools set.
-	HasTools bool `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
+	// For scope Metadata, the metadata field to match against (e.g. 'type', 'role',
+	// 'tools', 'toolUses').
+	Key string `json:"key,omitempty" msgpack:"key,omitempty" bson:"-" mapstructure:"key,omitempty"`
 
 	// The label pattern used to match detection label. Supports glob-style wildcards
 	// (e.g. 'txt*' matches 'txt', 'txtuf8'). Default value is '*' meaning matching any
@@ -94,20 +96,29 @@ type Matcher struct {
 	// detection name.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"-" mapstructure:"name,omitempty"`
 
-	// Specifies how to compare the detection's confidence value against the matcher's
-	// threshold:
+	// Specifies how to compare the matched attribute. The meaning depends on the
+	// scope.
+	// For scope Detection, compares the detection's confidence value against the
+	// matcher's threshold:
 	// - 'Is': All Detections confidence must exactly match the threshold
 	// - 'Min': At least one detection confidence must be greater than or equal to the
 	// threshold
 	// - 'Max': At least one detection confidence must be less than the threshold
+	// For scope Metadata, compares the metadata field (key) against values:
+	// - 'In': the field value is one of values
+	// - 'NotIn': the field value is none of values
+	// - 'Exists': the field is set (values is ignored)
+	// - 'DoesNotExist': the field is not set (values is ignored)
 	// The default value is 'Min'.
 	Operator MatcherOperatorValue `json:"operator,omitempty" msgpack:"operator,omitempty" bson:"-" mapstructure:"operator,omitempty"`
 
-	// The scope of the matcher, can be either Detection or Metadata.
+	// The scope of the matcher, can be Detection, Metadata or Constraint.
 	Scope MatcherScopeValue `json:"scope" msgpack:"scope" bson:"-" mapstructure:"scope,omitempty"`
 
-	// The type of data, either Input or Output.
-	Type MatcherTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"-" mapstructure:"type,omitempty"`
+	// For scope Metadata, the list of values to compare the metadata field against.
+	// Used by the 'In' and 'NotIn' operators and ignored by 'Exists' and
+	// 'DoesNotExist'.
+	Values []string `json:"values,omitempty" msgpack:"values,omitempty" bson:"-" mapstructure:"values,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -123,7 +134,7 @@ func NewMatcher() *Matcher {
 		Name:         "*",
 		Operator:     MatcherOperatorMin,
 		Scope:        MatcherScopeDetection,
-		Type:         MatcherTypeInput,
+		Values:       []string{},
 	}
 }
 func (o *Matcher) Identity() elemental.Identity {
@@ -184,18 +195,18 @@ func (o *Matcher) Doc() string {
 
 	return `Represent an analyzer matcher.
 An analyzer Matcher serves as a filtering mechanism for analyzers, determining
-which detections and/or metadata should trigger an analyzer. It allows for
-flexible pattern
-matching on:
+which detections, metadata and/or pipeline constraints should trigger an
+analyzer. It allows for flexible pattern matching on:
 - for scope Detection, uses detection attributes such as name, label, and group
 using glob-style
 wildcards and confidence-based filtering by defining
 thresholds and comparison operators.
-- for scope Metadata, uses metadata attributes such as type, hasTools and
-hasToolUses.
+- for scope Metadata, uses a key/operator/values expression (k8s-style) to match
+a metadata field such as type, role, tools or toolUses.
+- for scope Constraint, uses pipeline execution constraints such as maxDepth.
 Matchers provide a structured way
-to control when and how analyzers engage with incoming detections and/or
-metadata.`
+to control when and how analyzers engage with incoming detections, metadata
+and/or pipeline constraints.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
@@ -246,15 +257,11 @@ func (o *Matcher) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"Is", "Min", "Max"}, false); err != nil {
+	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"Is", "Min", "Max", "In", "NotIn", "Exists", "DoesNotExist"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("scope", string(o.Scope), []string{"Detection", "Metadata"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
+	if err := elemental.ValidateStringInList("scope", string(o.Scope), []string{"Detection", "Metadata", "Constraint"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -298,10 +305,8 @@ func (o *Matcher) ValueForAttribute(name string) any {
 		return o.Description
 	case "group":
 		return o.Group
-	case "hasToolUses":
-		return o.HasToolUses
-	case "hasTools":
-		return o.HasTools
+	case "key":
+		return o.Key
 	case "label":
 		return o.Label
 	case "name":
@@ -310,8 +315,8 @@ func (o *Matcher) ValueForAttribute(name string) any {
 		return o.Operator
 	case "scope":
 		return o.Scope
-	case "type":
-		return o.Type
+	case "values":
+		return o.Values
 	}
 
 	return nil
@@ -348,7 +353,15 @@ detection group.`,
 		Name:    "group",
 		Type:    "string",
 	},
-
+	"Key": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Key",
+		Description: `For scope Metadata, the metadata field to match against (e.g. 'type', 'role',
+'tools', 'toolUses').`,
+		Exposed: true,
+		Name:    "key",
+		Type:    "string",
+	},
 	"Label": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Label",
@@ -372,37 +385,46 @@ detection name.`,
 		Type:    "string",
 	},
 	"Operator": {
-		AllowedChoices: []string{"Is", "Min", "Max"},
+		AllowedChoices: []string{"Is", "Min", "Max", "In", "NotIn", "Exists", "DoesNotExist"},
 		ConvertedName:  "Operator",
 		DefaultValue:   MatcherOperatorMin,
-		Description: `Specifies how to compare the detection's confidence value against the matcher's
-threshold:
+		Description: `Specifies how to compare the matched attribute. The meaning depends on the
+scope.
+For scope Detection, compares the detection's confidence value against the
+matcher's threshold:
 - 'Is': All Detections confidence must exactly match the threshold
 - 'Min': At least one detection confidence must be greater than or equal to the
 threshold
 - 'Max': At least one detection confidence must be less than the threshold
+For scope Metadata, compares the metadata field (key) against values:
+- 'In': the field value is one of values
+- 'NotIn': the field value is none of values
+- 'Exists': the field is set (values is ignored)
+- 'DoesNotExist': the field is not set (values is ignored)
 The default value is 'Min'.`,
 		Exposed: true,
 		Name:    "operator",
 		Type:    "enum",
 	},
 	"Scope": {
-		AllowedChoices: []string{"Detection", "Metadata"},
+		AllowedChoices: []string{"Detection", "Metadata", "Constraint"},
 		ConvertedName:  "Scope",
 		DefaultValue:   MatcherScopeDetection,
-		Description:    `The scope of the matcher, can be either Detection or Metadata.`,
+		Description:    `The scope of the matcher, can be Detection, Metadata or Constraint.`,
 		Exposed:        true,
 		Name:           "scope",
 		Type:           "enum",
 	},
-	"Type": {
-		AllowedChoices: []string{"Input", "Output"},
-		ConvertedName:  "Type",
-		DefaultValue:   MatcherTypeInput,
-		Description:    `The type of data, either Input or Output.`,
-		Exposed:        true,
-		Name:           "type",
-		Type:           "enum",
+	"Values": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Values",
+		Description: `For scope Metadata, the list of values to compare the metadata field against.
+Used by the 'In' and 'NotIn' operators and ignored by 'Exists' and
+'DoesNotExist'.`,
+		Exposed: true,
+		Name:    "values",
+		SubType: "string",
+		Type:    "list",
 	},
 }
 
@@ -437,7 +459,15 @@ detection group.`,
 		Name:    "group",
 		Type:    "string",
 	},
-
+	"key": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Key",
+		Description: `For scope Metadata, the metadata field to match against (e.g. 'type', 'role',
+'tools', 'toolUses').`,
+		Exposed: true,
+		Name:    "key",
+		Type:    "string",
+	},
 	"label": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Label",
@@ -461,37 +491,46 @@ detection name.`,
 		Type:    "string",
 	},
 	"operator": {
-		AllowedChoices: []string{"Is", "Min", "Max"},
+		AllowedChoices: []string{"Is", "Min", "Max", "In", "NotIn", "Exists", "DoesNotExist"},
 		ConvertedName:  "Operator",
 		DefaultValue:   MatcherOperatorMin,
-		Description: `Specifies how to compare the detection's confidence value against the matcher's
-threshold:
+		Description: `Specifies how to compare the matched attribute. The meaning depends on the
+scope.
+For scope Detection, compares the detection's confidence value against the
+matcher's threshold:
 - 'Is': All Detections confidence must exactly match the threshold
 - 'Min': At least one detection confidence must be greater than or equal to the
 threshold
 - 'Max': At least one detection confidence must be less than the threshold
+For scope Metadata, compares the metadata field (key) against values:
+- 'In': the field value is one of values
+- 'NotIn': the field value is none of values
+- 'Exists': the field is set (values is ignored)
+- 'DoesNotExist': the field is not set (values is ignored)
 The default value is 'Min'.`,
 		Exposed: true,
 		Name:    "operator",
 		Type:    "enum",
 	},
 	"scope": {
-		AllowedChoices: []string{"Detection", "Metadata"},
+		AllowedChoices: []string{"Detection", "Metadata", "Constraint"},
 		ConvertedName:  "Scope",
 		DefaultValue:   MatcherScopeDetection,
-		Description:    `The scope of the matcher, can be either Detection or Metadata.`,
+		Description:    `The scope of the matcher, can be Detection, Metadata or Constraint.`,
 		Exposed:        true,
 		Name:           "scope",
 		Type:           "enum",
 	},
-	"type": {
-		AllowedChoices: []string{"Input", "Output"},
-		ConvertedName:  "Type",
-		DefaultValue:   MatcherTypeInput,
-		Description:    `The type of data, either Input or Output.`,
-		Exposed:        true,
-		Name:           "type",
-		Type:           "enum",
+	"values": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Values",
+		Description: `For scope Metadata, the list of values to compare the metadata field against.
+Used by the 'In' and 'NotIn' operators and ignored by 'Exists' and
+'DoesNotExist'.`,
+		Exposed: true,
+		Name:    "values",
+		SubType: "string",
+		Type:    "list",
 	},
 }
 

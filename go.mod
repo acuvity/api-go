@@ -1,16 +1,17 @@
 module go.acuvity.ai/api
 
-go 1.26.1
+go 1.26.4
 
 require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
+	github.com/gobwas/glob v0.2.3
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20260519190850-e85e22e9df4f
-	go.acuvity.ai/elemental v0.0.0-20260519184958-be12aaf1ecd2
-	go.opentelemetry.io/collector/pdata v1.58.0
+	go.acuvity.ai/a3s v0.0.0-20260609214453-322265ef6bb0
+	go.acuvity.ai/elemental v0.0.0-20260601175251-78f998107f34
+	go.opentelemetry.io/collector/pdata v1.60.0
 )
 
 require (
@@ -46,14 +47,14 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-	go.acuvity.ai/regolithe v0.0.0-20260519184542-934ff1a5b7e3 // indirect
+	go.acuvity.ai/regolithe v0.0.0-20260601174230-81cdfce253df // indirect
 	go.acuvity.ai/tg v1.0.1-0.20260519184745-c99f6bc63fa0 // indirect
-	go.opentelemetry.io/collector/featuregate v1.58.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.60.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/gobwas/glob"
 	"github.com/robfig/cron/v3"
 	a3sapi "go.acuvity.ai/a3s/pkgs/api"
 	"go.acuvity.ai/elemental"
@@ -213,24 +214,24 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 		return makeErr("redirectMessage", fmt.Sprintf("you must set 'redirectMessage' if the access decision is '%s'", accessPolicy.Action))
 	}
 
-	matches := map[string]any{}
-	for _, cpol := range accessPolicy.ContentPolicies {
+	matches := make(map[string]struct{}, len(accessPolicy.ContentPolicies))
+	for i, cpol := range accessPolicy.ContentPolicies {
 		if _, ok := matches[cpol]; !ok {
-			matches[cpol] = nil
+			matches[cpol] = struct{}{}
 			continue
 		}
-		return makeErr("contentPolicies", fmt.Sprintf("you cannot have duplicate content policies applied ('%s')", cpol))
+		return makeErr(fmt.Sprintf("contentPolicies/%d", i), fmt.Sprintf("you cannot have duplicate content policies applied ('%s')", cpol))
 	}
 
-	predicates := map[string]any{}
-	for _, criteria := range accessPolicy.Match {
+	predicates := make(map[string]struct{}, len(accessPolicy.Match))
+	for i, criteria := range accessPolicy.Match {
 
 		keyop := fmt.Sprintf("%s-%s", criteria.Key, criteria.Operator)
 		if _, ok := predicates[keyop]; !ok {
-			predicates[keyop] = nil
+			predicates[keyop] = struct{}{}
 			continue
 		}
-		return makeErr("match", fmt.Sprintf("'%s' cannot have multiple entries for the same operator '%s'", criteria.Key, criteria.Operator))
+		return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot have multiple entries for the same operator '%s'", criteria.Key, criteria.Operator))
 	}
 
 	return nil
@@ -256,17 +257,32 @@ func ValidateProvider(provider *Provider) error {
 		return makeErr("name", "provider name must not start with reserved prefix 'appc:'")
 	}
 
-	hosts := make(map[string]struct{}, len(provider.Hosts))
-	for _, h := range provider.Hosts {
-		hosts[h.Name] = struct{}{}
+	globs := make([]glob.Glob, 0, len(provider.Hosts))
+	for i, h := range provider.Hosts {
+
+		g, err := glob.Compile(h.Name)
+		if err != nil {
+			return makeErr(fmt.Sprintf("hosts/%d/name", i), fmt.Sprintf("invalid glob pattern: %s", err))
+		}
+
+		globs = append(globs, g)
+	}
+
+	match := func(h string) bool {
+
+		for _, g := range globs {
+			if g.Match(h) {
+				return true
+			}
+		}
+		return false
 	}
 
 	for i, extractor := range provider.Extractors {
-		if len(extractor.Hosts) != 0 {
-			for _, h := range extractor.Hosts {
-				if _, ok := hosts[h]; !ok {
-					return makeErr("extractors", fmt.Sprintf("extractors[%d].hosts '%s' is not defined in the provider hosts list", i, h))
-				}
+
+		for j, h := range extractor.Hosts {
+			if !match(h) {
+				return makeErr(fmt.Sprintf("extractors/%d/hosts/%d", i, j), fmt.Sprintf("extractor host '%s' is not defined in the provider hosts list", h))
 			}
 		}
 
@@ -276,11 +292,10 @@ func ValidateProvider(provider *Provider) error {
 	}
 
 	for i, mapper := range provider.Mappers {
-		if len(mapper.Hosts) != 0 {
-			for _, h := range mapper.Hosts {
-				if _, ok := hosts[h]; !ok {
-					return makeErr("hosts", fmt.Sprintf("mapper[%d].hosts '%s' is not defined in the provider hosts list", i, h))
-				}
+
+		for j, h := range mapper.Hosts {
+			if !match(h) {
+				return makeErr(fmt.Sprintf("mappers/%d/hosts/%d", i, j), fmt.Sprintf("mapper host '%s' is not defined in the provider hosts list", h))
 			}
 		}
 
@@ -290,11 +305,10 @@ func ValidateProvider(provider *Provider) error {
 	}
 
 	for i, injector := range provider.Injectors {
-		if len(injector.Hosts) != 0 {
-			for _, h := range injector.Hosts {
-				if _, ok := hosts[h]; !ok {
-					return makeErr("hosts", fmt.Sprintf("injectors[%d].hosts '%s' is not defined in the provider hosts list", i, h))
-				}
+
+		for j, h := range injector.Hosts {
+			if !match(h) {
+				return makeErr(fmt.Sprintf("injectors/%d/hosts/%d", i, j), fmt.Sprintf("injector host '%s' is not defined in the provider hosts list", h))
 			}
 		}
 
@@ -407,6 +421,97 @@ func ValidatePredicate(p *Predicate) error {
 	v := p.Values
 
 	switch p.Key {
+	case PredicateKeyCategories:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Categories' only supports operator 'Any' and 'NotAny'")
+		}
+		if len(p.Values) < 1 {
+			return makeErr("values", "Key 'Categories' must have at least one value")
+		}
+		for i, v := range p.Values {
+			if _, ok := v.(string); !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Categories' only supports string value")
+			}
+		}
+
+	case PredicateKeyClientType:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'ClientType' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'ClientType' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'ClientType' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'ClientType' must not have a value that contains a quote")
+				}
+				if _, ok := m[strVal]; ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'ClientType' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'ClientType' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyConfidentiality:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'Confidentiality' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Confidentiality' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'Confidentiality' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyCustomDataTypes:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'CustomDataTypes' only supports operators 'Any', 'NotEmpty' and 'EqualsOrGreaterThan'")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'CustomDataTypes' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'CustomDataTypes' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'CustomDataTypes' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'CustomDataTypes' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+		if o == PredicateOperatorEqualsOrGreaterThan {
+			if len(v) != 1 {
+				return makeErr("values", "Key 'CustomDataTypes' only supports one single value for 'EqualsOrGreaterThan'")
+			}
+			switch t := p.Values[0].(type) {
+			case int, uint64, int64:
+			case float64:
+				p.Values[0] = int(p.Values[0].(float64))
+			default:
+				return makeErr("values/0", fmt.Sprintf("Key 'CustomDataTypes' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
+			}
+		}
+
 	case PredicateKeyDstApp:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
 			return makeErr("operator", "Key 'DstApp' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
@@ -416,16 +521,16 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr("values", "'DstApp' must have at least one value")
 			}
 			m := make(map[string]struct{}, len(v))
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'DstApp' only supports string values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstApp' only supports string values")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'DstApp' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstApp' must not have a value that contains a quote")
 				}
 				if _, ok := m[strVal]; ok {
-					return makeErr("values", "Key 'DstApp' must not have duplicate values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstApp' must not have duplicate values")
 				}
 				m[strVal] = struct{}{}
 			}
@@ -445,16 +550,16 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr("values", "'DstComponent' must have at least one value")
 			}
 			m := make(map[string]struct{}, len(v))
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'DstComponent' only supports string values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstComponent' only supports string values")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'DstComponent' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstComponent' must not have a value that contains a quote")
 				}
 				if _, ok := m[strVal]; ok {
-					return makeErr("values", "Key 'DstComponent' must not have duplicate values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstComponent' must not have duplicate values")
 				}
 				m[strVal] = struct{}{}
 			}
@@ -473,18 +578,66 @@ func ValidatePredicate(p *Predicate) error {
 			return makeErr("values", "'DstIPRange' must have at least one value")
 		}
 		m := make(map[string]struct{}, len(v))
-		for _, v := range v {
+		for i, v := range v {
 			strVal, ok := v.(string)
 			if !ok {
-				return makeErr("values", "Key 'DstIPRange' only supports string values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstIPRange' only supports string values")
 			}
 			if _, _, err := net.ParseCIDR(strVal); err != nil {
-				return makeErr("values", fmt.Sprintf("Key 'DstIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key 'DstIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
 			}
 			if _, ok := m[strVal]; ok {
-				return makeErr("values", "Key 'DstIPRange' must not have duplicate values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstIPRange' must not have duplicate values")
 			}
 			m[strVal] = struct{}{}
+		}
+
+	case PredicateKeyExploits:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'Exploits' only supports operators 'Any', and 'NotEmpty")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Exploits' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Exploits' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Exploits' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'Exploits' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyFeatureName:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'FeatureName' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'FeatureName' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'FeatureName' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'FeatureName' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'FeatureName' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
 		}
 
 	case PredicateKeyIsIngress:
@@ -495,7 +648,309 @@ func ValidatePredicate(p *Predicate) error {
 			return makeErr("values", "Key 'IsIngress' only supports one single value")
 		}
 		if _, ok := p.Values[0].(bool); !ok {
-			return makeErr("values", "Key 'IsIngress' only supports boolean value")
+			return makeErr("values/0", "Key 'IsIngress' only supports boolean value")
+		}
+
+	case PredicateKeyKeywords:
+		if o != PredicateOperatorAny && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'Keywords' only supports operators 'Any' and 'EqualsOrGreaterThan'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "'Keywords' must have at least one value")
+		}
+		if o == PredicateOperatorAny {
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Keywords' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Keywords' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEqualsOrGreaterThan {
+			if len(v) != 1 {
+				return makeErr("values", "Key 'Keywords' only supports one single value for 'EqualsOrGreaterThan'")
+			}
+			switch t := p.Values[0].(type) {
+			case int, uint64, int64:
+			case float64:
+				p.Values[0] = int(p.Values[0].(float64))
+			default:
+				return makeErr("values/0", fmt.Sprintf("Key 'Keywords' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
+			}
+		}
+
+	case PredicateKeyLanguages:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEmpty {
+			return makeErr("operator", "Key 'Langues' only supports operators 'Any', 'NotAny', 'Empty', 'NotEmpty'")
+		}
+
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Languages' must have at least one value")
+			}
+		}
+
+		for i, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Languages' only supports string values")
+			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Languages' must not have a value that contains a quote")
+			}
+		}
+
+	case PredicateKeyMalcontents:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'Malcontents' only supports operators 'Any', and 'NotEmpty")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Malcontents' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Malcontents' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Malcontents' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'Malcontents' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyMCPServer:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPServer' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPServer' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPServer' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPServer' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyMCPGateway:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPGateway' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPGateway' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPGateway' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPGateway' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPGateway' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyModality:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Modality' only supports operator 'Any' and 'NotAny'")
+		}
+		if len(p.Values) < 1 {
+			return makeErr("values", "Key 'Modality' must have at least one value")
+		}
+		for i, v := range p.Values {
+			if _, ok := v.(string); !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Modality' only supports string value")
+			}
+		}
+
+	case PredicateKeyModel:
+		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Model' only supports operator 'Equals' and 'NotEquals'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Model' only supports one single value")
+		}
+		if _, ok := p.Values[0].(string); !ok {
+			return makeErr("values/0", "Key 'Model' only supports string value")
+		}
+
+	case PredicateKeyPIIs:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'PIIs' only supports operators 'Any', 'NotEmpty' and 'EqualsOrGreaterThan'")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'PIIs' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'PIIs' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'PIIs' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'PIIs' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+		if o == PredicateOperatorEqualsOrGreaterThan {
+			if len(v) != 1 {
+				return makeErr("values", "Key 'PIIs' only supports one single value for 'EqualsOrGreaterThan'")
+			}
+			switch t := p.Values[0].(type) {
+			case int, uint64, int64:
+			case float64:
+				p.Values[0] = int(p.Values[0].(float64))
+			default:
+				return makeErr("values/0", fmt.Sprintf("Key 'PIIs' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
+			}
+		}
+
+	case PredicateKeyPlugin:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'Plugin' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Plugin' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Plugin' only supports string values when operator is 'Any' or 'NotAny'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Plugin' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'Plugin' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyProvider:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'Provider' only supports operator 'Any' and 'NotAny'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "'Provider' must have at least one value")
+		}
+		for i, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Provider' only supports string values")
+			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Provider' must not have a value that contains a quote")
+			}
+		}
+
+	case PredicateKeyRelevance:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'Relevance' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Relevance' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'Relevance' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyRiskScore:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'RiskScore' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'RiskScore' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeySecrets:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'Secrets' only supports operators 'Any', 'NotAny', 'NotEmpty' and 'EqualsOrGreaterThan'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Secrets' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Secrets' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Secrets' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'Secrets' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+		if o == PredicateOperatorEqualsOrGreaterThan {
+			if len(v) != 1 {
+				return makeErr("values", "Key 'Secrets' only supports one single value for 'EqualsOrGreaterThan'")
+			}
+			switch t := p.Values[0].(type) {
+			case int, uint64, int64:
+			case float64:
+				p.Values[0] = int(p.Values[0].(float64))
+			default:
+				return makeErr("values/0", fmt.Sprintf("Key 'Secrets' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
+			}
+		}
+
+	case PredicateKeySize:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'Size' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Size' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, uint64, int64:
+		case float64:
+			p.Values[0] = int(p.Values[0].(float64))
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'Size' only supports int value. Found '%T'", t))
 		}
 
 	case PredicateKeySrcApp:
@@ -507,16 +962,16 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr("values", "'SrcApp' must have at least one value")
 			}
 			m := make(map[string]struct{}, len(v))
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'SrcApp' only supports string values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcApp' only supports string values")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'SrcApp' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcApp' must not have a value that contains a quote")
 				}
 				if _, ok := m[strVal]; ok {
-					return makeErr("values", "Key 'SrcApp' must not have duplicate values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcApp' must not have duplicate values")
 				}
 				m[strVal] = struct{}{}
 			}
@@ -536,16 +991,16 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr("values", "'SrcComponent' must have at least one value")
 			}
 			m := make(map[string]struct{}, len(v))
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'SrcComponent' only supports string values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcComponent' only supports string values")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'SrcComponent' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcComponent' must not have a value that contains a quote")
 				}
 				if _, ok := m[strVal]; ok {
-					return makeErr("values", "Key 'SrcComponent' must not have duplicate values")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcComponent' must not have duplicate values")
 				}
 				m[strVal] = struct{}{}
 			}
@@ -564,35 +1019,29 @@ func ValidatePredicate(p *Predicate) error {
 			return makeErr("values", "'SrcIPRange' must have at least one value")
 		}
 		m := make(map[string]struct{}, len(v))
-		for _, v := range v {
+		for i, v := range v {
 			strVal, ok := v.(string)
 			if !ok {
-				return makeErr("values", "Key 'SrcIPRange' only supports string values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcIPRange' only supports string values")
 			}
 			if _, _, err := net.ParseCIDR(strVal); err != nil {
-				return makeErr("values", fmt.Sprintf("Key 'SrcIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key 'SrcIPRange' only supports valid CIDR values. Found '%s'. Error while parsing: %s", strVal, err))
 			}
 			if _, ok := m[strVal]; ok {
-				return makeErr("values", "Key 'SrcIPRange' must not have duplicate values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'SrcIPRange' must not have duplicate values")
 			}
 			m[strVal] = struct{}{}
 		}
 
-	case PredicateKeyProvider:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
-			return makeErr("operator", "Key 'Provider' only supports operator 'Any' and 'NotAny'")
+	case PredicateKeyStatus:
+		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'Status' only supports operator 'Equals' and 'NotEquals'")
 		}
-		if len(v) == 0 {
-			return makeErr("values", "'Provider' must have at least one value")
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'Status' only supports one single value")
 		}
-		for _, v := range v {
-			strVal, ok := v.(string)
-			if !ok {
-				return makeErr("values", "Key 'Provider' only supports string values")
-			}
-			if strings.Contains(strVal, `"`) {
-				return makeErr("values", "Key 'Provider' must not have a value that contains a quote")
-			}
+		if _, ok := p.Values[0].(string); !ok {
+			return makeErr("values/0", "Key 'Status' only supports string value")
 		}
 
 	case PredicateKeyTeam:
@@ -602,274 +1051,42 @@ func ValidatePredicate(p *Predicate) error {
 		if len(v) == 0 {
 			return makeErr("values", "'Team' must have at least one value")
 		}
-		for _, v := range v {
+		for i, v := range v {
 			strVal, ok := v.(string)
 			if !ok {
-				return makeErr("values", "Key 'Team' only supports string values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Team' only supports string values")
 			}
 			if strings.Contains(strVal, `"`) {
-				return makeErr("values", "Key 'Team' must not have a value that contains a quote")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Team' must not have a value that contains a quote")
 			}
 		}
 
-	case PredicateKeyWorkspace:
+	case PredicateKeyTier:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Workspace' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty")
+			return makeErr("operator", "Key 'Tier' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
 		}
 		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
-				return makeErr("values", "'Workspace' must have at least one value")
+				return makeErr("values", "'Tier' must have at least one value")
 			}
-			for _, v := range v {
+			m := make(map[string]struct{}, len(v))
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'Workspace' only supports string values when operator is 'Any' or 'NotAny'")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' only supports string values")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Workspace' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have a value that contains a quote")
 				}
+				if _, ok := m[strVal]; ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
 			}
 		}
 		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
 			if len(v) > 0 {
-				return makeErr("values", "Key 'Workspace' only supports no values when operation is 'Empty' or 'NotEmpty'")
-			}
-		}
-
-	case PredicateKeyExploits:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Exploits' only supports operators 'Any', and 'NotEmpty")
-		}
-		if o == PredicateOperatorAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Exploits' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Exploits' only supports string values when operator is 'Any'")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Exploits' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Exploits' only supports no values when operation is 'NotEmpty'")
-			}
-		}
-
-	case PredicateKeyMalcontents:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Malcontents' only supports operators 'Any', and 'NotEmpty")
-		}
-		if o == PredicateOperatorAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Malcontents' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Malcontents' only supports string values when operator is 'Any'")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Malcontents' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Malcontents' only supports no values when operation is 'NotEmpty'")
-			}
-		}
-
-	case PredicateKeyPlugin:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Plugin' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
-		}
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Plugin' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Plugin' only supports string values when operator is 'Any' or 'NotAny'")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Plugin' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Plugin' only supports no values when operation is 'Empty' or 'NotEmpty'")
-			}
-		}
-
-	case PredicateKeyConfidentiality:
-		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'Confidentiality' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Confidentiality' only supports one single value")
-		}
-		switch t := p.Values[0].(type) {
-		case int, float64, uint64, int64:
-		default:
-			return makeErr("values", fmt.Sprintf("Key 'Confidentiality' only supports float value. Found '%T'", t))
-		}
-
-	case PredicateKeyRelevance:
-		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'Relevance' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Relevance' only supports one single value")
-		}
-		switch t := p.Values[0].(type) {
-		case int, float64, uint64, int64:
-		default:
-			return makeErr("values", fmt.Sprintf("Key 'Relevance' only supports float value. Found '%T'", t))
-		}
-
-	case PredicateKeyKeywords:
-		if o != PredicateOperatorAny && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'Keywords' only supports operators 'Any' and 'EqualsOrGreaterThan'")
-		}
-		if len(v) == 0 {
-			return makeErr("values", "'Keywords' must have at least one value")
-		}
-		if o == PredicateOperatorAny {
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Keywords' only supports string values when operator is 'Any'")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Keywords' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorEqualsOrGreaterThan {
-			if len(v) != 1 {
-				return makeErr("values", "Key 'Keywords' only supports one single value for 'EqualsOrGreaterThan'")
-			}
-			switch t := p.Values[0].(type) {
-			case int, uint64, int64:
-			case float64:
-				p.Values[0] = int(p.Values[0].(float64))
-			default:
-				return makeErr("values", fmt.Sprintf("Key 'Keywords' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
-			}
-		}
-
-	case PredicateKeyPIIs:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'PIIs' only supports operators 'Any', 'NotEmpty' and 'EqualsOrGreaterThan'")
-		}
-		if o == PredicateOperatorAny {
-			if len(v) == 0 {
-				return makeErr("values", "'PIIs' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'PIIs' only supports string values")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'PIIs' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'PIIs' only supports no values when operation is 'NotEmpty'")
-			}
-		}
-		if o == PredicateOperatorEqualsOrGreaterThan {
-			if len(v) != 1 {
-				return makeErr("values", "Key 'PIIs' only supports one single value for 'EqualsOrGreaterThan'")
-			}
-			switch t := p.Values[0].(type) {
-			case int, uint64, int64:
-			case float64:
-				p.Values[0] = int(p.Values[0].(float64))
-			default:
-				return makeErr("values", fmt.Sprintf("Key 'PIIs' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
-			}
-		}
-
-	case PredicateKeyCustomDataTypes:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'CustomDataTypes' only supports operators 'Any', 'NotEmpty' and 'EqualsOrGreaterThan'")
-		}
-		if o == PredicateOperatorAny {
-			if len(v) == 0 {
-				return makeErr("values", "'CustomDataTypes' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'CustomDataTypes' only supports string values")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'CustomDataTypes' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'CustomDataTypes' only supports no values when operation is 'NotEmpty'")
-			}
-		}
-		if o == PredicateOperatorEqualsOrGreaterThan {
-			if len(v) != 1 {
-				return makeErr("values", "Key 'CustomDataTypes' only supports one single value for 'EqualsOrGreaterThan'")
-			}
-			switch t := p.Values[0].(type) {
-			case int, uint64, int64:
-			case float64:
-				p.Values[0] = int(p.Values[0].(float64))
-			default:
-				return makeErr("values", fmt.Sprintf("Key 'CustomDataTypes' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
-			}
-		}
-
-	case PredicateKeySecrets:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'Secrets' only supports operators 'Any', 'NotAny', 'NotEmpty' and 'EqualsOrGreaterThan'")
-		}
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Secrets' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Secrets' only supports string values")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Secrets' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Secrets' only supports no values when operation is 'NotEmpty'")
-			}
-		}
-		if o == PredicateOperatorEqualsOrGreaterThan {
-			if len(v) != 1 {
-				return makeErr("values", "Key 'Secrets' only supports one single value for 'EqualsOrGreaterThan'")
-			}
-			switch t := p.Values[0].(type) {
-			case int, uint64, int64:
-			case float64:
-				p.Values[0] = int(p.Values[0].(float64))
-			default:
-				return makeErr("values", fmt.Sprintf("Key 'Secrets' only supports int value for 'EqualsOrGreaterThan'. Found '%T'", t))
+				return makeErr("values", "Key 'Tier' only supports no values when operation is 'Empty' or 'NotEmpty'")
 			}
 		}
 
@@ -880,110 +1097,13 @@ func ValidatePredicate(p *Predicate) error {
 		if len(v) == 0 {
 			return makeErr("values", "'Topics' must have at least one value")
 		}
-		for _, v := range v {
+		for i, v := range v {
 			strVal, ok := v.(string)
 			if !ok {
-				return makeErr("values", "Key 'Topics' only supports string values")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Topics' only supports string values")
 			}
 			if strings.Contains(strVal, `"`) {
-				return makeErr("values", "Key 'Topics' must not have a value that contains a quote")
-			}
-		}
-
-	case PredicateKeyLanguages:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEmpty {
-			return makeErr("operator", "Key 'Langues' only supports operators 'Any', 'NotAny', 'Empty', 'NotEmpty'")
-		}
-
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Languages' must have at least one value")
-			}
-		}
-
-		for _, v := range v {
-			strVal, ok := v.(string)
-			if !ok {
-				return makeErr("values", "Key 'Languages' only supports string values")
-			}
-			if strings.Contains(strVal, `"`) {
-				return makeErr("values", "Key 'Languages' must not have a value that contains a quote")
-			}
-		}
-
-	case PredicateKeySize:
-		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'Size' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Size' only supports one single value")
-		}
-		switch t := p.Values[0].(type) {
-		case int, uint64, int64:
-		case float64:
-			p.Values[0] = int(p.Values[0].(float64))
-		default:
-			return makeErr("values", fmt.Sprintf("Key 'Size' only supports int value. Found '%T'", t))
-		}
-
-	case PredicateKeyCategories:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Categories' only supports operator 'Any' and 'NotAny'")
-		}
-		if len(p.Values) < 1 {
-			return makeErr("values", "Key 'Categories' must have at least one value")
-		}
-		for _, v := range p.Values {
-			if _, ok := v.(string); !ok {
-				return makeErr("values", "Key 'Categories' only supports string value")
-			}
-		}
-
-	case PredicateKeyModality:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Modality' only supports operator 'Any' and 'NotAny'")
-		}
-		if len(p.Values) < 1 {
-			return makeErr("values", "Key 'Modality' must have at least one value")
-		}
-		for _, v := range p.Values {
-			if _, ok := v.(string); !ok {
-				return makeErr("values", "Key 'Modality' only supports string value")
-			}
-		}
-
-	case PredicateKeyModel:
-		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Model' only supports operator 'Equals' and 'NotEquals'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Model' only supports one single value")
-		}
-		if _, ok := p.Values[0].(string); !ok {
-			return makeErr("values", "Key 'Model' only supports string value")
-		}
-
-	case PredicateKeyTools:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Tools' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
-		}
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Tools' must have at least one value")
-			}
-			for _, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr("values", "Key 'Tools' only supports string values when operator is 'Any' or 'NotAny'")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'Tools' must not have a value that contains a quote")
-				}
-			}
-		}
-		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Tools' only supports no values when operation is 'Empty' or 'NotEmpty'")
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Topics' must not have a value that contains a quote")
 			}
 		}
 
@@ -995,13 +1115,13 @@ func ValidatePredicate(p *Predicate) error {
 			if len(v) == 0 {
 				return makeErr("values", "'ToolUses' must have at least one value")
 			}
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'ToolUses' only supports string values when operator is 'Any' or 'NotAny'")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'ToolUses' only supports string values when operator is 'Any' or 'NotAny'")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'ToolUses' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'ToolUses' must not have a value that contains a quote")
 				}
 			}
 		}
@@ -1011,76 +1131,52 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
-	case PredicateKeyMCPGateway:
+	case PredicateKeyTools:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'MCPGateway' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+			return makeErr("operator", "Key 'Tools' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
 		}
 		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
-				return makeErr("values", "'MCPGateway' must have at least one value")
+				return makeErr("values", "'Tools' must have at least one value")
 			}
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'MCPGateway' only supports string values when operator is 'Any' or 'NotAny'")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tools' only supports string values when operator is 'Any' or 'NotAny'")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'MCPGateway' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tools' must not have a value that contains a quote")
 				}
 			}
 		}
 		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
 			if len(v) > 0 {
-				return makeErr("values", "Key 'MCPGateway' only supports no values when operation is 'Empty' or 'NotEmpty'")
+				return makeErr("values", "Key 'Tools' only supports no values when operation is 'Empty' or 'NotEmpty'")
 			}
 		}
 
-	case PredicateKeyMCPServer:
+	case PredicateKeyWorkspace:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+			return makeErr("operator", "Key 'Workspace' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty")
 		}
 		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
-				return makeErr("values", "'MCPServer' must have at least one value")
+				return makeErr("values", "'Workspace' must have at least one value")
 			}
-			for _, v := range v {
+			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr("values", "Key 'MCPServer' only supports string values when operator is 'Any' or 'NotAny'")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Workspace' only supports string values when operator is 'Any' or 'NotAny'")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr("values", "Key 'MCPServer' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Workspace' must not have a value that contains a quote")
 				}
 			}
 		}
 		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
 			if len(v) > 0 {
-				return makeErr("values", "Key 'MCPServer' only supports no values when operation is 'Empty' or 'NotEmpty'")
+				return makeErr("values", "Key 'Workspace' only supports no values when operation is 'Empty' or 'NotEmpty'")
 			}
-		}
-
-	case PredicateKeyRiskScore:
-		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'RiskScore' only supports one single value")
-		}
-		switch t := p.Values[0].(type) {
-		case int, float64, uint64, int64:
-		default:
-			return makeErr("values", fmt.Sprintf("Key 'RiskScore' only supports float value. Found '%T'", t))
-		}
-
-	case PredicateKeyStatus:
-		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
-			return makeErr("operator", "Key 'Status' only supports operator 'Equals' and 'NotEquals'")
-		}
-		if len(p.Values) != 1 {
-			return makeErr("values", "Key 'Status' only supports one single value")
-		}
-		if _, ok := p.Values[0].(string); !ok {
-			return makeErr("values", "Key 'Status' only supports string value")
 		}
 	}
 
@@ -2031,22 +2127,6 @@ func ValidateOrgSetting(o *OrgSettings) error {
 	return nil
 }
 
-func makeErr(attribute string, message string) elemental.Error {
-
-	err := elemental.NewError(
-		"Validation Error",
-		message,
-		"api",
-		http.StatusUnprocessableEntity,
-	)
-
-	if attribute != "" {
-		err.Data = map[string]any{"attribute": attribute}
-	}
-
-	return err
-}
-
 // validateToolMisalignmentExploit - validate that Tool misalignement exploit is paired
 // with some tool use names.
 func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int) error {
@@ -2114,4 +2194,45 @@ func ValidateProviderUsageReport(report *ProviderUsageReport) error {
 	}
 
 	return nil
+}
+
+// ValidateRevocation validates the goven given revocation.
+func ValidateRevocation(rev *Revocation) error {
+
+	if !rev.Expiration.IsZero() && rev.ExpirationRel != "" {
+		return makeErr("expiration", "expirationRel cannot be set if expiration is also set.")
+	}
+
+	if !rev.IssuedBefore.IsZero() && rev.IssuedBeforeRel != "" {
+		return makeErr("issuedBefore", "issuedBeforeRel cannot be set if issuedBefore is also set.")
+	}
+
+	if !rev.ActiveAfter.IsZero() && rev.ActiveAfterRel != "" {
+		return makeErr("activeAfter", "activeAfterRel cannot be set if activeAfter is also set.")
+	}
+
+	if len(rev.Subject) == 0 && rev.TokenID == "" {
+		return makeErr("tokenID", "If subject is empty, tokenID must be set")
+	}
+
+	if len(rev.Subject) != 0 && rev.TokenID != "" {
+		return makeErr("tokenID", "If tokenID is empty, subject must be empty")
+	}
+	return nil
+}
+
+func makeErr(attribute string, message string) elemental.Error {
+
+	err := elemental.NewError(
+		"Validation Error",
+		message,
+		"api",
+		http.StatusUnprocessableEntity,
+	)
+
+	if attribute != "" {
+		err.Data = map[string]any{"attribute": attribute}
+	}
+
+	return err
 }

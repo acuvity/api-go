@@ -1,0 +1,75 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "MCP Gateway Conf",
+  "$friendlyNamePlural": "MCP Gateway Confs",
+  "$modelName": "MCPGatewayConf",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgatewayconfs",
+  "$modelRestName": "mcpgatewayconf",
+  "additionalProperties": false,
+  "description": "MCPGatewayConf is an API for MCP gateways.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "backends": {
+      "$friendlyName": "Backends",
+      "description": "The rendered Maxibridge backends attached to this MCP gateway.",
+      "items": {
+        "$ref": "mcpgatewayconfbackend.json"
+      },
+      "title": "backends",
+      "type": "array"
+    },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "description": "The name of the parent MCP gateway for configuration invalidation events.",
+      "title": "gatewayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "description": "A stable hash of the effective rendered configuration.",
+      "title": "revision",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "schemaVersion": {
+      "$defaultValue": 1,
+      "$friendlyName": "Schema Version",
+      "description": "The MCP gateway configuration wire schema version.",
+      "title": "schemaVersion",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "MCPGatewayConf",
+  "type": "object"
+}

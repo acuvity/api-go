@@ -80,6 +80,13 @@
         "null"
       ]
     },
+    "oauthApplication": {
+      "$friendlyName": "OAuth Application",
+      "$readOnly": true,
+      "$ref": "identityref.json",
+      "description": "The a3s OAuth application associated with this MCP gateway.",
+      "title": "oauthApplication"
+    },
     "ping": {
       "$friendlyName": "Ping",
       "$required": true,

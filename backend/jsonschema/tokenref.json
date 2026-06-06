@@ -1,0 +1,64 @@
+{
+  "$extends": [],
+  "$friendlyName": "Token Reference",
+  "$friendlyNamePlural": "Token References",
+  "$modelName": "TokenRef",
+  "$modelPackage": "lain",
+  "$modelResourceName": "tokenrefs",
+  "$modelRestName": "tokenref",
+  "additionalProperties": false,
+  "description": "Represents a reference to a token.",
+  "properties": {
+    "claims": {
+      "$friendlyName": "Claims",
+      "description": "The claims of the token.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "expiresAt": {
+      "$friendlyName": "Expires At",
+      "description": "The expiration time of the referenced token.",
+      "title": "expiresAt",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "issuedAt": {
+      "$friendlyName": "Issued At",
+      "description": "The issuing time of the referenced token.",
+      "title": "issuedAt",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tag": {
+      "$friendlyName": "Token Tag",
+      "description": "Used to identify what this token is used for.",
+      "title": "tag",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenID": {
+      "$friendlyName": "Token ID",
+      "$required": true,
+      "description": "The ID (JID) of the referenced token.",
+      "title": "tokenID",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tokenID"
+  ],
+  "title": "TokenRef",
+  "type": "object"
+}

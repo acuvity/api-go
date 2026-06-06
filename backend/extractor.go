@@ -196,8 +196,12 @@ type Extractor struct {
 	// If true, deanonymize the redacted data. This has no effects on streaming output.
 	Deanonymize bool `json:"deanonymize" msgpack:"deanonymize" bson:"deanonymize" mapstructure:"deanonymize,omitempty"`
 
-	// The description of the provider.
+	// The description of the extractor.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// The feature name being extracted on. This allows us to label specific extractors
+	// so we can group and apply policies per provider feature.
+	FeatureName string `json:"featureName" msgpack:"featureName" bson:"featurename" mapstructure:"featureName,omitempty"`
 
 	// If true, it will wait on a prior popup and honor its decision. It only has
 	// effect if there is an existing popup being shown.
@@ -315,6 +319,7 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Deanonymize = o.Deanonymize
 	s.Description = o.Description
+	s.FeatureName = o.FeatureName
 	s.HonorPriorDecision = o.HonorPriorDecision
 	s.Ignore = o.Ignore
 	s.ImportHash = o.ImportHash
@@ -358,6 +363,7 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Deanonymize = s.Deanonymize
 	o.Description = s.Description
+	o.FeatureName = s.FeatureName
 	o.HonorPriorDecision = s.HonorPriorDecision
 	o.Ignore = s.Ignore
 	o.ImportHash = s.ImportHash
@@ -502,6 +508,7 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			CreateTime:         &o.CreateTime,
 			Deanonymize:        &o.Deanonymize,
 			Description:        &o.Description,
+			FeatureName:        &o.FeatureName,
 			HonorPriorDecision: &o.HonorPriorDecision,
 			Ignore:             &o.Ignore,
 			ImportHash:         &o.ImportHash,
@@ -542,6 +549,8 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Deanonymize = &(o.Deanonymize)
 		case "description":
 			sp.Description = &(o.Description)
+		case "featureName":
+			sp.FeatureName = &(o.FeatureName)
 		case "honorPriorDecision":
 			sp.HonorPriorDecision = &(o.HonorPriorDecision)
 		case "ignore":
@@ -614,6 +623,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.FeatureName != nil {
+		o.FeatureName = *so.FeatureName
 	}
 	if so.HonorPriorDecision != nil {
 		o.HonorPriorDecision = *so.HonorPriorDecision
@@ -818,6 +830,8 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.Deanonymize
 	case "description":
 		return o.Description
+	case "featureName":
+		return o.FeatureName
 	case "honorPriorDecision":
 		return o.HonorPriorDecision
 	case "ignore":
@@ -951,11 +965,22 @@ is defined, the request is blocked only if block() returns true.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the provider.`,
+		Description:    `The description of the extractor.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"FeatureName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "featurename",
+		ConvertedName:  "FeatureName",
+		Description: `The feature name being extracted on. This allows us to label specific extractors
+so we can group and apply policies per provider feature.`,
+		Exposed: true,
+		Name:    "featureName",
+		Stored:  true,
+		Type:    "string",
 	},
 	"HonorPriorDecision": {
 		AllowedChoices: []string{},
@@ -1247,11 +1272,22 @@ is defined, the request is blocked only if block() returns true.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the provider.`,
+		Description:    `The description of the extractor.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"featurename": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "featurename",
+		ConvertedName:  "FeatureName",
+		Description: `The feature name being extracted on. This allows us to label specific extractors
+so we can group and apply policies per provider feature.`,
+		Exposed: true,
+		Name:    "featureName",
+		Stored:  true,
+		Type:    "string",
 	},
 	"honorpriordecision": {
 		AllowedChoices: []string{},
@@ -1538,8 +1574,12 @@ type SparseExtractor struct {
 	// If true, deanonymize the redacted data. This has no effects on streaming output.
 	Deanonymize *bool `json:"deanonymize,omitempty" msgpack:"deanonymize,omitempty" bson:"deanonymize,omitempty" mapstructure:"deanonymize,omitempty"`
 
-	// The description of the provider.
+	// The description of the extractor.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The feature name being extracted on. This allows us to label specific extractors
+	// so we can group and apply policies per provider feature.
+	FeatureName *string `json:"featureName,omitempty" msgpack:"featureName,omitempty" bson:"featurename,omitempty" mapstructure:"featureName,omitempty"`
 
 	// If true, it will wait on a prior popup and honor its decision. It only has
 	// effect if there is an existing popup being shown.
@@ -1668,6 +1708,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.FeatureName != nil {
+		s.FeatureName = o.FeatureName
+	}
 	if o.HonorPriorDecision != nil {
 		s.HonorPriorDecision = o.HonorPriorDecision
 	}
@@ -1762,6 +1805,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.FeatureName != nil {
+		o.FeatureName = s.FeatureName
+	}
 	if s.HonorPriorDecision != nil {
 		o.HonorPriorDecision = s.HonorPriorDecision
 	}
@@ -1853,6 +1899,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.FeatureName != nil {
+		out.FeatureName = *o.FeatureName
 	}
 	if o.HonorPriorDecision != nil {
 		out.HonorPriorDecision = *o.HonorPriorDecision
@@ -2063,6 +2112,7 @@ type mongoAttributesExtractor struct {
 	CreateTime         time.Time                    `bson:"createtime"`
 	Deanonymize        bool                         `bson:"deanonymize"`
 	Description        string                       `bson:"description"`
+	FeatureName        string                       `bson:"featurename"`
 	HonorPriorDecision bool                         `bson:"honorpriordecision"`
 	Ignore             bool                         `bson:"ignore"`
 	ImportHash         string                       `bson:"importhash,omitempty"`
@@ -2091,6 +2141,7 @@ type mongoAttributesSparseExtractor struct {
 	CreateTime         *time.Time                    `bson:"createtime,omitempty"`
 	Deanonymize        *bool                         `bson:"deanonymize,omitempty"`
 	Description        *string                       `bson:"description,omitempty"`
+	FeatureName        *string                       `bson:"featurename,omitempty"`
 	HonorPriorDecision *bool                         `bson:"honorpriordecision,omitempty"`
 	Ignore             *bool                         `bson:"ignore,omitempty"`
 	ImportHash         *string                       `bson:"importhash,omitempty"`

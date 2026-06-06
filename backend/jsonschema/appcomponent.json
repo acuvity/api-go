@@ -1,5 +1,7 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@tokenrenewable"
+  ],
   "$friendlyName": "App Component",
   "$friendlyNamePlural": "App Components",
   "$modelName": "AppComponent",
@@ -51,6 +53,24 @@
       "title": "name",
       "type": "string"
     },
+    "renewToken": {
+      "$friendlyName": "Renew Token",
+      "description": "Set to true on update to issue a new credential.",
+      "title": "renewToken",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "renewTokenTag": {
+      "$friendlyName": "Renew Token Tag",
+      "description": "Set to value on update to associate a tag with the issued token.",
+      "title": "renewTokenTag",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "selector": {
       "$friendlyName": "Selector",
       "$ref": "appcomponentselector.json",
@@ -67,6 +87,16 @@
         "string",
         "null"
       ]
+    },
+    "tokenref": {
+      "$friendlyName": "TokenRef",
+      "$readOnly": true,
+      "description": "The list of tokens issued for this component.",
+      "items": {
+        "$ref": "tokenref.json"
+      },
+      "title": "tokenref",
+      "type": "array"
     }
   },
   "required": [

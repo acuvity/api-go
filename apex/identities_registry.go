@@ -20,7 +20,8 @@ var (
 		"principalexternal": PrincipalExternalIdentity,
 		"principaluser":     PrincipalUserIdentity,
 
-		"root":         RootIdentity,
+		"root": RootIdentity,
+
 		"scanrequest":  ScanRequestIdentity,
 		"scanresponse": ScanResponseIdentity,
 
@@ -41,7 +42,8 @@ var (
 		"principalexternals": PrincipalExternalIdentity,
 		"principalusers":     PrincipalUserIdentity,
 
-		"root":          RootIdentity,
+		"root": RootIdentity,
+
 		"scanrequests":  ScanRequestIdentity,
 		"scanresponses": ScanResponseIdentity,
 
@@ -301,10 +303,14 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewRequestDestination()
 	case "requestuser", "RequestUser":
 		return NewRequestUser()
+	case "roundtriperror", "RoundtripError":
+		return NewRoundtripError()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
 	case "tool", "Tool":
 		return NewTool()
+	case "toolargument", "ToolArgument":
+		return NewToolArgument()
 	case "toolchoice", "ToolChoice":
 		return NewToolChoice()
 	case "toolresult", "ToolResult":

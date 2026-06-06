@@ -1,0 +1,100 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Gateway Conf Backend",
+  "$friendlyNamePlural": "MCP Gateway Conf Backends",
+  "$modelName": "MCPGatewayConfBackend",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgatewayconfbackends",
+  "$modelRestName": "mcpgatewayconfbackend",
+  "additionalProperties": false,
+  "description": "The rendered backend shape consumed by Maxibridge in an MCP gateway configuration.",
+  "properties": {
+    "URL": {
+      "$friendlyName": "URL",
+      "description": "The upstream URL of the backend.",
+      "title": "URL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "description": "Upstream OAuth client ID.",
+      "title": "clientID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "description": "Upstream OAuth client secret.",
+      "title": "clientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the backend.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "oauthTokenEncryptionClaim": {
+      "$friendlyName": "OAuth Token Encryption Claim",
+      "description": "The claim used to derive the encryption key for stored OAuth tokens.",
+      "title": "oauthTokenEncryptionClaim",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "oauthTokenIndexingClaims": {
+      "$friendlyName": "OAuth Token Indexing Claims",
+      "description": "The claims used to index stored OAuth tokens.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "oauthTokenIndexingClaims",
+      "type": "array"
+    },
+    "providerName": {
+      "$friendlyName": "Provider Name",
+      "description": "The name of the provider backing this backend.",
+      "title": "providerName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "serverName": {
+      "$friendlyName": "Server Name",
+      "description": "The normalized MCP server name exposed to clients.",
+      "title": "serverName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The rendered tools attached to this backend.",
+      "items": {
+        "$ref": "mcpgatewayconftool.json"
+      },
+      "title": "tools",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "MCPGatewayConfBackend",
+  "type": "object"
+}

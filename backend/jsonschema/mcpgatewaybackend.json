@@ -1,0 +1,119 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@parentable"
+  ],
+  "$friendlyName": "MCP Gateway Backend",
+  "$friendlyNamePlural": "MCP Gateway Backends",
+  "$modelName": "MCPGatewayBackend",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpgatewaybackends",
+  "$modelRestName": "mcpgatewaybackend",
+  "additionalProperties": false,
+  "description": "Represents a Maxibridge backend attached to an MCP gateway.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "$required": true,
+      "description": "Upstream OAuth client ID.",
+      "title": "clientID",
+      "type": "string"
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "description": "Upstream OAuth client secret.",
+      "title": "clientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parentID": {
+      "$friendlyName": "Parent ID",
+      "$readOnly": true,
+      "description": "The ID of the parent resource.",
+      "title": "parentID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "providerRef": {
+      "$creationOnly": true,
+      "$friendlyName": "Provider",
+      "$ref": "identityref.json",
+      "$required": true,
+      "description": "The MCP server provider used as the upstream backend. Its host configuration provides the upstream URL.",
+      "title": "providerRef"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "clientID",
+    "providerRef"
+  ],
+  "title": "MCPGatewayBackend",
+  "type": "object"
+}
