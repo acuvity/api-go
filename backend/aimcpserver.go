@@ -13,68 +13,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// AIPluginServiceTypeValue represents the possible values for attribute "serviceType".
-type AIPluginServiceTypeValue string
-
-const (
-	// AIPluginServiceTypeCodingAssistant represents the value CodingAssistant.
-	AIPluginServiceTypeCodingAssistant AIPluginServiceTypeValue = "CodingAssistant"
-
-	// AIPluginServiceTypeIntegrationPlatform represents the value IntegrationPlatform.
-	AIPluginServiceTypeIntegrationPlatform AIPluginServiceTypeValue = "IntegrationPlatform"
-
-	// AIPluginServiceTypeProductivity represents the value Productivity.
-	AIPluginServiceTypeProductivity AIPluginServiceTypeValue = "Productivity"
-)
-
-// AIPluginTypeValue represents the possible values for attribute "type".
-type AIPluginTypeValue string
-
-const (
-	// AIPluginTypeIDE represents the value IDE.
-	AIPluginTypeIDE AIPluginTypeValue = "IDE"
-
-	// AIPluginTypeWebExtension represents the value WebExtension.
-	AIPluginTypeWebExtension AIPluginTypeValue = "WebExtension"
-)
-
-// AIPluginIdentity represents the Identity of the object.
-var AIPluginIdentity = elemental.Identity{
-	Name:     "aiplugin",
-	Category: "aiplugins",
+// AIMCPServerIdentity represents the Identity of the object.
+var AIMCPServerIdentity = elemental.Identity{
+	Name:     "aimcpserver",
+	Category: "aimcpservers",
 	Package:  "lain",
 	Private:  false,
 }
 
-// AIPluginsList represents a list of AIPlugins
-type AIPluginsList []*AIPlugin
+// AIMCPServersList represents a list of AIMCPServers
+type AIMCPServersList []*AIMCPServer
 
 // Identity returns the identity of the objects in the list.
-func (o AIPluginsList) Identity() elemental.Identity {
+func (o AIMCPServersList) Identity() elemental.Identity {
 
-	return AIPluginIdentity
+	return AIMCPServerIdentity
 }
 
-// Copy returns a pointer to a copy the AIPluginsList.
-func (o AIPluginsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the AIMCPServersList.
+func (o AIMCPServersList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the AIPluginsList.
-func (o AIPluginsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the AIMCPServersList.
+func (o AIMCPServersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*AIPlugin))
+		out = append(out, obj.(*AIMCPServer))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o AIPluginsList) List() elemental.IdentifiablesList {
+func (o AIMCPServersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -85,51 +60,62 @@ func (o AIPluginsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o AIPluginsList) DefaultOrder() []string {
+func (o AIMCPServersList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the AIPluginsList converted to SparseAIPluginsList.
+// ToSparse returns the AIMCPServersList converted to SparseAIMCPServersList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o AIPluginsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o AIMCPServersList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseAIPluginsList, len(o))
+	out := make(SparseAIMCPServersList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseAIPlugin)
+		out[i] = o[i].ToSparse(fields...).(*SparseAIMCPServer)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o AIPluginsList) Version() int {
+func (o AIMCPServersList) Version() int {
 
 	return 1
 }
 
-// AIPlugin represents the model of a aiplugin
-type AIPlugin struct {
+// AIMCPServer represents the model of a aimcpserver
+type AIMCPServer struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Contains additional information on an AI-related IDE plugin.
-	IDE *AIPluginIDE `json:"IDE,omitempty" msgpack:"IDE,omitempty" bson:"ide,omitempty" mapstructure:"IDE,omitempty"`
+	// Classification of actions the MCP server can perform (Read-only, Read + Write,
+	// Autonomous write / execute).
+	ActionScope string `json:"actionScope,omitempty" msgpack:"actionScope,omitempty" bson:"actionscope,omitempty" mapstructure:"actionScope,omitempty"`
 
-	// The categories associated with the plugin.
+	// Risk assessment for the action scope pillar.
+	ActionScopeRisk *AIDRisk `json:"actionScopeRisk,omitempty" msgpack:"actionScopeRisk,omitempty" bson:"actionscoperisk,omitempty" mapstructure:"actionScopeRisk,omitempty"`
+
+	// The categories associated with the MCP server.
 	Categories []string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// A brief description about the AI plugin and its purpose.
+	// Classification of data the MCP server can access (Public data only, Internal /
+	// PII, Credentials / Code / Health).
+	DataSensitivity string `json:"dataSensitivity,omitempty" msgpack:"dataSensitivity,omitempty" bson:"datasensitivity,omitempty" mapstructure:"dataSensitivity,omitempty"`
+
+	// Risk assessment for the data sensitivity pillar.
+	DataSensitivityRisk *AIDRisk `json:"dataSensitivityRisk,omitempty" msgpack:"dataSensitivityRisk,omitempty" bson:"datasensitivityrisk,omitempty" mapstructure:"dataSensitivityRisk,omitempty"`
+
+	// A brief description about the AI MCP server and its purpose.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The human-friendly name of the plugin.
+	// The human-friendly name of the MCP server.
 	DisplayName string `json:"displayName" msgpack:"displayName" bson:"displayname" mapstructure:"displayName,omitempty"`
 
-	// Risk assessment for the features pillar.
-	FeaturesRisk *AIDRisk `json:"featuresRisk,omitempty" msgpack:"featuresRisk,omitempty" bson:"featuresrisk,omitempty" mapstructure:"featuresRisk,omitempty"`
+	// Risk assessment for the execution context pillar.
+	ExecutionContextRisk *AIDRisk `json:"executionContextRisk,omitempty" msgpack:"executionContextRisk,omitempty" bson:"executioncontextrisk,omitempty" mapstructure:"executionContextRisk,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -138,61 +124,53 @@ type AIPlugin struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Risk assessment for the info pillar.
-	InfoRisk *AIDRisk `json:"infoRisk,omitempty" msgpack:"infoRisk,omitempty" bson:"inforisk,omitempty" mapstructure:"infoRisk,omitempty"`
-
-	// Risk assessment for the LLM provider pillar.
-	LlmProviderRisk *AIDRisk `json:"llmProviderRisk,omitempty" msgpack:"llmProviderRisk,omitempty" bson:"llmproviderrisk,omitempty" mapstructure:"llmProviderRisk,omitempty"`
-
-	// LLM providers that this plugin calls (OpenAI, Anthropic, Google, etc.).
+	// LLM providers that this MCP server is typically invoked from (OpenAI, Anthropic,
+	// Google, etc.).
 	LlmProviders []string `json:"llmProviders,omitempty" msgpack:"llmProviders,omitempty" bson:"llmproviders,omitempty" mapstructure:"llmProviders,omitempty"`
 
-	// The name of the plugin.
+	// The name of the MCP server.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The host platform where the plugin runs (Web Browser, VS Code, JetBrains, Open
-	// VSX, etc.).
+	// The host runtime where the MCP server runs (local, container, remote).
 	Platform string `json:"platform,omitempty" msgpack:"platform,omitempty" bson:"platform,omitempty" mapstructure:"platform,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// When the plugin was published.
+	// When the MCP server was published.
 	PublishedDate time.Time `json:"publishedDate" msgpack:"publishedDate" bson:"publisheddate" mapstructure:"publishedDate,omitempty"`
 
-	// The publisher name of the plugin.
+	// The publisher name of the MCP server.
 	PublisherName string `json:"publisherName" msgpack:"publisherName" bson:"publishername" mapstructure:"publisherName,omitempty"`
 
-	// Overall risk assessment for the plugin.
+	// Overall risk assessment for the MCP server.
 	Risk *AIDRisk `json:"risk,omitempty" msgpack:"risk,omitempty" bson:"risk,omitempty" mapstructure:"risk,omitempty"`
 
-	// The type of service this plugin relates to.
-	ServiceType AIPluginServiceTypeValue `json:"serviceType" msgpack:"serviceType" bson:"servicetype" mapstructure:"serviceType,omitempty"`
-
-	// Marketplace or origin the entry was discovered from (chrome_web_store,
-	// firefox_addons, edge_addons, vscode_marketplace, openvsx, github).
+	// Marketplace or origin the entry was discovered from (github, mcp_registry,
+	// etc.).
 	Source string `json:"source,omitempty" msgpack:"source,omitempty" bson:"source,omitempty" mapstructure:"source,omitempty"`
 
 	// Quick machine-friendly risk summary.
-	Summary *AIPluginSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
+	Summary *AIMCPServerSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
 
-	// The tags associated with the plugin.
+	// The tags associated with the MCP server.
 	Tags []string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
 
-	// The type of plugin.
-	Type AIPluginTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
+	// Classification of publisher trust (Major enterprise vendor, Established third
+	// party, Unvetted / community).
+	Trust string `json:"trust,omitempty" msgpack:"trust,omitempty" bson:"trust,omitempty" mapstructure:"trust,omitempty"`
+
+	// Risk assessment for the publisher trust pillar.
+	TrustRisk *AIDRisk `json:"trustRisk,omitempty" msgpack:"trustRisk,omitempty" bson:"trustrisk,omitempty" mapstructure:"trustRisk,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
-	// Flag to say if the plugin has been vetted by Proofpoint AI Security or not.
+	// Flag to say if the MCP server has been vetted by Acuvity or not.
 	Vetted bool `json:"vetted" msgpack:"vetted" bson:"vetted" mapstructure:"vetted,omitempty"`
-
-	// Contains additional information on an AI-related web extension.
-	WebExtension *AIPluginWebExt `json:"webExtension,omitempty" msgpack:"webExtension,omitempty" bson:"webextension,omitempty" mapstructure:"webExtension,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -203,61 +181,60 @@ type AIPlugin struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewAIPlugin returns a new *AIPlugin
-func NewAIPlugin() *AIPlugin {
+// NewAIMCPServer returns a new *AIMCPServer
+func NewAIMCPServer() *AIMCPServer {
 
-	return &AIPlugin{
+	return &AIMCPServer{
 		ModelVersion: 1,
 		Categories:   []string{},
 		LlmProviders: []string{},
 		Propagate:    true,
-		ServiceType:  AIPluginServiceTypeCodingAssistant,
 		Tags:         []string{},
-		Type:         AIPluginTypeIDE,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *AIPlugin) Identity() elemental.Identity {
+func (o *AIMCPServer) Identity() elemental.Identity {
 
-	return AIPluginIdentity
+	return AIMCPServerIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *AIPlugin) Identifier() string {
+func (o *AIMCPServer) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *AIPlugin) SetIdentifier(id string) {
+func (o *AIMCPServer) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AIPlugin) GetBSON() (any, error) {
+func (o *AIMCPServer) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesAIPlugin{}
+	s := &mongoAttributesAIMCPServer{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.IDE = o.IDE
+	s.ActionScope = o.ActionScope
+	s.ActionScopeRisk = o.ActionScopeRisk
 	s.Categories = o.Categories
 	s.CreateTime = o.CreateTime
+	s.DataSensitivity = o.DataSensitivity
+	s.DataSensitivityRisk = o.DataSensitivityRisk
 	s.Description = o.Description
 	s.DisplayName = o.DisplayName
-	s.FeaturesRisk = o.FeaturesRisk
+	s.ExecutionContextRisk = o.ExecutionContextRisk
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
-	s.InfoRisk = o.InfoRisk
-	s.LlmProviderRisk = o.LlmProviderRisk
 	s.LlmProviders = o.LlmProviders
 	s.Name = o.Name
 	s.Namespace = o.Namespace
@@ -266,14 +243,13 @@ func (o *AIPlugin) GetBSON() (any, error) {
 	s.PublishedDate = o.PublishedDate
 	s.PublisherName = o.PublisherName
 	s.Risk = o.Risk
-	s.ServiceType = o.ServiceType
 	s.Source = o.Source
 	s.Summary = o.Summary
 	s.Tags = o.Tags
-	s.Type = o.Type
+	s.Trust = o.Trust
+	s.TrustRisk = o.TrustRisk
 	s.UpdateTime = o.UpdateTime
 	s.Vetted = o.Vetted
-	s.WebExtension = o.WebExtension
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -282,28 +258,29 @@ func (o *AIPlugin) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AIPlugin) SetBSON(raw bson.Raw) error {
+func (o *AIMCPServer) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesAIPlugin{}
+	s := &mongoAttributesAIMCPServer{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
-	o.IDE = s.IDE
+	o.ActionScope = s.ActionScope
+	o.ActionScopeRisk = s.ActionScopeRisk
 	o.Categories = s.Categories
 	o.CreateTime = s.CreateTime
+	o.DataSensitivity = s.DataSensitivity
+	o.DataSensitivityRisk = s.DataSensitivityRisk
 	o.Description = s.Description
 	o.DisplayName = s.DisplayName
-	o.FeaturesRisk = s.FeaturesRisk
+	o.ExecutionContextRisk = s.ExecutionContextRisk
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
-	o.InfoRisk = s.InfoRisk
-	o.LlmProviderRisk = s.LlmProviderRisk
 	o.LlmProviders = s.LlmProviders
 	o.Name = s.Name
 	o.Namespace = s.Namespace
@@ -312,14 +289,13 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 	o.PublishedDate = s.PublishedDate
 	o.PublisherName = s.PublisherName
 	o.Risk = s.Risk
-	o.ServiceType = s.ServiceType
 	o.Source = s.Source
 	o.Summary = s.Summary
 	o.Tags = s.Tags
-	o.Type = s.Type
+	o.Trust = s.Trust
+	o.TrustRisk = s.TrustRisk
 	o.UpdateTime = s.UpdateTime
 	o.Vetted = s.Vetted
-	o.WebExtension = s.WebExtension
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -327,170 +303,173 @@ func (o *AIPlugin) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *AIPlugin) Version() int {
+func (o *AIMCPServer) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *AIPlugin) BleveType() string {
+func (o *AIMCPServer) BleveType() string {
 
-	return "aiplugin"
+	return "aimcpserver"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *AIPlugin) DefaultOrder() []string {
+func (o *AIMCPServer) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *AIPlugin) Doc() string {
+func (o *AIMCPServer) Doc() string {
 
-	return `AI plugin provides an overview of a plugin.`
+	return `AI MCP server provides an overview of a Model Context Protocol server
+(locally-executed tools exposed over the MCP protocol).`
 }
 
-func (o *AIPlugin) String() string {
+func (o *AIMCPServer) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *AIPlugin) GetCreateTime() time.Time {
+func (o *AIMCPServer) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *AIPlugin) SetCreateTime(createTime time.Time) {
+func (o *AIMCPServer) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *AIPlugin) GetImportHash() string {
+func (o *AIMCPServer) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *AIPlugin) SetImportHash(importHash string) {
+func (o *AIMCPServer) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *AIPlugin) GetImportLabel() string {
+func (o *AIMCPServer) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *AIPlugin) SetImportLabel(importLabel string) {
+func (o *AIMCPServer) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *AIPlugin) GetNamespace() string {
+func (o *AIMCPServer) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *AIPlugin) SetNamespace(namespace string) {
+func (o *AIMCPServer) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *AIPlugin) GetPropagate() bool {
+func (o *AIMCPServer) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *AIPlugin) SetPropagate(propagate bool) {
+func (o *AIMCPServer) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *AIPlugin) GetUpdateTime() time.Time {
+func (o *AIMCPServer) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *AIPlugin) SetUpdateTime(updateTime time.Time) {
+func (o *AIMCPServer) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *AIMCPServer) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseAIPlugin{
-			ID:              &o.ID,
-			IDE:             o.IDE,
-			Categories:      &o.Categories,
-			CreateTime:      &o.CreateTime,
-			Description:     &o.Description,
-			DisplayName:     &o.DisplayName,
-			FeaturesRisk:    o.FeaturesRisk,
-			ImportHash:      &o.ImportHash,
-			ImportLabel:     &o.ImportLabel,
-			InfoRisk:        o.InfoRisk,
-			LlmProviderRisk: o.LlmProviderRisk,
-			LlmProviders:    &o.LlmProviders,
-			Name:            &o.Name,
-			Namespace:       &o.Namespace,
-			Platform:        &o.Platform,
-			Propagate:       &o.Propagate,
-			PublishedDate:   &o.PublishedDate,
-			PublisherName:   &o.PublisherName,
-			Risk:            o.Risk,
-			ServiceType:     &o.ServiceType,
-			Source:          &o.Source,
-			Summary:         o.Summary,
-			Tags:            &o.Tags,
-			Type:            &o.Type,
-			UpdateTime:      &o.UpdateTime,
-			Vetted:          &o.Vetted,
-			WebExtension:    o.WebExtension,
-			ZHash:           &o.ZHash,
-			Zone:            &o.Zone,
+		return &SparseAIMCPServer{
+			ID:                   &o.ID,
+			ActionScope:          &o.ActionScope,
+			ActionScopeRisk:      o.ActionScopeRisk,
+			Categories:           &o.Categories,
+			CreateTime:           &o.CreateTime,
+			DataSensitivity:      &o.DataSensitivity,
+			DataSensitivityRisk:  o.DataSensitivityRisk,
+			Description:          &o.Description,
+			DisplayName:          &o.DisplayName,
+			ExecutionContextRisk: o.ExecutionContextRisk,
+			ImportHash:           &o.ImportHash,
+			ImportLabel:          &o.ImportLabel,
+			LlmProviders:         &o.LlmProviders,
+			Name:                 &o.Name,
+			Namespace:            &o.Namespace,
+			Platform:             &o.Platform,
+			Propagate:            &o.Propagate,
+			PublishedDate:        &o.PublishedDate,
+			PublisherName:        &o.PublisherName,
+			Risk:                 o.Risk,
+			Source:               &o.Source,
+			Summary:              o.Summary,
+			Tags:                 &o.Tags,
+			Trust:                &o.Trust,
+			TrustRisk:            o.TrustRisk,
+			UpdateTime:           &o.UpdateTime,
+			Vetted:               &o.Vetted,
+			ZHash:                &o.ZHash,
+			Zone:                 &o.Zone,
 		}
 	}
 
-	sp := &SparseAIPlugin{}
+	sp := &SparseAIMCPServer{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "IDE":
-			sp.IDE = o.IDE
+		case "actionScope":
+			sp.ActionScope = &(o.ActionScope)
+		case "actionScopeRisk":
+			sp.ActionScopeRisk = o.ActionScopeRisk
 		case "categories":
 			sp.Categories = &(o.Categories)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "dataSensitivity":
+			sp.DataSensitivity = &(o.DataSensitivity)
+		case "dataSensitivityRisk":
+			sp.DataSensitivityRisk = o.DataSensitivityRisk
 		case "description":
 			sp.Description = &(o.Description)
 		case "displayName":
 			sp.DisplayName = &(o.DisplayName)
-		case "featuresRisk":
-			sp.FeaturesRisk = o.FeaturesRisk
+		case "executionContextRisk":
+			sp.ExecutionContextRisk = o.ExecutionContextRisk
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
-		case "infoRisk":
-			sp.InfoRisk = o.InfoRisk
-		case "llmProviderRisk":
-			sp.LlmProviderRisk = o.LlmProviderRisk
 		case "llmProviders":
 			sp.LlmProviders = &(o.LlmProviders)
 		case "name":
@@ -507,22 +486,20 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PublisherName = &(o.PublisherName)
 		case "risk":
 			sp.Risk = o.Risk
-		case "serviceType":
-			sp.ServiceType = &(o.ServiceType)
 		case "source":
 			sp.Source = &(o.Source)
 		case "summary":
 			sp.Summary = o.Summary
 		case "tags":
 			sp.Tags = &(o.Tags)
-		case "type":
-			sp.Type = &(o.Type)
+		case "trust":
+			sp.Trust = &(o.Trust)
+		case "trustRisk":
+			sp.TrustRisk = o.TrustRisk
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "vetted":
 			sp.Vetted = &(o.Vetted)
-		case "webExtension":
-			sp.WebExtension = o.WebExtension
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -533,18 +510,21 @@ func (o *AIPlugin) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseAIPlugin to the object.
-func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseAIMCPServer to the object.
+func (o *AIMCPServer) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseAIPlugin)
+	so := sparse.(*SparseAIMCPServer)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.IDE != nil {
-		o.IDE = so.IDE
+	if so.ActionScope != nil {
+		o.ActionScope = *so.ActionScope
+	}
+	if so.ActionScopeRisk != nil {
+		o.ActionScopeRisk = so.ActionScopeRisk
 	}
 	if so.Categories != nil {
 		o.Categories = *so.Categories
@@ -552,26 +532,26 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
+	if so.DataSensitivity != nil {
+		o.DataSensitivity = *so.DataSensitivity
+	}
+	if so.DataSensitivityRisk != nil {
+		o.DataSensitivityRisk = so.DataSensitivityRisk
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
 	if so.DisplayName != nil {
 		o.DisplayName = *so.DisplayName
 	}
-	if so.FeaturesRisk != nil {
-		o.FeaturesRisk = so.FeaturesRisk
+	if so.ExecutionContextRisk != nil {
+		o.ExecutionContextRisk = so.ExecutionContextRisk
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
-	}
-	if so.InfoRisk != nil {
-		o.InfoRisk = so.InfoRisk
-	}
-	if so.LlmProviderRisk != nil {
-		o.LlmProviderRisk = so.LlmProviderRisk
 	}
 	if so.LlmProviders != nil {
 		o.LlmProviders = *so.LlmProviders
@@ -597,9 +577,6 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Risk != nil {
 		o.Risk = so.Risk
 	}
-	if so.ServiceType != nil {
-		o.ServiceType = *so.ServiceType
-	}
 	if so.Source != nil {
 		o.Source = *so.Source
 	}
@@ -609,17 +586,17 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Tags != nil {
 		o.Tags = *so.Tags
 	}
-	if so.Type != nil {
-		o.Type = *so.Type
+	if so.Trust != nil {
+		o.Trust = *so.Trust
+	}
+	if so.TrustRisk != nil {
+		o.TrustRisk = so.TrustRisk
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
 	}
 	if so.Vetted != nil {
 		o.Vetted = *so.Vetted
-	}
-	if so.WebExtension != nil {
-		o.WebExtension = so.WebExtension
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -630,47 +607,41 @@ func (o *AIPlugin) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *AIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *AIMCPServer) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.IDE != nil {
-		if err := o.IDE.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ActionScopeRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.FeaturesRisk != nil {
-		if err := o.FeaturesRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'FeaturesRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataSensitivityRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.InfoRisk != nil {
-		if err := o.InfoRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'InfoRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.LlmProviderRisk != nil {
-		if err := o.LlmProviderRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'LlmProviderRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ExecutionContextRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Risk != nil {
 		if err := o.Risk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.WebExtension != nil {
-		if err := o.WebExtension.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrustRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -678,89 +649,90 @@ func (o *AIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *AIPlugin) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *AIMCPServer) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.IDE != nil {
-		if err := o.IDE.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ActionScopeRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.FeaturesRisk != nil {
-		if err := o.FeaturesRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'FeaturesRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataSensitivityRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.InfoRisk != nil {
-		if err := o.InfoRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'InfoRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.LlmProviderRisk != nil {
-		if err := o.LlmProviderRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'LlmProviderRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ExecutionContextRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Risk != nil {
 		if err := o.Risk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.WebExtension != nil {
-		if err := o.WebExtension.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrustRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the AIPlugin.
-func (o *AIPlugin) DeepCopy() *AIPlugin {
+// DeepCopy returns a deep copy if the AIMCPServer.
+func (o *AIMCPServer) DeepCopy() *AIMCPServer {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &AIPlugin{}
+	out := &AIMCPServer{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *AIPlugin.
-func (o *AIPlugin) DeepCopyInto(out *AIPlugin) {
+// DeepCopyInto copies the receiver into the given *AIMCPServer.
+func (o *AIMCPServer) DeepCopyInto(out *AIMCPServer) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy AIPlugin: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy AIMCPServer: %s", err))
 	}
 
-	*out = *target.(*AIPlugin)
+	*out = *target.(*AIMCPServer)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *AIPlugin) Validate() error {
+func (o *AIMCPServer) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if o.IDE != nil {
-		if err := o.IDE.Validate(); err != nil {
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "IDE")
+			elemental.InjectAttributePath(errors, "actionScopeRisk")
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "dataSensitivityRisk")
 		}
 	}
 
@@ -768,24 +740,10 @@ func (o *AIPlugin) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if o.FeaturesRisk != nil {
-		if err := o.FeaturesRisk.Validate(); err != nil {
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "featuresRisk")
-		}
-	}
-
-	if o.InfoRisk != nil {
-		if err := o.InfoRisk.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "infoRisk")
-		}
-	}
-
-	if o.LlmProviderRisk != nil {
-		if err := o.LlmProviderRisk.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "llmProviderRisk")
+			elemental.InjectAttributePath(errors, "executionContextRisk")
 		}
 	}
 
@@ -808,10 +766,6 @@ func (o *AIPlugin) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("serviceType", string(o.ServiceType), []string{"CodingAssistant", "IntegrationPlatform", "Productivity"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
 			errors = errors.Append(err)
@@ -819,20 +773,11 @@ func (o *AIPlugin) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"IDE", "WebExtension"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if o.WebExtension != nil {
-		if err := o.WebExtension.Validate(); err != nil {
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "webExtension")
+			elemental.InjectAttributePath(errors, "trustRisk")
 		}
-	}
-
-	// Custom object validation.
-	if err := ValidateAIPlugin(o); err != nil {
-		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -847,50 +792,52 @@ func (o *AIPlugin) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*AIPlugin) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*AIMCPServer) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := AIPluginAttributesMap[name]; ok {
+	if v, ok := AIMCPServerAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return AIPluginLowerCaseAttributesMap[name]
+	return AIMCPServerLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*AIPlugin) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*AIMCPServer) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return AIPluginAttributesMap
+	return AIMCPServerAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *AIPlugin) ValueForAttribute(name string) any {
+func (o *AIMCPServer) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
-	case "IDE":
-		return o.IDE
+	case "actionScope":
+		return o.ActionScope
+	case "actionScopeRisk":
+		return o.ActionScopeRisk
 	case "categories":
 		return o.Categories
 	case "createTime":
 		return o.CreateTime
+	case "dataSensitivity":
+		return o.DataSensitivity
+	case "dataSensitivityRisk":
+		return o.DataSensitivityRisk
 	case "description":
 		return o.Description
 	case "displayName":
 		return o.DisplayName
-	case "featuresRisk":
-		return o.FeaturesRisk
+	case "executionContextRisk":
+		return o.ExecutionContextRisk
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
-	case "infoRisk":
-		return o.InfoRisk
-	case "llmProviderRisk":
-		return o.LlmProviderRisk
 	case "llmProviders":
 		return o.LlmProviders
 	case "name":
@@ -907,22 +854,20 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 		return o.PublisherName
 	case "risk":
 		return o.Risk
-	case "serviceType":
-		return o.ServiceType
 	case "source":
 		return o.Source
 	case "summary":
 		return o.Summary
 	case "tags":
 		return o.Tags
-	case "type":
-		return o.Type
+	case "trust":
+		return o.Trust
+	case "trustRisk":
+		return o.TrustRisk
 	case "updateTime":
 		return o.UpdateTime
 	case "vetted":
 		return o.Vetted
-	case "webExtension":
-		return o.WebExtension
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -932,8 +877,8 @@ func (o *AIPlugin) ValueForAttribute(name string) any {
 	return nil
 }
 
-// AIPluginAttributesMap represents the map of attribute for AIPlugin.
-var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
+// AIMCPServerAttributesMap represents the map of attribute for AIMCPServer.
+var AIMCPServerAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -949,22 +894,33 @@ var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"IDE": {
+	"ActionScope": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "ide",
-		ConvertedName:  "IDE",
-		Description:    `Contains additional information on an AI-related IDE plugin.`,
+		BSONFieldName:  "actionscope",
+		ConvertedName:  "ActionScope",
+		Description: `Classification of actions the MCP server can perform (Read-only, Read + Write,
+Autonomous write / execute).`,
+		Exposed: true,
+		Name:    "actionScope",
+		Stored:  true,
+		Type:    "string",
+	},
+	"ActionScopeRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "actionscoperisk",
+		ConvertedName:  "ActionScopeRisk",
+		Description:    `Risk assessment for the action scope pillar.`,
 		Exposed:        true,
-		Name:           "IDE",
+		Name:           "actionScopeRisk",
 		Stored:         true,
-		SubType:        "aipluginide",
+		SubType:        "aidrisk",
 		Type:           "ref",
 	},
 	"Categories": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "categories",
 		ConvertedName:  "Categories",
-		Description:    `The categories associated with the plugin.`,
+		Description:    `The categories associated with the MCP server.`,
 		Exposed:        true,
 		Name:           "categories",
 		Stored:         true,
@@ -986,11 +942,33 @@ var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"DataSensitivity": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivity",
+		ConvertedName:  "DataSensitivity",
+		Description: `Classification of data the MCP server can access (Public data only, Internal /
+PII, Credentials / Code / Health).`,
+		Exposed: true,
+		Name:    "dataSensitivity",
+		Stored:  true,
+		Type:    "string",
+	},
+	"DataSensitivityRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivityrisk",
+		ConvertedName:  "DataSensitivityRisk",
+		Description:    `Risk assessment for the data sensitivity pillar.`,
+		Exposed:        true,
+		Name:           "dataSensitivityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `A brief description about the AI plugin and its purpose.`,
+		Description:    `A brief description about the AI MCP server and its purpose.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -1000,20 +978,20 @@ var AIPluginAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "displayname",
 		ConvertedName:  "DisplayName",
-		Description:    `The human-friendly name of the plugin.`,
+		Description:    `The human-friendly name of the MCP server.`,
 		Exposed:        true,
 		Name:           "displayName",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
-	"FeaturesRisk": {
+	"ExecutionContextRisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "featuresrisk",
-		ConvertedName:  "FeaturesRisk",
-		Description:    `Risk assessment for the features pillar.`,
+		BSONFieldName:  "executioncontextrisk",
+		ConvertedName:  "ExecutionContextRisk",
+		Description:    `Risk assessment for the execution context pillar.`,
 		Exposed:        true,
-		Name:           "featuresRisk",
+		Name:           "executionContextRisk",
 		Stored:         true,
 		SubType:        "aidrisk",
 		Type:           "ref",
@@ -1046,44 +1024,23 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"InfoRisk": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "inforisk",
-		ConvertedName:  "InfoRisk",
-		Description:    `Risk assessment for the info pillar.`,
-		Exposed:        true,
-		Name:           "infoRisk",
-		Stored:         true,
-		SubType:        "aidrisk",
-		Type:           "ref",
-	},
-	"LlmProviderRisk": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "llmproviderrisk",
-		ConvertedName:  "LlmProviderRisk",
-		Description:    `Risk assessment for the LLM provider pillar.`,
-		Exposed:        true,
-		Name:           "llmProviderRisk",
-		Stored:         true,
-		SubType:        "aidrisk",
-		Type:           "ref",
-	},
 	"LlmProviders": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "llmproviders",
 		ConvertedName:  "LlmProviders",
-		Description:    `LLM providers that this plugin calls (OpenAI, Anthropic, Google, etc.).`,
-		Exposed:        true,
-		Name:           "llmProviders",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Description: `LLM providers that this MCP server is typically invoked from (OpenAI, Anthropic,
+Google, etc.).`,
+		Exposed: true,
+		Name:    "llmProviders",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the plugin.`,
+		Description:    `The name of the MCP server.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
@@ -1109,12 +1066,11 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "platform",
 		ConvertedName:  "Platform",
-		Description: `The host platform where the plugin runs (Web Browser, VS Code, JetBrains, Open
-VSX, etc.).`,
-		Exposed: true,
-		Name:    "platform",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The host runtime where the MCP server runs (local, container, remote).`,
+		Exposed:        true,
+		Name:           "platform",
+		Stored:         true,
+		Type:           "string",
 	},
 	"Propagate": {
 		AllowedChoices: []string{},
@@ -1133,7 +1089,7 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "publisheddate",
 		ConvertedName:  "PublishedDate",
-		Description:    `When the plugin was published.`,
+		Description:    `When the MCP server was published.`,
 		Exposed:        true,
 		Name:           "publishedDate",
 		Required:       true,
@@ -1144,7 +1100,7 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "publishername",
 		ConvertedName:  "PublisherName",
-		Description:    `The publisher name of the plugin.`,
+		Description:    `The publisher name of the MCP server.`,
 		Exposed:        true,
 		Name:           "publisherName",
 		Required:       true,
@@ -1155,30 +1111,19 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "risk",
 		ConvertedName:  "Risk",
-		Description:    `Overall risk assessment for the plugin.`,
+		Description:    `Overall risk assessment for the MCP server.`,
 		Exposed:        true,
 		Name:           "risk",
 		Stored:         true,
 		SubType:        "aidrisk",
 		Type:           "ref",
 	},
-	"ServiceType": {
-		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
-		BSONFieldName:  "servicetype",
-		ConvertedName:  "ServiceType",
-		DefaultValue:   AIPluginServiceTypeCodingAssistant,
-		Description:    `The type of service this plugin relates to.`,
-		Exposed:        true,
-		Name:           "serviceType",
-		Stored:         true,
-		Type:           "enum",
-	},
 	"Source": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "source",
 		ConvertedName:  "Source",
-		Description: `Marketplace or origin the entry was discovered from (chrome_web_store,
-firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
+		Description: `Marketplace or origin the entry was discovered from (github, mcp_registry,
+etc.).`,
 		Exposed: true,
 		Name:    "source",
 		Stored:  true,
@@ -1192,30 +1137,41 @@ firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
 		Exposed:        true,
 		Name:           "summary",
 		Stored:         true,
-		SubType:        "aipluginsummary",
+		SubType:        "aimcpserversummary",
 		Type:           "ref",
 	},
 	"Tags": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tags",
 		ConvertedName:  "Tags",
-		Description:    `The tags associated with the plugin.`,
+		Description:    `The tags associated with the MCP server.`,
 		Exposed:        true,
 		Name:           "tags",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
 	},
-	"Type": {
-		AllowedChoices: []string{"IDE", "WebExtension"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   AIPluginTypeIDE,
-		Description:    `The type of plugin.`,
+	"Trust": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trust",
+		ConvertedName:  "Trust",
+		Description: `Classification of publisher trust (Major enterprise vendor, Established third
+party, Unvetted / community).`,
+		Exposed: true,
+		Name:    "trust",
+		Stored:  true,
+		Type:    "string",
+	},
+	"TrustRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trustrisk",
+		ConvertedName:  "TrustRisk",
+		Description:    `Risk assessment for the publisher trust pillar.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "trustRisk",
 		Stored:         true,
-		Type:           "enum",
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -1236,27 +1192,16 @@ firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "vetted",
 		ConvertedName:  "Vetted",
-		Description:    `Flag to say if the plugin has been vetted by Proofpoint AI Security or not.`,
+		Description:    `Flag to say if the MCP server has been vetted by Acuvity or not.`,
 		Exposed:        true,
 		Name:           "vetted",
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"WebExtension": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "webextension",
-		ConvertedName:  "WebExtension",
-		Description:    `Contains additional information on an AI-related web extension.`,
-		Exposed:        true,
-		Name:           "webExtension",
-		Stored:         true,
-		SubType:        "aipluginwebext",
-		Type:           "ref",
-	},
 }
 
-// AIPluginLowerCaseAttributesMap represents the map of attribute for AIPlugin.
-var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// AIMCPServerLowerCaseAttributesMap represents the map of attribute for AIMCPServer.
+var AIMCPServerLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1272,22 +1217,33 @@ var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
-	"ide": {
+	"actionscope": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "ide",
-		ConvertedName:  "IDE",
-		Description:    `Contains additional information on an AI-related IDE plugin.`,
+		BSONFieldName:  "actionscope",
+		ConvertedName:  "ActionScope",
+		Description: `Classification of actions the MCP server can perform (Read-only, Read + Write,
+Autonomous write / execute).`,
+		Exposed: true,
+		Name:    "actionScope",
+		Stored:  true,
+		Type:    "string",
+	},
+	"actionscoperisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "actionscoperisk",
+		ConvertedName:  "ActionScopeRisk",
+		Description:    `Risk assessment for the action scope pillar.`,
 		Exposed:        true,
-		Name:           "IDE",
+		Name:           "actionScopeRisk",
 		Stored:         true,
-		SubType:        "aipluginide",
+		SubType:        "aidrisk",
 		Type:           "ref",
 	},
 	"categories": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "categories",
 		ConvertedName:  "Categories",
-		Description:    `The categories associated with the plugin.`,
+		Description:    `The categories associated with the MCP server.`,
 		Exposed:        true,
 		Name:           "categories",
 		Stored:         true,
@@ -1309,11 +1265,33 @@ var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "time",
 	},
+	"datasensitivity": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivity",
+		ConvertedName:  "DataSensitivity",
+		Description: `Classification of data the MCP server can access (Public data only, Internal /
+PII, Credentials / Code / Health).`,
+		Exposed: true,
+		Name:    "dataSensitivity",
+		Stored:  true,
+		Type:    "string",
+	},
+	"datasensitivityrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivityrisk",
+		ConvertedName:  "DataSensitivityRisk",
+		Description:    `Risk assessment for the data sensitivity pillar.`,
+		Exposed:        true,
+		Name:           "dataSensitivityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `A brief description about the AI plugin and its purpose.`,
+		Description:    `A brief description about the AI MCP server and its purpose.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -1323,20 +1301,20 @@ var AIPluginLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		AllowedChoices: []string{},
 		BSONFieldName:  "displayname",
 		ConvertedName:  "DisplayName",
-		Description:    `The human-friendly name of the plugin.`,
+		Description:    `The human-friendly name of the MCP server.`,
 		Exposed:        true,
 		Name:           "displayName",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
-	"featuresrisk": {
+	"executioncontextrisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "featuresrisk",
-		ConvertedName:  "FeaturesRisk",
-		Description:    `Risk assessment for the features pillar.`,
+		BSONFieldName:  "executioncontextrisk",
+		ConvertedName:  "ExecutionContextRisk",
+		Description:    `Risk assessment for the execution context pillar.`,
 		Exposed:        true,
-		Name:           "featuresRisk",
+		Name:           "executionContextRisk",
 		Stored:         true,
 		SubType:        "aidrisk",
 		Type:           "ref",
@@ -1369,44 +1347,23 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"inforisk": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "inforisk",
-		ConvertedName:  "InfoRisk",
-		Description:    `Risk assessment for the info pillar.`,
-		Exposed:        true,
-		Name:           "infoRisk",
-		Stored:         true,
-		SubType:        "aidrisk",
-		Type:           "ref",
-	},
-	"llmproviderrisk": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "llmproviderrisk",
-		ConvertedName:  "LlmProviderRisk",
-		Description:    `Risk assessment for the LLM provider pillar.`,
-		Exposed:        true,
-		Name:           "llmProviderRisk",
-		Stored:         true,
-		SubType:        "aidrisk",
-		Type:           "ref",
-	},
 	"llmproviders": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "llmproviders",
 		ConvertedName:  "LlmProviders",
-		Description:    `LLM providers that this plugin calls (OpenAI, Anthropic, Google, etc.).`,
-		Exposed:        true,
-		Name:           "llmProviders",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Description: `LLM providers that this MCP server is typically invoked from (OpenAI, Anthropic,
+Google, etc.).`,
+		Exposed: true,
+		Name:    "llmProviders",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the plugin.`,
+		Description:    `The name of the MCP server.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
@@ -1432,12 +1389,11 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "platform",
 		ConvertedName:  "Platform",
-		Description: `The host platform where the plugin runs (Web Browser, VS Code, JetBrains, Open
-VSX, etc.).`,
-		Exposed: true,
-		Name:    "platform",
-		Stored:  true,
-		Type:    "string",
+		Description:    `The host runtime where the MCP server runs (local, container, remote).`,
+		Exposed:        true,
+		Name:           "platform",
+		Stored:         true,
+		Type:           "string",
 	},
 	"propagate": {
 		AllowedChoices: []string{},
@@ -1456,7 +1412,7 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "publisheddate",
 		ConvertedName:  "PublishedDate",
-		Description:    `When the plugin was published.`,
+		Description:    `When the MCP server was published.`,
 		Exposed:        true,
 		Name:           "publishedDate",
 		Required:       true,
@@ -1467,7 +1423,7 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "publishername",
 		ConvertedName:  "PublisherName",
-		Description:    `The publisher name of the plugin.`,
+		Description:    `The publisher name of the MCP server.`,
 		Exposed:        true,
 		Name:           "publisherName",
 		Required:       true,
@@ -1478,30 +1434,19 @@ VSX, etc.).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "risk",
 		ConvertedName:  "Risk",
-		Description:    `Overall risk assessment for the plugin.`,
+		Description:    `Overall risk assessment for the MCP server.`,
 		Exposed:        true,
 		Name:           "risk",
 		Stored:         true,
 		SubType:        "aidrisk",
 		Type:           "ref",
 	},
-	"servicetype": {
-		AllowedChoices: []string{"CodingAssistant", "IntegrationPlatform", "Productivity"},
-		BSONFieldName:  "servicetype",
-		ConvertedName:  "ServiceType",
-		DefaultValue:   AIPluginServiceTypeCodingAssistant,
-		Description:    `The type of service this plugin relates to.`,
-		Exposed:        true,
-		Name:           "serviceType",
-		Stored:         true,
-		Type:           "enum",
-	},
 	"source": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "source",
 		ConvertedName:  "Source",
-		Description: `Marketplace or origin the entry was discovered from (chrome_web_store,
-firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
+		Description: `Marketplace or origin the entry was discovered from (github, mcp_registry,
+etc.).`,
 		Exposed: true,
 		Name:    "source",
 		Stored:  true,
@@ -1515,30 +1460,41 @@ firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
 		Exposed:        true,
 		Name:           "summary",
 		Stored:         true,
-		SubType:        "aipluginsummary",
+		SubType:        "aimcpserversummary",
 		Type:           "ref",
 	},
 	"tags": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tags",
 		ConvertedName:  "Tags",
-		Description:    `The tags associated with the plugin.`,
+		Description:    `The tags associated with the MCP server.`,
 		Exposed:        true,
 		Name:           "tags",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
 	},
-	"type": {
-		AllowedChoices: []string{"IDE", "WebExtension"},
-		BSONFieldName:  "type",
-		ConvertedName:  "Type",
-		DefaultValue:   AIPluginTypeIDE,
-		Description:    `The type of plugin.`,
+	"trust": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trust",
+		ConvertedName:  "Trust",
+		Description: `Classification of publisher trust (Major enterprise vendor, Established third
+party, Unvetted / community).`,
+		Exposed: true,
+		Name:    "trust",
+		Stored:  true,
+		Type:    "string",
+	},
+	"trustrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trustrisk",
+		ConvertedName:  "TrustRisk",
+		Description:    `Risk assessment for the publisher trust pillar.`,
 		Exposed:        true,
-		Name:           "type",
+		Name:           "trustRisk",
 		Stored:         true,
-		Type:           "enum",
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1559,54 +1515,43 @@ firefox_addons, edge_addons, vscode_marketplace, openvsx, github).`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "vetted",
 		ConvertedName:  "Vetted",
-		Description:    `Flag to say if the plugin has been vetted by Proofpoint AI Security or not.`,
+		Description:    `Flag to say if the MCP server has been vetted by Acuvity or not.`,
 		Exposed:        true,
 		Name:           "vetted",
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"webextension": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "webextension",
-		ConvertedName:  "WebExtension",
-		Description:    `Contains additional information on an AI-related web extension.`,
-		Exposed:        true,
-		Name:           "webExtension",
-		Stored:         true,
-		SubType:        "aipluginwebext",
-		Type:           "ref",
-	},
 }
 
-// SparseAIPluginsList represents a list of SparseAIPlugins
-type SparseAIPluginsList []*SparseAIPlugin
+// SparseAIMCPServersList represents a list of SparseAIMCPServers
+type SparseAIMCPServersList []*SparseAIMCPServer
 
 // Identity returns the identity of the objects in the list.
-func (o SparseAIPluginsList) Identity() elemental.Identity {
+func (o SparseAIMCPServersList) Identity() elemental.Identity {
 
-	return AIPluginIdentity
+	return AIMCPServerIdentity
 }
 
-// Copy returns a pointer to a copy the SparseAIPluginsList.
-func (o SparseAIPluginsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseAIMCPServersList.
+func (o SparseAIMCPServersList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseAIPluginsList.
-func (o SparseAIPluginsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseAIMCPServersList.
+func (o SparseAIMCPServersList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseAIPlugin))
+		out = append(out, obj.(*SparseAIMCPServer))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseAIPluginsList) List() elemental.IdentifiablesList {
+func (o SparseAIMCPServersList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1617,13 +1562,13 @@ func (o SparseAIPluginsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseAIPluginsList) DefaultOrder() []string {
+func (o SparseAIMCPServersList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseAIPluginsList converted to AIPluginsList.
-func (o SparseAIPluginsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseAIMCPServersList converted to AIMCPServersList.
+func (o SparseAIMCPServersList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1634,33 +1579,44 @@ func (o SparseAIPluginsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseAIPluginsList) Version() int {
+func (o SparseAIMCPServersList) Version() int {
 
 	return 1
 }
 
-// SparseAIPlugin represents the sparse version of a aiplugin.
-type SparseAIPlugin struct {
+// SparseAIMCPServer represents the sparse version of a aimcpserver.
+type SparseAIMCPServer struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Contains additional information on an AI-related IDE plugin.
-	IDE *AIPluginIDE `json:"IDE,omitempty" msgpack:"IDE,omitempty" bson:"ide,omitempty" mapstructure:"IDE,omitempty"`
+	// Classification of actions the MCP server can perform (Read-only, Read + Write,
+	// Autonomous write / execute).
+	ActionScope *string `json:"actionScope,omitempty" msgpack:"actionScope,omitempty" bson:"actionscope,omitempty" mapstructure:"actionScope,omitempty"`
 
-	// The categories associated with the plugin.
+	// Risk assessment for the action scope pillar.
+	ActionScopeRisk *AIDRisk `json:"actionScopeRisk,omitempty" msgpack:"actionScopeRisk,omitempty" bson:"actionscoperisk,omitempty" mapstructure:"actionScopeRisk,omitempty"`
+
+	// The categories associated with the MCP server.
 	Categories *[]string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// A brief description about the AI plugin and its purpose.
+	// Classification of data the MCP server can access (Public data only, Internal /
+	// PII, Credentials / Code / Health).
+	DataSensitivity *string `json:"dataSensitivity,omitempty" msgpack:"dataSensitivity,omitempty" bson:"datasensitivity,omitempty" mapstructure:"dataSensitivity,omitempty"`
+
+	// Risk assessment for the data sensitivity pillar.
+	DataSensitivityRisk *AIDRisk `json:"dataSensitivityRisk,omitempty" msgpack:"dataSensitivityRisk,omitempty" bson:"datasensitivityrisk,omitempty" mapstructure:"dataSensitivityRisk,omitempty"`
+
+	// A brief description about the AI MCP server and its purpose.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The human-friendly name of the plugin.
+	// The human-friendly name of the MCP server.
 	DisplayName *string `json:"displayName,omitempty" msgpack:"displayName,omitempty" bson:"displayname,omitempty" mapstructure:"displayName,omitempty"`
 
-	// Risk assessment for the features pillar.
-	FeaturesRisk *AIDRisk `json:"featuresRisk,omitempty" msgpack:"featuresRisk,omitempty" bson:"featuresrisk,omitempty" mapstructure:"featuresRisk,omitempty"`
+	// Risk assessment for the execution context pillar.
+	ExecutionContextRisk *AIDRisk `json:"executionContextRisk,omitempty" msgpack:"executionContextRisk,omitempty" bson:"executioncontextrisk,omitempty" mapstructure:"executionContextRisk,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1669,61 +1625,53 @@ type SparseAIPlugin struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Risk assessment for the info pillar.
-	InfoRisk *AIDRisk `json:"infoRisk,omitempty" msgpack:"infoRisk,omitempty" bson:"inforisk,omitempty" mapstructure:"infoRisk,omitempty"`
-
-	// Risk assessment for the LLM provider pillar.
-	LlmProviderRisk *AIDRisk `json:"llmProviderRisk,omitempty" msgpack:"llmProviderRisk,omitempty" bson:"llmproviderrisk,omitempty" mapstructure:"llmProviderRisk,omitempty"`
-
-	// LLM providers that this plugin calls (OpenAI, Anthropic, Google, etc.).
+	// LLM providers that this MCP server is typically invoked from (OpenAI, Anthropic,
+	// Google, etc.).
 	LlmProviders *[]string `json:"llmProviders,omitempty" msgpack:"llmProviders,omitempty" bson:"llmproviders,omitempty" mapstructure:"llmProviders,omitempty"`
 
-	// The name of the plugin.
+	// The name of the MCP server.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The host platform where the plugin runs (Web Browser, VS Code, JetBrains, Open
-	// VSX, etc.).
+	// The host runtime where the MCP server runs (local, container, remote).
 	Platform *string `json:"platform,omitempty" msgpack:"platform,omitempty" bson:"platform,omitempty" mapstructure:"platform,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// When the plugin was published.
+	// When the MCP server was published.
 	PublishedDate *time.Time `json:"publishedDate,omitempty" msgpack:"publishedDate,omitempty" bson:"publisheddate,omitempty" mapstructure:"publishedDate,omitempty"`
 
-	// The publisher name of the plugin.
+	// The publisher name of the MCP server.
 	PublisherName *string `json:"publisherName,omitempty" msgpack:"publisherName,omitempty" bson:"publishername,omitempty" mapstructure:"publisherName,omitempty"`
 
-	// Overall risk assessment for the plugin.
+	// Overall risk assessment for the MCP server.
 	Risk *AIDRisk `json:"risk,omitempty" msgpack:"risk,omitempty" bson:"risk,omitempty" mapstructure:"risk,omitempty"`
 
-	// The type of service this plugin relates to.
-	ServiceType *AIPluginServiceTypeValue `json:"serviceType,omitempty" msgpack:"serviceType,omitempty" bson:"servicetype,omitempty" mapstructure:"serviceType,omitempty"`
-
-	// Marketplace or origin the entry was discovered from (chrome_web_store,
-	// firefox_addons, edge_addons, vscode_marketplace, openvsx, github).
+	// Marketplace or origin the entry was discovered from (github, mcp_registry,
+	// etc.).
 	Source *string `json:"source,omitempty" msgpack:"source,omitempty" bson:"source,omitempty" mapstructure:"source,omitempty"`
 
 	// Quick machine-friendly risk summary.
-	Summary *AIPluginSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
+	Summary *AIMCPServerSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
 
-	// The tags associated with the plugin.
+	// The tags associated with the MCP server.
 	Tags *[]string `json:"tags,omitempty" msgpack:"tags,omitempty" bson:"tags,omitempty" mapstructure:"tags,omitempty"`
 
-	// The type of plugin.
-	Type *AIPluginTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
+	// Classification of publisher trust (Major enterprise vendor, Established third
+	// party, Unvetted / community).
+	Trust *string `json:"trust,omitempty" msgpack:"trust,omitempty" bson:"trust,omitempty" mapstructure:"trust,omitempty"`
+
+	// Risk assessment for the publisher trust pillar.
+	TrustRisk *AIDRisk `json:"trustRisk,omitempty" msgpack:"trustRisk,omitempty" bson:"trustrisk,omitempty" mapstructure:"trustRisk,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
-	// Flag to say if the plugin has been vetted by Proofpoint AI Security or not.
+	// Flag to say if the MCP server has been vetted by Acuvity or not.
 	Vetted *bool `json:"vetted,omitempty" msgpack:"vetted,omitempty" bson:"vetted,omitempty" mapstructure:"vetted,omitempty"`
-
-	// Contains additional information on an AI-related web extension.
-	WebExtension *AIPluginWebExt `json:"webExtension,omitempty" msgpack:"webExtension,omitempty" bson:"webextension,omitempty" mapstructure:"webExtension,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1734,19 +1682,19 @@ type SparseAIPlugin struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseAIPlugin returns a new  SparseAIPlugin.
-func NewSparseAIPlugin() *SparseAIPlugin {
-	return &SparseAIPlugin{}
+// NewSparseAIMCPServer returns a new  SparseAIMCPServer.
+func NewSparseAIMCPServer() *SparseAIMCPServer {
+	return &SparseAIMCPServer{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseAIPlugin) Identity() elemental.Identity {
+func (o *SparseAIMCPServer) Identity() elemental.Identity {
 
-	return AIPluginIdentity
+	return AIMCPServerIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseAIPlugin) Identifier() string {
+func (o *SparseAIMCPServer) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1755,7 +1703,7 @@ func (o *SparseAIPlugin) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseAIPlugin) SetIdentifier(id string) {
+func (o *SparseAIMCPServer) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1766,19 +1714,22 @@ func (o *SparseAIPlugin) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAIPlugin) GetBSON() (any, error) {
+func (o *SparseAIMCPServer) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseAIPlugin{}
+	s := &mongoAttributesSparseAIMCPServer{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.IDE != nil {
-		s.IDE = o.IDE
+	if o.ActionScope != nil {
+		s.ActionScope = o.ActionScope
+	}
+	if o.ActionScopeRisk != nil {
+		s.ActionScopeRisk = o.ActionScopeRisk
 	}
 	if o.Categories != nil {
 		s.Categories = o.Categories
@@ -1786,26 +1737,26 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.DataSensitivity != nil {
+		s.DataSensitivity = o.DataSensitivity
+	}
+	if o.DataSensitivityRisk != nil {
+		s.DataSensitivityRisk = o.DataSensitivityRisk
+	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
 	if o.DisplayName != nil {
 		s.DisplayName = o.DisplayName
 	}
-	if o.FeaturesRisk != nil {
-		s.FeaturesRisk = o.FeaturesRisk
+	if o.ExecutionContextRisk != nil {
+		s.ExecutionContextRisk = o.ExecutionContextRisk
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
-	}
-	if o.InfoRisk != nil {
-		s.InfoRisk = o.InfoRisk
-	}
-	if o.LlmProviderRisk != nil {
-		s.LlmProviderRisk = o.LlmProviderRisk
 	}
 	if o.LlmProviders != nil {
 		s.LlmProviders = o.LlmProviders
@@ -1831,9 +1782,6 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.Risk != nil {
 		s.Risk = o.Risk
 	}
-	if o.ServiceType != nil {
-		s.ServiceType = o.ServiceType
-	}
 	if o.Source != nil {
 		s.Source = o.Source
 	}
@@ -1843,17 +1791,17 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 	if o.Tags != nil {
 		s.Tags = o.Tags
 	}
-	if o.Type != nil {
-		s.Type = o.Type
+	if o.Trust != nil {
+		s.Trust = o.Trust
+	}
+	if o.TrustRisk != nil {
+		s.TrustRisk = o.TrustRisk
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
 	if o.Vetted != nil {
 		s.Vetted = o.Vetted
-	}
-	if o.WebExtension != nil {
-		s.WebExtension = o.WebExtension
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1867,21 +1815,24 @@ func (o *SparseAIPlugin) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
+func (o *SparseAIMCPServer) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseAIPlugin{}
+	s := &mongoAttributesSparseAIMCPServer{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.IDE != nil {
-		o.IDE = s.IDE
+	if s.ActionScope != nil {
+		o.ActionScope = s.ActionScope
+	}
+	if s.ActionScopeRisk != nil {
+		o.ActionScopeRisk = s.ActionScopeRisk
 	}
 	if s.Categories != nil {
 		o.Categories = s.Categories
@@ -1889,26 +1840,26 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.DataSensitivity != nil {
+		o.DataSensitivity = s.DataSensitivity
+	}
+	if s.DataSensitivityRisk != nil {
+		o.DataSensitivityRisk = s.DataSensitivityRisk
+	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
 	if s.DisplayName != nil {
 		o.DisplayName = s.DisplayName
 	}
-	if s.FeaturesRisk != nil {
-		o.FeaturesRisk = s.FeaturesRisk
+	if s.ExecutionContextRisk != nil {
+		o.ExecutionContextRisk = s.ExecutionContextRisk
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
-	}
-	if s.InfoRisk != nil {
-		o.InfoRisk = s.InfoRisk
-	}
-	if s.LlmProviderRisk != nil {
-		o.LlmProviderRisk = s.LlmProviderRisk
 	}
 	if s.LlmProviders != nil {
 		o.LlmProviders = s.LlmProviders
@@ -1934,9 +1885,6 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	if s.Risk != nil {
 		o.Risk = s.Risk
 	}
-	if s.ServiceType != nil {
-		o.ServiceType = s.ServiceType
-	}
 	if s.Source != nil {
 		o.Source = s.Source
 	}
@@ -1946,17 +1894,17 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 	if s.Tags != nil {
 		o.Tags = s.Tags
 	}
-	if s.Type != nil {
-		o.Type = s.Type
+	if s.Trust != nil {
+		o.Trust = s.Trust
+	}
+	if s.TrustRisk != nil {
+		o.TrustRisk = s.TrustRisk
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
 	if s.Vetted != nil {
 		o.Vetted = s.Vetted
-	}
-	if s.WebExtension != nil {
-		o.WebExtension = s.WebExtension
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1969,20 +1917,23 @@ func (o *SparseAIPlugin) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseAIPlugin) Version() int {
+func (o *SparseAIMCPServer) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseAIMCPServer) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewAIPlugin()
+	out := NewAIMCPServer()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.IDE != nil {
-		out.IDE = o.IDE
+	if o.ActionScope != nil {
+		out.ActionScope = *o.ActionScope
+	}
+	if o.ActionScopeRisk != nil {
+		out.ActionScopeRisk = o.ActionScopeRisk
 	}
 	if o.Categories != nil {
 		out.Categories = *o.Categories
@@ -1990,26 +1941,26 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
+	if o.DataSensitivity != nil {
+		out.DataSensitivity = *o.DataSensitivity
+	}
+	if o.DataSensitivityRisk != nil {
+		out.DataSensitivityRisk = o.DataSensitivityRisk
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
 	if o.DisplayName != nil {
 		out.DisplayName = *o.DisplayName
 	}
-	if o.FeaturesRisk != nil {
-		out.FeaturesRisk = o.FeaturesRisk
+	if o.ExecutionContextRisk != nil {
+		out.ExecutionContextRisk = o.ExecutionContextRisk
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
-	}
-	if o.InfoRisk != nil {
-		out.InfoRisk = o.InfoRisk
-	}
-	if o.LlmProviderRisk != nil {
-		out.LlmProviderRisk = o.LlmProviderRisk
 	}
 	if o.LlmProviders != nil {
 		out.LlmProviders = *o.LlmProviders
@@ -2035,9 +1986,6 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	if o.Risk != nil {
 		out.Risk = o.Risk
 	}
-	if o.ServiceType != nil {
-		out.ServiceType = *o.ServiceType
-	}
 	if o.Source != nil {
 		out.Source = *o.Source
 	}
@@ -2047,17 +1995,17 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 	if o.Tags != nil {
 		out.Tags = *o.Tags
 	}
-	if o.Type != nil {
-		out.Type = *o.Type
+	if o.Trust != nil {
+		out.Trust = *o.Trust
+	}
+	if o.TrustRisk != nil {
+		out.TrustRisk = o.TrustRisk
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
 	}
 	if o.Vetted != nil {
 		out.Vetted = *o.Vetted
-	}
-	if o.WebExtension != nil {
-		out.WebExtension = o.WebExtension
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -2070,47 +2018,41 @@ func (o *SparseAIPlugin) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseAIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseAIMCPServer) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.IDE != nil {
-		if err := o.IDE.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ActionScopeRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.FeaturesRisk != nil {
-		if err := o.FeaturesRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'FeaturesRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataSensitivityRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.InfoRisk != nil {
-		if err := o.InfoRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'InfoRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.LlmProviderRisk != nil {
-		if err := o.LlmProviderRisk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'LlmProviderRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ExecutionContextRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Risk != nil {
 		if err := o.Risk.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt ref attribute 'Risk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.WebExtension != nil {
-		if err := o.WebExtension.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrustRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2118,47 +2060,41 @@ func (o *SparseAIPlugin) EncryptAttributes(encrypter elemental.AttributeEncrypte
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseAIPlugin) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseAIMCPServer) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.IDE != nil {
-		if err := o.IDE.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'IDE' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ActionScopeRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.FeaturesRisk != nil {
-		if err := o.FeaturesRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'FeaturesRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataSensitivityRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.InfoRisk != nil {
-		if err := o.InfoRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'InfoRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.LlmProviderRisk != nil {
-		if err := o.LlmProviderRisk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'LlmProviderRisk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ExecutionContextRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Risk != nil {
 		if err := o.Risk.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt ref attribute 'Risk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.WebExtension != nil {
-		if err := o.WebExtension.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'WebExtension' for 'AIPlugin' (%s): %w", o.Identifier(), err)
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrustRisk' for 'AIMCPServer' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2166,7 +2102,7 @@ func (o *SparseAIPlugin) DecryptAttributes(encrypter elemental.AttributeEncrypte
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseAIPlugin) GetCreateTime() (out time.Time) {
+func (o *SparseAIMCPServer) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -2176,13 +2112,13 @@ func (o *SparseAIPlugin) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetCreateTime(createTime time.Time) {
+func (o *SparseAIMCPServer) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseAIPlugin) GetImportHash() (out string) {
+func (o *SparseAIMCPServer) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -2192,13 +2128,13 @@ func (o *SparseAIPlugin) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetImportHash(importHash string) {
+func (o *SparseAIMCPServer) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseAIPlugin) GetImportLabel() (out string) {
+func (o *SparseAIMCPServer) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -2208,13 +2144,13 @@ func (o *SparseAIPlugin) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetImportLabel(importLabel string) {
+func (o *SparseAIMCPServer) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseAIPlugin) GetNamespace() (out string) {
+func (o *SparseAIMCPServer) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -2224,13 +2160,13 @@ func (o *SparseAIPlugin) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetNamespace(namespace string) {
+func (o *SparseAIMCPServer) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseAIPlugin) GetPropagate() (out bool) {
+func (o *SparseAIMCPServer) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -2240,13 +2176,13 @@ func (o *SparseAIPlugin) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetPropagate(propagate bool) {
+func (o *SparseAIMCPServer) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseAIPlugin) GetUpdateTime() (out time.Time) {
+func (o *SparseAIMCPServer) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -2256,94 +2192,94 @@ func (o *SparseAIPlugin) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseAIPlugin) SetUpdateTime(updateTime time.Time) {
+func (o *SparseAIMCPServer) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseAIPlugin.
-func (o *SparseAIPlugin) DeepCopy() *SparseAIPlugin {
+// DeepCopy returns a deep copy if the SparseAIMCPServer.
+func (o *SparseAIMCPServer) DeepCopy() *SparseAIMCPServer {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseAIPlugin{}
+	out := &SparseAIMCPServer{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseAIPlugin.
-func (o *SparseAIPlugin) DeepCopyInto(out *SparseAIPlugin) {
+// DeepCopyInto copies the receiver into the given *SparseAIMCPServer.
+func (o *SparseAIMCPServer) DeepCopyInto(out *SparseAIMCPServer) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseAIPlugin: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseAIMCPServer: %s", err))
 	}
 
-	*out = *target.(*SparseAIPlugin)
+	*out = *target.(*SparseAIMCPServer)
 }
 
-type mongoAttributesAIPlugin struct {
-	ID              bson.ObjectId            `bson:"_id,omitempty"`
-	IDE             *AIPluginIDE             `bson:"ide,omitempty"`
-	Categories      []string                 `bson:"categories,omitempty"`
-	CreateTime      time.Time                `bson:"createtime"`
-	Description     string                   `bson:"description,omitempty"`
-	DisplayName     string                   `bson:"displayname"`
-	FeaturesRisk    *AIDRisk                 `bson:"featuresrisk,omitempty"`
-	ImportHash      string                   `bson:"importhash,omitempty"`
-	ImportLabel     string                   `bson:"importlabel,omitempty"`
-	InfoRisk        *AIDRisk                 `bson:"inforisk,omitempty"`
-	LlmProviderRisk *AIDRisk                 `bson:"llmproviderrisk,omitempty"`
-	LlmProviders    []string                 `bson:"llmproviders,omitempty"`
-	Name            string                   `bson:"name"`
-	Namespace       string                   `bson:"namespace,omitempty"`
-	Platform        string                   `bson:"platform,omitempty"`
-	Propagate       bool                     `bson:"propagate"`
-	PublishedDate   time.Time                `bson:"publisheddate"`
-	PublisherName   string                   `bson:"publishername"`
-	Risk            *AIDRisk                 `bson:"risk,omitempty"`
-	ServiceType     AIPluginServiceTypeValue `bson:"servicetype"`
-	Source          string                   `bson:"source,omitempty"`
-	Summary         *AIPluginSummary         `bson:"summary,omitempty"`
-	Tags            []string                 `bson:"tags,omitempty"`
-	Type            AIPluginTypeValue        `bson:"type"`
-	UpdateTime      time.Time                `bson:"updatetime"`
-	Vetted          bool                     `bson:"vetted"`
-	WebExtension    *AIPluginWebExt          `bson:"webextension,omitempty"`
-	ZHash           int                      `bson:"zhash"`
-	Zone            int                      `bson:"zone"`
+type mongoAttributesAIMCPServer struct {
+	ID                   bson.ObjectId       `bson:"_id,omitempty"`
+	ActionScope          string              `bson:"actionscope,omitempty"`
+	ActionScopeRisk      *AIDRisk            `bson:"actionscoperisk,omitempty"`
+	Categories           []string            `bson:"categories,omitempty"`
+	CreateTime           time.Time           `bson:"createtime"`
+	DataSensitivity      string              `bson:"datasensitivity,omitempty"`
+	DataSensitivityRisk  *AIDRisk            `bson:"datasensitivityrisk,omitempty"`
+	Description          string              `bson:"description,omitempty"`
+	DisplayName          string              `bson:"displayname"`
+	ExecutionContextRisk *AIDRisk            `bson:"executioncontextrisk,omitempty"`
+	ImportHash           string              `bson:"importhash,omitempty"`
+	ImportLabel          string              `bson:"importlabel,omitempty"`
+	LlmProviders         []string            `bson:"llmproviders,omitempty"`
+	Name                 string              `bson:"name"`
+	Namespace            string              `bson:"namespace,omitempty"`
+	Platform             string              `bson:"platform,omitempty"`
+	Propagate            bool                `bson:"propagate"`
+	PublishedDate        time.Time           `bson:"publisheddate"`
+	PublisherName        string              `bson:"publishername"`
+	Risk                 *AIDRisk            `bson:"risk,omitempty"`
+	Source               string              `bson:"source,omitempty"`
+	Summary              *AIMCPServerSummary `bson:"summary,omitempty"`
+	Tags                 []string            `bson:"tags,omitempty"`
+	Trust                string              `bson:"trust,omitempty"`
+	TrustRisk            *AIDRisk            `bson:"trustrisk,omitempty"`
+	UpdateTime           time.Time           `bson:"updatetime"`
+	Vetted               bool                `bson:"vetted"`
+	ZHash                int                 `bson:"zhash"`
+	Zone                 int                 `bson:"zone"`
 }
-type mongoAttributesSparseAIPlugin struct {
-	ID              bson.ObjectId             `bson:"_id,omitempty"`
-	IDE             *AIPluginIDE              `bson:"ide,omitempty"`
-	Categories      *[]string                 `bson:"categories,omitempty"`
-	CreateTime      *time.Time                `bson:"createtime,omitempty"`
-	Description     *string                   `bson:"description,omitempty"`
-	DisplayName     *string                   `bson:"displayname,omitempty"`
-	FeaturesRisk    *AIDRisk                  `bson:"featuresrisk,omitempty"`
-	ImportHash      *string                   `bson:"importhash,omitempty"`
-	ImportLabel     *string                   `bson:"importlabel,omitempty"`
-	InfoRisk        *AIDRisk                  `bson:"inforisk,omitempty"`
-	LlmProviderRisk *AIDRisk                  `bson:"llmproviderrisk,omitempty"`
-	LlmProviders    *[]string                 `bson:"llmproviders,omitempty"`
-	Name            *string                   `bson:"name,omitempty"`
-	Namespace       *string                   `bson:"namespace,omitempty"`
-	Platform        *string                   `bson:"platform,omitempty"`
-	Propagate       *bool                     `bson:"propagate,omitempty"`
-	PublishedDate   *time.Time                `bson:"publisheddate,omitempty"`
-	PublisherName   *string                   `bson:"publishername,omitempty"`
-	Risk            *AIDRisk                  `bson:"risk,omitempty"`
-	ServiceType     *AIPluginServiceTypeValue `bson:"servicetype,omitempty"`
-	Source          *string                   `bson:"source,omitempty"`
-	Summary         *AIPluginSummary          `bson:"summary,omitempty"`
-	Tags            *[]string                 `bson:"tags,omitempty"`
-	Type            *AIPluginTypeValue        `bson:"type,omitempty"`
-	UpdateTime      *time.Time                `bson:"updatetime,omitempty"`
-	Vetted          *bool                     `bson:"vetted,omitempty"`
-	WebExtension    *AIPluginWebExt           `bson:"webextension,omitempty"`
-	ZHash           *int                      `bson:"zhash,omitempty"`
-	Zone            *int                      `bson:"zone,omitempty"`
+type mongoAttributesSparseAIMCPServer struct {
+	ID                   bson.ObjectId       `bson:"_id,omitempty"`
+	ActionScope          *string             `bson:"actionscope,omitempty"`
+	ActionScopeRisk      *AIDRisk            `bson:"actionscoperisk,omitempty"`
+	Categories           *[]string           `bson:"categories,omitempty"`
+	CreateTime           *time.Time          `bson:"createtime,omitempty"`
+	DataSensitivity      *string             `bson:"datasensitivity,omitempty"`
+	DataSensitivityRisk  *AIDRisk            `bson:"datasensitivityrisk,omitempty"`
+	Description          *string             `bson:"description,omitempty"`
+	DisplayName          *string             `bson:"displayname,omitempty"`
+	ExecutionContextRisk *AIDRisk            `bson:"executioncontextrisk,omitempty"`
+	ImportHash           *string             `bson:"importhash,omitempty"`
+	ImportLabel          *string             `bson:"importlabel,omitempty"`
+	LlmProviders         *[]string           `bson:"llmproviders,omitempty"`
+	Name                 *string             `bson:"name,omitempty"`
+	Namespace            *string             `bson:"namespace,omitempty"`
+	Platform             *string             `bson:"platform,omitempty"`
+	Propagate            *bool               `bson:"propagate,omitempty"`
+	PublishedDate        *time.Time          `bson:"publisheddate,omitempty"`
+	PublisherName        *string             `bson:"publishername,omitempty"`
+	Risk                 *AIDRisk            `bson:"risk,omitempty"`
+	Source               *string             `bson:"source,omitempty"`
+	Summary              *AIMCPServerSummary `bson:"summary,omitempty"`
+	Tags                 *[]string           `bson:"tags,omitempty"`
+	Trust                *string             `bson:"trust,omitempty"`
+	TrustRisk            *AIDRisk            `bson:"trustrisk,omitempty"`
+	UpdateTime           *time.Time          `bson:"updatetime,omitempty"`
+	Vetted               *bool               `bson:"vetted,omitempty"`
+	ZHash                *int                `bson:"zhash,omitempty"`
+	Zone                 *int                `bson:"zone,omitempty"`
 }

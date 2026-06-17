@@ -13,43 +13,54 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// ProviderTokenIdentity represents the Identity of the object.
-var ProviderTokenIdentity = elemental.Identity{
-	Name:     "providertoken",
-	Category: "providertokens",
+// ProviderHostsOverrideModeValue represents the possible values for attribute "mode".
+type ProviderHostsOverrideModeValue string
+
+const (
+	// ProviderHostsOverrideModeAppend represents the value Append.
+	ProviderHostsOverrideModeAppend ProviderHostsOverrideModeValue = "Append"
+
+	// ProviderHostsOverrideModeReplace represents the value Replace.
+	ProviderHostsOverrideModeReplace ProviderHostsOverrideModeValue = "Replace"
+)
+
+// ProviderHostsOverrideIdentity represents the Identity of the object.
+var ProviderHostsOverrideIdentity = elemental.Identity{
+	Name:     "providerhostsoverride",
+	Category: "providerhostsoverrides",
 	Package:  "lain",
 	Private:  false,
 }
 
-// ProviderTokensList represents a list of ProviderTokens
-type ProviderTokensList []*ProviderToken
+// ProviderHostsOverridesList represents a list of ProviderHostsOverrides
+type ProviderHostsOverridesList []*ProviderHostsOverride
 
 // Identity returns the identity of the objects in the list.
-func (o ProviderTokensList) Identity() elemental.Identity {
+func (o ProviderHostsOverridesList) Identity() elemental.Identity {
 
-	return ProviderTokenIdentity
+	return ProviderHostsOverrideIdentity
 }
 
-// Copy returns a pointer to a copy the ProviderTokensList.
-func (o ProviderTokensList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the ProviderHostsOverridesList.
+func (o ProviderHostsOverridesList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the ProviderTokensList.
-func (o ProviderTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the ProviderHostsOverridesList.
+func (o ProviderHostsOverridesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*ProviderToken))
+		out = append(out, obj.(*ProviderHostsOverride))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o ProviderTokensList) List() elemental.IdentifiablesList {
+func (o ProviderHostsOverridesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -60,36 +71,39 @@ func (o ProviderTokensList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o ProviderTokensList) DefaultOrder() []string {
+func (o ProviderHostsOverridesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the ProviderTokensList converted to SparseProviderTokensList.
+// ToSparse returns the ProviderHostsOverridesList converted to SparseProviderHostsOverridesList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o ProviderTokensList) ToSparse(fields ...string) elemental.Identifiables {
+func (o ProviderHostsOverridesList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseProviderTokensList, len(o))
+	out := make(SparseProviderHostsOverridesList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseProviderToken)
+		out[i] = o[i].ToSparse(fields...).(*SparseProviderHostsOverride)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o ProviderTokensList) Version() int {
+func (o ProviderHostsOverridesList) Version() int {
 
 	return 1
 }
 
-// ProviderToken represents the model of a providertoken
-type ProviderToken struct {
+// ProviderHostsOverride represents the model of a providerhostsoverride
+type ProviderHostsOverride struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
+
+	// Hosts to use to replace on the overriden provider.
+	Hosts []*Host `json:"hosts" msgpack:"hosts" bson:"hosts" mapstructure:"hosts,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -98,18 +112,19 @@ type ProviderToken struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the token. As token contents are hidden after creation, name allows a
-	// way to delete it.
+	// Selects how the override is applied. `Replace` substitutes the entire
+	// list with the one in the overrides, while `Append` adds to the
+	// existing list.
+	Mode ProviderHostsOverrideModeValue `json:"mode" msgpack:"mode" bson:"mode" mapstructure:"mode,omitempty"`
+
+	// Name of the provider to override.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Name of the provider this token is used with.
-	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
-
-	// token to authenticate with the provider.
-	Token string `json:"token" msgpack:"token" bson:"token" mapstructure:"token,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -123,52 +138,56 @@ type ProviderToken struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewProviderToken returns a new *ProviderToken
-func NewProviderToken() *ProviderToken {
+// NewProviderHostsOverride returns a new *ProviderHostsOverride
+func NewProviderHostsOverride() *ProviderHostsOverride {
 
-	return &ProviderToken{
+	return &ProviderHostsOverride{
 		ModelVersion: 1,
+		Hosts:        []*Host{},
+		Mode:         ProviderHostsOverrideModeAppend,
+		Propagate:    true,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *ProviderToken) Identity() elemental.Identity {
+func (o *ProviderHostsOverride) Identity() elemental.Identity {
 
-	return ProviderTokenIdentity
+	return ProviderHostsOverrideIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *ProviderToken) Identifier() string {
+func (o *ProviderHostsOverride) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *ProviderToken) SetIdentifier(id string) {
+func (o *ProviderHostsOverride) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ProviderToken) GetBSON() (any, error) {
+func (o *ProviderHostsOverride) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesProviderToken{}
+	s := &mongoAttributesProviderHostsOverride{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
+	s.Hosts = o.Hosts
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Mode = o.Mode
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.Provider = o.Provider
-	s.Token = o.Token
+	s.Propagate = o.Propagate
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -178,25 +197,26 @@ func (o *ProviderToken) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *ProviderToken) SetBSON(raw bson.Raw) error {
+func (o *ProviderHostsOverride) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesProviderToken{}
+	s := &mongoAttributesProviderHostsOverride{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
+	o.Hosts = s.Hosts
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Mode = s.Mode
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.Provider = s.Provider
-	o.Token = s.Token
+	o.Propagate = s.Propagate
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -205,135 +225,151 @@ func (o *ProviderToken) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *ProviderToken) Version() int {
+func (o *ProviderHostsOverride) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *ProviderToken) BleveType() string {
+func (o *ProviderHostsOverride) BleveType() string {
 
-	return "providertoken"
+	return "providerhostsoverride"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *ProviderToken) DefaultOrder() []string {
+func (o *ProviderHostsOverride) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *ProviderToken) Doc() string {
+func (o *ProviderHostsOverride) Doc() string {
 
-	return `ProviderToken are upstream tokens for the 'Provider' configured on our system to
-be used by the Proofpoint AI Security proxy.`
+	return `Provider Hosts Overrides allow defining different hosts for a provider at
+the tenant level. Host overrides are used to replace the hosts section of
+a provider.`
 }
 
-func (o *ProviderToken) String() string {
+func (o *ProviderHostsOverride) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *ProviderToken) GetCreateTime() time.Time {
+func (o *ProviderHostsOverride) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *ProviderToken) SetCreateTime(createTime time.Time) {
+func (o *ProviderHostsOverride) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *ProviderToken) GetImportHash() string {
+func (o *ProviderHostsOverride) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *ProviderToken) SetImportHash(importHash string) {
+func (o *ProviderHostsOverride) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *ProviderToken) GetImportLabel() string {
+func (o *ProviderHostsOverride) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *ProviderToken) SetImportLabel(importLabel string) {
+func (o *ProviderHostsOverride) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *ProviderToken) GetNamespace() string {
+func (o *ProviderHostsOverride) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *ProviderToken) SetNamespace(namespace string) {
+func (o *ProviderHostsOverride) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *ProviderHostsOverride) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *ProviderHostsOverride) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *ProviderToken) GetUpdateTime() time.Time {
+func (o *ProviderHostsOverride) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *ProviderToken) SetUpdateTime(updateTime time.Time) {
+func (o *ProviderHostsOverride) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *ProviderHostsOverride) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseProviderToken{
+		return &SparseProviderHostsOverride{
 			ID:          &o.ID,
 			CreateTime:  &o.CreateTime,
+			Hosts:       &o.Hosts,
 			ImportHash:  &o.ImportHash,
 			ImportLabel: &o.ImportLabel,
+			Mode:        &o.Mode,
 			Name:        &o.Name,
 			Namespace:   &o.Namespace,
-			Provider:    &o.Provider,
-			Token:       &o.Token,
+			Propagate:   &o.Propagate,
 			UpdateTime:  &o.UpdateTime,
 			ZHash:       &o.ZHash,
 			Zone:        &o.Zone,
 		}
 	}
 
-	sp := &SparseProviderToken{}
+	sp := &SparseProviderHostsOverride{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "hosts":
+			sp.Hosts = &(o.Hosts)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "mode":
+			sp.Mode = &(o.Mode)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "provider":
-			sp.Provider = &(o.Provider)
-		case "token":
-			sp.Token = &(o.Token)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -346,18 +382,21 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseProviderToken to the object.
-func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseProviderHostsOverride to the object.
+func (o *ProviderHostsOverride) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseProviderToken)
+	so := sparse.(*SparseProviderHostsOverride)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
+	}
+	if so.Hosts != nil {
+		o.Hosts = *so.Hosts
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -365,17 +404,17 @@ func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
+	if so.Mode != nil {
+		o.Mode = *so.Mode
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.Provider != nil {
-		o.Provider = *so.Provider
-	}
-	if so.Token != nil {
-		o.Token = *so.Token
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -389,62 +428,86 @@ func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *ProviderToken) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *ProviderHostsOverride) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.Token, err = encrypter.EncryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'ProviderToken' (%s): %w", o.Identifier(), err)
+	for _, sub := range o.Hosts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Hosts' for 'ProviderHostsOverride' (%s): %s", o.Identifier(), err)
+		}
 	}
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *ProviderToken) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *ProviderHostsOverride) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.Token, err = encrypter.DecryptString(o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'ProviderToken' (%s): %w", o.Identifier(), err)
+	for _, sub := range o.Hosts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Hosts' for 'ProviderHostsOverride' (%s): %w", o.Identifier(), err)
+		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the ProviderToken.
-func (o *ProviderToken) DeepCopy() *ProviderToken {
+// DeepCopy returns a deep copy if the ProviderHostsOverride.
+func (o *ProviderHostsOverride) DeepCopy() *ProviderHostsOverride {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &ProviderToken{}
+	out := &ProviderHostsOverride{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *ProviderToken.
-func (o *ProviderToken) DeepCopyInto(out *ProviderToken) {
+// DeepCopyInto copies the receiver into the given *ProviderHostsOverride.
+func (o *ProviderHostsOverride) DeepCopyInto(out *ProviderHostsOverride) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy ProviderToken: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy ProviderHostsOverride: %s", err))
 	}
 
-	*out = *target.(*ProviderToken)
+	*out = *target.(*ProviderHostsOverride)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *ProviderToken) Validate() error {
+func (o *ProviderHostsOverride) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+	for i, sub := range o.Hosts {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "hosts", i))
+		}
+	}
+
+	if err := elemental.ValidateRequiredString("mode", string(o.Mode)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("provider", o.Provider); err != nil {
+	if err := elemental.ValidateStringInList("mode", string(o.Mode), []string{"Append", "Replace"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
@@ -460,44 +523,46 @@ func (o *ProviderToken) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*ProviderToken) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*ProviderHostsOverride) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := ProviderTokenAttributesMap[name]; ok {
+	if v, ok := ProviderHostsOverrideAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return ProviderTokenLowerCaseAttributesMap[name]
+	return ProviderHostsOverrideLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*ProviderToken) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*ProviderHostsOverride) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return ProviderTokenAttributesMap
+	return ProviderHostsOverrideAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *ProviderToken) ValueForAttribute(name string) any {
+func (o *ProviderHostsOverride) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
 	case "createTime":
 		return o.CreateTime
+	case "hosts":
+		return o.Hosts
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "mode":
+		return o.Mode
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "provider":
-		return o.Provider
-	case "token":
-		return o.Token
+	case "propagate":
+		return o.Propagate
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -509,8 +574,8 @@ func (o *ProviderToken) ValueForAttribute(name string) any {
 	return nil
 }
 
-// ProviderTokenAttributesMap represents the map of attribute for ProviderToken.
-var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
+// ProviderHostsOverrideAttributesMap represents the map of attribute for ProviderHostsOverride.
+var ProviderHostsOverrideAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -541,6 +606,17 @@ var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"Hosts": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hosts",
+		ConvertedName:  "Hosts",
+		Description:    `Hosts to use to replace on the overriden provider.`,
+		Exposed:        true,
+		Name:           "hosts",
+		Stored:         true,
+		SubType:        "host",
+		Type:           "refList",
+	},
 	"ImportHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -569,17 +645,30 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"Mode": {
+		AllowedChoices: []string{"Append", "Replace"},
+		BSONFieldName:  "mode",
+		ConvertedName:  "Mode",
+		DefaultValue:   ProviderHostsOverrideModeAppend,
+		Description: `Selects how the override is applied. ` + "`" + `Replace` + "`" + ` substitutes the entire
+list with the one in the overrides, while ` + "`" + `Append` + "`" + ` adds to the
+existing list.`,
+		Exposed:  true,
+		Name:     "mode",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description: `Name of the token. As token contents are hidden after creation, name allows a
-way to delete it.`,
-		Exposed:  true,
-		Name:     "name",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		Description:    `Name of the provider to override.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -596,30 +685,18 @@ way to delete it.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"Provider": {
+	"Propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "provider",
-		ConvertedName:  "Provider",
-		Description:    `Name of the provider this token is used with.`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		Name:           "provider",
-		Required:       true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		Type:           "string",
-	},
-	"Token": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "token",
-		ConvertedName:  "Token",
-		Description:    `token to authenticate with the provider.`,
-		Encrypted:      true,
-		Exposed:        true,
-		Name:           "token",
-		Required:       true,
-		Secret:         true,
-		Stored:         true,
-		Transient:      true,
-		Type:           "string",
+		Type:           "boolean",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -638,8 +715,8 @@ way to delete it.`,
 	},
 }
 
-// ProviderTokenLowerCaseAttributesMap represents the map of attribute for ProviderToken.
-var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// ProviderHostsOverrideLowerCaseAttributesMap represents the map of attribute for ProviderHostsOverride.
+var ProviderHostsOverrideLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -670,6 +747,17 @@ var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "time",
 	},
+	"hosts": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hosts",
+		ConvertedName:  "Hosts",
+		Description:    `Hosts to use to replace on the overriden provider.`,
+		Exposed:        true,
+		Name:           "hosts",
+		Stored:         true,
+		SubType:        "host",
+		Type:           "refList",
+	},
 	"importhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -698,17 +786,30 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"mode": {
+		AllowedChoices: []string{"Append", "Replace"},
+		BSONFieldName:  "mode",
+		ConvertedName:  "Mode",
+		DefaultValue:   ProviderHostsOverrideModeAppend,
+		Description: `Selects how the override is applied. ` + "`" + `Replace` + "`" + ` substitutes the entire
+list with the one in the overrides, while ` + "`" + `Append` + "`" + ` adds to the
+existing list.`,
+		Exposed:  true,
+		Name:     "mode",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description: `Name of the token. As token contents are hidden after creation, name allows a
-way to delete it.`,
-		Exposed:  true,
-		Name:     "name",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		Description:    `Name of the provider to override.`,
+		Exposed:        true,
+		Name:           "name",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -725,30 +826,18 @@ way to delete it.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"provider": {
+	"propagate": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "provider",
-		ConvertedName:  "Provider",
-		Description:    `Name of the provider this token is used with.`,
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
 		Exposed:        true,
-		Name:           "provider",
-		Required:       true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
 		Stored:         true,
-		Type:           "string",
-	},
-	"token": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "token",
-		ConvertedName:  "Token",
-		Description:    `token to authenticate with the provider.`,
-		Encrypted:      true,
-		Exposed:        true,
-		Name:           "token",
-		Required:       true,
-		Secret:         true,
-		Stored:         true,
-		Transient:      true,
-		Type:           "string",
+		Type:           "boolean",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -767,35 +856,35 @@ way to delete it.`,
 	},
 }
 
-// SparseProviderTokensList represents a list of SparseProviderTokens
-type SparseProviderTokensList []*SparseProviderToken
+// SparseProviderHostsOverridesList represents a list of SparseProviderHostsOverrides
+type SparseProviderHostsOverridesList []*SparseProviderHostsOverride
 
 // Identity returns the identity of the objects in the list.
-func (o SparseProviderTokensList) Identity() elemental.Identity {
+func (o SparseProviderHostsOverridesList) Identity() elemental.Identity {
 
-	return ProviderTokenIdentity
+	return ProviderHostsOverrideIdentity
 }
 
-// Copy returns a pointer to a copy the SparseProviderTokensList.
-func (o SparseProviderTokensList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseProviderHostsOverridesList.
+func (o SparseProviderHostsOverridesList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseProviderTokensList.
-func (o SparseProviderTokensList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseProviderHostsOverridesList.
+func (o SparseProviderHostsOverridesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseProviderToken))
+		out = append(out, obj.(*SparseProviderHostsOverride))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseProviderTokensList) List() elemental.IdentifiablesList {
+func (o SparseProviderHostsOverridesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -806,13 +895,13 @@ func (o SparseProviderTokensList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseProviderTokensList) DefaultOrder() []string {
+func (o SparseProviderHostsOverridesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseProviderTokensList converted to ProviderTokensList.
-func (o SparseProviderTokensList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseProviderHostsOverridesList converted to ProviderHostsOverridesList.
+func (o SparseProviderHostsOverridesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -823,18 +912,21 @@ func (o SparseProviderTokensList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseProviderTokensList) Version() int {
+func (o SparseProviderHostsOverridesList) Version() int {
 
 	return 1
 }
 
-// SparseProviderToken represents the sparse version of a providertoken.
-type SparseProviderToken struct {
+// SparseProviderHostsOverride represents the sparse version of a providerhostsoverride.
+type SparseProviderHostsOverride struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
+
+	// Hosts to use to replace on the overriden provider.
+	Hosts *[]*Host `json:"hosts,omitempty" msgpack:"hosts,omitempty" bson:"hosts,omitempty" mapstructure:"hosts,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -843,18 +935,19 @@ type SparseProviderToken struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the token. As token contents are hidden after creation, name allows a
-	// way to delete it.
+	// Selects how the override is applied. `Replace` substitutes the entire
+	// list with the one in the overrides, while `Append` adds to the
+	// existing list.
+	Mode *ProviderHostsOverrideModeValue `json:"mode,omitempty" msgpack:"mode,omitempty" bson:"mode,omitempty" mapstructure:"mode,omitempty"`
+
+	// Name of the provider to override.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Name of the provider this token is used with.
-	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
-
-	// token to authenticate with the provider.
-	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"token,omitempty" mapstructure:"token,omitempty"`
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -868,19 +961,19 @@ type SparseProviderToken struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseProviderToken returns a new  SparseProviderToken.
-func NewSparseProviderToken() *SparseProviderToken {
-	return &SparseProviderToken{}
+// NewSparseProviderHostsOverride returns a new  SparseProviderHostsOverride.
+func NewSparseProviderHostsOverride() *SparseProviderHostsOverride {
+	return &SparseProviderHostsOverride{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseProviderToken) Identity() elemental.Identity {
+func (o *SparseProviderHostsOverride) Identity() elemental.Identity {
 
-	return ProviderTokenIdentity
+	return ProviderHostsOverrideIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseProviderToken) Identifier() string {
+func (o *SparseProviderHostsOverride) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -889,7 +982,7 @@ func (o *SparseProviderToken) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseProviderToken) SetIdentifier(id string) {
+func (o *SparseProviderHostsOverride) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -900,13 +993,13 @@ func (o *SparseProviderToken) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseProviderToken) GetBSON() (any, error) {
+func (o *SparseProviderHostsOverride) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseProviderToken{}
+	s := &mongoAttributesSparseProviderHostsOverride{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -914,11 +1007,17 @@ func (o *SparseProviderToken) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.Hosts != nil {
+		s.Hosts = o.Hosts
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
+	}
+	if o.Mode != nil {
+		s.Mode = o.Mode
 	}
 	if o.Name != nil {
 		s.Name = o.Name
@@ -926,11 +1025,8 @@ func (o *SparseProviderToken) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.Provider != nil {
-		s.Provider = o.Provider
-	}
-	if o.Token != nil {
-		s.Token = o.Token
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -947,13 +1043,13 @@ func (o *SparseProviderToken) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
+func (o *SparseProviderHostsOverride) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseProviderToken{}
+	s := &mongoAttributesSparseProviderHostsOverride{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -963,11 +1059,17 @@ func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.Hosts != nil {
+		o.Hosts = s.Hosts
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
+	}
+	if s.Mode != nil {
+		o.Mode = s.Mode
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -975,11 +1077,8 @@ func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.Provider != nil {
-		o.Provider = s.Provider
-	}
-	if s.Token != nil {
-		o.Token = s.Token
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -995,20 +1094,23 @@ func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseProviderToken) Version() int {
+func (o *SparseProviderHostsOverride) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseProviderHostsOverride) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewProviderToken()
+	out := NewProviderHostsOverride()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
+	}
+	if o.Hosts != nil {
+		out.Hosts = *o.Hosts
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1016,17 +1118,17 @@ func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
+	if o.Mode != nil {
+		out.Mode = *o.Mode
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.Provider != nil {
-		out.Provider = *o.Provider
-	}
-	if o.Token != nil {
-		out.Token = *o.Token
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1042,27 +1144,41 @@ func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseProviderToken) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseProviderHostsOverride) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if *o.Token, err = encrypter.EncryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to encrypt attribute 'Token' for 'SparseProviderToken' (%s): %w", o.Identifier(), err)
+	if o.Hosts != nil {
+		for _, sub := range *o.Hosts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Hosts' for 'ProviderHostsOverride' (%s): %w", o.Identifier(), err)
+			}
+		}
 	}
 
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseProviderToken) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseProviderHostsOverride) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if *o.Token, err = encrypter.DecryptString(*o.Token); err != nil {
-		return fmt.Errorf("unable to decrypt attribute 'Token' for 'SparseProviderToken' (%s): %w", o.Identifier(), err)
+	if o.Hosts != nil {
+		for _, sub := range *o.Hosts {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Hosts' for 'ProviderHostsOverride' (%s): %w", o.Identifier(), err)
+			}
+		}
 	}
 
 	return nil
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseProviderToken) GetCreateTime() (out time.Time) {
+func (o *SparseProviderHostsOverride) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1072,13 +1188,13 @@ func (o *SparseProviderToken) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetCreateTime(createTime time.Time) {
+func (o *SparseProviderHostsOverride) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseProviderToken) GetImportHash() (out string) {
+func (o *SparseProviderHostsOverride) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1088,13 +1204,13 @@ func (o *SparseProviderToken) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetImportHash(importHash string) {
+func (o *SparseProviderHostsOverride) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseProviderToken) GetImportLabel() (out string) {
+func (o *SparseProviderHostsOverride) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1104,13 +1220,13 @@ func (o *SparseProviderToken) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetImportLabel(importLabel string) {
+func (o *SparseProviderHostsOverride) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseProviderToken) GetNamespace() (out string) {
+func (o *SparseProviderHostsOverride) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1120,13 +1236,29 @@ func (o *SparseProviderToken) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetNamespace(namespace string) {
+func (o *SparseProviderHostsOverride) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseProviderHostsOverride) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseProviderHostsOverride) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseProviderToken) GetUpdateTime() (out time.Time) {
+func (o *SparseProviderHostsOverride) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1136,58 +1268,60 @@ func (o *SparseProviderToken) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetUpdateTime(updateTime time.Time) {
+func (o *SparseProviderHostsOverride) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseProviderToken.
-func (o *SparseProviderToken) DeepCopy() *SparseProviderToken {
+// DeepCopy returns a deep copy if the SparseProviderHostsOverride.
+func (o *SparseProviderHostsOverride) DeepCopy() *SparseProviderHostsOverride {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseProviderToken{}
+	out := &SparseProviderHostsOverride{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseProviderToken.
-func (o *SparseProviderToken) DeepCopyInto(out *SparseProviderToken) {
+// DeepCopyInto copies the receiver into the given *SparseProviderHostsOverride.
+func (o *SparseProviderHostsOverride) DeepCopyInto(out *SparseProviderHostsOverride) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseProviderToken: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseProviderHostsOverride: %s", err))
 	}
 
-	*out = *target.(*SparseProviderToken)
+	*out = *target.(*SparseProviderHostsOverride)
 }
 
-type mongoAttributesProviderToken struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  time.Time     `bson:"createtime"`
-	ImportHash  string        `bson:"importhash,omitempty"`
-	ImportLabel string        `bson:"importlabel,omitempty"`
-	Name        string        `bson:"name"`
-	Namespace   string        `bson:"namespace,omitempty"`
-	Provider    string        `bson:"provider"`
-	Token       string        `bson:"token"`
-	UpdateTime  time.Time     `bson:"updatetime"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+type mongoAttributesProviderHostsOverride struct {
+	ID          bson.ObjectId                  `bson:"_id,omitempty"`
+	CreateTime  time.Time                      `bson:"createtime"`
+	Hosts       []*Host                        `bson:"hosts"`
+	ImportHash  string                         `bson:"importhash,omitempty"`
+	ImportLabel string                         `bson:"importlabel,omitempty"`
+	Mode        ProviderHostsOverrideModeValue `bson:"mode"`
+	Name        string                         `bson:"name"`
+	Namespace   string                         `bson:"namespace,omitempty"`
+	Propagate   bool                           `bson:"propagate"`
+	UpdateTime  time.Time                      `bson:"updatetime"`
+	ZHash       int                            `bson:"zhash"`
+	Zone        int                            `bson:"zone"`
 }
-type mongoAttributesSparseProviderToken struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  *time.Time    `bson:"createtime,omitempty"`
-	ImportHash  *string       `bson:"importhash,omitempty"`
-	ImportLabel *string       `bson:"importlabel,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	Provider    *string       `bson:"provider,omitempty"`
-	Token       *string       `bson:"token,omitempty"`
-	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+type mongoAttributesSparseProviderHostsOverride struct {
+	ID          bson.ObjectId                   `bson:"_id,omitempty"`
+	CreateTime  *time.Time                      `bson:"createtime,omitempty"`
+	Hosts       *[]*Host                        `bson:"hosts,omitempty"`
+	ImportHash  *string                         `bson:"importhash,omitempty"`
+	ImportLabel *string                         `bson:"importlabel,omitempty"`
+	Mode        *ProviderHostsOverrideModeValue `bson:"mode,omitempty"`
+	Name        *string                         `bson:"name,omitempty"`
+	Namespace   *string                         `bson:"namespace,omitempty"`
+	Propagate   *bool                           `bson:"propagate,omitempty"`
+	UpdateTime  *time.Time                      `bson:"updatetime,omitempty"`
+	ZHash       *int                            `bson:"zhash,omitempty"`
+	Zone        *int                            `bson:"zone,omitempty"`
 }

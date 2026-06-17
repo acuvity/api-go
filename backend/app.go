@@ -148,7 +148,8 @@ type App struct {
 
 	// Configure the OpenTelemetry tracing behavior for this application. By default no
 	// tracing will be facilitated. If you set this to Transparent, then the Apex will
-	// record traces within Acuvity as they are being passed by the application in the
+	// record traces within Proofpoint AI Security as they are being passed by the
+	// application in the
 	// respective traceparent HTTP header or other OpenInference related trace context
 	// transport methods. Note that with the Transparent mode, you might lose some
 	// spans that belong to a trace as the Apex can sit before your application itself.
@@ -159,7 +160,8 @@ type App struct {
 	// system, then you should configure the otelExporter to ensure that the Apex is
 	// exporting its spans to your tracing system. Additionally, for both Transparent
 	// and Recording modes, you should ensure that the application is reporting its
-	// spans to Acuvity as well. This can be realized by running OTLP receivers within
+	// spans to Proofpoint AI Security as well. This can be realized by running OTLP
+	// receivers within
 	// your application components by configuring the otelReceivers setting.
 	Tracing AppTracingValue `json:"tracing" msgpack:"tracing" bson:"tracing" mapstructure:"tracing,omitempty"`
 
@@ -869,7 +871,8 @@ appcomponent tokens.`,
 		DefaultValue:   AppTracingDisabled,
 		Description: `Configure the OpenTelemetry tracing behavior for this application. By default no
 tracing will be facilitated. If you set this to Transparent, then the Apex will
-record traces within Acuvity as they are being passed by the application in the
+record traces within Proofpoint AI Security as they are being passed by the
+application in the
 respective traceparent HTTP header or other OpenInference related trace context
 transport methods. Note that with the Transparent mode, you might lose some
 spans that belong to a trace as the Apex can sit before your application itself.
@@ -880,7 +883,8 @@ captured. However, if you rely on complete tracing data in your own tracing
 system, then you should configure the otelExporter to ensure that the Apex is
 exporting its spans to your tracing system. Additionally, for both Transparent
 and Recording modes, you should ensure that the application is reporting its
-spans to Acuvity as well. This can be realized by running OTLP receivers within
+spans to Proofpoint AI Security as well. This can be realized by running OTLP
+receivers within
 your application components by configuring the otelReceivers setting.`,
 		Exposed: true,
 		Name:    "tracing",
@@ -1076,7 +1080,8 @@ appcomponent tokens.`,
 		DefaultValue:   AppTracingDisabled,
 		Description: `Configure the OpenTelemetry tracing behavior for this application. By default no
 tracing will be facilitated. If you set this to Transparent, then the Apex will
-record traces within Acuvity as they are being passed by the application in the
+record traces within Proofpoint AI Security as they are being passed by the
+application in the
 respective traceparent HTTP header or other OpenInference related trace context
 transport methods. Note that with the Transparent mode, you might lose some
 spans that belong to a trace as the Apex can sit before your application itself.
@@ -1087,7 +1092,8 @@ captured. However, if you rely on complete tracing data in your own tracing
 system, then you should configure the otelExporter to ensure that the Apex is
 exporting its spans to your tracing system. Additionally, for both Transparent
 and Recording modes, you should ensure that the application is reporting its
-spans to Acuvity as well. This can be realized by running OTLP receivers within
+spans to Proofpoint AI Security as well. This can be realized by running OTLP
+receivers within
 your application components by configuring the otelReceivers setting.`,
 		Exposed: true,
 		Name:    "tracing",
@@ -1223,7 +1229,8 @@ type SparseApp struct {
 
 	// Configure the OpenTelemetry tracing behavior for this application. By default no
 	// tracing will be facilitated. If you set this to Transparent, then the Apex will
-	// record traces within Acuvity as they are being passed by the application in the
+	// record traces within Proofpoint AI Security as they are being passed by the
+	// application in the
 	// respective traceparent HTTP header or other OpenInference related trace context
 	// transport methods. Note that with the Transparent mode, you might lose some
 	// spans that belong to a trace as the Apex can sit before your application itself.
@@ -1234,7 +1241,8 @@ type SparseApp struct {
 	// system, then you should configure the otelExporter to ensure that the Apex is
 	// exporting its spans to your tracing system. Additionally, for both Transparent
 	// and Recording modes, you should ensure that the application is reporting its
-	// spans to Acuvity as well. This can be realized by running OTLP receivers within
+	// spans to Proofpoint AI Security as well. This can be realized by running OTLP
+	// receivers within
 	// your application components by configuring the otelReceivers setting.
 	Tracing *AppTracingValue `json:"tracing,omitempty" msgpack:"tracing,omitempty" bson:"tracing,omitempty" mapstructure:"tracing,omitempty"`
 

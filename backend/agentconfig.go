@@ -238,7 +238,8 @@ type AgentConfig struct {
 	// How long all future tokens will be valid. Can be in a range from 30s to 720h.
 	TokenValidity string `json:"tokenValidity" msgpack:"tokenValidity" bson:"tokenvalidity" mapstructure:"tokenValidity,omitempty"`
 
-	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+	// If enabled, the agent will use a tunnel to connect to the Proofpoint AI Security
+	// apex, and the
 	// apex will make its requests to the destination back through the agent over the
 	// same tunnel.
 	TunnelEnabled bool `json:"tunnelEnabled" msgpack:"tunnelEnabled" bson:"tunnelenabled" mapstructure:"tunnelEnabled,omitempty"`
@@ -1585,7 +1586,8 @@ Useful for revocation management.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "tunnelenabled",
 		ConvertedName:  "TunnelEnabled",
-		Description: `If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+		Description: `If enabled, the agent will use a tunnel to connect to the Proofpoint AI Security
+apex, and the
 apex will make its requests to the destination back through the agent over the
 same tunnel.`,
 		Exposed: true,
@@ -2096,7 +2098,8 @@ Useful for revocation management.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "tunnelenabled",
 		ConvertedName:  "TunnelEnabled",
-		Description: `If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+		Description: `If enabled, the agent will use a tunnel to connect to the Proofpoint AI Security
+apex, and the
 apex will make its requests to the destination back through the agent over the
 same tunnel.`,
 		Exposed: true,
@@ -2361,7 +2364,8 @@ type SparseAgentConfig struct {
 	// How long all future tokens will be valid. Can be in a range from 30s to 720h.
 	TokenValidity *string `json:"tokenValidity,omitempty" msgpack:"tokenValidity,omitempty" bson:"tokenvalidity,omitempty" mapstructure:"tokenValidity,omitempty"`
 
-	// If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the
+	// If enabled, the agent will use a tunnel to connect to the Proofpoint AI Security
+	// apex, and the
 	// apex will make its requests to the destination back through the agent over the
 	// same tunnel.
 	TunnelEnabled *bool `json:"tunnelEnabled,omitempty" msgpack:"tunnelEnabled,omitempty" bson:"tunnelenabled,omitempty" mapstructure:"tunnelEnabled,omitempty"`

@@ -2,17 +2,18 @@
   "$extends": [
     "@sharded",
     "@identifiable",
+    "@timed",
     "@importable",
-    "@timed"
+    "@auto-propagated"
   ],
-  "$friendlyName": "Provider Token",
-  "$friendlyNamePlural": "Provider Tokens",
-  "$modelName": "ProviderToken",
+  "$friendlyName": "Provider Hosts Override",
+  "$friendlyNamePlural": "Provider Hosts Overrides",
+  "$modelName": "ProviderHostsOverride",
   "$modelPackage": "lain",
-  "$modelResourceName": "providertokens",
-  "$modelRestName": "providertoken",
+  "$modelResourceName": "providerhostsoverrides",
+  "$modelRestName": "providerhostsoverride",
   "additionalProperties": false,
-  "description": "ProviderToken are upstream tokens for the 'Provider' configured on our system to be used by the Proofpoint AI Security proxy.",
+  "description": "Provider Hosts Overrides allow defining different hosts for a provider at the tenant level. Host overrides are used to replace the hosts section of a provider.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -34,6 +35,15 @@
         "null"
       ]
     },
+    "hosts": {
+      "$friendlyName": "Hosts",
+      "description": "Hosts to use to replace on the overriden provider.",
+      "items": {
+        "$ref": "host.json"
+      },
+      "title": "hosts",
+      "type": "array"
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -54,10 +64,21 @@
         "null"
       ]
     },
+    "mode": {
+      "$defaultValue": "Append",
+      "$friendlyName": "Mode",
+      "$required": true,
+      "description": "Selects how the override is applied. `Replace` substitutes the entire list with the one in the overrides, while `Append` adds to the existing list.",
+      "enum": [
+        "Append",
+        "Replace"
+      ],
+      "title": "mode"
+    },
     "name": {
       "$friendlyName": "Name",
       "$required": true,
-      "description": "Name of the token. As token contents are hidden after creation, name allows a way to delete it.",
+      "description": "Name of the provider to override.",
       "title": "name",
       "type": "string"
     },
@@ -71,19 +92,15 @@
         "null"
       ]
     },
-    "provider": {
-      "$friendlyName": "Provider",
-      "$required": true,
-      "description": "Name of the provider this token is used with.",
-      "title": "provider",
-      "type": "string"
-    },
-    "token": {
-      "$friendlyName": "Token",
-      "$required": true,
-      "description": "token to authenticate with the provider.",
-      "title": "token",
-      "type": "string"
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -97,10 +114,9 @@
     }
   },
   "required": [
-    "name",
-    "provider",
-    "token"
+    "mode",
+    "name"
   ],
-  "title": "ProviderToken",
+  "title": "ProviderHostsOverride",
   "type": "object"
 }

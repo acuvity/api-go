@@ -132,6 +132,18 @@
       },
       "type": "array"
     },
+    "aimcpservers": {
+      "items": {
+        "$ref": "aimcpserver.json"
+      },
+      "type": "array"
+    },
+    "aimcpserversummaries": {
+      "items": {
+        "$ref": "aimcpserversummary.json"
+      },
+      "type": "array"
+    },
     "aipluginide": {
       "items": {
         "$ref": "aipluginide.json"
@@ -144,6 +156,12 @@
       },
       "type": "array"
     },
+    "aipluginsummaries": {
+      "items": {
+        "$ref": "aipluginsummary.json"
+      },
+      "type": "array"
+    },
     "aipluginwebext": {
       "items": {
         "$ref": "aipluginwebext.json"
@@ -153,6 +171,18 @@
     "aiskills": {
       "items": {
         "$ref": "aiskill.json"
+      },
+      "type": "array"
+    },
+    "aitools": {
+      "items": {
+        "$ref": "aitool.json"
+      },
+      "type": "array"
+    },
+    "aitoolsummaries": {
+      "items": {
+        "$ref": "aitoolsummary.json"
       },
       "type": "array"
     },
@@ -846,6 +876,12 @@
       },
       "type": "array"
     },
+    "providerhostsoverrides": {
+      "items": {
+        "$ref": "providerhostsoverride.json"
+      },
+      "type": "array"
+    },
     "providerretentionpolicies": {
       "items": {
         "$ref": "providerretentionpolicy.json"
@@ -1035,6 +1071,12 @@
     "sinksplunk": {
       "items": {
         "$ref": "sinksplunk.json"
+      },
+      "type": "array"
+    },
+    "slugs": {
+      "items": {
+        "$ref": "slug.json"
       },
       "type": "array"
     },

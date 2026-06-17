@@ -6,14 +6,14 @@
     "@importable",
     "@auto-propagated"
   ],
-  "$friendlyName": "AI Plugin",
-  "$friendlyNamePlural": "AI Plugins",
-  "$modelName": "AIPlugin",
+  "$friendlyName": "AI Tool",
+  "$friendlyNamePlural": "AI Tools",
+  "$modelName": "AITool",
   "$modelPackage": "lain",
-  "$modelResourceName": "aiplugins",
-  "$modelRestName": "aiplugin",
+  "$modelResourceName": "aitools",
+  "$modelRestName": "aitool",
   "additionalProperties": false,
-  "description": "AI plugin provides an overview of a plugin.",
+  "description": "AI tool provides an overview of an AI-platform hosted tool / connector (e.g. ChatGPT apps, Claude Code Connectors, Cursor / Windsurf tools).",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -25,15 +25,24 @@
         "null"
       ]
     },
-    "IDE": {
-      "$friendlyName": "Integrated Development Environment",
-      "$ref": "aipluginide.json",
-      "description": "Contains additional information on an AI-related IDE plugin.",
-      "title": "IDE"
+    "actionScope": {
+      "$friendlyName": "Action Scope",
+      "description": "Classification of actions the tool can perform (Read-only, Read + Write, Autonomous write / execute).",
+      "title": "actionScope",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "actionScopeRisk": {
+      "$friendlyName": "Action Scope Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the action scope pillar.",
+      "title": "actionScopeRisk"
     },
     "categories": {
       "$friendlyName": "Categories",
-      "description": "The categories associated with the plugin.",
+      "description": "The categories associated with the tool.",
       "items": {
         "type": [
           "string",
@@ -53,9 +62,24 @@
         "null"
       ]
     },
+    "dataSensitivity": {
+      "$friendlyName": "Data Sensitivity",
+      "description": "Classification of data the tool can access (Public data only, Internal / PII, Credentials / Code / Health).",
+      "title": "dataSensitivity",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSensitivityRisk": {
+      "$friendlyName": "Data Sensitivity Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the data sensitivity pillar.",
+      "title": "dataSensitivityRisk"
+    },
     "description": {
       "$friendlyName": "Description",
-      "description": "A brief description about the AI plugin and its purpose.",
+      "description": "A brief description about the AI tool and its purpose.",
       "title": "description",
       "type": [
         "string",
@@ -65,15 +89,15 @@
     "displayName": {
       "$friendlyName": "Display Name",
       "$required": true,
-      "description": "The human-friendly name of the plugin.",
+      "description": "The human-friendly name of the tool.",
       "title": "displayName",
       "type": "string"
     },
-    "featuresRisk": {
-      "$friendlyName": "Features Risk",
+    "executionContextRisk": {
+      "$friendlyName": "Execution Context Risk",
       "$ref": "aidrisk.json",
-      "description": "Risk assessment for the features pillar.",
-      "title": "featuresRisk"
+      "description": "Risk assessment for the execution context pillar.",
+      "title": "executionContextRisk"
     },
     "importHash": {
       "$creationOnly": true,
@@ -95,21 +119,9 @@
         "null"
       ]
     },
-    "infoRisk": {
-      "$friendlyName": "Info Risk",
-      "$ref": "aidrisk.json",
-      "description": "Risk assessment for the info pillar.",
-      "title": "infoRisk"
-    },
-    "llmProviderRisk": {
-      "$friendlyName": "LLM Provider Risk",
-      "$ref": "aidrisk.json",
-      "description": "Risk assessment for the LLM provider pillar.",
-      "title": "llmProviderRisk"
-    },
     "llmProviders": {
       "$friendlyName": "LLM Providers",
-      "description": "LLM providers that this plugin calls (OpenAI, Anthropic, Google, etc.).",
+      "description": "LLM providers that this tool calls (OpenAI, Anthropic, Google, etc.).",
       "items": {
         "type": [
           "string",
@@ -122,7 +134,7 @@
     "name": {
       "$friendlyName": "Name",
       "$required": true,
-      "description": "The name of the plugin.",
+      "description": "The name of the tool.",
       "title": "name",
       "type": "string"
     },
@@ -138,7 +150,7 @@
     },
     "platform": {
       "$friendlyName": "Platform",
-      "description": "The host platform where the plugin runs (Web Browser, VS Code, JetBrains, Open VSX, etc.).",
+      "description": "The host platform where the tool runs (ChatGPT, Claude Desktop, Cursor, Windsurf, Perplexity).",
       "title": "platform",
       "type": [
         "string",
@@ -158,37 +170,26 @@
     "publishedDate": {
       "$friendlyName": "Published Date",
       "$required": true,
-      "description": "When the plugin was published.",
+      "description": "When the tool was published.",
       "title": "publishedDate",
       "type": "string"
     },
     "publisherName": {
       "$friendlyName": "Publisher Name",
       "$required": true,
-      "description": "The publisher name of the plugin.",
+      "description": "The publisher name of the tool.",
       "title": "publisherName",
       "type": "string"
     },
     "risk": {
       "$friendlyName": "Risk",
       "$ref": "aidrisk.json",
-      "description": "Overall risk assessment for the plugin.",
+      "description": "Overall risk assessment for the tool.",
       "title": "risk"
-    },
-    "serviceType": {
-      "$defaultValue": "CodingAssistant",
-      "$friendlyName": "Service Type",
-      "description": "The type of service this plugin relates to.",
-      "enum": [
-        "CodingAssistant",
-        "IntegrationPlatform",
-        "Productivity"
-      ],
-      "title": "serviceType"
     },
     "source": {
       "$friendlyName": "Source",
-      "description": "Marketplace or origin the entry was discovered from (chrome_web_store, firefox_addons, edge_addons, vscode_marketplace, openvsx, github).",
+      "description": "Marketplace or origin the entry was discovered from (chatgpt_apps, claude_connectors, cursor_directory, etc.).",
       "title": "source",
       "type": [
         "string",
@@ -197,13 +198,13 @@
     },
     "summary": {
       "$friendlyName": "Summary",
-      "$ref": "aipluginsummary.json",
+      "$ref": "aitoolsummary.json",
       "description": "Quick machine-friendly risk summary.",
       "title": "summary"
     },
     "tags": {
       "$friendlyName": "Tags",
-      "description": "The tags associated with the plugin.",
+      "description": "The tags associated with the tool.",
       "items": {
         "type": [
           "string",
@@ -213,15 +214,20 @@
       "title": "tags",
       "type": "array"
     },
-    "type": {
-      "$defaultValue": "IDE",
-      "$friendlyName": "Type",
-      "description": "The type of plugin.",
-      "enum": [
-        "IDE",
-        "WebExtension"
-      ],
-      "title": "type"
+    "trust": {
+      "$friendlyName": "Trust",
+      "description": "Classification of publisher trust (Major enterprise vendor, Established third party, Unvetted / community).",
+      "title": "trust",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trustRisk": {
+      "$friendlyName": "Trust Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the publisher trust pillar.",
+      "title": "trustRisk"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -235,18 +241,12 @@
     },
     "vetted": {
       "$friendlyName": "Vetted",
-      "description": "Flag to say if the plugin has been vetted by Proofpoint AI Security or not.",
+      "description": "Flag to say if the tool has been vetted by Acuvity or not.",
       "title": "vetted",
       "type": [
         "boolean",
         "null"
       ]
-    },
-    "webExtension": {
-      "$friendlyName": "Web Extension",
-      "$ref": "aipluginwebext.json",
-      "description": "Contains additional information on an AI-related web extension.",
-      "title": "webExtension"
     }
   },
   "required": [
@@ -255,6 +255,6 @@
     "publishedDate",
     "publisherName"
   ],
-  "title": "AIPlugin",
+  "title": "AITool",
   "type": "object"
 }

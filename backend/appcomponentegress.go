@@ -192,6 +192,10 @@ func (o *AppComponentEgress) Validate() error {
 		}
 	}
 
+	if err := ValidateAppComponentEgressPolicies("policies", o.Policies); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}

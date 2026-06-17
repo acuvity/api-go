@@ -92,7 +92,7 @@ type RoundtripError struct {
 	// Type axis on the parent round-trip (Input/Output) and the Offband
 	// flag, gives the full discrimination of where a platform/upstream
 	// failure originated. Each value maps to an ownership tier:
-	// Acuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+	// Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
 	// customer-owned (ContentPolicy), provider-owned (Upstream).
 	Stage RoundtripErrorStageValue `json:"stage" msgpack:"stage" bson:"stage" mapstructure:"stage,omitempty"`
 
@@ -323,7 +323,7 @@ the policy would have decided otherwise.`,
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Acuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
 customer-owned (ContentPolicy), provider-owned (Upstream).`,
 		Exposed: true,
 		Name:    "stage",
@@ -380,7 +380,7 @@ the policy would have decided otherwise.`,
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Acuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
 customer-owned (ContentPolicy), provider-owned (Upstream).`,
 		Exposed: true,
 		Name:    "stage",

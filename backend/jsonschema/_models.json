@@ -66,17 +66,32 @@
     "aidsummary": {
       "$ref": "aidsummary.json"
     },
+    "aimcpserver": {
+      "$ref": "aimcpserver.json"
+    },
+    "aimcpserversummary": {
+      "$ref": "aimcpserversummary.json"
+    },
     "aiplugin": {
       "$ref": "aiplugin.json"
     },
     "aipluginide": {
       "$ref": "aipluginide.json"
     },
+    "aipluginsummary": {
+      "$ref": "aipluginsummary.json"
+    },
     "aipluginwebext": {
       "$ref": "aipluginwebext.json"
     },
     "aiskill": {
       "$ref": "aiskill.json"
+    },
+    "aitool": {
+      "$ref": "aitool.json"
+    },
+    "aitoolsummary": {
+      "$ref": "aitoolsummary.json"
     },
     "alert": {
       "$ref": "alert.json"
@@ -429,6 +444,9 @@
     "provider": {
       "$ref": "provider.json"
     },
+    "providerhostsoverride": {
+      "$ref": "providerhostsoverride.json"
+    },
     "providerretentionpolicy": {
       "$ref": "providerretentionpolicy.json"
     },
@@ -521,6 +539,9 @@
     },
     "sinksplunk": {
       "$ref": "sinksplunk.json"
+    },
+    "slug": {
+      "$ref": "slug.json"
     },
     "team": {
       "$ref": "team.json"

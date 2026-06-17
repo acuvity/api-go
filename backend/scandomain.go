@@ -147,7 +147,7 @@ func (o *ScanDomain) BleveType() string {
 // Doc returns the documentation for the object
 func (o *ScanDomain) Doc() string {
 
-	return `Report sent by the Acuvity scanner.`
+	return `Report sent by the Proofpoint AI Security scanner.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.

@@ -7,7 +7,7 @@
   "$modelResourceName": "scandomain",
   "$modelRestName": "scandomain",
   "additionalProperties": false,
-  "description": "Report sent by the Acuvity scanner.",
+  "description": "Report sent by the Proofpoint AI Security scanner.",
   "properties": {
     "HTTPScanResult": {
       "$friendlyName": "HTTP Scan Results",

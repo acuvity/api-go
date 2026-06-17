@@ -17,9 +17,13 @@ var (
 
 		"aidomain": AIDomainIdentity,
 
+		"aimcpserver": AIMCPServerIdentity,
+
 		"aiplugin": AIPluginIdentity,
 
-		"aiskill":         AISkillIdentity,
+		"aiskill": AISkillIdentity,
+		"aitool":  AIToolIdentity,
+
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
 
@@ -93,12 +97,13 @@ var (
 		"policyref":    PolicyRefIdentity,
 		"policyupdate": PolicyUpdateIdentity,
 
-		"principal":         PrincipalIdentity,
-		"principalapp":      PrincipalAppIdentity,
-		"principalexternal": PrincipalExternalIdentity,
-		"principaluser":     PrincipalUserIdentity,
-		"project":           ProjectIdentity,
-		"provider":          ProviderIdentity,
+		"principal":             PrincipalIdentity,
+		"principalapp":          PrincipalAppIdentity,
+		"principalexternal":     PrincipalExternalIdentity,
+		"principaluser":         PrincipalUserIdentity,
+		"project":               ProjectIdentity,
+		"provider":              ProviderIdentity,
+		"providerhostsoverride": ProviderHostsOverrideIdentity,
 
 		"providerteam":  ProviderTeamIdentity,
 		"providertoken": ProviderTokenIdentity,
@@ -126,6 +131,7 @@ var (
 		"sinkpagerduty": SinkPagerDutyIdentity,
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
+		"slug":          SlugIdentity,
 		"team":          TeamIdentity,
 
 		"trace":          TraceIdentity,
@@ -153,9 +159,13 @@ var (
 
 		"aidomains": AIDomainIdentity,
 
+		"aimcpservers": AIMCPServerIdentity,
+
 		"aiplugins": AIPluginIdentity,
 
-		"aiskills":         AISkillIdentity,
+		"aiskills": AISkillIdentity,
+		"aitools":  AIToolIdentity,
+
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
 
@@ -229,12 +239,13 @@ var (
 		"policyrefs":    PolicyRefIdentity,
 		"policyupdates": PolicyUpdateIdentity,
 
-		"principals":         PrincipalIdentity,
-		"principalapps":      PrincipalAppIdentity,
-		"principalexternals": PrincipalExternalIdentity,
-		"principalusers":     PrincipalUserIdentity,
-		"projects":           ProjectIdentity,
-		"providers":          ProviderIdentity,
+		"principals":             PrincipalIdentity,
+		"principalapps":          PrincipalAppIdentity,
+		"principalexternals":     PrincipalExternalIdentity,
+		"principalusers":         PrincipalUserIdentity,
+		"projects":               ProjectIdentity,
+		"providers":              ProviderIdentity,
+		"providerhostsoverrides": ProviderHostsOverrideIdentity,
 
 		"providerteams":  ProviderTeamIdentity,
 		"providertokens": ProviderTokenIdentity,
@@ -262,6 +273,7 @@ var (
 		"sinkpagerduty":  SinkPagerDutyIdentity,
 		"sinkslack":      SinkSlackIdentity,
 		"sinksplunk":     SinkSplunkIdentity,
+		"slugs":          SlugIdentity,
 		"teams":          TeamIdentity,
 
 		"traces":         TraceIdentity,
@@ -323,6 +335,14 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "providerName"},
 		},
+		"aimcpserver": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "vetted"},
+		},
 		"aiplugin": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -337,6 +357,14 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+		},
+		"aitool": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "vetted"},
 		},
 		"alert": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -613,6 +641,13 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"providerhostsoverride": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"providerteam": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -699,6 +734,7 @@ var (
 		"sinkpagerduty": nil,
 		"sinkslack":     nil,
 		"sinksplunk":    nil,
+		"slug":          nil,
 		"team": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -805,10 +841,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAIApp()
 	case AIDomainIdentity:
 		return NewAIDomain()
+	case AIMCPServerIdentity:
+		return NewAIMCPServer()
 	case AIPluginIdentity:
 		return NewAIPlugin()
 	case AISkillIdentity:
 		return NewAISkill()
+	case AIToolIdentity:
+		return NewAITool()
 	case AlertIdentity:
 		return NewAlert()
 	case AlertDefinitionIdentity:
@@ -923,6 +963,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewProject()
 	case ProviderIdentity:
 		return NewProvider()
+	case ProviderHostsOverrideIdentity:
+		return NewProviderHostsOverride()
 	case ProviderTeamIdentity:
 		return NewProviderTeam()
 	case ProviderTokenIdentity:
@@ -967,6 +1009,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSinkSlack()
 	case SinkSplunkIdentity:
 		return NewSinkSplunk()
+	case SlugIdentity:
+		return NewSlug()
 	case TeamIdentity:
 		return NewTeam()
 	case TraceIdentity:
@@ -1012,10 +1056,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAIApp()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
+	case AIMCPServerIdentity:
+		return NewSparseAIMCPServer()
 	case AIPluginIdentity:
 		return NewSparseAIPlugin()
 	case AISkillIdentity:
 		return NewSparseAISkill()
+	case AIToolIdentity:
+		return NewSparseAITool()
 	case AlertIdentity:
 		return NewSparseAlert()
 	case AlertDefinitionIdentity:
@@ -1130,6 +1178,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseProject()
 	case ProviderIdentity:
 		return NewSparseProvider()
+	case ProviderHostsOverrideIdentity:
+		return NewSparseProviderHostsOverride()
 	case ProviderTeamIdentity:
 		return NewSparseProviderTeam()
 	case ProviderTokenIdentity:
@@ -1172,6 +1222,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSinkSlack()
 	case SinkSplunkIdentity:
 		return NewSparseSinkSplunk()
+	case SlugIdentity:
+		return NewSparseSlug()
 	case TeamIdentity:
 		return NewSparseTeam()
 	case TraceIdentity:
@@ -1227,10 +1279,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIAppsList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
+	case AIMCPServerIdentity:
+		return &AIMCPServersList{}
 	case AIPluginIdentity:
 		return &AIPluginsList{}
 	case AISkillIdentity:
 		return &AISkillsList{}
+	case AIToolIdentity:
+		return &AIToolsList{}
 	case AlertIdentity:
 		return &AlertsList{}
 	case AlertDefinitionIdentity:
@@ -1345,6 +1401,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ProjectsList{}
 	case ProviderIdentity:
 		return &ProvidersList{}
+	case ProviderHostsOverrideIdentity:
+		return &ProviderHostsOverridesList{}
 	case ProviderTeamIdentity:
 		return &ProviderTeamsList{}
 	case ProviderTokenIdentity:
@@ -1387,6 +1445,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SinkSlacksList{}
 	case SinkSplunkIdentity:
 		return &SinkSplunksList{}
+	case SlugIdentity:
+		return &SlugsList{}
 	case TeamIdentity:
 		return &TeamsList{}
 	case TraceIdentity:
@@ -1432,10 +1492,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
+	case AIMCPServerIdentity:
+		return &SparseAIMCPServersList{}
 	case AIPluginIdentity:
 		return &SparseAIPluginsList{}
 	case AISkillIdentity:
 		return &SparseAISkillsList{}
+	case AIToolIdentity:
+		return &SparseAIToolsList{}
 	case AlertIdentity:
 		return &SparseAlertsList{}
 	case AlertDefinitionIdentity:
@@ -1550,6 +1614,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseProjectsList{}
 	case ProviderIdentity:
 		return &SparseProvidersList{}
+	case ProviderHostsOverrideIdentity:
+		return &SparseProviderHostsOverridesList{}
 	case ProviderTeamIdentity:
 		return &SparseProviderTeamsList{}
 	case ProviderTokenIdentity:
@@ -1592,6 +1658,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSinkSlacksList{}
 	case SinkSplunkIdentity:
 		return &SparseSinkSplunksList{}
+	case SlugIdentity:
+		return &SparseSlugsList{}
 	case TeamIdentity:
 		return &SparseTeamsList{}
 	case TraceIdentity:
@@ -1663,10 +1731,16 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAIDSectionPlan()
 	case "aidsummary", "AIDSummary":
 		return NewAIDSummary()
+	case "aimcpserversummary", "AIMCPServerSummary":
+		return NewAIMCPServerSummary()
 	case "aipluginide", "AIPluginIDE":
 		return NewAIPluginIDE()
+	case "aipluginsummary", "AIPluginSummary":
+		return NewAIPluginSummary()
 	case "aipluginwebext", "AIPluginWebExt":
 		return NewAIPluginWebExt()
+	case "aitoolsummary", "AIToolSummary":
+		return NewAIToolSummary()
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
 	case "analysis", "Analysis":
@@ -1851,8 +1925,10 @@ func AllIdentities() []elemental.Identity {
 		AgentDiscoveryIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
+		AIMCPServerIdentity,
 		AIPluginIdentity,
 		AISkillIdentity,
+		AIToolIdentity,
 		AlertIdentity,
 		AlertDefinitionIdentity,
 		AlertTriggerIdentity,
@@ -1910,6 +1986,7 @@ func AllIdentities() []elemental.Identity {
 		PrincipalUserIdentity,
 		ProjectIdentity,
 		ProviderIdentity,
+		ProviderHostsOverrideIdentity,
 		ProviderTeamIdentity,
 		ProviderTokenIdentity,
 		ProviderUsageReportIdentity,
@@ -1932,6 +2009,7 @@ func AllIdentities() []elemental.Identity {
 		SinkPagerDutyIdentity,
 		SinkSlackIdentity,
 		SinkSplunkIdentity,
+		SlugIdentity,
 		TeamIdentity,
 		TraceIdentity,
 		TraceRefIdentity,
@@ -1963,9 +2041,13 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AIDomainIdentity:
 		return []string{}
+	case AIMCPServerIdentity:
+		return []string{}
 	case AIPluginIdentity:
 		return []string{}
 	case AISkillIdentity:
+		return []string{}
+	case AIToolIdentity:
 		return []string{}
 	case AlertIdentity:
 		return []string{}
@@ -2081,6 +2163,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case ProviderIdentity:
 		return []string{}
+	case ProviderHostsOverrideIdentity:
+		return []string{}
 	case ProviderTeamIdentity:
 		return []string{}
 	case ProviderTokenIdentity:
@@ -2124,6 +2208,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SinkSlackIdentity:
 		return []string{}
 	case SinkSplunkIdentity:
+		return []string{}
+	case SlugIdentity:
 		return []string{}
 	case TeamIdentity:
 		return []string{}

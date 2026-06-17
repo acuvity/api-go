@@ -11,7 +11,7 @@
   "$modelResourceName": "scanreports",
   "$modelRestName": "scanreport",
   "additionalProperties": false,
-  "description": "Report sent by the Acuvity scanner.",
+  "description": "Report sent by the Proofpoint AI Security scanner.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

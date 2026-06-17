@@ -94,6 +94,9 @@ type Gateway struct {
 	// The description of the gateway.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Host names of the gateway to perform connection terminations.
+	Hostnames []string `json:"hostnames,omitempty" msgpack:"hostnames,omitempty" bson:"hostnames,omitempty" mapstructure:"hostnames,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -112,6 +115,9 @@ type Gateway struct {
 
 	// Set to value on update to associate a tag with the issued token.
 	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
+	// List of route slugs for gateway path routing.
+	Slugs SlugsList `json:"slugs,omitempty" msgpack:"slugs,omitempty" bson:"slugs,omitempty" mapstructure:"slugs,omitempty"`
 
 	// The issued JWT, populated only in the response of an update where
 	// renewToken was set to true.
@@ -137,6 +143,7 @@ func NewGateway() *Gateway {
 
 	return &Gateway{
 		ModelVersion: 1,
+		Hostnames:    []string{},
 	}
 }
 
@@ -173,10 +180,12 @@ func (o *Gateway) GetBSON() (any, error) {
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.Hostnames = o.Hostnames
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Slugs = o.Slugs
 	s.TokenRefs = o.TokenRefs
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -201,10 +210,12 @@ func (o *Gateway) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.Hostnames = s.Hostnames
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Slugs = s.Slugs
 	o.TokenRefs = s.TokenRefs
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -312,12 +323,14 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:            &o.ID,
 			CreateTime:    &o.CreateTime,
 			Description:   &o.Description,
+			Hostnames:     &o.Hostnames,
 			ImportHash:    &o.ImportHash,
 			ImportLabel:   &o.ImportLabel,
 			Name:          &o.Name,
 			Namespace:     &o.Namespace,
 			RenewToken:    &o.RenewToken,
 			RenewTokenTag: &o.RenewTokenTag,
+			Slugs:         &o.Slugs,
 			Token:         &o.Token,
 			TokenRefs:     &o.TokenRefs,
 			UpdateTime:    &o.UpdateTime,
@@ -335,6 +348,8 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "hostnames":
+			sp.Hostnames = &(o.Hostnames)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -347,6 +362,8 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
 			sp.RenewTokenTag = &(o.RenewTokenTag)
+		case "slugs":
+			sp.Slugs = &(o.Slugs)
 		case "token":
 			sp.Token = &(o.Token)
 		case "tokenRefs":
@@ -379,6 +396,9 @@ func (o *Gateway) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.Hostnames != nil {
+		o.Hostnames = *so.Hostnames
+	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
@@ -396,6 +416,9 @@ func (o *Gateway) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RenewTokenTag != nil {
 		o.RenewTokenTag = *so.RenewTokenTag
+	}
+	if so.Slugs != nil {
+		o.Slugs = *so.Slugs
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
@@ -417,6 +440,12 @@ func (o *Gateway) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Gateway) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.Slugs {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Slugs' for 'Gateway' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.TokenRefs {
 		if sub == nil {
 			continue
@@ -431,6 +460,12 @@ func (o *Gateway) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Gateway) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Slugs {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Slugs' for 'Gateway' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.TokenRefs {
 		if sub == nil {
@@ -476,11 +511,26 @@ func (o *Gateway) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := ValidateDNSNames("hostnames", o.Hostnames); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, true); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.Slugs {
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "slugs", i))
+		}
+	}
+
+	if err := ValidateGatewaySlugs("slugs", o.Slugs); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -534,6 +584,8 @@ func (o *Gateway) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "hostnames":
+		return o.Hostnames
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -546,6 +598,8 @@ func (o *Gateway) ValueForAttribute(name string) any {
 		return o.RenewToken
 	case "renewTokenTag":
 		return o.RenewTokenTag
+	case "slugs":
+		return o.Slugs
 	case "token":
 		return o.Token
 	case "tokenRefs":
@@ -602,6 +656,17 @@ var GatewayAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Hostnames": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostnames",
+		ConvertedName:  "Hostnames",
+		Description:    `Host names of the gateway to perform connection terminations.`,
+		Exposed:        true,
+		Name:           "hostnames",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -676,6 +741,17 @@ same import operation.`,
 		Name:           "renewTokenTag",
 		Transient:      true,
 		Type:           "string",
+	},
+	"Slugs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "slugs",
+		ConvertedName:  "Slugs",
+		Description:    `List of route slugs for gateway path routing.`,
+		Exposed:        true,
+		Name:           "slugs",
+		Stored:         true,
+		SubType:        "slug",
+		Type:           "refList",
 	},
 	"Token": {
 		AllowedChoices: []string{},
@@ -761,6 +837,17 @@ var GatewayLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"hostnames": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostnames",
+		ConvertedName:  "Hostnames",
+		Description:    `Host names of the gateway to perform connection terminations.`,
+		Exposed:        true,
+		Name:           "hostnames",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
 	"importhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -834,6 +921,17 @@ same import operation.`,
 		Name:           "renewTokenTag",
 		Transient:      true,
 		Type:           "string",
+	},
+	"slugs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "slugs",
+		ConvertedName:  "Slugs",
+		Description:    `List of route slugs for gateway path routing.`,
+		Exposed:        true,
+		Name:           "slugs",
+		Stored:         true,
+		SubType:        "slug",
+		Type:           "refList",
 	},
 	"token": {
 		AllowedChoices: []string{},
@@ -949,6 +1047,9 @@ type SparseGateway struct {
 	// The description of the gateway.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Host names of the gateway to perform connection terminations.
+	Hostnames *[]string `json:"hostnames,omitempty" msgpack:"hostnames,omitempty" bson:"hostnames,omitempty" mapstructure:"hostnames,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -967,6 +1068,9 @@ type SparseGateway struct {
 
 	// Set to value on update to associate a tag with the issued token.
 	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
+	// List of route slugs for gateway path routing.
+	Slugs *SlugsList `json:"slugs,omitempty" msgpack:"slugs,omitempty" bson:"slugs,omitempty" mapstructure:"slugs,omitempty"`
 
 	// The issued JWT, populated only in the response of an update where
 	// renewToken was set to true.
@@ -1036,6 +1140,9 @@ func (o *SparseGateway) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.Hostnames != nil {
+		s.Hostnames = o.Hostnames
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
@@ -1047,6 +1154,9 @@ func (o *SparseGateway) GetBSON() (any, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.Slugs != nil {
+		s.Slugs = o.Slugs
 	}
 	if o.TokenRefs != nil {
 		s.TokenRefs = o.TokenRefs
@@ -1085,6 +1195,9 @@ func (o *SparseGateway) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.Hostnames != nil {
+		o.Hostnames = s.Hostnames
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
@@ -1096,6 +1209,9 @@ func (o *SparseGateway) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.Slugs != nil {
+		o.Slugs = s.Slugs
 	}
 	if s.TokenRefs != nil {
 		o.TokenRefs = s.TokenRefs
@@ -1132,6 +1248,9 @@ func (o *SparseGateway) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
+	if o.Hostnames != nil {
+		out.Hostnames = *o.Hostnames
+	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
@@ -1149,6 +1268,9 @@ func (o *SparseGateway) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RenewTokenTag != nil {
 		out.RenewTokenTag = *o.RenewTokenTag
+	}
+	if o.Slugs != nil {
+		out.Slugs = *o.Slugs
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
@@ -1172,6 +1294,14 @@ func (o *SparseGateway) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseGateway) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Slugs != nil {
+		for _, sub := range *o.Slugs {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Slugs' for 'Gateway' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.TokenRefs != nil {
 		for _, sub := range *o.TokenRefs {
 			if sub == nil {
@@ -1188,6 +1318,14 @@ func (o *SparseGateway) EncryptAttributes(encrypter elemental.AttributeEncrypter
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseGateway) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Slugs != nil {
+		for _, sub := range *o.Slugs {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Slugs' for 'Gateway' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.TokenRefs != nil {
 		for _, sub := range *o.TokenRefs {
@@ -1311,10 +1449,12 @@ type mongoAttributesGateway struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  time.Time     `bson:"createtime"`
 	Description string        `bson:"description,omitempty"`
+	Hostnames   []string      `bson:"hostnames,omitempty"`
 	ImportHash  string        `bson:"importhash,omitempty"`
 	ImportLabel string        `bson:"importlabel,omitempty"`
 	Name        string        `bson:"name"`
 	Namespace   string        `bson:"namespace,omitempty"`
+	Slugs       SlugsList     `bson:"slugs,omitempty"`
 	TokenRefs   []*TokenRef   `bson:"tokenrefs"`
 	UpdateTime  time.Time     `bson:"updatetime"`
 	ZHash       int           `bson:"zhash"`
@@ -1324,10 +1464,12 @@ type mongoAttributesSparseGateway struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  *time.Time    `bson:"createtime,omitempty"`
 	Description *string       `bson:"description,omitempty"`
+	Hostnames   *[]string     `bson:"hostnames,omitempty"`
 	ImportHash  *string       `bson:"importhash,omitempty"`
 	ImportLabel *string       `bson:"importlabel,omitempty"`
 	Name        *string       `bson:"name,omitempty"`
 	Namespace   *string       `bson:"namespace,omitempty"`
+	Slugs       *SlugsList    `bson:"slugs,omitempty"`
 	TokenRefs   *[]*TokenRef  `bson:"tokenrefs,omitempty"`
 	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
 	ZHash       *int          `bson:"zhash,omitempty"`

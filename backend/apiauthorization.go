@@ -289,7 +289,8 @@ func (o *APIAuthorization) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *APIAuthorization) Doc() string {
 
-	return `Define API Authorizations to define who can access the Acuvity console.`
+	return `Define API Authorizations to define who can access the Proofpoint AI Security
+console.`
 }
 
 func (o *APIAuthorization) String() string {

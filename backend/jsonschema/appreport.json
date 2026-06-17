@@ -11,7 +11,7 @@
   "$modelResourceName": "appreports",
   "$modelRestName": "appreport",
   "additionalProperties": false,
-  "description": "Report sent by the Acuvity app agent.",
+  "description": "Report sent by the Proofpoint AI Security app agent.",
   "properties": {
     "DNSReports": {
       "$friendlyName": "DNS Reports",

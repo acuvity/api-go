@@ -230,7 +230,7 @@
     },
     "tokenSwap": {
       "$friendlyName": "TokenSwap",
-      "description": "If true, consider the incoming calls to use an acuvity token and swap them using registered providertokens.",
+      "description": "If true, consider the incoming calls to use a Proofpoint AI Security token and swap them using registered providertokens.",
       "title": "tokenSwap",
       "type": [
         "boolean",

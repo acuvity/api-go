@@ -13,7 +13,7 @@
   "$modelResourceName": "findingdefinitions",
   "$modelRestName": "findingdefinition",
   "additionalProperties": false,
-  "description": "Defines a finding that can be instantiated anywhere in the Acuvity system.",
+  "description": "Defines a finding that can be instantiated anywhere in the Proofpoint AI Security system.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

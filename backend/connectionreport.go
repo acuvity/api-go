@@ -93,10 +93,17 @@ type ConnectionReport struct {
 	// semantics.
 	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
+	// The name of the gateway that produced this report.
+	Gateway string `json:"gateway,omitempty" msgpack:"gateway,omitempty" bson:"gateway,omitempty" mapstructure:"gateway,omitempty"`
+
+	// The hostname of the gateway instance that produced this report.
+	GatewayInstance string `json:"gatewayInstance,omitempty" msgpack:"gatewayInstance,omitempty" bson:"gatewayinstance,omitempty" mapstructure:"gatewayInstance,omitempty"`
+
 	// The hostname that the connection is made to, if available.
 	Hostname string `json:"hostname,omitempty" msgpack:"hostname,omitempty" bson:"hostname,omitempty" mapstructure:"hostname,omitempty"`
 
-	// If any, these are the Acuvity AppToken claims that were discovered in the
+	// If any, these are the Proofpoint AI Security AppToken claims that were
+	// discovered in the
 	// connection payload.
 	PayloadAppTokenClaims []string `json:"payloadAppTokenClaims,omitempty" msgpack:"payloadAppTokenClaims,omitempty" bson:"payloadapptokenclaims,omitempty" mapstructure:"payloadAppTokenClaims,omitempty"`
 
@@ -188,6 +195,8 @@ func (o *ConnectionReport) GetBSON() (any, error) {
 	s.DstPort = o.DstPort
 	s.Encryption = o.Encryption
 	s.Error = o.Error
+	s.Gateway = o.Gateway
+	s.GatewayInstance = o.GatewayInstance
 	s.Hostname = o.Hostname
 	s.PayloadAppTokenClaims = o.PayloadAppTokenClaims
 	s.PayloadAuthTokenClaims = o.PayloadAuthTokenClaims
@@ -229,6 +238,8 @@ func (o *ConnectionReport) SetBSON(raw bson.Raw) error {
 	o.DstPort = s.DstPort
 	o.Encryption = s.Encryption
 	o.Error = s.Error
+	o.Gateway = s.Gateway
+	o.GatewayInstance = s.GatewayInstance
 	o.Hostname = s.Hostname
 	o.PayloadAppTokenClaims = s.PayloadAppTokenClaims
 	o.PayloadAuthTokenClaims = s.PayloadAuthTokenClaims
@@ -444,6 +455,10 @@ func (o *ConnectionReport) ValueForAttribute(name string) any {
 		return o.Encryption
 	case "error":
 		return o.Error
+	case "gateway":
+		return o.Gateway
+	case "gatewayInstance":
+		return o.GatewayInstance
 	case "hostname":
 		return o.Hostname
 	case "payloadAppTokenClaims":
@@ -582,6 +597,26 @@ semantics.`,
 		SubType: "roundtriperror",
 		Type:    "ref",
 	},
+	"Gateway": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateway",
+		ConvertedName:  "Gateway",
+		Description:    `The name of the gateway that produced this report.`,
+		Exposed:        true,
+		Name:           "gateway",
+		Stored:         true,
+		Type:           "string",
+	},
+	"GatewayInstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayinstance",
+		ConvertedName:  "GatewayInstance",
+		Description:    `The hostname of the gateway instance that produced this report.`,
+		Exposed:        true,
+		Name:           "gatewayInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Hostname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
@@ -596,7 +631,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "payloadapptokenclaims",
 		ConvertedName:  "PayloadAppTokenClaims",
-		Description: `If any, these are the Acuvity AppToken claims that were discovered in the
+		Description: `If any, these are the Proofpoint AI Security AppToken claims that were
+discovered in the
 connection payload.`,
 		Exposed: true,
 		Name:    "payloadAppTokenClaims",
@@ -853,6 +889,26 @@ semantics.`,
 		SubType: "roundtriperror",
 		Type:    "ref",
 	},
+	"gateway": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateway",
+		ConvertedName:  "Gateway",
+		Description:    `The name of the gateway that produced this report.`,
+		Exposed:        true,
+		Name:           "gateway",
+		Stored:         true,
+		Type:           "string",
+	},
+	"gatewayinstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayinstance",
+		ConvertedName:  "GatewayInstance",
+		Description:    `The hostname of the gateway instance that produced this report.`,
+		Exposed:        true,
+		Name:           "gatewayInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"hostname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hostname",
@@ -867,7 +923,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "payloadapptokenclaims",
 		ConvertedName:  "PayloadAppTokenClaims",
-		Description: `If any, these are the Acuvity AppToken claims that were discovered in the
+		Description: `If any, these are the Proofpoint AI Security AppToken claims that were
+discovered in the
 connection payload.`,
 		Exposed: true,
 		Name:    "payloadAppTokenClaims",
@@ -1032,6 +1089,8 @@ type mongoAttributesConnectionReport struct {
 	DstPort                int                             `bson:"dstport,omitempty"`
 	Encryption             *ConnectionEncryption           `bson:"encryption,omitempty"`
 	Error                  *RoundtripError                 `bson:"error,omitempty"`
+	Gateway                string                          `bson:"gateway,omitempty"`
+	GatewayInstance        string                          `bson:"gatewayinstance,omitempty"`
 	Hostname               string                          `bson:"hostname,omitempty"`
 	PayloadAppTokenClaims  []string                        `bson:"payloadapptokenclaims,omitempty"`
 	PayloadAuthTokenClaims []string                        `bson:"payloadauthtokenclaims,omitempty"`

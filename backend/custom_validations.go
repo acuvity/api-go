@@ -223,15 +223,58 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 		return makeErr(fmt.Sprintf("contentPolicies/%d", i), fmt.Sprintf("you cannot have duplicate content policies applied ('%s')", cpol))
 	}
 
-	predicates := make(map[string]struct{}, len(accessPolicy.Match))
+	seenPredicates := make(map[[2]string]struct{}, len(accessPolicy.Match))
+	valueOverlapPredicates := make(map[[2]string]map[any]struct{}, len(accessPolicy.Match))
+	oppositePredicateOperators := map[PredicateOperatorValue]PredicateOperatorValue{
+		PredicateOperatorEmpty:     PredicateOperatorNotEmpty,
+		PredicateOperatorNotEmpty:  PredicateOperatorEmpty,
+		PredicateOperatorAny:       PredicateOperatorNotAny,
+		PredicateOperatorNotAny:    PredicateOperatorAny,
+		PredicateOperatorEquals:    PredicateOperatorNotEquals,
+		PredicateOperatorNotEquals: PredicateOperatorEquals,
+	}
 	for i, criteria := range accessPolicy.Match {
 
-		keyop := fmt.Sprintf("%s-%s", criteria.Key, criteria.Operator)
-		if _, ok := predicates[keyop]; !ok {
-			predicates[keyop] = struct{}{}
-			continue
+		keyop := [2]string{string(criteria.Key), string(criteria.Operator)}
+		if _, ok := seenPredicates[keyop]; !ok {
+			seenPredicates[keyop] = struct{}{}
+		} else {
+			return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot have multiple entries for the same operator '%s'", criteria.Key, criteria.Operator))
 		}
-		return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot have multiple entries for the same operator '%s'", criteria.Key, criteria.Operator))
+
+		switch criteria.Operator {
+		case PredicateOperatorAny, PredicateOperatorNotAny, PredicateOperatorEquals, PredicateOperatorNotEquals:
+			// Check value overlap for operators that support values
+			oppositeOperator := oppositePredicateOperators[criteria.Operator]
+			currentKeyOp := keyop
+			oppositeKeyOp := [2]string{string(criteria.Key), string(oppositeOperator)}
+
+			currentValues, ok := valueOverlapPredicates[currentKeyOp]
+			if !ok {
+				currentValues = map[any]struct{}{}
+				valueOverlapPredicates[currentKeyOp] = currentValues
+			}
+
+			oppositeValues := valueOverlapPredicates[oppositeKeyOp]
+			for _, value := range criteria.Values {
+				if _, ok := oppositeValues[value]; ok {
+					// Ensure consistent operator order in error message
+					op1, op2 := criteria.Operator, oppositeOperator
+					if criteria.Operator > oppositeOperator {
+						op1, op2 = oppositeOperator, criteria.Operator
+					}
+					return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot have overlapping values between operators '%s' and '%s': '%v'", criteria.Key, op1, op2, value))
+				}
+				currentValues[value] = struct{}{}
+			}
+		case PredicateOperatorEmpty, PredicateOperatorNotEmpty:
+			// Check opposite operators (Empty/NotEmpty)
+			oppositeOperator := oppositePredicateOperators[criteria.Operator]
+			oppositeKeyOp := [2]string{string(criteria.Key), string(oppositeOperator)}
+			if _, ok := seenPredicates[oppositeKeyOp]; ok {
+				return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot combine opposite operators '%s' and '%s'", criteria.Key, criteria.Operator, oppositeOperator))
+			}
+		}
 	}
 
 	return nil
@@ -2257,4 +2300,40 @@ func makeErr(attribute string, message string) elemental.Error {
 	}
 
 	return err
+}
+
+// ValidateGatewaySlugs validates the route slugs of a Gateway
+func ValidateGatewaySlugs(attribute string, slugs SlugsList) error {
+	seen := make(map[string]struct{}, len(slugs))
+	for i, s := range slugs {
+		if !strings.HasPrefix(s.Route, "/") {
+			return makeErr(attribute, fmt.Sprintf("slug[%d]: route must start with '/'", i))
+		}
+		if strings.HasSuffix(s.Route, "/") {
+			return makeErr(attribute, fmt.Sprintf("slug[%d]: route must not have a trailing '/'", i))
+		}
+		if _, dup := seen[s.Route]; dup {
+			return makeErr(attribute, fmt.Sprintf("slug[%d]: duplicate route %q", i, s.Route))
+		}
+		seen[s.Route] = struct{}{}
+	}
+	return nil
+}
+
+func ValidateAppComponentEgressPolicies(attribute string, policies []*EgressPolicy) error {
+	ind := -1
+	for i, policy := range policies {
+		if len(policy.ACLs) > 0 {
+			if ind != i && ind != -1 {
+				return makeErr(attribute, fmt.Sprintf("only one policy can contain ACL rules, but both policies[%d] and policies[%d] define ACLs", ind, i))
+			}
+			ind = i
+		}
+
+		if len(policy.ACLs) > 0 && len(policy.Rules) > 0 {
+			return makeErr(attribute, fmt.Sprintf("policies[%d] defines both provider rules and ACL rules", i))
+		}
+
+	}
+	return nil
 }

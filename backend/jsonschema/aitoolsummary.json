@@ -1,0 +1,41 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AI Tool Summary",
+  "$friendlyNamePlural": "AI Tool Summaries",
+  "$modelName": "AIToolSummary",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aitoolsummaries",
+  "$modelRestName": "aitoolsummary",
+  "additionalProperties": false,
+  "description": "AITool risk summary.",
+  "properties": {
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "riskRationale": {
+      "$friendlyName": "Risk Rationale",
+      "description": "Bullet-point explanation of the overall tool risk level.",
+      "title": "riskRationale",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "title": "AIToolSummary",
+  "type": "object"
+}

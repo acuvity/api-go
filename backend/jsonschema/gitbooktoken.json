@@ -7,12 +7,12 @@
   "$modelResourceName": "gitbooktokens",
   "$modelRestName": "gitbooktoken",
   "additionalProperties": false,
-  "description": "Allows to exchange an Acuvity token for a token signed for our documentation.",
+  "description": "Allows to exchange a Proofpoint AI Security token for a token signed for our documentation.",
   "properties": {
     "token": {
       "$friendlyName": "Token",
       "$readOnly": true,
-      "description": "The token to access gitbook. This is not a valid acuvity token.",
+      "description": "The token to access gitbook. This is not a valid Proofpoint AI Security token.",
       "title": "token",
       "type": [
         "string",

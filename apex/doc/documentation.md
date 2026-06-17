@@ -2450,7 +2450,7 @@ The pipeline component that produced the error. Combined with the
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Acuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
 customer-owned (ContentPolicy), provider-owned (Upstream).
 
 ##### `type`

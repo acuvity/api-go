@@ -210,7 +210,7 @@ func (o *ScanReport) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *ScanReport) Doc() string {
 
-	return `Report sent by the Acuvity scanner.`
+	return `Report sent by the Proofpoint AI Security scanner.`
 }
 
 func (o *ScanReport) String() string {

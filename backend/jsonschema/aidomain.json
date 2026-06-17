@@ -40,6 +40,12 @@
       "description": "Overall risk assessment for the LLM providers.",
       "title": "LLMProvidersRisk"
     },
+    "accessControlsRisk": {
+      "$friendlyName": "Access Controls Risk",
+      "$ref": "aidrisk.json",
+      "description": "Overall risk assessment for the access controls pillar.",
+      "title": "accessControlsRisk"
+    },
     "address": {
       "$friendlyName": "Address",
       "description": "The address of the company.",
@@ -48,6 +54,18 @@
         "string",
         "null"
       ]
+    },
+    "categories": {
+      "$friendlyName": "Categories",
+      "description": "The AI categories this domain belongs to, using human-readable taxonomy names.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "categories",
+      "type": "array"
     },
     "classification": {
       "$defaultValue": "AIEnabled",

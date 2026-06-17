@@ -81,6 +81,24 @@
       "description": "Structured error info populated when the action is Error. Carries the source (PlatformError vs UpstreamError), the failing stage, and a human-readable message, same shape as proxyroundtrip.error so downstream consumers (UI, dashboards, agent/provider-health metrics) can treat both round-trip and connection-report failures uniformly. The Action field still reflects the per-event outcome per existing semantics.",
       "title": "error"
     },
+    "gateway": {
+      "$friendlyName": "Gateway",
+      "description": "The name of the gateway that produced this report.",
+      "title": "gateway",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayInstance": {
+      "$friendlyName": "Gateway Instance",
+      "description": "The hostname of the gateway instance that produced this report.",
+      "title": "gatewayInstance",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "hits": {
       "$friendlyName": "Hits",
       "$required": true,

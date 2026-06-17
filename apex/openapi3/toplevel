@@ -1377,7 +1377,7 @@
             "readOnly": true
           },
           "stage": {
-            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nAcuvity-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
+            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nProofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
             "enum": [
               "Extraction",
               "Analysis",

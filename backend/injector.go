@@ -53,7 +53,8 @@ type Injector struct {
 	// A regular expression to match a URL path to log.
 	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
 
-	// If this is true, the acuvity popup will replace the original body with itself
+	// If this is true, the Proofpoint AI Security popup will replace the original body
+	// with itself
 	// instead of being shown on top the existing body of the
 	// provider. Some providers require body replacement to allow popup interaction or
 	// avoid capturing popup input.
@@ -305,7 +306,8 @@ to discriminate which logger to use.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "replacebody",
 		ConvertedName:  "ReplaceBody",
-		Description: `If this is true, the acuvity popup will replace the original body with itself
+		Description: `If this is true, the Proofpoint AI Security popup will replace the original body
+with itself
 instead of being shown on top the existing body of the
 provider. Some providers require body replacement to allow popup interaction or
 avoid capturing popup input.`,
@@ -369,7 +371,8 @@ to discriminate which logger to use.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "replacebody",
 		ConvertedName:  "ReplaceBody",
-		Description: `If this is true, the acuvity popup will replace the original body with itself
+		Description: `If this is true, the Proofpoint AI Security popup will replace the original body
+with itself
 instead of being shown on top the existing body of the
 provider. Some providers require body replacement to allow popup interaction or
 avoid capturing popup input.`,

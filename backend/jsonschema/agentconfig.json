@@ -372,7 +372,7 @@
     },
     "tunnelEnabled": {
       "$friendlyName": "Tunnel Enabled",
-      "description": "If enabled, the agent will use a tunnel to connect to the Acuvity apex, and the apex will make its requests to the destination back through the agent over the same tunnel.",
+      "description": "If enabled, the agent will use a tunnel to connect to the Proofpoint AI Security apex, and the apex will make its requests to the destination back through the agent over the same tunnel.",
       "title": "tunnelEnabled",
       "type": [
         "boolean",

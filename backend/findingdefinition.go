@@ -267,7 +267,8 @@ func (o *FindingDefinition) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *FindingDefinition) Doc() string {
 
-	return `Defines a finding that can be instantiated anywhere in the Acuvity system.`
+	return `Defines a finding that can be instantiated anywhere in the Proofpoint AI
+Security system.`
 }
 
 func (o *FindingDefinition) String() string {

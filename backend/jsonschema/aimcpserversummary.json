@@ -1,0 +1,41 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AI MCP Server Summary",
+  "$friendlyNamePlural": "AI MCP Server Summaries",
+  "$modelName": "AIMCPServerSummary",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aimcpserversummaries",
+  "$modelRestName": "aimcpserversummary",
+  "additionalProperties": false,
+  "description": "AIMCPServer risk summary.",
+  "properties": {
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "riskRationale": {
+      "$friendlyName": "Risk Rationale",
+      "description": "Bullet-point explanation of the overall MCP server risk level.",
+      "title": "riskRationale",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "title": "AIMCPServerSummary",
+  "type": "object"
+}

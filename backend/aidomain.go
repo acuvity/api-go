@@ -105,8 +105,14 @@ type AIDomain struct {
 	// Overall risk assessment for the LLM providers.
 	LLMProvidersRisk *AIDRisk `json:"LLMProvidersRisk,omitempty" msgpack:"LLMProvidersRisk,omitempty" bson:"llmprovidersrisk,omitempty" mapstructure:"LLMProvidersRisk,omitempty"`
 
+	// Overall risk assessment for the access controls pillar.
+	AccessControlsRisk *AIDRisk `json:"accessControlsRisk,omitempty" msgpack:"accessControlsRisk,omitempty" bson:"accesscontrolsrisk,omitempty" mapstructure:"accessControlsRisk,omitempty"`
+
 	// The address of the company.
 	Address string `json:"address" msgpack:"address" bson:"address" mapstructure:"address,omitempty"`
+
+	// The AI categories this domain belongs to, using human-readable taxonomy names.
+	Categories []string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// The classification of the AI domain.
 	Classification AIDomainClassificationValue `json:"classification" msgpack:"classification" bson:"classification" mapstructure:"classification,omitempty"`
@@ -195,6 +201,7 @@ func NewAIDomain() *AIDomain {
 
 	return &AIDomain{
 		ModelVersion:   1,
+		Categories:     []string{},
 		Classification: AIDomainClassificationAIEnabled,
 		Propagate:      true,
 	}
@@ -233,7 +240,9 @@ func (o *AIDomain) GetBSON() (any, error) {
 	}
 	s.LLMProviders = o.LLMProviders
 	s.LLMProvidersRisk = o.LLMProvidersRisk
+	s.AccessControlsRisk = o.AccessControlsRisk
 	s.Address = o.Address
+	s.Categories = o.Categories
 	s.Classification = o.Classification
 	s.Company = o.Company
 	s.CompanyURL = o.CompanyURL
@@ -280,7 +289,9 @@ func (o *AIDomain) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.LLMProviders = s.LLMProviders
 	o.LLMProvidersRisk = s.LLMProvidersRisk
+	o.AccessControlsRisk = s.AccessControlsRisk
 	o.Address = s.Address
+	o.Categories = s.Categories
 	o.Classification = s.Classification
 	o.Company = s.Company
 	o.CompanyURL = s.CompanyURL
@@ -422,7 +433,9 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:                 &o.ID,
 			LLMProviders:       &o.LLMProviders,
 			LLMProvidersRisk:   o.LLMProvidersRisk,
+			AccessControlsRisk: o.AccessControlsRisk,
 			Address:            &o.Address,
+			Categories:         &o.Categories,
 			Classification:     &o.Classification,
 			Company:            &o.Company,
 			CompanyURL:         &o.CompanyURL,
@@ -461,8 +474,12 @@ func (o *AIDomain) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.LLMProviders = &(o.LLMProviders)
 		case "LLMProvidersRisk":
 			sp.LLMProvidersRisk = o.LLMProvidersRisk
+		case "accessControlsRisk":
+			sp.AccessControlsRisk = o.AccessControlsRisk
 		case "address":
 			sp.Address = &(o.Address)
+		case "categories":
+			sp.Categories = &(o.Categories)
 		case "classification":
 			sp.Classification = &(o.Classification)
 		case "company":
@@ -537,8 +554,14 @@ func (o *AIDomain) Patch(sparse elemental.SparseIdentifiable) {
 	if so.LLMProvidersRisk != nil {
 		o.LLMProvidersRisk = so.LLMProvidersRisk
 	}
+	if so.AccessControlsRisk != nil {
+		o.AccessControlsRisk = so.AccessControlsRisk
+	}
 	if so.Address != nil {
 		o.Address = *so.Address
+	}
+	if so.Categories != nil {
+		o.Categories = *so.Categories
 	}
 	if so.Classification != nil {
 		o.Classification = *so.Classification
@@ -638,6 +661,12 @@ func (o *AIDomain) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 		}
 	}
 
+	if o.AccessControlsRisk != nil {
+		if err := o.AccessControlsRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AccessControlsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Compliances {
 		if sub == nil {
 			continue
@@ -731,6 +760,12 @@ func (o *AIDomain) DecryptAttributes(encrypter elemental.AttributeEncrypter) (er
 	if o.LLMProvidersRisk != nil {
 		if err := o.LLMProvidersRisk.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AccessControlsRisk != nil {
+		if err := o.AccessControlsRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AccessControlsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -858,6 +893,13 @@ func (o *AIDomain) Validate() error {
 		if err := o.LLMProvidersRisk.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "LLMProvidersRisk")
+		}
+	}
+
+	if o.AccessControlsRisk != nil {
+		if err := o.AccessControlsRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "accessControlsRisk")
 		}
 	}
 
@@ -1002,8 +1044,12 @@ func (o *AIDomain) ValueForAttribute(name string) any {
 		return o.LLMProviders
 	case "LLMProvidersRisk":
 		return o.LLMProvidersRisk
+	case "accessControlsRisk":
+		return o.AccessControlsRisk
 	case "address":
 		return o.Address
+	case "categories":
+		return o.Categories
 	case "classification":
 		return o.Classification
 	case "company":
@@ -1100,6 +1146,17 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "aidrisk",
 		Type:           "ref",
 	},
+	"AccessControlsRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "accesscontrolsrisk",
+		ConvertedName:  "AccessControlsRisk",
+		Description:    `Overall risk assessment for the access controls pillar.`,
+		Exposed:        true,
+		Name:           "accessControlsRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"Address": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "address",
@@ -1109,6 +1166,17 @@ var AIDomainAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "address",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Categories": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "categories",
+		ConvertedName:  "Categories",
+		Description:    `The AI categories this domain belongs to, using human-readable taxonomy names.`,
+		Exposed:        true,
+		Name:           "categories",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"Classification": {
 		AllowedChoices: []string{"AINative", "AIEnabled"},
@@ -1431,6 +1499,17 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		SubType:        "aidrisk",
 		Type:           "ref",
 	},
+	"accesscontrolsrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "accesscontrolsrisk",
+		ConvertedName:  "AccessControlsRisk",
+		Description:    `Overall risk assessment for the access controls pillar.`,
+		Exposed:        true,
+		Name:           "accessControlsRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"address": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "address",
@@ -1440,6 +1519,17 @@ var AIDomainLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "address",
 		Stored:         true,
 		Type:           "string",
+	},
+	"categories": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "categories",
+		ConvertedName:  "Categories",
+		Description:    `The AI categories this domain belongs to, using human-readable taxonomy names.`,
+		Exposed:        true,
+		Name:           "categories",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"classification": {
 		AllowedChoices: []string{"AINative", "AIEnabled"},
@@ -1795,8 +1885,14 @@ type SparseAIDomain struct {
 	// Overall risk assessment for the LLM providers.
 	LLMProvidersRisk *AIDRisk `json:"LLMProvidersRisk,omitempty" msgpack:"LLMProvidersRisk,omitempty" bson:"llmprovidersrisk,omitempty" mapstructure:"LLMProvidersRisk,omitempty"`
 
+	// Overall risk assessment for the access controls pillar.
+	AccessControlsRisk *AIDRisk `json:"accessControlsRisk,omitempty" msgpack:"accessControlsRisk,omitempty" bson:"accesscontrolsrisk,omitempty" mapstructure:"accessControlsRisk,omitempty"`
+
 	// The address of the company.
 	Address *string `json:"address,omitempty" msgpack:"address,omitempty" bson:"address,omitempty" mapstructure:"address,omitempty"`
+
+	// The AI categories this domain belongs to, using human-readable taxonomy names.
+	Categories *[]string `json:"categories,omitempty" msgpack:"categories,omitempty" bson:"categories,omitempty" mapstructure:"categories,omitempty"`
 
 	// The classification of the AI domain.
 	Classification *AIDomainClassificationValue `json:"classification,omitempty" msgpack:"classification,omitempty" bson:"classification,omitempty" mapstructure:"classification,omitempty"`
@@ -1929,8 +2025,14 @@ func (o *SparseAIDomain) GetBSON() (any, error) {
 	if o.LLMProvidersRisk != nil {
 		s.LLMProvidersRisk = o.LLMProvidersRisk
 	}
+	if o.AccessControlsRisk != nil {
+		s.AccessControlsRisk = o.AccessControlsRisk
+	}
 	if o.Address != nil {
 		s.Address = o.Address
+	}
+	if o.Categories != nil {
+		s.Categories = o.Categories
 	}
 	if o.Classification != nil {
 		s.Classification = o.Classification
@@ -2035,8 +2137,14 @@ func (o *SparseAIDomain) SetBSON(raw bson.Raw) error {
 	if s.LLMProvidersRisk != nil {
 		o.LLMProvidersRisk = s.LLMProvidersRisk
 	}
+	if s.AccessControlsRisk != nil {
+		o.AccessControlsRisk = s.AccessControlsRisk
+	}
 	if s.Address != nil {
 		o.Address = s.Address
+	}
+	if s.Categories != nil {
+		o.Categories = s.Categories
 	}
 	if s.Classification != nil {
 		o.Classification = s.Classification
@@ -2139,8 +2247,14 @@ func (o *SparseAIDomain) ToPlain() elemental.PlainIdentifiable {
 	if o.LLMProvidersRisk != nil {
 		out.LLMProvidersRisk = o.LLMProvidersRisk
 	}
+	if o.AccessControlsRisk != nil {
+		out.AccessControlsRisk = o.AccessControlsRisk
+	}
 	if o.Address != nil {
 		out.Address = *o.Address
+	}
+	if o.Categories != nil {
+		out.Categories = *o.Categories
 	}
 	if o.Classification != nil {
 		out.Classification = *o.Classification
@@ -2241,6 +2355,12 @@ func (o *SparseAIDomain) EncryptAttributes(encrypter elemental.AttributeEncrypte
 	if o.LLMProvidersRisk != nil {
 		if err := o.LLMProvidersRisk.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AccessControlsRisk != nil {
+		if err := o.AccessControlsRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AccessControlsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2349,6 +2469,12 @@ func (o *SparseAIDomain) DecryptAttributes(encrypter elemental.AttributeEncrypte
 	if o.LLMProvidersRisk != nil {
 		if err := o.LLMProvidersRisk.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'LLMProvidersRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AccessControlsRisk != nil {
+		if err := o.AccessControlsRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AccessControlsRisk' for 'AIDomain' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2564,7 +2690,9 @@ type mongoAttributesAIDomain struct {
 	ID                 bson.ObjectId               `bson:"_id,omitempty"`
 	LLMProviders       []*AIDSectionLLMProvider    `bson:"llmproviders,omitempty"`
 	LLMProvidersRisk   *AIDRisk                    `bson:"llmprovidersrisk,omitempty"`
+	AccessControlsRisk *AIDRisk                    `bson:"accesscontrolsrisk,omitempty"`
 	Address            string                      `bson:"address"`
+	Categories         []string                    `bson:"categories,omitempty"`
 	Classification     AIDomainClassificationValue `bson:"classification"`
 	Company            string                      `bson:"company"`
 	CompanyURL         string                      `bson:"companyurl"`
@@ -2596,7 +2724,9 @@ type mongoAttributesSparseAIDomain struct {
 	ID                 bson.ObjectId                `bson:"_id,omitempty"`
 	LLMProviders       *[]*AIDSectionLLMProvider    `bson:"llmproviders,omitempty"`
 	LLMProvidersRisk   *AIDRisk                     `bson:"llmprovidersrisk,omitempty"`
+	AccessControlsRisk *AIDRisk                     `bson:"accesscontrolsrisk,omitempty"`
 	Address            *string                      `bson:"address,omitempty"`
+	Categories         *[]string                    `bson:"categories,omitempty"`
 	Classification     *AIDomainClassificationValue `bson:"classification,omitempty"`
 	Company            *string                      `bson:"company,omitempty"`
 	CompanyURL         *string                      `bson:"companyurl,omitempty"`

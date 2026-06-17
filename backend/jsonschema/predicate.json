@@ -34,6 +34,7 @@
         "PIIs",
         "Plugin",
         "Provider",
+        "ProviderType",
         "Relevance",
         "RiskScore",
         "Secrets",

@@ -204,7 +204,7 @@ func (o *AppReport) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AppReport) Doc() string {
 
-	return `Report sent by the Acuvity app agent.`
+	return `Report sent by the Proofpoint AI Security app agent.`
 }
 
 func (o *AppReport) String() string {

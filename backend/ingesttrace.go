@@ -95,11 +95,12 @@ type IngestTrace struct {
 
 	// The raw OTLP traces in JSON encoded format. If this is set, you must not set the
 	// traces field. This will ingest everything about this trace and make it available
-	// to Acuvity.
+	// to Proofpoint AI Security.
 	Raw string `json:"raw" msgpack:"raw" bson:"raw" mapstructure:"raw,omitempty"`
 
 	// The traces to ingest. If this is set, the raw input field must not be set. This
-	// is the recommended way on how to ingest trace data into Acuvity. This will
+	// is the recommended way on how to ingest trace data into Proofpoint AI Security.
+	// This will
 	// ingest
 	// only the necessary core data of a trace.
 	Traces TraceRefsList `json:"traces" msgpack:"traces" bson:"traces" mapstructure:"traces,omitempty"`
@@ -466,7 +467,7 @@ var IngestTraceAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "Raw",
 		Description: `The raw OTLP traces in JSON encoded format. If this is set, you must not set the
 traces field. This will ingest everything about this trace and make it available
-to Acuvity.`,
+to Proofpoint AI Security.`,
 		Exposed: true,
 		Name:    "raw",
 		Stored:  true,
@@ -477,7 +478,8 @@ to Acuvity.`,
 		BSONFieldName:  "traces",
 		ConvertedName:  "Traces",
 		Description: `The traces to ingest. If this is set, the raw input field must not be set. This
-is the recommended way on how to ingest trace data into Acuvity. This will
+is the recommended way on how to ingest trace data into Proofpoint AI Security.
+This will
 ingest
 only the necessary core data of a trace.`,
 		Exposed: true,
@@ -538,7 +540,7 @@ var IngestTraceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		ConvertedName:  "Raw",
 		Description: `The raw OTLP traces in JSON encoded format. If this is set, you must not set the
 traces field. This will ingest everything about this trace and make it available
-to Acuvity.`,
+to Proofpoint AI Security.`,
 		Exposed: true,
 		Name:    "raw",
 		Stored:  true,
@@ -549,7 +551,8 @@ to Acuvity.`,
 		BSONFieldName:  "traces",
 		ConvertedName:  "Traces",
 		Description: `The traces to ingest. If this is set, the raw input field must not be set. This
-is the recommended way on how to ingest trace data into Acuvity. This will
+is the recommended way on how to ingest trace data into Proofpoint AI Security.
+This will
 ingest
 only the necessary core data of a trace.`,
 		Exposed: true,
@@ -634,11 +637,12 @@ type SparseIngestTrace struct {
 
 	// The raw OTLP traces in JSON encoded format. If this is set, you must not set the
 	// traces field. This will ingest everything about this trace and make it available
-	// to Acuvity.
+	// to Proofpoint AI Security.
 	Raw *string `json:"raw,omitempty" msgpack:"raw,omitempty" bson:"raw,omitempty" mapstructure:"raw,omitempty"`
 
 	// The traces to ingest. If this is set, the raw input field must not be set. This
-	// is the recommended way on how to ingest trace data into Acuvity. This will
+	// is the recommended way on how to ingest trace data into Proofpoint AI Security.
+	// This will
 	// ingest
 	// only the necessary core data of a trace.
 	Traces *TraceRefsList `json:"traces,omitempty" msgpack:"traces,omitempty" bson:"traces,omitempty" mapstructure:"traces,omitempty"`

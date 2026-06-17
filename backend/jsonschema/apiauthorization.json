@@ -12,7 +12,7 @@
   "$modelResourceName": "apiauthorizations",
   "$modelRestName": "apiauthorization",
   "additionalProperties": false,
-  "description": "Define API Authorizations to define who can access the Acuvity console.",
+  "description": "Define API Authorizations to define who can access the Proofpoint AI Security console.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",

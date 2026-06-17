@@ -27,6 +27,15 @@
       "title": "AIDomains",
       "type": "array"
     },
+    "AIMCPServers": {
+      "$friendlyName": "AI MCP Servers",
+      "description": "AI MCP servers to import.",
+      "items": {
+        "$ref": "aimcpserver.json"
+      },
+      "title": "AIMCPServers",
+      "type": "array"
+    },
     "AIPlugins": {
       "$friendlyName": "AI Plugins",
       "description": "AI plugins to import.",
@@ -43,6 +52,15 @@
         "$ref": "aiskill.json"
       },
       "title": "AISkills",
+      "type": "array"
+    },
+    "AITools": {
+      "$friendlyName": "AI Tools",
+      "description": "AI tools to import.",
+      "items": {
+        "$ref": "aitool.json"
+      },
+      "title": "AITools",
       "type": "array"
     },
     "APIAuthorizations": {

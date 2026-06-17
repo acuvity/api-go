@@ -60,6 +60,12 @@ type DNSReport struct {
 	// semantics.
 	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
+	// The name of the gateway that produced this report.
+	Gateway string `json:"gateway,omitempty" msgpack:"gateway,omitempty" bson:"gateway,omitempty" mapstructure:"gateway,omitempty"`
+
+	// The hostname of the gateway instance that produced this report.
+	GatewayInstance string `json:"gatewayInstance,omitempty" msgpack:"gatewayInstance,omitempty" bson:"gatewayinstance,omitempty" mapstructure:"gatewayInstance,omitempty"`
+
 	// The number of times this domain was queried.
 	Hits int `json:"hits" msgpack:"hits" bson:"hits" mapstructure:"hits,omitempty"`
 
@@ -126,6 +132,8 @@ func (o *DNSReport) GetBSON() (any, error) {
 	s.AppComponent = o.AppComponent
 	s.Domain = o.Domain
 	s.Error = o.Error
+	s.Gateway = o.Gateway
+	s.GatewayInstance = o.GatewayInstance
 	s.Hits = o.Hits
 	s.PolicyID = o.PolicyID
 	s.Provider = o.Provider
@@ -158,6 +166,8 @@ func (o *DNSReport) SetBSON(raw bson.Raw) error {
 	o.AppComponent = s.AppComponent
 	o.Domain = s.Domain
 	o.Error = s.Error
+	o.Gateway = s.Gateway
+	o.GatewayInstance = s.GatewayInstance
 	o.Hits = s.Hits
 	o.PolicyID = s.PolicyID
 	o.Provider = s.Provider
@@ -328,6 +338,10 @@ func (o *DNSReport) ValueForAttribute(name string) any {
 		return o.Domain
 	case "error":
 		return o.Error
+	case "gateway":
+		return o.Gateway
+	case "gatewayInstance":
+		return o.GatewayInstance
 	case "hits":
 		return o.Hits
 	case "policyID":
@@ -438,6 +452,26 @@ semantics.`,
 		Stored:  true,
 		SubType: "roundtriperror",
 		Type:    "ref",
+	},
+	"Gateway": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateway",
+		ConvertedName:  "Gateway",
+		Description:    `The name of the gateway that produced this report.`,
+		Exposed:        true,
+		Name:           "gateway",
+		Stored:         true,
+		Type:           "string",
+	},
+	"GatewayInstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayinstance",
+		ConvertedName:  "GatewayInstance",
+		Description:    `The hostname of the gateway instance that produced this report.`,
+		Exposed:        true,
+		Name:           "gatewayInstance",
+		Stored:         true,
+		Type:           "string",
 	},
 	"Hits": {
 		AllowedChoices: []string{},
@@ -613,6 +647,26 @@ semantics.`,
 		SubType: "roundtriperror",
 		Type:    "ref",
 	},
+	"gateway": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateway",
+		ConvertedName:  "Gateway",
+		Description:    `The name of the gateway that produced this report.`,
+		Exposed:        true,
+		Name:           "gateway",
+		Stored:         true,
+		Type:           "string",
+	},
+	"gatewayinstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayinstance",
+		ConvertedName:  "GatewayInstance",
+		Description:    `The hostname of the gateway instance that produced this report.`,
+		Exposed:        true,
+		Name:           "gatewayInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"hits": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "hits",
@@ -705,6 +759,8 @@ type mongoAttributesDNSReport struct {
 	AppComponent          string               `bson:"appcomponent,omitempty"`
 	Domain                string               `bson:"domain"`
 	Error                 *RoundtripError      `bson:"error,omitempty"`
+	Gateway               string               `bson:"gateway,omitempty"`
+	GatewayInstance       string               `bson:"gatewayinstance,omitempty"`
 	Hits                  int                  `bson:"hits"`
 	PolicyID              string               `bson:"policyid,omitempty"`
 	Provider              string               `bson:"provider,omitempty"`

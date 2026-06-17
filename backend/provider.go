@@ -144,7 +144,7 @@ type Provider struct {
 	Experimental bool `json:"experimental" msgpack:"experimental" bson:"experimental" mapstructure:"experimental,omitempty"`
 
 	// List of extractors for the provider.
-	Extractors []*ExtractorRef `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
+	Extractors []*ExtractorRef `json:"extractors" msgpack:"extractors" bson:"extractors" mapstructure:"extractors,omitempty"`
 
 	// Friendly Name of the provider.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
@@ -191,7 +191,8 @@ type Provider struct {
 	// The support status of the provider.
 	Status ProviderStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
-	// If true, consider the incoming calls to use an acuvity token and swap them using
+	// If true, consider the incoming calls to use a Proofpoint AI Security token and
+	// swap them using
 	// registered providertokens.
 	TokenSwap bool `json:"tokenSwap" msgpack:"tokenSwap" bson:"tokenswap" mapstructure:"tokenSwap,omitempty"`
 
@@ -1294,7 +1295,8 @@ available to all extractor by doing local plib = require('plib').`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "tokenswap",
 		ConvertedName:  "TokenSwap",
-		Description: `If true, consider the incoming calls to use an acuvity token and swap them using
+		Description: `If true, consider the incoming calls to use a Proofpoint AI Security token and
+swap them using
 registered providertokens.`,
 		Exposed: true,
 		Name:    "tokenSwap",
@@ -1642,7 +1644,8 @@ available to all extractor by doing local plib = require('plib').`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "tokenswap",
 		ConvertedName:  "TokenSwap",
-		Description: `If true, consider the incoming calls to use an acuvity token and swap them using
+		Description: `If true, consider the incoming calls to use a Proofpoint AI Security token and
+swap them using
 registered providertokens.`,
 		Exposed: true,
 		Name:    "tokenSwap",
@@ -1848,7 +1851,8 @@ type SparseProvider struct {
 	// The support status of the provider.
 	Status *ProviderStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
-	// If true, consider the incoming calls to use an acuvity token and swap them using
+	// If true, consider the incoming calls to use a Proofpoint AI Security token and
+	// swap them using
 	// registered providertokens.
 	TokenSwap *bool `json:"tokenSwap,omitempty" msgpack:"tokenSwap,omitempty" bson:"tokenswap,omitempty" mapstructure:"tokenSwap,omitempty"`
 
@@ -2497,7 +2501,7 @@ type mongoAttributesProvider struct {
 	ErrorTransformer *ErrorTransformer         `bson:"errortransformer,omitempty"`
 	ExcludedHosts    []string                  `bson:"excludedhosts"`
 	Experimental     bool                      `bson:"experimental"`
-	Extractors       []*ExtractorRef           `bson:"extractors,omitempty"`
+	Extractors       []*ExtractorRef           `bson:"extractors"`
 	FriendlyName     string                    `bson:"friendlyname"`
 	Hosts            []*Host                   `bson:"hosts"`
 	Icon             string                    `bson:"icon,omitempty"`

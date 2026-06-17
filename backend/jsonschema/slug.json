@@ -1,0 +1,33 @@
+{
+  "$extends": [],
+  "$friendlyName": "Slug",
+  "$friendlyNamePlural": "Slugs",
+  "$modelName": "Slug",
+  "$modelPackage": "lain",
+  "$modelResourceName": "slugs",
+  "$modelRestName": "slug",
+  "additionalProperties": false,
+  "description": "A route slug mapping for a gateway provider.",
+  "properties": {
+    "provider": {
+      "$friendlyName": "Provider",
+      "$required": true,
+      "description": "The provider this gateway can access.",
+      "title": "provider",
+      "type": "string"
+    },
+    "route": {
+      "$friendlyName": "Route",
+      "$required": true,
+      "description": "The route components call the gateway with.",
+      "title": "route",
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider",
+    "route"
+  ],
+  "title": "Slug",
+  "type": "object"
+}

@@ -1,0 +1,41 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AI Plugin Summary",
+  "$friendlyNamePlural": "AI Plugin Summaries",
+  "$modelName": "AIPluginSummary",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aipluginsummaries",
+  "$modelRestName": "aipluginsummary",
+  "additionalProperties": false,
+  "description": "AIPlugin risk summary.",
+  "properties": {
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "riskRationale": {
+      "$friendlyName": "Risk Rationale",
+      "description": "Bullet-point explanation of the overall plugin risk level.",
+      "title": "riskRationale",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "title": "AIPluginSummary",
+  "type": "object"
+}

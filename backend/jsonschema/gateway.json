@@ -44,6 +44,18 @@
         "null"
       ]
     },
+    "hostnames": {
+      "$friendlyName": "Hostnames",
+      "description": "Host names of the gateway to perform connection terminations.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "hostnames",
+      "type": "array"
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -100,6 +112,15 @@
         "string",
         "null"
       ]
+    },
+    "slugs": {
+      "$friendlyName": "Slugs",
+      "description": "List of route slugs for gateway path routing.",
+      "items": {
+        "$ref": "slug.json"
+      },
+      "title": "slugs",
+      "type": "array"
     },
     "token": {
       "$friendlyName": "Token",
