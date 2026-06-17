@@ -2396,7 +2396,8 @@ Describes the principal information of a user.
 
 ```json
 {
-  "name": "user@company.com"
+  "name": "user@company.com",
+  "untrusted": false
 }
 ```
 
@@ -2407,6 +2408,12 @@ Describes the principal information of a user.
 Type: `string`
 
 Identification bit that will be used to identify the origin of the request.
+
+##### `untrusted`
+
+Type: `boolean`
+
+If true, the data is not fully trusted (eg. loose identity).
 
 ### RoundtripError
 

@@ -145,6 +145,16 @@
         "null"
       ]
     },
+    "type": {
+      "$defaultValue": "Default",
+      "$friendlyName": "Type",
+      "description": "Select the type of token. This will insert additional claims related to the type.",
+      "enum": [
+        "Default",
+        "Discovery"
+      ],
+      "title": "type"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,

@@ -17,6 +17,15 @@
         "string",
         "null"
       ]
+    },
+    "untrusted": {
+      "$friendlyName": "Untrusted",
+      "description": "If true, the data is not fully trusted (eg. loose identity).",
+      "title": "untrusted",
+      "type": [
+        "boolean",
+        "null"
+      ]
     }
   },
   "required": [],

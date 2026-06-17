@@ -87,6 +87,9 @@ type PrincipalUser struct {
 	// Identification bit that will be used to identify the origin of the request.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
+	// If true, the data is not fully trusted (eg. loose identity).
+	Untrusted bool `json:"untrusted" msgpack:"untrusted" bson:"untrusted" mapstructure:"untrusted,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -126,6 +129,7 @@ func (o *PrincipalUser) GetBSON() (any, error) {
 	s := &mongoAttributesPrincipalUser{}
 
 	s.Name = o.Name
+	s.Untrusted = o.Untrusted
 
 	return s, nil
 }
@@ -144,6 +148,7 @@ func (o *PrincipalUser) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Name = s.Name
+	o.Untrusted = s.Untrusted
 
 	return nil
 }
@@ -184,7 +189,8 @@ func (o *PrincipalUser) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePrincipalUser{
-			Name: &o.Name,
+			Name:      &o.Name,
+			Untrusted: &o.Untrusted,
 		}
 	}
 
@@ -193,6 +199,8 @@ func (o *PrincipalUser) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		switch f {
 		case "name":
 			sp.Name = &(o.Name)
+		case "untrusted":
+			sp.Untrusted = &(o.Untrusted)
 		}
 	}
 
@@ -208,6 +216,9 @@ func (o *PrincipalUser) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparsePrincipalUser)
 	if so.Name != nil {
 		o.Name = *so.Name
+	}
+	if so.Untrusted != nil {
+		o.Untrusted = *so.Untrusted
 	}
 }
 
@@ -291,6 +302,8 @@ func (o *PrincipalUser) ValueForAttribute(name string) any {
 	switch name {
 	case "name":
 		return o.Name
+	case "untrusted":
+		return o.Untrusted
 	}
 
 	return nil
@@ -308,6 +321,16 @@ var PrincipalUserAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Untrusted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "untrusted",
+		ConvertedName:  "Untrusted",
+		Description:    `If true, the data is not fully trusted (eg. loose identity).`,
+		Exposed:        true,
+		Name:           "untrusted",
+		Stored:         true,
+		Type:           "boolean",
+	},
 }
 
 // PrincipalUserLowerCaseAttributesMap represents the map of attribute for PrincipalUser.
@@ -321,6 +344,16 @@ var PrincipalUserLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "name",
 		Stored:         true,
 		Type:           "string",
+	},
+	"untrusted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "untrusted",
+		ConvertedName:  "Untrusted",
+		Description:    `If true, the data is not fully trusted (eg. loose identity).`,
+		Exposed:        true,
+		Name:           "untrusted",
+		Stored:         true,
+		Type:           "boolean",
 	},
 }
 
@@ -390,6 +423,9 @@ type SparsePrincipalUser struct {
 	// Identification bit that will be used to identify the origin of the request.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
+	// If true, the data is not fully trusted (eg. loose identity).
+	Untrusted *bool `json:"untrusted,omitempty" msgpack:"untrusted,omitempty" bson:"untrusted,omitempty" mapstructure:"untrusted,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -428,6 +464,9 @@ func (o *SparsePrincipalUser) GetBSON() (any, error) {
 	if o.Name != nil {
 		s.Name = o.Name
 	}
+	if o.Untrusted != nil {
+		s.Untrusted = o.Untrusted
+	}
 
 	return s, nil
 }
@@ -448,6 +487,9 @@ func (o *SparsePrincipalUser) SetBSON(raw bson.Raw) error {
 	if s.Name != nil {
 		o.Name = s.Name
 	}
+	if s.Untrusted != nil {
+		o.Untrusted = s.Untrusted
+	}
 
 	return nil
 }
@@ -464,6 +506,9 @@ func (o *SparsePrincipalUser) ToPlain() elemental.PlainIdentifiable {
 	out := NewPrincipalUser()
 	if o.Name != nil {
 		out.Name = *o.Name
+	}
+	if o.Untrusted != nil {
+		out.Untrusted = *o.Untrusted
 	}
 
 	return out
@@ -506,8 +551,10 @@ func (o *SparsePrincipalUser) DeepCopyInto(out *SparsePrincipalUser) {
 }
 
 type mongoAttributesPrincipalUser struct {
-	Name string `bson:"name"`
+	Name      string `bson:"name"`
+	Untrusted bool   `bson:"untrusted"`
 }
 type mongoAttributesSparsePrincipalUser struct {
-	Name *string `bson:"name,omitempty"`
+	Name      *string `bson:"name,omitempty"`
+	Untrusted *bool   `bson:"untrusted,omitempty"`
 }
