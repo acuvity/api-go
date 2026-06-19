@@ -70,6 +70,15 @@
       "title": "installedApps",
       "type": "array"
     },
+    "machineID": {
+      "$friendlyName": "Machine ID",
+      "description": "The machine ID where the discovery took place.",
+      "title": "machineID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,

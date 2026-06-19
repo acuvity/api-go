@@ -33,6 +33,15 @@
       "title": "domainHits",
       "type": "array"
     },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "description": "The hostname where the URL has been tracked.",
+      "title": "hostname",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -48,6 +57,15 @@
       "$friendlyName": "ImportLabel",
       "description": "The user-defined import label that allows the system to group resources from the same import operation.",
       "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "machineID": {
+      "$friendlyName": "Machine ID",
+      "description": "The machine ID where the URL has been tracked.",
+      "title": "machineID",
       "type": [
         "string",
         "null"

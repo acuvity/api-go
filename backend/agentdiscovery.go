@@ -103,6 +103,9 @@ type AgentDiscovery struct {
 	// List of installed applications found based on the list set in agent config.
 	InstalledApps []*AgentDiscoveredApp `json:"installedApps,omitempty" msgpack:"installedApps,omitempty" bson:"-" mapstructure:"installedApps,omitempty"`
 
+	// The machine ID where the discovery took place.
+	MachineID string `json:"machineID,omitempty" msgpack:"machineID,omitempty" bson:"-" mapstructure:"machineID,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
@@ -268,6 +271,7 @@ func (o *AgentDiscovery) ToSparse(fields ...string) elemental.SparseIdentifiable
 			ImportHash:       &o.ImportHash,
 			ImportLabel:      &o.ImportLabel,
 			InstalledApps:    &o.InstalledApps,
+			MachineID:        &o.MachineID,
 			Namespace:        &o.Namespace,
 			Principal:        o.Principal,
 			RunningProcesses: &o.RunningProcesses,
@@ -290,6 +294,8 @@ func (o *AgentDiscovery) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ImportLabel = &(o.ImportLabel)
 		case "installedApps":
 			sp.InstalledApps = &(o.InstalledApps)
+		case "machineID":
+			sp.MachineID = &(o.MachineID)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "principal":
@@ -328,6 +334,9 @@ func (o *AgentDiscovery) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.InstalledApps != nil {
 		o.InstalledApps = *so.InstalledApps
+	}
+	if so.MachineID != nil {
+		o.MachineID = *so.MachineID
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
@@ -480,6 +489,8 @@ func (o *AgentDiscovery) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "installedApps":
 		return o.InstalledApps
+	case "machineID":
+		return o.MachineID
 	case "namespace":
 		return o.Namespace
 	case "principal":
@@ -562,6 +573,14 @@ same import operation.`,
 		Name:           "installedApps",
 		SubType:        "agentdiscoveredapp",
 		Type:           "refList",
+	},
+	"MachineID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MachineID",
+		Description:    `The machine ID where the discovery took place.`,
+		Exposed:        true,
+		Name:           "machineID",
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -678,6 +697,14 @@ same import operation.`,
 		Name:           "installedApps",
 		SubType:        "agentdiscoveredapp",
 		Type:           "refList",
+	},
+	"machineid": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MachineID",
+		Description:    `The machine ID where the discovery took place.`,
+		Exposed:        true,
+		Name:           "machineID",
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -806,6 +833,9 @@ type SparseAgentDiscovery struct {
 
 	// List of installed applications found based on the list set in agent config.
 	InstalledApps *[]*AgentDiscoveredApp `json:"installedApps,omitempty" msgpack:"installedApps,omitempty" bson:"-" mapstructure:"installedApps,omitempty"`
+
+	// The machine ID where the discovery took place.
+	MachineID *string `json:"machineID,omitempty" msgpack:"machineID,omitempty" bson:"-" mapstructure:"machineID,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -939,6 +969,9 @@ func (o *SparseAgentDiscovery) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.InstalledApps != nil {
 		out.InstalledApps = *o.InstalledApps
+	}
+	if o.MachineID != nil {
+		out.MachineID = *o.MachineID
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace

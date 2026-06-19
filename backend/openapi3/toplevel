@@ -775,6 +775,10 @@
             },
             "type": "array"
           },
+          "machineID": {
+            "description": "The machine ID where the discovery took place.",
+            "type": "string"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -11236,12 +11240,20 @@
             },
             "type": "array"
           },
+          "hostname": {
+            "description": "The hostname where the URL has been tracked.",
+            "type": "string"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
           },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "machineID": {
+            "description": "The machine ID where the URL has been tracked.",
             "type": "string"
           },
           "namespace": {
