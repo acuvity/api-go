@@ -437,9 +437,14 @@
             "enum": [
               "Alive",
               "Paused",
+              "Error",
               "Stopped"
             ],
             "example": "Alive"
+          },
+          "statusMessage": {
+            "description": "The message related to the status.",
+            "type": "string"
           },
           "systemProxyManagementState": {
             "description": "The state of the system proxy management.",
@@ -499,6 +504,16 @@
           "description": {
             "description": "Description of the agent configuration.",
             "type": "string"
+          },
+          "diagnosticUploadDeadline": {
+            "default": "4h",
+            "description": "The length of time the agent can stay in an abnormal state before uploading\nlogs.",
+            "example": "12h",
+            "type": "string"
+          },
+          "diagnosticUploadDisabled": {
+            "description": "If disabled, the agent will not upload logs when entering an abnormal state for\nan extended period.",
+            "type": "boolean"
           },
           "domainDiscoveryDisabled": {
             "description": "If disabled, the agent will stop reporting the discovered domains.",

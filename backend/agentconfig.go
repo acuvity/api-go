@@ -137,6 +137,14 @@ type AgentConfig struct {
 	// Description of the agent configuration.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
+	// The length of time the agent can stay in an abnormal state before uploading
+	// logs.
+	DiagnosticUploadDeadline string `json:"diagnosticUploadDeadline" msgpack:"diagnosticUploadDeadline" bson:"diagnosticuploaddeadline" mapstructure:"diagnosticUploadDeadline,omitempty"`
+
+	// If disabled, the agent will not upload logs when entering an abnormal state for
+	// an extended period.
+	DiagnosticUploadDisabled bool `json:"diagnosticUploadDisabled" msgpack:"diagnosticUploadDisabled" bson:"diagnosticuploaddisabled" mapstructure:"diagnosticUploadDisabled,omitempty"`
+
 	// If disabled, the agent will stop reporting the discovered domains.
 	DomainDiscoveryDisabled bool `json:"domainDiscoveryDisabled" msgpack:"domainDiscoveryDisabled" bson:"domaindiscoverydisabled" mapstructure:"domainDiscoveryDisabled,omitempty"`
 
@@ -282,6 +290,7 @@ func NewAgentConfig() *AgentConfig {
 		ModelVersion:                1,
 		DNSMonitorPolicy:            AgentConfigDNSMonitorPolicyWarn,
 		ConfigRefreshInterval:       "1h",
+		DiagnosticUploadDeadline:    "4h",
 		DomainReportInterval:        "10m",
 		DriverExcludeAddressTimeout: "1h",
 		ListeningPort:               "8081",
@@ -336,6 +345,8 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ConfigRefreshInterval = o.ConfigRefreshInterval
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.DiagnosticUploadDeadline = o.DiagnosticUploadDeadline
+	s.DiagnosticUploadDisabled = o.DiagnosticUploadDisabled
 	s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	s.DomainReportInterval = o.DomainReportInterval
 	s.DriverEnabled = o.DriverEnabled
@@ -397,6 +408,8 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ConfigRefreshInterval = s.ConfigRefreshInterval
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.DiagnosticUploadDeadline = s.DiagnosticUploadDeadline
+	o.DiagnosticUploadDisabled = s.DiagnosticUploadDisabled
 	o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	o.DomainReportInterval = s.DomainReportInterval
 	o.DriverEnabled = s.DriverEnabled
@@ -541,6 +554,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ConfigRefreshInterval:         &o.ConfigRefreshInterval,
 			CreateTime:                    &o.CreateTime,
 			Description:                   &o.Description,
+			DiagnosticUploadDeadline:      &o.DiagnosticUploadDeadline,
+			DiagnosticUploadDisabled:      &o.DiagnosticUploadDisabled,
 			DomainDiscoveryDisabled:       &o.DomainDiscoveryDisabled,
 			DomainReportInterval:          &o.DomainReportInterval,
 			DriverEnabled:                 &o.DriverEnabled,
@@ -600,6 +615,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "diagnosticUploadDeadline":
+			sp.DiagnosticUploadDeadline = &(o.DiagnosticUploadDeadline)
+		case "diagnosticUploadDisabled":
+			sp.DiagnosticUploadDisabled = &(o.DiagnosticUploadDisabled)
 		case "domainDiscoveryDisabled":
 			sp.DomainDiscoveryDisabled = &(o.DomainDiscoveryDisabled)
 		case "domainReportInterval":
@@ -710,6 +729,12 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.DiagnosticUploadDeadline != nil {
+		o.DiagnosticUploadDeadline = *so.DiagnosticUploadDeadline
+	}
+	if so.DiagnosticUploadDisabled != nil {
+		o.DiagnosticUploadDisabled = *so.DiagnosticUploadDisabled
 	}
 	if so.DomainDiscoveryDisabled != nil {
 		o.DomainDiscoveryDisabled = *so.DomainDiscoveryDisabled
@@ -924,6 +949,10 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateDuration("diagnosticUploadDeadline", o.DiagnosticUploadDeadline); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := ValidateDuration("domainReportInterval", o.DomainReportInterval); err != nil {
 		errors = errors.Append(err)
 	}
@@ -1073,6 +1102,10 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "diagnosticUploadDeadline":
+		return o.DiagnosticUploadDeadline
+	case "diagnosticUploadDisabled":
+		return o.DiagnosticUploadDisabled
 	case "domainDiscoveryDisabled":
 		return o.DomainDiscoveryDisabled
 	case "domainReportInterval":
@@ -1248,6 +1281,29 @@ only applicable when authenticated.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DiagnosticUploadDeadline": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "diagnosticuploaddeadline",
+		ConvertedName:  "DiagnosticUploadDeadline",
+		DefaultValue:   "4h",
+		Description: `The length of time the agent can stay in an abnormal state before uploading
+logs.`,
+		Exposed: true,
+		Name:    "diagnosticUploadDeadline",
+		Stored:  true,
+		Type:    "string",
+	},
+	"DiagnosticUploadDisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "diagnosticuploaddisabled",
+		ConvertedName:  "DiagnosticUploadDisabled",
+		Description: `If disabled, the agent will not upload logs when entering an abnormal state for
+an extended period.`,
+		Exposed: true,
+		Name:    "diagnosticUploadDisabled",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"DomainDiscoveryDisabled": {
 		AllowedChoices: []string{},
@@ -1761,6 +1817,29 @@ only applicable when authenticated.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"diagnosticuploaddeadline": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "diagnosticuploaddeadline",
+		ConvertedName:  "DiagnosticUploadDeadline",
+		DefaultValue:   "4h",
+		Description: `The length of time the agent can stay in an abnormal state before uploading
+logs.`,
+		Exposed: true,
+		Name:    "diagnosticUploadDeadline",
+		Stored:  true,
+		Type:    "string",
+	},
+	"diagnosticuploaddisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "diagnosticuploaddisabled",
+		ConvertedName:  "DiagnosticUploadDisabled",
+		Description: `If disabled, the agent will not upload logs when entering an abnormal state for
+an extended period.`,
+		Exposed: true,
+		Name:    "diagnosticUploadDisabled",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"domaindiscoverydisabled": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "domaindiscoverydisabled",
@@ -2266,6 +2345,14 @@ type SparseAgentConfig struct {
 	// Description of the agent configuration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// The length of time the agent can stay in an abnormal state before uploading
+	// logs.
+	DiagnosticUploadDeadline *string `json:"diagnosticUploadDeadline,omitempty" msgpack:"diagnosticUploadDeadline,omitempty" bson:"diagnosticuploaddeadline,omitempty" mapstructure:"diagnosticUploadDeadline,omitempty"`
+
+	// If disabled, the agent will not upload logs when entering an abnormal state for
+	// an extended period.
+	DiagnosticUploadDisabled *bool `json:"diagnosticUploadDisabled,omitempty" msgpack:"diagnosticUploadDisabled,omitempty" bson:"diagnosticuploaddisabled,omitempty" mapstructure:"diagnosticUploadDisabled,omitempty"`
+
 	// If disabled, the agent will stop reporting the discovered domains.
 	DomainDiscoveryDisabled *bool `json:"domainDiscoveryDisabled,omitempty" msgpack:"domainDiscoveryDisabled,omitempty" bson:"domaindiscoverydisabled,omitempty" mapstructure:"domainDiscoveryDisabled,omitempty"`
 
@@ -2468,6 +2555,12 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.DiagnosticUploadDeadline != nil {
+		s.DiagnosticUploadDeadline = o.DiagnosticUploadDeadline
+	}
+	if o.DiagnosticUploadDisabled != nil {
+		s.DiagnosticUploadDisabled = o.DiagnosticUploadDisabled
+	}
 	if o.DomainDiscoveryDisabled != nil {
 		s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	}
@@ -2616,6 +2709,12 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.DiagnosticUploadDeadline != nil {
+		o.DiagnosticUploadDeadline = s.DiagnosticUploadDeadline
+	}
+	if s.DiagnosticUploadDisabled != nil {
+		o.DiagnosticUploadDisabled = s.DiagnosticUploadDisabled
+	}
 	if s.DomainDiscoveryDisabled != nil {
 		o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	}
@@ -2761,6 +2860,12 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.DiagnosticUploadDeadline != nil {
+		out.DiagnosticUploadDeadline = *o.DiagnosticUploadDeadline
+	}
+	if o.DiagnosticUploadDisabled != nil {
+		out.DiagnosticUploadDisabled = *o.DiagnosticUploadDisabled
 	}
 	if o.DomainDiscoveryDisabled != nil {
 		out.DomainDiscoveryDisabled = *o.DomainDiscoveryDisabled
@@ -3058,6 +3163,8 @@ type mongoAttributesAgentConfig struct {
 	ConfigRefreshInterval         string                           `bson:"configrefreshinterval"`
 	CreateTime                    time.Time                        `bson:"createtime"`
 	Description                   string                           `bson:"description"`
+	DiagnosticUploadDeadline      string                           `bson:"diagnosticuploaddeadline"`
+	DiagnosticUploadDisabled      bool                             `bson:"diagnosticuploaddisabled"`
 	DomainDiscoveryDisabled       bool                             `bson:"domaindiscoverydisabled"`
 	DomainReportInterval          string                           `bson:"domainreportinterval"`
 	DriverEnabled                 bool                             `bson:"driverenabled"`
@@ -3104,6 +3211,8 @@ type mongoAttributesSparseAgentConfig struct {
 	ConfigRefreshInterval         *string                           `bson:"configrefreshinterval,omitempty"`
 	CreateTime                    *time.Time                        `bson:"createtime,omitempty"`
 	Description                   *string                           `bson:"description,omitempty"`
+	DiagnosticUploadDeadline      *string                           `bson:"diagnosticuploaddeadline,omitempty"`
+	DiagnosticUploadDisabled      *bool                             `bson:"diagnosticuploaddisabled,omitempty"`
 	DomainDiscoveryDisabled       *bool                             `bson:"domaindiscoverydisabled,omitempty"`
 	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
 	DriverEnabled                 *bool                             `bson:"driverenabled,omitempty"`

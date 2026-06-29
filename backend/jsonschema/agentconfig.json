@@ -90,6 +90,25 @@
         "null"
       ]
     },
+    "diagnosticUploadDeadline": {
+      "$defaultValue": "4h",
+      "$friendlyName": "Diagnostic Upload Deadline",
+      "description": "The length of time the agent can stay in an abnormal state before uploading logs.",
+      "title": "diagnosticUploadDeadline",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "diagnosticUploadDisabled": {
+      "$friendlyName": "Diagnostic Upload Disabled",
+      "description": "If disabled, the agent will not upload logs when entering an abnormal state for an extended period.",
+      "title": "diagnosticUploadDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "domainDiscoveryDisabled": {
       "$friendlyName": "Domain Discovery Disabled",
       "description": "If disabled, the agent will stop reporting the discovered domains.",

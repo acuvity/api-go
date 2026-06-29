@@ -1220,9 +1220,15 @@ The start time for the agent.
 
 ##### `status` [`required`]
 
-Type: `enum(Alive | Paused | Stopped)`
+Type: `enum(Alive | Paused | Error | Stopped)`
 
 The status of the agent.
+
+##### `statusMessage`
+
+Type: `string`
+
+The message related to the status.
 
 ##### `systemProxyManagementState`
 
@@ -1243,6 +1249,8 @@ Stores the configuration information for the acushield agent.
   "attendedUpgrades": false,
   "blockTrafficOnFailure": false,
   "configRefreshInterval": "30m",
+  "diagnosticUploadDeadline": "12h",
+  "diagnosticUploadDisabled": false,
   "domainDiscoveryDisabled": false,
   "domainReportInterval": "30m",
   "driverEnabled": false,
@@ -1366,6 +1374,26 @@ Creation date of the object.
 Type: `string`
 
 Description of the agent configuration.
+
+##### `diagnosticUploadDeadline`
+
+Type: `string`
+
+The length of time the agent can stay in an abnormal state before uploading
+logs.
+
+Default value:
+
+```json
+"4h"
+```
+
+##### `diagnosticUploadDisabled`
+
+Type: `boolean`
+
+If disabled, the agent will not upload logs when entering an abnormal state for
+an extended period.
 
 ##### `domainDiscoveryDisabled`
 

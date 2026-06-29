@@ -1508,6 +1508,10 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		return makeErr("configRefreshInterval", "'ConfigRefreshInterval' cannot be lower than 5m")
 	}
 
+	if d, _ := time.ParseDuration(agentConfig.DiagnosticUploadDeadline); d < time.Hour {
+		return makeErr("diagnosticUploadDeadline", "'DiagnosticUploadDeadline' cannot be lower than 1h")
+	}
+
 	if d, _ := time.ParseDuration(agentConfig.DomainReportInterval); d < 5*time.Minute {
 		return makeErr("domainReportInterval", "'DomainReportInterval' cannot be lower than 5m")
 	}
