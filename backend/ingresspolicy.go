@@ -11,28 +11,75 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// IngressPolicyActionValue represents the possible values for attribute "action".
+type IngressPolicyActionValue string
+
+const (
+	// IngressPolicyActionAllow represents the value Allow.
+	IngressPolicyActionAllow IngressPolicyActionValue = "Allow"
+
+	// IngressPolicyActionDeny represents the value Deny.
+	IngressPolicyActionDeny IngressPolicyActionValue = "Deny"
+
+	// IngressPolicyActionRedirect represents the value Redirect.
+	IngressPolicyActionRedirect IngressPolicyActionValue = "Redirect"
+)
+
 // IngressPolicy represents the model of a ingresspolicy
 type IngressPolicy struct {
 	// The message that is sent if the access is denied.
-	AccessDeniedMessage string `json:"accessDeniedMessage,omitempty" msgpack:"accessDeniedMessage,omitempty" bson:"accessdeniedmessage,omitempty" mapstructure:"accessDeniedMessage,omitempty"`
+	AccessDeniedMessage string `json:"accessDeniedMessage" msgpack:"accessDeniedMessage" bson:"accessdeniedmessage" mapstructure:"accessDeniedMessage,omitempty"`
+
+	// Define if the provider is allowed or denied for the match expression.
+	Action IngressPolicyActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
 
 	// The definition to use for alerting when action is deny.
-	AlertDefinition string `json:"alertDefinition,omitempty" msgpack:"alertDefinition,omitempty" bson:"alertdefinition,omitempty" mapstructure:"alertDefinition,omitempty"`
+	AlertDefinition string `json:"alertDefinition" msgpack:"alertDefinition" bson:"alertdefinition" mapstructure:"alertDefinition,omitempty"`
+
+	// As the ingress policy is defined in the context of an application component, the
+	// application component specifies the source of the ingress connection.
+	// The value is in the form of project:app/component, where the project: is
+	// optional.
+	// If this part is missing, it implies the app/component is in the same project
+	// where the app/component is defined.
+	AppComponents []string `json:"appComponents,omitempty" msgpack:"appComponents,omitempty" bson:"appcomponents,omitempty" mapstructure:"appComponents,omitempty"`
+
+	// The list of content policies to apply when the user has access to the provider.
+	ContentPolicies []string `json:"contentPolicies" msgpack:"contentPolicies" bson:"contentpolicies" mapstructure:"contentPolicies,omitempty"`
 
 	// Description of the access policy.
-	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
-	// If true, the policy is disabled and will not be applied.
-	Disabled bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
+	// If true, the policy is disabled.
+	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
-	// The name of the ingress policy.
+	// If true, the system will not log the messages that are not considered as
+	// violations.
+	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
+
+	// The name of the access policy.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// If true, the system will run analysis in parallel of the user request. When this
+	// is active, no further policing will be done, and no content policy will run.
+	// This can be used to observe the transmitted data and have analysis report,
+	// without adding latency to the end user request, at the price of not being able
+	// to do any form of content moderation.
+	OffbandAnalysis bool `json:"offbandAnalysis" msgpack:"offbandAnalysis" bson:"offbandanalysis" mapstructure:"offbandAnalysis,omitempty"`
+
+	// If set, just log the decision, but don't enforce it.
+	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
 	// The Policy ID is the unique identifier for this policy.
 	PolicyID string `json:"policyID" msgpack:"policyID" bson:"policyid" mapstructure:"policyID,omitempty"`
 
-	// The list of rules for the ingress policy.
-	Rules []*IngressPolicyRule `json:"rules" msgpack:"rules" bson:"rules" mapstructure:"rules,omitempty"`
+	// If true, the system will remove all user data from the reported data, while
+	// keeping the analysis and metadata.
+	RedactContent bool `json:"redactContent" msgpack:"redactContent" bson:"redactcontent" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is true, ignore redaction if there are some
+	// violations.
+	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -41,7 +88,10 @@ type IngressPolicy struct {
 func NewIngressPolicy() *IngressPolicy {
 
 	return &IngressPolicy{
-		ModelVersion: 1,
+		ModelVersion:    1,
+		Action:          IngressPolicyActionAllow,
+		AppComponents:   []string{},
+		ContentPolicies: []string{},
 	}
 }
 func (o *IngressPolicy) Identity() elemental.Identity {
@@ -67,12 +117,19 @@ func (o *IngressPolicy) GetBSON() (any, error) {
 	s := &mongoAttributesIngressPolicy{}
 
 	s.AccessDeniedMessage = o.AccessDeniedMessage
+	s.Action = o.Action
 	s.AlertDefinition = o.AlertDefinition
+	s.AppComponents = o.AppComponents
+	s.ContentPolicies = o.ContentPolicies
 	s.Description = o.Description
 	s.Disabled = o.Disabled
+	s.MinimalLogging = o.MinimalLogging
 	s.Name = o.Name
+	s.OffbandAnalysis = o.OffbandAnalysis
+	s.Permissive = o.Permissive
 	s.PolicyID = o.PolicyID
-	s.Rules = o.Rules
+	s.RedactContent = o.RedactContent
+	s.RedactContentBypass = o.RedactContentBypass
 
 	return s, nil
 }
@@ -91,12 +148,19 @@ func (o *IngressPolicy) SetBSON(raw bson.Raw) error {
 	}
 
 	o.AccessDeniedMessage = s.AccessDeniedMessage
+	o.Action = s.Action
 	o.AlertDefinition = s.AlertDefinition
+	o.AppComponents = s.AppComponents
+	o.ContentPolicies = s.ContentPolicies
 	o.Description = s.Description
 	o.Disabled = s.Disabled
+	o.MinimalLogging = s.MinimalLogging
 	o.Name = s.Name
+	o.OffbandAnalysis = s.OffbandAnalysis
+	o.Permissive = s.Permissive
 	o.PolicyID = s.PolicyID
-	o.Rules = s.Rules
+	o.RedactContent = s.RedactContent
+	o.RedactContentBypass = s.RedactContentBypass
 
 	return nil
 }
@@ -122,29 +186,11 @@ func (o *IngressPolicy) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *IngressPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Rules' for 'IngressPolicy' (%s): %s", o.Identifier(), err)
-		}
-	}
-
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *IngressPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Rules' for 'IngressPolicy' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	return nil
 }
@@ -181,26 +227,24 @@ func (o *IngressPolicy) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Redirect"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateAppComponentReferences("appComponents", o.AppComponents); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '/', '@', '.' or space.`, true); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '@', '.' or space.`, true); err != nil {
 		errors = errors.Append(err)
 	}
 
 	if err := ValidateTrimmed("name", o.Name); err != nil {
 		errors = errors.Append(err)
-	}
-
-	for i, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "rules", i))
-		}
 	}
 
 	// Custom object validation.
@@ -244,18 +288,32 @@ func (o *IngressPolicy) ValueForAttribute(name string) any {
 	switch name {
 	case "accessDeniedMessage":
 		return o.AccessDeniedMessage
+	case "action":
+		return o.Action
 	case "alertDefinition":
 		return o.AlertDefinition
+	case "appComponents":
+		return o.AppComponents
+	case "contentPolicies":
+		return o.ContentPolicies
 	case "description":
 		return o.Description
 	case "disabled":
 		return o.Disabled
+	case "minimalLogging":
+		return o.MinimalLogging
 	case "name":
 		return o.Name
+	case "offbandAnalysis":
+		return o.OffbandAnalysis
+	case "permissive":
+		return o.Permissive
 	case "policyID":
 		return o.PolicyID
-	case "rules":
-		return o.Rules
+	case "redactContent":
+		return o.RedactContent
+	case "redactContentBypass":
+		return o.RedactContentBypass
 	}
 
 	return nil
@@ -273,6 +331,17 @@ var IngressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Action": {
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
+		BSONFieldName:  "action",
+		ConvertedName:  "Action",
+		DefaultValue:   IngressPolicyActionAllow,
+		Description:    `Define if the provider is allowed or denied for the match expression.`,
+		Exposed:        true,
+		Name:           "action",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"AlertDefinition": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinition",
@@ -282,6 +351,33 @@ var IngressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "alertDefinition",
 		Stored:         true,
 		Type:           "string",
+	},
+	"AppComponents": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponents",
+		ConvertedName:  "AppComponents",
+		Description: `As the ingress policy is defined in the context of an application component, the
+application component specifies the source of the ingress connection.
+The value is in the form of project:app/component, where the project: is
+optional.
+If this part is missing, it implies the app/component is in the same project
+where the app/component is defined.`,
+		Exposed: true,
+		Name:    "appComponents",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"ContentPolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
+		ConvertedName:  "ContentPolicies",
+		Description:    `The list of content policies to apply when the user has access to the provider.`,
+		Exposed:        true,
+		Name:           "contentPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -297,23 +393,58 @@ var IngressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "disabled",
 		ConvertedName:  "Disabled",
-		Description:    `If true, the policy is disabled and will not be applied.`,
+		Description:    `If true, the policy is disabled.`,
 		Exposed:        true,
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"MinimalLogging": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "minimallogging",
+		ConvertedName:  "MinimalLogging",
+		Description: `If true, the system will not log the messages that are not considered as
+violations.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the ingress policy.`,
+		Description:    `The name of the access policy.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"OffbandAnalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offbandanalysis",
+		ConvertedName:  "OffbandAnalysis",
+		Description: `If true, the system will run analysis in parallel of the user request. When this
+is active, no further policing will be done, and no content policy will run.
+This can be used to observe the transmitted data and have analysis report,
+without adding latency to the end user request, at the price of not being able
+to do any form of content moderation.`,
+		Exposed: true,
+		Name:    "offbandAnalysis",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"Permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description:    `If set, just log the decision, but don't enforce it.`,
+		Exposed:        true,
+		Name:           "permissive",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"PolicyID": {
 		AllowedChoices: []string{},
@@ -327,17 +458,27 @@ var IngressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"Rules": {
+	"RedactContent": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "rules",
-		ConvertedName:  "Rules",
-		Description:    `The list of rules for the ingress policy.`,
-		Exposed:        true,
-		Name:           "rules",
-		Required:       true,
-		Stored:         true,
-		SubType:        "ingresspolicyrule",
-		Type:           "refList",
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"RedactContentBypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
 	},
 }
 
@@ -353,6 +494,17 @@ var IngressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "string",
 	},
+	"action": {
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
+		BSONFieldName:  "action",
+		ConvertedName:  "Action",
+		DefaultValue:   IngressPolicyActionAllow,
+		Description:    `Define if the provider is allowed or denied for the match expression.`,
+		Exposed:        true,
+		Name:           "action",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"alertdefinition": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinition",
@@ -362,6 +514,33 @@ var IngressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "alertDefinition",
 		Stored:         true,
 		Type:           "string",
+	},
+	"appcomponents": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponents",
+		ConvertedName:  "AppComponents",
+		Description: `As the ingress policy is defined in the context of an application component, the
+application component specifies the source of the ingress connection.
+The value is in the form of project:app/component, where the project: is
+optional.
+If this part is missing, it implies the app/component is in the same project
+where the app/component is defined.`,
+		Exposed: true,
+		Name:    "appComponents",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"contentpolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
+		ConvertedName:  "ContentPolicies",
+		Description:    `The list of content policies to apply when the user has access to the provider.`,
+		Exposed:        true,
+		Name:           "contentPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -377,23 +556,58 @@ var IngressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		AllowedChoices: []string{},
 		BSONFieldName:  "disabled",
 		ConvertedName:  "Disabled",
-		Description:    `If true, the policy is disabled and will not be applied.`,
+		Description:    `If true, the policy is disabled.`,
 		Exposed:        true,
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"minimallogging": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "minimallogging",
+		ConvertedName:  "MinimalLogging",
+		Description: `If true, the system will not log the messages that are not considered as
+violations.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the ingress policy.`,
+		Description:    `The name of the access policy.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"offbandanalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offbandanalysis",
+		ConvertedName:  "OffbandAnalysis",
+		Description: `If true, the system will run analysis in parallel of the user request. When this
+is active, no further policing will be done, and no content policy will run.
+This can be used to observe the transmitted data and have analysis report,
+without adding latency to the end user request, at the price of not being able
+to do any form of content moderation.`,
+		Exposed: true,
+		Name:    "offbandAnalysis",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description:    `If set, just log the decision, but don't enforce it.`,
+		Exposed:        true,
+		Name:           "permissive",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"policyid": {
 		AllowedChoices: []string{},
@@ -407,26 +621,43 @@ var IngressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "string",
 	},
-	"rules": {
+	"redactcontent": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "rules",
-		ConvertedName:  "Rules",
-		Description:    `The list of rules for the ingress policy.`,
-		Exposed:        true,
-		Name:           "rules",
-		Required:       true,
-		Stored:         true,
-		SubType:        "ingresspolicyrule",
-		Type:           "refList",
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"redactcontentbypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
 	},
 }
 
 type mongoAttributesIngressPolicy struct {
-	AccessDeniedMessage string               `bson:"accessdeniedmessage,omitempty"`
-	AlertDefinition     string               `bson:"alertdefinition,omitempty"`
-	Description         string               `bson:"description,omitempty"`
-	Disabled            bool                 `bson:"disabled,omitempty"`
-	Name                string               `bson:"name"`
-	PolicyID            string               `bson:"policyid"`
-	Rules               []*IngressPolicyRule `bson:"rules"`
+	AccessDeniedMessage string                   `bson:"accessdeniedmessage"`
+	Action              IngressPolicyActionValue `bson:"action"`
+	AlertDefinition     string                   `bson:"alertdefinition"`
+	AppComponents       []string                 `bson:"appcomponents,omitempty"`
+	ContentPolicies     []string                 `bson:"contentpolicies"`
+	Description         string                   `bson:"description"`
+	Disabled            bool                     `bson:"disabled"`
+	MinimalLogging      bool                     `bson:"minimallogging"`
+	Name                string                   `bson:"name"`
+	OffbandAnalysis     bool                     `bson:"offbandanalysis"`
+	Permissive          bool                     `bson:"permissive"`
+	PolicyID            string                   `bson:"policyid"`
+	RedactContent       bool                     `bson:"redactcontent"`
+	RedactContentBypass bool                     `bson:"redactcontentbypass"`
 }

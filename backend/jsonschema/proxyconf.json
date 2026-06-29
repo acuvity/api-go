@@ -11,6 +11,24 @@
   "additionalProperties": false,
   "description": "ProxyConf is an API for proxy.",
   "properties": {
+    "AIGatewayConfs": {
+      "$friendlyName": "AI Gateway Configs",
+      "description": "The list of AI gateway configurations.",
+      "items": {
+        "$ref": "aigatewayconf.json"
+      },
+      "title": "AIGatewayConfs",
+      "type": "array"
+    },
+    "Apps": {
+      "$friendlyName": "Apps",
+      "description": "The list of apps and their components registered in the system including their resolved access and content policies.",
+      "items": {
+        "$ref": "app.json"
+      },
+      "title": "Apps",
+      "type": "array"
+    },
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,

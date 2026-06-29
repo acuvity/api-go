@@ -1,0 +1,127 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Gateway Conf Connector",
+  "$friendlyNamePlural": "AI Gateway Conf Connectors",
+  "$modelName": "AIGatewayConfConnector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconfconnectors",
+  "$modelRestName": "aigatewayconfconnector",
+  "additionalProperties": false,
+  "description": "The rendered connector shape consumed by the AI Gateway in an AI Gateway configuration.",
+  "properties": {
+    "MCPServerName": {
+      "$friendlyName": "MCP Server Name",
+      "description": "The normalized MCP server name exposed to clients.",
+      "title": "MCPServerName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "MCPTools": {
+      "$friendlyName": "MCP Tools",
+      "description": "The rendered MCP tools attached to this backend.",
+      "items": {
+        "$ref": "aigatewayconfmcptool.json"
+      },
+      "title": "MCPTools",
+      "type": "array"
+    },
+    "appComponent": {
+      "$friendlyName": "App Component",
+      "description": "The app component that this target represents.",
+      "title": "appComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "description": "Upstream OAuth client ID.",
+      "title": "clientID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "description": "Upstream OAuth client secret.",
+      "title": "clientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the connector.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "oauthTokenEncryptionClaim": {
+      "$friendlyName": "OAuth Token Encryption Claim",
+      "description": "The claim used to derive the encryption key for stored OAuth tokens.",
+      "title": "oauthTokenEncryptionClaim",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "oauthTokenIndexingClaims": {
+      "$friendlyName": "OAuth Token Indexing Claims",
+      "description": "The claims used to index stored OAuth tokens.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "oauthTokenIndexingClaims",
+      "type": "array"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The name of the provider backing this connector.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "providerTokens": {
+      "$friendlyName": "Provider Tokens",
+      "description": "The rendered provider token pools attached to this gateway.",
+      "items": {
+        "$ref": "aigatewayconftokenpool.json"
+      },
+      "title": "providerTokens",
+      "type": "array"
+    },
+    "route": {
+      "$friendlyName": "Route",
+      "description": "The route component.",
+      "title": "route",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "upstreamURL": {
+      "$friendlyName": "Upstream URL",
+      "description": "The upstream URL of the backend.",
+      "title": "upstreamURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AIGatewayConfConnector",
+  "type": "object"
+}

@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Gateway Conf Token Pool",
+  "$friendlyNamePlural": "AI Gateway Conf Token Pools",
+  "$modelName": "AIGatewayConfTokenPool",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconftokenpools",
+  "$modelRestName": "aigatewayconftokenpool",
+  "additionalProperties": false,
+  "description": "The rendered token pool shape consumed by the AI Gateway.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the provider token pool.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokens": {
+      "$friendlyName": "Tokens",
+      "description": "The rendered tokens belonging to this pool.",
+      "items": {
+        "$ref": "aigatewayconftoken.json"
+      },
+      "title": "tokens",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "AIGatewayConfTokenPool",
+  "type": "object"
+}

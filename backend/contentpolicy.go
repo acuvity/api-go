@@ -13,6 +13,17 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// ContentPolicyKindValue represents the possible values for attribute "kind".
+type ContentPolicyKindValue string
+
+const (
+	// ContentPolicyKindClassic represents the value Classic.
+	ContentPolicyKindClassic ContentPolicyKindValue = "Classic"
+
+	// ContentPolicyKindThreat represents the value Threat.
+	ContentPolicyKindThreat ContentPolicyKindValue = "Threat"
+)
+
 // ContentPolicyTypeValue represents the possible values for attribute "type".
 type ContentPolicyTypeValue string
 
@@ -117,6 +128,10 @@ type ContentPolicy struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
+	// Indicates whether this content policy was created automatically by a Threat
+	// (Threat) or is a standalone user-defined policy (Classic).
+	Kind ContentPolicyKindValue `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
 	// The list of moderations to take when the user has access to the provider.
 	Moderations []*Moderation `json:"moderations" msgpack:"moderations" bson:"moderations" mapstructure:"moderations,omitempty"`
@@ -352,6 +367,7 @@ func (o *ContentPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			FriendlyName: &o.FriendlyName,
 			ImportHash:   &o.ImportHash,
 			ImportLabel:  &o.ImportLabel,
+			Kind:         &o.Kind,
 			Moderations:  &o.Moderations,
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
@@ -378,6 +394,8 @@ func (o *ContentPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "kind":
+			sp.Kind = &(o.Kind)
 		case "moderations":
 			sp.Moderations = &(o.Moderations)
 		case "name":
@@ -424,6 +442,9 @@ func (o *ContentPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.Kind != nil {
+		o.Kind = *so.Kind
 	}
 	if so.Moderations != nil {
 		o.Moderations = *so.Moderations
@@ -597,6 +618,8 @@ func (o *ContentPolicy) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "kind":
+		return o.Kind
 	case "moderations":
 		return o.Moderations
 	case "name":
@@ -699,6 +722,7 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+
 	"Moderations": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "moderations",
@@ -861,6 +885,7 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+
 	"moderations": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "moderations",
@@ -1023,6 +1048,10 @@ type SparseContentPolicy struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
+	// Indicates whether this content policy was created automatically by a Threat
+	// (Threat) or is a standalone user-defined policy (Classic).
+	Kind *ContentPolicyKindValue `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
 	// The list of moderations to take when the user has access to the provider.
 	Moderations *[]*Moderation `json:"moderations,omitempty" msgpack:"moderations,omitempty" bson:"moderations,omitempty" mapstructure:"moderations,omitempty"`
@@ -1223,6 +1252,9 @@ func (o *SparseContentPolicy) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.Kind != nil {
+		out.Kind = *o.Kind
 	}
 	if o.Moderations != nil {
 		out.Moderations = *o.Moderations

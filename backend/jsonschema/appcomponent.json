@@ -29,7 +29,7 @@
     "ingress": {
       "$friendlyName": "Ingress",
       "$ref": "appcomponentingress.json",
-      "description": "The ingress configuration of the component.",
+      "description": "The ingress configuration of the component. Configure the ingress settings if this app component is a server and has its request processing configured through the provider settings.",
       "title": "ingress"
     },
     "kind": {
@@ -52,6 +52,12 @@
       "pattern": "^[a-zA-Z0-9-_]+$",
       "title": "name",
       "type": "string"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "$ref": "appcomponentprovider.json",
+      "description": "The optional provider configuration of the component. If this app component is a server and is itself acting as a provider, define the provider settings here. Policies for incoming requests to this provider are controlled through the ingress setinngs.",
+      "title": "provider"
     },
     "renewToken": {
       "$friendlyName": "Renew Token",

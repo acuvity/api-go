@@ -2,8 +2,8 @@
   "$extends": [
     "@sharded",
     "@identifiable",
-    "@importable",
-    "@timed"
+    "@timed",
+    "@parentable"
   ],
   "$friendlyName": "Provider Token",
   "$friendlyNamePlural": "Provider Tokens",
@@ -34,31 +34,20 @@
         "null"
       ]
     },
-    "importHash": {
-      "$creationOnly": true,
-      "$friendlyName": "ImportHash",
-      "description": "The hash of the structure used to compare with new import version.",
-      "title": "importHash",
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the provider token.",
+      "title": "description",
       "type": [
         "string",
         "null"
       ]
     },
-    "importLabel": {
-      "$creationOnly": true,
-      "$friendlyName": "ImportLabel",
-      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
-      "title": "importLabel",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "name": {
-      "$friendlyName": "Name",
+    "keyID": {
+      "$friendlyName": "Key ID",
       "$required": true,
-      "description": "Name of the token. As token contents are hidden after creation, name allows a way to delete it.",
-      "title": "name",
+      "description": "The key ID used to identify the encryption key for this token.",
+      "title": "keyID",
       "type": "string"
     },
     "namespace": {
@@ -71,17 +60,20 @@
         "null"
       ]
     },
-    "provider": {
-      "$friendlyName": "Provider",
-      "$required": true,
-      "description": "Name of the provider this token is used with.",
-      "title": "provider",
-      "type": "string"
+    "parentID": {
+      "$friendlyName": "Parent ID",
+      "$readOnly": true,
+      "description": "The ID of the parent resource.",
+      "title": "parentID",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "token": {
       "$friendlyName": "Token",
       "$required": true,
-      "description": "token to authenticate with the provider.",
+      "description": "Token that will be encrypted using the key referenced by keyID.",
       "title": "token",
       "type": "string"
     },
@@ -97,8 +89,7 @@
     }
   },
   "required": [
-    "name",
-    "provider",
+    "keyID",
     "token"
   ],
   "title": "ProviderToken",

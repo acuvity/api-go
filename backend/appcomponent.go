@@ -110,7 +110,9 @@ type AppComponent struct {
 	// The egress configuration of the component.
 	Egress *AppComponentEgress `json:"egress" msgpack:"egress" bson:"egress" mapstructure:"egress,omitempty"`
 
-	// The ingress configuration of the component.
+	// The ingress configuration of the component. Configure the ingress settings if
+	// this app component is a server and has its request processing configured through
+	// the provider settings.
 	Ingress *AppComponentIngress `json:"ingress" msgpack:"ingress" bson:"ingress" mapstructure:"ingress,omitempty"`
 
 	// The kind of component.
@@ -118,6 +120,12 @@ type AppComponent struct {
 
 	// The component name.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// The optional provider configuration of the component. If this app component is a
+	// server and is itself acting as a provider, define the provider settings here.
+	// Policies for incoming requests to this provider are controlled through the
+	// ingress setinngs.
+	Provider *AppComponentProvider `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
 	// Set to true on update to issue a new credential.
 	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
@@ -130,8 +138,7 @@ type AppComponent struct {
 	Selector AppComponentSelector `json:"selector" msgpack:"selector" bson:"selector" mapstructure:"selector,omitempty"`
 
 	// The token for the current component. Only populated by the backend when the
-	// caller's
-	// claim match the parents app.subject.
+	// caller's claim match the parents app.subject.
 	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
 
 	// The list of tokens issued for this component.
@@ -148,6 +155,7 @@ func NewAppComponent() *AppComponent {
 		Egress:       NewAppComponentEgress(),
 		Ingress:      NewAppComponentIngress(),
 		Kind:         AppComponentKindOther,
+		Provider:     NewAppComponentProvider(),
 	}
 }
 
@@ -183,6 +191,7 @@ func (o *AppComponent) GetBSON() (any, error) {
 	s.Ingress = o.Ingress
 	s.Kind = o.Kind
 	s.Name = o.Name
+	s.Provider = o.Provider
 	s.Selector = o.Selector
 	s.Tokenref = o.Tokenref
 
@@ -207,6 +216,7 @@ func (o *AppComponent) SetBSON(raw bson.Raw) error {
 	o.Ingress = s.Ingress
 	o.Kind = s.Kind
 	o.Name = s.Name
+	o.Provider = s.Provider
 	o.Selector = s.Selector
 	o.Tokenref = s.Tokenref
 
@@ -254,6 +264,7 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Ingress:       o.Ingress,
 			Kind:          &o.Kind,
 			Name:          &o.Name,
+			Provider:      o.Provider,
 			RenewToken:    &o.RenewToken,
 			RenewTokenTag: &o.RenewTokenTag,
 			Selector:      &o.Selector,
@@ -275,6 +286,8 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Kind = &(o.Kind)
 		case "name":
 			sp.Name = &(o.Name)
+		case "provider":
+			sp.Provider = o.Provider
 		case "renewToken":
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
@@ -313,6 +326,9 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
+	if so.Provider != nil {
+		o.Provider = so.Provider
+	}
 	if so.RenewToken != nil {
 		o.RenewToken = *so.RenewToken
 	}
@@ -345,6 +361,12 @@ func (o *AppComponent) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Provider != nil {
+		if err := o.Provider.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Provider' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if err := o.Selector.EncryptAttributes(encrypter); err != nil {
 		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
 	}
@@ -373,6 +395,12 @@ func (o *AppComponent) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 	if o.Ingress != nil {
 		if err := o.Ingress.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Ingress' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Provider != nil {
+		if err := o.Provider.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Provider' for 'AppComponent' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -450,6 +478,13 @@ func (o *AppComponent) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.Provider != nil {
+		if err := o.Provider.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "provider")
+		}
+	}
+
 	if err := o.Selector.Validate(); err != nil {
 		errors = errors.Append(err)
 		elemental.InjectAttributePath(errors, "selector")
@@ -509,6 +544,8 @@ func (o *AppComponent) ValueForAttribute(name string) any {
 		return o.Kind
 	case "name":
 		return o.Name
+	case "provider":
+		return o.Provider
 	case "renewToken":
 		return o.RenewToken
 	case "renewTokenTag":
@@ -551,12 +588,14 @@ var AppComponentAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "ingress",
 		ConvertedName:  "Ingress",
-		Description:    `The ingress configuration of the component.`,
-		Exposed:        true,
-		Name:           "ingress",
-		Stored:         true,
-		SubType:        "appcomponentingress",
-		Type:           "ref",
+		Description: `The ingress configuration of the component. Configure the ingress settings if
+this app component is a server and has its request processing configured through
+the provider settings.`,
+		Exposed: true,
+		Name:    "ingress",
+		Stored:  true,
+		SubType: "appcomponentingress",
+		Type:    "ref",
 	},
 	"Kind": {
 		AllowedChoices: []string{"Agent", "Tool", "Model", "VectorDB", "Other"},
@@ -580,6 +619,20 @@ var AppComponentAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Provider": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "provider",
+		ConvertedName:  "Provider",
+		Description: `The optional provider configuration of the component. If this app component is a
+server and is itself acting as a provider, define the provider settings here.
+Policies for incoming requests to this provider are controlled through the
+ingress setinngs.`,
+		Exposed: true,
+		Name:    "provider",
+		Stored:  true,
+		SubType: "appcomponentprovider",
+		Type:    "ref",
 	},
 	"RenewToken": {
 		AllowedChoices: []string{},
@@ -617,8 +670,7 @@ component.`,
 		Autogenerated:  true,
 		ConvertedName:  "Token",
 		Description: `The token for the current component. Only populated by the backend when the
-caller's
-claim match the parents app.subject.`,
+caller's claim match the parents app.subject.`,
 		Exposed:   true,
 		Name:      "token",
 		ReadOnly:  true,
@@ -667,12 +719,14 @@ var AppComponentLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		AllowedChoices: []string{},
 		BSONFieldName:  "ingress",
 		ConvertedName:  "Ingress",
-		Description:    `The ingress configuration of the component.`,
-		Exposed:        true,
-		Name:           "ingress",
-		Stored:         true,
-		SubType:        "appcomponentingress",
-		Type:           "ref",
+		Description: `The ingress configuration of the component. Configure the ingress settings if
+this app component is a server and has its request processing configured through
+the provider settings.`,
+		Exposed: true,
+		Name:    "ingress",
+		Stored:  true,
+		SubType: "appcomponentingress",
+		Type:    "ref",
 	},
 	"kind": {
 		AllowedChoices: []string{"Agent", "Tool", "Model", "VectorDB", "Other"},
@@ -696,6 +750,20 @@ var AppComponentLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"provider": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "provider",
+		ConvertedName:  "Provider",
+		Description: `The optional provider configuration of the component. If this app component is a
+server and is itself acting as a provider, define the provider settings here.
+Policies for incoming requests to this provider are controlled through the
+ingress setinngs.`,
+		Exposed: true,
+		Name:    "provider",
+		Stored:  true,
+		SubType: "appcomponentprovider",
+		Type:    "ref",
 	},
 	"renewtoken": {
 		AllowedChoices: []string{},
@@ -733,8 +801,7 @@ component.`,
 		Autogenerated:  true,
 		ConvertedName:  "Token",
 		Description: `The token for the current component. Only populated by the backend when the
-caller's
-claim match the parents app.subject.`,
+caller's claim match the parents app.subject.`,
 		Exposed:   true,
 		Name:      "token",
 		ReadOnly:  true,
@@ -825,7 +892,9 @@ type SparseAppComponent struct {
 	// The egress configuration of the component.
 	Egress *AppComponentEgress `json:"egress,omitempty" msgpack:"egress,omitempty" bson:"egress,omitempty" mapstructure:"egress,omitempty"`
 
-	// The ingress configuration of the component.
+	// The ingress configuration of the component. Configure the ingress settings if
+	// this app component is a server and has its request processing configured through
+	// the provider settings.
 	Ingress *AppComponentIngress `json:"ingress,omitempty" msgpack:"ingress,omitempty" bson:"ingress,omitempty" mapstructure:"ingress,omitempty"`
 
 	// The kind of component.
@@ -833,6 +902,12 @@ type SparseAppComponent struct {
 
 	// The component name.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+
+	// The optional provider configuration of the component. If this app component is a
+	// server and is itself acting as a provider, define the provider settings here.
+	// Policies for incoming requests to this provider are controlled through the
+	// ingress setinngs.
+	Provider *AppComponentProvider `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
 	// Set to true on update to issue a new credential.
 	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
@@ -845,8 +920,7 @@ type SparseAppComponent struct {
 	Selector *AppComponentSelector `json:"selector,omitempty" msgpack:"selector,omitempty" bson:"selector,omitempty" mapstructure:"selector,omitempty"`
 
 	// The token for the current component. Only populated by the backend when the
-	// caller's
-	// claim match the parents app.subject.
+	// caller's claim match the parents app.subject.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
 
 	// The list of tokens issued for this component.
@@ -902,6 +976,9 @@ func (o *SparseAppComponent) GetBSON() (any, error) {
 	if o.Name != nil {
 		s.Name = o.Name
 	}
+	if o.Provider != nil {
+		s.Provider = o.Provider
+	}
 	if o.Selector != nil {
 		s.Selector = o.Selector
 	}
@@ -940,6 +1017,9 @@ func (o *SparseAppComponent) SetBSON(raw bson.Raw) error {
 	if s.Name != nil {
 		o.Name = s.Name
 	}
+	if s.Provider != nil {
+		o.Provider = s.Provider
+	}
 	if s.Selector != nil {
 		o.Selector = s.Selector
 	}
@@ -975,6 +1055,9 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
+	if o.Provider != nil {
+		out.Provider = o.Provider
+	}
 	if o.RenewToken != nil {
 		out.RenewToken = *o.RenewToken
 	}
@@ -1009,6 +1092,12 @@ func (o *SparseAppComponent) EncryptAttributes(encrypter elemental.AttributeEncr
 		}
 	}
 
+	if o.Provider != nil {
+		if err := o.Provider.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Provider' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if err := o.Selector.EncryptAttributes(encrypter); err != nil {
 		return fmt.Errorf("unable to encrypt ref attribute 'Selector' for 'AppComponent' (%s): %w", o.Identifier(), err)
 	}
@@ -1039,6 +1128,12 @@ func (o *SparseAppComponent) DecryptAttributes(encrypter elemental.AttributeEncr
 	if o.Ingress != nil {
 		if err := o.Ingress.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Ingress' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Provider != nil {
+		if err := o.Provider.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Provider' for 'AppComponent' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1090,6 +1185,7 @@ type mongoAttributesAppComponent struct {
 	Ingress     *AppComponentIngress  `bson:"ingress"`
 	Kind        AppComponentKindValue `bson:"kind"`
 	Name        string                `bson:"name"`
+	Provider    *AppComponentProvider `bson:"provider"`
 	Selector    AppComponentSelector  `bson:"selector"`
 	Tokenref    []*TokenRef           `bson:"tokenref,omitempty"`
 }
@@ -1099,6 +1195,7 @@ type mongoAttributesSparseAppComponent struct {
 	Ingress     *AppComponentIngress   `bson:"ingress,omitempty"`
 	Kind        *AppComponentKindValue `bson:"kind,omitempty"`
 	Name        *string                `bson:"name,omitempty"`
+	Provider    *AppComponentProvider  `bson:"provider,omitempty"`
 	Selector    *AppComponentSelector  `bson:"selector,omitempty"`
 	Tokenref    *[]*TokenRef           `bson:"tokenref,omitempty"`
 }

@@ -11,31 +11,104 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// EgressPolicyActionValue represents the possible values for attribute "action".
+type EgressPolicyActionValue string
+
+const (
+	// EgressPolicyActionAllow represents the value Allow.
+	EgressPolicyActionAllow EgressPolicyActionValue = "Allow"
+
+	// EgressPolicyActionDeny represents the value Deny.
+	EgressPolicyActionDeny EgressPolicyActionValue = "Deny"
+
+	// EgressPolicyActionRedirect represents the value Redirect.
+	EgressPolicyActionRedirect EgressPolicyActionValue = "Redirect"
+)
+
+// EgressPolicyTransportModeValue represents the possible values for attribute "transportMode".
+type EgressPolicyTransportModeValue string
+
+const (
+	// EgressPolicyTransportModeGateway represents the value Gateway.
+	EgressPolicyTransportModeGateway EgressPolicyTransportModeValue = "Gateway"
+
+	// EgressPolicyTransportModeProxy represents the value Proxy.
+	EgressPolicyTransportModeProxy EgressPolicyTransportModeValue = "Proxy"
+)
+
 // EgressPolicy represents the model of a egresspolicy
 type EgressPolicy struct {
-	// The list of ACLs to apply for the egress policy.
-	ACLs []*EgressPolicyACL `json:"ACLs,omitempty" msgpack:"ACLs,omitempty" bson:"acls,omitempty" mapstructure:"ACLs,omitempty"`
-
 	// The message that is sent if the access is denied.
-	AccessDeniedMessage string `json:"accessDeniedMessage,omitempty" msgpack:"accessDeniedMessage,omitempty" bson:"accessdeniedmessage,omitempty" mapstructure:"accessDeniedMessage,omitempty"`
+	AccessDeniedMessage string `json:"accessDeniedMessage" msgpack:"accessDeniedMessage" bson:"accessdeniedmessage" mapstructure:"accessDeniedMessage,omitempty"`
+
+	// Define if the provider is allowed or denied for the match expression.
+	Action EgressPolicyActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
 
 	// The definition to use for alerting when action is deny.
-	AlertDefinition string `json:"alertDefinition,omitempty" msgpack:"alertDefinition,omitempty" bson:"alertdefinition,omitempty" mapstructure:"alertDefinition,omitempty"`
+	AlertDefinition string `json:"alertDefinition" msgpack:"alertDefinition" bson:"alertdefinition" mapstructure:"alertDefinition,omitempty"`
+
+	// If true, all gateways can be used.
+	AnyGatewayAllowed bool `json:"anyGatewayAllowed" msgpack:"anyGatewayAllowed" bson:"anygatewayallowed" mapstructure:"anyGatewayAllowed,omitempty"`
+
+	// If true, all tools can be used.
+	AnyToolAllowed bool `json:"anyToolAllowed" msgpack:"anyToolAllowed" bson:"anytoolallowed" mapstructure:"anyToolAllowed,omitempty"`
+
+	// As the egress policy is defined in the context of an application component, the
+	// application component specifies destination of the egress connection.
+	// The value is in the form of project:app/component, where the project: is
+	// optional.
+	// If this part is missing, it implies the app/component is in the same project
+	// where the app/component is defined.
+	AppComponents []string `json:"appComponents" msgpack:"appComponents" bson:"appcomponents" mapstructure:"appComponents,omitempty"`
+
+	// The list of content policies to apply when the user has access to the provider.
+	ContentPolicies []string `json:"contentPolicies" msgpack:"contentPolicies" bson:"contentpolicies" mapstructure:"contentPolicies,omitempty"`
 
 	// Description of the access policy.
-	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
-	// If true, the policy is disabled and will not be applied.
-	Disabled bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
+	// If true, the policy is disabled.
+	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
-	// The name of the egress policy.
+	// The list of gateways that this rule applies to.
+	Gateways []string `json:"gateways" msgpack:"gateways" bson:"gateways" mapstructure:"gateways,omitempty"`
+
+	// If true, the system will not log the messages that are not considered as
+	// violations.
+	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
+
+	// The name of the access policy.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+
+	// If true, the system will run analysis in parallel of the user request. When this
+	// is active, no further policing will be done, and no content policy will run.
+	// This can be used to observe the transmitted data and have analysis report,
+	// without adding latency to the end user request, at the price of not being able
+	// to do any form of content moderation.
+	OffbandAnalysis bool `json:"offbandAnalysis" msgpack:"offbandAnalysis" bson:"offbandanalysis" mapstructure:"offbandAnalysis,omitempty"`
+
+	// If set, just log the decision, but don't enforce it.
+	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
 	// The Policy ID is the unique identifier for this policy.
 	PolicyID string `json:"policyID" msgpack:"policyID" bson:"policyid" mapstructure:"policyID,omitempty"`
 
-	// Rules that define how egress traffic is handled.
-	Rules []*EgressPolicyRule `json:"rules,omitempty" msgpack:"rules,omitempty" bson:"rules,omitempty" mapstructure:"rules,omitempty"`
+	// The list of providers that this rule applies to.
+	Providers []string `json:"providers" msgpack:"providers" bson:"providers" mapstructure:"providers,omitempty"`
+
+	// If true, the system will remove all user data from the reported data, while
+	// keeping the analysis and metadata.
+	RedactContent bool `json:"redactContent" msgpack:"redactContent" bson:"redactcontent" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is true, ignore redaction if there are some
+	// violations.
+	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
+
+	// The list of tools that this rule applies to.
+	Tools []string `json:"tools" msgpack:"tools" bson:"tools" mapstructure:"tools,omitempty"`
+
+	// Specify if this policy applies to transparent proxy or gateway.
+	TransportMode EgressPolicyTransportModeValue `json:"transportMode" msgpack:"transportMode" bson:"transportmode" mapstructure:"transportMode,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -44,7 +117,15 @@ type EgressPolicy struct {
 func NewEgressPolicy() *EgressPolicy {
 
 	return &EgressPolicy{
-		ModelVersion: 1,
+		ModelVersion:      1,
+		Action:            EgressPolicyActionAllow,
+		AnyGatewayAllowed: false,
+		AnyToolAllowed:    false,
+		AppComponents:     []string{},
+		ContentPolicies:   []string{},
+		Gateways:          []string{},
+		Providers:         []string{},
+		Tools:             []string{},
 	}
 }
 func (o *EgressPolicy) Identity() elemental.Identity {
@@ -69,14 +150,26 @@ func (o *EgressPolicy) GetBSON() (any, error) {
 
 	s := &mongoAttributesEgressPolicy{}
 
-	s.ACLs = o.ACLs
 	s.AccessDeniedMessage = o.AccessDeniedMessage
+	s.Action = o.Action
 	s.AlertDefinition = o.AlertDefinition
+	s.AnyGatewayAllowed = o.AnyGatewayAllowed
+	s.AnyToolAllowed = o.AnyToolAllowed
+	s.AppComponents = o.AppComponents
+	s.ContentPolicies = o.ContentPolicies
 	s.Description = o.Description
 	s.Disabled = o.Disabled
+	s.Gateways = o.Gateways
+	s.MinimalLogging = o.MinimalLogging
 	s.Name = o.Name
+	s.OffbandAnalysis = o.OffbandAnalysis
+	s.Permissive = o.Permissive
 	s.PolicyID = o.PolicyID
-	s.Rules = o.Rules
+	s.Providers = o.Providers
+	s.RedactContent = o.RedactContent
+	s.RedactContentBypass = o.RedactContentBypass
+	s.Tools = o.Tools
+	s.TransportMode = o.TransportMode
 
 	return s, nil
 }
@@ -94,14 +187,26 @@ func (o *EgressPolicy) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.ACLs = s.ACLs
 	o.AccessDeniedMessage = s.AccessDeniedMessage
+	o.Action = s.Action
 	o.AlertDefinition = s.AlertDefinition
+	o.AnyGatewayAllowed = s.AnyGatewayAllowed
+	o.AnyToolAllowed = s.AnyToolAllowed
+	o.AppComponents = s.AppComponents
+	o.ContentPolicies = s.ContentPolicies
 	o.Description = s.Description
 	o.Disabled = s.Disabled
+	o.Gateways = s.Gateways
+	o.MinimalLogging = s.MinimalLogging
 	o.Name = s.Name
+	o.OffbandAnalysis = s.OffbandAnalysis
+	o.Permissive = s.Permissive
 	o.PolicyID = s.PolicyID
-	o.Rules = s.Rules
+	o.Providers = s.Providers
+	o.RedactContent = s.RedactContent
+	o.RedactContentBypass = s.RedactContentBypass
+	o.Tools = s.Tools
+	o.TransportMode = s.TransportMode
 
 	return nil
 }
@@ -127,47 +232,11 @@ func (o *EgressPolicy) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *EgressPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.ACLs {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ACLs' for 'EgressPolicy' (%s): %s", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Rules' for 'EgressPolicy' (%s): %s", o.Identifier(), err)
-		}
-	}
-
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *EgressPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	for _, sub := range o.ACLs {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ACLs' for 'EgressPolicy' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Rules' for 'EgressPolicy' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	return nil
 }
@@ -204,21 +273,19 @@ func (o *EgressPolicy) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for i, sub := range o.ACLs {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ACLs", i))
-		}
+	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Redirect"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateAppComponentReferences("appComponents", o.AppComponents); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '/', '@', '.' or space.`, true); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '@', '.' or space.`, true); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -226,14 +293,12 @@ func (o *EgressPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for i, sub := range o.Rules {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "rules", i))
-		}
+	if err := elemental.ValidateRequiredString("transportMode", string(o.TransportMode)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("transportMode", string(o.TransportMode), []string{"Proxy", "Gateway"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	// Custom object validation.
@@ -275,22 +340,46 @@ func (*EgressPolicy) AttributeSpecifications() map[string]elemental.AttributeSpe
 func (o *EgressPolicy) ValueForAttribute(name string) any {
 
 	switch name {
-	case "ACLs":
-		return o.ACLs
 	case "accessDeniedMessage":
 		return o.AccessDeniedMessage
+	case "action":
+		return o.Action
 	case "alertDefinition":
 		return o.AlertDefinition
+	case "anyGatewayAllowed":
+		return o.AnyGatewayAllowed
+	case "anyToolAllowed":
+		return o.AnyToolAllowed
+	case "appComponents":
+		return o.AppComponents
+	case "contentPolicies":
+		return o.ContentPolicies
 	case "description":
 		return o.Description
 	case "disabled":
 		return o.Disabled
+	case "gateways":
+		return o.Gateways
+	case "minimalLogging":
+		return o.MinimalLogging
 	case "name":
 		return o.Name
+	case "offbandAnalysis":
+		return o.OffbandAnalysis
+	case "permissive":
+		return o.Permissive
 	case "policyID":
 		return o.PolicyID
-	case "rules":
-		return o.Rules
+	case "providers":
+		return o.Providers
+	case "redactContent":
+		return o.RedactContent
+	case "redactContentBypass":
+		return o.RedactContentBypass
+	case "tools":
+		return o.Tools
+	case "transportMode":
+		return o.TransportMode
 	}
 
 	return nil
@@ -298,17 +387,6 @@ func (o *EgressPolicy) ValueForAttribute(name string) any {
 
 // EgressPolicyAttributesMap represents the map of attribute for EgressPolicy.
 var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
-	"ACLs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "acls",
-		ConvertedName:  "ACLs",
-		Description:    `The list of ACLs to apply for the egress policy.`,
-		Exposed:        true,
-		Name:           "ACLs",
-		Stored:         true,
-		SubType:        "egresspolicyacl",
-		Type:           "refList",
-	},
 	"AccessDeniedMessage": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "accessdeniedmessage",
@@ -319,6 +397,17 @@ var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Action": {
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
+		BSONFieldName:  "action",
+		ConvertedName:  "Action",
+		DefaultValue:   EgressPolicyActionAllow,
+		Description:    `Define if the provider is allowed or denied for the match expression.`,
+		Exposed:        true,
+		Name:           "action",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"AlertDefinition": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinition",
@@ -328,6 +417,53 @@ var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "alertDefinition",
 		Stored:         true,
 		Type:           "string",
+	},
+	"AnyGatewayAllowed": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anygatewayallowed",
+		ConvertedName:  "AnyGatewayAllowed",
+		Description:    `If true, all gateways can be used.`,
+		Exposed:        true,
+		Name:           "anyGatewayAllowed",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"AnyToolAllowed": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anytoolallowed",
+		ConvertedName:  "AnyToolAllowed",
+		Description:    `If true, all tools can be used.`,
+		Exposed:        true,
+		Name:           "anyToolAllowed",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"AppComponents": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponents",
+		ConvertedName:  "AppComponents",
+		Description: `As the egress policy is defined in the context of an application component, the
+application component specifies destination of the egress connection.
+The value is in the form of project:app/component, where the project: is
+optional.
+If this part is missing, it implies the app/component is in the same project
+where the app/component is defined.`,
+		Exposed: true,
+		Name:    "appComponents",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"ContentPolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
+		ConvertedName:  "ContentPolicies",
+		Description:    `The list of content policies to apply when the user has access to the provider.`,
+		Exposed:        true,
+		Name:           "contentPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -343,23 +479,69 @@ var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "disabled",
 		ConvertedName:  "Disabled",
-		Description:    `If true, the policy is disabled and will not be applied.`,
+		Description:    `If true, the policy is disabled.`,
 		Exposed:        true,
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"Gateways": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateways",
+		ConvertedName:  "Gateways",
+		Description:    `The list of gateways that this rule applies to.`,
+		Exposed:        true,
+		Name:           "gateways",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"MinimalLogging": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "minimallogging",
+		ConvertedName:  "MinimalLogging",
+		Description: `If true, the system will not log the messages that are not considered as
+violations.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the egress policy.`,
+		Description:    `The name of the access policy.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"OffbandAnalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offbandanalysis",
+		ConvertedName:  "OffbandAnalysis",
+		Description: `If true, the system will run analysis in parallel of the user request. When this
+is active, no further policing will be done, and no content policy will run.
+This can be used to observe the transmitted data and have analysis report,
+without adding latency to the end user request, at the price of not being able
+to do any form of content moderation.`,
+		Exposed: true,
+		Name:    "offbandAnalysis",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"Permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description:    `If set, just log the decision, but don't enforce it.`,
+		Exposed:        true,
+		Name:           "permissive",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"PolicyID": {
 		AllowedChoices: []string{},
@@ -373,32 +555,65 @@ var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"Rules": {
+	"Providers": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "rules",
-		ConvertedName:  "Rules",
-		Description:    `Rules that define how egress traffic is handled.`,
+		BSONFieldName:  "providers",
+		ConvertedName:  "Providers",
+		Description:    `The list of providers that this rule applies to.`,
 		Exposed:        true,
-		Name:           "rules",
+		Name:           "providers",
 		Stored:         true,
-		SubType:        "egresspolicyrule",
-		Type:           "refList",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"RedactContent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"RedactContentBypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of tools that this rule applies to.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"TransportMode": {
+		AllowedChoices: []string{"Proxy", "Gateway"},
+		BSONFieldName:  "transportmode",
+		ConvertedName:  "TransportMode",
+		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
+		Exposed:        true,
+		Name:           "transportMode",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 }
 
 // EgressPolicyLowerCaseAttributesMap represents the map of attribute for EgressPolicy.
 var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"acls": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "acls",
-		ConvertedName:  "ACLs",
-		Description:    `The list of ACLs to apply for the egress policy.`,
-		Exposed:        true,
-		Name:           "ACLs",
-		Stored:         true,
-		SubType:        "egresspolicyacl",
-		Type:           "refList",
-	},
 	"accessdeniedmessage": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "accessdeniedmessage",
@@ -409,6 +624,17 @@ var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
+	"action": {
+		AllowedChoices: []string{"Allow", "Deny", "Redirect"},
+		BSONFieldName:  "action",
+		ConvertedName:  "Action",
+		DefaultValue:   EgressPolicyActionAllow,
+		Description:    `Define if the provider is allowed or denied for the match expression.`,
+		Exposed:        true,
+		Name:           "action",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"alertdefinition": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinition",
@@ -418,6 +644,53 @@ var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Name:           "alertDefinition",
 		Stored:         true,
 		Type:           "string",
+	},
+	"anygatewayallowed": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anygatewayallowed",
+		ConvertedName:  "AnyGatewayAllowed",
+		Description:    `If true, all gateways can be used.`,
+		Exposed:        true,
+		Name:           "anyGatewayAllowed",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"anytoolallowed": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "anytoolallowed",
+		ConvertedName:  "AnyToolAllowed",
+		Description:    `If true, all tools can be used.`,
+		Exposed:        true,
+		Name:           "anyToolAllowed",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"appcomponents": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponents",
+		ConvertedName:  "AppComponents",
+		Description: `As the egress policy is defined in the context of an application component, the
+application component specifies destination of the egress connection.
+The value is in the form of project:app/component, where the project: is
+optional.
+If this part is missing, it implies the app/component is in the same project
+where the app/component is defined.`,
+		Exposed: true,
+		Name:    "appComponents",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"contentpolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentpolicies",
+		ConvertedName:  "ContentPolicies",
+		Description:    `The list of content policies to apply when the user has access to the provider.`,
+		Exposed:        true,
+		Name:           "contentPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -433,23 +706,69 @@ var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		AllowedChoices: []string{},
 		BSONFieldName:  "disabled",
 		ConvertedName:  "Disabled",
-		Description:    `If true, the policy is disabled and will not be applied.`,
+		Description:    `If true, the policy is disabled.`,
 		Exposed:        true,
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"gateways": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gateways",
+		ConvertedName:  "Gateways",
+		Description:    `The list of gateways that this rule applies to.`,
+		Exposed:        true,
+		Name:           "gateways",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"minimallogging": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "minimallogging",
+		ConvertedName:  "MinimalLogging",
+		Description: `If true, the system will not log the messages that are not considered as
+violations.`,
+		Exposed: true,
+		Name:    "minimalLogging",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the egress policy.`,
+		Description:    `The name of the access policy.`,
 		Exposed:        true,
 		Name:           "name",
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"offbandanalysis": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offbandanalysis",
+		ConvertedName:  "OffbandAnalysis",
+		Description: `If true, the system will run analysis in parallel of the user request. When this
+is active, no further policing will be done, and no content policy will run.
+This can be used to observe the transmitted data and have analysis report,
+without adding latency to the end user request, at the price of not being able
+to do any form of content moderation.`,
+		Exposed: true,
+		Name:    "offbandAnalysis",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description:    `If set, just log the decision, but don't enforce it.`,
+		Exposed:        true,
+		Name:           "permissive",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"policyid": {
 		AllowedChoices: []string{},
@@ -463,26 +782,82 @@ var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
-	"rules": {
+	"providers": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "rules",
-		ConvertedName:  "Rules",
-		Description:    `Rules that define how egress traffic is handled.`,
+		BSONFieldName:  "providers",
+		ConvertedName:  "Providers",
+		Description:    `The list of providers that this rule applies to.`,
 		Exposed:        true,
-		Name:           "rules",
+		Name:           "providers",
 		Stored:         true,
-		SubType:        "egresspolicyrule",
-		Type:           "refList",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"redactcontent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontent",
+		ConvertedName:  "RedactContent",
+		Description: `If true, the system will remove all user data from the reported data, while
+keeping the analysis and metadata.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"redactcontentbypass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactcontentbypass",
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is true, ignore redaction if there are some
+violations.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tools",
+		ConvertedName:  "Tools",
+		Description:    `The list of tools that this rule applies to.`,
+		Exposed:        true,
+		Name:           "tools",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"transportmode": {
+		AllowedChoices: []string{"Proxy", "Gateway"},
+		BSONFieldName:  "transportmode",
+		ConvertedName:  "TransportMode",
+		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
+		Exposed:        true,
+		Name:           "transportMode",
+		Required:       true,
+		Stored:         true,
+		Type:           "enum",
 	},
 }
 
 type mongoAttributesEgressPolicy struct {
-	ACLs                []*EgressPolicyACL  `bson:"acls,omitempty"`
-	AccessDeniedMessage string              `bson:"accessdeniedmessage,omitempty"`
-	AlertDefinition     string              `bson:"alertdefinition,omitempty"`
-	Description         string              `bson:"description,omitempty"`
-	Disabled            bool                `bson:"disabled,omitempty"`
-	Name                string              `bson:"name"`
-	PolicyID            string              `bson:"policyid"`
-	Rules               []*EgressPolicyRule `bson:"rules,omitempty"`
+	AccessDeniedMessage string                         `bson:"accessdeniedmessage"`
+	Action              EgressPolicyActionValue        `bson:"action"`
+	AlertDefinition     string                         `bson:"alertdefinition"`
+	AnyGatewayAllowed   bool                           `bson:"anygatewayallowed"`
+	AnyToolAllowed      bool                           `bson:"anytoolallowed"`
+	AppComponents       []string                       `bson:"appcomponents"`
+	ContentPolicies     []string                       `bson:"contentpolicies"`
+	Description         string                         `bson:"description"`
+	Disabled            bool                           `bson:"disabled"`
+	Gateways            []string                       `bson:"gateways"`
+	MinimalLogging      bool                           `bson:"minimallogging"`
+	Name                string                         `bson:"name"`
+	OffbandAnalysis     bool                           `bson:"offbandanalysis"`
+	Permissive          bool                           `bson:"permissive"`
+	PolicyID            string                         `bson:"policyid"`
+	Providers           []string                       `bson:"providers"`
+	RedactContent       bool                           `bson:"redactcontent"`
+	RedactContentBypass bool                           `bson:"redactcontentbypass"`
+	Tools               []string                       `bson:"tools"`
+	TransportMode       EgressPolicyTransportModeValue `bson:"transportmode"`
 }

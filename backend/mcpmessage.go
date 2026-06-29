@@ -42,6 +42,10 @@ type MCPMessage struct {
 	// server, or from server to client.
 	Direction MCPMessageDirectionValue `json:"direction" msgpack:"direction" bson:"direction" mapstructure:"direction,omitempty"`
 
+	// This is the MCP gateway name of the MCP message. This is only set for messages
+	// that are sent to or received from an MCP gateway.
+	GatewayName string `json:"gatewayName,omitempty" msgpack:"gatewayName,omitempty" bson:"gatewayname,omitempty" mapstructure:"gatewayName,omitempty"`
+
 	// IsError is true in case if a response is an error response as opposed to a
 	// result. Note that this is not the same as a result which has isError set to true
 	// within the result. This is a protocol level error. This will always be false for
@@ -102,6 +106,7 @@ func (o *MCPMessage) GetBSON() (any, error) {
 	s := &mongoAttributesMCPMessage{}
 
 	s.Direction = o.Direction
+	s.GatewayName = o.GatewayName
 	s.IsError = o.IsError
 	s.Method = o.Method
 	s.ParamsName = o.ParamsName
@@ -126,6 +131,7 @@ func (o *MCPMessage) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Direction = s.Direction
+	o.GatewayName = s.GatewayName
 	o.IsError = s.IsError
 	o.Method = s.Method
 	o.ParamsName = s.ParamsName
@@ -250,6 +256,8 @@ func (o *MCPMessage) ValueForAttribute(name string) any {
 	switch name {
 	case "direction":
 		return o.Direction
+	case "gatewayName":
+		return o.GatewayName
 	case "isError":
 		return o.IsError
 	case "method":
@@ -280,6 +288,17 @@ server, or from server to client.`,
 		Required: true,
 		Stored:   true,
 		Type:     "enum",
+	},
+	"GatewayName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayname",
+		ConvertedName:  "GatewayName",
+		Description: `This is the MCP gateway name of the MCP message. This is only set for messages
+that are sent to or received from an MCP gateway.`,
+		Exposed: true,
+		Name:    "gatewayName",
+		Stored:  true,
+		Type:    "string",
 	},
 	"IsError": {
 		AllowedChoices: []string{},
@@ -367,6 +386,17 @@ server, or from server to client.`,
 		Stored:   true,
 		Type:     "enum",
 	},
+	"gatewayname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayname",
+		ConvertedName:  "GatewayName",
+		Description: `This is the MCP gateway name of the MCP message. This is only set for messages
+that are sent to or received from an MCP gateway.`,
+		Exposed: true,
+		Name:    "gatewayName",
+		Stored:  true,
+		Type:    "string",
+	},
 	"iserror": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "iserror",
@@ -440,11 +470,12 @@ part of MCP, and this can be empty.`,
 }
 
 type mongoAttributesMCPMessage struct {
-	Direction  MCPMessageDirectionValue `bson:"direction"`
-	IsError    bool                     `bson:"iserror,omitempty"`
-	Method     string                   `bson:"method,omitempty"`
-	ParamsName string                   `bson:"paramsname,omitempty"`
-	RequestID  string                   `bson:"requestid,omitempty"`
-	SessionID  string                   `bson:"sessionid,omitempty"`
-	Type       MCPMessageTypeValue      `bson:"type"`
+	Direction   MCPMessageDirectionValue `bson:"direction"`
+	GatewayName string                   `bson:"gatewayname,omitempty"`
+	IsError     bool                     `bson:"iserror,omitempty"`
+	Method      string                   `bson:"method,omitempty"`
+	ParamsName  string                   `bson:"paramsname,omitempty"`
+	RequestID   string                   `bson:"requestid,omitempty"`
+	SessionID   string                   `bson:"sessionid,omitempty"`
+	Type        MCPMessageTypeValue      `bson:"type"`
 }

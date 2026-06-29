@@ -76,6 +76,12 @@
         "null"
       ]
     },
+    "license": {
+      "$friendlyName": "License",
+      "$ref": "adminlicense.json",
+      "description": "The organization license.",
+      "title": "license"
+    },
     "mode": {
       "$defaultValue": "Normal",
       "$friendlyName": "Mode",
@@ -111,6 +117,15 @@
         "string",
         "null"
       ]
+    },
+    "regions": {
+      "$friendlyName": "Regions",
+      "description": "The regions this organization is assigned to. Each entry must match a known region.",
+      "items": {
+        "$ref": "region.json"
+      },
+      "title": "regions",
+      "type": "array"
     },
     "reimportTemplate": {
       "$friendlyName": "Reimport Template",

@@ -3,7 +3,8 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@auto-propagated"
   ],
   "$friendlyName": "MCP Gateway",
   "$friendlyNamePlural": "MCP Gateways",
@@ -93,6 +94,16 @@
       "description": "The last ping recorded for the agent.",
       "title": "ping",
       "type": "string"
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "publicURL": {
       "$friendlyName": "Public URL",

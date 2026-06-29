@@ -1,0 +1,63 @@
+{
+  "$extends": [],
+  "$friendlyName": "Admin License",
+  "$friendlyNamePlural": "Admin Licenses",
+  "$modelName": "AdminLicense",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "adminlicenses",
+  "$modelRestName": "adminlicense",
+  "additionalProperties": false,
+  "description": "Represents the license for the organization.",
+  "properties": {
+    "active": {
+      "$friendlyName": "Active",
+      "description": "This property determines if the license is active.",
+      "title": "active",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "$required": true,
+      "description": "End date of the license.",
+      "title": "end",
+      "type": "string"
+    },
+    "seats": {
+      "$defaultValue": 1,
+      "$friendlyName": "Seats",
+      "$required": true,
+      "description": "The number of seats the license allows.",
+      "minimum": 1,
+      "title": "seats",
+      "type": "integer"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "$required": true,
+      "description": "Start date of the license.",
+      "title": "start",
+      "type": "string"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of the license.",
+      "enum": [
+        "Production",
+        "Evaluation"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "end",
+    "seats",
+    "start",
+    "type"
+  ],
+  "title": "AdminLicense",
+  "type": "object"
+}

@@ -673,6 +673,9 @@ func (o *OrgSettings) Validate() error {
 	if err := ValidateURL("safeUsageURL", o.SafeUsageURL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("safeUsageURL", o.SafeUsageURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	// Custom object validation.
 	if err := ValidateOrgSetting(o); err != nil {

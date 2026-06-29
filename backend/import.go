@@ -154,6 +154,9 @@ type Import struct {
 	// DataSets to import.
 	DataSets DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
 
+	// Deployments to import.
+	Deployments DeploymentsList `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
+
 	// Extractor Libs to import.
 	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
 
@@ -187,6 +190,9 @@ type Import struct {
 
 	// Proxy roundtrip to import. This will populate dummy data.
 	Proxyroundtrips ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"proxyroundtrips,omitempty" mapstructure:"proxyroundtrips,omitempty"`
+
+	// Public Keys to import.
+	Publickeys PublicKeysList `json:"publickeys,omitempty" msgpack:"publickeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publickeys,omitempty"`
 
 	// Sinks to import.
 	Sinks SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
@@ -231,6 +237,7 @@ func NewImport() *Import {
 		ContentPolicies:     ContentPoliciesList{},
 		CustomDataTypes:     CustomDataTypesList{},
 		DataSets:            DataSetsList{},
+		Deployments:         DeploymentsList{},
 		ExtractorLibs:       ExtractorLibsList{},
 		Extractors:          ExtractorsList{},
 		Findingdefinitions:  FindingDefinitionsList{},
@@ -241,6 +248,7 @@ func NewImport() *Import {
 		ProviderTokens:      ProviderTokensList{},
 		Providers:           ProvidersList{},
 		Proxyroundtrips:     ProxyRoundtripsList{},
+		Publickeys:          PublicKeysList{},
 		Sinks:               SinksList{},
 		Teams:               TeamsList{},
 		Visitedurls:         VisitedURLsList{},
@@ -298,6 +306,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.ContentPolicies = o.ContentPolicies
 	s.CustomDataTypes = o.CustomDataTypes
 	s.DataSets = o.DataSets
+	s.Deployments = o.Deployments
 	s.ExtractorLibs = o.ExtractorLibs
 	s.Extractors = o.Extractors
 	s.Findingdefinitions = o.Findingdefinitions
@@ -309,6 +318,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.ProviderTokens = o.ProviderTokens
 	s.Providers = o.Providers
 	s.Proxyroundtrips = o.Proxyroundtrips
+	s.Publickeys = o.Publickeys
 	s.Sinks = o.Sinks
 	s.Teams = o.Teams
 	s.Visitedurls = o.Visitedurls
@@ -353,6 +363,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.ContentPolicies = s.ContentPolicies
 	o.CustomDataTypes = s.CustomDataTypes
 	o.DataSets = s.DataSets
+	o.Deployments = s.Deployments
 	o.ExtractorLibs = s.ExtractorLibs
 	o.Extractors = s.Extractors
 	o.Findingdefinitions = s.Findingdefinitions
@@ -364,6 +375,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.ProviderTokens = s.ProviderTokens
 	o.Providers = s.Providers
 	o.Proxyroundtrips = s.Proxyroundtrips
+	o.Publickeys = s.Publickeys
 	o.Sinks = s.Sinks
 	o.Teams = s.Teams
 	o.Visitedurls = s.Visitedurls
@@ -431,6 +443,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ContentPolicies:     &o.ContentPolicies,
 			CustomDataTypes:     &o.CustomDataTypes,
 			DataSets:            &o.DataSets,
+			Deployments:         &o.Deployments,
 			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
 			Findingdefinitions:  &o.Findingdefinitions,
@@ -442,6 +455,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ProviderTokens:      &o.ProviderTokens,
 			Providers:           &o.Providers,
 			Proxyroundtrips:     &o.Proxyroundtrips,
+			Publickeys:          &o.Publickeys,
 			Sinks:               &o.Sinks,
 			Teams:               &o.Teams,
 			Visitedurls:         &o.Visitedurls,
@@ -498,6 +512,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CustomDataTypes = &(o.CustomDataTypes)
 		case "dataSets":
 			sp.DataSets = &(o.DataSets)
+		case "deployments":
+			sp.Deployments = &(o.Deployments)
 		case "extractorLibs":
 			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
@@ -520,6 +536,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Providers = &(o.Providers)
 		case "proxyroundtrips":
 			sp.Proxyroundtrips = &(o.Proxyroundtrips)
+		case "publickeys":
+			sp.Publickeys = &(o.Publickeys)
 		case "sinks":
 			sp.Sinks = &(o.Sinks)
 		case "teams":
@@ -610,6 +628,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.DataSets != nil {
 		o.DataSets = *so.DataSets
 	}
+	if so.Deployments != nil {
+		o.Deployments = *so.Deployments
+	}
 	if so.ExtractorLibs != nil {
 		o.ExtractorLibs = *so.ExtractorLibs
 	}
@@ -642,6 +663,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Proxyroundtrips != nil {
 		o.Proxyroundtrips = *so.Proxyroundtrips
+	}
+	if so.Publickeys != nil {
+		o.Publickeys = *so.Publickeys
 	}
 	if so.Sinks != nil {
 		o.Sinks = *so.Sinks
@@ -831,6 +855,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Deployments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
@@ -918,6 +951,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Publickeys {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Publickeys' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1134,6 +1176,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Deployments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
@@ -1221,6 +1272,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Publickeys {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Publickeys' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1485,6 +1545,16 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for i, sub := range o.Deployments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "deployments", i))
+		}
+	}
+
 	for i, sub := range o.ExtractorLibs {
 		if sub == nil {
 			continue
@@ -1586,6 +1656,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "proxyroundtrips", i))
+		}
+	}
+
+	for i, sub := range o.Publickeys {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "publickeys", i))
 		}
 	}
 
@@ -1709,6 +1789,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.CustomDataTypes
 	case "dataSets":
 		return o.DataSets
+	case "deployments":
+		return o.Deployments
 	case "extractorLibs":
 		return o.ExtractorLibs
 	case "extractors":
@@ -1731,6 +1813,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Providers
 	case "proxyroundtrips":
 		return o.Proxyroundtrips
+	case "publickeys":
+		return o.Publickeys
 	case "sinks":
 		return o.Sinks
 	case "teams":
@@ -1999,6 +2083,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "dataset",
 		Type:           "refList",
 	},
+	"Deployments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployments",
+		ConvertedName:  "Deployments",
+		Description:    `Deployments to import.`,
+		Exposed:        true,
+		Name:           "deployments",
+		Stored:         true,
+		SubType:        "deployment",
+		Type:           "refList",
+	},
 	"ExtractorLibs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "extractorlibs",
@@ -2119,6 +2214,17 @@ resource.`,
 		Name:           "proxyroundtrips",
 		Stored:         true,
 		SubType:        "proxyroundtrip",
+		Type:           "refList",
+	},
+	"Publickeys": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publickeys",
+		ConvertedName:  "Publickeys",
+		Description:    `Public Keys to import.`,
+		Exposed:        true,
+		Name:           "publickeys",
+		Stored:         true,
+		SubType:        "publickey",
 		Type:           "refList",
 	},
 	"Sinks": {
@@ -2422,6 +2528,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "dataset",
 		Type:           "refList",
 	},
+	"deployments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployments",
+		ConvertedName:  "Deployments",
+		Description:    `Deployments to import.`,
+		Exposed:        true,
+		Name:           "deployments",
+		Stored:         true,
+		SubType:        "deployment",
+		Type:           "refList",
+	},
 	"extractorlibs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "extractorlibs",
@@ -2542,6 +2659,17 @@ resource.`,
 		Name:           "proxyroundtrips",
 		Stored:         true,
 		SubType:        "proxyroundtrip",
+		Type:           "refList",
+	},
+	"publickeys": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publickeys",
+		ConvertedName:  "Publickeys",
+		Description:    `Public Keys to import.`,
+		Exposed:        true,
+		Name:           "publickeys",
+		Stored:         true,
+		SubType:        "publickey",
 		Type:           "refList",
 	},
 	"sinks": {
@@ -2722,6 +2850,9 @@ type SparseImport struct {
 	// DataSets to import.
 	DataSets *DataSetsList `json:"dataSets,omitempty" msgpack:"dataSets,omitempty" bson:"datasets,omitempty" mapstructure:"dataSets,omitempty"`
 
+	// Deployments to import.
+	Deployments *DeploymentsList `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
+
 	// Extractor Libs to import.
 	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
 
@@ -2755,6 +2886,9 @@ type SparseImport struct {
 
 	// Proxy roundtrip to import. This will populate dummy data.
 	Proxyroundtrips *ProxyRoundtripsList `json:"proxyroundtrips,omitempty" msgpack:"proxyroundtrips,omitempty" bson:"proxyroundtrips,omitempty" mapstructure:"proxyroundtrips,omitempty"`
+
+	// Public Keys to import.
+	Publickeys *PublicKeysList `json:"publickeys,omitempty" msgpack:"publickeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publickeys,omitempty"`
 
 	// Sinks to import.
 	Sinks *SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
@@ -2872,6 +3006,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.DataSets != nil {
 		s.DataSets = o.DataSets
 	}
+	if o.Deployments != nil {
+		s.Deployments = o.Deployments
+	}
 	if o.ExtractorLibs != nil {
 		s.ExtractorLibs = o.ExtractorLibs
 	}
@@ -2904,6 +3041,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	}
 	if o.Proxyroundtrips != nil {
 		s.Proxyroundtrips = o.Proxyroundtrips
+	}
+	if o.Publickeys != nil {
+		s.Publickeys = o.Publickeys
 	}
 	if o.Sinks != nil {
 		s.Sinks = o.Sinks
@@ -3003,6 +3143,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.DataSets != nil {
 		o.DataSets = s.DataSets
 	}
+	if s.Deployments != nil {
+		o.Deployments = s.Deployments
+	}
 	if s.ExtractorLibs != nil {
 		o.ExtractorLibs = s.ExtractorLibs
 	}
@@ -3035,6 +3178,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 	if s.Proxyroundtrips != nil {
 		o.Proxyroundtrips = s.Proxyroundtrips
+	}
+	if s.Publickeys != nil {
+		o.Publickeys = s.Publickeys
 	}
 	if s.Sinks != nil {
 		o.Sinks = s.Sinks
@@ -3131,6 +3277,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.DataSets != nil {
 		out.DataSets = *o.DataSets
 	}
+	if o.Deployments != nil {
+		out.Deployments = *o.Deployments
+	}
 	if o.ExtractorLibs != nil {
 		out.ExtractorLibs = *o.ExtractorLibs
 	}
@@ -3163,6 +3312,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Proxyroundtrips != nil {
 		out.Proxyroundtrips = *o.Proxyroundtrips
+	}
+	if o.Publickeys != nil {
+		out.Publickeys = *o.Publickeys
 	}
 	if o.Sinks != nil {
 		out.Sinks = *o.Sinks
@@ -3392,6 +3544,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Deployments != nil {
+		for _, sub := range *o.Deployments {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.ExtractorLibs != nil {
 		for _, sub := range *o.ExtractorLibs {
 			if sub == nil {
@@ -3498,6 +3661,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Proxyroundtrips' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Publickeys != nil {
+		for _, sub := range *o.Publickeys {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Publickeys' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -3761,6 +3935,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Deployments != nil {
+		for _, sub := range *o.Deployments {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.ExtractorLibs != nil {
 		for _, sub := range *o.ExtractorLibs {
 			if sub == nil {
@@ -3871,6 +4056,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Publickeys != nil {
+		for _, sub := range *o.Publickeys {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Publickeys' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Sinks != nil {
 		for _, sub := range *o.Sinks {
 			if sub == nil {
@@ -3966,6 +4162,7 @@ type mongoAttributesImport struct {
 	ContentPolicies     ContentPoliciesList     `bson:"contentpolicies,omitempty"`
 	CustomDataTypes     CustomDataTypesList     `bson:"customdatatypes,omitempty"`
 	DataSets            DataSetsList            `bson:"datasets,omitempty"`
+	Deployments         DeploymentsList         `bson:"deployments,omitempty"`
 	ExtractorLibs       ExtractorLibsList       `bson:"extractorlibs,omitempty"`
 	Extractors          ExtractorsList          `bson:"extractors,omitempty"`
 	Findingdefinitions  FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
@@ -3977,6 +4174,7 @@ type mongoAttributesImport struct {
 	ProviderTokens      ProviderTokensList      `bson:"providertokens,omitempty"`
 	Providers           ProvidersList           `bson:"providers,omitempty"`
 	Proxyroundtrips     ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Publickeys          PublicKeysList          `bson:"publickeys,omitempty"`
 	Sinks               SinksList               `bson:"sinks,omitempty"`
 	Teams               TeamsList               `bson:"teams,omitempty"`
 	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
@@ -4006,6 +4204,7 @@ type mongoAttributesSparseImport struct {
 	ContentPolicies     *ContentPoliciesList     `bson:"contentpolicies,omitempty"`
 	CustomDataTypes     *CustomDataTypesList     `bson:"customdatatypes,omitempty"`
 	DataSets            *DataSetsList            `bson:"datasets,omitempty"`
+	Deployments         *DeploymentsList         `bson:"deployments,omitempty"`
 	ExtractorLibs       *ExtractorLibsList       `bson:"extractorlibs,omitempty"`
 	Extractors          *ExtractorsList          `bson:"extractors,omitempty"`
 	Findingdefinitions  *FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
@@ -4017,6 +4216,7 @@ type mongoAttributesSparseImport struct {
 	ProviderTokens      *ProviderTokensList      `bson:"providertokens,omitempty"`
 	Providers           *ProvidersList           `bson:"providers,omitempty"`
 	Proxyroundtrips     *ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Publickeys          *PublicKeysList          `bson:"publickeys,omitempty"`
 	Sinks               *SinksList               `bson:"sinks,omitempty"`
 	Teams               *TeamsList               `bson:"teams,omitempty"`
 	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`

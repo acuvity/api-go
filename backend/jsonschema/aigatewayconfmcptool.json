@@ -1,0 +1,46 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Gateway Conf MCP Tool",
+  "$friendlyNamePlural": "AI Gateway Conf MCP Tools",
+  "$modelName": "AIGatewayConfMCPTool",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconfmcptools",
+  "$modelRestName": "aigatewayconfmcptool",
+  "additionalProperties": false,
+  "description": "The rendered tool shape consumed by AI Gateway in an AI gateway configuration.",
+  "properties": {
+    "MCPAnnotations": {
+      "$friendlyName": "MCP Annotations",
+      "$ref": "mcptoolannotations.json",
+      "description": "The optional annotations defined for the tool.",
+      "title": "MCPAnnotations"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the tool.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inputSchema": {
+      "$friendlyName": "Input Schema",
+      "description": "The JSON schema of the tool input arguments.",
+      "title": "inputSchema",
+      "type": "object"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the tool.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "AIGatewayConfMCPTool",
+  "type": "object"
+}

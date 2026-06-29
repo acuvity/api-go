@@ -204,6 +204,15 @@
       "title": "dataSets",
       "type": "array"
     },
+    "deployments": {
+      "$friendlyName": "Deployments",
+      "description": "Deployments to import.",
+      "items": {
+        "$ref": "deployment.json"
+      },
+      "title": "deployments",
+      "type": "array"
+    },
     "extractorLibs": {
       "$friendlyName": "Extractor Libs",
       "description": "Extractor Libs to import.",
@@ -299,6 +308,15 @@
         "$ref": "proxyroundtrip.json"
       },
       "title": "proxyroundtrips",
+      "type": "array"
+    },
+    "publickeys": {
+      "$friendlyName": "Public Keys",
+      "description": "Public Keys to import.",
+      "items": {
+        "$ref": "publickey.json"
+      },
+      "title": "publickeys",
       "type": "array"
     },
     "sinks": {

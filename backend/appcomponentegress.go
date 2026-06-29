@@ -11,10 +11,34 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AppComponentEgressDefaultPolicyActionValue represents the possible values for attribute "defaultPolicyAction".
+type AppComponentEgressDefaultPolicyActionValue string
+
+const (
+	// AppComponentEgressDefaultPolicyActionAllow represents the value Allow.
+	AppComponentEgressDefaultPolicyActionAllow AppComponentEgressDefaultPolicyActionValue = "Allow"
+
+	// AppComponentEgressDefaultPolicyActionDeny represents the value Deny.
+	AppComponentEgressDefaultPolicyActionDeny AppComponentEgressDefaultPolicyActionValue = "Deny"
+)
+
 // AppComponentEgress represents the model of a appcomponentegress
 type AppComponentEgress struct {
-	// The default policy settings for egress connections.
-	DefaultPolicy *EgressDefaultPolicy `json:"defaultPolicy" msgpack:"defaultPolicy" bson:"defaultpolicy" mapstructure:"defaultPolicy,omitempty"`
+	// The message that is sent if the access is denied by the default policy deny
+	// action.
+	DefaultPolicyAccessDeniedMessage string `json:"defaultPolicyAccessDeniedMessage,omitempty" msgpack:"defaultPolicyAccessDeniedMessage,omitempty" bson:"defaultpolicyaccessdeniedmessage,omitempty" mapstructure:"defaultPolicyAccessDeniedMessage,omitempty"`
+
+	// The default action to take for connections ingressing to the proxy of this
+	// workload that do not match any of the policies.
+	DefaultPolicyAction AppComponentEgressDefaultPolicyActionValue `json:"defaultPolicyAction" msgpack:"defaultPolicyAction" bson:"defaultpolicyaction" mapstructure:"defaultPolicyAction,omitempty"`
+
+	// If true, when any non-user-facing platform stage fails during request
+	// handling (extractor, mapper, analyzer, content policy, body read, etc.),
+	// the request is rejected. When false (default), the request is allowed
+	// through unanalyzed (fail-open), trading safety for availability.
+	// User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+	// and continue to be enforced. Default false.
+	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
 
 	// The list of policies for egress connections.
 	Policies []*EgressPolicy `json:"policies,omitempty" msgpack:"policies,omitempty" bson:"policies,omitempty" mapstructure:"policies,omitempty"`
@@ -32,8 +56,8 @@ type AppComponentEgress struct {
 func NewAppComponentEgress() *AppComponentEgress {
 
 	return &AppComponentEgress{
-		ModelVersion:  1,
-		DefaultPolicy: NewEgressDefaultPolicy(),
+		ModelVersion:        1,
+		DefaultPolicyAction: AppComponentEgressDefaultPolicyActionAllow,
 	}
 }
 func (o *AppComponentEgress) Identity() elemental.Identity {
@@ -58,7 +82,9 @@ func (o *AppComponentEgress) GetBSON() (any, error) {
 
 	s := &mongoAttributesAppComponentEgress{}
 
-	s.DefaultPolicy = o.DefaultPolicy
+	s.DefaultPolicyAccessDeniedMessage = o.DefaultPolicyAccessDeniedMessage
+	s.DefaultPolicyAction = o.DefaultPolicyAction
+	s.FailClose = o.FailClose
 	s.Policies = o.Policies
 
 	return s, nil
@@ -77,7 +103,9 @@ func (o *AppComponentEgress) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.DefaultPolicy = s.DefaultPolicy
+	o.DefaultPolicyAccessDeniedMessage = s.DefaultPolicyAccessDeniedMessage
+	o.DefaultPolicyAction = s.DefaultPolicyAction
+	o.FailClose = s.FailClose
 	o.Policies = s.Policies
 
 	return nil
@@ -104,12 +132,6 @@ func (o *AppComponentEgress) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *AppComponentEgress) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.DefaultPolicy != nil {
-		if err := o.DefaultPolicy.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'DefaultPolicy' for 'AppComponentEgress' (%s): %w", o.Identifier(), err)
-		}
-	}
-
 	for _, sub := range o.Policies {
 		if sub == nil {
 			continue
@@ -124,12 +146,6 @@ func (o *AppComponentEgress) EncryptAttributes(encrypter elemental.AttributeEncr
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *AppComponentEgress) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.DefaultPolicy != nil {
-		if err := o.DefaultPolicy.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'DefaultPolicy' for 'AppComponentEgress' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	for _, sub := range o.Policies {
 		if sub == nil {
@@ -175,11 +191,8 @@ func (o *AppComponentEgress) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if o.DefaultPolicy != nil {
-		if err := o.DefaultPolicy.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "defaultPolicy")
-		}
+	if err := elemental.ValidateStringInList("defaultPolicyAction", string(o.DefaultPolicyAction), []string{"Allow", "Deny"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for i, sub := range o.Policies {
@@ -230,8 +243,12 @@ func (*AppComponentEgress) AttributeSpecifications() map[string]elemental.Attrib
 func (o *AppComponentEgress) ValueForAttribute(name string) any {
 
 	switch name {
-	case "defaultPolicy":
-		return o.DefaultPolicy
+	case "defaultPolicyAccessDeniedMessage":
+		return o.DefaultPolicyAccessDeniedMessage
+	case "defaultPolicyAction":
+		return o.DefaultPolicyAction
+	case "failClose":
+		return o.FailClose
 	case "policies":
 		return o.Policies
 	case "proxyAccessPolicy":
@@ -245,16 +262,43 @@ func (o *AppComponentEgress) ValueForAttribute(name string) any {
 
 // AppComponentEgressAttributesMap represents the map of attribute for AppComponentEgress.
 var AppComponentEgressAttributesMap = map[string]elemental.AttributeSpecification{
-	"DefaultPolicy": {
+	"DefaultPolicyAccessDeniedMessage": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "defaultpolicy",
-		ConvertedName:  "DefaultPolicy",
-		Description:    `The default policy settings for egress connections.`,
-		Exposed:        true,
-		Name:           "defaultPolicy",
-		Stored:         true,
-		SubType:        "egressdefaultpolicy",
-		Type:           "ref",
+		BSONFieldName:  "defaultpolicyaccessdeniedmessage",
+		ConvertedName:  "DefaultPolicyAccessDeniedMessage",
+		Description: `The message that is sent if the access is denied by the default policy deny
+action.`,
+		Exposed: true,
+		Name:    "defaultPolicyAccessDeniedMessage",
+		Stored:  true,
+		Type:    "string",
+	},
+	"DefaultPolicyAction": {
+		AllowedChoices: []string{"Allow", "Deny"},
+		BSONFieldName:  "defaultpolicyaction",
+		ConvertedName:  "DefaultPolicyAction",
+		DefaultValue:   AppComponentEgressDefaultPolicyActionAllow,
+		Description: `The default action to take for connections ingressing to the proxy of this
+workload that do not match any of the policies.`,
+		Exposed: true,
+		Name:    "defaultPolicyAction",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"FailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Policies": {
 		AllowedChoices: []string{},
@@ -293,16 +337,43 @@ var AppComponentEgressAttributesMap = map[string]elemental.AttributeSpecificatio
 
 // AppComponentEgressLowerCaseAttributesMap represents the map of attribute for AppComponentEgress.
 var AppComponentEgressLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"defaultpolicy": {
+	"defaultpolicyaccessdeniedmessage": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "defaultpolicy",
-		ConvertedName:  "DefaultPolicy",
-		Description:    `The default policy settings for egress connections.`,
-		Exposed:        true,
-		Name:           "defaultPolicy",
-		Stored:         true,
-		SubType:        "egressdefaultpolicy",
-		Type:           "ref",
+		BSONFieldName:  "defaultpolicyaccessdeniedmessage",
+		ConvertedName:  "DefaultPolicyAccessDeniedMessage",
+		Description: `The message that is sent if the access is denied by the default policy deny
+action.`,
+		Exposed: true,
+		Name:    "defaultPolicyAccessDeniedMessage",
+		Stored:  true,
+		Type:    "string",
+	},
+	"defaultpolicyaction": {
+		AllowedChoices: []string{"Allow", "Deny"},
+		BSONFieldName:  "defaultpolicyaction",
+		ConvertedName:  "DefaultPolicyAction",
+		DefaultValue:   AppComponentEgressDefaultPolicyActionAllow,
+		Description: `The default action to take for connections ingressing to the proxy of this
+workload that do not match any of the policies.`,
+		Exposed: true,
+		Name:    "defaultPolicyAction",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"failclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "failclose",
+		ConvertedName:  "FailClose",
+		Description: `If true, when any non-user-facing platform stage fails during request
+handling (extractor, mapper, analyzer, content policy, body read, etc.),
+the request is rejected. When false (default), the request is allowed
+through unanalyzed (fail-open), trading safety for availability.
+User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
+and continue to be enforced. Default false.`,
+		Exposed: true,
+		Name:    "failClose",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"policies": {
 		AllowedChoices: []string{},
@@ -340,6 +411,8 @@ var AppComponentEgressLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 }
 
 type mongoAttributesAppComponentEgress struct {
-	DefaultPolicy *EgressDefaultPolicy `bson:"defaultpolicy"`
-	Policies      []*EgressPolicy      `bson:"policies,omitempty"`
+	DefaultPolicyAccessDeniedMessage string                                     `bson:"defaultpolicyaccessdeniedmessage,omitempty"`
+	DefaultPolicyAction              AppComponentEgressDefaultPolicyActionValue `bson:"defaultpolicyaction"`
+	FailClose                        bool                                       `bson:"failclose"`
+	Policies                         []*EgressPolicy                            `bson:"policies,omitempty"`
 }

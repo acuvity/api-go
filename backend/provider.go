@@ -179,6 +179,9 @@ type Provider struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// URL to the provider's official status page.
+	OfficialStatusURL string `json:"officialStatusURL,omitempty" msgpack:"officialStatusURL,omitempty" bson:"officialstatusurl,omitempty" mapstructure:"officialStatusURL,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
@@ -191,11 +194,6 @@ type Provider struct {
 	// The support status of the provider.
 	Status ProviderStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
-	// If true, consider the incoming calls to use a Proofpoint AI Security token and
-	// swap them using
-	// registered providertokens.
-	TokenSwap bool `json:"tokenSwap" msgpack:"tokenSwap" bson:"tokenswap" mapstructure:"tokenSwap,omitempty"`
-
 	// The list of available tools for MCP server providers.
 	Tools []*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
@@ -207,8 +205,7 @@ type Provider struct {
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
 	// If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
-	// for
-	// dev purposes.
+	// for dev purposes.
 	UpstreamUnsecure bool `json:"upstreamUnsecure" msgpack:"upstreamUnsecure" bson:"upstreamunsecure" mapstructure:"upstreamUnsecure,omitempty"`
 
 	// The main hosts for marketing and legal materials content. This is used to link
@@ -287,11 +284,11 @@ func (o *Provider) GetBSON() (any, error) {
 	s.Mappers = o.Mappers
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.OfficialStatusURL = o.OfficialStatusURL
 	s.Propagate = o.Propagate
 	s.ProviderType = o.ProviderType
 	s.RiskScore = o.RiskScore
 	s.Status = o.Status
-	s.TokenSwap = o.TokenSwap
 	s.Tools = o.Tools
 	s.TrustedCA = o.TrustedCA
 	s.UpdateTime = o.UpdateTime
@@ -335,11 +332,11 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.Mappers = s.Mappers
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.OfficialStatusURL = s.OfficialStatusURL
 	o.Propagate = s.Propagate
 	o.ProviderType = s.ProviderType
 	o.RiskScore = s.RiskScore
 	o.Status = s.Status
-	o.TokenSwap = s.TokenSwap
 	o.Tools = s.Tools
 	o.TrustedCA = s.TrustedCA
 	o.UpdateTime = s.UpdateTime
@@ -461,37 +458,37 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProvider{
-			ID:               &o.ID,
-			MCPURL:           &o.MCPURL,
-			Category:         &o.Category,
-			CreateTime:       &o.CreateTime,
-			Description:      &o.Description,
-			ErrorTransformer: o.ErrorTransformer,
-			ExcludedHosts:    &o.ExcludedHosts,
-			Experimental:     &o.Experimental,
-			Extractors:       &o.Extractors,
-			FriendlyName:     &o.FriendlyName,
-			Hosts:            &o.Hosts,
-			Icon:             &o.Icon,
-			ImportHash:       &o.ImportHash,
-			ImportLabel:      &o.ImportLabel,
-			Injectors:        &o.Injectors,
-			Lib:              &o.Lib,
-			Mappers:          &o.Mappers,
-			Name:             &o.Name,
-			Namespace:        &o.Namespace,
-			Propagate:        &o.Propagate,
-			ProviderType:     &o.ProviderType,
-			RiskScore:        &o.RiskScore,
-			Status:           &o.Status,
-			TokenSwap:        &o.TokenSwap,
-			Tools:            &o.Tools,
-			TrustedCA:        &o.TrustedCA,
-			UpdateTime:       &o.UpdateTime,
-			UpstreamUnsecure: &o.UpstreamUnsecure,
-			WebHost:          &o.WebHost,
-			ZHash:            &o.ZHash,
-			Zone:             &o.Zone,
+			ID:                &o.ID,
+			MCPURL:            &o.MCPURL,
+			Category:          &o.Category,
+			CreateTime:        &o.CreateTime,
+			Description:       &o.Description,
+			ErrorTransformer:  o.ErrorTransformer,
+			ExcludedHosts:     &o.ExcludedHosts,
+			Experimental:      &o.Experimental,
+			Extractors:        &o.Extractors,
+			FriendlyName:      &o.FriendlyName,
+			Hosts:             &o.Hosts,
+			Icon:              &o.Icon,
+			ImportHash:        &o.ImportHash,
+			ImportLabel:       &o.ImportLabel,
+			Injectors:         &o.Injectors,
+			Lib:               &o.Lib,
+			Mappers:           &o.Mappers,
+			Name:              &o.Name,
+			Namespace:         &o.Namespace,
+			OfficialStatusURL: &o.OfficialStatusURL,
+			Propagate:         &o.Propagate,
+			ProviderType:      &o.ProviderType,
+			RiskScore:         &o.RiskScore,
+			Status:            &o.Status,
+			Tools:             &o.Tools,
+			TrustedCA:         &o.TrustedCA,
+			UpdateTime:        &o.UpdateTime,
+			UpstreamUnsecure:  &o.UpstreamUnsecure,
+			WebHost:           &o.WebHost,
+			ZHash:             &o.ZHash,
+			Zone:              &o.Zone,
 		}
 	}
 
@@ -536,6 +533,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "officialStatusURL":
+			sp.OfficialStatusURL = &(o.OfficialStatusURL)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
 		case "providerType":
@@ -544,8 +543,6 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RiskScore = &(o.RiskScore)
 		case "status":
 			sp.Status = &(o.Status)
-		case "tokenSwap":
-			sp.TokenSwap = &(o.TokenSwap)
 		case "tools":
 			sp.Tools = &(o.Tools)
 		case "trustedCA":
@@ -630,6 +627,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.OfficialStatusURL != nil {
+		o.OfficialStatusURL = *so.OfficialStatusURL
+	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
@@ -641,9 +641,6 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Status != nil {
 		o.Status = *so.Status
-	}
-	if so.TokenSwap != nil {
-		o.TokenSwap = *so.TokenSwap
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
@@ -817,6 +814,9 @@ func (o *Provider) Validate() error {
 	if err := ValidateURL("MCPURL", o.MCPURL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("MCPURL", o.MCPURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if err := elemental.ValidateRequiredString("category", string(o.Category)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -879,6 +879,13 @@ func (o *Provider) Validate() error {
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateURL("officialStatusURL", o.OfficialStatusURL); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateWebSchemeURL("officialStatusURL", o.OfficialStatusURL); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
@@ -988,6 +995,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "officialStatusURL":
+		return o.OfficialStatusURL
 	case "propagate":
 		return o.Propagate
 	case "providerType":
@@ -996,8 +1005,6 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.RiskScore
 	case "status":
 		return o.Status
-	case "tokenSwap":
-		return o.TokenSwap
 	case "tools":
 		return o.Tools
 	case "trustedCA":
@@ -1245,6 +1252,16 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"OfficialStatusURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "officialstatusurl",
+		ConvertedName:  "OfficialStatusURL",
+		Description:    `URL to the provider's official status page.`,
+		Exposed:        true,
+		Name:           "officialStatusURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1291,18 +1308,6 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"TokenSwap": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "tokenswap",
-		ConvertedName:  "TokenSwap",
-		Description: `If true, consider the incoming calls to use a Proofpoint AI Security token and
-swap them using
-registered providertokens.`,
-		Exposed: true,
-		Name:    "tokenSwap",
-		Stored:  true,
-		Type:    "boolean",
-	},
 	"Tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -1345,8 +1350,7 @@ is useful when working on a custom provider using a self signed CA chain.`,
 		BSONFieldName:  "upstreamunsecure",
 		ConvertedName:  "UpstreamUnsecure",
 		Description: `If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
-for
-dev purposes.`,
+for dev purposes.`,
 		Exposed: true,
 		Name:    "upstreamUnsecure",
 		Stored:  true,
@@ -1594,6 +1598,16 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"officialstatusurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "officialstatusurl",
+		ConvertedName:  "OfficialStatusURL",
+		Description:    `URL to the provider's official status page.`,
+		Exposed:        true,
+		Name:           "officialStatusURL",
+		Stored:         true,
+		Type:           "string",
+	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -1640,18 +1654,6 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"tokenswap": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "tokenswap",
-		ConvertedName:  "TokenSwap",
-		Description: `If true, consider the incoming calls to use a Proofpoint AI Security token and
-swap them using
-registered providertokens.`,
-		Exposed: true,
-		Name:    "tokenSwap",
-		Stored:  true,
-		Type:    "boolean",
-	},
 	"tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -1694,8 +1696,7 @@ is useful when working on a custom provider using a self signed CA chain.`,
 		BSONFieldName:  "upstreamunsecure",
 		ConvertedName:  "UpstreamUnsecure",
 		Description: `If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
-for
-dev purposes.`,
+for dev purposes.`,
 		Exposed: true,
 		Name:    "upstreamUnsecure",
 		Stored:  true,
@@ -1839,6 +1840,9 @@ type SparseProvider struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// URL to the provider's official status page.
+	OfficialStatusURL *string `json:"officialStatusURL,omitempty" msgpack:"officialStatusURL,omitempty" bson:"officialstatusurl,omitempty" mapstructure:"officialStatusURL,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
@@ -1851,11 +1855,6 @@ type SparseProvider struct {
 	// The support status of the provider.
 	Status *ProviderStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
-	// If true, consider the incoming calls to use a Proofpoint AI Security token and
-	// swap them using
-	// registered providertokens.
-	TokenSwap *bool `json:"tokenSwap,omitempty" msgpack:"tokenSwap,omitempty" bson:"tokenswap,omitempty" mapstructure:"tokenSwap,omitempty"`
-
 	// The list of available tools for MCP server providers.
 	Tools *[]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
@@ -1867,8 +1866,7 @@ type SparseProvider struct {
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
 	// If enabled, force the upstream scheme to be HTTP instead of https. Mostly use
-	// for
-	// dev purposes.
+	// for dev purposes.
 	UpstreamUnsecure *bool `json:"upstreamUnsecure,omitempty" msgpack:"upstreamUnsecure,omitempty" bson:"upstreamunsecure,omitempty" mapstructure:"upstreamUnsecure,omitempty"`
 
 	// The main hosts for marketing and legal materials content. This is used to link
@@ -1982,6 +1980,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.OfficialStatusURL != nil {
+		s.OfficialStatusURL = o.OfficialStatusURL
+	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
@@ -1993,9 +1994,6 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	}
 	if o.Status != nil {
 		s.Status = o.Status
-	}
-	if o.TokenSwap != nil {
-		s.TokenSwap = o.TokenSwap
 	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
@@ -2091,6 +2089,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.OfficialStatusURL != nil {
+		o.OfficialStatusURL = s.OfficialStatusURL
+	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
@@ -2102,9 +2103,6 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	}
 	if s.Status != nil {
 		o.Status = s.Status
-	}
-	if s.TokenSwap != nil {
-		o.TokenSwap = s.TokenSwap
 	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
@@ -2198,6 +2196,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.OfficialStatusURL != nil {
+		out.OfficialStatusURL = *o.OfficialStatusURL
+	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
@@ -2209,9 +2210,6 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Status != nil {
 		out.Status = *o.Status
-	}
-	if o.TokenSwap != nil {
-		out.TokenSwap = *o.TokenSwap
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
@@ -2493,68 +2491,68 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 }
 
 type mongoAttributesProvider struct {
-	ID               bson.ObjectId             `bson:"_id,omitempty"`
-	MCPURL           string                    `bson:"mcpurl,omitempty"`
-	Category         ProviderCategoryValue     `bson:"category"`
-	CreateTime       time.Time                 `bson:"createtime"`
-	Description      string                    `bson:"description"`
-	ErrorTransformer *ErrorTransformer         `bson:"errortransformer,omitempty"`
-	ExcludedHosts    []string                  `bson:"excludedhosts"`
-	Experimental     bool                      `bson:"experimental"`
-	Extractors       []*ExtractorRef           `bson:"extractors"`
-	FriendlyName     string                    `bson:"friendlyname"`
-	Hosts            []*Host                   `bson:"hosts"`
-	Icon             string                    `bson:"icon,omitempty"`
-	ImportHash       string                    `bson:"importhash,omitempty"`
-	ImportLabel      string                    `bson:"importlabel,omitempty"`
-	Injectors        []*Injector               `bson:"injectors,omitempty"`
-	Lib              string                    `bson:"lib"`
-	Mappers          []*Mapper                 `bson:"mappers,omitempty"`
-	Name             string                    `bson:"name"`
-	Namespace        string                    `bson:"namespace,omitempty"`
-	Propagate        bool                      `bson:"propagate"`
-	ProviderType     ProviderProviderTypeValue `bson:"providertype"`
-	RiskScore        float64                   `bson:"riskscore"`
-	Status           ProviderStatusValue       `bson:"status"`
-	TokenSwap        bool                      `bson:"tokenswap"`
-	Tools            []*Tool                   `bson:"tools,omitempty"`
-	TrustedCA        string                    `bson:"trustedca,omitempty"`
-	UpdateTime       time.Time                 `bson:"updatetime"`
-	UpstreamUnsecure bool                      `bson:"upstreamunsecure"`
-	WebHost          string                    `bson:"webhost"`
-	ZHash            int                       `bson:"zhash"`
-	Zone             int                       `bson:"zone"`
+	ID                bson.ObjectId             `bson:"_id,omitempty"`
+	MCPURL            string                    `bson:"mcpurl,omitempty"`
+	Category          ProviderCategoryValue     `bson:"category"`
+	CreateTime        time.Time                 `bson:"createtime"`
+	Description       string                    `bson:"description"`
+	ErrorTransformer  *ErrorTransformer         `bson:"errortransformer,omitempty"`
+	ExcludedHosts     []string                  `bson:"excludedhosts"`
+	Experimental      bool                      `bson:"experimental"`
+	Extractors        []*ExtractorRef           `bson:"extractors"`
+	FriendlyName      string                    `bson:"friendlyname"`
+	Hosts             []*Host                   `bson:"hosts"`
+	Icon              string                    `bson:"icon,omitempty"`
+	ImportHash        string                    `bson:"importhash,omitempty"`
+	ImportLabel       string                    `bson:"importlabel,omitempty"`
+	Injectors         []*Injector               `bson:"injectors,omitempty"`
+	Lib               string                    `bson:"lib"`
+	Mappers           []*Mapper                 `bson:"mappers,omitempty"`
+	Name              string                    `bson:"name"`
+	Namespace         string                    `bson:"namespace,omitempty"`
+	OfficialStatusURL string                    `bson:"officialstatusurl,omitempty"`
+	Propagate         bool                      `bson:"propagate"`
+	ProviderType      ProviderProviderTypeValue `bson:"providertype"`
+	RiskScore         float64                   `bson:"riskscore"`
+	Status            ProviderStatusValue       `bson:"status"`
+	Tools             []*Tool                   `bson:"tools,omitempty"`
+	TrustedCA         string                    `bson:"trustedca,omitempty"`
+	UpdateTime        time.Time                 `bson:"updatetime"`
+	UpstreamUnsecure  bool                      `bson:"upstreamunsecure"`
+	WebHost           string                    `bson:"webhost"`
+	ZHash             int                       `bson:"zhash"`
+	Zone              int                       `bson:"zone"`
 }
 type mongoAttributesSparseProvider struct {
-	ID               bson.ObjectId              `bson:"_id,omitempty"`
-	MCPURL           *string                    `bson:"mcpurl,omitempty"`
-	Category         *ProviderCategoryValue     `bson:"category,omitempty"`
-	CreateTime       *time.Time                 `bson:"createtime,omitempty"`
-	Description      *string                    `bson:"description,omitempty"`
-	ErrorTransformer *ErrorTransformer          `bson:"errortransformer,omitempty"`
-	ExcludedHosts    *[]string                  `bson:"excludedhosts,omitempty"`
-	Experimental     *bool                      `bson:"experimental,omitempty"`
-	Extractors       *[]*ExtractorRef           `bson:"extractors,omitempty"`
-	FriendlyName     *string                    `bson:"friendlyname,omitempty"`
-	Hosts            *[]*Host                   `bson:"hosts,omitempty"`
-	Icon             *string                    `bson:"icon,omitempty"`
-	ImportHash       *string                    `bson:"importhash,omitempty"`
-	ImportLabel      *string                    `bson:"importlabel,omitempty"`
-	Injectors        *[]*Injector               `bson:"injectors,omitempty"`
-	Lib              *string                    `bson:"lib,omitempty"`
-	Mappers          *[]*Mapper                 `bson:"mappers,omitempty"`
-	Name             *string                    `bson:"name,omitempty"`
-	Namespace        *string                    `bson:"namespace,omitempty"`
-	Propagate        *bool                      `bson:"propagate,omitempty"`
-	ProviderType     *ProviderProviderTypeValue `bson:"providertype,omitempty"`
-	RiskScore        *float64                   `bson:"riskscore,omitempty"`
-	Status           *ProviderStatusValue       `bson:"status,omitempty"`
-	TokenSwap        *bool                      `bson:"tokenswap,omitempty"`
-	Tools            *[]*Tool                   `bson:"tools,omitempty"`
-	TrustedCA        *string                    `bson:"trustedca,omitempty"`
-	UpdateTime       *time.Time                 `bson:"updatetime,omitempty"`
-	UpstreamUnsecure *bool                      `bson:"upstreamunsecure,omitempty"`
-	WebHost          *string                    `bson:"webhost,omitempty"`
-	ZHash            *int                       `bson:"zhash,omitempty"`
-	Zone             *int                       `bson:"zone,omitempty"`
+	ID                bson.ObjectId              `bson:"_id,omitempty"`
+	MCPURL            *string                    `bson:"mcpurl,omitempty"`
+	Category          *ProviderCategoryValue     `bson:"category,omitempty"`
+	CreateTime        *time.Time                 `bson:"createtime,omitempty"`
+	Description       *string                    `bson:"description,omitempty"`
+	ErrorTransformer  *ErrorTransformer          `bson:"errortransformer,omitempty"`
+	ExcludedHosts     *[]string                  `bson:"excludedhosts,omitempty"`
+	Experimental      *bool                      `bson:"experimental,omitempty"`
+	Extractors        *[]*ExtractorRef           `bson:"extractors,omitempty"`
+	FriendlyName      *string                    `bson:"friendlyname,omitempty"`
+	Hosts             *[]*Host                   `bson:"hosts,omitempty"`
+	Icon              *string                    `bson:"icon,omitempty"`
+	ImportHash        *string                    `bson:"importhash,omitempty"`
+	ImportLabel       *string                    `bson:"importlabel,omitempty"`
+	Injectors         *[]*Injector               `bson:"injectors,omitempty"`
+	Lib               *string                    `bson:"lib,omitempty"`
+	Mappers           *[]*Mapper                 `bson:"mappers,omitempty"`
+	Name              *string                    `bson:"name,omitempty"`
+	Namespace         *string                    `bson:"namespace,omitempty"`
+	OfficialStatusURL *string                    `bson:"officialstatusurl,omitempty"`
+	Propagate         *bool                      `bson:"propagate,omitempty"`
+	ProviderType      *ProviderProviderTypeValue `bson:"providertype,omitempty"`
+	RiskScore         *float64                   `bson:"riskscore,omitempty"`
+	Status            *ProviderStatusValue       `bson:"status,omitempty"`
+	Tools             *[]*Tool                   `bson:"tools,omitempty"`
+	TrustedCA         *string                    `bson:"trustedca,omitempty"`
+	UpdateTime        *time.Time                 `bson:"updatetime,omitempty"`
+	UpstreamUnsecure  *bool                      `bson:"upstreamunsecure,omitempty"`
+	WebHost           *string                    `bson:"webhost,omitempty"`
+	ZHash             *int                       `bson:"zhash,omitempty"`
+	Zone              *int                       `bson:"zone,omitempty"`
 }

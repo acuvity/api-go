@@ -179,6 +179,9 @@ func (o *OTLPEndpoint) Validate() error {
 	if err := ValidateURL("endpoint", o.Endpoint); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("endpoint", o.Endpoint); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if err := elemental.ValidateRequiredString("protocol", string(o.Protocol)); err != nil {
 		requiredErrors = requiredErrors.Append(err)

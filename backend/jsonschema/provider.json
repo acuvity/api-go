@@ -4,7 +4,8 @@
     "@identifiable",
     "@timed",
     "@importable",
-    "@auto-propagated"
+    "@auto-propagated",
+    "@providerbase"
   ],
   "$friendlyName": "Provider",
   "$friendlyNamePlural": "Providers",
@@ -188,6 +189,15 @@
         "null"
       ]
     },
+    "officialStatusURL": {
+      "$friendlyName": "Official Status URL",
+      "description": "URL to the provider's official status page.",
+      "title": "officialStatusURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -227,15 +237,6 @@
         "Unstable"
       ],
       "title": "status"
-    },
-    "tokenSwap": {
-      "$friendlyName": "TokenSwap",
-      "description": "If true, consider the incoming calls to use a Proofpoint AI Security token and swap them using registered providertokens.",
-      "title": "tokenSwap",
-      "type": [
-        "boolean",
-        "null"
-      ]
     },
     "tools": {
       "$friendlyName": "Tools",

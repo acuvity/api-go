@@ -1,0 +1,187 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed"
+  ],
+  "$friendlyName": "AI Gateway Connector",
+  "$friendlyNamePlural": "AI Gateway Connectors",
+  "$modelName": "AIGatewayConnector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconnectors",
+  "$modelRestName": "aigatewayconnector",
+  "additionalProperties": false,
+  "description": "Represents an AI Gateway Connector attached to an AI gateway.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "appComponent": {
+      "$friendlyName": "App Component",
+      "description": "The app component that this target represents.",
+      "title": "appComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$friendlyName": "Client ID",
+      "description": "Upstream OAuth client ID.",
+      "title": "clientID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "description": "Upstream OAuth client secret.",
+      "title": "clientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the AI Gateway Connector.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of AI Gateway Connector.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "Name of the AI Gateway Connector.",
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The provider this AI Gateway Connector accesses.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "providerTokenPools": {
+      "$friendlyName": "Provider Token Pools",
+      "description": "Provider Token pools that this AI Gateway Connector can use.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providerTokenPools",
+      "type": "array"
+    },
+    "route": {
+      "$friendlyName": "Route",
+      "description": "The route component.",
+      "pattern": "(^(\\/[a-zA-Z0-9_-]+)+$)?",
+      "title": "route",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of the AI Gateway Connector.",
+      "enum": [
+        "MCP",
+        "LLM"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "upstreamURL": {
+      "$friendlyName": "Upstream URL",
+      "description": "The optional upstream URL of the connector. By default, the first hostname of a provider (or an app component ingress definition) will be used to build the upstream URL.",
+      "title": "upstreamURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "friendlyName",
+    "name",
+    "type"
+  ],
+  "title": "AIGatewayConnector",
+  "type": "object"
+}

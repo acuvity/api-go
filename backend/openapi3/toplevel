@@ -106,6 +106,14 @@
             "description": "If set, redirect the user to that URL.",
             "type": "string"
           },
+          "transportMode": {
+            "description": "Specify if this policy applies to transparent proxy or gateway.",
+            "enum": [
+              "Proxy",
+              "Gateway"
+            ],
+            "example": "Proxy"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -114,7 +122,8 @@
           }
         },
         "required": [
-          "name"
+          "name",
+          "transportMode"
         ],
         "type": "object"
       },
@@ -153,6 +162,47 @@
         },
         "required": [
           "domain"
+        ],
+        "type": "object"
+      },
+      "adminlicense": {
+        "description": "Represents the license for the organization.",
+        "properties": {
+          "active": {
+            "description": "This property determines if the license is active.",
+            "type": "boolean"
+          },
+          "end": {
+            "description": "End date of the license.",
+            "example": "2025-03-22T14:35:00.123456789Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "seats": {
+            "default": 1,
+            "description": "The number of seats the license allows.",
+            "type": "integer"
+          },
+          "start": {
+            "description": "Start date of the license.",
+            "example": "2025-03-22T14:35:00.123456789Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of the license.",
+            "enum": [
+              "Production",
+              "Evaluation"
+            ],
+            "example": "Evaluation"
+          }
+        },
+        "required": [
+          "end",
+          "seats",
+          "start",
+          "type"
         ],
         "type": "object"
       },
@@ -207,6 +257,9 @@
             "description": "Enables the global Sign In With Huggingface for the organization.",
             "type": "boolean"
           },
+          "license": {
+            "$ref": "#/components/schemas/adminlicense"
+          },
           "mode": {
             "default": "Normal",
             "description": "The mode of the organization.",
@@ -231,6 +284,13 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "regions": {
+            "description": "The regions this organization is assigned to. Each entry must match a known\nregion.",
+            "items": {
+              "$ref": "#/components/schemas/region"
+            },
+            "type": "array"
           },
           "reimportTemplate": {
             "description": "This is an internal property used to decide if the org template needs to be\nreimported.",
@@ -1403,6 +1463,432 @@
         ],
         "type": "object"
       },
+      "aigateway": {
+        "description": "Represents AI Gateways.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "aigatewayconnectors": {
+            "description": "The names of the connectors attached to this AI gateway.",
+            "example": [
+              "connector1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "deployments": {
+            "description": "The name of the deployments this AI gateway is bound to.",
+            "example": [
+              "my-deployment1",
+              "my-deployment2"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the AI Gateway.",
+            "example": "Production AI Gateway",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the AI gateway.",
+            "example": "gw1",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "oauthApplication": {
+            "$ref": "#/components/schemas/identityref"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aigatewayclient": {
+        "description": "Represents OAuth clients connected to AI gateways.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Client identifier used in OAuth requests.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Client secret associated with the client ID.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the AI gateway client.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "oauthClient": {
+            "$ref": "#/components/schemas/identityref"
+          },
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
+            "type": "string"
+          },
+          "redirectURIs": {
+            "description": "List of allowed redirect URIs for the client.",
+            "example": [
+              "https://client.example.com/callback"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientID",
+          "redirectURIs"
+        ],
+        "type": "object"
+      },
+      "aigatewayconf": {
+        "description": "AIGatewayConf is an API for AI gateway configurations.",
+        "properties": {
+          "AIGatewayName": {
+            "description": "The name of the AI Gateway this configuration was rendered for.",
+            "type": "string"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectors": {
+            "description": "The rendered AI Gateway connectors attached to this AI gateway.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconfconnector"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "revision": {
+            "description": "A stable revision of the effective rendered configuration.",
+            "example": "2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "aigatewayconfconnector": {
+        "description": "The rendered connector shape consumed by the AI Gateway in an AI Gateway\nconfiguration.",
+        "properties": {
+          "MCPServerName": {
+            "description": "The normalized MCP server name exposed to clients.",
+            "example": "fetch_provider",
+            "type": "string"
+          },
+          "MCPTools": {
+            "description": "The rendered MCP tools attached to this backend.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconfmcptool"
+            },
+            "type": "array"
+          },
+          "appComponent": {
+            "description": "The app component that this target represents.",
+            "example": "chatbot-demo/agent",
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Upstream OAuth client ID.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Upstream OAuth client secret.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the connector.",
+            "example": "fetch-provider",
+            "type": "string"
+          },
+          "oauthTokenEncryptionClaim": {
+            "description": "The claim used to derive the encryption key for stored OAuth tokens.",
+            "example": "ai:session:secret",
+            "type": "string"
+          },
+          "oauthTokenIndexingClaims": {
+            "description": "The claims used to index stored OAuth tokens.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "provider": {
+            "description": "The name of the provider backing this connector.",
+            "example": "fetch-provider",
+            "type": "string"
+          },
+          "providerTokens": {
+            "description": "The rendered provider token pools attached to this gateway.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconftokenpool"
+            },
+            "type": "array"
+          },
+          "route": {
+            "description": "The route component.",
+            "example": "/openai-api",
+            "type": "string"
+          },
+          "upstreamURL": {
+            "description": "The upstream URL of the backend.",
+            "example": "https://ai.example.com/ai",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "aigatewayconfmcptool": {
+        "description": "The rendered tool shape consumed by AI Gateway in an AI gateway configuration.",
+        "properties": {
+          "MCPAnnotations": {
+            "$ref": "#/components/schemas/mcptoolannotations"
+          },
+          "description": {
+            "description": "The description of the tool.",
+            "example": "Fetch a website and return Markdown.",
+            "type": "string"
+          },
+          "inputSchema": {
+            "description": "The JSON schema of the tool input arguments.",
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the tool.",
+            "example": "fetch_provider__fetch_markdown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "aigatewayconftoken": {
+        "description": "The rendered token shape consumed by the AI Gateway.",
+        "properties": {
+          "encryptedToken": {
+            "description": "The token, encrypted using the key referenced by keyID, consumed by the AI\nGateway.",
+            "example": "encryptedtoken1",
+            "type": "string"
+          },
+          "headerKey": {
+            "description": "The header key used to pass the token to the provider.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "headerValue": {
+            "description": "The header value used to pass the token to the provider.",
+            "example": "Bearer {{.Token}}",
+            "type": "string"
+          },
+          "keyID": {
+            "description": "The key ID used to identify the encryption key for this token.",
+            "example": "kid-8276173",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "aigatewayconftokenpool": {
+        "description": "The rendered token pool shape consumed by the AI Gateway.",
+        "properties": {
+          "name": {
+            "description": "The name of the provider token pool.",
+            "example": "openai-api-prod",
+            "type": "string"
+          },
+          "tokens": {
+            "description": "The rendered tokens belonging to this pool.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconftoken"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "aigatewayconnector": {
+        "description": "Represents an AI Gateway Connector attached to an AI gateway.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "appComponent": {
+            "description": "The app component that this target represents.",
+            "example": "chatbot-demo/agent",
+            "type": "string"
+          },
+          "clientID": {
+            "description": "Upstream OAuth client ID.",
+            "example": "my-client",
+            "type": "string"
+          },
+          "clientSecret": {
+            "description": "Upstream OAuth client secret.",
+            "example": "s3cr3t",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the AI Gateway Connector.",
+            "example": "Connector for the OpenAI API",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of AI Gateway Connector.",
+            "example": "GithubConnector1",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the AI Gateway Connector.",
+            "example": "connector1",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "provider": {
+            "description": "The provider this AI Gateway Connector accesses.",
+            "example": "anthropic-api",
+            "type": "string"
+          },
+          "providerTokenPools": {
+            "description": "Provider Token pools that this AI Gateway Connector can use.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "route": {
+            "description": "The route component.",
+            "example": "/openai-api",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of the AI Gateway Connector.",
+            "enum": [
+              "MCP",
+              "LLM"
+            ],
+            "example": "MCP"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "upstreamURL": {
+            "description": "The optional upstream URL of the connector. By default, the first hostname of a\nprovider (or an app component ingress definition) will be used to build the\nupstream URL.",
+            "example": "https://ai.example.com/ai",
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "name",
+          "type"
+        ],
+        "type": "object"
+      },
       "aimcpserver": {
         "description": "AI MCP server provides an overview of a Model Context Protocol server\n(locally-executed tools exposed over the MCP protocol).",
         "properties": {
@@ -1815,10 +2301,25 @@
             "readOnly": true,
             "type": "string"
           },
-          "associatedAppName": {
-            "description": "The name of the application associated with this skill.",
-            "example": "chatgpt",
-            "type": "string"
+          "actionScopeRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "apps": {
+            "description": "The applications this skill was found under (a skill's content is shared across\nagents via ~/.agents/skills, so the same skill can appear under several apps).",
+            "example": [
+              "claude",
+              "cursor"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "behavioralIntegrityRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
+          "complianceRisk": {
+            "$ref": "#/components/schemas/aidrisk"
           },
           "createTime": {
             "description": "Creation date of the object.",
@@ -1826,10 +2327,21 @@
             "readOnly": true,
             "type": "string"
           },
+          "dataSensitivityRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
           "description": {
             "description": "A description about the AI skill.",
             "example": "A description text",
             "type": "string"
+          },
+          "displayName": {
+            "description": "The human-friendly name of the skill.",
+            "example": "Create Subagent",
+            "type": "string"
+          },
+          "executionContextRisk": {
+            "$ref": "#/components/schemas/aidrisk"
           },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
@@ -1868,17 +2380,55 @@
             ],
             "example": "Medium"
           },
+          "sourceOrigin": {
+            "description": "The origin of the skill (for example Internal, First-party or Community), used\nas a trust signal.",
+            "example": "Community",
+            "type": "string"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/aiskillsummary"
+          },
+          "trustRisk": {
+            "$ref": "#/components/schemas/aidrisk"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "vetted": {
+            "description": "Indicates whether the skill has been vetted.",
+            "type": "boolean"
           }
         },
         "required": [
-          "associatedAppName",
+          "apps",
           "name",
           "riskScore"
+        ],
+        "type": "object"
+      },
+      "aiskillsummary": {
+        "description": "AI skill risk summary.",
+        "properties": {
+          "level": {
+            "description": "The level of the risk.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "riskRationale": {
+            "description": "Short explanation of the overall skill risk level.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "level"
         ],
         "type": "object"
       },
@@ -2542,7 +3092,6 @@
               "Owner",
               "Proxy",
               "Viewer",
-              "RiskAuditor",
               "ExternalIDP",
               "Maxibridge"
             ],
@@ -2637,7 +3186,7 @@
             "$ref": "#/components/schemas/appselector"
           },
           "subject": {
-            "description": "Only bearers with claims matching the subject will be allowed to access the\nappcomponent tokens.",
+            "description": "Only bearers with claims matching the subject will be allowed to create tokens\non behalf of the appcomponent. If the subject is empty, then all bearers will be\nallowed to allocate a token on behalf of the appcomponent.",
             "items": {
               "items": {
                 "type": "string"
@@ -2648,7 +3197,7 @@
           },
           "tracing": {
             "default": "Disabled",
-            "description": "Configure the OpenTelemetry tracing behavior for this application. By default no\ntracing will be facilitated. If you set this to Transparent, then the Apex will\nrecord traces within Proofpoint AI Security as they are being passed by the\napplication in the\nrespective traceparent HTTP header or other OpenInference related trace context\ntransport methods. Note that with the Transparent mode, you might lose some\nspans that belong to a trace as the Apex can sit before your application itself.\nIf you want to ensure you capture the full trace, you need to set this value to\nRecording. When the Apex is acting in Recording mode, it will record its own\ninteractions as spans of its own. This ensures that all spans for a trace are\ncaptured. However, if you rely on complete tracing data in your own tracing\nsystem, then you should configure the otelExporter to ensure that the Apex is\nexporting its spans to your tracing system. Additionally, for both Transparent\nand Recording modes, you should ensure that the application is reporting its\nspans to Proofpoint AI Security as well. This can be realized by running OTLP\nreceivers within\nyour application components by configuring the otelReceivers setting.",
+            "description": "Configure the OpenTelemetry tracing behavior for this application. By default no\ntracing will be facilitated. If you set this to Transparent, then the Apex will\nrecord traces within Proofpoint AI Security as they are being passed by the\napplication in the respective traceparent HTTP header or other OpenInference\nrelated trace context transport methods. Note that with the Transparent mode,\nyou might lose some spans that belong to a trace as the Apex can sit before your\napplication itself.\nIf you want to ensure you capture the full trace, you need to set this value to\nRecording. When the Apex is acting in Recording mode, it will record its own\ninteractions as spans of its own. This ensures that all spans for a trace are\ncaptured. However, if you rely on complete tracing data in your own tracing\nsystem, then you should configure the otelExporter to ensure that the Apex is\nexporting its spans to your tracing system. Additionally, for both Transparent\nand Recording modes, you should ensure that the application is reporting its\nspans to Proofpoint AI Security as well. This can be realized by running OTLP\nreceivers within your application components by configuring the otelReceivers\nsetting.",
             "enum": [
               "Disabled",
               "Transparent",
@@ -2809,6 +3358,9 @@
             "example": "mailerd",
             "type": "string"
           },
+          "provider": {
+            "$ref": "#/components/schemas/appcomponentprovider"
+          },
           "renewToken": {
             "description": "Set to true on update to issue a new credential.",
             "type": "boolean"
@@ -2821,7 +3373,7 @@
             "$ref": "#/components/schemas/appcomponentselector"
           },
           "token": {
-            "description": "The token for the current component. Only populated by the backend when the\ncaller's\nclaim match the parents app.subject.",
+            "description": "The token for the current component. Only populated by the backend when the\ncaller's claim match the parents app.subject.",
             "readOnly": true,
             "type": "string"
           },
@@ -2843,8 +3395,22 @@
       "appcomponentegress": {
         "description": "Represents the egress configuration of an application component.",
         "properties": {
-          "defaultPolicy": {
-            "$ref": "#/components/schemas/egressdefaultpolicy"
+          "defaultPolicyAccessDeniedMessage": {
+            "description": "The message that is sent if the access is denied by the default policy deny\naction.",
+            "example": "Access Denied",
+            "type": "string"
+          },
+          "defaultPolicyAction": {
+            "default": "Allow",
+            "description": "The default action to take for connections ingressing to the proxy of this\nworkload that do not match any of the policies.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
           },
           "policies": {
             "description": "The list of policies for egress connections.",
@@ -2869,16 +3435,14 @@
       "appcomponentingress": {
         "description": "Represents the ingress configuration of an application component.",
         "properties": {
-          "ACLs": {
-            "description": "The list of ACLs to apply for the ingress of this workload.",
-            "items": {
-              "$ref": "#/components/schemas/ingressacl"
-            },
-            "type": "array"
+          "defaultPolicyAccessDeniedMessage": {
+            "description": "The message that is sent if the access is denied by the default policy deny\naction.",
+            "example": "Access Denied",
+            "type": "string"
           },
-          "defaultACLAction": {
+          "defaultPolicyAction": {
             "default": "Allow",
-            "description": "The default action to take for connections ingressing to this workload that do\nnot match any of the ACLs.",
+            "description": "The default action to take for connections ingressing to the proxy of this\nworkload that do not match any of the policies.",
             "enum": [
               "Allow",
               "Deny"
@@ -2888,12 +3452,17 @@
             "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
             "type": "boolean"
           },
-          "listeners": {
-            "description": "The defined listeners for this ingress workload.",
+          "policies": {
+            "description": "The list of policies for ingress connections.",
             "items": {
-              "$ref": "#/components/schemas/ingresslistener"
+              "$ref": "#/components/schemas/ingresspolicy"
             },
             "type": "array"
+          },
+          "port": {
+            "description": "The listening port. For appcomponent configurations this is the listening port\nthat traffic will be intercepted on or mirrored from.",
+            "example": 8443,
+            "type": "integer"
           },
           "proxyAccessPolicy": {
             "description": "The computed rego access policy for the proxy.",
@@ -2906,6 +3475,97 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "appcomponentprovider": {
+        "description": "Represents the provider configuration of an application component.",
+        "properties": {
+          "MCPURL": {
+            "description": "The MCP endpoint URL for MCP server providers.",
+            "example": "https://mcp.example.com/mcp",
+            "type": "string"
+          },
+          "category": {
+            "description": "The category of the provider.",
+            "enum": [
+              "User",
+              "App"
+            ],
+            "example": "User"
+          },
+          "description": {
+            "description": "The description of the provider.",
+            "type": "string"
+          },
+          "errorTransformer": {
+            "$ref": "#/components/schemas/errortransformer"
+          },
+          "extractors": {
+            "description": "List of extractors for the provider.",
+            "items": {
+              "$ref": "#/components/schemas/extractorref"
+            },
+            "type": "array"
+          },
+          "hosts": {
+            "description": "The list of hosts that this listener expects to receive traffic for.",
+            "example": [
+              "mcp-chatbot-agent.mcp-chatbot-demo.svc.cluster.local",
+              "mcp-chatbot-agent.mcp-chatbot-demo",
+              "mcp-chatbot-agent"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "injectors": {
+            "description": "Defines injection point for javascript snippet.",
+            "items": {
+              "$ref": "#/components/schemas/injector"
+            },
+            "type": "array"
+          },
+          "lib": {
+            "description": "If set, this snippet of lua will available in all extractors of the provider,\nacting as an effective library. It must be a valid lua module. It will be\navailable to all extractor by doing local plib = require('plib').",
+            "example": "local M = {}\nfunction M.hello_world()\n  return \"hello world\"\nend\nreturn M",
+            "type": "string"
+          },
+          "mappers": {
+            "description": "List of user mappers.",
+            "items": {
+              "$ref": "#/components/schemas/mapper"
+            },
+            "type": "array"
+          },
+          "providerType": {
+            "default": "LLM",
+            "description": "The type of the provider.",
+            "enum": [
+              "LLM",
+              "MCPServer"
+            ]
+          },
+          "tools": {
+            "description": "The list of available tools for MCP server providers.",
+            "items": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "type": "array"
+          },
+          "trustedCA": {
+            "description": "If set, additionally trust the Certificate Authorities from the PEM data. This\nis useful when working on a custom provider using a self signed CA chain.",
+            "type": "string"
+          },
+          "upstreamUnsecure": {
+            "description": "If enabled, force the upstream scheme to be HTTP instead of https. Mostly use\nfor dev purposes.",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "category",
+          "hosts"
+        ],
         "type": "object"
       },
       "appcomponentselector": {
@@ -4008,6 +4668,174 @@
         ],
         "type": "object"
       },
+      "deployment": {
+        "description": "Deployment represents an AI Security Gateway Deployment.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the deployment.",
+            "example": "Production AI Security Gateway deployment on cluster-east-1 (ADM-4242)",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the deployment.",
+            "example": "aisg",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "publicHostnames": {
+            "description": "Host names of the deployment to perform connection terminations.",
+            "example": [
+              "api.test.com",
+              "k8s.svc.local"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "renewToken": {
+            "description": "Set to true on update to issue a new credential.",
+            "type": "boolean"
+          },
+          "renewTokenTag": {
+            "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
+          "token": {
+            "description": "The issued JWT, populated only in the response of an update where\nrenewToken was set to true.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "tokenRefs": {
+            "description": "The list of references to issued tokens.",
+            "items": {
+              "$ref": "#/components/schemas/tokenref"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "deploymentinstance": {
+        "description": "Displays the status of a running deployment instance. A deployment instance is a\nrunning process that has registered itself with the platform using a deployment\ntoken. One deployment can have multiple instances running on different hosts.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "config": {
+            "description": "The configuration that the deployment was started with. The format of the config\nis version specific and subject to change.",
+            "example": "{\"log_level\":\"info\"}",
+            "type": "string"
+          },
+          "currentVersion": {
+            "description": "The current version of the deployment.",
+            "example": "0.1.0",
+            "type": "string"
+          },
+          "diagnostics": {
+            "description": "List of diagnostics for this instance.",
+            "items": {
+              "$ref": "#/components/schemas/diagnostic"
+            },
+            "type": "array"
+          },
+          "hostname": {
+            "description": "The name of the host where the deployment instance is running.",
+            "example": "this-hostname",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
+            "type": "string"
+          },
+          "ping": {
+            "description": "The last ping recorded for the deployment instance.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "publicKeys": {
+            "description": "References of the public keys that this deployment instance has access to.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "start": {
+            "description": "The start time for the deployment instance.",
+            "example": "2024-06-21T00:36:15.021Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "The status of the deployment instance.",
+            "enum": [
+              "Alive",
+              "Stopped",
+              "Unresponsive"
+            ],
+            "example": "Alive"
+          },
+          "tokenID": {
+            "description": "The ID of the deployment token this deployment instance authenticated with.",
+            "example": "8ef1a635-6d7c-4795-bda8-af048f0169f2",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "hostname",
+          "status"
+        ],
+        "type": "object"
+      },
       "destination": {
         "description": "Represents the destination that this request was made to.",
         "properties": {
@@ -4154,11 +4982,11 @@
         "type": "object"
       },
       "diagnostic": {
-        "description": "Represents a diagnostic message for a gateway instance.",
+        "description": "Represents a diagnostic message.",
         "properties": {
           "message": {
             "description": "The diagnostic message.",
-            "example": "Bad message",
+            "example": "Error: analyzer URL unreachable",
             "type": "string"
           }
         },
@@ -4391,125 +5219,42 @@
         },
         "type": "object"
       },
-      "egressdefaultpolicy": {
-        "description": "Represents the default egress policy configuration of an application component.",
-        "properties": {
-          "ACLAction": {
-            "default": "Allow",
-            "description": "The default ACL action to take for connections egressing from this workload that\nare not covered by other policy rules or ACLs.",
-            "enum": [
-              "Allow",
-              "Deny"
-            ]
-          },
-          "failClose": {
-            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "ACLAction"
-        ],
-        "type": "object"
-      },
       "egresspolicy": {
         "description": "Represents an egress policy of an application component.",
         "properties": {
-          "ACLs": {
-            "description": "The list of ACLs to apply for the egress policy.",
-            "items": {
-              "$ref": "#/components/schemas/egresspolicyacl"
-            },
-            "type": "array"
-          },
           "accessDeniedMessage": {
             "description": "The message that is sent if the access is denied.",
-            "example": "Access Denied",
+            "example": "You must use the company workspace",
             "type": "string"
+          },
+          "action": {
+            "default": "Allow",
+            "description": "Define if the provider is allowed or denied for the match expression.",
+            "enum": [
+              "Allow",
+              "Deny",
+              "Redirect"
+            ]
           },
           "alertDefinition": {
             "description": "The definition to use for alerting when action is deny.",
             "type": "string"
           },
-          "description": {
-            "description": "Description of the access policy.",
-            "type": "string"
-          },
-          "disabled": {
-            "description": "If true, the policy is disabled and will not be applied.",
+          "anyGatewayAllowed": {
+            "default": false,
+            "description": "If true, all gateways can be used.",
             "type": "boolean"
           },
-          "name": {
-            "description": "The name of the egress policy.",
-            "example": "my access policy",
-            "type": "string"
+          "anyToolAllowed": {
+            "default": false,
+            "description": "If true, all tools can be used.",
+            "type": "boolean"
           },
-          "policyID": {
-            "description": "The Policy ID is the unique identifier for this policy.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "rules": {
-            "description": "Rules that define how egress traffic is handled.",
-            "items": {
-              "$ref": "#/components/schemas/egresspolicyrule"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "name"
-        ],
-        "type": "object"
-      },
-      "egresspolicyacl": {
-        "description": "Represents an ACL for an egress policy of an application component.",
-        "properties": {
-          "IPRanges": {
-            "description": "The list of IP ranges in CIDR notation to match for this ACL.",
-            "example": [
-              "192.0.2.0/24",
-              "192.0.2.12/32",
-              "3fff::/20",
-              "3fff::1/128"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "action": {
-            "description": "The action to take for connections egressing from this workload that match this\nACL.",
-            "enum": [
-              "Allow",
-              "Deny"
-            ],
-            "example": "Allow"
-          },
-          "hostnames": {
-            "description": "The list of hostnames to match for this ACL. Supports wildcard prefixes, e.g.\n*.example.com which matches sub1.example.com but not sub2.sub1.example.com, as\nwell as recursive wildcard prefixes, e.g. **.example.com which matches\nsub1.example.com as well as sub2.sub1.example.com.",
-            "example": [
-              "www.example.com",
-              "*.example.com",
-              "**.example.com"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "action"
-        ],
-        "type": "object"
-      },
-      "egresspolicyrule": {
-        "description": "Represents a rule for an egress policy of an application component.",
-        "properties": {
           "appComponents": {
-            "description": "The list of application components that this rule applies to in the form of\napp/component. If the component is not specified, then this rule applies to all\ncomponents of the application.",
+            "description": "As the egress policy is defined in the context of an application component, the\napplication component specifies destination of the egress connection.\nThe value is in the form of project:app/component, where the project: is\noptional.\nIf this part is missing, it implies the app/component is in the same project\nwhere the app/component is defined.",
             "example": [
+              "production:acme-ai-app/agent",
+              "production:acme-ai-app/scheduler",
               "acme-ai-app/email-agent",
               "mcp-servers-enterprise/mcp-sharepoint",
               "mcp-servers-internet"
@@ -4520,19 +5265,52 @@
             "type": "array"
           },
           "contentPolicies": {
-            "description": "The list of content policies to apply when the workload has access to the\nprovider.",
+            "description": "The list of content policies to apply when the user has access to the provider.",
             "items": {
               "type": "string"
             },
             "type": "array"
           },
-          "mode": {
-            "description": "The mode of the egress policy rule which determines how traffic is being\nhandled. If set to Proxy, then the traffic will be redirected to the Apex proxy:\nthis enables access policy enforcement as well as content policy redactions. If\nset to Passthrough, then the traffic will not be touched and simply be passed\nthrough to its intended destination.",
-            "enum": [
-              "Proxy",
-              "Passthrough"
+          "description": {
+            "description": "Description of the access policy.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the policy is disabled.",
+            "type": "boolean"
+          },
+          "gateways": {
+            "description": "The list of gateways that this rule applies to.",
+            "example": [
+              "production-gateway",
+              "staging-gateway"
             ],
-            "example": "Proxy"
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "minimalLogging": {
+            "description": "If true, the system will not log the messages that are not considered as\nviolations.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the access policy.",
+            "example": "my access policy",
+            "type": "string"
+          },
+          "offbandAnalysis": {
+            "description": "If true, the system will run analysis in parallel of the user request. When this\nis active, no further policing will be done, and no content policy will run.\nThis can be used to observe the transmitted data and have analysis report,\nwithout adding latency to the end user request, at the price of not being able\nto do any form of content moderation.",
+            "type": "boolean"
+          },
+          "permissive": {
+            "description": "If set, just log the decision, but don't enforce it.",
+            "type": "boolean"
+          },
+          "policyID": {
+            "description": "The Policy ID is the unique identifier for this policy.",
+            "readOnly": true,
+            "type": "string"
           },
           "providers": {
             "description": "The list of providers that this rule applies to.",
@@ -4545,18 +5323,36 @@
             },
             "type": "array"
           },
-          "proxyAction": {
-            "default": "NotApplicable",
-            "description": "The action to take for connections egressing from this workload that match this\nrule. This requires the mode to be set to Proxy.",
+          "redactContent": {
+            "description": "If true, the system will remove all user data from the reported data, while\nkeeping the analysis and metadata.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
+            "type": "boolean"
+          },
+          "tools": {
+            "description": "The list of tools that this rule applies to.",
+            "example": [
+              "Github__read_repository"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "transportMode": {
+            "description": "Specify if this policy applies to transparent proxy or gateway.",
             "enum": [
-              "NotApplicable",
-              "Allow",
-              "Deny"
-            ]
+              "Proxy",
+              "Gateway"
+            ],
+            "example": "Proxy"
           }
         },
         "required": [
-          "mode"
+          "name",
+          "transportMode"
         ],
         "type": "object"
       },
@@ -5561,6 +6357,36 @@
         },
         "type": "object"
       },
+      "hint": {
+        "description": "Observed annotation values seen in live traffic for policy building.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "key": {
+            "description": "The annotation key (e.g. tier, model).",
+            "example": "tier",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "value": {
+            "description": "The observed annotation value (e.g. pro).",
+            "example": "pro",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "type": "object"
+      },
       "host": {
         "description": "This is node definition.",
         "properties": {
@@ -5858,6 +6684,13 @@
             },
             "type": "array"
           },
+          "deployments": {
+            "description": "Deployments to import.",
+            "items": {
+              "$ref": "#/components/schemas/deployment"
+            },
+            "type": "array"
+          },
           "extractorLibs": {
             "description": "Extractor Libs to import.",
             "items": {
@@ -5933,6 +6766,13 @@
             },
             "type": "array"
           },
+          "publickeys": {
+            "description": "Public Keys to import.",
+            "items": {
+              "$ref": "#/components/schemas/publickey"
+            },
+            "type": "array"
+          },
           "sinks": {
             "description": "Sinks to import.",
             "items": {
@@ -6001,197 +6841,32 @@
         ],
         "type": "object"
       },
-      "ingressacl": {
-        "description": "Represents an ACL for the ingress of an application component.",
-        "properties": {
-          "ACLID": {
-            "description": "The ACL ID is the unique identifier for this ACL.",
-            "example": "acl-12345",
-            "readOnly": true,
-            "type": "string"
-          },
-          "IPRanges": {
-            "description": "The list of IP ranges in CIDR notation to match for this ACL.",
-            "example": [
-              "192.0.2.0/24",
-              "192.0.2.12/32",
-              "3fff::/20",
-              "3fff::1/128"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "action": {
-            "description": "The action to take for connections ingressing to this workload that match this\nACL.",
-            "enum": [
-              "Allow",
-              "Deny"
-            ],
-            "example": "Allow"
-          },
-          "description": {
-            "description": "Description of the ingress ACL.",
-            "example": "Allows access from loadbalancer IPs.",
-            "type": "string"
-          },
-          "disabled": {
-            "description": "If true, the ACL is disabled and will not be applied.",
-            "type": "boolean"
-          },
-          "name": {
-            "description": "The name of the ingress ACL.",
-            "example": "allow loadbalancer access",
-            "type": "string"
-          },
-          "port": {
-            "description": "The port to match for this ACL. If not set, the ACL will match all ports.",
-            "example": 8443,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "IPRanges",
-          "action",
-          "name"
-        ],
-        "type": "object"
-      },
-      "ingresslistener": {
-        "description": "Represents a listener for the ingress of an application component.",
-        "properties": {
-          "extractors": {
-            "description": "List of extractors for the provider.",
-            "example": [
-              {
-                "ref": "mcp/input-sse"
-              },
-              {
-                "ref": "mcp/output-sse"
-              }
-            ],
-            "items": {
-              "$ref": "#/components/schemas/extractorref"
-            },
-            "type": "array"
-          },
-          "hosts": {
-            "description": "The list of hosts that this listener expects to receive traffic for.",
-            "example": [
-              "mcp-chatbot-agent.mcp-chatbot-demo.svc.cluster.local",
-              "mcp-chatbot-agent.mcp-chatbot-demo",
-              "mcp-chatbot-agent"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "mode": {
-            "description": "The mode of the ingress listener which determines how traffic is being handled.\nIf set to Proxy, then the traffic will be redirected to the Apex proxy: this\nenables access policy enforcement as well as content policy redactions. If set\nto Passthrough, then the traffic will not be touched and simply be passed\nthrough to its intended destination.",
-            "enum": [
-              "Proxy",
-              "Passthrough"
-            ],
-            "example": "Proxy"
-          },
-          "port": {
-            "description": "The listening port. For appcomponent configurations this is the listening port\nthat traffic will be intercepted on or mirrored from.",
-            "example": 8443,
-            "type": "integer"
-          },
-          "proxy": {
-            "$ref": "#/components/schemas/ingressproxyconfig"
-          }
-        },
-        "required": [
-          "extractors",
-          "hosts",
-          "mode",
-          "port"
-        ],
-        "type": "object"
-      },
       "ingresspolicy": {
         "description": "Represents an ingress policy of an application component.",
         "properties": {
           "accessDeniedMessage": {
             "description": "The message that is sent if the access is denied.",
-            "example": "Access Denied",
+            "example": "You must use the company workspace",
             "type": "string"
+          },
+          "action": {
+            "default": "Allow",
+            "description": "Define if the provider is allowed or denied for the match expression.",
+            "enum": [
+              "Allow",
+              "Deny",
+              "Redirect"
+            ]
           },
           "alertDefinition": {
             "description": "The definition to use for alerting when action is deny.",
             "type": "string"
           },
-          "description": {
-            "description": "Description of the access policy.",
-            "type": "string"
-          },
-          "disabled": {
-            "description": "If true, the policy is disabled and will not be applied.",
-            "type": "boolean"
-          },
-          "name": {
-            "description": "The name of the ingress policy.",
-            "example": "my access policy",
-            "type": "string"
-          },
-          "policyID": {
-            "description": "The Policy ID is the unique identifier for this policy.",
-            "readOnly": true,
-            "type": "string"
-          },
-          "rules": {
-            "description": "The list of rules for the ingress policy.",
-            "example": [
-              {
-                "action": "Allow",
-                "ipRanges": [
-                  "0.0.0.0/0"
-                ]
-              }
-            ],
-            "items": {
-              "$ref": "#/components/schemas/ingresspolicyrule"
-            },
-            "type": "array"
-          }
-        },
-        "required": [
-          "name",
-          "rules"
-        ],
-        "type": "object"
-      },
-      "ingresspolicyrule": {
-        "description": "Represents a rule for an ingress policy of an application component.",
-        "properties": {
-          "IPRanges": {
-            "description": "The list of IP ranges in CIDR notation to match for this rule.",
-            "example": [
-              "192.0.2.0/24",
-              "192.0.2.12/32",
-              "3fff::/20",
-              "3fff::1/128"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "action": {
-            "description": "The action to take for connections ingressing to the proxy of this workload that\nmatch this rule.",
-            "enum": [
-              "Allow",
-              "Deny"
-            ],
-            "example": "Allow"
-          },
           "appComponents": {
-            "description": "The list of application components that this rule applies to in the form of\napp/component. If the component is not specified, then this rule applies to all\ncomponents of the application.",
+            "description": "As the ingress policy is defined in the context of an application component, the\napplication component specifies the source of the ingress connection.\nThe value is in the form of project:app/component, where the project: is\noptional.\nIf this part is missing, it implies the app/component is in the same project\nwhere the app/component is defined.",
             "example": [
+              "production:acme-ai-app/agent",
+              "production:acme-ai-app/scheduler",
               "acme-ai-app/email-agent",
               "mcp-servers-enterprise/mcp-sharepoint",
               "mcp-servers-internet"
@@ -6202,61 +6877,54 @@
             "type": "array"
           },
           "contentPolicies": {
-            "description": "The list of content policies to apply when the workload has access to the\nprovider.",
+            "description": "The list of content policies to apply when the user has access to the provider.",
             "items": {
               "type": "string"
             },
             "type": "array"
+          },
+          "description": {
+            "description": "Description of the access policy.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the policy is disabled.",
+            "type": "boolean"
+          },
+          "minimalLogging": {
+            "description": "If true, the system will not log the messages that are not considered as\nviolations.",
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The name of the access policy.",
+            "example": "my access policy",
+            "type": "string"
+          },
+          "offbandAnalysis": {
+            "description": "If true, the system will run analysis in parallel of the user request. When this\nis active, no further policing will be done, and no content policy will run.\nThis can be used to observe the transmitted data and have analysis report,\nwithout adding latency to the end user request, at the price of not being able\nto do any form of content moderation.",
+            "type": "boolean"
+          },
+          "permissive": {
+            "description": "If set, just log the decision, but don't enforce it.",
+            "type": "boolean"
+          },
+          "policyID": {
+            "description": "The Policy ID is the unique identifier for this policy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "redactContent": {
+            "description": "If true, the system will remove all user data from the reported data, while\nkeeping the analysis and metadata.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
+            "type": "boolean"
           }
         },
         "required": [
-          "action"
+          "name"
         ],
-        "type": "object"
-      },
-      "ingressproxyconfig": {
-        "description": "Represents the proxy configuration for an ingress listener of an application\ncomponent.",
-        "properties": {
-          "defaultPolicyAccessDeniedMessage": {
-            "description": "The message that is sent if the access is denied by the default policy deny\naction.",
-            "example": "Access Denied",
-            "type": "string"
-          },
-          "defaultPolicyAction": {
-            "default": "Allow",
-            "description": "The default action to take for connections ingressing to the proxy of this\nworkload that do not match any of the policies.",
-            "enum": [
-              "Allow",
-              "Deny"
-            ]
-          },
-          "dialTLS": {
-            "default": "Preserve",
-            "description": "This option controls the dialing behaviour of the apex to the origin server.\nShould be explicitly set to enabled if the origin expects TLS connections. And\nvice versa it should be set to disabled if the origin expects connections in\nplaintext. By default this setting is set to preserve which means that the apex\nis going to dial using whatever mode it terminated its own connection with: if\nthe apex received a TLS connection, it will dial TLS, if it received a plaintext\nconnection, then it will dial plaintext. The apex receiving behaviour can be\ncontrolled with the listenTLS option. As a last resort this setting can be set\nto auto detect which means that the apex is going to probe the origin server to\ndetermine if it needs to dial using TLS or not. Note that this is potentially\nsending a TLS Client Hello to a plaintext HTTP server which is not expecting\nthat. Therefore, this option is not recommended if it can be avoided.",
-            "enum": [
-              "Preserve",
-              "AutoDetect",
-              "Enabled",
-              "Disabled"
-            ]
-          },
-          "listenTLS": {
-            "default": "AutoDetect",
-            "description": "This option controls the receiving behaviour of connection to the apex before\nthey are going to be proxied to the origin server. To control the dialing\nbehaviour of the apex towards the origin server use the dialTLS option. Should\nbe explicitly set to enabled if the listener expects TLS connections. And vice\nversa it should be set to disabled if the listener expects connections in\nplaintext. By default this setting is set to auto detect which means that the\nlistener will automatically determine if incoming connections are TLS or not:\nTLS connections will be accepted, as well as  plain TCP connections will be\naccepted, both on the configured listenPort.",
-            "enum": [
-              "AutoDetect",
-              "Enabled",
-              "Disabled"
-            ]
-          },
-          "policies": {
-            "description": "The defined policies for this ingress listener.",
-            "items": {
-              "$ref": "#/components/schemas/ingresspolicy"
-            },
-            "type": "array"
-          }
-        },
         "type": "object"
       },
       "injector": {
@@ -6643,6 +7311,11 @@
             "format": "date-time",
             "type": "string"
           },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
           "publicURL": {
             "description": "The public URL of the gateway.",
             "example": "https://mcp.acme.com",
@@ -6973,6 +7646,11 @@
               "Server2Client"
             ],
             "example": "Client2Server"
+          },
+          "gatewayName": {
+            "description": "This is the MCP gateway name of the MCP message. This is only set for messages\nthat are sent to or received from an MCP gateway.",
+            "example": "maxibridge",
+            "type": "string"
           },
           "isError": {
             "description": "IsError is true in case if a response is an error response as opposed to a\nresult. Note that this is not the same as a result which has isError set to true\nwithin the result. This is a protocol level error. This will always be false for\nrequests and notifications, and false for reponses when the response has a\nresult.",
@@ -7354,7 +8032,7 @@
             "type": "array"
           },
           "redact": {
-            "description": "If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.",
+            "description": "If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.",
             "type": "boolean"
           }
         },
@@ -8223,12 +8901,13 @@
               "DstApp",
               "DstComponent",
               "DstIPRange",
+              "DstProject",
               "Exploits",
               "FeatureName",
+              "Gateways",
               "IsIngress",
               "Keywords",
               "Languages",
-              "MCPGateway",
               "MCPServer",
               "Malcontents",
               "Modality",
@@ -8244,6 +8923,7 @@
               "SrcApp",
               "SrcComponent",
               "SrcIPRange",
+              "SrcProject",
               "Status",
               "Team",
               "Tier",
@@ -8635,6 +9315,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "officialStatusURL": {
+            "description": "URL to the provider's official status page.",
+            "example": "https://status.openai.com/",
+            "type": "string"
+          },
           "propagate": {
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
@@ -8660,10 +9345,6 @@
               "Unstable"
             ]
           },
-          "tokenSwap": {
-            "description": "If true, consider the incoming calls to use a Proofpoint AI Security token and\nswap them using\nregistered providertokens.",
-            "type": "boolean"
-          },
           "tools": {
             "description": "The list of available tools for MCP server providers.",
             "items": {
@@ -8682,7 +9363,7 @@
             "type": "string"
           },
           "upstreamUnsecure": {
-            "description": "If enabled, force the upstream scheme to be HTTP instead of https. Mostly use\nfor\ndev purposes.",
+            "description": "If enabled, force the upstream scheme to be HTTP instead of https. Mostly use\nfor dev purposes.",
             "type": "boolean"
           },
           "webHost": {
@@ -8877,17 +9558,14 @@
             "readOnly": true,
             "type": "string"
           },
-          "importHash": {
-            "description": "The hash of the structure used to compare with new import version.",
+          "description": {
+            "description": "The description of the provider token.",
+            "example": "OpenAI API Production key created in ADM-4342",
             "type": "string"
           },
-          "importLabel": {
-            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
-            "type": "string"
-          },
-          "name": {
-            "description": "Name of the token. As token contents are hidden after creation, name allows a\nway to delete it.",
-            "example": "openai-token-1",
+          "keyID": {
+            "description": "The key ID used to identify the encryption key for this token.",
+            "example": "kid-8276173",
             "type": "string"
           },
           "namespace": {
@@ -8895,13 +9573,14 @@
             "readOnly": true,
             "type": "string"
           },
-          "provider": {
-            "description": "Name of the provider this token is used with.",
-            "example": "openai",
+          "parentID": {
+            "description": "The ID of the parent resource.",
+            "example": "6a1dbccfbb0c837c0bf039d5",
+            "readOnly": true,
             "type": "string"
           },
           "token": {
-            "description": "token to authenticate with the provider.",
+            "description": "Token that will be encrypted using the key referenced by keyID.",
             "example": "token1",
             "type": "string"
           },
@@ -8913,9 +9592,73 @@
           }
         },
         "required": [
-          "name",
-          "provider",
+          "keyID",
           "token"
+        ],
+        "type": "object"
+      },
+      "providertokenpool": {
+        "description": "ProviderTokenPool is a pool of upstream tokens to be used with a single provider\nused by the AI Security Gateway who have the corresponding private keys to\ndecrypt the tokens.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the provider token pool.",
+            "example": "OpenAI API Production pool keys created in ADM-4342",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the provider token pool.",
+            "example": "OpenAI",
+            "type": "string"
+          },
+          "headerKey": {
+            "default": "Authorization",
+            "description": "The header key used to pass the token to the provider.",
+            "type": "string"
+          },
+          "headerValueTemplate": {
+            "default": "Bearer {{.Token}}",
+            "description": "The Go template used to format the header value.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of the provider token pool.",
+            "example": "openai-api-prod",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "name"
         ],
         "type": "object"
       },
@@ -9029,6 +9772,20 @@
       "proxyconf": {
         "description": "ProxyConf is an API for proxy.",
         "properties": {
+          "AIGatewayConfs": {
+            "description": "The list of AI gateway configurations.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconf"
+            },
+            "type": "array"
+          },
+          "Apps": {
+            "description": "The list of apps and their components registered in the system including their\nresolved access and content policies.",
+            "items": {
+              "$ref": "#/components/schemas/app"
+            },
+            "type": "array"
+          },
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
@@ -9335,6 +10092,83 @@
         ],
         "type": "object"
       },
+      "publickey": {
+        "description": "Represents a public key to which the corresponding private key must only be\navailable on deployment instances.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "deployments": {
+            "description": "The name of the deployments whose instances hold the corresponding private key.",
+            "example": [
+              "my-deployment1",
+              "my-deployment2"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the public key.",
+            "example": "Created in JIRA ticket ADM-4242.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "keyID": {
+            "description": "The key ID used to reference this public key.",
+            "example": "kid-8276173",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the public key.",
+            "example": "us-east-1",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "publicKey": {
+            "description": "PEM encoded public key.",
+            "example": "PEM KEY",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "keyID",
+          "name",
+          "publicKey"
+        ],
+        "type": "object"
+      },
       "query": {
         "description": "This is a Log.",
         "properties": {
@@ -9458,6 +10292,28 @@
         "required": [
           "query"
         ],
+        "type": "object"
+      },
+      "region": {
+        "description": "Administrative API to handle regions (data realms).",
+        "properties": {
+          "apiURL": {
+            "description": "The API URL serving this region.",
+            "example": "https://api.acuvity.ai",
+            "readOnly": true,
+            "type": "string"
+          },
+          "available": {
+            "description": "Whether this region is available.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "name": {
+            "description": "The region identifier.",
+            "example": "us-east-2",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "resolve": {
@@ -10431,6 +11287,88 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "threatdefinition": {
+        "description": "Defines threat detection patterns that the system monitors to generate findings\nwhen matching activity is detected, providing visibility into potential security\nrisks and policy violations.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the threat definition.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the threat definition is disabled.",
+            "type": "boolean"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "match": {
+            "description": "The list of predicates that define this threat pattern.",
+            "items": {
+              "$ref": "#/components/schemas/predicate"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "severity": {
+            "default": "Low",
+            "description": "The severity level of the threat definition.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ]
+          },
+          "type": {
+            "default": "Request",
+            "description": "Choose on what the threat definition should apply.",
+            "enum": [
+              "Both",
+              "Request",
+              "Response"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "severity",
+          "type"
+        ],
         "type": "object"
       },
       "tlscertinfo": {
@@ -12524,6 +13462,434 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/aidomain"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigatewayclients/{id}": {
+      "delete": {
+        "description": "Delete an AI Gateway Client given its identifier.",
+        "operationId": "delete-AIGatewayClient",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI Gateway Client given its identifier.",
+        "operationId": "get-AIGatewayClient",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI Gateway Client given its identifier.",
+        "operationId": "update-AIGatewayClient",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigatewayclient"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayclient"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigatewayconnectors": {
+      "get": {
+        "description": "List all available ai gateway connectors.",
+        "operationId": "get-all-AIGatewayConnectors",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aigatewayconnector"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new ai gateway connector.",
+        "operationId": "create-AIGatewayConnector",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigatewayconnector"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayconnector"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigatewayconnectors/{id}": {
+      "delete": {
+        "description": "Delete an AI Gateway Connector given its identifier.",
+        "operationId": "delete-AIGatewayConnector",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayconnector"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI Gateway Connector given its identifier.",
+        "operationId": "get-AIGatewayConnector",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayconnector"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI Gateway Connector given its identifier.",
+        "operationId": "update-AIGatewayConnector",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigatewayconnector"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayconnector"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigateways": {
+      "get": {
+        "description": "List all available ai gateways.",
+        "operationId": "get-all-AIGateways",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aigateway"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new ai gateway.",
+        "operationId": "create-AIGateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigateways/{id}": {
+      "delete": {
+        "description": "Delete an AI Gateway given its identifier.",
+        "operationId": "delete-AIGateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI Gateway given its identifier.",
+        "operationId": "get-AIGateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update an AI Gateway given its identifier.",
+        "operationId": "update-AIGateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigateway"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigateway"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aigateways/{id}/aigatewayclients": {
+      "get": {
+        "description": "Retrieves the list of AI gateway clients for this AI gateway.",
+        "operationId": "get-all-AIGatewayClients-in-aigateway",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aigatewayclient"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Creates a new AI gateway client for this AI gateway.",
+        "operationId": "create-AIGatewayClient-in-aigateway",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aigatewayclient"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aigatewayclient"
                 }
               }
             },
@@ -14775,6 +16141,291 @@
         ]
       }
     },
+    "/deploymentinstances/{id}": {
+      "delete": {
+        "description": "Deletes the Deployment Instance with the given ID.",
+        "operationId": "delete-DeploymentInstance",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deploymentinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the Deployment Instance with the given ID.",
+        "operationId": "get-DeploymentInstance",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deploymentinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the Deployment Instance with the given ID.",
+        "operationId": "update-DeploymentInstance",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deploymentinstance"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deploymentinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/deployments": {
+      "get": {
+        "description": "List all available deployments.",
+        "operationId": "get-all-Deployments",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/deployment"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new deployment.",
+        "operationId": "create-Deployment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/deployments/{id}": {
+      "delete": {
+        "description": "Deletes the Deployment with the given ID and revokes all tokens issued for this deployment.",
+        "operationId": "delete-Deployment",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the Deployment with the given ID.",
+        "operationId": "get-Deployment",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the Deployment with the given ID. Set renewToken to true to issue a\nnew JWT for this deployment; the new token will be returned in the response\nvia the transient token field and a Principal entry referencing its\ntokenID will be appended to principals.",
+        "operationId": "update-Deployment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deployment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deployment"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/deployments/{id}/deploymentinstances": {
+      "get": {
+        "description": "Retrieves the list of instances for this deployment.",
+        "operationId": "get-all-DeploymentInstances-in-deployment",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/deploymentinstance"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Creates a new instance for this deployment.",
+        "operationId": "create-DeploymentInstance-in-deployment",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/deploymentinstance"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/deploymentinstance"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/digestreportrequests": {
       "post": {
         "description": "Ask for a report generation immediately.",
@@ -15950,6 +17601,41 @@
                 "schema": {
                   "items": {
                     "$ref": "#/components/schemas/gitbooktoken"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/hints": {
+      "get": {
+        "description": "List all extraction hints for the given annotation key.",
+        "operationId": "get-all-Hints",
+        "parameters": [
+          {
+            "description": "The annotation key to retrieve hints for.",
+            "example": "Tier",
+            "in": "query",
+            "name": "key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/hint"
                   },
                   "type": "array"
                 }
@@ -18413,10 +20099,10 @@
         ]
       }
     },
-    "/providertokens": {
+    "/providertokenpools": {
       "get": {
-        "description": "List all available provider tokens.",
-        "operationId": "get-all-ProviderTokens",
+        "description": "List all available provider token pools.",
+        "operationId": "get-all-ProviderTokenPools",
         "parameters": [
           {
             "description": "This is an example.",
@@ -18428,6 +20114,138 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/providertokenpool"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new provider token pool.",
+        "operationId": "create-ProviderTokenPool",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/providertokenpool"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providertokenpool"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/providertokenpools/{id}": {
+      "delete": {
+        "description": "Delete a ProviderTokenPool given its identifier.",
+        "operationId": "delete-ProviderTokenPool",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providertokenpool"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a ProviderTokenPool given its identifier.",
+        "operationId": "get-ProviderTokenPool",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providertokenpool"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a ProviderTokenPool given its identifier.",
+        "operationId": "update-ProviderTokenPool",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/providertokenpool"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/providertokenpool"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/providertokenpools/{id}/providertokens": {
+      "get": {
+        "description": "Retrieves the list of provider tokens.",
+        "operationId": "get-all-ProviderTokens-in-providertokenpool",
         "responses": {
           "200": {
             "content": {
@@ -18447,9 +20265,19 @@
           "core"
         ]
       },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
       "post": {
-        "description": "Creates a new provider token list.",
-        "operationId": "create-ProviderToken",
+        "description": "Creates a new provider token.",
+        "operationId": "create-ProviderToken-in-providertokenpool",
         "requestBody": {
           "content": {
             "application/json": {
@@ -18642,6 +20470,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/proxyroundtrip"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/publickeys": {
+      "get": {
+        "description": "List all public keys.",
+        "operationId": "get-all-PublicKeys",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/publickey"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new public key.",
+        "operationId": "create-PublicKey",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/publickey"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/publickey"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/publickeys/{id}": {
+      "delete": {
+        "description": "Deletes the PublicKey with the given ID.",
+        "operationId": "delete-PublicKey",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/publickey"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the PublicKey with the given ID.",
+        "operationId": "get-PublicKey",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/publickey"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the name and description of the PublicKey with the given ID.",
+        "operationId": "update-PublicKey",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/publickey"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/publickey"
                 }
               }
             },
@@ -18936,6 +20907,41 @@
         },
         "tags": [
           "core"
+        ]
+      }
+    },
+    "/regions": {
+      "get": {
+        "description": "List all supported regions.",
+        "operationId": "get-all-Regions",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/region"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "admin"
         ]
       }
     },
@@ -19680,6 +21686,160 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/team"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/threatdefinitions": {
+      "get": {
+        "description": "List all threat definitions.",
+        "operationId": "get-all-ThreatDefinitions",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/threatdefinition"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new threat definition.",
+        "operationId": "create-ThreatDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/threatdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/threatdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/threatdefinitions/{id}": {
+      "delete": {
+        "description": "Deletes the threat definition with the given ID.",
+        "operationId": "delete-ThreatDefinition",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/threatdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the threat definition with the given ID.",
+        "operationId": "get-ThreatDefinition",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/threatdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the threat definition with the given ID.",
+        "operationId": "update-ThreatDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/threatdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/threatdefinition"
                 }
               }
             },

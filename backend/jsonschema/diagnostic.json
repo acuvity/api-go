@@ -7,7 +7,7 @@
   "$modelResourceName": "diagnostics",
   "$modelRestName": "diagnostic",
   "additionalProperties": false,
-  "description": "Represents a diagnostic message for a gateway instance.",
+  "description": "Represents a diagnostic message.",
   "properties": {
     "message": {
       "$friendlyName": "Message",

@@ -19,6 +19,15 @@
       ],
       "title": "direction"
     },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "description": "This is the MCP gateway name of the MCP message. This is only set for messages that are sent to or received from an MCP gateway.",
+      "title": "gatewayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "isError": {
       "$friendlyName": "isError",
       "description": "IsError is true in case if a response is an error response as opposed to a result. Note that this is not the same as a result which has isError set to true within the result. This is a protocol level error. This will always be false for requests and notifications, and false for reponses when the response has a result.",

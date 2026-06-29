@@ -176,6 +176,9 @@ func (o *MCPGatewayConfBackend) Validate() error {
 	if err := ValidateURL("URL", o.URL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("URL", o.URL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	for i, sub := range o.Tools {
 		if sub == nil {

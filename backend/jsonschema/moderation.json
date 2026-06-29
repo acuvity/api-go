@@ -58,7 +58,7 @@
     },
     "redact": {
       "$friendlyName": "Redact",
-      "description": "If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.",
+      "description": "If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.",
       "title": "redact",
       "type": [
         "boolean",

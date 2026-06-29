@@ -17,12 +17,49 @@ import (
 	"github.com/gobwas/glob"
 	"github.com/robfig/cron/v3"
 	a3sapi "go.acuvity.ai/a3s/pkgs/api"
+
+	"go.acuvity.ai/aculib/cryptoutil"
 	"go.acuvity.ai/elemental"
 	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
-// ValidateURL validates the given value is a correct url.
+// ValidateURL validates the given value is a correct url with any scheme.
 func ValidateURL(attribute string, u string) error {
+
+	if u == "" {
+		return nil
+	}
+
+	uu, err := url.Parse(u)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("invalid url: %s", err))
+	}
+
+	if uu.Scheme == "" {
+		return makeErr(attribute, "invalid url: missing scheme")
+	}
+
+	if uu.Hostname() == "" {
+		return makeErr(attribute, "invalid url: missing hostname")
+	}
+
+	return nil
+}
+
+// ValidateURLs validates the given value is a list of correct urls with any scheme.
+func ValidateURLs(attribute string, u []string) error {
+
+	for i := range len(u) {
+		if err := ValidateURL(attribute, u[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateWebSchemeURL validates that the given url uses a web scheme (http, https, ws, wss).
+// Intended to be paired with $url: $url validates structure, $webscheme validates the scheme.
+func ValidateWebSchemeURL(attribute string, u string) error {
 
 	if u == "" {
 		return nil
@@ -35,24 +72,19 @@ func ValidateURL(attribute string, u string) error {
 
 	switch uu.Scheme {
 	case "http", "https", "ws", "wss":
-	case "":
-		return makeErr(attribute, "invalid url: missing scheme")
 	default:
-		return makeErr(attribute, "invalid url: invalid scheme")
-	}
-
-	if uu.Hostname() == "" {
-		return makeErr(attribute, "invalid url: missing hostname")
+		return makeErr(attribute, fmt.Sprintf("invalid url: invalid scheme '%s'. Must be 'http', 'https', 'ws' or 'wss'", uu.Scheme))
 	}
 
 	return nil
 }
 
-// ValidateURLs validates the given value is a list of correct url.
-func ValidateURLs(attribute string, u []string) error {
+// ValidateWebSchemeURLs validates that the given urls use a web scheme (http, https, ws, wss).
+// Intended to be paired with $urls.
+func ValidateWebSchemeURLs(attribute string, u []string) error {
 
 	for i := range len(u) {
-		if err := ValidateURL(attribute, u[i]); err != nil {
+		if err := ValidateWebSchemeURL(attribute, u[i]); err != nil {
 			return err
 		}
 	}
@@ -794,27 +826,27 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
-	case PredicateKeyMCPGateway:
+	case PredicateKeyGateways:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'MCPGateway' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
+			return makeErr("operator", "Key 'Gateways' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
 		}
 		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
-				return makeErr("values", "'MCPGateway' must have at least one value")
+				return makeErr("values", "'Gateways' must have at least one value")
 			}
 			for i, v := range v {
 				strVal, ok := v.(string)
 				if !ok {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPGateway' only supports string values when operator is 'Any' or 'NotAny'")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Gateways' only supports string values when operator is 'Any' or 'NotAny'")
 				}
 				if strings.Contains(strVal, `"`) {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPGateway' must not have a value that contains a quote")
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Gateways' must not have a value that contains a quote")
 				}
 			}
 		}
 		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
 			if len(v) > 0 {
-				return makeErr("values", "Key 'MCPGateway' only supports no values when operation is 'Empty' or 'NotEmpty'")
+				return makeErr("values", "Key 'Gateways' only supports no values when operation is 'Empty' or 'NotEmpty'")
 			}
 		}
 
@@ -2077,108 +2109,12 @@ func ValidateConnectionReport(connectionReport *ConnectionReport) error {
 
 // ValidateEgressPolicy validates the egress policy object.
 func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
-	if len(egressPolicy.Rules) == 0 && len(egressPolicy.ACLs) == 0 {
-		return makeErr("rules", "At least one rule or ACL must be provided")
-	}
-	return nil
-}
-
-// ValidateEgressPolicyACL validates the egress policy ACL object.
-func ValidateEgressPolicyACL(egressPolicyACL *EgressPolicyACL) error {
-	if len(egressPolicyACL.Hostnames) == 0 && len(egressPolicyACL.IPRanges) == 0 {
-		return makeErr("hostnames", "At least one hostname or IP range must be provided")
-	}
-	return nil
-}
-
-// ValidateEgressPolicyRule validates the egress policy rule object.
-func ValidateEgressPolicyRule(egressPolicyRule *EgressPolicyRule) error {
-
-	if len(egressPolicyRule.AppComponents) == 0 && len(egressPolicyRule.Providers) == 0 {
-		return makeErr("appComponents", "At least one app component or provider must be provided")
-	}
-	if len(egressPolicyRule.AppComponents) > 0 && len(egressPolicyRule.Providers) > 0 {
-		return makeErr("appComponents", "You cannot provide both app components and providers")
-	}
-
-	switch egressPolicyRule.Mode {
-	case EgressPolicyRuleModeProxy:
-		if egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionAllow && egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionDeny {
-			return makeErr("proxyAction", "When 'Mode' is set to 'Proxy', 'ProxyAction' must be either 'Allow' or 'Deny'")
-		}
-	default:
-		if egressPolicyRule.ProxyAction != EgressPolicyRuleProxyActionNotApplicable && egressPolicyRule.ProxyAction != "" {
-			return makeErr("proxyAction", "When 'Mode' is not set to 'Proxy', 'ProxyAction' must be 'NotApplicable'")
-		}
-	}
-
-	return nil
-}
-
-// ValidateIngressACL validates the ingress ACL object.
-func ValidateIngressACL(ingressACL *IngressACL) error {
-	// TODO: looking at this right now, I don't know anymore why I thought that this needs a custom validation
-	return nil
-}
-
-// ValidateIngressListener validates the ingress listener object.
-func ValidateIngressListener(ingressListener *IngressListener) error {
-	switch ingressListener.Mode {
-	case IngressListenerModePassthrough:
-		// nothing to do for passthrough
-		return nil
-	case IngressListenerModeProxy:
-		if ingressListener.Proxy == nil {
-			return makeErr("proxy", "'Proxy' must be defined if 'Mode' is set to 'Proxy'.")
-		}
-	default:
-		return makeErr("mode", fmt.Sprintf("Unknown ingress listener mode '%s'.", ingressListener.Mode))
-	}
-	return nil
-}
-
-// ValidateIngressListeners validates a list of ingress listeners.
-func ValidateIngressListeners(attribute string, ingressListeners []*IngressListener) error {
-
-	if len(ingressListeners) == 0 {
-		return nil
-	}
-
-	m := map[int]struct{}{}
-	for _, listener := range ingressListeners {
-		if _, ok := m[listener.Port]; ok {
-			return makeErr(attribute, fmt.Sprintf("another listener is already using port '%d'", listener.Port))
-		}
-		m[listener.Port] = struct{}{}
-	}
 	return nil
 }
 
 // ValidateIngressPolicy validates the ingress policy object.
 func ValidateIngressPolicy(ingressPolicy *IngressPolicy) error {
-	// TODO: looking at this right now, I don't know anymore why I thought that this needs a custom validation
-	return nil
-}
-
-// ValidateIngressPolicyRule validates the ingress policy rule object.
-func ValidateIngressPolicyRule(ingressPolicyRule *IngressPolicyRule) error {
-	if len(ingressPolicyRule.AppComponents) == 0 && len(ingressPolicyRule.IPRanges) == 0 {
-		return makeErr("appComponents", "At least one app component or IP range must be provided")
-	}
-	if len(ingressPolicyRule.AppComponents) > 0 && len(ingressPolicyRule.IPRanges) > 0 {
-		return makeErr("appComponents", "You cannot provide both app components and IP ranges")
-	}
-	return nil
-}
-
-// ValidateIngressProxyConfig validates the ingress proxy configuration object.
-func ValidateIngressProxyConfig(ingressProxyConfig *IngressProxyConfig) error {
-
-	// TODO: keeping this validation here until we bring this back in which case it will be needed again
-	// if (ingressProxyConfig.ListenTLSKey == "" && ingressProxyConfig.ListenTLSCert != "") ||
-	// 	(ingressProxyConfig.ListenTLSKey != "" && ingressProxyConfig.ListenTLSCert == "") {
-	// 	return makeErr("listenTLSCert", "'ListenTLSCert' and 'ListenTLSKey' must both be defined or both be empty.")
-	// }
+	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
 	return nil
 }
 
@@ -2321,19 +2257,40 @@ func ValidateGatewaySlugs(attribute string, slugs SlugsList) error {
 }
 
 func ValidateAppComponentEgressPolicies(attribute string, policies []*EgressPolicy) error {
-	ind := -1
-	for i, policy := range policies {
-		if len(policy.ACLs) > 0 {
-			if ind != i && ind != -1 {
-				return makeErr(attribute, fmt.Sprintf("only one policy can contain ACL rules, but both policies[%d] and policies[%d] define ACLs", ind, i))
-			}
-			ind = i
-		}
+	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
+	return nil
+}
 
-		if len(policy.ACLs) > 0 && len(policy.Rules) > 0 {
-			return makeErr(attribute, fmt.Sprintf("policies[%d] defines both provider rules and ACL rules", i))
-		}
+func ValidateAppComponentIngressPolicies(attribute string, policies []*IngressPolicy) error {
+	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
+	return nil
+}
 
+func ValidateAIGatewayConnector(connector *AIGatewayConnector) error {
+
+	if connector.Type == AIGatewayConnectorTypeLLM && connector.Route == "" {
+		return makeErr("route", "route must be set for LLM connectors")
+	}
+
+	if connector.Type == AIGatewayConnectorTypeMCP && connector.Route != "" {
+		return makeErr("route", "route must not be set for MCP connectors")
+	}
+
+	if (connector.Provider == "") == (connector.AppComponent == "") {
+		return makeErr("appComponent", "one of provider or appComponent must be set")
+	}
+
+	return nil
+}
+
+func ValidateRSAKey(attribute string, key string) error {
+
+	if key == "" {
+		return nil
+	}
+
+	if _, err := cryptoutil.ParseRSAPublicKey(key); err != nil {
+		return makeErr(attribute, fmt.Sprintf("invalid RSA public key: %s", err.Error()))
 	}
 	return nil
 }

@@ -25,12 +25,33 @@
         "null"
       ]
     },
-    "associatedAppName": {
-      "$friendlyName": "Associated Application Name",
+    "actionScopeRisk": {
+      "$friendlyName": "Action Scope Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the action scope pillar (what the skill can do).",
+      "title": "actionScopeRisk"
+    },
+    "apps": {
+      "$friendlyName": "Apps",
       "$required": true,
-      "description": "The name of the application associated with this skill.",
-      "title": "associatedAppName",
-      "type": "string"
+      "description": "The applications this skill was found under (a skill's content is shared across agents via ~/.agents/skills, so the same skill can appear under several apps).",
+      "items": {
+        "type": "string"
+      },
+      "title": "apps",
+      "type": "array"
+    },
+    "behavioralIntegrityRisk": {
+      "$friendlyName": "Behavioral Integrity Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the behavioral integrity pillar.",
+      "title": "behavioralIntegrityRisk"
+    },
+    "complianceRisk": {
+      "$friendlyName": "Compliance Risk",
+      "$ref": "aidrisk.json",
+      "description": "Contextual compliance risk derived from the data the skill can reach.",
+      "title": "complianceRisk"
     },
     "createTime": {
       "$friendlyName": "CreateTime",
@@ -42,6 +63,12 @@
         "null"
       ]
     },
+    "dataSensitivityRisk": {
+      "$friendlyName": "Data Sensitivity Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the data sensitivity pillar (what data the skill can reach).",
+      "title": "dataSensitivityRisk"
+    },
     "description": {
       "$friendlyName": "Description",
       "description": "A description about the AI skill.",
@@ -50,6 +77,21 @@
         "string",
         "null"
       ]
+    },
+    "displayName": {
+      "$friendlyName": "Display Name",
+      "description": "The human-friendly name of the skill.",
+      "title": "displayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "executionContextRisk": {
+      "$friendlyName": "Execution Context Risk",
+      "$ref": "aidrisk.json",
+      "description": "Contextual risk derived from the runtime the skill executes in.",
+      "title": "executionContextRisk"
     },
     "importHash": {
       "$creationOnly": true,
@@ -119,6 +161,27 @@
       ],
       "title": "riskScore"
     },
+    "sourceOrigin": {
+      "$friendlyName": "Source Origin",
+      "description": "The origin of the skill (for example Internal, First-party or Community), used as a trust signal.",
+      "title": "sourceOrigin",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "$friendlyName": "Summary",
+      "$ref": "aiskillsummary.json",
+      "description": "Overall risk summary for the skill.",
+      "title": "summary"
+    },
+    "trustRisk": {
+      "$friendlyName": "Trust Risk",
+      "$ref": "aidrisk.json",
+      "description": "Risk assessment for the trust pillar (source trust of the skill).",
+      "title": "trustRisk"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -128,10 +191,19 @@
         "string",
         "null"
       ]
+    },
+    "vetted": {
+      "$friendlyName": "Vetted",
+      "description": "Indicates whether the skill has been vetted.",
+      "title": "vetted",
+      "type": [
+        "boolean",
+        "null"
+      ]
     }
   },
   "required": [
-    "associatedAppName",
+    "apps",
     "name",
     "riskScore"
   ],

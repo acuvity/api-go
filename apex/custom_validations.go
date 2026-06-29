@@ -9,8 +9,32 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// ValidateURL validates the given value is a correct url.
+// ValidateURL validates the given value is a correct url with any scheme.
 func ValidateURL(attribute string, u string) error {
+
+	if u == "" {
+		return nil
+	}
+
+	uu, err := url.Parse(u)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("invalid url: %s", err))
+	}
+
+	if uu.Scheme == "" {
+		return makeErr(attribute, "invalid url: missing scheme")
+	}
+
+	if uu.Hostname() == "" {
+		return makeErr(attribute, "invalid url: missing hostname")
+	}
+
+	return nil
+}
+
+// ValidateWebSchemeURL validates that the given url uses a web scheme (http, https, ws, wss).
+// Intended to be paired with $url: $url validates structure, $webscheme validates the scheme.
+func ValidateWebSchemeURL(attribute string, u string) error {
 
 	if u == "" {
 		return nil
@@ -23,10 +47,8 @@ func ValidateURL(attribute string, u string) error {
 
 	switch uu.Scheme {
 	case "http", "https":
-	case "":
-		return makeErr(attribute, "invalid url: missing scheme")
 	default:
-		return makeErr(attribute, "invalid url: invalid scheme")
+		return makeErr(attribute, fmt.Sprintf("invalid url: invalid scheme '%s'. Must be 'http' or 'https'", uu.Scheme))
 	}
 
 	return nil
