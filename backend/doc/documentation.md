@@ -4035,7 +4035,7 @@ The individual permissions. Only works if role is Custom.
 
 ##### `role` [`required`]
 
-Type: `enum(Administrator | SecurityAdministrator | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | RiskAuditor | ExternalIDP | Maxibridge)`
+Type: `enum(Administrator | SecurityAdministrator | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | ExternalIDP | Maxibridge)`
 
 The role for the subjects.
 
@@ -10165,7 +10165,7 @@ The predicate expression for the moderation to be triggered.
 
 Type: `boolean`
 
-If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.
+If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.
 
 ### OrgSettings
 

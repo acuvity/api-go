@@ -2542,7 +2542,6 @@
               "Owner",
               "Proxy",
               "Viewer",
-              "RiskAuditor",
               "ExternalIDP",
               "Maxibridge"
             ],
@@ -7354,7 +7353,7 @@
             "type": "array"
           },
           "redact": {
-            "description": "If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.",
+            "description": "If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.",
             "type": "boolean"
           }
         },

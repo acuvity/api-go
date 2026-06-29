@@ -2080,6 +2080,11 @@ func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
 	if len(egressPolicy.Rules) == 0 && len(egressPolicy.ACLs) == 0 {
 		return makeErr("rules", "At least one rule or ACL must be provided")
 	}
+
+	if len(egressPolicy.Rules) > 1 {
+		return makeErr("rules", "You can only have one rule per policy")
+	}
+
 	return nil
 }
 
