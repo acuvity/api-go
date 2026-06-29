@@ -141,9 +141,19 @@
       "enum": [
         "Alive",
         "Paused",
+        "Error",
         "Stopped"
       ],
       "title": "status"
+    },
+    "statusMessage": {
+      "$friendlyName": "Status Message",
+      "description": "The message related to the status.",
+      "title": "statusMessage",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "systemProxyManagementState": {
       "$friendlyName": "System Proxy Management State",

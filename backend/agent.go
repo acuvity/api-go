@@ -20,6 +20,9 @@ const (
 	// AgentStatusAlive represents the value Alive.
 	AgentStatusAlive AgentStatusValue = "Alive"
 
+	// AgentStatusError represents the value Error.
+	AgentStatusError AgentStatusValue = "Error"
+
 	// AgentStatusPaused represents the value Paused.
 	AgentStatusPaused AgentStatusValue = "Paused"
 
@@ -119,16 +122,16 @@ type Agent struct {
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
 	// True if the apex is reachable.
-	IsAPEXReachable bool `json:"isAPEXReachable" msgpack:"isAPEXReachable" bson:"isapexreachable" mapstructure:"isAPEXReachable,omitempty"`
+	IsAPEXReachable bool `json:"isAPEXReachable,omitempty" msgpack:"isAPEXReachable,omitempty" bson:"isapexreachable,omitempty" mapstructure:"isAPEXReachable,omitempty"`
 
 	// True if the apex is trusted.
-	IsAPEXTrusted bool `json:"isAPEXTrusted" msgpack:"isAPEXTrusted" bson:"isapextrusted" mapstructure:"isAPEXTrusted,omitempty"`
+	IsAPEXTrusted bool `json:"isAPEXTrusted,omitempty" msgpack:"isAPEXTrusted,omitempty" bson:"isapextrusted,omitempty" mapstructure:"isAPEXTrusted,omitempty"`
 
 	// The state of the managed CA.
-	ManagedCAState bool `json:"managedCAState" msgpack:"managedCAState" bson:"managedcastate" mapstructure:"managedCAState,omitempty"`
+	ManagedCAState bool `json:"managedCAState,omitempty" msgpack:"managedCAState,omitempty" bson:"managedcastate,omitempty" mapstructure:"managedCAState,omitempty"`
 
 	// The list of managed interfaces.
-	ManagedInterfaces []string `json:"managedInterfaces" msgpack:"managedInterfaces" bson:"managedinterfaces" mapstructure:"managedInterfaces,omitempty"`
+	ManagedInterfaces []string `json:"managedInterfaces,omitempty" msgpack:"managedInterfaces,omitempty" bson:"managedinterfaces,omitempty" mapstructure:"managedInterfaces,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
@@ -145,8 +148,11 @@ type Agent struct {
 	// The status of the agent.
 	Status AgentStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
+	// The message related to the status.
+	StatusMessage string `json:"statusMessage,omitempty" msgpack:"statusMessage,omitempty" bson:"statusmessage,omitempty" mapstructure:"statusMessage,omitempty"`
+
 	// The state of the system proxy management.
-	SystemProxyManagementState bool `json:"systemProxyManagementState" msgpack:"systemProxyManagementState" bson:"systemproxymanagementstate" mapstructure:"systemProxyManagementState,omitempty"`
+	SystemProxyManagementState bool `json:"systemProxyManagementState,omitempty" msgpack:"systemProxyManagementState,omitempty" bson:"systemproxymanagementstate,omitempty" mapstructure:"systemProxyManagementState,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -212,6 +218,7 @@ func (o *Agent) GetBSON() (any, error) {
 	s.Principal = o.Principal
 	s.Start = o.Start
 	s.Status = o.Status
+	s.StatusMessage = o.StatusMessage
 	s.SystemProxyManagementState = o.SystemProxyManagementState
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -247,6 +254,7 @@ func (o *Agent) SetBSON(raw bson.Raw) error {
 	o.Principal = s.Principal
 	o.Start = s.Start
 	o.Status = s.Status
+	o.StatusMessage = s.StatusMessage
 	o.SystemProxyManagementState = s.SystemProxyManagementState
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -342,6 +350,7 @@ func (o *Agent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Principal:                  o.Principal,
 			Start:                      &o.Start,
 			Status:                     &o.Status,
+			StatusMessage:              &o.StatusMessage,
 			SystemProxyManagementState: &o.SystemProxyManagementState,
 			ZHash:                      &o.ZHash,
 			Zone:                       &o.Zone,
@@ -381,6 +390,8 @@ func (o *Agent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Start = &(o.Start)
 		case "status":
 			sp.Status = &(o.Status)
+		case "statusMessage":
+			sp.StatusMessage = &(o.StatusMessage)
 		case "systemProxyManagementState":
 			sp.SystemProxyManagementState = &(o.SystemProxyManagementState)
 		case "zHash":
@@ -444,6 +455,9 @@ func (o *Agent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Status != nil {
 		o.Status = *so.Status
+	}
+	if so.StatusMessage != nil {
+		o.StatusMessage = *so.StatusMessage
 	}
 	if so.SystemProxyManagementState != nil {
 		o.SystemProxyManagementState = *so.SystemProxyManagementState
@@ -558,7 +572,7 @@ func (o *Agent) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Paused", "Stopped"}, false); err != nil {
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Alive", "Paused", "Error", "Stopped"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -626,6 +640,8 @@ func (o *Agent) ValueForAttribute(name string) any {
 		return o.Start
 	case "status":
 		return o.Status
+	case "statusMessage":
+		return o.StatusMessage
 	case "systemProxyManagementState":
 		return o.SystemProxyManagementState
 	case "zHash":
@@ -806,7 +822,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"Status": {
-		AllowedChoices: []string{"Alive", "Paused", "Stopped"},
+		AllowedChoices: []string{"Alive", "Paused", "Error", "Stopped"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the agent.`,
@@ -815,6 +831,16 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"StatusMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "statusmessage",
+		ConvertedName:  "StatusMessage",
+		Description:    `The message related to the status.`,
+		Exposed:        true,
+		Name:           "statusMessage",
+		Stored:         true,
+		Type:           "string",
 	},
 	"SystemProxyManagementState": {
 		AllowedChoices: []string{},
@@ -997,7 +1023,7 @@ same import operation.`,
 		Type:           "time",
 	},
 	"status": {
-		AllowedChoices: []string{"Alive", "Paused", "Stopped"},
+		AllowedChoices: []string{"Alive", "Paused", "Error", "Stopped"},
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		Description:    `The status of the agent.`,
@@ -1006,6 +1032,16 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"statusmessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "statusmessage",
+		ConvertedName:  "StatusMessage",
+		Description:    `The message related to the status.`,
+		Exposed:        true,
+		Name:           "statusMessage",
+		Stored:         true,
+		Type:           "string",
 	},
 	"systemproxymanagementstate": {
 		AllowedChoices: []string{},
@@ -1128,6 +1164,9 @@ type SparseAgent struct {
 	// The status of the agent.
 	Status *AgentStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
+	// The message related to the status.
+	StatusMessage *string `json:"statusMessage,omitempty" msgpack:"statusMessage,omitempty" bson:"statusmessage,omitempty" mapstructure:"statusMessage,omitempty"`
+
 	// The state of the system proxy management.
 	SystemProxyManagementState *bool `json:"systemProxyManagementState,omitempty" msgpack:"systemProxyManagementState,omitempty" bson:"systemproxymanagementstate,omitempty" mapstructure:"systemProxyManagementState,omitempty"`
 
@@ -1225,6 +1264,9 @@ func (o *SparseAgent) GetBSON() (any, error) {
 	if o.Status != nil {
 		s.Status = o.Status
 	}
+	if o.StatusMessage != nil {
+		s.StatusMessage = o.StatusMessage
+	}
 	if o.SystemProxyManagementState != nil {
 		s.SystemProxyManagementState = o.SystemProxyManagementState
 	}
@@ -1295,6 +1337,9 @@ func (o *SparseAgent) SetBSON(raw bson.Raw) error {
 	if s.Status != nil {
 		o.Status = s.Status
 	}
+	if s.StatusMessage != nil {
+		o.StatusMessage = s.StatusMessage
+	}
 	if s.SystemProxyManagementState != nil {
 		o.SystemProxyManagementState = s.SystemProxyManagementState
 	}
@@ -1362,6 +1407,9 @@ func (o *SparseAgent) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Status != nil {
 		out.Status = *o.Status
+	}
+	if o.StatusMessage != nil {
+		out.StatusMessage = *o.StatusMessage
 	}
 	if o.SystemProxyManagementState != nil {
 		out.SystemProxyManagementState = *o.SystemProxyManagementState
@@ -1491,16 +1539,17 @@ type mongoAttributesAgent struct {
 	Hostname                   string           `bson:"hostname"`
 	ImportHash                 string           `bson:"importhash,omitempty"`
 	ImportLabel                string           `bson:"importlabel,omitempty"`
-	IsAPEXReachable            bool             `bson:"isapexreachable"`
-	IsAPEXTrusted              bool             `bson:"isapextrusted"`
-	ManagedCAState             bool             `bson:"managedcastate"`
-	ManagedInterfaces          []string         `bson:"managedinterfaces"`
+	IsAPEXReachable            bool             `bson:"isapexreachable,omitempty"`
+	IsAPEXTrusted              bool             `bson:"isapextrusted,omitempty"`
+	ManagedCAState             bool             `bson:"managedcastate,omitempty"`
+	ManagedInterfaces          []string         `bson:"managedinterfaces,omitempty"`
 	Namespace                  string           `bson:"namespace,omitempty"`
 	Ping                       time.Time        `bson:"ping"`
 	Principal                  *Principal       `bson:"principal"`
 	Start                      time.Time        `bson:"start"`
 	Status                     AgentStatusValue `bson:"status"`
-	SystemProxyManagementState bool             `bson:"systemproxymanagementstate"`
+	StatusMessage              string           `bson:"statusmessage,omitempty"`
+	SystemProxyManagementState bool             `bson:"systemproxymanagementstate,omitempty"`
 	ZHash                      int              `bson:"zhash"`
 	Zone                       int              `bson:"zone"`
 }
@@ -1520,6 +1569,7 @@ type mongoAttributesSparseAgent struct {
 	Principal                  *Principal        `bson:"principal,omitempty"`
 	Start                      *time.Time        `bson:"start,omitempty"`
 	Status                     *AgentStatusValue `bson:"status,omitempty"`
+	StatusMessage              *string           `bson:"statusmessage,omitempty"`
 	SystemProxyManagementState *bool             `bson:"systemproxymanagementstate,omitempty"`
 	ZHash                      *int              `bson:"zhash,omitempty"`
 	Zone                       *int              `bson:"zone,omitempty"`

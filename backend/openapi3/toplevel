@@ -377,9 +377,14 @@
             "enum": [
               "Alive",
               "Paused",
+              "Error",
               "Stopped"
             ],
             "example": "Alive"
+          },
+          "statusMessage": {
+            "description": "The message related to the status.",
+            "type": "string"
           },
           "systemProxyManagementState": {
             "description": "The state of the system proxy management.",

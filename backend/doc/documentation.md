@@ -1157,9 +1157,15 @@ The start time for the agent.
 
 ##### `status` [`required`]
 
-Type: `enum(Alive | Paused | Stopped)`
+Type: `enum(Alive | Paused | Error | Stopped)`
 
 The status of the agent.
+
+##### `statusMessage`
+
+Type: `string`
+
+The message related to the status.
 
 ##### `systemProxyManagementState`
 
