@@ -152,6 +152,9 @@ func (o *MCPServer) Validate() error {
 	if err := ValidateURL("url", o.Url); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("url", o.Url); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors

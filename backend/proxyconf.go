@@ -84,6 +84,13 @@ func (o ProxyConfsList) Version() int {
 
 // ProxyConf represents the model of a proxyconf
 type ProxyConf struct {
+	// The list of AI gateway configurations.
+	AIGatewayConfs AIGatewayConfsList `json:"AIGatewayConfs,omitempty" msgpack:"AIGatewayConfs,omitempty" bson:"-" mapstructure:"AIGatewayConfs,omitempty"`
+
+	// The list of apps and their components registered in the system including their
+	// resolved access and content policies.
+	Apps AppsList `json:"Apps,omitempty" msgpack:"Apps,omitempty" bson:"-" mapstructure:"Apps,omitempty"`
+
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -251,6 +258,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProxyConf{
+			AIGatewayConfs:      &o.AIGatewayConfs,
+			Apps:                &o.Apps,
 			ID:                  &o.ID,
 			MCPGateways:         &o.MCPGateways,
 			OSProbes:            &o.OSProbes,
@@ -274,6 +283,10 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseProxyConf{}
 	for _, f := range fields {
 		switch f {
+		case "AIGatewayConfs":
+			sp.AIGatewayConfs = &(o.AIGatewayConfs)
+		case "Apps":
+			sp.Apps = &(o.Apps)
 		case "ID":
 			sp.ID = &(o.ID)
 		case "MCPGateways":
@@ -321,6 +334,12 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseProxyConf)
+	if so.AIGatewayConfs != nil {
+		o.AIGatewayConfs = *so.AIGatewayConfs
+	}
+	if so.Apps != nil {
+		o.Apps = *so.Apps
+	}
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -376,6 +395,24 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.AIGatewayConfs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGatewayConfs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Apps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Apps' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.MCPGateways {
 		if sub == nil {
@@ -478,6 +515,24 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.AIGatewayConfs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGatewayConfs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Apps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Apps' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.MCPGateways {
 		if sub == nil {
@@ -609,6 +664,26 @@ func (o *ProxyConf) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for i, sub := range o.AIGatewayConfs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGatewayConfs", i))
+		}
+	}
+
+	for i, sub := range o.Apps {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "Apps", i))
+		}
+	}
 
 	for i, sub := range o.MCPGateways {
 		if sub == nil {
@@ -751,6 +826,10 @@ func (*ProxyConf) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *ProxyConf) ValueForAttribute(name string) any {
 
 	switch name {
+	case "AIGatewayConfs":
+		return o.AIGatewayConfs
+	case "Apps":
+		return o.Apps
 	case "ID":
 		return o.ID
 	case "MCPGateways":
@@ -792,6 +871,25 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 
 // ProxyConfAttributesMap represents the map of attribute for ProxyConf.
 var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
+	"AIGatewayConfs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIGatewayConfs",
+		Description:    `The list of AI gateway configurations.`,
+		Exposed:        true,
+		Name:           "AIGatewayConfs",
+		SubType:        "aigatewayconf",
+		Type:           "refList",
+	},
+	"Apps": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Apps",
+		Description: `The list of apps and their components registered in the system including their
+resolved access and content policies.`,
+		Exposed: true,
+		Name:    "Apps",
+		SubType: "app",
+		Type:    "refList",
+	},
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -958,6 +1056,25 @@ var ProxyConfAttributesMap = map[string]elemental.AttributeSpecification{
 
 // ProxyConfLowerCaseAttributesMap represents the map of attribute for ProxyConf.
 var ProxyConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"aigatewayconfs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AIGatewayConfs",
+		Description:    `The list of AI gateway configurations.`,
+		Exposed:        true,
+		Name:           "AIGatewayConfs",
+		SubType:        "aigatewayconf",
+		Type:           "refList",
+	},
+	"apps": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Apps",
+		Description: `The list of apps and their components registered in the system including their
+resolved access and content policies.`,
+		Exposed: true,
+		Name:    "Apps",
+		SubType: "app",
+		Type:    "refList",
+	},
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1185,6 +1302,13 @@ func (o SparseProxyConfsList) Version() int {
 
 // SparseProxyConf represents the sparse version of a proxyconf.
 type SparseProxyConf struct {
+	// The list of AI gateway configurations.
+	AIGatewayConfs *AIGatewayConfsList `json:"AIGatewayConfs,omitempty" msgpack:"AIGatewayConfs,omitempty" bson:"-" mapstructure:"AIGatewayConfs,omitempty"`
+
+	// The list of apps and their components registered in the system including their
+	// resolved access and content policies.
+	Apps *AppsList `json:"Apps,omitempty" msgpack:"Apps,omitempty" bson:"-" mapstructure:"Apps,omitempty"`
+
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1321,6 +1445,12 @@ func (o *SparseProxyConf) Version() int {
 func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewProxyConf()
+	if o.AIGatewayConfs != nil {
+		out.AIGatewayConfs = *o.AIGatewayConfs
+	}
+	if o.Apps != nil {
+		out.Apps = *o.Apps
+	}
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1378,6 +1508,28 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AIGatewayConfs != nil {
+		for _, sub := range *o.AIGatewayConfs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGatewayConfs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Apps != nil {
+		for _, sub := range *o.Apps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Apps' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.MCPGateways != nil {
 		for _, sub := range *o.MCPGateways {
@@ -1500,6 +1652,28 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.AIGatewayConfs != nil {
+		for _, sub := range *o.AIGatewayConfs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGatewayConfs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Apps != nil {
+		for _, sub := range *o.Apps {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Apps' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.MCPGateways != nil {
 		for _, sub := range *o.MCPGateways {

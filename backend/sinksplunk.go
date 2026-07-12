@@ -312,6 +312,9 @@ func (o *SinkSplunk) Validate() error {
 	if err := ValidateURL("HECURL", o.HECURL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("HECURL", o.HECURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors

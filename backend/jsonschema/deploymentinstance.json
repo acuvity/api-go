@@ -1,0 +1,138 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@parentable"
+  ],
+  "$friendlyName": "Deployment Instance",
+  "$friendlyNamePlural": "Deployment Instances",
+  "$modelName": "DeploymentInstance",
+  "$modelPackage": "lain",
+  "$modelResourceName": "deploymentinstances",
+  "$modelRestName": "deploymentinstance",
+  "additionalProperties": false,
+  "description": "Displays the status of a running deployment instance. A deployment instance is a running process that has registered itself with the platform using a deployment token. One deployment can have multiple instances running on different hosts.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "config": {
+      "$friendlyName": "Config",
+      "description": "The configuration that the deployment was started with. The format of the config is version specific and subject to change.",
+      "title": "config",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "currentVersion": {
+      "$friendlyName": "Current Version",
+      "description": "The current version of the deployment.",
+      "title": "currentVersion",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "diagnostics": {
+      "$friendlyName": "Diagnostics",
+      "description": "List of diagnostics for this instance.",
+      "items": {
+        "$ref": "diagnostic.json"
+      },
+      "title": "diagnostics",
+      "type": "array"
+    },
+    "hostname": {
+      "$friendlyName": "Hostname",
+      "$required": true,
+      "description": "The name of the host where the deployment instance is running.",
+      "title": "hostname",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "parentID": {
+      "$friendlyName": "Parent ID",
+      "$readOnly": true,
+      "description": "The ID of the parent resource.",
+      "title": "parentID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ping": {
+      "$friendlyName": "Ping",
+      "description": "The last ping recorded for the deployment instance.",
+      "title": "ping",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "publicKeys": {
+      "$friendlyName": "Public Keys",
+      "description": "References of the public keys that this deployment instance has access to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "publicKeys",
+      "type": "array"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start time for the deployment instance.",
+      "title": "start",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$required": true,
+      "description": "The status of the deployment instance.",
+      "enum": [
+        "Alive",
+        "Stopped",
+        "Unresponsive"
+      ],
+      "title": "status"
+    },
+    "tokenID": {
+      "$friendlyName": "Token ID",
+      "$readOnly": true,
+      "description": "The ID of the deployment token this deployment instance authenticated with.",
+      "title": "tokenID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "hostname",
+    "status"
+  ],
+  "title": "DeploymentInstance",
+  "type": "object"
+}

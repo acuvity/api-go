@@ -105,14 +105,33 @@ type AISkill struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The name of the application associated with this skill.
-	AssociatedAppName string `json:"associatedAppName" msgpack:"associatedAppName" bson:"associatedappname" mapstructure:"associatedAppName,omitempty"`
+	// Risk assessment for the action scope pillar (what the skill can do).
+	ActionScopeRisk *AIDRisk `json:"actionScopeRisk,omitempty" msgpack:"actionScopeRisk,omitempty" bson:"actionscoperisk,omitempty" mapstructure:"actionScopeRisk,omitempty"`
+
+	// The applications this skill was found under (a skill's content is shared across
+	// agents via ~/.agents/skills, so the same skill can appear under several apps).
+	Apps []string `json:"apps" msgpack:"apps" bson:"apps" mapstructure:"apps,omitempty"`
+
+	// Risk assessment for the behavioral integrity pillar.
+	BehavioralIntegrityRisk *AIDRisk `json:"behavioralIntegrityRisk,omitempty" msgpack:"behavioralIntegrityRisk,omitempty" bson:"behavioralintegrityrisk,omitempty" mapstructure:"behavioralIntegrityRisk,omitempty"`
+
+	// Contextual compliance risk derived from the data the skill can reach.
+	ComplianceRisk *AIDRisk `json:"complianceRisk,omitempty" msgpack:"complianceRisk,omitempty" bson:"compliancerisk,omitempty" mapstructure:"complianceRisk,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
+	// Risk assessment for the data sensitivity pillar (what data the skill can reach).
+	DataSensitivityRisk *AIDRisk `json:"dataSensitivityRisk,omitempty" msgpack:"dataSensitivityRisk,omitempty" bson:"datasensitivityrisk,omitempty" mapstructure:"dataSensitivityRisk,omitempty"`
+
 	// A description about the AI skill.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The human-friendly name of the skill.
+	DisplayName string `json:"displayName,omitempty" msgpack:"displayName,omitempty" bson:"displayname,omitempty" mapstructure:"displayName,omitempty"`
+
+	// Contextual risk derived from the runtime the skill executes in.
+	ExecutionContextRisk *AIDRisk `json:"executionContextRisk,omitempty" msgpack:"executionContextRisk,omitempty" bson:"executioncontextrisk,omitempty" mapstructure:"executionContextRisk,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -131,13 +150,26 @@ type AISkill struct {
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// The source repo of the skill.
-	Repo string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"-" mapstructure:"repo,omitempty"`
+	Repo string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"repo,omitempty" mapstructure:"repo,omitempty"`
 
 	// The risk score of the skill.
 	RiskScore AISkillRiskScoreValue `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
+	// The origin of the skill (for example Internal, First-party or Community), used
+	// as a trust signal.
+	SourceOrigin string `json:"sourceOrigin,omitempty" msgpack:"sourceOrigin,omitempty" bson:"sourceorigin,omitempty" mapstructure:"sourceOrigin,omitempty"`
+
+	// Overall risk summary for the skill.
+	Summary *AISkillSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
+
+	// Risk assessment for the trust pillar (source trust of the skill).
+	TrustRisk *AIDRisk `json:"trustRisk,omitempty" msgpack:"trustRisk,omitempty" bson:"trustrisk,omitempty" mapstructure:"trustRisk,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+
+	// Indicates whether the skill has been vetted.
+	Vetted bool `json:"vetted,omitempty" msgpack:"vetted,omitempty" bson:"vetted,omitempty" mapstructure:"vetted,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -153,6 +185,7 @@ func NewAISkill() *AISkill {
 
 	return &AISkill{
 		ModelVersion: 1,
+		Apps:         []string{},
 		Propagate:    true,
 	}
 }
@@ -188,16 +221,27 @@ func (o *AISkill) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
-	s.AssociatedAppName = o.AssociatedAppName
+	s.ActionScopeRisk = o.ActionScopeRisk
+	s.Apps = o.Apps
+	s.BehavioralIntegrityRisk = o.BehavioralIntegrityRisk
+	s.ComplianceRisk = o.ComplianceRisk
 	s.CreateTime = o.CreateTime
+	s.DataSensitivityRisk = o.DataSensitivityRisk
 	s.Description = o.Description
+	s.DisplayName = o.DisplayName
+	s.ExecutionContextRisk = o.ExecutionContextRisk
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
+	s.Repo = o.Repo
 	s.RiskScore = o.RiskScore
+	s.SourceOrigin = o.SourceOrigin
+	s.Summary = o.Summary
+	s.TrustRisk = o.TrustRisk
 	s.UpdateTime = o.UpdateTime
+	s.Vetted = o.Vetted
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -218,16 +262,27 @@ func (o *AISkill) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
-	o.AssociatedAppName = s.AssociatedAppName
+	o.ActionScopeRisk = s.ActionScopeRisk
+	o.Apps = s.Apps
+	o.BehavioralIntegrityRisk = s.BehavioralIntegrityRisk
+	o.ComplianceRisk = s.ComplianceRisk
 	o.CreateTime = s.CreateTime
+	o.DataSensitivityRisk = s.DataSensitivityRisk
 	o.Description = s.Description
+	o.DisplayName = s.DisplayName
+	o.ExecutionContextRisk = s.ExecutionContextRisk
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
+	o.Repo = s.Repo
 	o.RiskScore = s.RiskScore
+	o.SourceOrigin = s.SourceOrigin
+	o.Summary = s.Summary
+	o.TrustRisk = s.TrustRisk
 	o.UpdateTime = s.UpdateTime
+	o.Vetted = s.Vetted
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -342,20 +397,30 @@ func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAISkill{
-			ID:                &o.ID,
-			AssociatedAppName: &o.AssociatedAppName,
-			CreateTime:        &o.CreateTime,
-			Description:       &o.Description,
-			ImportHash:        &o.ImportHash,
-			ImportLabel:       &o.ImportLabel,
-			Name:              &o.Name,
-			Namespace:         &o.Namespace,
-			Propagate:         &o.Propagate,
-			Repo:              &o.Repo,
-			RiskScore:         &o.RiskScore,
-			UpdateTime:        &o.UpdateTime,
-			ZHash:             &o.ZHash,
-			Zone:              &o.Zone,
+			ID:                      &o.ID,
+			ActionScopeRisk:         o.ActionScopeRisk,
+			Apps:                    &o.Apps,
+			BehavioralIntegrityRisk: o.BehavioralIntegrityRisk,
+			ComplianceRisk:          o.ComplianceRisk,
+			CreateTime:              &o.CreateTime,
+			DataSensitivityRisk:     o.DataSensitivityRisk,
+			Description:             &o.Description,
+			DisplayName:             &o.DisplayName,
+			ExecutionContextRisk:    o.ExecutionContextRisk,
+			ImportHash:              &o.ImportHash,
+			ImportLabel:             &o.ImportLabel,
+			Name:                    &o.Name,
+			Namespace:               &o.Namespace,
+			Propagate:               &o.Propagate,
+			Repo:                    &o.Repo,
+			RiskScore:               &o.RiskScore,
+			SourceOrigin:            &o.SourceOrigin,
+			Summary:                 o.Summary,
+			TrustRisk:               o.TrustRisk,
+			UpdateTime:              &o.UpdateTime,
+			Vetted:                  &o.Vetted,
+			ZHash:                   &o.ZHash,
+			Zone:                    &o.Zone,
 		}
 	}
 
@@ -364,12 +429,24 @@ func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "associatedAppName":
-			sp.AssociatedAppName = &(o.AssociatedAppName)
+		case "actionScopeRisk":
+			sp.ActionScopeRisk = o.ActionScopeRisk
+		case "apps":
+			sp.Apps = &(o.Apps)
+		case "behavioralIntegrityRisk":
+			sp.BehavioralIntegrityRisk = o.BehavioralIntegrityRisk
+		case "complianceRisk":
+			sp.ComplianceRisk = o.ComplianceRisk
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "dataSensitivityRisk":
+			sp.DataSensitivityRisk = o.DataSensitivityRisk
 		case "description":
 			sp.Description = &(o.Description)
+		case "displayName":
+			sp.DisplayName = &(o.DisplayName)
+		case "executionContextRisk":
+			sp.ExecutionContextRisk = o.ExecutionContextRisk
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -384,8 +461,16 @@ func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Repo = &(o.Repo)
 		case "riskScore":
 			sp.RiskScore = &(o.RiskScore)
+		case "sourceOrigin":
+			sp.SourceOrigin = &(o.SourceOrigin)
+		case "summary":
+			sp.Summary = o.Summary
+		case "trustRisk":
+			sp.TrustRisk = o.TrustRisk
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "vetted":
+			sp.Vetted = &(o.Vetted)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -406,14 +491,32 @@ func (o *AISkill) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.AssociatedAppName != nil {
-		o.AssociatedAppName = *so.AssociatedAppName
+	if so.ActionScopeRisk != nil {
+		o.ActionScopeRisk = so.ActionScopeRisk
+	}
+	if so.Apps != nil {
+		o.Apps = *so.Apps
+	}
+	if so.BehavioralIntegrityRisk != nil {
+		o.BehavioralIntegrityRisk = so.BehavioralIntegrityRisk
+	}
+	if so.ComplianceRisk != nil {
+		o.ComplianceRisk = so.ComplianceRisk
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
+	if so.DataSensitivityRisk != nil {
+		o.DataSensitivityRisk = so.DataSensitivityRisk
+	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.DisplayName != nil {
+		o.DisplayName = *so.DisplayName
+	}
+	if so.ExecutionContextRisk != nil {
+		o.ExecutionContextRisk = so.ExecutionContextRisk
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -436,8 +539,20 @@ func (o *AISkill) Patch(sparse elemental.SparseIdentifiable) {
 	if so.RiskScore != nil {
 		o.RiskScore = *so.RiskScore
 	}
+	if so.SourceOrigin != nil {
+		o.SourceOrigin = *so.SourceOrigin
+	}
+	if so.Summary != nil {
+		o.Summary = so.Summary
+	}
+	if so.TrustRisk != nil {
+		o.TrustRisk = so.TrustRisk
+	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
+	}
+	if so.Vetted != nil {
+		o.Vetted = *so.Vetted
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -450,11 +565,95 @@ func (o *AISkill) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *AISkill) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ActionScopeRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.BehavioralIntegrityRisk != nil {
+		if err := o.BehavioralIntegrityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'BehavioralIntegrityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ComplianceRisk != nil {
+		if err := o.ComplianceRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ComplianceRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataSensitivityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ExecutionContextRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrustRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *AISkill) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ActionScopeRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.BehavioralIntegrityRisk != nil {
+		if err := o.BehavioralIntegrityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'BehavioralIntegrityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ComplianceRisk != nil {
+		if err := o.ComplianceRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ComplianceRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataSensitivityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ExecutionContextRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrustRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -491,8 +690,43 @@ func (o *AISkill) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("associatedAppName", o.AssociatedAppName); err != nil {
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "actionScopeRisk")
+		}
+	}
+
+	if err := elemental.ValidateRequiredExternal("apps", o.Apps); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if o.BehavioralIntegrityRisk != nil {
+		if err := o.BehavioralIntegrityRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "behavioralIntegrityRisk")
+		}
+	}
+
+	if o.ComplianceRisk != nil {
+		if err := o.ComplianceRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "complianceRisk")
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "dataSensitivityRisk")
+		}
+	}
+
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "executionContextRisk")
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
@@ -505,6 +739,20 @@ func (o *AISkill) Validate() error {
 
 	if err := elemental.ValidateStringInList("riskScore", string(o.RiskScore), []string{"Low", "Medium", "High", "Critical"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "summary")
+		}
+	}
+
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trustRisk")
+		}
 	}
 
 	if len(requiredErrors) > 0 {
@@ -543,12 +791,24 @@ func (o *AISkill) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
-	case "associatedAppName":
-		return o.AssociatedAppName
+	case "actionScopeRisk":
+		return o.ActionScopeRisk
+	case "apps":
+		return o.Apps
+	case "behavioralIntegrityRisk":
+		return o.BehavioralIntegrityRisk
+	case "complianceRisk":
+		return o.ComplianceRisk
 	case "createTime":
 		return o.CreateTime
+	case "dataSensitivityRisk":
+		return o.DataSensitivityRisk
 	case "description":
 		return o.Description
+	case "displayName":
+		return o.DisplayName
+	case "executionContextRisk":
+		return o.ExecutionContextRisk
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -563,8 +823,16 @@ func (o *AISkill) ValueForAttribute(name string) any {
 		return o.Repo
 	case "riskScore":
 		return o.RiskScore
+	case "sourceOrigin":
+		return o.SourceOrigin
+	case "summary":
+		return o.Summary
+	case "trustRisk":
+		return o.TrustRisk
 	case "updateTime":
 		return o.UpdateTime
+	case "vetted":
+		return o.Vetted
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -591,16 +859,51 @@ var AISkillAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"AssociatedAppName": {
+	"ActionScopeRisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "associatedappname",
-		ConvertedName:  "AssociatedAppName",
-		Description:    `The name of the application associated with this skill.`,
+		BSONFieldName:  "actionscoperisk",
+		ConvertedName:  "ActionScopeRisk",
+		Description:    `Risk assessment for the action scope pillar (what the skill can do).`,
 		Exposed:        true,
-		Name:           "associatedAppName",
-		Required:       true,
+		Name:           "actionScopeRisk",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"Apps": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apps",
+		ConvertedName:  "Apps",
+		Description: `The applications this skill was found under (a skill's content is shared across
+agents via ~/.agents/skills, so the same skill can appear under several apps).`,
+		Exposed:  true,
+		Name:     "apps",
+		Required: true,
+		Stored:   true,
+		SubType:  "string",
+		Type:     "list",
+	},
+	"BehavioralIntegrityRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "behavioralintegrityrisk",
+		ConvertedName:  "BehavioralIntegrityRisk",
+		Description:    `Risk assessment for the behavioral integrity pillar.`,
+		Exposed:        true,
+		Name:           "behavioralIntegrityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"ComplianceRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "compliancerisk",
+		ConvertedName:  "ComplianceRisk",
+		Description:    `Contextual compliance risk derived from the data the skill can reach.`,
+		Exposed:        true,
+		Name:           "complianceRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -617,6 +920,17 @@ var AISkillAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"DataSensitivityRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivityrisk",
+		ConvertedName:  "DataSensitivityRisk",
+		Description:    `Risk assessment for the data sensitivity pillar (what data the skill can reach).`,
+		Exposed:        true,
+		Name:           "dataSensitivityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -626,6 +940,27 @@ var AISkillAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DisplayName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "displayname",
+		ConvertedName:  "DisplayName",
+		Description:    `The human-friendly name of the skill.`,
+		Exposed:        true,
+		Name:           "displayName",
+		Stored:         true,
+		Type:           "string",
+	},
+	"ExecutionContextRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "executioncontextrisk",
+		ConvertedName:  "ExecutionContextRisk",
+		Description:    `Contextual risk derived from the runtime the skill executes in.`,
+		Exposed:        true,
+		Name:           "executionContextRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -696,10 +1031,12 @@ same import operation.`,
 	},
 	"Repo": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "repo",
 		ConvertedName:  "Repo",
 		Description:    `The source repo of the skill.`,
 		Exposed:        true,
 		Name:           "repo",
+		Stored:         true,
 		Type:           "string",
 	},
 	"RiskScore": {
@@ -712,6 +1049,39 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"SourceOrigin": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "sourceorigin",
+		ConvertedName:  "SourceOrigin",
+		Description: `The origin of the skill (for example Internal, First-party or Community), used
+as a trust signal.`,
+		Exposed: true,
+		Name:    "sourceOrigin",
+		Stored:  true,
+		Type:    "string",
+	},
+	"Summary": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "summary",
+		ConvertedName:  "Summary",
+		Description:    `Overall risk summary for the skill.`,
+		Exposed:        true,
+		Name:           "summary",
+		Stored:         true,
+		SubType:        "aiskillsummary",
+		Type:           "ref",
+	},
+	"TrustRisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trustrisk",
+		ConvertedName:  "TrustRisk",
+		Description:    `Risk assessment for the trust pillar (source trust of the skill).`,
+		Exposed:        true,
+		Name:           "trustRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -727,6 +1097,16 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Vetted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vetted",
+		ConvertedName:  "Vetted",
+		Description:    `Indicates whether the skill has been vetted.`,
+		Exposed:        true,
+		Name:           "vetted",
+		Stored:         true,
+		Type:           "boolean",
 	},
 }
 
@@ -747,16 +1127,51 @@ var AISkillLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"associatedappname": {
+	"actionscoperisk": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "associatedappname",
-		ConvertedName:  "AssociatedAppName",
-		Description:    `The name of the application associated with this skill.`,
+		BSONFieldName:  "actionscoperisk",
+		ConvertedName:  "ActionScopeRisk",
+		Description:    `Risk assessment for the action scope pillar (what the skill can do).`,
 		Exposed:        true,
-		Name:           "associatedAppName",
-		Required:       true,
+		Name:           "actionScopeRisk",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"apps": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "apps",
+		ConvertedName:  "Apps",
+		Description: `The applications this skill was found under (a skill's content is shared across
+agents via ~/.agents/skills, so the same skill can appear under several apps).`,
+		Exposed:  true,
+		Name:     "apps",
+		Required: true,
+		Stored:   true,
+		SubType:  "string",
+		Type:     "list",
+	},
+	"behavioralintegrityrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "behavioralintegrityrisk",
+		ConvertedName:  "BehavioralIntegrityRisk",
+		Description:    `Risk assessment for the behavioral integrity pillar.`,
+		Exposed:        true,
+		Name:           "behavioralIntegrityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
+	"compliancerisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "compliancerisk",
+		ConvertedName:  "ComplianceRisk",
+		Description:    `Contextual compliance risk derived from the data the skill can reach.`,
+		Exposed:        true,
+		Name:           "complianceRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -773,6 +1188,17 @@ var AISkillLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"datasensitivityrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "datasensitivityrisk",
+		ConvertedName:  "DataSensitivityRisk",
+		Description:    `Risk assessment for the data sensitivity pillar (what data the skill can reach).`,
+		Exposed:        true,
+		Name:           "dataSensitivityRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -782,6 +1208,27 @@ var AISkillLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"displayname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "displayname",
+		ConvertedName:  "DisplayName",
+		Description:    `The human-friendly name of the skill.`,
+		Exposed:        true,
+		Name:           "displayName",
+		Stored:         true,
+		Type:           "string",
+	},
+	"executioncontextrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "executioncontextrisk",
+		ConvertedName:  "ExecutionContextRisk",
+		Description:    `Contextual risk derived from the runtime the skill executes in.`,
+		Exposed:        true,
+		Name:           "executionContextRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -852,10 +1299,12 @@ same import operation.`,
 	},
 	"repo": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "repo",
 		ConvertedName:  "Repo",
 		Description:    `The source repo of the skill.`,
 		Exposed:        true,
 		Name:           "repo",
+		Stored:         true,
 		Type:           "string",
 	},
 	"riskscore": {
@@ -868,6 +1317,39 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"sourceorigin": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "sourceorigin",
+		ConvertedName:  "SourceOrigin",
+		Description: `The origin of the skill (for example Internal, First-party or Community), used
+as a trust signal.`,
+		Exposed: true,
+		Name:    "sourceOrigin",
+		Stored:  true,
+		Type:    "string",
+	},
+	"summary": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "summary",
+		ConvertedName:  "Summary",
+		Description:    `Overall risk summary for the skill.`,
+		Exposed:        true,
+		Name:           "summary",
+		Stored:         true,
+		SubType:        "aiskillsummary",
+		Type:           "ref",
+	},
+	"trustrisk": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trustrisk",
+		ConvertedName:  "TrustRisk",
+		Description:    `Risk assessment for the trust pillar (source trust of the skill).`,
+		Exposed:        true,
+		Name:           "trustRisk",
+		Stored:         true,
+		SubType:        "aidrisk",
+		Type:           "ref",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -883,6 +1365,16 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"vetted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vetted",
+		ConvertedName:  "Vetted",
+		Description:    `Indicates whether the skill has been vetted.`,
+		Exposed:        true,
+		Name:           "vetted",
+		Stored:         true,
+		Type:           "boolean",
 	},
 }
 
@@ -952,14 +1444,33 @@ type SparseAISkill struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The name of the application associated with this skill.
-	AssociatedAppName *string `json:"associatedAppName,omitempty" msgpack:"associatedAppName,omitempty" bson:"associatedappname,omitempty" mapstructure:"associatedAppName,omitempty"`
+	// Risk assessment for the action scope pillar (what the skill can do).
+	ActionScopeRisk *AIDRisk `json:"actionScopeRisk,omitempty" msgpack:"actionScopeRisk,omitempty" bson:"actionscoperisk,omitempty" mapstructure:"actionScopeRisk,omitempty"`
+
+	// The applications this skill was found under (a skill's content is shared across
+	// agents via ~/.agents/skills, so the same skill can appear under several apps).
+	Apps *[]string `json:"apps,omitempty" msgpack:"apps,omitempty" bson:"apps,omitempty" mapstructure:"apps,omitempty"`
+
+	// Risk assessment for the behavioral integrity pillar.
+	BehavioralIntegrityRisk *AIDRisk `json:"behavioralIntegrityRisk,omitempty" msgpack:"behavioralIntegrityRisk,omitempty" bson:"behavioralintegrityrisk,omitempty" mapstructure:"behavioralIntegrityRisk,omitempty"`
+
+	// Contextual compliance risk derived from the data the skill can reach.
+	ComplianceRisk *AIDRisk `json:"complianceRisk,omitempty" msgpack:"complianceRisk,omitempty" bson:"compliancerisk,omitempty" mapstructure:"complianceRisk,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
+	// Risk assessment for the data sensitivity pillar (what data the skill can reach).
+	DataSensitivityRisk *AIDRisk `json:"dataSensitivityRisk,omitempty" msgpack:"dataSensitivityRisk,omitempty" bson:"datasensitivityrisk,omitempty" mapstructure:"dataSensitivityRisk,omitempty"`
+
 	// A description about the AI skill.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The human-friendly name of the skill.
+	DisplayName *string `json:"displayName,omitempty" msgpack:"displayName,omitempty" bson:"displayname,omitempty" mapstructure:"displayName,omitempty"`
+
+	// Contextual risk derived from the runtime the skill executes in.
+	ExecutionContextRisk *AIDRisk `json:"executionContextRisk,omitempty" msgpack:"executionContextRisk,omitempty" bson:"executioncontextrisk,omitempty" mapstructure:"executionContextRisk,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -978,13 +1489,26 @@ type SparseAISkill struct {
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// The source repo of the skill.
-	Repo *string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"-" mapstructure:"repo,omitempty"`
+	Repo *string `json:"repo,omitempty" msgpack:"repo,omitempty" bson:"repo,omitempty" mapstructure:"repo,omitempty"`
 
 	// The risk score of the skill.
 	RiskScore *AISkillRiskScoreValue `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
 
+	// The origin of the skill (for example Internal, First-party or Community), used
+	// as a trust signal.
+	SourceOrigin *string `json:"sourceOrigin,omitempty" msgpack:"sourceOrigin,omitempty" bson:"sourceorigin,omitempty" mapstructure:"sourceOrigin,omitempty"`
+
+	// Overall risk summary for the skill.
+	Summary *AISkillSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
+
+	// Risk assessment for the trust pillar (source trust of the skill).
+	TrustRisk *AIDRisk `json:"trustRisk,omitempty" msgpack:"trustRisk,omitempty" bson:"trustrisk,omitempty" mapstructure:"trustRisk,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+
+	// Indicates whether the skill has been vetted.
+	Vetted *bool `json:"vetted,omitempty" msgpack:"vetted,omitempty" bson:"vetted,omitempty" mapstructure:"vetted,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1038,14 +1562,32 @@ func (o *SparseAISkill) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
-	if o.AssociatedAppName != nil {
-		s.AssociatedAppName = o.AssociatedAppName
+	if o.ActionScopeRisk != nil {
+		s.ActionScopeRisk = o.ActionScopeRisk
+	}
+	if o.Apps != nil {
+		s.Apps = o.Apps
+	}
+	if o.BehavioralIntegrityRisk != nil {
+		s.BehavioralIntegrityRisk = o.BehavioralIntegrityRisk
+	}
+	if o.ComplianceRisk != nil {
+		s.ComplianceRisk = o.ComplianceRisk
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.DataSensitivityRisk != nil {
+		s.DataSensitivityRisk = o.DataSensitivityRisk
+	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.DisplayName != nil {
+		s.DisplayName = o.DisplayName
+	}
+	if o.ExecutionContextRisk != nil {
+		s.ExecutionContextRisk = o.ExecutionContextRisk
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
@@ -1062,11 +1604,26 @@ func (o *SparseAISkill) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
+	if o.Repo != nil {
+		s.Repo = o.Repo
+	}
 	if o.RiskScore != nil {
 		s.RiskScore = o.RiskScore
 	}
+	if o.SourceOrigin != nil {
+		s.SourceOrigin = o.SourceOrigin
+	}
+	if o.Summary != nil {
+		s.Summary = o.Summary
+	}
+	if o.TrustRisk != nil {
+		s.TrustRisk = o.TrustRisk
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
+	}
+	if o.Vetted != nil {
+		s.Vetted = o.Vetted
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1093,14 +1650,32 @@ func (o *SparseAISkill) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
-	if s.AssociatedAppName != nil {
-		o.AssociatedAppName = s.AssociatedAppName
+	if s.ActionScopeRisk != nil {
+		o.ActionScopeRisk = s.ActionScopeRisk
+	}
+	if s.Apps != nil {
+		o.Apps = s.Apps
+	}
+	if s.BehavioralIntegrityRisk != nil {
+		o.BehavioralIntegrityRisk = s.BehavioralIntegrityRisk
+	}
+	if s.ComplianceRisk != nil {
+		o.ComplianceRisk = s.ComplianceRisk
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.DataSensitivityRisk != nil {
+		o.DataSensitivityRisk = s.DataSensitivityRisk
+	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.DisplayName != nil {
+		o.DisplayName = s.DisplayName
+	}
+	if s.ExecutionContextRisk != nil {
+		o.ExecutionContextRisk = s.ExecutionContextRisk
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
@@ -1117,11 +1692,26 @@ func (o *SparseAISkill) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
+	if s.Repo != nil {
+		o.Repo = s.Repo
+	}
 	if s.RiskScore != nil {
 		o.RiskScore = s.RiskScore
 	}
+	if s.SourceOrigin != nil {
+		o.SourceOrigin = s.SourceOrigin
+	}
+	if s.Summary != nil {
+		o.Summary = s.Summary
+	}
+	if s.TrustRisk != nil {
+		o.TrustRisk = s.TrustRisk
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
+	}
+	if s.Vetted != nil {
+		o.Vetted = s.Vetted
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1146,14 +1736,32 @@ func (o *SparseAISkill) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.AssociatedAppName != nil {
-		out.AssociatedAppName = *o.AssociatedAppName
+	if o.ActionScopeRisk != nil {
+		out.ActionScopeRisk = o.ActionScopeRisk
+	}
+	if o.Apps != nil {
+		out.Apps = *o.Apps
+	}
+	if o.BehavioralIntegrityRisk != nil {
+		out.BehavioralIntegrityRisk = o.BehavioralIntegrityRisk
+	}
+	if o.ComplianceRisk != nil {
+		out.ComplianceRisk = o.ComplianceRisk
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
+	if o.DataSensitivityRisk != nil {
+		out.DataSensitivityRisk = o.DataSensitivityRisk
+	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.DisplayName != nil {
+		out.DisplayName = *o.DisplayName
+	}
+	if o.ExecutionContextRisk != nil {
+		out.ExecutionContextRisk = o.ExecutionContextRisk
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1176,8 +1784,20 @@ func (o *SparseAISkill) ToPlain() elemental.PlainIdentifiable {
 	if o.RiskScore != nil {
 		out.RiskScore = *o.RiskScore
 	}
+	if o.SourceOrigin != nil {
+		out.SourceOrigin = *o.SourceOrigin
+	}
+	if o.Summary != nil {
+		out.Summary = o.Summary
+	}
+	if o.TrustRisk != nil {
+		out.TrustRisk = o.TrustRisk
+	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
+	}
+	if o.Vetted != nil {
+		out.Vetted = *o.Vetted
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1192,11 +1812,95 @@ func (o *SparseAISkill) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseAISkill) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ActionScopeRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.BehavioralIntegrityRisk != nil {
+		if err := o.BehavioralIntegrityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'BehavioralIntegrityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ComplianceRisk != nil {
+		if err := o.ComplianceRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ComplianceRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DataSensitivityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'ExecutionContextRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Summary' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrustRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseAISkill) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.ActionScopeRisk != nil {
+		if err := o.ActionScopeRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ActionScopeRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.BehavioralIntegrityRisk != nil {
+		if err := o.BehavioralIntegrityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'BehavioralIntegrityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ComplianceRisk != nil {
+		if err := o.ComplianceRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ComplianceRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.DataSensitivityRisk != nil {
+		if err := o.DataSensitivityRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DataSensitivityRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ExecutionContextRisk != nil {
+		if err := o.ExecutionContextRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'ExecutionContextRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Summary != nil {
+		if err := o.Summary.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Summary' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TrustRisk != nil {
+		if err := o.TrustRisk.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrustRisk' for 'AISkill' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -1322,32 +2026,54 @@ func (o *SparseAISkill) DeepCopyInto(out *SparseAISkill) {
 }
 
 type mongoAttributesAISkill struct {
-	ID                bson.ObjectId         `bson:"_id,omitempty"`
-	AssociatedAppName string                `bson:"associatedappname"`
-	CreateTime        time.Time             `bson:"createtime"`
-	Description       string                `bson:"description,omitempty"`
-	ImportHash        string                `bson:"importhash,omitempty"`
-	ImportLabel       string                `bson:"importlabel,omitempty"`
-	Name              string                `bson:"name"`
-	Namespace         string                `bson:"namespace,omitempty"`
-	Propagate         bool                  `bson:"propagate"`
-	RiskScore         AISkillRiskScoreValue `bson:"riskscore"`
-	UpdateTime        time.Time             `bson:"updatetime"`
-	ZHash             int                   `bson:"zhash"`
-	Zone              int                   `bson:"zone"`
+	ID                      bson.ObjectId         `bson:"_id,omitempty"`
+	ActionScopeRisk         *AIDRisk              `bson:"actionscoperisk,omitempty"`
+	Apps                    []string              `bson:"apps"`
+	BehavioralIntegrityRisk *AIDRisk              `bson:"behavioralintegrityrisk,omitempty"`
+	ComplianceRisk          *AIDRisk              `bson:"compliancerisk,omitempty"`
+	CreateTime              time.Time             `bson:"createtime"`
+	DataSensitivityRisk     *AIDRisk              `bson:"datasensitivityrisk,omitempty"`
+	Description             string                `bson:"description,omitempty"`
+	DisplayName             string                `bson:"displayname,omitempty"`
+	ExecutionContextRisk    *AIDRisk              `bson:"executioncontextrisk,omitempty"`
+	ImportHash              string                `bson:"importhash,omitempty"`
+	ImportLabel             string                `bson:"importlabel,omitempty"`
+	Name                    string                `bson:"name"`
+	Namespace               string                `bson:"namespace,omitempty"`
+	Propagate               bool                  `bson:"propagate"`
+	Repo                    string                `bson:"repo,omitempty"`
+	RiskScore               AISkillRiskScoreValue `bson:"riskscore"`
+	SourceOrigin            string                `bson:"sourceorigin,omitempty"`
+	Summary                 *AISkillSummary       `bson:"summary,omitempty"`
+	TrustRisk               *AIDRisk              `bson:"trustrisk,omitempty"`
+	UpdateTime              time.Time             `bson:"updatetime"`
+	Vetted                  bool                  `bson:"vetted,omitempty"`
+	ZHash                   int                   `bson:"zhash"`
+	Zone                    int                   `bson:"zone"`
 }
 type mongoAttributesSparseAISkill struct {
-	ID                bson.ObjectId          `bson:"_id,omitempty"`
-	AssociatedAppName *string                `bson:"associatedappname,omitempty"`
-	CreateTime        *time.Time             `bson:"createtime,omitempty"`
-	Description       *string                `bson:"description,omitempty"`
-	ImportHash        *string                `bson:"importhash,omitempty"`
-	ImportLabel       *string                `bson:"importlabel,omitempty"`
-	Name              *string                `bson:"name,omitempty"`
-	Namespace         *string                `bson:"namespace,omitempty"`
-	Propagate         *bool                  `bson:"propagate,omitempty"`
-	RiskScore         *AISkillRiskScoreValue `bson:"riskscore,omitempty"`
-	UpdateTime        *time.Time             `bson:"updatetime,omitempty"`
-	ZHash             *int                   `bson:"zhash,omitempty"`
-	Zone              *int                   `bson:"zone,omitempty"`
+	ID                      bson.ObjectId          `bson:"_id,omitempty"`
+	ActionScopeRisk         *AIDRisk               `bson:"actionscoperisk,omitempty"`
+	Apps                    *[]string              `bson:"apps,omitempty"`
+	BehavioralIntegrityRisk *AIDRisk               `bson:"behavioralintegrityrisk,omitempty"`
+	ComplianceRisk          *AIDRisk               `bson:"compliancerisk,omitempty"`
+	CreateTime              *time.Time             `bson:"createtime,omitempty"`
+	DataSensitivityRisk     *AIDRisk               `bson:"datasensitivityrisk,omitempty"`
+	Description             *string                `bson:"description,omitempty"`
+	DisplayName             *string                `bson:"displayname,omitempty"`
+	ExecutionContextRisk    *AIDRisk               `bson:"executioncontextrisk,omitempty"`
+	ImportHash              *string                `bson:"importhash,omitempty"`
+	ImportLabel             *string                `bson:"importlabel,omitempty"`
+	Name                    *string                `bson:"name,omitempty"`
+	Namespace               *string                `bson:"namespace,omitempty"`
+	Propagate               *bool                  `bson:"propagate,omitempty"`
+	Repo                    *string                `bson:"repo,omitempty"`
+	RiskScore               *AISkillRiskScoreValue `bson:"riskscore,omitempty"`
+	SourceOrigin            *string                `bson:"sourceorigin,omitempty"`
+	Summary                 *AISkillSummary        `bson:"summary,omitempty"`
+	TrustRisk               *AIDRisk               `bson:"trustrisk,omitempty"`
+	UpdateTime              *time.Time             `bson:"updatetime,omitempty"`
+	Vetted                  *bool                  `bson:"vetted,omitempty"`
+	ZHash                   *int                   `bson:"zhash,omitempty"`
+	Zone                    *int                   `bson:"zone,omitempty"`
 }

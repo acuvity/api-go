@@ -91,24 +91,19 @@ type ProviderToken struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The hash of the structure used to compare with new import version.
-	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+	// The description of the provider token.
+	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The user-defined import label that allows the system to group resources from the
-	// same import operation.
-	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
-
-	// Name of the token. As token contents are hidden after creation, name allows a
-	// way to delete it.
-	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
+	// The key ID used to identify the encryption key for this token.
+	KeyID string `json:"keyID" msgpack:"keyID" bson:"keyid" mapstructure:"keyID,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Name of the provider this token is used with.
-	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
+	// The ID of the parent resource.
+	ParentID string `json:"parentID" msgpack:"parentID" bson:"parentid" mapstructure:"parentID,omitempty"`
 
-	// token to authenticate with the provider.
+	// Token that will be encrypted using the key referenced by keyID.
 	Token string `json:"token" msgpack:"token" bson:"token" mapstructure:"token,omitempty"`
 
 	// Last update date of the object.
@@ -163,11 +158,10 @@ func (o *ProviderToken) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
-	s.ImportHash = o.ImportHash
-	s.ImportLabel = o.ImportLabel
-	s.Name = o.Name
+	s.Description = o.Description
+	s.KeyID = o.KeyID
 	s.Namespace = o.Namespace
-	s.Provider = o.Provider
+	s.ParentID = o.ParentID
 	s.Token = o.Token
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -191,11 +185,10 @@ func (o *ProviderToken) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
-	o.ImportHash = s.ImportHash
-	o.ImportLabel = s.ImportLabel
-	o.Name = s.Name
+	o.Description = s.Description
+	o.KeyID = s.KeyID
 	o.Namespace = s.Namespace
-	o.Provider = s.Provider
+	o.ParentID = s.ParentID
 	o.Token = s.Token
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -246,30 +239,6 @@ func (o *ProviderToken) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
-// GetImportHash returns the ImportHash of the receiver.
-func (o *ProviderToken) GetImportHash() string {
-
-	return o.ImportHash
-}
-
-// SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *ProviderToken) SetImportHash(importHash string) {
-
-	o.ImportHash = importHash
-}
-
-// GetImportLabel returns the ImportLabel of the receiver.
-func (o *ProviderToken) GetImportLabel() string {
-
-	return o.ImportLabel
-}
-
-// SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *ProviderToken) SetImportLabel(importLabel string) {
-
-	o.ImportLabel = importLabel
-}
-
 // GetNamespace returns the Namespace of the receiver.
 func (o *ProviderToken) GetNamespace() string {
 
@@ -280,6 +249,18 @@ func (o *ProviderToken) GetNamespace() string {
 func (o *ProviderToken) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetParentID returns the ParentID of the receiver.
+func (o *ProviderToken) GetParentID() string {
+
+	return o.ParentID
+}
+
+// SetParentID sets the property ParentID of the receiver using the given value.
+func (o *ProviderToken) SetParentID(parentID string) {
+
+	o.ParentID = parentID
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -303,11 +284,10 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		return &SparseProviderToken{
 			ID:          &o.ID,
 			CreateTime:  &o.CreateTime,
-			ImportHash:  &o.ImportHash,
-			ImportLabel: &o.ImportLabel,
-			Name:        &o.Name,
+			Description: &o.Description,
+			KeyID:       &o.KeyID,
 			Namespace:   &o.Namespace,
-			Provider:    &o.Provider,
+			ParentID:    &o.ParentID,
 			Token:       &o.Token,
 			UpdateTime:  &o.UpdateTime,
 			ZHash:       &o.ZHash,
@@ -322,16 +302,14 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
-		case "importHash":
-			sp.ImportHash = &(o.ImportHash)
-		case "importLabel":
-			sp.ImportLabel = &(o.ImportLabel)
-		case "name":
-			sp.Name = &(o.Name)
+		case "description":
+			sp.Description = &(o.Description)
+		case "keyID":
+			sp.KeyID = &(o.KeyID)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "provider":
-			sp.Provider = &(o.Provider)
+		case "parentID":
+			sp.ParentID = &(o.ParentID)
 		case "token":
 			sp.Token = &(o.Token)
 		case "updateTime":
@@ -359,20 +337,17 @@ func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
-	if so.ImportHash != nil {
-		o.ImportHash = *so.ImportHash
+	if so.Description != nil {
+		o.Description = *so.Description
 	}
-	if so.ImportLabel != nil {
-		o.ImportLabel = *so.ImportLabel
-	}
-	if so.Name != nil {
-		o.Name = *so.Name
+	if so.KeyID != nil {
+		o.KeyID = *so.KeyID
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.Provider != nil {
-		o.Provider = *so.Provider
+	if so.ParentID != nil {
+		o.ParentID = *so.ParentID
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
@@ -440,11 +415,7 @@ func (o *ProviderToken) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidateRequiredString("provider", o.Provider); err != nil {
+	if err := elemental.ValidateRequiredString("keyID", o.KeyID); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
@@ -486,16 +457,14 @@ func (o *ProviderToken) ValueForAttribute(name string) any {
 		return o.ID
 	case "createTime":
 		return o.CreateTime
-	case "importHash":
-		return o.ImportHash
-	case "importLabel":
-		return o.ImportLabel
-	case "name":
-		return o.Name
+	case "description":
+		return o.Description
+	case "keyID":
+		return o.KeyID
 	case "namespace":
 		return o.Namespace
-	case "provider":
-		return o.Provider
+	case "parentID":
+		return o.ParentID
 	case "token":
 		return o.Token
 	case "updateTime":
@@ -541,45 +510,26 @@ var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
-	"ImportHash": {
+	"Description": {
 		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "importhash",
-		ConvertedName:  "ImportHash",
-		CreationOnly:   true,
-		Description:    `The hash of the structure used to compare with new import version.`,
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the provider token.`,
 		Exposed:        true,
-		Getter:         true,
-		Name:           "importHash",
-		Setter:         true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
-	"ImportLabel": {
+	"KeyID": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "importlabel",
-		ConvertedName:  "ImportLabel",
-		CreationOnly:   true,
-		Description: `The user-defined import label that allows the system to group resources from the
-same import operation.`,
-		Exposed: true,
-		Getter:  true,
-		Name:    "importLabel",
-		Setter:  true,
-		Stored:  true,
-		Type:    "string",
-	},
-	"Name": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "name",
-		ConvertedName:  "Name",
-		Description: `Name of the token. As token contents are hidden after creation, name allows a
-way to delete it.`,
-		Exposed:  true,
-		Name:     "name",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		BSONFieldName:  "keyid",
+		ConvertedName:  "KeyID",
+		Description:    `The key ID used to identify the encryption key for this token.`,
+		Exposed:        true,
+		Name:           "keyID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -596,14 +546,17 @@ way to delete it.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"Provider": {
+	"ParentID": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "provider",
-		ConvertedName:  "Provider",
-		Description:    `Name of the provider this token is used with.`,
+		Autogenerated:  true,
+		BSONFieldName:  "parentid",
+		ConvertedName:  "ParentID",
+		Description:    `The ID of the parent resource.`,
 		Exposed:        true,
-		Name:           "provider",
-		Required:       true,
+		Getter:         true,
+		Name:           "parentID",
+		ReadOnly:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -611,7 +564,7 @@ way to delete it.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "token",
 		ConvertedName:  "Token",
-		Description:    `token to authenticate with the provider.`,
+		Description:    `Token that will be encrypted using the key referenced by keyID.`,
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "token",
@@ -670,45 +623,26 @@ var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "time",
 	},
-	"importhash": {
+	"description": {
 		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "importhash",
-		ConvertedName:  "ImportHash",
-		CreationOnly:   true,
-		Description:    `The hash of the structure used to compare with new import version.`,
+		BSONFieldName:  "description",
+		ConvertedName:  "Description",
+		Description:    `The description of the provider token.`,
 		Exposed:        true,
-		Getter:         true,
-		Name:           "importHash",
-		Setter:         true,
+		Name:           "description",
 		Stored:         true,
 		Type:           "string",
 	},
-	"importlabel": {
+	"keyid": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "importlabel",
-		ConvertedName:  "ImportLabel",
-		CreationOnly:   true,
-		Description: `The user-defined import label that allows the system to group resources from the
-same import operation.`,
-		Exposed: true,
-		Getter:  true,
-		Name:    "importLabel",
-		Setter:  true,
-		Stored:  true,
-		Type:    "string",
-	},
-	"name": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "name",
-		ConvertedName:  "Name",
-		Description: `Name of the token. As token contents are hidden after creation, name allows a
-way to delete it.`,
-		Exposed:  true,
-		Name:     "name",
-		Required: true,
-		Stored:   true,
-		Type:     "string",
+		BSONFieldName:  "keyid",
+		ConvertedName:  "KeyID",
+		Description:    `The key ID used to identify the encryption key for this token.`,
+		Exposed:        true,
+		Name:           "keyID",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -725,14 +659,17 @@ way to delete it.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"provider": {
+	"parentid": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "provider",
-		ConvertedName:  "Provider",
-		Description:    `Name of the provider this token is used with.`,
+		Autogenerated:  true,
+		BSONFieldName:  "parentid",
+		ConvertedName:  "ParentID",
+		Description:    `The ID of the parent resource.`,
 		Exposed:        true,
-		Name:           "provider",
-		Required:       true,
+		Getter:         true,
+		Name:           "parentID",
+		ReadOnly:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -740,7 +677,7 @@ way to delete it.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "token",
 		ConvertedName:  "Token",
-		Description:    `token to authenticate with the provider.`,
+		Description:    `Token that will be encrypted using the key referenced by keyID.`,
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "token",
@@ -836,24 +773,19 @@ type SparseProviderToken struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The hash of the structure used to compare with new import version.
-	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+	// The description of the provider token.
+	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The user-defined import label that allows the system to group resources from the
-	// same import operation.
-	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
-
-	// Name of the token. As token contents are hidden after creation, name allows a
-	// way to delete it.
-	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
+	// The key ID used to identify the encryption key for this token.
+	KeyID *string `json:"keyID,omitempty" msgpack:"keyID,omitempty" bson:"keyid,omitempty" mapstructure:"keyID,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Name of the provider this token is used with.
-	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
+	// The ID of the parent resource.
+	ParentID *string `json:"parentID,omitempty" msgpack:"parentID,omitempty" bson:"parentid,omitempty" mapstructure:"parentID,omitempty"`
 
-	// token to authenticate with the provider.
+	// Token that will be encrypted using the key referenced by keyID.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"token,omitempty" mapstructure:"token,omitempty"`
 
 	// Last update date of the object.
@@ -914,20 +846,17 @@ func (o *SparseProviderToken) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
-	if o.ImportHash != nil {
-		s.ImportHash = o.ImportHash
+	if o.Description != nil {
+		s.Description = o.Description
 	}
-	if o.ImportLabel != nil {
-		s.ImportLabel = o.ImportLabel
-	}
-	if o.Name != nil {
-		s.Name = o.Name
+	if o.KeyID != nil {
+		s.KeyID = o.KeyID
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.Provider != nil {
-		s.Provider = o.Provider
+	if o.ParentID != nil {
+		s.ParentID = o.ParentID
 	}
 	if o.Token != nil {
 		s.Token = o.Token
@@ -963,20 +892,17 @@ func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
-	if s.ImportHash != nil {
-		o.ImportHash = s.ImportHash
+	if s.Description != nil {
+		o.Description = s.Description
 	}
-	if s.ImportLabel != nil {
-		o.ImportLabel = s.ImportLabel
-	}
-	if s.Name != nil {
-		o.Name = s.Name
+	if s.KeyID != nil {
+		o.KeyID = s.KeyID
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.Provider != nil {
-		o.Provider = s.Provider
+	if s.ParentID != nil {
+		o.ParentID = s.ParentID
 	}
 	if s.Token != nil {
 		o.Token = s.Token
@@ -1010,20 +936,17 @@ func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
-	if o.ImportHash != nil {
-		out.ImportHash = *o.ImportHash
+	if o.Description != nil {
+		out.Description = *o.Description
 	}
-	if o.ImportLabel != nil {
-		out.ImportLabel = *o.ImportLabel
-	}
-	if o.Name != nil {
-		out.Name = *o.Name
+	if o.KeyID != nil {
+		out.KeyID = *o.KeyID
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.Provider != nil {
-		out.Provider = *o.Provider
+	if o.ParentID != nil {
+		out.ParentID = *o.ParentID
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
@@ -1077,38 +1000,6 @@ func (o *SparseProviderToken) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
-// GetImportHash returns the ImportHash of the receiver.
-func (o *SparseProviderToken) GetImportHash() (out string) {
-
-	if o.ImportHash == nil {
-		return
-	}
-
-	return *o.ImportHash
-}
-
-// SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetImportHash(importHash string) {
-
-	o.ImportHash = &importHash
-}
-
-// GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseProviderToken) GetImportLabel() (out string) {
-
-	if o.ImportLabel == nil {
-		return
-	}
-
-	return *o.ImportLabel
-}
-
-// SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseProviderToken) SetImportLabel(importLabel string) {
-
-	o.ImportLabel = &importLabel
-}
-
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseProviderToken) GetNamespace() (out string) {
 
@@ -1123,6 +1014,22 @@ func (o *SparseProviderToken) GetNamespace() (out string) {
 func (o *SparseProviderToken) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetParentID returns the ParentID of the receiver.
+func (o *SparseProviderToken) GetParentID() (out string) {
+
+	if o.ParentID == nil {
+		return
+	}
+
+	return *o.ParentID
+}
+
+// SetParentID sets the property ParentID of the receiver using the address of the given value.
+func (o *SparseProviderToken) SetParentID(parentID string) {
+
+	o.ParentID = &parentID
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -1168,11 +1075,10 @@ func (o *SparseProviderToken) DeepCopyInto(out *SparseProviderToken) {
 type mongoAttributesProviderToken struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  time.Time     `bson:"createtime"`
-	ImportHash  string        `bson:"importhash,omitempty"`
-	ImportLabel string        `bson:"importlabel,omitempty"`
-	Name        string        `bson:"name"`
+	Description string        `bson:"description,omitempty"`
+	KeyID       string        `bson:"keyid"`
 	Namespace   string        `bson:"namespace,omitempty"`
-	Provider    string        `bson:"provider"`
+	ParentID    string        `bson:"parentid"`
 	Token       string        `bson:"token"`
 	UpdateTime  time.Time     `bson:"updatetime"`
 	ZHash       int           `bson:"zhash"`
@@ -1181,11 +1087,10 @@ type mongoAttributesProviderToken struct {
 type mongoAttributesSparseProviderToken struct {
 	ID          bson.ObjectId `bson:"_id,omitempty"`
 	CreateTime  *time.Time    `bson:"createtime,omitempty"`
-	ImportHash  *string       `bson:"importhash,omitempty"`
-	ImportLabel *string       `bson:"importlabel,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
+	Description *string       `bson:"description,omitempty"`
+	KeyID       *string       `bson:"keyid,omitempty"`
 	Namespace   *string       `bson:"namespace,omitempty"`
-	Provider    *string       `bson:"provider,omitempty"`
+	ParentID    *string       `bson:"parentid,omitempty"`
 	Token       *string       `bson:"token,omitempty"`
 	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
 	ZHash       *int          `bson:"zhash,omitempty"`

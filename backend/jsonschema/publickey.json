@@ -1,0 +1,140 @@
+{
+  "$extends": [
+    "@sharded",
+    "@importable",
+    "@identifiable",
+    "@timed",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "PublicKey",
+  "$friendlyNamePlural": "PublicKeys",
+  "$modelName": "PublicKey",
+  "$modelPackage": "lain",
+  "$modelResourceName": "publickeys",
+  "$modelRestName": "publickey",
+  "additionalProperties": false,
+  "description": "Represents a public key to which the corresponding private key must only be available on deployment instances.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deployments": {
+      "$friendlyName": "Deployments",
+      "description": "The name of the deployments whose instances hold the corresponding private key.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "deployments",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the public key.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "keyID": {
+      "$creationOnly": true,
+      "$friendlyName": "Key ID",
+      "$required": true,
+      "description": "The key ID used to reference this public key.",
+      "title": "keyID",
+      "type": "string"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the public key.",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "publicKey": {
+      "$creationOnly": true,
+      "$friendlyName": "Public Key",
+      "$required": true,
+      "description": "PEM encoded public key.",
+      "title": "publicKey",
+      "type": "string"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "keyID",
+    "name",
+    "publicKey"
+  ],
+  "title": "PublicKey",
+  "type": "object"
+}

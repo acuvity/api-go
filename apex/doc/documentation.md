@@ -1882,6 +1882,7 @@ Represents MCP message details.
 ```json
 {
   "direction": "Client2Server",
+  "gatewayName": "maxibridge",
   "isError": false,
   "method": "tools/call",
   "paramsName": "search",
@@ -1899,6 +1900,13 @@ Type: `enum(Client2Server | Server2Client)`
 
 The communication direction of the MCP message which can be from client to
 server, or from server to client.
+
+##### `gatewayName`
+
+Type: `string`
+
+This is the MCP gateway name of the MCP message. This is only set for messages
+that are sent to or received from an MCP gateway.
 
 ##### `isError`
 

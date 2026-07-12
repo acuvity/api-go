@@ -1,0 +1,45 @@
+{
+  "$extends": [],
+  "$friendlyName": "Region",
+  "$friendlyNamePlural": "Regions",
+  "$modelName": "Region",
+  "$modelPackage": "ultradmin",
+  "$modelResourceName": "regions",
+  "$modelRestName": "region",
+  "additionalProperties": false,
+  "description": "Administrative API to handle regions (data realms).",
+  "properties": {
+    "apiURL": {
+      "$friendlyName": "API URL",
+      "$readOnly": true,
+      "description": "The API URL serving this region.",
+      "title": "apiURL",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "available": {
+      "$friendlyName": "Available",
+      "$readOnly": true,
+      "description": "Whether this region is available.",
+      "title": "available",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The region identifier.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Region",
+  "type": "object"
+}

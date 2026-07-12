@@ -514,6 +514,9 @@ func (o *MCPGatewayClient) Validate() error {
 	if err := ValidateURLs("redirectURIs", o.RedirectURIs); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURLs("redirectURIs", o.RedirectURIs); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors

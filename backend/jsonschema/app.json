@@ -115,7 +115,7 @@
     },
     "subject": {
       "$friendlyName": "Subject",
-      "description": "Only bearers with claims matching the subject will be allowed to access the appcomponent tokens.",
+      "description": "Only bearers with claims matching the subject will be allowed to create tokens on behalf of the appcomponent. If the subject is empty, then all bearers will be allowed to allocate a token on behalf of the appcomponent.",
       "items": {
         "items": {
           "type": "string"

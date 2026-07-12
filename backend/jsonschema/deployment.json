@@ -1,0 +1,163 @@
+{
+  "$extends": [
+    "@sharded",
+    "@importable",
+    "@identifiable",
+    "@timed",
+    "@tokenrenewable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Deployment",
+  "$friendlyNamePlural": "Deployments",
+  "$modelName": "Deployment",
+  "$modelPackage": "lain",
+  "$modelResourceName": "deployments",
+  "$modelRestName": "deployment",
+  "additionalProperties": false,
+  "description": "Deployment represents an AI Security Gateway Deployment.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the deployment.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the deployment.",
+      "pattern": "^[a-zA-Z0-9-_]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "publicHostnames": {
+      "$friendlyName": "Public Hostnames",
+      "description": "Host names of the deployment to perform connection terminations.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "publicHostnames",
+      "type": "array"
+    },
+    "renewToken": {
+      "$friendlyName": "Renew Token",
+      "description": "Set to true on update to issue a new credential.",
+      "title": "renewToken",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "renewTokenTag": {
+      "$friendlyName": "Renew Token Tag",
+      "description": "Set to value on update to associate a tag with the issued token.",
+      "title": "renewTokenTag",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "token": {
+      "$friendlyName": "Token",
+      "$readOnly": true,
+      "description": "The issued JWT, populated only in the response of an update where renewToken was set to true.",
+      "title": "token",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenRefs": {
+      "$friendlyName": "Token References",
+      "$readOnly": true,
+      "description": "The list of references to issued tokens.",
+      "items": {
+        "$ref": "tokenref.json"
+      },
+      "title": "tokenRefs",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "Deployment",
+  "type": "object"
+}

@@ -1,0 +1,41 @@
+{
+  "$extends": [
+    "@aidlevel"
+  ],
+  "$friendlyName": "AI Skill Summary",
+  "$friendlyNamePlural": "AI Skill Summaries",
+  "$modelName": "AISkillSummary",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aiskillsummaries",
+  "$modelRestName": "aiskillsummary",
+  "additionalProperties": false,
+  "description": "AI skill risk summary.",
+  "properties": {
+    "level": {
+      "$friendlyName": "Level",
+      "$required": true,
+      "description": "The level of the risk.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "level"
+    },
+    "riskRationale": {
+      "$friendlyName": "Risk Rationale",
+      "description": "Short explanation of the overall skill risk level.",
+      "title": "riskRationale",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "level"
+  ],
+  "title": "AISkillSummary",
+  "type": "object"
+}

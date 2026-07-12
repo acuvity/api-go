@@ -1,0 +1,65 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "AI Gateway Conf",
+  "$friendlyNamePlural": "AI Gateway Confs",
+  "$modelName": "AIGatewayConf",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconfs",
+  "$modelRestName": "aigatewayconf",
+  "additionalProperties": false,
+  "description": "AIGatewayConf is an API for AI gateway configurations.",
+  "properties": {
+    "AIGatewayName": {
+      "$friendlyName": "AI Gateway Name",
+      "description": "The name of the AI Gateway this configuration was rendered for.",
+      "title": "AIGatewayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectors": {
+      "$friendlyName": "Connectors",
+      "description": "The rendered AI Gateway connectors attached to this AI gateway.",
+      "items": {
+        "$ref": "aigatewayconfconnector.json"
+      },
+      "title": "connectors",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "description": "A stable revision of the effective rendered configuration.",
+      "title": "revision",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AIGatewayConf",
+  "type": "object"
+}

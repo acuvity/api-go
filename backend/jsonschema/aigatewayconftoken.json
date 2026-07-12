@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Gateway Conf Token",
+  "$friendlyNamePlural": "AI Gateway Conf Tokens",
+  "$modelName": "AIGatewayConfToken",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aigatewayconftokens",
+  "$modelRestName": "aigatewayconftoken",
+  "additionalProperties": false,
+  "description": "The rendered token shape consumed by the AI Gateway.",
+  "properties": {
+    "encryptedToken": {
+      "$friendlyName": "Encrypted Token",
+      "description": "The token, encrypted using the key referenced by keyID, consumed by the AI Gateway.",
+      "title": "encryptedToken",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "headerKey": {
+      "$friendlyName": "Header Key",
+      "description": "The header key used to pass the token to the provider.",
+      "title": "headerKey",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "headerValue": {
+      "$friendlyName": "Header Value",
+      "description": "The header value used to pass the token to the provider.",
+      "title": "headerValue",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "keyID": {
+      "$friendlyName": "Key ID",
+      "description": "The key ID used to identify the encryption key for this token.",
+      "title": "keyID",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AIGatewayConfToken",
+  "type": "object"
+}

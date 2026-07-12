@@ -6,6 +6,9 @@
     "admindomainanalysis": {
       "$ref": "admindomainanalysis.json"
     },
+    "adminlicense": {
+      "$ref": "adminlicense.json"
+    },
     "adminmagiclink": {
       "$ref": "adminmagiclink.json"
     },
@@ -66,6 +69,30 @@
     "aidsummary": {
       "$ref": "aidsummary.json"
     },
+    "aigateway": {
+      "$ref": "aigateway.json"
+    },
+    "aigatewayclient": {
+      "$ref": "aigatewayclient.json"
+    },
+    "aigatewayconf": {
+      "$ref": "aigatewayconf.json"
+    },
+    "aigatewayconfconnector": {
+      "$ref": "aigatewayconfconnector.json"
+    },
+    "aigatewayconfmcptool": {
+      "$ref": "aigatewayconfmcptool.json"
+    },
+    "aigatewayconftoken": {
+      "$ref": "aigatewayconftoken.json"
+    },
+    "aigatewayconftokenpool": {
+      "$ref": "aigatewayconftokenpool.json"
+    },
+    "aigatewayconnector": {
+      "$ref": "aigatewayconnector.json"
+    },
     "aimcpserver": {
       "$ref": "aimcpserver.json"
     },
@@ -86,6 +113,9 @@
     },
     "aiskill": {
       "$ref": "aiskill.json"
+    },
+    "aiskillsummary": {
+      "$ref": "aiskillsummary.json"
     },
     "aitool": {
       "$ref": "aitool.json"
@@ -134,6 +164,9 @@
     },
     "appcomponentingress": {
       "$ref": "appcomponentingress.json"
+    },
+    "appcomponentprovider": {
+      "$ref": "appcomponentprovider.json"
     },
     "appcomponentselector": {
       "$ref": "appcomponentselector.json"
@@ -195,6 +228,12 @@
     "dataset": {
       "$ref": "dataset.json"
     },
+    "deployment": {
+      "$ref": "deployment.json"
+    },
+    "deploymentinstance": {
+      "$ref": "deploymentinstance.json"
+    },
     "destination": {
       "$ref": "destination.json"
     },
@@ -222,17 +261,8 @@
     "driverportrange": {
       "$ref": "driverportrange.json"
     },
-    "egressdefaultpolicy": {
-      "$ref": "egressdefaultpolicy.json"
-    },
     "egresspolicy": {
       "$ref": "egresspolicy.json"
-    },
-    "egresspolicyacl": {
-      "$ref": "egresspolicyacl.json"
-    },
-    "egresspolicyrule": {
-      "$ref": "egresspolicyrule.json"
     },
     "errortransformer": {
       "$ref": "errortransformer.json"
@@ -273,6 +303,9 @@
     "gitbooktoken": {
       "$ref": "gitbooktoken.json"
     },
+    "hint": {
+      "$ref": "hint.json"
+    },
     "host": {
       "$ref": "host.json"
     },
@@ -291,20 +324,8 @@
     "ingesttrace": {
       "$ref": "ingesttrace.json"
     },
-    "ingressacl": {
-      "$ref": "ingressacl.json"
-    },
-    "ingresslistener": {
-      "$ref": "ingresslistener.json"
-    },
     "ingresspolicy": {
       "$ref": "ingresspolicy.json"
-    },
-    "ingresspolicyrule": {
-      "$ref": "ingresspolicyrule.json"
-    },
-    "ingressproxyconfig": {
-      "$ref": "ingressproxyconfig.json"
     },
     "injector": {
       "$ref": "injector.json"
@@ -456,6 +477,9 @@
     "providertoken": {
       "$ref": "providertoken.json"
     },
+    "providertokenpool": {
+      "$ref": "providertokenpool.json"
+    },
     "providertrainingpolicy": {
       "$ref": "providertrainingpolicy.json"
     },
@@ -468,11 +492,17 @@
     "proxyroundtrip": {
       "$ref": "proxyroundtrip.json"
     },
+    "publickey": {
+      "$ref": "publickey.json"
+    },
     "query": {
       "$ref": "query.json"
     },
     "queryrange": {
       "$ref": "queryrange.json"
+    },
+    "region": {
+      "$ref": "region.json"
     },
     "resolve": {
       "$ref": "resolve.json"
@@ -548,6 +578,9 @@
     },
     "textualdetection": {
       "$ref": "textualdetection.json"
+    },
+    "threatdefinition": {
+      "$ref": "threatdefinition.json"
     },
     "tlscertinfo": {
       "$ref": "tlscertinfo.json"

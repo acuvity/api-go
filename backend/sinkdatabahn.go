@@ -289,6 +289,9 @@ func (o *SinkDatabahn) Validate() error {
 	if err := ValidateURL("webhookURL", o.WebhookURL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("webhookURL", o.WebhookURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors

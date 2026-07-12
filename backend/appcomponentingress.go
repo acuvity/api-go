@@ -11,25 +11,26 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// AppComponentIngressDefaultACLActionValue represents the possible values for attribute "defaultACLAction".
-type AppComponentIngressDefaultACLActionValue string
+// AppComponentIngressDefaultPolicyActionValue represents the possible values for attribute "defaultPolicyAction".
+type AppComponentIngressDefaultPolicyActionValue string
 
 const (
-	// AppComponentIngressDefaultACLActionAllow represents the value Allow.
-	AppComponentIngressDefaultACLActionAllow AppComponentIngressDefaultACLActionValue = "Allow"
+	// AppComponentIngressDefaultPolicyActionAllow represents the value Allow.
+	AppComponentIngressDefaultPolicyActionAllow AppComponentIngressDefaultPolicyActionValue = "Allow"
 
-	// AppComponentIngressDefaultACLActionDeny represents the value Deny.
-	AppComponentIngressDefaultACLActionDeny AppComponentIngressDefaultACLActionValue = "Deny"
+	// AppComponentIngressDefaultPolicyActionDeny represents the value Deny.
+	AppComponentIngressDefaultPolicyActionDeny AppComponentIngressDefaultPolicyActionValue = "Deny"
 )
 
 // AppComponentIngress represents the model of a appcomponentingress
 type AppComponentIngress struct {
-	// The list of ACLs to apply for the ingress of this workload.
-	ACLs []*IngressACL `json:"ACLs,omitempty" msgpack:"ACLs,omitempty" bson:"acls,omitempty" mapstructure:"ACLs,omitempty"`
+	// The message that is sent if the access is denied by the default policy deny
+	// action.
+	DefaultPolicyAccessDeniedMessage string `json:"defaultPolicyAccessDeniedMessage,omitempty" msgpack:"defaultPolicyAccessDeniedMessage,omitempty" bson:"defaultpolicyaccessdeniedmessage,omitempty" mapstructure:"defaultPolicyAccessDeniedMessage,omitempty"`
 
-	// The default action to take for connections ingressing to this workload that do
-	// not match any of the ACLs.
-	DefaultACLAction AppComponentIngressDefaultACLActionValue `json:"defaultACLAction,omitempty" msgpack:"defaultACLAction,omitempty" bson:"defaultaclaction,omitempty" mapstructure:"defaultACLAction,omitempty"`
+	// The default action to take for connections ingressing to the proxy of this
+	// workload that do not match any of the policies.
+	DefaultPolicyAction AppComponentIngressDefaultPolicyActionValue `json:"defaultPolicyAction" msgpack:"defaultPolicyAction" bson:"defaultpolicyaction" mapstructure:"defaultPolicyAction,omitempty"`
 
 	// If true, when any non-user-facing platform stage fails during request
 	// handling (extractor, mapper, analyzer, content policy, body read, etc.),
@@ -39,8 +40,12 @@ type AppComponentIngress struct {
 	// and continue to be enforced. Default false.
 	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
 
-	// The defined listeners for this ingress workload.
-	Listeners []*IngressListener `json:"listeners,omitempty" msgpack:"listeners,omitempty" bson:"listeners,omitempty" mapstructure:"listeners,omitempty"`
+	// The list of policies for ingress connections.
+	Policies []*IngressPolicy `json:"policies,omitempty" msgpack:"policies,omitempty" bson:"policies,omitempty" mapstructure:"policies,omitempty"`
+
+	// The listening port. For appcomponent configurations this is the listening port
+	// that traffic will be intercepted on or mirrored from.
+	Port int `json:"port" msgpack:"port" bson:"port" mapstructure:"port,omitempty"`
 
 	// The computed rego access policy for the proxy.
 	ProxyAccessPolicy string `json:"proxyAccessPolicy,omitempty" msgpack:"proxyAccessPolicy,omitempty" bson:"-" mapstructure:"proxyAccessPolicy,omitempty"`
@@ -55,8 +60,8 @@ type AppComponentIngress struct {
 func NewAppComponentIngress() *AppComponentIngress {
 
 	return &AppComponentIngress{
-		ModelVersion:     1,
-		DefaultACLAction: AppComponentIngressDefaultACLActionAllow,
+		ModelVersion:        1,
+		DefaultPolicyAction: AppComponentIngressDefaultPolicyActionAllow,
 	}
 }
 func (o *AppComponentIngress) Identity() elemental.Identity {
@@ -81,10 +86,11 @@ func (o *AppComponentIngress) GetBSON() (any, error) {
 
 	s := &mongoAttributesAppComponentIngress{}
 
-	s.ACLs = o.ACLs
-	s.DefaultACLAction = o.DefaultACLAction
+	s.DefaultPolicyAccessDeniedMessage = o.DefaultPolicyAccessDeniedMessage
+	s.DefaultPolicyAction = o.DefaultPolicyAction
 	s.FailClose = o.FailClose
-	s.Listeners = o.Listeners
+	s.Policies = o.Policies
+	s.Port = o.Port
 
 	return s, nil
 }
@@ -102,10 +108,11 @@ func (o *AppComponentIngress) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.ACLs = s.ACLs
-	o.DefaultACLAction = s.DefaultACLAction
+	o.DefaultPolicyAccessDeniedMessage = s.DefaultPolicyAccessDeniedMessage
+	o.DefaultPolicyAction = s.DefaultPolicyAction
 	o.FailClose = s.FailClose
-	o.Listeners = s.Listeners
+	o.Policies = s.Policies
+	o.Port = s.Port
 
 	return nil
 }
@@ -131,21 +138,12 @@ func (o *AppComponentIngress) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *AppComponentIngress) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.ACLs {
+	for _, sub := range o.Policies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ACLs' for 'AppComponentIngress' (%s): %s", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.Listeners {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Listeners' for 'AppComponentIngress' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Policies' for 'AppComponentIngress' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -155,21 +153,12 @@ func (o *AppComponentIngress) EncryptAttributes(encrypter elemental.AttributeEnc
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *AppComponentIngress) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.ACLs {
+	for _, sub := range o.Policies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ACLs' for 'AppComponentIngress' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.Listeners {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Listeners' for 'AppComponentIngress' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Policies' for 'AppComponentIngress' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -208,31 +197,25 @@ func (o *AppComponentIngress) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for i, sub := range o.ACLs {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ACLs", i))
-		}
-	}
-
-	if err := elemental.ValidateStringInList("defaultACLAction", string(o.DefaultACLAction), []string{"Allow", "Deny"}, false); err != nil {
+	if err := elemental.ValidateStringInList("defaultPolicyAction", string(o.DefaultPolicyAction), []string{"Allow", "Deny"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
-	for i, sub := range o.Listeners {
+	for i, sub := range o.Policies {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "listeners", i))
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policies", i))
 		}
 	}
 
-	if err := ValidateIngressListeners("listeners", o.Listeners); err != nil {
+	if err := ValidateAppComponentIngressPolicies("policies", o.Policies); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateMaximumInt("port", o.Port, int(65535), false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -270,14 +253,16 @@ func (*AppComponentIngress) AttributeSpecifications() map[string]elemental.Attri
 func (o *AppComponentIngress) ValueForAttribute(name string) any {
 
 	switch name {
-	case "ACLs":
-		return o.ACLs
-	case "defaultACLAction":
-		return o.DefaultACLAction
+	case "defaultPolicyAccessDeniedMessage":
+		return o.DefaultPolicyAccessDeniedMessage
+	case "defaultPolicyAction":
+		return o.DefaultPolicyAction
 	case "failClose":
 		return o.FailClose
-	case "listeners":
-		return o.Listeners
+	case "policies":
+		return o.Policies
+	case "port":
+		return o.Port
 	case "proxyAccessPolicy":
 		return o.ProxyAccessPolicy
 	case "proxyContentPolicy":
@@ -289,26 +274,26 @@ func (o *AppComponentIngress) ValueForAttribute(name string) any {
 
 // AppComponentIngressAttributesMap represents the map of attribute for AppComponentIngress.
 var AppComponentIngressAttributesMap = map[string]elemental.AttributeSpecification{
-	"ACLs": {
+	"DefaultPolicyAccessDeniedMessage": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "acls",
-		ConvertedName:  "ACLs",
-		Description:    `The list of ACLs to apply for the ingress of this workload.`,
-		Exposed:        true,
-		Name:           "ACLs",
-		Stored:         true,
-		SubType:        "ingressacl",
-		Type:           "refList",
-	},
-	"DefaultACLAction": {
-		AllowedChoices: []string{"Allow", "Deny"},
-		BSONFieldName:  "defaultaclaction",
-		ConvertedName:  "DefaultACLAction",
-		DefaultValue:   AppComponentIngressDefaultACLActionAllow,
-		Description: `The default action to take for connections ingressing to this workload that do
-not match any of the ACLs.`,
+		BSONFieldName:  "defaultpolicyaccessdeniedmessage",
+		ConvertedName:  "DefaultPolicyAccessDeniedMessage",
+		Description: `The message that is sent if the access is denied by the default policy deny
+action.`,
 		Exposed: true,
-		Name:    "defaultACLAction",
+		Name:    "defaultPolicyAccessDeniedMessage",
+		Stored:  true,
+		Type:    "string",
+	},
+	"DefaultPolicyAction": {
+		AllowedChoices: []string{"Allow", "Deny"},
+		BSONFieldName:  "defaultpolicyaction",
+		ConvertedName:  "DefaultPolicyAction",
+		DefaultValue:   AppComponentIngressDefaultPolicyActionAllow,
+		Description: `The default action to take for connections ingressing to the proxy of this
+workload that do not match any of the policies.`,
+		Exposed: true,
+		Name:    "defaultPolicyAction",
 		Stored:  true,
 		Type:    "enum",
 	},
@@ -327,16 +312,28 @@ and continue to be enforced. Default false.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
-	"Listeners": {
+	"Policies": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "listeners",
-		ConvertedName:  "Listeners",
-		Description:    `The defined listeners for this ingress workload.`,
+		BSONFieldName:  "policies",
+		ConvertedName:  "Policies",
+		Description:    `The list of policies for ingress connections.`,
 		Exposed:        true,
-		Name:           "listeners",
+		Name:           "policies",
 		Stored:         true,
-		SubType:        "ingresslistener",
+		SubType:        "ingresspolicy",
 		Type:           "refList",
+	},
+	"Port": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "port",
+		ConvertedName:  "Port",
+		Description: `The listening port. For appcomponent configurations this is the listening port
+that traffic will be intercepted on or mirrored from.`,
+		Exposed:  true,
+		MaxValue: 65535,
+		Name:     "port",
+		Stored:   true,
+		Type:     "integer",
 	},
 	"ProxyAccessPolicy": {
 		AllowedChoices: []string{},
@@ -364,26 +361,26 @@ and continue to be enforced. Default false.`,
 
 // AppComponentIngressLowerCaseAttributesMap represents the map of attribute for AppComponentIngress.
 var AppComponentIngressLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"acls": {
+	"defaultpolicyaccessdeniedmessage": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "acls",
-		ConvertedName:  "ACLs",
-		Description:    `The list of ACLs to apply for the ingress of this workload.`,
-		Exposed:        true,
-		Name:           "ACLs",
-		Stored:         true,
-		SubType:        "ingressacl",
-		Type:           "refList",
-	},
-	"defaultaclaction": {
-		AllowedChoices: []string{"Allow", "Deny"},
-		BSONFieldName:  "defaultaclaction",
-		ConvertedName:  "DefaultACLAction",
-		DefaultValue:   AppComponentIngressDefaultACLActionAllow,
-		Description: `The default action to take for connections ingressing to this workload that do
-not match any of the ACLs.`,
+		BSONFieldName:  "defaultpolicyaccessdeniedmessage",
+		ConvertedName:  "DefaultPolicyAccessDeniedMessage",
+		Description: `The message that is sent if the access is denied by the default policy deny
+action.`,
 		Exposed: true,
-		Name:    "defaultACLAction",
+		Name:    "defaultPolicyAccessDeniedMessage",
+		Stored:  true,
+		Type:    "string",
+	},
+	"defaultpolicyaction": {
+		AllowedChoices: []string{"Allow", "Deny"},
+		BSONFieldName:  "defaultpolicyaction",
+		ConvertedName:  "DefaultPolicyAction",
+		DefaultValue:   AppComponentIngressDefaultPolicyActionAllow,
+		Description: `The default action to take for connections ingressing to the proxy of this
+workload that do not match any of the policies.`,
+		Exposed: true,
+		Name:    "defaultPolicyAction",
 		Stored:  true,
 		Type:    "enum",
 	},
@@ -402,16 +399,28 @@ and continue to be enforced. Default false.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
-	"listeners": {
+	"policies": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "listeners",
-		ConvertedName:  "Listeners",
-		Description:    `The defined listeners for this ingress workload.`,
+		BSONFieldName:  "policies",
+		ConvertedName:  "Policies",
+		Description:    `The list of policies for ingress connections.`,
 		Exposed:        true,
-		Name:           "listeners",
+		Name:           "policies",
 		Stored:         true,
-		SubType:        "ingresslistener",
+		SubType:        "ingresspolicy",
 		Type:           "refList",
+	},
+	"port": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "port",
+		ConvertedName:  "Port",
+		Description: `The listening port. For appcomponent configurations this is the listening port
+that traffic will be intercepted on or mirrored from.`,
+		Exposed:  true,
+		MaxValue: 65535,
+		Name:     "port",
+		Stored:   true,
+		Type:     "integer",
 	},
 	"proxyaccesspolicy": {
 		AllowedChoices: []string{},
@@ -438,8 +447,9 @@ and continue to be enforced. Default false.`,
 }
 
 type mongoAttributesAppComponentIngress struct {
-	ACLs             []*IngressACL                            `bson:"acls,omitempty"`
-	DefaultACLAction AppComponentIngressDefaultACLActionValue `bson:"defaultaclaction,omitempty"`
-	FailClose        bool                                     `bson:"failclose"`
-	Listeners        []*IngressListener                       `bson:"listeners,omitempty"`
+	DefaultPolicyAccessDeniedMessage string                                      `bson:"defaultpolicyaccessdeniedmessage,omitempty"`
+	DefaultPolicyAction              AppComponentIngressDefaultPolicyActionValue `bson:"defaultpolicyaction"`
+	FailClose                        bool                                        `bson:"failclose"`
+	Policies                         []*IngressPolicy                            `bson:"policies,omitempty"`
+	Port                             int                                         `bson:"port"`
 }

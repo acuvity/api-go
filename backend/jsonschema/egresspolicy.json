@@ -1,5 +1,8 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@accesspolicyaction",
+    "@policytransportmode"
+  ],
   "$friendlyName": "Egress Policy",
   "$friendlyNamePlural": "Egress Policies",
   "$modelName": "EgressPolicy",
@@ -9,15 +12,6 @@
   "additionalProperties": false,
   "description": "Represents an egress policy of an application component.",
   "properties": {
-    "ACLs": {
-      "$friendlyName": "Access Control Lists",
-      "description": "The list of ACLs to apply for the egress policy.",
-      "items": {
-        "$ref": "egresspolicyacl.json"
-      },
-      "title": "ACLs",
-      "type": "array"
-    },
     "accessDeniedMessage": {
       "$friendlyName": "Access Denied Message",
       "description": "The message that is sent if the access is denied.",
@@ -27,6 +21,17 @@
         "null"
       ]
     },
+    "action": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Action",
+      "description": "Define if the provider is allowed or denied for the match expression.",
+      "enum": [
+        "Allow",
+        "Deny",
+        "Redirect"
+      ],
+      "title": "action"
+    },
     "alertDefinition": {
       "$friendlyName": "Alert Definition",
       "description": "The definition to use for alerting when action is deny.",
@@ -35,6 +40,50 @@
         "string",
         "null"
       ]
+    },
+    "anyGatewayAllowed": {
+      "$defaultValue": false,
+      "$friendlyName": "All Gateways",
+      "description": "If true, all gateways can be used.",
+      "title": "anyGatewayAllowed",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "anyToolAllowed": {
+      "$defaultValue": false,
+      "$friendlyName": "All Tools",
+      "description": "If true, all tools can be used.",
+      "title": "anyToolAllowed",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "appComponents": {
+      "$friendlyName": "App Components",
+      "description": "As the egress policy is defined in the context of an application component, the application component specifies destination of the egress connection. The value is in the form of project:app/component, where the project: is optional. If this part is missing, it implies the app/component is in the same project where the app/component is defined.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "appComponents",
+      "type": "array"
+    },
+    "contentPolicies": {
+      "$friendlyName": "Content Policies",
+      "description": "The list of content policies to apply when the user has access to the provider.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "contentPolicies",
+      "type": "array"
     },
     "description": {
       "$friendlyName": "Description",
@@ -47,8 +96,29 @@
     },
     "disabled": {
       "$friendlyName": "Disabled",
-      "description": "If true, the policy is disabled and will not be applied.",
+      "description": "If true, the policy is disabled.",
       "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "gateways": {
+      "$friendlyName": "Gateways",
+      "description": "The list of gateways that this rule applies to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "gateways",
+      "type": "array"
+    },
+    "minimalLogging": {
+      "$friendlyName": "Minimal Logging",
+      "description": "If true, the system will not log the messages that are not considered as violations.",
+      "title": "minimalLogging",
       "type": [
         "boolean",
         "null"
@@ -57,10 +127,28 @@
     "name": {
       "$friendlyName": "Name",
       "$required": true,
-      "description": "The name of the egress policy.",
+      "description": "The name of the access policy.",
       "pattern": "^[a-zA-Z0-9-_/@. ]+$",
       "title": "name",
       "type": "string"
+    },
+    "offbandAnalysis": {
+      "$friendlyName": "Offband Analysis",
+      "description": "If true, the system will run analysis in parallel of the user request. When this is active, no further policing will be done, and no content policy will run. This can be used to observe the transmitted data and have analysis report, without adding latency to the end user request, at the price of not being able to do any form of content moderation.",
+      "title": "offbandAnalysis",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "permissive": {
+      "$friendlyName": "Permissive",
+      "description": "If set, just log the decision, but don't enforce it.",
+      "title": "permissive",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "policyID": {
       "$friendlyName": "Policy ID",
@@ -72,18 +160,62 @@
         "null"
       ]
     },
-    "rules": {
-      "$friendlyName": "Rules",
-      "description": "Rules that define how egress traffic is handled.",
+    "providers": {
+      "$friendlyName": "Providers",
+      "description": "The list of providers that this rule applies to.",
       "items": {
-        "$ref": "egresspolicyrule.json"
+        "type": [
+          "string",
+          "null"
+        ]
       },
-      "title": "rules",
+      "title": "providers",
       "type": "array"
+    },
+    "redactContent": {
+      "$friendlyName": "Redact Content",
+      "description": "If true, the system will remove all user data from the reported data, while keeping the analysis and metadata.",
+      "title": "redactContent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactContentBypass": {
+      "$friendlyName": "Redact Content Bypass",
+      "description": "If true, and redactContent is true, ignore redaction if there are some violations.",
+      "title": "redactContentBypass",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The list of tools that this rule applies to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "tools",
+      "type": "array"
+    },
+    "transportMode": {
+      "$friendlyName": "Transport Mode",
+      "$required": true,
+      "description": "Specify if this policy applies to transparent proxy or gateway.",
+      "enum": [
+        "Proxy",
+        "Gateway"
+      ],
+      "title": "transportMode"
     }
   },
   "required": [
-    "name"
+    "name",
+    "transportMode"
   ],
   "title": "EgressPolicy",
   "type": "object"

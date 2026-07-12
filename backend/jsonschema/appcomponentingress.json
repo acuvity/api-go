@@ -12,24 +12,24 @@
   "additionalProperties": false,
   "description": "Represents the ingress configuration of an application component.",
   "properties": {
-    "ACLs": {
-      "$friendlyName": "ACLs",
-      "description": "The list of ACLs to apply for the ingress of this workload.",
-      "items": {
-        "$ref": "ingressacl.json"
-      },
-      "title": "ACLs",
-      "type": "array"
+    "defaultPolicyAccessDeniedMessage": {
+      "$friendlyName": "Policy Denied Message",
+      "description": "The message that is sent if the access is denied by the default policy deny action.",
+      "title": "defaultPolicyAccessDeniedMessage",
+      "type": [
+        "string",
+        "null"
+      ]
     },
-    "defaultACLAction": {
+    "defaultPolicyAction": {
       "$defaultValue": "Allow",
-      "$friendlyName": "Default ACL Action",
-      "description": "The default action to take for connections ingressing to this workload that do not match any of the ACLs.",
+      "$friendlyName": "Default Policy Action",
+      "description": "The default action to take for connections ingressing to the proxy of this workload that do not match any of the policies.",
       "enum": [
         "Allow",
         "Deny"
       ],
-      "title": "defaultACLAction"
+      "title": "defaultPolicyAction"
     },
     "failClose": {
       "$friendlyName": "Fail Close",
@@ -40,14 +40,24 @@
         "null"
       ]
     },
-    "listeners": {
-      "$friendlyName": "Listeners",
-      "description": "The defined listeners for this ingress workload.",
+    "policies": {
+      "$friendlyName": "Policies",
+      "description": "The list of policies for ingress connections.",
       "items": {
-        "$ref": "ingresslistener.json"
+        "$ref": "ingresspolicy.json"
       },
-      "title": "listeners",
+      "title": "policies",
       "type": "array"
+    },
+    "port": {
+      "$friendlyName": "Port",
+      "description": "The listening port. For appcomponent configurations this is the listening port that traffic will be intercepted on or mirrored from.",
+      "maximum": 65535,
+      "title": "port",
+      "type": [
+        "integer",
+        "null"
+      ]
     },
     "proxyAccessPolicy": {
       "$friendlyName": "Proxy Access Policy",

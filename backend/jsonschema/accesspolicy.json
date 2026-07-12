@@ -4,7 +4,9 @@
     "@identifiable",
     "@importable",
     "@timed",
-    "@failclose"
+    "@failclose",
+    "@accesspolicyaction",
+    "@policytransportmode"
   ],
   "$friendlyName": "Access Policy",
   "$friendlyNamePlural": "Access Policies",
@@ -213,6 +215,16 @@
         "null"
       ]
     },
+    "transportMode": {
+      "$friendlyName": "Transport Mode",
+      "$required": true,
+      "description": "Specify if this policy applies to transparent proxy or gateway.",
+      "enum": [
+        "Proxy",
+        "Gateway"
+      ],
+      "title": "transportMode"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -225,7 +237,8 @@
     }
   },
   "required": [
-    "name"
+    "name",
+    "transportMode"
   ],
   "title": "AccessPolicy",
   "type": "object"

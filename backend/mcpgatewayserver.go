@@ -169,6 +169,9 @@ func (o *MCPGatewayServer) Validate() error {
 	if err := ValidateURLs("URLs", o.URLs); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURLs("URLs", o.URLs); err != nil {
+		errors = errors.Append(err)
+	}
 
 	for i, sub := range o.Tools {
 		if sub == nil {

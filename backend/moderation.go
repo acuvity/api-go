@@ -43,7 +43,7 @@ type Moderation struct {
 	// The predicate expression for the moderation to be triggered.
 	Predicates []*Predicate `json:"predicates" msgpack:"predicates" bson:"predicates" mapstructure:"predicates,omitempty"`
 
-	// If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.
+	// If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.
 	Redact bool `json:"redact" msgpack:"redact" bson:"redact" mapstructure:"redact,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -202,6 +202,9 @@ func (o *Moderation) Validate() error {
 	if err := ValidateURL("link", o.Link); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("link", o.Link); err != nil {
+		errors = errors.Append(err)
+	}
 
 	for i, sub := range o.Predicates {
 		if sub == nil {
@@ -323,7 +326,7 @@ moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "redact",
 		ConvertedName:  "Redact",
-		Description:    `If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.`,
+		Description:    `If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.`,
 		Exposed:        true,
 		Name:           "redact",
 		Stored:         true,
@@ -390,7 +393,7 @@ moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "redact",
 		ConvertedName:  "Redact",
-		Description:    `If true, redacts the keywords, PIIs, and/or secrets defined in the predicates.`,
+		Description:    `If true, keywords, PIIs, and/or secrets defined in the predicates are redacted.`,
 		Exposed:        true,
 		Name:           "redact",
 		Stored:         true,

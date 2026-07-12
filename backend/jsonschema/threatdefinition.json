@@ -1,0 +1,146 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed",
+    "@namelinkable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "Threat Definition",
+  "$friendlyNamePlural": "Threat Definitions",
+  "$modelName": "ThreatDefinition",
+  "$modelPackage": "lain",
+  "$modelResourceName": "threatdefinitions",
+  "$modelRestName": "threatdefinition",
+  "additionalProperties": false,
+  "description": "Defines threat detection patterns that the system monitors to generate findings when matching activity is detected, providing visibility into potential security risks and policy violations.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the threat definition.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the threat definition is disabled.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "description": "The list of predicates that define this threat pattern.",
+      "items": {
+        "$ref": "predicate.json"
+      },
+      "title": "match",
+      "type": "array"
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "severity": {
+      "$defaultValue": "Low",
+      "$friendlyName": "Severity",
+      "$required": true,
+      "description": "The severity level of the threat definition.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "severity"
+    },
+    "type": {
+      "$defaultValue": "Request",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "Choose on what the threat definition should apply.",
+      "enum": [
+        "Both",
+        "Request",
+        "Response"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "friendlyName",
+    "severity",
+    "type"
+  ],
+  "title": "ThreatDefinition",
+  "type": "object"
+}

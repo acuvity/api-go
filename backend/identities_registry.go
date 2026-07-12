@@ -9,6 +9,8 @@ var (
 	identityNamesMap = map[string]elemental.Identity{
 		"accesspolicy": AccessPolicyIdentity,
 
+		"adminlicense": AdminLicenseIdentity,
+
 		"agent":       AgentIdentity,
 		"agentconfig": AgentConfigIdentity,
 
@@ -17,12 +19,18 @@ var (
 
 		"aidomain": AIDomainIdentity,
 
-		"aimcpserver": AIMCPServerIdentity,
+		"aigateway":       AIGatewayIdentity,
+		"aigatewayclient": AIGatewayClientIdentity,
+		"aigatewayconf":   AIGatewayConfIdentity,
+
+		"aigatewayconnector": AIGatewayConnectorIdentity,
+		"aimcpserver":        AIMCPServerIdentity,
 
 		"aiplugin": AIPluginIdentity,
 
 		"aiskill": AISkillIdentity,
-		"aitool":  AIToolIdentity,
+
+		"aitool": AIToolIdentity,
 
 		"alert":           AlertIdentity,
 		"alertdefinition": AlertDefinitionIdentity,
@@ -43,9 +51,11 @@ var (
 		"apptoken":     AppTokenIdentity,
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicy":  ContentPolicyIdentity,
-		"customdatatype": CustomDataTypeIdentity,
-		"dataset":        DataSetIdentity,
+		"contentpolicy":      ContentPolicyIdentity,
+		"customdatatype":     CustomDataTypeIdentity,
+		"dataset":            DataSetIdentity,
+		"deployment":         DeploymentIdentity,
+		"deploymentinstance": DeploymentInstanceIdentity,
 
 		"digestreport":        DigestReportIdentity,
 		"digestreportrequest": DigestReportRequestIdentity,
@@ -62,6 +72,7 @@ var (
 		"gateway":         GatewayIdentity,
 		"gatewayinstance": GatewayInstanceIdentity,
 		"gitbooktoken":    GitbookTokenIdentity,
+		"hint":            HintIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -105,18 +116,21 @@ var (
 		"provider":              ProviderIdentity,
 		"providerhostsoverride": ProviderHostsOverrideIdentity,
 
-		"providerteam":  ProviderTeamIdentity,
-		"providertoken": ProviderTokenIdentity,
+		"providerteam":      ProviderTeamIdentity,
+		"providertoken":     ProviderTokenIdentity,
+		"providertokenpool": ProviderTokenPoolIdentity,
 
 		"providerusagereport": ProviderUsageReportIdentity,
 		"proxyconf":           ProxyConfIdentity,
 		"proxyroundtrip":      ProxyRoundtripIdentity,
+		"publickey":           PublicKeyIdentity,
 		"query":               QueryIdentity,
 		"queryrange":          QueryRangeIdentity,
-		"resolve":             ResolveIdentity,
-		"revocation":          RevocationIdentity,
-		"role":                RoleIdentity,
-		"root":                RootIdentity,
+
+		"resolve":    ResolveIdentity,
+		"revocation": RevocationIdentity,
+		"role":       RoleIdentity,
+		"root":       RootIdentity,
 
 		"samlsource": SAMLSourceIdentity,
 
@@ -133,6 +147,8 @@ var (
 		"sinksplunk":    SinkSplunkIdentity,
 		"slug":          SlugIdentity,
 		"team":          TeamIdentity,
+
+		"threatdefinition": ThreatDefinitionIdentity,
 
 		"trace":          TraceIdentity,
 		"traceref":       TraceRefIdentity,
@@ -151,6 +167,8 @@ var (
 	identitycategoriesMap = map[string]elemental.Identity{
 		"accesspolicies": AccessPolicyIdentity,
 
+		"adminlicenses": AdminLicenseIdentity,
+
 		"agents":       AgentIdentity,
 		"agentconfigs": AgentConfigIdentity,
 
@@ -159,12 +177,18 @@ var (
 
 		"aidomains": AIDomainIdentity,
 
-		"aimcpservers": AIMCPServerIdentity,
+		"aigateways":       AIGatewayIdentity,
+		"aigatewayclients": AIGatewayClientIdentity,
+		"aigatewayconfs":   AIGatewayConfIdentity,
+
+		"aigatewayconnectors": AIGatewayConnectorIdentity,
+		"aimcpservers":        AIMCPServerIdentity,
 
 		"aiplugins": AIPluginIdentity,
 
 		"aiskills": AISkillIdentity,
-		"aitools":  AIToolIdentity,
+
+		"aitools": AIToolIdentity,
 
 		"alerts":           AlertIdentity,
 		"alertdefinitions": AlertDefinitionIdentity,
@@ -185,9 +209,11 @@ var (
 		"apptokens":    AppTokenIdentity,
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicies": ContentPolicyIdentity,
-		"customdatatypes": CustomDataTypeIdentity,
-		"datasets":        DataSetIdentity,
+		"contentpolicies":     ContentPolicyIdentity,
+		"customdatatypes":     CustomDataTypeIdentity,
+		"datasets":            DataSetIdentity,
+		"deployments":         DeploymentIdentity,
+		"deploymentinstances": DeploymentInstanceIdentity,
 
 		"digestreports":        DigestReportIdentity,
 		"digestreportrequests": DigestReportRequestIdentity,
@@ -204,6 +230,7 @@ var (
 		"gateways":         GatewayIdentity,
 		"gatewayinstances": GatewayInstanceIdentity,
 		"gitbooktokens":    GitbookTokenIdentity,
+		"hints":            HintIdentity,
 
 		"identitymodifier": IdentityModifierIdentity,
 
@@ -247,18 +274,21 @@ var (
 		"providers":              ProviderIdentity,
 		"providerhostsoverrides": ProviderHostsOverrideIdentity,
 
-		"providerteams":  ProviderTeamIdentity,
-		"providertokens": ProviderTokenIdentity,
+		"providerteams":      ProviderTeamIdentity,
+		"providertokens":     ProviderTokenIdentity,
+		"providertokenpools": ProviderTokenPoolIdentity,
 
 		"providerusagereports": ProviderUsageReportIdentity,
 		"proxyconfs":           ProxyConfIdentity,
 		"proxyroundtrips":      ProxyRoundtripIdentity,
+		"publickeys":           PublicKeyIdentity,
 		"queries":              QueryIdentity,
 		"queryranges":          QueryRangeIdentity,
-		"resolve":              ResolveIdentity,
-		"revocations":          RevocationIdentity,
-		"roles":                RoleIdentity,
-		"root":                 RootIdentity,
+
+		"resolve":     ResolveIdentity,
+		"revocations": RevocationIdentity,
+		"roles":       RoleIdentity,
+		"root":        RootIdentity,
 
 		"samlsources": SAMLSourceIdentity,
 
@@ -275,6 +305,8 @@ var (
 		"sinksplunk":     SinkSplunkIdentity,
 		"slugs":          SlugIdentity,
 		"teams":          TeamIdentity,
+
+		"threatdefinitions": ThreatDefinitionIdentity,
 
 		"traces":         TraceIdentity,
 		"tracerefs":      TraceRefIdentity,
@@ -300,6 +332,7 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"adminlicense": nil,
 		"agent": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -334,6 +367,32 @@ var (
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 			{"namespace", "providerName"},
+		},
+		"aigateway": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"aigatewayclient": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "parentID", "clientID"},
+		},
+		"aigatewayconf": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"aigatewayconnector": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "provider"},
 		},
 		"aimcpserver": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -442,6 +501,20 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"deployment": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "tokenrefs.tokenid"},
+		},
+		"deploymentinstance": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "parentID", "hostname"},
+			{"namespace", "tokenID"},
+		},
 		"digestreport": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -499,7 +572,13 @@ var (
 			{"namespace", "parentID", "hostname"},
 			{"namespace", "tokenID"},
 		},
-		"gitbooktoken":     nil,
+		"gitbooktoken": nil,
+		"hint": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "key"},
+		},
 		"identitymodifier": nil,
 		"ignoreddomain": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -659,6 +738,12 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "keyID"},
+		},
+		"providertokenpool": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
@@ -674,6 +759,13 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
+		},
+		"publickey": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "keyID"},
 		},
 		"query": {
 			{"namespace"},
@@ -740,6 +832,12 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"threatdefinition": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
 			{"namespace", "name"},
 		},
 		"trace": {
@@ -831,6 +929,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	case AccessPolicyIdentity:
 		return NewAccessPolicy()
+	case AdminLicenseIdentity:
+		return NewAdminLicense()
 	case AgentIdentity:
 		return NewAgent()
 	case AgentConfigIdentity:
@@ -841,6 +941,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAIApp()
 	case AIDomainIdentity:
 		return NewAIDomain()
+	case AIGatewayIdentity:
+		return NewAIGateway()
+	case AIGatewayClientIdentity:
+		return NewAIGatewayClient()
+	case AIGatewayConfIdentity:
+		return NewAIGatewayConf()
+	case AIGatewayConnectorIdentity:
+		return NewAIGatewayConnector()
 	case AIMCPServerIdentity:
 		return NewAIMCPServer()
 	case AIPluginIdentity:
@@ -879,6 +987,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewCustomDataType()
 	case DataSetIdentity:
 		return NewDataSet()
+	case DeploymentIdentity:
+		return NewDeployment()
+	case DeploymentInstanceIdentity:
+		return NewDeploymentInstance()
 	case DigestReportIdentity:
 		return NewDigestReport()
 	case DigestReportRequestIdentity:
@@ -901,6 +1013,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewGatewayInstance()
 	case GitbookTokenIdentity:
 		return NewGitbookToken()
+	case HintIdentity:
+		return NewHint()
 	case IdentityModifierIdentity:
 		return NewIdentityModifier()
 	case IgnoredDomainIdentity:
@@ -969,12 +1083,16 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewProviderTeam()
 	case ProviderTokenIdentity:
 		return NewProviderToken()
+	case ProviderTokenPoolIdentity:
+		return NewProviderTokenPool()
 	case ProviderUsageReportIdentity:
 		return NewProviderUsageReport()
 	case ProxyConfIdentity:
 		return NewProxyConf()
 	case ProxyRoundtripIdentity:
 		return NewProxyRoundtrip()
+	case PublicKeyIdentity:
+		return NewPublicKey()
 	case QueryIdentity:
 		return NewQuery()
 	case QueryRangeIdentity:
@@ -1013,6 +1131,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSlug()
 	case TeamIdentity:
 		return NewTeam()
+	case ThreatDefinitionIdentity:
+		return NewThreatDefinition()
 	case TraceIdentity:
 		return NewTrace()
 	case TraceRefIdentity:
@@ -1046,6 +1166,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	case AccessPolicyIdentity:
 		return NewSparseAccessPolicy()
+	case AdminLicenseIdentity:
+		return NewSparseAdminLicense()
 	case AgentIdentity:
 		return NewSparseAgent()
 	case AgentConfigIdentity:
@@ -1056,6 +1178,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAIApp()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
+	case AIGatewayIdentity:
+		return NewSparseAIGateway()
+	case AIGatewayClientIdentity:
+		return NewSparseAIGatewayClient()
+	case AIGatewayConfIdentity:
+		return NewSparseAIGatewayConf()
+	case AIGatewayConnectorIdentity:
+		return NewSparseAIGatewayConnector()
 	case AIMCPServerIdentity:
 		return NewSparseAIMCPServer()
 	case AIPluginIdentity:
@@ -1094,6 +1224,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseCustomDataType()
 	case DataSetIdentity:
 		return NewSparseDataSet()
+	case DeploymentIdentity:
+		return NewSparseDeployment()
+	case DeploymentInstanceIdentity:
+		return NewSparseDeploymentInstance()
 	case DigestReportIdentity:
 		return NewSparseDigestReport()
 	case DigestReportRequestIdentity:
@@ -1116,6 +1250,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseGatewayInstance()
 	case GitbookTokenIdentity:
 		return NewSparseGitbookToken()
+	case HintIdentity:
+		return NewSparseHint()
 	case IdentityModifierIdentity:
 		return NewSparseIdentityModifier()
 	case IgnoredDomainIdentity:
@@ -1184,12 +1320,16 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseProviderTeam()
 	case ProviderTokenIdentity:
 		return NewSparseProviderToken()
+	case ProviderTokenPoolIdentity:
+		return NewSparseProviderTokenPool()
 	case ProviderUsageReportIdentity:
 		return NewSparseProviderUsageReport()
 	case ProxyConfIdentity:
 		return NewSparseProxyConf()
 	case ProxyRoundtripIdentity:
 		return NewSparseProxyRoundtrip()
+	case PublicKeyIdentity:
+		return NewSparsePublicKey()
 	case QueryIdentity:
 		return NewSparseQuery()
 	case QueryRangeIdentity:
@@ -1226,6 +1366,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSlug()
 	case TeamIdentity:
 		return NewSparseTeam()
+	case ThreatDefinitionIdentity:
+		return NewSparseThreatDefinition()
 	case TraceIdentity:
 		return NewSparseTrace()
 	case TraceRefIdentity:
@@ -1269,6 +1411,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	case AccessPolicyIdentity:
 		return &AccessPoliciesList{}
+	case AdminLicenseIdentity:
+		return &AdminLicensesList{}
 	case AgentIdentity:
 		return &AgentsList{}
 	case AgentConfigIdentity:
@@ -1279,6 +1423,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIAppsList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
+	case AIGatewayIdentity:
+		return &AIGatewaysList{}
+	case AIGatewayClientIdentity:
+		return &AIGatewayClientsList{}
+	case AIGatewayConfIdentity:
+		return &AIGatewayConfsList{}
+	case AIGatewayConnectorIdentity:
+		return &AIGatewayConnectorsList{}
 	case AIMCPServerIdentity:
 		return &AIMCPServersList{}
 	case AIPluginIdentity:
@@ -1317,6 +1469,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &CustomDataTypesList{}
 	case DataSetIdentity:
 		return &DataSetsList{}
+	case DeploymentIdentity:
+		return &DeploymentsList{}
+	case DeploymentInstanceIdentity:
+		return &DeploymentInstancesList{}
 	case DigestReportIdentity:
 		return &DigestReportsList{}
 	case DigestReportRequestIdentity:
@@ -1339,6 +1495,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &GatewayInstancesList{}
 	case GitbookTokenIdentity:
 		return &GitbookTokensList{}
+	case HintIdentity:
+		return &HintsList{}
 	case IdentityModifierIdentity:
 		return &IdentityModifiersList{}
 	case IgnoredDomainIdentity:
@@ -1407,12 +1565,16 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ProviderTeamsList{}
 	case ProviderTokenIdentity:
 		return &ProviderTokensList{}
+	case ProviderTokenPoolIdentity:
+		return &ProviderTokenPoolsList{}
 	case ProviderUsageReportIdentity:
 		return &ProviderUsageReportsList{}
 	case ProxyConfIdentity:
 		return &ProxyConfsList{}
 	case ProxyRoundtripIdentity:
 		return &ProxyRoundtripsList{}
+	case PublicKeyIdentity:
+		return &PublicKeysList{}
 	case QueryIdentity:
 		return &QueriesList{}
 	case QueryRangeIdentity:
@@ -1449,6 +1611,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SlugsList{}
 	case TeamIdentity:
 		return &TeamsList{}
+	case ThreatDefinitionIdentity:
+		return &ThreatDefinitionsList{}
 	case TraceIdentity:
 		return &TracesList{}
 	case TraceRefIdentity:
@@ -1482,6 +1646,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	case AccessPolicyIdentity:
 		return &SparseAccessPoliciesList{}
+	case AdminLicenseIdentity:
+		return &SparseAdminLicensesList{}
 	case AgentIdentity:
 		return &SparseAgentsList{}
 	case AgentConfigIdentity:
@@ -1492,6 +1658,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
+	case AIGatewayIdentity:
+		return &SparseAIGatewaysList{}
+	case AIGatewayClientIdentity:
+		return &SparseAIGatewayClientsList{}
+	case AIGatewayConfIdentity:
+		return &SparseAIGatewayConfsList{}
+	case AIGatewayConnectorIdentity:
+		return &SparseAIGatewayConnectorsList{}
 	case AIMCPServerIdentity:
 		return &SparseAIMCPServersList{}
 	case AIPluginIdentity:
@@ -1530,6 +1704,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseCustomDataTypesList{}
 	case DataSetIdentity:
 		return &SparseDataSetsList{}
+	case DeploymentIdentity:
+		return &SparseDeploymentsList{}
+	case DeploymentInstanceIdentity:
+		return &SparseDeploymentInstancesList{}
 	case DigestReportIdentity:
 		return &SparseDigestReportsList{}
 	case DigestReportRequestIdentity:
@@ -1552,6 +1730,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseGatewayInstancesList{}
 	case GitbookTokenIdentity:
 		return &SparseGitbookTokensList{}
+	case HintIdentity:
+		return &SparseHintsList{}
 	case IdentityModifierIdentity:
 		return &SparseIdentityModifiersList{}
 	case IgnoredDomainIdentity:
@@ -1620,12 +1800,16 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseProviderTeamsList{}
 	case ProviderTokenIdentity:
 		return &SparseProviderTokensList{}
+	case ProviderTokenPoolIdentity:
+		return &SparseProviderTokenPoolsList{}
 	case ProviderUsageReportIdentity:
 		return &SparseProviderUsageReportsList{}
 	case ProxyConfIdentity:
 		return &SparseProxyConfsList{}
 	case ProxyRoundtripIdentity:
 		return &SparseProxyRoundtripsList{}
+	case PublicKeyIdentity:
+		return &SparsePublicKeysList{}
 	case QueryIdentity:
 		return &SparseQueriesList{}
 	case QueryRangeIdentity:
@@ -1662,6 +1846,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSlugsList{}
 	case TeamIdentity:
 		return &SparseTeamsList{}
+	case ThreatDefinitionIdentity:
+		return &SparseThreatDefinitionsList{}
 	case TraceIdentity:
 		return &SparseTracesList{}
 	case TraceRefIdentity:
@@ -1731,6 +1917,14 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAIDSectionPlan()
 	case "aidsummary", "AIDSummary":
 		return NewAIDSummary()
+	case "aigatewayconfconnector", "AIGatewayConfConnector":
+		return NewAIGatewayConfConnector()
+	case "aigatewayconfmcptool", "AIGatewayConfMCPTool":
+		return NewAIGatewayConfMCPTool()
+	case "aigatewayconftoken", "AIGatewayConfToken":
+		return NewAIGatewayConfToken()
+	case "aigatewayconftokenpool", "AIGatewayConfTokenPool":
+		return NewAIGatewayConfTokenPool()
 	case "aimcpserversummary", "AIMCPServerSummary":
 		return NewAIMCPServerSummary()
 	case "aipluginide", "AIPluginIDE":
@@ -1739,6 +1933,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAIPluginSummary()
 	case "aipluginwebext", "AIPluginWebExt":
 		return NewAIPluginWebExt()
+	case "aiskillsummary", "AISkillSummary":
+		return NewAISkillSummary()
 	case "aitoolsummary", "AIToolSummary":
 		return NewAIToolSummary()
 	case "alertevent", "AlertEvent":
@@ -1753,6 +1949,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAppComponentEgress()
 	case "appcomponentingress", "AppComponentIngress":
 		return NewAppComponentIngress()
+	case "appcomponentprovider", "AppComponentProvider":
+		return NewAppComponentProvider()
 	case "appcomponentselector", "AppComponentSelector":
 		return NewAppComponentSelector()
 	case "appgraph", "AppGraph":
@@ -1793,14 +1991,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewDomainHits()
 	case "driverportrange", "DriverPortRange":
 		return NewDriverPortRange()
-	case "egressdefaultpolicy", "EgressDefaultPolicy":
-		return NewEgressDefaultPolicy()
 	case "egresspolicy", "EgressPolicy":
 		return NewEgressPolicy()
-	case "egresspolicyacl", "EgressPolicyACL":
-		return NewEgressPolicyACL()
-	case "egresspolicyrule", "EgressPolicyRule":
-		return NewEgressPolicyRule()
 	case "extraction", "Extraction":
 		return NewExtraction()
 	case "extractioninformation", "ExtractionInformation":
@@ -1813,16 +2005,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewHost()
 	case "identityref", "IdentityRef":
 		return NewIdentityRef()
-	case "ingressacl", "IngressACL":
-		return NewIngressACL()
-	case "ingresslistener", "IngressListener":
-		return NewIngressListener()
 	case "ingresspolicy", "IngressPolicy":
 		return NewIngressPolicy()
-	case "ingresspolicyrule", "IngressPolicyRule":
-		return NewIngressPolicyRule()
-	case "ingressproxyconfig", "IngressProxyConfig":
-		return NewIngressProxyConfig()
 	case "injector", "Injector":
 		return NewInjector()
 	case "kubernetesworkloadgroupselector", "KubernetesWorkloadGroupSelector":
@@ -1920,11 +2104,16 @@ func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
 		AccessPolicyIdentity,
+		AdminLicenseIdentity,
 		AgentIdentity,
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
+		AIGatewayIdentity,
+		AIGatewayClientIdentity,
+		AIGatewayConfIdentity,
+		AIGatewayConnectorIdentity,
 		AIMCPServerIdentity,
 		AIPluginIdentity,
 		AISkillIdentity,
@@ -1944,6 +2133,8 @@ func AllIdentities() []elemental.Identity {
 		ContentPolicyIdentity,
 		CustomDataTypeIdentity,
 		DataSetIdentity,
+		DeploymentIdentity,
+		DeploymentInstanceIdentity,
 		DigestReportIdentity,
 		DigestReportRequestIdentity,
 		ErrorTransformerIdentity,
@@ -1955,6 +2146,7 @@ func AllIdentities() []elemental.Identity {
 		GatewayIdentity,
 		GatewayInstanceIdentity,
 		GitbookTokenIdentity,
+		HintIdentity,
 		IdentityModifierIdentity,
 		IgnoredDomainIdentity,
 		ImportIdentity,
@@ -1989,9 +2181,11 @@ func AllIdentities() []elemental.Identity {
 		ProviderHostsOverrideIdentity,
 		ProviderTeamIdentity,
 		ProviderTokenIdentity,
+		ProviderTokenPoolIdentity,
 		ProviderUsageReportIdentity,
 		ProxyConfIdentity,
 		ProxyRoundtripIdentity,
+		PublicKeyIdentity,
 		QueryIdentity,
 		QueryRangeIdentity,
 		ResolveIdentity,
@@ -2011,6 +2205,7 @@ func AllIdentities() []elemental.Identity {
 		SinkSplunkIdentity,
 		SlugIdentity,
 		TeamIdentity,
+		ThreatDefinitionIdentity,
 		TraceIdentity,
 		TraceRefIdentity,
 		TraceSearchIdentity,
@@ -2031,6 +2226,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	switch identity {
 	case AccessPolicyIdentity:
 		return []string{}
+	case AdminLicenseIdentity:
+		return []string{}
 	case AgentIdentity:
 		return []string{}
 	case AgentConfigIdentity:
@@ -2040,6 +2237,14 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AIAppIdentity:
 		return []string{}
 	case AIDomainIdentity:
+		return []string{}
+	case AIGatewayIdentity:
+		return []string{}
+	case AIGatewayClientIdentity:
+		return []string{}
+	case AIGatewayConfIdentity:
+		return []string{}
+	case AIGatewayConnectorIdentity:
 		return []string{}
 	case AIMCPServerIdentity:
 		return []string{}
@@ -2079,6 +2284,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case DataSetIdentity:
 		return []string{}
+	case DeploymentIdentity:
+		return []string{}
+	case DeploymentInstanceIdentity:
+		return []string{}
 	case DigestReportIdentity:
 		return []string{}
 	case DigestReportRequestIdentity:
@@ -2100,6 +2309,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case GatewayInstanceIdentity:
 		return []string{}
 	case GitbookTokenIdentity:
+		return []string{}
+	case HintIdentity:
 		return []string{}
 	case IdentityModifierIdentity:
 		return []string{}
@@ -2169,11 +2380,15 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case ProviderTokenIdentity:
 		return []string{}
+	case ProviderTokenPoolIdentity:
+		return []string{}
 	case ProviderUsageReportIdentity:
 		return []string{}
 	case ProxyConfIdentity:
 		return []string{}
 	case ProxyRoundtripIdentity:
+		return []string{}
+	case PublicKeyIdentity:
 		return []string{}
 	case QueryIdentity:
 		return []string{}
@@ -2212,6 +2427,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SlugIdentity:
 		return []string{}
 	case TeamIdentity:
+		return []string{}
+	case ThreatDefinitionIdentity:
 		return []string{}
 	case TraceIdentity:
 		return []string{}

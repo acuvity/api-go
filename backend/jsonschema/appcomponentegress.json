@@ -1,6 +1,7 @@
 {
   "$extends": [
-    "@appproxypolicy"
+    "@appproxypolicy",
+    "@failclose"
   ],
   "$friendlyName": "App Component Egress",
   "$friendlyNamePlural": "App Component Egress",
@@ -11,11 +12,33 @@
   "additionalProperties": false,
   "description": "Represents the egress configuration of an application component.",
   "properties": {
-    "defaultPolicy": {
-      "$friendlyName": "Default Policy",
-      "$ref": "egressdefaultpolicy.json",
-      "description": "The default policy settings for egress connections.",
-      "title": "defaultPolicy"
+    "defaultPolicyAccessDeniedMessage": {
+      "$friendlyName": "Policy Denied Message",
+      "description": "The message that is sent if the access is denied by the default policy deny action.",
+      "title": "defaultPolicyAccessDeniedMessage",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "defaultPolicyAction": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Default Policy Action",
+      "description": "The default action to take for connections ingressing to the proxy of this workload that do not match any of the policies.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "defaultPolicyAction"
+    },
+    "failClose": {
+      "$friendlyName": "Fail Close",
+      "description": "If true, when any non-user-facing platform stage fails during request handling (extractor, mapper, analyzer, content policy, body read, etc.), the request is rejected. When false (default), the request is allowed through unanalyzed (fail-open), trading safety for availability. User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected and continue to be enforced. Default false.",
+      "title": "failClose",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "policies": {
       "$friendlyName": "Policies",

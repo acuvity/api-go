@@ -124,6 +124,9 @@ type MCPGateway struct {
 	// The last ping recorded for the agent.
 	Ping time.Time `json:"ping" msgpack:"ping" bson:"ping" mapstructure:"ping,omitempty"`
 
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
+
 	// The public URL of the gateway.
 	PublicURL string `json:"publicURL" msgpack:"publicURL" bson:"publicurl" mapstructure:"publicURL,omitempty"`
 
@@ -150,6 +153,7 @@ func NewMCPGateway() *MCPGateway {
 
 	return &MCPGateway{
 		ModelVersion: 1,
+		Propagate:    true,
 	}
 }
 
@@ -192,6 +196,7 @@ func (o *MCPGateway) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.OauthApplication = o.OauthApplication
 	s.Ping = o.Ping
+	s.Propagate = o.Propagate
 	s.PublicURL = o.PublicURL
 	s.Servers = o.Servers
 	s.Status = o.Status
@@ -224,6 +229,7 @@ func (o *MCPGateway) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.OauthApplication = s.OauthApplication
 	o.Ping = s.Ping
+	o.Propagate = s.Propagate
 	o.PublicURL = s.PublicURL
 	o.Servers = s.Servers
 	o.Status = s.Status
@@ -311,6 +317,18 @@ func (o *MCPGateway) SetNamespace(namespace string) {
 	o.Namespace = namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *MCPGateway) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *MCPGateway) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
 func (o *MCPGateway) GetUpdateTime() time.Time {
 
@@ -339,6 +357,7 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:        &o.Namespace,
 			OauthApplication: o.OauthApplication,
 			Ping:             &o.Ping,
+			Propagate:        &o.Propagate,
 			PublicURL:        &o.PublicURL,
 			Servers:          &o.Servers,
 			Status:           &o.Status,
@@ -369,6 +388,8 @@ func (o *MCPGateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.OauthApplication = o.OauthApplication
 		case "ping":
 			sp.Ping = &(o.Ping)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		case "publicURL":
 			sp.PublicURL = &(o.PublicURL)
 		case "servers":
@@ -420,6 +441,9 @@ func (o *MCPGateway) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Ping != nil {
 		o.Ping = *so.Ping
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 	if so.PublicURL != nil {
 		o.PublicURL = *so.PublicURL
@@ -541,6 +565,9 @@ func (o *MCPGateway) Validate() error {
 	if err := ValidateURL("publicURL", o.PublicURL); err != nil {
 		errors = errors.Append(err)
 	}
+	if err := ValidateWebSchemeURL("publicURL", o.PublicURL); err != nil {
+		errors = errors.Append(err)
+	}
 
 	for i, sub := range o.Servers {
 		if sub == nil {
@@ -612,6 +639,8 @@ func (o *MCPGateway) ValueForAttribute(name string) any {
 		return o.OauthApplication
 	case "ping":
 		return o.Ping
+	case "propagate":
+		return o.Propagate
 	case "publicURL":
 		return o.PublicURL
 	case "servers":
@@ -748,6 +777,19 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"PublicURL": {
 		AllowedChoices: []string{},
@@ -919,6 +961,19 @@ same import operation.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"publicurl": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "publicurl",
@@ -1060,6 +1115,9 @@ type SparseMCPGateway struct {
 	// The last ping recorded for the agent.
 	Ping *time.Time `json:"ping,omitempty" msgpack:"ping,omitempty" bson:"ping,omitempty" mapstructure:"ping,omitempty"`
 
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
 	// The public URL of the gateway.
 	PublicURL *string `json:"publicURL,omitempty" msgpack:"publicURL,omitempty" bson:"publicurl,omitempty" mapstructure:"publicURL,omitempty"`
 
@@ -1148,6 +1206,9 @@ func (o *SparseMCPGateway) GetBSON() (any, error) {
 	if o.Ping != nil {
 		s.Ping = o.Ping
 	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
 	if o.PublicURL != nil {
 		s.PublicURL = o.PublicURL
 	}
@@ -1209,6 +1270,9 @@ func (o *SparseMCPGateway) SetBSON(raw bson.Raw) error {
 	if s.Ping != nil {
 		o.Ping = s.Ping
 	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
 	if s.PublicURL != nil {
 		o.PublicURL = s.PublicURL
 	}
@@ -1267,6 +1331,9 @@ func (o *SparseMCPGateway) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Ping != nil {
 		out.Ping = *o.Ping
+	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
 	}
 	if o.PublicURL != nil {
 		out.PublicURL = *o.PublicURL
@@ -1400,6 +1467,22 @@ func (o *SparseMCPGateway) SetNamespace(namespace string) {
 	o.Namespace = &namespace
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseMCPGateway) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseMCPGateway) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
 func (o *SparseMCPGateway) GetUpdateTime() (out time.Time) {
 
@@ -1450,6 +1533,7 @@ type mongoAttributesMCPGateway struct {
 	Namespace        string                `bson:"namespace,omitempty"`
 	OauthApplication *IdentityRef          `bson:"oauthapplication,omitempty"`
 	Ping             time.Time             `bson:"ping"`
+	Propagate        bool                  `bson:"propagate"`
 	PublicURL        string                `bson:"publicurl"`
 	Servers          []*MCPGatewayServer   `bson:"servers"`
 	Status           MCPGatewayStatusValue `bson:"status"`
@@ -1467,6 +1551,7 @@ type mongoAttributesSparseMCPGateway struct {
 	Namespace        *string                `bson:"namespace,omitempty"`
 	OauthApplication *IdentityRef           `bson:"oauthapplication,omitempty"`
 	Ping             *time.Time             `bson:"ping,omitempty"`
+	Propagate        *bool                  `bson:"propagate,omitempty"`
 	PublicURL        *string                `bson:"publicurl,omitempty"`
 	Servers          *[]*MCPGatewayServer   `bson:"servers,omitempty"`
 	Status           *MCPGatewayStatusValue `bson:"status,omitempty"`

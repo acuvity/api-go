@@ -86,7 +86,7 @@ func (o *Diagnostic) BleveType() string {
 // Doc returns the documentation for the object
 func (o *Diagnostic) Doc() string {
 
-	return `Represents a diagnostic message for a gateway instance.`
+	return `Represents a diagnostic message.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
