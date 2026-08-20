@@ -159,6 +159,10 @@ type AgentConfig struct {
 	// will be truncated.
 	DriverExcludeAddressTimeout string `json:"driverExcludeAddressTimeout" msgpack:"driverExcludeAddressTimeout" bson:"driverexcludeaddresstimeout" mapstructure:"driverExcludeAddressTimeout,omitempty"`
 
+	// The case-insensitive list of processes the driver will exclude from steering
+	// traffic.
+	DriverExcludedProcesses []string `json:"driverExcludedProcesses" msgpack:"driverExcludedProcesses" bson:"-" mapstructure:"driverExcludedProcesses,omitempty"`
+
 	// The list of port ranges for the driver to listen on.
 	DriverPortRanges []*DriverPortRange `json:"driverPortRanges" msgpack:"driverPortRanges" bson:"driverportranges" mapstructure:"driverPortRanges,omitempty"`
 
@@ -239,6 +243,9 @@ type AgentConfig struct {
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled bool `json:"systemProxyManagementDisabled" msgpack:"systemProxyManagementDisabled" bson:"systemproxymanagementdisabled" mapstructure:"systemProxyManagementDisabled,omitempty"`
 
+	// If true, the systray will not show itself in the tray.
+	SystrayGUIHide bool `json:"systrayGUIHide" msgpack:"systrayGUIHide" bson:"systrayguihide" mapstructure:"systrayGUIHide,omitempty"`
+
 	// The interval in which the agent will check for token time to live changes.
 	// Useful for revocation management.
 	TokenTTLFetchInterval string `json:"tokenTTLFetchInterval" msgpack:"tokenTTLFetchInterval" bson:"tokenttlfetchinterval" mapstructure:"tokenTTLFetchInterval,omitempty"`
@@ -293,6 +300,7 @@ func NewAgentConfig() *AgentConfig {
 		DiagnosticUploadDeadline:    "4h",
 		DomainReportInterval:        "10m",
 		DriverExcludeAddressTimeout: "1h",
+		DriverExcludedProcesses:     []string{},
 		ListeningPort:               "8081",
 		PingInterval:                "6h",
 		ReleaseTrain:                AgentConfigReleaseTrainStable,
@@ -373,6 +381,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ScanThrottle = o.ScanThrottle
 	s.Subject = o.Subject
 	s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
+	s.SystrayGUIHide = o.SystrayGUIHide
 	s.TokenTTLFetchInterval = o.TokenTTLFetchInterval
 	s.TokenValidity = o.TokenValidity
 	s.TunnelEnabled = o.TunnelEnabled
@@ -436,6 +445,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ScanThrottle = s.ScanThrottle
 	o.Subject = s.Subject
 	o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
+	o.SystrayGUIHide = s.SystrayGUIHide
 	o.TokenTTLFetchInterval = s.TokenTTLFetchInterval
 	o.TokenValidity = s.TokenValidity
 	o.TunnelEnabled = s.TunnelEnabled
@@ -560,6 +570,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DomainReportInterval:          &o.DomainReportInterval,
 			DriverEnabled:                 &o.DriverEnabled,
 			DriverExcludeAddressTimeout:   &o.DriverExcludeAddressTimeout,
+			DriverExcludedProcesses:       &o.DriverExcludedProcesses,
 			DriverPortRanges:              &o.DriverPortRanges,
 			DriverQUICBlockDisabled:       &o.DriverQUICBlockDisabled,
 			EmergencyPauseEnabled:         &o.EmergencyPauseEnabled,
@@ -583,6 +594,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ScanThrottle:                  &o.ScanThrottle,
 			Subject:                       &o.Subject,
 			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
+			SystrayGUIHide:                &o.SystrayGUIHide,
 			TokenTTLFetchInterval:         &o.TokenTTLFetchInterval,
 			TokenValidity:                 &o.TokenValidity,
 			TunnelEnabled:                 &o.TunnelEnabled,
@@ -627,6 +639,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DriverEnabled = &(o.DriverEnabled)
 		case "driverExcludeAddressTimeout":
 			sp.DriverExcludeAddressTimeout = &(o.DriverExcludeAddressTimeout)
+		case "driverExcludedProcesses":
+			sp.DriverExcludedProcesses = &(o.DriverExcludedProcesses)
 		case "driverPortRanges":
 			sp.DriverPortRanges = &(o.DriverPortRanges)
 		case "driverQUICBlockDisabled":
@@ -673,6 +687,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Subject = &(o.Subject)
 		case "systemProxyManagementDisabled":
 			sp.SystemProxyManagementDisabled = &(o.SystemProxyManagementDisabled)
+		case "systrayGUIHide":
+			sp.SystrayGUIHide = &(o.SystrayGUIHide)
 		case "tokenTTLFetchInterval":
 			sp.TokenTTLFetchInterval = &(o.TokenTTLFetchInterval)
 		case "tokenValidity":
@@ -748,6 +764,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	if so.DriverExcludeAddressTimeout != nil {
 		o.DriverExcludeAddressTimeout = *so.DriverExcludeAddressTimeout
 	}
+	if so.DriverExcludedProcesses != nil {
+		o.DriverExcludedProcesses = *so.DriverExcludedProcesses
+	}
 	if so.DriverPortRanges != nil {
 		o.DriverPortRanges = *so.DriverPortRanges
 	}
@@ -816,6 +835,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = *so.SystemProxyManagementDisabled
+	}
+	if so.SystrayGUIHide != nil {
+		o.SystrayGUIHide = *so.SystrayGUIHide
 	}
 	if so.TokenTTLFetchInterval != nil {
 		o.TokenTTLFetchInterval = *so.TokenTTLFetchInterval
@@ -1114,6 +1136,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DriverEnabled
 	case "driverExcludeAddressTimeout":
 		return o.DriverExcludeAddressTimeout
+	case "driverExcludedProcesses":
+		return o.DriverExcludedProcesses
 	case "driverPortRanges":
 		return o.DriverPortRanges
 	case "driverQUICBlockDisabled":
@@ -1160,6 +1184,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.Subject
 	case "systemProxyManagementDisabled":
 		return o.SystemProxyManagementDisabled
+	case "systrayGUIHide":
+		return o.SystrayGUIHide
 	case "tokenTTLFetchInterval":
 		return o.TokenTTLFetchInterval
 	case "tokenValidity":
@@ -1348,6 +1374,16 @@ will be truncated.`,
 		Name:    "driverExcludeAddressTimeout",
 		Stored:  true,
 		Type:    "string",
+	},
+	"DriverExcludedProcesses": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DriverExcludedProcesses",
+		Description: `The case-insensitive list of processes the driver will exclude from steering
+traffic.`,
+		Exposed: true,
+		Name:    "driverExcludedProcesses",
+		SubType: "string",
+		Type:    "list",
 	},
 	"DriverPortRanges": {
 		AllowedChoices: []string{},
@@ -1618,6 +1654,16 @@ speed.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"SystrayGUIHide": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "systrayguihide",
+		ConvertedName:  "SystrayGUIHide",
+		Description:    `If true, the systray will not show itself in the tray.`,
+		Exposed:        true,
+		Name:           "systrayGUIHide",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"TokenTTLFetchInterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tokenttlfetchinterval",
@@ -1883,6 +1929,16 @@ will be truncated.`,
 		Name:    "driverExcludeAddressTimeout",
 		Stored:  true,
 		Type:    "string",
+	},
+	"driverexcludedprocesses": {
+		AllowedChoices: []string{},
+		ConvertedName:  "DriverExcludedProcesses",
+		Description: `The case-insensitive list of processes the driver will exclude from steering
+traffic.`,
+		Exposed: true,
+		Name:    "driverExcludedProcesses",
+		SubType: "string",
+		Type:    "list",
 	},
 	"driverportranges": {
 		AllowedChoices: []string{},
@@ -2153,6 +2209,16 @@ speed.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"systrayguihide": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "systrayguihide",
+		ConvertedName:  "SystrayGUIHide",
+		Description:    `If true, the systray will not show itself in the tray.`,
+		Exposed:        true,
+		Name:           "systrayGUIHide",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"tokenttlfetchinterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tokenttlfetchinterval",
@@ -2367,6 +2433,10 @@ type SparseAgentConfig struct {
 	// will be truncated.
 	DriverExcludeAddressTimeout *string `json:"driverExcludeAddressTimeout,omitempty" msgpack:"driverExcludeAddressTimeout,omitempty" bson:"driverexcludeaddresstimeout,omitempty" mapstructure:"driverExcludeAddressTimeout,omitempty"`
 
+	// The case-insensitive list of processes the driver will exclude from steering
+	// traffic.
+	DriverExcludedProcesses *[]string `json:"driverExcludedProcesses,omitempty" msgpack:"driverExcludedProcesses,omitempty" bson:"-" mapstructure:"driverExcludedProcesses,omitempty"`
+
 	// The list of port ranges for the driver to listen on.
 	DriverPortRanges *[]*DriverPortRange `json:"driverPortRanges,omitempty" msgpack:"driverPortRanges,omitempty" bson:"driverportranges,omitempty" mapstructure:"driverPortRanges,omitempty"`
 
@@ -2446,6 +2516,9 @@ type SparseAgentConfig struct {
 
 	// If disabled, the system proxy needs to be configured manually.
 	SystemProxyManagementDisabled *bool `json:"systemProxyManagementDisabled,omitempty" msgpack:"systemProxyManagementDisabled,omitempty" bson:"systemproxymanagementdisabled,omitempty" mapstructure:"systemProxyManagementDisabled,omitempty"`
+
+	// If true, the systray will not show itself in the tray.
+	SystrayGUIHide *bool `json:"systrayGUIHide,omitempty" msgpack:"systrayGUIHide,omitempty" bson:"systrayguihide,omitempty" mapstructure:"systrayGUIHide,omitempty"`
 
 	// The interval in which the agent will check for token time to live changes.
 	// Useful for revocation management.
@@ -2639,6 +2712,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.SystemProxyManagementDisabled != nil {
 		s.SystemProxyManagementDisabled = o.SystemProxyManagementDisabled
 	}
+	if o.SystrayGUIHide != nil {
+		s.SystrayGUIHide = o.SystrayGUIHide
+	}
 	if o.TokenTTLFetchInterval != nil {
 		s.TokenTTLFetchInterval = o.TokenTTLFetchInterval
 	}
@@ -2793,6 +2869,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.SystemProxyManagementDisabled != nil {
 		o.SystemProxyManagementDisabled = s.SystemProxyManagementDisabled
 	}
+	if s.SystrayGUIHide != nil {
+		o.SystrayGUIHide = s.SystrayGUIHide
+	}
 	if s.TokenTTLFetchInterval != nil {
 		o.TokenTTLFetchInterval = s.TokenTTLFetchInterval
 	}
@@ -2879,6 +2958,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	if o.DriverExcludeAddressTimeout != nil {
 		out.DriverExcludeAddressTimeout = *o.DriverExcludeAddressTimeout
 	}
+	if o.DriverExcludedProcesses != nil {
+		out.DriverExcludedProcesses = *o.DriverExcludedProcesses
+	}
 	if o.DriverPortRanges != nil {
 		out.DriverPortRanges = *o.DriverPortRanges
 	}
@@ -2947,6 +3029,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.SystemProxyManagementDisabled != nil {
 		out.SystemProxyManagementDisabled = *o.SystemProxyManagementDisabled
+	}
+	if o.SystrayGUIHide != nil {
+		out.SystrayGUIHide = *o.SystrayGUIHide
 	}
 	if o.TokenTTLFetchInterval != nil {
 		out.TokenTTLFetchInterval = *o.TokenTTLFetchInterval
@@ -3191,6 +3276,7 @@ type mongoAttributesAgentConfig struct {
 	ScanThrottle                  string                           `bson:"scanthrottle"`
 	Subject                       [][]string                       `bson:"subject"`
 	SystemProxyManagementDisabled bool                             `bson:"systemproxymanagementdisabled"`
+	SystrayGUIHide                bool                             `bson:"systrayguihide"`
 	TokenTTLFetchInterval         string                           `bson:"tokenttlfetchinterval"`
 	TokenValidity                 string                           `bson:"tokenvalidity"`
 	TunnelEnabled                 bool                             `bson:"tunnelenabled"`
@@ -3239,6 +3325,7 @@ type mongoAttributesSparseAgentConfig struct {
 	ScanThrottle                  *string                           `bson:"scanthrottle,omitempty"`
 	Subject                       *[][]string                       `bson:"subject,omitempty"`
 	SystemProxyManagementDisabled *bool                             `bson:"systemproxymanagementdisabled,omitempty"`
+	SystrayGUIHide                *bool                             `bson:"systrayguihide,omitempty"`
 	TokenTTLFetchInterval         *string                           `bson:"tokenttlfetchinterval,omitempty"`
 	TokenValidity                 *string                           `bson:"tokenvalidity,omitempty"`
 	TunnelEnabled                 *bool                             `bson:"tunnelenabled,omitempty"`

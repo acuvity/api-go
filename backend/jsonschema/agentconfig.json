@@ -147,6 +147,18 @@
         "null"
       ]
     },
+    "driverExcludedProcesses": {
+      "$friendlyName": "Driver Excluded Processes",
+      "description": "The case-insensitive list of processes the driver will exclude from steering traffic.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "driverExcludedProcesses",
+      "type": "array"
+    },
     "driverPortRanges": {
       "$friendlyName": "Driver Port Ranges",
       "description": "The list of port ranges for the driver to listen on.",
@@ -364,6 +376,15 @@
       "$friendlyName": "System Proxy Management Disabled",
       "description": "If disabled, the system proxy needs to be configured manually.",
       "title": "systemProxyManagementDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "systrayGUIHide": {
+      "$friendlyName": "Systray Hide GUI",
+      "description": "If true, the systray will not show itself in the tray.",
+      "title": "systrayGUIHide",
       "type": [
         "boolean",
         "null"

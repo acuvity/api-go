@@ -1345,6 +1345,10 @@ Stores the configuration information for the acushield agent.
   "domainReportInterval": "30m",
   "driverEnabled": false,
   "driverExcludeAddressTimeout": "10m",
+  "driverExcludedProcesses": [
+    "zsatunnel",
+    "zsatraymanager"
+  ],
   "driverQUICBlockDisabled": false,
   "emergencyPauseEnabled": false,
   "listeningPort": "8081",
@@ -1366,6 +1370,7 @@ Stores the configuration information for the acushield agent.
     ]
   ],
   "systemProxyManagementDisabled": false,
+  "systrayGUIHide": false,
   "tokenTTLFetchInterval": "1h",
   "tokenValidity": "24h",
   "tunnelEnabled": false,
@@ -1522,6 +1527,13 @@ Default value:
 ```json
 "1h"
 ```
+
+##### `driverExcludedProcesses`
+
+Type: `[]string`
+
+The case-insensitive list of processes the driver will exclude from steering
+traffic.
 
 ##### `driverPortRanges`
 
@@ -1707,6 +1719,12 @@ A tag expression that identifies the user(s) tied to this config.
 Type: `boolean`
 
 If disabled, the system proxy needs to be configured manually.
+
+##### `systrayGUIHide`
+
+Type: `boolean`
+
+If true, the systray will not show itself in the tray.
 
 ##### `tokenTTLFetchInterval`
 

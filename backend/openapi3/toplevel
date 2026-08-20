@@ -546,6 +546,17 @@
             "example": "10m",
             "type": "string"
           },
+          "driverExcludedProcesses": {
+            "description": "The case-insensitive list of processes the driver will exclude from steering\ntraffic.",
+            "example": [
+              "zsatunnel",
+              "zsatraymanager"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "driverPortRanges": {
             "description": "The list of port ranges for the driver to listen on.",
             "items": {
@@ -675,6 +686,10 @@
           },
           "systemProxyManagementDisabled": {
             "description": "If disabled, the system proxy needs to be configured manually.",
+            "type": "boolean"
+          },
+          "systrayGUIHide": {
+            "description": "If true, the systray will not show itself in the tray.",
             "type": "boolean"
           },
           "tokenTTLFetchInterval": {
