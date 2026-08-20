@@ -91,6 +91,10 @@ type ErrorTransformer struct {
 	// - `action`: The decision (`ask` or `deny`)
 	// - `messages`: a list containing table object with keys `reason` and `link`.
 	// - `code`: the original error code.
+	// - `context`: transport metadata. `context.transport` is `http` or `websocket`.
+	//   Websocket contexts contain `direction` (`input` or `output`), a unique
+	//   `error_id`, `ticket`, and request `method`, `host`, and `path`. They also
+	//   contain the triggering frame `type` (`text` or `binary`) and `body`.
 	//
 	// This function must return either nil, an empty table, or a table containing the
 	// following keys:
@@ -98,6 +102,11 @@ type ErrorTransformer struct {
 	// - `code`: the transformer HTTP code as a number.
 	// - `content_type`: the transformed Content-Type as a string.
 	// - `body`: The transformer body as a string.
+	// - `websocket`: an optional table containing provider-native `frames`, whether to
+	//   `terminate` the connection (defaults to true), an optional `close_code`, and
+	//   optional `assistant_content` containing the exact semantic Assistant message
+	//   rendered by those frames. Each frame must contain a `type` (`text` or
+	//   `binary`) and string `body`.
 	Script string `json:"script" msgpack:"script" bson:"script" mapstructure:"script,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -326,13 +335,22 @@ that will take as parameters:
 - ` + "`" + `action` + "`" + `: The decision (` + "`" + `ask` + "`" + ` or ` + "`" + `deny` + "`" + `)
 - ` + "`" + `messages` + "`" + `: a list containing table object with keys ` + "`" + `reason` + "`" + ` and ` + "`" + `link` + "`" + `.
 - ` + "`" + `code` + "`" + `: the original error code.
+- ` + "`" + `context` + "`" + `: transport metadata. ` + "`" + `context.transport` + "`" + ` is ` + "`" + `http` + "`" + ` or ` + "`" + `websocket` + "`" + `.
+  Websocket contexts contain ` + "`" + `direction` + "`" + ` (` + "`" + `input` + "`" + ` or ` + "`" + `output` + "`" + `), a unique
+  ` + "`" + `error_id` + "`" + `, ` + "`" + `ticket` + "`" + `, and request ` + "`" + `method` + "`" + `, ` + "`" + `host` + "`" + `, and ` + "`" + `path` + "`" + `. They also
+  contain the triggering frame ` + "`" + `type` + "`" + ` (` + "`" + `text` + "`" + ` or ` + "`" + `binary` + "`" + `) and ` + "`" + `body` + "`" + `.
 
 This function must return either nil, an empty table, or a table containing the
 following keys:
 
 - ` + "`" + `code` + "`" + `: the transformer HTTP code as a number.
 - ` + "`" + `content_type` + "`" + `: the transformed Content-Type as a string.
-- ` + "`" + `body` + "`" + `: The transformer body as a string.`,
+- ` + "`" + `body` + "`" + `: The transformer body as a string.
+- ` + "`" + `websocket` + "`" + `: an optional table containing provider-native ` + "`" + `frames` + "`" + `, whether to
+  ` + "`" + `terminate` + "`" + ` the connection (defaults to true), an optional ` + "`" + `close_code` + "`" + `, and
+  optional ` + "`" + `assistant_content` + "`" + ` containing the exact semantic Assistant message
+  rendered by those frames. Each frame must contain a ` + "`" + `type` + "`" + ` (` + "`" + `text` + "`" + ` or
+  ` + "`" + `binary` + "`" + `) and string ` + "`" + `body` + "`" + `.`,
 		Exposed: true,
 		Name:    "script",
 		Stored:  true,
@@ -353,13 +371,22 @@ that will take as parameters:
 - ` + "`" + `action` + "`" + `: The decision (` + "`" + `ask` + "`" + ` or ` + "`" + `deny` + "`" + `)
 - ` + "`" + `messages` + "`" + `: a list containing table object with keys ` + "`" + `reason` + "`" + ` and ` + "`" + `link` + "`" + `.
 - ` + "`" + `code` + "`" + `: the original error code.
+- ` + "`" + `context` + "`" + `: transport metadata. ` + "`" + `context.transport` + "`" + ` is ` + "`" + `http` + "`" + ` or ` + "`" + `websocket` + "`" + `.
+  Websocket contexts contain ` + "`" + `direction` + "`" + ` (` + "`" + `input` + "`" + ` or ` + "`" + `output` + "`" + `), a unique
+  ` + "`" + `error_id` + "`" + `, ` + "`" + `ticket` + "`" + `, and request ` + "`" + `method` + "`" + `, ` + "`" + `host` + "`" + `, and ` + "`" + `path` + "`" + `. They also
+  contain the triggering frame ` + "`" + `type` + "`" + ` (` + "`" + `text` + "`" + ` or ` + "`" + `binary` + "`" + `) and ` + "`" + `body` + "`" + `.
 
 This function must return either nil, an empty table, or a table containing the
 following keys:
 
 - ` + "`" + `code` + "`" + `: the transformer HTTP code as a number.
 - ` + "`" + `content_type` + "`" + `: the transformed Content-Type as a string.
-- ` + "`" + `body` + "`" + `: The transformer body as a string.`,
+- ` + "`" + `body` + "`" + `: The transformer body as a string.
+- ` + "`" + `websocket` + "`" + `: an optional table containing provider-native ` + "`" + `frames` + "`" + `, whether to
+  ` + "`" + `terminate` + "`" + ` the connection (defaults to true), an optional ` + "`" + `close_code` + "`" + `, and
+  optional ` + "`" + `assistant_content` + "`" + ` containing the exact semantic Assistant message
+  rendered by those frames. Each frame must contain a ` + "`" + `type` + "`" + ` (` + "`" + `text` + "`" + ` or
+  ` + "`" + `binary` + "`" + `) and string ` + "`" + `body` + "`" + `.`,
 		Exposed: true,
 		Name:    "script",
 		Stored:  true,
@@ -437,6 +464,10 @@ type SparseErrorTransformer struct {
 	// - `action`: The decision (`ask` or `deny`)
 	// - `messages`: a list containing table object with keys `reason` and `link`.
 	// - `code`: the original error code.
+	// - `context`: transport metadata. `context.transport` is `http` or `websocket`.
+	//   Websocket contexts contain `direction` (`input` or `output`), a unique
+	//   `error_id`, `ticket`, and request `method`, `host`, and `path`. They also
+	//   contain the triggering frame `type` (`text` or `binary`) and `body`.
 	//
 	// This function must return either nil, an empty table, or a table containing the
 	// following keys:
@@ -444,6 +475,11 @@ type SparseErrorTransformer struct {
 	// - `code`: the transformer HTTP code as a number.
 	// - `content_type`: the transformed Content-Type as a string.
 	// - `body`: The transformer body as a string.
+	// - `websocket`: an optional table containing provider-native `frames`, whether to
+	//   `terminate` the connection (defaults to true), an optional `close_code`, and
+	//   optional `assistant_content` containing the exact semantic Assistant message
+	//   rendered by those frames. Each frame must contain a `type` (`text` or
+	//   `binary`) and string `body`.
 	Script *string `json:"script,omitempty" msgpack:"script,omitempty" bson:"script,omitempty" mapstructure:"script,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`

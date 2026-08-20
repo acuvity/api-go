@@ -273,6 +273,51 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[AISecurityProbeIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[AISkillIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -714,6 +759,34 @@ func init() {
 			},
 		},
 	}
+
+	relationshipsRegistry[AppAgentConfIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[AppAgentConfUpdateIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[AppComponentIdentity] = &elemental.Relationship{
 		RetrieveMany: map[string]*elemental.RelationshipInfo{
@@ -1417,6 +1490,15 @@ func init() {
 						Name: "delete",
 						Type: "boolean",
 					},
+					{
+						Name:         "mode",
+						Type:         "enum",
+						DefaultValue: "Replace",
+						AllowedChoices: []string{
+							"Replace",
+							"Update",
+						},
+					},
 				},
 			},
 		},
@@ -1563,6 +1645,47 @@ func init() {
 		},
 		Info: map[string]*elemental.RelationshipInfo{
 			"mcpgateway": {},
+		},
+	}
+
+	relationshipsRegistry[MCPToolIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[MCPToolSnapshotIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
 		},
 	}
 
@@ -2459,6 +2582,8 @@ func init() {
 	relationshipsRegistry[SinkDatabahnIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[SinkEmailIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[SinkMSTeamsIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[SinkPagerDutyIdentity] = &elemental.Relationship{}
 

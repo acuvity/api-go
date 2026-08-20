@@ -3,7 +3,9 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@namelinkable",
+    "@auto-propagated"
   ],
   "$friendlyName": "Provider Token Pool",
   "$friendlyNamePlural": "Provider Token Pools",
@@ -46,7 +48,7 @@
     "friendlyName": {
       "$friendlyName": "Friendly Name",
       "$required": true,
-      "description": "Friendly name of the provider token pool.",
+      "description": "Friendly name of the object.",
       "title": "friendlyName",
       "type": "string"
     },
@@ -93,11 +95,13 @@
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "Name of the provider token pool.",
-      "pattern": "^[a-zA-Z0-9-_]+$",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -106,6 +110,16 @@
       "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
         "null"
       ]
     },
@@ -121,8 +135,7 @@
     }
   },
   "required": [
-    "friendlyName",
-    "name"
+    "friendlyName"
   ],
   "title": "ProviderTokenPool",
   "type": "object"

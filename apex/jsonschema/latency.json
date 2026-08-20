@@ -36,6 +36,15 @@
         "null"
       ]
     },
+    "contentAttribution": {
+      "$friendlyName": "Content Attribution",
+      "description": "How much time it took to attribute a content decision to conversation extractions in nanoseconds.",
+      "title": "contentAttribution",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "contentPolicy": {
       "$friendlyName": "Content Policy",
       "description": "How much time it took to run content policy in nanoseconds.",

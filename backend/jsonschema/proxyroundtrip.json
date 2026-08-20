@@ -90,6 +90,15 @@
       ],
       "title": "decision"
     },
+    "deploymentName": {
+      "$friendlyName": "Deployment Name",
+      "description": "This is the name of the deployment (apex instance) that processed this request. Only set when the request was handled by a known deployment.",
+      "title": "deploymentName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "destination": {
       "$friendlyName": "Destination",
       "$ref": "destination.json",
@@ -122,6 +131,51 @@
       },
       "title": "extractions",
       "type": "array"
+    },
+    "gatewayConnectorName": {
+      "$friendlyName": "Gateway Connector Name",
+      "description": "This is the AI gateway connector that this request has been processed through. This is only set for requests where the processor was set to gateway. The AI gateway connector name will be set under gateway name.",
+      "title": "gatewayConnectorName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayConnectorNamespace": {
+      "$friendlyName": "Gateway Connector Namespace",
+      "description": "This is the namespace of the AI gateway connector as encoded in the original request URL. This is only set for requests where the processor was set to gateway.",
+      "title": "gatewayConnectorNamespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "description": "This is the AI gateway that this request has been processed through. This is only set for requests where the processor is set to gateway.",
+      "title": "gatewayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayNamespace": {
+      "$friendlyName": "Gateway Namespace",
+      "description": "This is the namespace of the AI gateway as encoded in the original request URL. This is only set for requests where the processor was set to gateway.",
+      "title": "gatewayNamespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayUpstreamURL": {
+      "$friendlyName": "Gateway Upstream URL",
+      "description": "This is the upstream URL that the AI gateway routed this request to. This is only set for requests where the processor was set to gateway.",
+      "title": "gatewayUpstreamURL",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "hash": {
       "$friendlyName": "Hash",
@@ -185,7 +239,7 @@
     },
     "offband": {
       "$friendlyName": "Offband",
-      "description": "If true, the analysis ran offband. That means that we extracted the data from the user request, assigned team and verified access permissions, but then we forwarded the request as is to the provider untouched immediately, while running the analysis and policies in the background, reporting what we would have done.",
+      "description": "If true, the policy asked for the analysis to run offband. That means that we extracted the data from the user request, verified access permissions, and then made the decision without waiting for the analyzers. The full analyzer set ran afterwards, and this log entry reflects that later evaluation, which can report a stricter outcome than the one the request actually received.",
       "title": "offband",
       "type": [
         "boolean",
@@ -194,7 +248,7 @@
     },
     "permissive": {
       "$friendlyName": "Permissive",
-      "description": "If true, the policy has been applied in permissive mode.  That means that we extracted the data from the user request, assigned team, verified access permissions, run analysis, apply content policies and reported what we would have done, but ultimately let the request go to the provider untouched.",
+      "description": "If true, the policy was applied in permissive mode: the content decision recorded here is what the policy would have enforced, and it was not enforced. The request went to the provider untouched, and no redaction was applied to it. Access was still enforced, so this entry exists only because the request was allowed to reach the content stage.",
       "title": "permissive",
       "type": [
         "boolean",
@@ -229,10 +283,11 @@
     "processor": {
       "$defaultValue": "Proxy",
       "$friendlyName": "Processor",
-      "description": "Denotes the processor of the log. If the processor is Proxy, then the proxy function will further denote if this was a forward proxy or a reverse proxy. If the processor is API, the proxy function will be set to NotApplicable.",
+      "description": "Denotes the processor of the log. If the processor is Proxy or API, then the proxy function will further denote if this was a forward proxy or a reverse proxy. If the processor is Gateway, the proxy function will be set to reverse proxy, and the gateway name and gateway connector name will further denote which gateway and which connector was used.",
       "enum": [
         "Proxy",
-        "API"
+        "API",
+        "Gateway"
       ],
       "title": "processor"
     },
@@ -258,7 +313,7 @@
     "proxyFunction": {
       "$defaultValue": "ForwardProxy",
       "$friendlyName": "Proxy Function",
-      "description": "Denotes the function of this proxy in the chain of servers. By default the apex always sits on the egress side between a client or application and the origin server in which case the apex acts as a forwarding proxy. However, in the case of applications the proxy can also be located before the application as an ingress provider in which case the apex acts as a reverse proxy. If this log is the result of a ScanRequest or PoliceRequest API call, this will be set to NonApplicable and the processor will be API.",
+      "description": "Denotes the proxy function of this processor in the chain of servers. The proxy processor acts as a forwarding proxy on the egress side, between a client or application and the origin server, and as a reverse proxy on the ingress side, in front of an application. The gateway processor always operates as a reverse proxy. The API processor (scan and police APIs) never sit in the data path, but they simulate proxy behaviour, so they are reported as a forwarding or a reverse proxy according to the direction of the request. NotApplicable is currently not in use, and only appears on roundtrips recorded by an older apex.",
       "enum": [
         "ForwardProxy",
         "ReverseProxy",

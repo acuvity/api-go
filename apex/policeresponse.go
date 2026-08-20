@@ -160,6 +160,12 @@ type PoliceResponse struct {
 	// The version of the client used to send the request.
 	ClientVersion string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
+	// If true, the content of the extractions was stripped from the audit entry for
+	// this request, and only the analysis and other metadata were kept. This is
+	// driven by the policy that produced this decision, so it is reported here
+	// because the caller has no other way to know it happened.
+	ContentRedacted bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
+
 	// User-facing outcome of the roundtrip. Reflects the policy
 	// engine's verdict, or in case of platform failure, the result of the
 	// failClose strategy (Deny on fail-close, Allow on fail-open, with
@@ -174,6 +180,9 @@ type PoliceResponse struct {
 	// after 2026-07-19 (two months after the structured RoundtripError
 	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision PoliceResponseDecisionValue `json:"decision" msgpack:"decision" bson:"decision" mapstructure:"decision,omitempty"`
+
+	// Captures all details of the destination of the request.
+	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
@@ -197,6 +206,23 @@ type PoliceResponse struct {
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// If true, the policy that produced this decision asked for the analysis to
+	// run offband. The decision was therefore made without waiting for the
+	// analyzers, so the extractions in this response carry no detections, and any
+	// redaction the analyzers would have found was not applied. The full analyzer
+	// set runs after this response is sent, so the stored roundtrip for this
+	// request can report a stricter outcome than the one reported here.
+	Offband bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
+
+	// If true, the policy that produced this decision is configured in permissive
+	// mode, so the content decision reported here is what the policy would have
+	// enforced and is not meant to be enforced. A caller acting on this response
+	// must let the request through when the decision is Deny, Ask or Report.
+	// This covers the content decision only. A decision of ForbiddenUser comes
+	// from the access policy, which permissive does not affect, and must still be
+	// enforced.
+	Permissive bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// The name of the particular pipeline that extracted the text.
 	PipelineName string `json:"pipelineName" msgpack:"pipelineName" bson:"pipelinename" mapstructure:"pipelineName,omitempty"`
@@ -283,7 +309,9 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.Annotations = o.Annotations
 	s.Client = o.Client
 	s.ClientVersion = o.ClientVersion
+	s.ContentRedacted = o.ContentRedacted
 	s.Decision = o.Decision
+	s.Destination = o.Destination
 	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
@@ -291,6 +319,8 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.McpMessage = o.McpMessage
 	s.Model = o.Model
 	s.Namespace = o.Namespace
+	s.Offband = o.Offband
+	s.Permissive = o.Permissive
 	s.PipelineName = o.PipelineName
 	s.PolicyRefs = o.PolicyRefs
 	s.Principal = o.Principal
@@ -324,7 +354,9 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.Annotations = s.Annotations
 	o.Client = s.Client
 	o.ClientVersion = s.ClientVersion
+	o.ContentRedacted = s.ContentRedacted
 	o.Decision = s.Decision
+	o.Destination = s.Destination
 	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
@@ -332,6 +364,8 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.McpMessage = s.McpMessage
 	o.Model = s.Model
 	o.Namespace = s.Namespace
+	o.Offband = s.Offband
+	o.Permissive = s.Permissive
 	o.PipelineName = s.PipelineName
 	o.PolicyRefs = s.PolicyRefs
 	o.Principal = s.Principal
@@ -395,31 +429,35 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePoliceResponse{
-			ID:            &o.ID,
-			Alerts:        &o.Alerts,
-			Annotations:   &o.Annotations,
-			Client:        &o.Client,
-			ClientVersion: &o.ClientVersion,
-			Decision:      &o.Decision,
-			Error:         o.Error,
-			Extractions:   &o.Extractions,
-			Hash:          &o.Hash,
-			Latency:       o.Latency,
-			McpMessage:    o.McpMessage,
-			Model:         &o.Model,
-			Namespace:     &o.Namespace,
-			PipelineName:  &o.PipelineName,
-			PolicyRefs:    &o.PolicyRefs,
-			Principal:     o.Principal,
-			Provider:      &o.Provider,
-			ProviderType:  &o.ProviderType,
-			Reasons:       &o.Reasons,
-			Summary:       o.Summary,
-			Time:          &o.Time,
-			ToolChoice:    o.ToolChoice,
-			Tools:         &o.Tools,
-			Trace:         o.Trace,
-			Type:          &o.Type,
+			ID:              &o.ID,
+			Alerts:          &o.Alerts,
+			Annotations:     &o.Annotations,
+			Client:          &o.Client,
+			ClientVersion:   &o.ClientVersion,
+			ContentRedacted: &o.ContentRedacted,
+			Decision:        &o.Decision,
+			Destination:     o.Destination,
+			Error:           o.Error,
+			Extractions:     &o.Extractions,
+			Hash:            &o.Hash,
+			Latency:         o.Latency,
+			McpMessage:      o.McpMessage,
+			Model:           &o.Model,
+			Namespace:       &o.Namespace,
+			Offband:         &o.Offband,
+			Permissive:      &o.Permissive,
+			PipelineName:    &o.PipelineName,
+			PolicyRefs:      &o.PolicyRefs,
+			Principal:       o.Principal,
+			Provider:        &o.Provider,
+			ProviderType:    &o.ProviderType,
+			Reasons:         &o.Reasons,
+			Summary:         o.Summary,
+			Time:            &o.Time,
+			ToolChoice:      o.ToolChoice,
+			Tools:           &o.Tools,
+			Trace:           o.Trace,
+			Type:            &o.Type,
 		}
 	}
 
@@ -436,8 +474,12 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Client = &(o.Client)
 		case "clientVersion":
 			sp.ClientVersion = &(o.ClientVersion)
+		case "contentRedacted":
+			sp.ContentRedacted = &(o.ContentRedacted)
 		case "decision":
 			sp.Decision = &(o.Decision)
+		case "destination":
+			sp.Destination = o.Destination
 		case "error":
 			sp.Error = o.Error
 		case "extractions":
@@ -452,6 +494,10 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Model = &(o.Model)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "offband":
+			sp.Offband = &(o.Offband)
+		case "permissive":
+			sp.Permissive = &(o.Permissive)
 		case "pipelineName":
 			sp.PipelineName = &(o.PipelineName)
 		case "policyRefs":
@@ -504,8 +550,14 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ClientVersion != nil {
 		o.ClientVersion = *so.ClientVersion
 	}
+	if so.ContentRedacted != nil {
+		o.ContentRedacted = *so.ContentRedacted
+	}
 	if so.Decision != nil {
 		o.Decision = *so.Decision
+	}
+	if so.Destination != nil {
+		o.Destination = so.Destination
 	}
 	if so.Error != nil {
 		o.Error = so.Error
@@ -527,6 +579,12 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Offband != nil {
+		o.Offband = *so.Offband
+	}
+	if so.Permissive != nil {
+		o.Permissive = *so.Permissive
 	}
 	if so.PipelineName != nil {
 		o.PipelineName = *so.PipelineName
@@ -575,6 +633,12 @@ func (o *PoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -659,6 +723,12 @@ func (o *PoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -778,6 +848,13 @@ func (o *PoliceResponse) Validate() error {
 
 	if err := elemental.ValidateStringInList("decision", string(o.Decision), []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "destination")
+		}
 	}
 
 	if o.Error != nil {
@@ -915,8 +992,12 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Client
 	case "clientVersion":
 		return o.ClientVersion
+	case "contentRedacted":
+		return o.ContentRedacted
 	case "decision":
 		return o.Decision
+	case "destination":
+		return o.Destination
 	case "error":
 		return o.Error
 	case "extractions":
@@ -931,6 +1012,10 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Model
 	case "namespace":
 		return o.Namespace
+	case "offband":
+		return o.Offband
+	case "permissive":
+		return o.Permissive
 	case "pipelineName":
 		return o.PipelineName
 	case "policyRefs":
@@ -1019,6 +1104,19 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"ContentRedacted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentredacted",
+		ConvertedName:  "ContentRedacted",
+		Description: `If true, the content of the extractions was stripped from the audit entry for
+this request, and only the analysis and other metadata were kept. This is
+driven by the policy that produced this decision, so it is reported here
+because the caller has no other way to know it happened.`,
+		Exposed: true,
+		Name:    "contentRedacted",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Decision": {
 		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
@@ -1040,6 +1138,17 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Name:    "decision",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"Destination": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "destination",
+		ConvertedName:  "Destination",
+		Description:    `Captures all details of the destination of the request.`,
+		Exposed:        true,
+		Name:           "destination",
+		Stored:         true,
+		SubType:        "destination",
+		Type:           "ref",
 	},
 	"Error": {
 		AllowedChoices: []string{},
@@ -1121,6 +1230,37 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Offband": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offband",
+		ConvertedName:  "Offband",
+		Description: `If true, the policy that produced this decision asked for the analysis to
+run offband. The decision was therefore made without waiting for the
+analyzers, so the extractions in this response carry no detections, and any
+redaction the analyzers would have found was not applied. The full analyzer
+set runs after this response is sent, so the stored roundtrip for this
+request can report a stricter outcome than the one reported here.`,
+		Exposed: true,
+		Name:    "offband",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"Permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description: `If true, the policy that produced this decision is configured in permissive
+mode, so the content decision reported here is what the policy would have
+enforced and is not meant to be enforced. A caller acting on this response
+must let the request through when the decision is Deny, Ask or Report.
+This covers the content decision only. A decision of ForbiddenUser comes
+from the access policy, which permissive does not affect, and must still be
+enforced.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"PipelineName": {
 		AllowedChoices: []string{},
@@ -1310,6 +1450,19 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Stored:         true,
 		Type:           "string",
 	},
+	"contentredacted": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentredacted",
+		ConvertedName:  "ContentRedacted",
+		Description: `If true, the content of the extractions was stripped from the audit entry for
+this request, and only the analysis and other metadata were kept. This is
+driven by the policy that produced this decision, so it is reported here
+because the caller has no other way to know it happened.`,
+		Exposed: true,
+		Name:    "contentRedacted",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"decision": {
 		AllowedChoices: []string{"Deny", "Allow", "Ask", "Report", "Bypassed", "ForbiddenUser", "Skipped", "Redirected", "NotApplicable", "Error", "UpstreamError"},
 		BSONFieldName:  "decision",
@@ -1331,6 +1484,17 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Name:    "decision",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"destination": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "destination",
+		ConvertedName:  "Destination",
+		Description:    `Captures all details of the destination of the request.`,
+		Exposed:        true,
+		Name:           "destination",
+		Stored:         true,
+		SubType:        "destination",
+		Type:           "ref",
 	},
 	"error": {
 		AllowedChoices: []string{},
@@ -1412,6 +1576,37 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"offband": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "offband",
+		ConvertedName:  "Offband",
+		Description: `If true, the policy that produced this decision asked for the analysis to
+run offband. The decision was therefore made without waiting for the
+analyzers, so the extractions in this response carry no detections, and any
+redaction the analyzers would have found was not applied. The full analyzer
+set runs after this response is sent, so the stored roundtrip for this
+request can report a stricter outcome than the one reported here.`,
+		Exposed: true,
+		Name:    "offband",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"permissive": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "permissive",
+		ConvertedName:  "Permissive",
+		Description: `If true, the policy that produced this decision is configured in permissive
+mode, so the content decision reported here is what the policy would have
+enforced and is not meant to be enforced. A caller acting on this response
+must let the request through when the decision is Deny, Ask or Report.
+This covers the content decision only. A decision of ForbiddenUser comes
+from the access policy, which permissive does not affect, and must still be
+enforced.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"pipelinename": {
 		AllowedChoices: []string{},
@@ -1620,6 +1815,12 @@ type SparsePoliceResponse struct {
 	// The version of the client used to send the request.
 	ClientVersion *string `json:"clientVersion,omitempty" msgpack:"clientVersion,omitempty" bson:"clientversion,omitempty" mapstructure:"clientVersion,omitempty"`
 
+	// If true, the content of the extractions was stripped from the audit entry for
+	// this request, and only the analysis and other metadata were kept. This is
+	// driven by the policy that produced this decision, so it is reported here
+	// because the caller has no other way to know it happened.
+	ContentRedacted *bool `json:"contentRedacted,omitempty" msgpack:"contentRedacted,omitempty" bson:"contentredacted,omitempty" mapstructure:"contentRedacted,omitempty"`
+
 	// User-facing outcome of the roundtrip. Reflects the policy
 	// engine's verdict, or in case of platform failure, the result of the
 	// failClose strategy (Deny on fail-close, Allow on fail-open, with
@@ -1634,6 +1835,9 @@ type SparsePoliceResponse struct {
 	// after 2026-07-19 (two months after the structured RoundtripError
 	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision *PoliceResponseDecisionValue `json:"decision,omitempty" msgpack:"decision,omitempty" bson:"decision,omitempty" mapstructure:"decision,omitempty"`
+
+	// Captures all details of the destination of the request.
+	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
@@ -1657,6 +1861,23 @@ type SparsePoliceResponse struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// If true, the policy that produced this decision asked for the analysis to
+	// run offband. The decision was therefore made without waiting for the
+	// analyzers, so the extractions in this response carry no detections, and any
+	// redaction the analyzers would have found was not applied. The full analyzer
+	// set runs after this response is sent, so the stored roundtrip for this
+	// request can report a stricter outcome than the one reported here.
+	Offband *bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
+
+	// If true, the policy that produced this decision is configured in permissive
+	// mode, so the content decision reported here is what the policy would have
+	// enforced and is not meant to be enforced. A caller acting on this response
+	// must let the request through when the decision is Deny, Ask or Report.
+	// This covers the content decision only. A decision of ForbiddenUser comes
+	// from the access policy, which permissive does not affect, and must still be
+	// enforced.
+	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// The name of the particular pipeline that extracted the text.
 	PipelineName *string `json:"pipelineName,omitempty" msgpack:"pipelineName,omitempty" bson:"pipelinename,omitempty" mapstructure:"pipelineName,omitempty"`
@@ -1752,8 +1973,14 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	if o.ClientVersion != nil {
 		s.ClientVersion = o.ClientVersion
 	}
+	if o.ContentRedacted != nil {
+		s.ContentRedacted = o.ContentRedacted
+	}
 	if o.Decision != nil {
 		s.Decision = o.Decision
+	}
+	if o.Destination != nil {
+		s.Destination = o.Destination
 	}
 	if o.Error != nil {
 		s.Error = o.Error
@@ -1775,6 +2002,12 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.Offband != nil {
+		s.Offband = o.Offband
+	}
+	if o.Permissive != nil {
+		s.Permissive = o.Permissive
 	}
 	if o.PipelineName != nil {
 		s.PipelineName = o.PipelineName
@@ -1840,8 +2073,14 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	if s.ClientVersion != nil {
 		o.ClientVersion = s.ClientVersion
 	}
+	if s.ContentRedacted != nil {
+		o.ContentRedacted = s.ContentRedacted
+	}
 	if s.Decision != nil {
 		o.Decision = s.Decision
+	}
+	if s.Destination != nil {
+		o.Destination = s.Destination
 	}
 	if s.Error != nil {
 		o.Error = s.Error
@@ -1863,6 +2102,12 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.Offband != nil {
+		o.Offband = s.Offband
+	}
+	if s.Permissive != nil {
+		o.Permissive = s.Permissive
 	}
 	if s.PipelineName != nil {
 		o.PipelineName = s.PipelineName
@@ -1926,8 +2171,14 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.ClientVersion != nil {
 		out.ClientVersion = *o.ClientVersion
 	}
+	if o.ContentRedacted != nil {
+		out.ContentRedacted = *o.ContentRedacted
+	}
 	if o.Decision != nil {
 		out.Decision = *o.Decision
+	}
+	if o.Destination != nil {
+		out.Destination = o.Destination
 	}
 	if o.Error != nil {
 		out.Error = o.Error
@@ -1949,6 +2200,12 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Offband != nil {
+		out.Offband = *o.Offband
+	}
+	if o.Permissive != nil {
+		out.Permissive = *o.Permissive
 	}
 	if o.PipelineName != nil {
 		out.PipelineName = *o.PipelineName
@@ -2001,6 +2258,12 @@ func (o *SparsePoliceResponse) EncryptAttributes(encrypter elemental.AttributeEn
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2093,6 +2356,12 @@ func (o *SparsePoliceResponse) DecryptAttributes(encrypter elemental.AttributeEn
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Alerts' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Destination != nil {
+		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2215,54 +2484,62 @@ func (o *SparsePoliceResponse) DeepCopyInto(out *SparsePoliceResponse) {
 }
 
 type mongoAttributesPoliceResponse struct {
-	ID            bson.ObjectId                   `bson:"_id,omitempty"`
-	Alerts        []*AlertEvent                   `bson:"alerts,omitempty"`
-	Annotations   map[string]string               `bson:"annotations,omitempty"`
-	Client        string                          `bson:"client,omitempty"`
-	ClientVersion string                          `bson:"clientversion,omitempty"`
-	Decision      PoliceResponseDecisionValue     `bson:"decision"`
-	Error         *RoundtripError                 `bson:"error,omitempty"`
-	Extractions   []*Extraction                   `bson:"extractions,omitempty"`
-	Hash          string                          `bson:"hash"`
-	Latency       *Latency                        `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                     `bson:"mcpmessage,omitempty"`
-	Model         string                          `bson:"model,omitempty"`
-	Namespace     string                          `bson:"namespace,omitempty"`
-	PipelineName  string                          `bson:"pipelinename"`
-	PolicyRefs    PolicyRefsList                  `bson:"policyrefs"`
-	Principal     *Principal                      `bson:"principal"`
-	Provider      string                          `bson:"provider"`
-	ProviderType  PoliceResponseProviderTypeValue `bson:"providertype"`
-	Reasons       []string                        `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary              `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                     `bson:"toolchoice,omitempty"`
-	Tools         map[string]*Tool                `bson:"tools,omitempty"`
-	Trace         *TraceRef                       `bson:"trace,omitempty"`
-	Type          PoliceResponseTypeValue         `bson:"type"`
+	ID              bson.ObjectId                   `bson:"_id,omitempty"`
+	Alerts          []*AlertEvent                   `bson:"alerts,omitempty"`
+	Annotations     map[string]string               `bson:"annotations,omitempty"`
+	Client          string                          `bson:"client,omitempty"`
+	ClientVersion   string                          `bson:"clientversion,omitempty"`
+	ContentRedacted bool                            `bson:"contentredacted,omitempty"`
+	Decision        PoliceResponseDecisionValue     `bson:"decision"`
+	Destination     *Destination                    `bson:"destination,omitempty"`
+	Error           *RoundtripError                 `bson:"error,omitempty"`
+	Extractions     []*Extraction                   `bson:"extractions,omitempty"`
+	Hash            string                          `bson:"hash"`
+	Latency         *Latency                        `bson:"latency,omitempty"`
+	McpMessage      *MCPMessage                     `bson:"mcpmessage,omitempty"`
+	Model           string                          `bson:"model,omitempty"`
+	Namespace       string                          `bson:"namespace,omitempty"`
+	Offband         bool                            `bson:"offband,omitempty"`
+	Permissive      bool                            `bson:"permissive,omitempty"`
+	PipelineName    string                          `bson:"pipelinename"`
+	PolicyRefs      PolicyRefsList                  `bson:"policyrefs"`
+	Principal       *Principal                      `bson:"principal"`
+	Provider        string                          `bson:"provider"`
+	ProviderType    PoliceResponseProviderTypeValue `bson:"providertype"`
+	Reasons         []string                        `bson:"reasons,omitempty"`
+	Summary         *ExtractionSummary              `bson:"summary,omitempty"`
+	ToolChoice      *ToolChoice                     `bson:"toolchoice,omitempty"`
+	Tools           map[string]*Tool                `bson:"tools,omitempty"`
+	Trace           *TraceRef                       `bson:"trace,omitempty"`
+	Type            PoliceResponseTypeValue         `bson:"type"`
 }
 type mongoAttributesSparsePoliceResponse struct {
-	ID            bson.ObjectId                    `bson:"_id,omitempty"`
-	Alerts        *[]*AlertEvent                   `bson:"alerts,omitempty"`
-	Annotations   *map[string]string               `bson:"annotations,omitempty"`
-	Client        *string                          `bson:"client,omitempty"`
-	ClientVersion *string                          `bson:"clientversion,omitempty"`
-	Decision      *PoliceResponseDecisionValue     `bson:"decision,omitempty"`
-	Error         *RoundtripError                  `bson:"error,omitempty"`
-	Extractions   *[]*Extraction                   `bson:"extractions,omitempty"`
-	Hash          *string                          `bson:"hash,omitempty"`
-	Latency       *Latency                         `bson:"latency,omitempty"`
-	McpMessage    *MCPMessage                      `bson:"mcpmessage,omitempty"`
-	Model         *string                          `bson:"model,omitempty"`
-	Namespace     *string                          `bson:"namespace,omitempty"`
-	PipelineName  *string                          `bson:"pipelinename,omitempty"`
-	PolicyRefs    *PolicyRefsList                  `bson:"policyrefs,omitempty"`
-	Principal     *Principal                       `bson:"principal,omitempty"`
-	Provider      *string                          `bson:"provider,omitempty"`
-	ProviderType  *PoliceResponseProviderTypeValue `bson:"providertype,omitempty"`
-	Reasons       *[]string                        `bson:"reasons,omitempty"`
-	Summary       *ExtractionSummary               `bson:"summary,omitempty"`
-	ToolChoice    *ToolChoice                      `bson:"toolchoice,omitempty"`
-	Tools         *map[string]*Tool                `bson:"tools,omitempty"`
-	Trace         *TraceRef                        `bson:"trace,omitempty"`
-	Type          *PoliceResponseTypeValue         `bson:"type,omitempty"`
+	ID              bson.ObjectId                    `bson:"_id,omitempty"`
+	Alerts          *[]*AlertEvent                   `bson:"alerts,omitempty"`
+	Annotations     *map[string]string               `bson:"annotations,omitempty"`
+	Client          *string                          `bson:"client,omitempty"`
+	ClientVersion   *string                          `bson:"clientversion,omitempty"`
+	ContentRedacted *bool                            `bson:"contentredacted,omitempty"`
+	Decision        *PoliceResponseDecisionValue     `bson:"decision,omitempty"`
+	Destination     *Destination                     `bson:"destination,omitempty"`
+	Error           *RoundtripError                  `bson:"error,omitempty"`
+	Extractions     *[]*Extraction                   `bson:"extractions,omitempty"`
+	Hash            *string                          `bson:"hash,omitempty"`
+	Latency         *Latency                         `bson:"latency,omitempty"`
+	McpMessage      *MCPMessage                      `bson:"mcpmessage,omitempty"`
+	Model           *string                          `bson:"model,omitempty"`
+	Namespace       *string                          `bson:"namespace,omitempty"`
+	Offband         *bool                            `bson:"offband,omitempty"`
+	Permissive      *bool                            `bson:"permissive,omitempty"`
+	PipelineName    *string                          `bson:"pipelinename,omitempty"`
+	PolicyRefs      *PolicyRefsList                  `bson:"policyrefs,omitempty"`
+	Principal       *Principal                       `bson:"principal,omitempty"`
+	Provider        *string                          `bson:"provider,omitempty"`
+	ProviderType    *PoliceResponseProviderTypeValue `bson:"providertype,omitempty"`
+	Reasons         *[]string                        `bson:"reasons,omitempty"`
+	Summary         *ExtractionSummary               `bson:"summary,omitempty"`
+	ToolChoice      *ToolChoice                      `bson:"toolchoice,omitempty"`
+	Tools           *map[string]*Tool                `bson:"tools,omitempty"`
+	Trace           *TraceRef                        `bson:"trace,omitempty"`
+	Type            *PoliceResponseTypeValue         `bson:"type,omitempty"`
 }

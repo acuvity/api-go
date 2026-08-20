@@ -13,10 +13,12 @@ import (
 
 // RequestDestination represents the model of a requestdestination
 type RequestDestination struct {
-	// The name of the destination application.
+	// The name of the destination application. Only takes effect together with
+	// component: setting one without the other counts as no destination at all.
 	App string `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
 
-	// The component of the destination application.
+	// The component of the destination application. Only takes effect together with
+	// app: setting one without the other counts as no destination at all.
 	Component string `json:"component,omitempty" msgpack:"component,omitempty" bson:"-" mapstructure:"component,omitempty"`
 
 	// The host name of the destination. Optional, for logging enrichment.
@@ -24,6 +26,10 @@ type RequestDestination struct {
 
 	// The destination IP address. Optional, for logging enrichment.
 	Ip string `json:"ip,omitempty" msgpack:"ip,omitempty" bson:"-" mapstructure:"ip,omitempty"`
+
+	// The destination port of the request. Optional: when it is not set, 443 is
+	// assumed. It is made available to policies as destinationPort.
+	Port int `json:"port,omitempty" msgpack:"port,omitempty" bson:"-" mapstructure:"port,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -94,7 +100,10 @@ func (o *RequestDestination) Doc() string {
 	return `RequestDestination holds the destination information for a request. When app
 and component are set, the request is evaluated against the app component's
 policies instead of a provider. In that case, the provider field must not be
-set.`
+set.
+On the police API an egress request must name its target, so app and component
+are required unless a provider is given. On the scan API they may be left out
+to run a plain scan that targets nothing.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
@@ -183,6 +192,8 @@ func (o *RequestDestination) ValueForAttribute(name string) any {
 		return o.Host
 	case "ip":
 		return o.Ip
+	case "port":
+		return o.Port
 	}
 
 	return nil
@@ -193,18 +204,20 @@ var RequestDestinationAttributesMap = map[string]elemental.AttributeSpecificatio
 	"App": {
 		AllowedChoices: []string{},
 		ConvertedName:  "App",
-		Description:    `The name of the destination application.`,
-		Exposed:        true,
-		Name:           "app",
-		Type:           "string",
+		Description: `The name of the destination application. Only takes effect together with
+component: setting one without the other counts as no destination at all.`,
+		Exposed: true,
+		Name:    "app",
+		Type:    "string",
 	},
 	"Component": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Component",
-		Description:    `The component of the destination application.`,
-		Exposed:        true,
-		Name:           "component",
-		Type:           "string",
+		Description: `The component of the destination application. Only takes effect together with
+app: setting one without the other counts as no destination at all.`,
+		Exposed: true,
+		Name:    "component",
+		Type:    "string",
 	},
 	"Host": {
 		AllowedChoices: []string{},
@@ -222,6 +235,15 @@ var RequestDestinationAttributesMap = map[string]elemental.AttributeSpecificatio
 		Name:           "ip",
 		Type:           "string",
 	},
+	"Port": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Port",
+		Description: `The destination port of the request. Optional: when it is not set, 443 is
+assumed. It is made available to policies as destinationPort.`,
+		Exposed: true,
+		Name:    "port",
+		Type:    "integer",
+	},
 }
 
 // RequestDestinationLowerCaseAttributesMap represents the map of attribute for RequestDestination.
@@ -229,18 +251,20 @@ var RequestDestinationLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"app": {
 		AllowedChoices: []string{},
 		ConvertedName:  "App",
-		Description:    `The name of the destination application.`,
-		Exposed:        true,
-		Name:           "app",
-		Type:           "string",
+		Description: `The name of the destination application. Only takes effect together with
+component: setting one without the other counts as no destination at all.`,
+		Exposed: true,
+		Name:    "app",
+		Type:    "string",
 	},
 	"component": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Component",
-		Description:    `The component of the destination application.`,
-		Exposed:        true,
-		Name:           "component",
-		Type:           "string",
+		Description: `The component of the destination application. Only takes effect together with
+app: setting one without the other counts as no destination at all.`,
+		Exposed: true,
+		Name:    "component",
+		Type:    "string",
 	},
 	"host": {
 		AllowedChoices: []string{},
@@ -257,6 +281,15 @@ var RequestDestinationLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		Exposed:        true,
 		Name:           "ip",
 		Type:           "string",
+	},
+	"port": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Port",
+		Description: `The destination port of the request. Optional: when it is not set, 443 is
+assumed. It is made available to policies as destinationPort.`,
+		Exposed: true,
+		Name:    "port",
+		Type:    "integer",
 	},
 }
 

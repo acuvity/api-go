@@ -12,6 +12,9 @@
     "analyzermodel": {
       "$ref": "analyzermodel.json"
     },
+    "destination": {
+      "$ref": "destination.json"
+    },
     "detector": {
       "$ref": "detector.json"
     },
@@ -63,14 +66,14 @@
     "principaluser": {
       "$ref": "principaluser.json"
     },
-    "requestapp": {
-      "$ref": "requestapp.json"
-    },
     "requestdestination": {
       "$ref": "requestdestination.json"
     },
-    "requestuser": {
-      "$ref": "requestuser.json"
+    "requestsource": {
+      "$ref": "requestsource.json"
+    },
+    "requesttrace": {
+      "$ref": "requesttrace.json"
     },
     "root": {
       "$ref": "root.json"

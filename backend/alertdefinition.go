@@ -295,6 +295,18 @@ func (o *AlertDefinition) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *AlertDefinition) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *AlertDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *AlertDefinition) GetImportHash() string {
 
@@ -317,6 +329,18 @@ func (o *AlertDefinition) GetImportLabel() string {
 func (o *AlertDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *AlertDefinition) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *AlertDefinition) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -712,8 +736,10 @@ var AlertDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -764,7 +790,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -906,8 +934,10 @@ var AlertDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -958,7 +988,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1427,6 +1459,22 @@ func (o *SparseAlertDefinition) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseAlertDefinition) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseAlertDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseAlertDefinition) GetImportHash() (out string) {
 
@@ -1457,6 +1505,22 @@ func (o *SparseAlertDefinition) GetImportLabel() (out string) {
 func (o *SparseAlertDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseAlertDefinition) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseAlertDefinition) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.

@@ -279,6 +279,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMatcher()
 	case "analyzermodel", "AnalyzerModel":
 		return NewAnalyzerModel()
+	case "destination", "Destination":
+		return NewDestination()
 	case "detector", "Detector":
 		return NewDetector()
 	case "extraction", "Extraction":
@@ -297,12 +299,12 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMCPToolAnnotations()
 	case "modality", "Modality":
 		return NewModality()
-	case "requestapp", "RequestApp":
-		return NewRequestApp()
 	case "requestdestination", "RequestDestination":
 		return NewRequestDestination()
-	case "requestuser", "RequestUser":
-		return NewRequestUser()
+	case "requestsource", "RequestSource":
+		return NewRequestSource()
+	case "requesttrace", "RequestTrace":
+		return NewRequestTrace()
 	case "roundtriperror", "RoundtripError":
 		return NewRoundtripError()
 	case "textualdetection", "TextualDetection":

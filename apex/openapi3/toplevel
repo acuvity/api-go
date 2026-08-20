@@ -195,6 +195,63 @@
         },
         "type": "object"
       },
+      "destination": {
+        "description": "Represents the destination that this request was made to.",
+        "properties": {
+          "app": {
+            "description": "The name of the application that the domain belongs to.",
+            "example": "MyApp",
+            "type": "string"
+          },
+          "component": {
+            "description": "The component of the application that the domain belongs to.",
+            "example": "frontend",
+            "type": "string"
+          },
+          "host": {
+            "description": "The host name of the request. Optional, matching the destination of a scan or\npolice request: the caller may omit it, and it is only filled in when the\nresolved provider or app component declares a host of its own.",
+            "example": "api.openai.com",
+            "type": "string"
+          },
+          "ip": {
+            "description": "The destination IP address of the request.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
+          "labels": {
+            "description": "The list of labels attached to the application request destination.",
+            "example": [
+              "country=us",
+              "another-label"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "workloadGroupHash": {
+            "description": "The hash of the workload group this application belongs to.",
+            "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupLabel": {
+            "description": "The label format of the workload group this application belongs to.",
+            "example": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+            "type": "string"
+          },
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set this application belongs to.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
+          },
+          "workloadGroupSetLabel": {
+            "description": "The label format of the workload group set this application belongs to.",
+            "example": "k8s:namespace=demo",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "detector": {
         "description": "Represent a detector an analyzer can use.",
         "properties": {
@@ -483,29 +540,10 @@
       "extractionrequest": {
         "description": "Represents the extraction that the user wants to extract.",
         "properties": {
-          "annotations": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "Annotations attached to the extraction.",
-            "type": "object"
-          },
           "data": {
             "contentEncoding": "base64",
             "description": "The binary data to request extraction for.",
             "type": "string"
-          },
-          "internal": {
-            "description": "If true, this extraction is for internal use only. This can be used by agentic\nsystems to mark an extraction as internal only as opposed to user facing.",
-            "type": "boolean"
-          },
-          "isFile": {
-            "description": "If true, the data of the extraction is a file.",
-            "type": "boolean"
-          },
-          "isStored": {
-            "description": "If true, indicates that the file has been stored.",
-            "type": "boolean"
           },
           "kind": {
             "default": "Message",
@@ -520,10 +558,6 @@
               "Resource",
               "Event"
             ]
-          },
-          "label": {
-            "description": "Contains events and other information that are not actual user content, and will\nnot go through analysis.",
-            "type": "string"
           },
           "role": {
             "default": "User",
@@ -626,6 +660,10 @@
           },
           "assignPolicy": {
             "description": "How much time it took to run the assign policy in nanoseconds.",
+            "type": "integer"
+          },
+          "contentAttribution": {
+            "description": "How much time it took to attribute a content decision to conversation\nextractions in nanoseconds.",
             "type": "integer"
           },
           "contentPolicy": {
@@ -772,19 +810,8 @@
         "type": "object"
       },
       "policerequest": {
-        "description": "This is a police request.",
+        "description": "This is a police request. Police enforces policy, so an egress request must name\nits target: either a provider or a destination app and component.",
         "properties": {
-          "annotations": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "Annotations attached to the extraction.",
-            "example": {
-              "key1": "value1",
-              "key2": "value2"
-            },
-            "type": "object"
-          },
           "anonymization": {
             "default": "FixedSize",
             "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
@@ -793,16 +820,21 @@
               "VariableSize"
             ]
           },
-          "app": {
-            "$ref": "#/components/schemas/requestapp"
-          },
-          "bypassHash": {
-            "description": "In the case of a contentPolicy that asks for a confirmation, this is the\nhash you must send back to bypass the block. This is only useful when a\ncontent policy has been set or is evaluated remotely.",
+          "conversationID": {
+            "description": "Identifies the conversation this request belongs to. Apex records it on the\nresulting log, which is what groups the successive requests of one conversation\ntogether in the logs and in the conversation view, and it is also made available\nto the analyzers and to policies. Send the same value on every request of the\nsame conversation.",
             "example": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
             "type": "string"
           },
           "destination": {
             "$ref": "#/components/schemas/requestdestination"
+          },
+          "direction": {
+            "default": "Egress",
+            "description": "The direction of the traffic for this request, relative to the app component\nthe caller's token identifies. Determines whether the ingress or the egress\npolicies of that app component are evaluated.",
+            "enum": [
+              "Egress",
+              "Ingress"
+            ]
           },
           "extractions": {
             "description": "The extractions to request.",
@@ -822,15 +854,13 @@
             },
             "type": "array"
           },
-          "model": {
-            "description": "The model used by the request.",
-            "example": "claude-3-7-sonnet",
-            "type": "string"
-          },
           "provider": {
-            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.",
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
             "example": "openai",
             "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/requestsource"
           },
           "tools": {
             "additionalProperties": {
@@ -841,7 +871,7 @@
             "type": "object"
           },
           "trace": {
-            "$ref": "#/components/schemas/traceref"
+            "$ref": "#/components/schemas/requesttrace"
           },
           "type": {
             "description": "The type of text.",
@@ -849,9 +879,6 @@
               "Input",
               "Output"
             ]
-          },
-          "user": {
-            "$ref": "#/components/schemas/requestuser"
           }
         },
         "type": "object"
@@ -888,6 +915,10 @@
             "example": "7.64.1",
             "type": "string"
           },
+          "contentRedacted": {
+            "description": "If true, the content of the extractions was stripped from the audit entry for\nthis request, and only the analysis and other metadata were kept. This is\ndriven by the policy that produced this decision, so it is reported here\nbecause the caller has no other way to know it happened.",
+            "type": "boolean"
+          },
           "decision": {
             "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
@@ -903,6 +934,9 @@
               "Error",
               "UpstreamError"
             ]
+          },
+          "destination": {
+            "$ref": "#/components/schemas/destination"
           },
           "error": {
             "$ref": "#/components/schemas/roundtriperror"
@@ -933,6 +967,14 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "offband": {
+            "description": "If true, the policy that produced this decision asked for the analysis to\nrun offband. The decision was therefore made without waiting for the\nanalyzers, so the extractions in this response carry no detections, and any\nredaction the analyzers would have found was not applied. The full analyzer\nset runs after this response is sent, so the stored roundtrip for this\nrequest can report a stricter outcome than the one reported here.",
+            "type": "boolean"
+          },
+          "permissive": {
+            "description": "If true, the policy that produced this decision is configured in permissive\nmode, so the content decision reported here is what the policy would have\nenforced and is not meant to be enforced. A caller acting on this response\nmust let the request through when the decision is Deny, Ask or Report.\nThis covers the content decision only. A decision of ForbiddenUser comes\nfrom the access policy, which permissive does not affect, and must still be\nenforced.",
+            "type": "boolean"
           },
           "pipelineName": {
             "description": "The name of the particular pipeline that extracted the text.",
@@ -1255,75 +1297,16 @@
         },
         "type": "object"
       },
-      "requestapp": {
-        "description": "RequestApp holds the application processing information for a request. For\npolice requests in an apps namespace, this is required when using an AppToken.\nWhen using a ComponentToken, the app and component are inferred from the token\nclaims; if provided, they must match. For scan requests, this is optional and\nenhances logging with app/component context.",
-        "properties": {
-          "IP": {
-            "description": "The source IP address of the request.",
-            "example": "192.0.2.42",
-            "type": "string"
-          },
-          "component": {
-            "description": "The name of the component.",
-            "example": "email-agent",
-            "type": "string"
-          },
-          "direction": {
-            "default": "Egress",
-            "description": "The direction of the traffic for this request. Determines whether ingress or\negress policies are evaluated for the app component.",
-            "enum": [
-              "Egress",
-              "Ingress"
-            ]
-          },
-          "ingressSourceToken": {
-            "description": "A valid component token representing the source application component for\ningress requests. When set, it will be validated and used to populate the\nrequest principal with the source app/component identity. Only applicable\nwhen the direction is Ingress.",
-            "type": "string"
-          },
-          "name": {
-            "description": "The name of the application.",
-            "example": "acme-ai-app",
-            "type": "string"
-          },
-          "port": {
-            "description": "The port of the ingress listener for this request. Required when direction\nis Ingress to select the correct listener configuration. Mirrors the\nX-Acuvity-Ingress-Port header used by the cloud-apex agent.",
-            "type": "integer"
-          },
-          "userClaims": {
-            "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
-            "example": [
-              "name=John Doe",
-              "email=john.doe@acme.com",
-              "@validated=false"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "username": {
-            "description": "The optional username of the request.",
-            "example": "john.doe@acme.com",
-            "type": "string"
-          }
-        },
-        "required": [
-          "component",
-          "direction",
-          "name"
-        ],
-        "type": "object"
-      },
       "requestdestination": {
-        "description": "RequestDestination holds the destination information for a request. When app\nand component are set, the request is evaluated against the app component's\npolicies instead of a provider. In that case, the provider field must not be\nset.",
+        "description": "RequestDestination holds the destination information for a request. When app\nand component are set, the request is evaluated against the app component's\npolicies instead of a provider. In that case, the provider field must not be\nset.\nOn the police API an egress request must name its target, so app and component\nare required unless a provider is given. On the scan API they may be left out\nto run a plain scan that targets nothing.",
         "properties": {
           "app": {
-            "description": "The name of the destination application.",
+            "description": "The name of the destination application. Only takes effect together with\ncomponent: setting one without the other counts as no destination at all.",
             "example": "other-ai-app",
             "type": "string"
           },
           "component": {
-            "description": "The component of the destination application.",
+            "description": "The component of the destination application. Only takes effect together with\napp: setting one without the other counts as no destination at all.",
             "example": "backend",
             "type": "string"
           },
@@ -1336,13 +1319,27 @@
             "description": "The destination IP address. Optional, for logging enrichment.",
             "example": "192.0.2.42",
             "type": "string"
+          },
+          "port": {
+            "description": "The destination port of the request. Optional: when it is not set, 443 is\nassumed. It is made available to policies as destinationPort.",
+            "example": 443,
+            "type": "integer"
           }
         },
         "type": "object"
       },
-      "requestuser": {
-        "description": "RequestUser holds the user information for a request. For police requests in an\nemployees namespace, this represents the end user on whose behalf the request\nis made and is used for policy resolution. For scan requests, this is optional\nand enhances logging with user context.",
+      "requestsource": {
+        "description": "RequestSource holds the information about where a request originates from. On\negress, the source is the app component the caller's token identifies, and this\nonly carries optional enrichment. On ingress, the source is whoever is calling\ninto that app component, and the token field identifies it.\nThe username and userClaims are only used when no token is given, or when the\ngiven token carries no user identity of its own: identity derived from a\nvalidated token always wins over identity asserted in the request body.",
         "properties": {
+          "ip": {
+            "description": "The source IP address of the request. Optional, for logging enrichment.",
+            "example": "192.0.2.42",
+            "type": "string"
+          },
+          "token": {
+            "description": "A valid token identifying the source of the request. Only applicable when the\ndirection is Ingress. This can either be a component token, in which case the\nrequest principal is populated with the source app and component identity, or\na token issued for an application component OAuth client, in which case the\nsource app and component as well as the user identity are both derived from\nit.",
+            "type": "string"
+          },
           "userClaims": {
             "description": "The optional user claims of the request. This can be an incomplete list, and\nclaims can be mapped to different keys.",
             "example": [
@@ -1361,6 +1358,25 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "requesttrace": {
+        "description": "RequestTrace is the trace context a caller hands to the Apex APIs so that this\nrequest is placed inside the caller's own trace. It is deliberately narrower\nthan\nthe trace reference reported back on the response: the caller only says which\ntrace this request belongs to and which span to hang it under. Everything else\nabout the span, meaning its ID, name, kind, start, end and status, describes\nwhat\nApex actually did, so Apex generates it.",
+        "properties": {
+          "parentSpanID": {
+            "description": "The span ID, as a hex encoded string, that the span Apex creates for this\nrequest must be a child of. Leave it out when you have a trace but no span to\nattach this request to, in which case the span Apex creates becomes a root span\nof that trace.",
+            "example": "00f067aa0ba902b7",
+            "type": "string"
+          },
+          "traceID": {
+            "description": "The trace ID, as a hex encoded string, this request belongs to.",
+            "example": "4bf92f3577b34da6a3ce929d0e0e4736",
+            "type": "string"
+          }
+        },
+        "required": [
+          "traceID"
+        ],
         "type": "object"
       },
       "roundtriperror": {
@@ -1386,14 +1402,15 @@
             "readOnly": true
           },
           "stage": {
-            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nProofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
+            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nProofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,\nRedaction),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
             "enum": [
               "Extraction",
               "Analysis",
               "ContentPolicy",
               "AssignPolicy",
               "AccessPolicy",
-              "Upstream"
+              "Upstream",
+              "Redaction"
             ]
           },
           "type": {
@@ -1407,12 +1424,8 @@
         "type": "object"
       },
       "scanrequest": {
-        "description": "This is a scan request.",
+        "description": "This is a scan request. Scan enforces no policy, so unlike police it can be used\nas a plain analyzer with no destination in mind: provider, destination and\ndirection may all be left out.",
         "properties": {
-          "accessPolicy": {
-            "description": "AccessPolicy allows to pass optional Rego access policy. If not set,\nThe action is always Allow,\nIf it is set, it will be run, and the final decision will be computed based\non that policy.\nIf the rego code does not start with package main, then the needed\nclassic package definition and  acuvity imports will be added\nautomatically.\nIf the code starts with package main, then everything remains untouched.",
-            "type": "string"
-          },
           "analyzers": {
             "description": "The analyzers parameter allows for customizing which analyzers should be used,\noverriding the default selection. Each analyzer entry can optionally include a\nprefix to modify its behavior:\n\n  - No prefix: Runs only the specified analyzers and any dependencies required\nfor deeper analysis (slower but more acurate).\n  - '+' (enable): Activates an analyzer that is disabled by default.\n  - '-' (disable): Disables an analyzer that is enabled by default.\n  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper\nanalysis (faster but less acurate).\n\nAn analyzers entry can be specified using:\n  - The analyzer name (e.g., 'Toxicity detector')\n  - The analyzer ID (e.g., 'en-text-toxicity-detector')\n  - The analyzer group (e.g., 'Detectors')\n  - A detector name (e.g., 'toxic')\n  - A detector label (e.g., 'insult')\n  - A detector group (e.g., 'Malcontents')\n\nIf left empty, all default analyzers will be executed.",
             "example": [
@@ -1423,17 +1436,6 @@
             },
             "type": "array"
           },
-          "annotations": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "description": "Annotations attached to the extraction.",
-            "example": {
-              "key1": "value1",
-              "key2": "value2"
-            },
-            "type": "object"
-          },
           "anonymization": {
             "default": "FixedSize",
             "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
@@ -1442,20 +1444,21 @@
               "VariableSize"
             ]
           },
-          "app": {
-            "$ref": "#/components/schemas/requestapp"
-          },
-          "bypassHash": {
-            "description": "In the case of a contentPolicy that asks for a confirmation, this is the\nhash you must send back to bypass the block. This is only useful when a\ncontent policy has been set or is evaluated remotely.",
+          "conversationID": {
+            "description": "Identifies the conversation this request belongs to. Apex records it on the\nresulting log, which is what groups the successive requests of one conversation\ntogether in the logs and in the conversation view, and it is also made available\nto the analyzers and to policies. Send the same value on every request of the\nsame conversation.",
             "example": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
-            "type": "string"
-          },
-          "contentPolicy": {
-            "description": "ContentPolicy allows to pass optional Rego content policy. If not set,\nThe action is always Allow, and there cannot be any alerts raised etc\nIf it is set, it will be run, and the final decision will be computed based\non that policy.\nIf the rego code does not start with package main, then the needed\nclassic package definition and  acuvity imports will be added\nautomatically.\nIf the code starts with package main, then everything remains untouched.",
             "type": "string"
           },
           "destination": {
             "$ref": "#/components/schemas/requestdestination"
+          },
+          "direction": {
+            "default": "Egress",
+            "description": "The direction of the traffic for this request, relative to the app component\nthe caller's token identifies. Determines whether the ingress or the egress\npolicies of that app component are evaluated.",
+            "enum": [
+              "Egress",
+              "Ingress"
+            ]
           },
           "extractions": {
             "description": "The extractions to request.",
@@ -1487,19 +1490,18 @@
             },
             "type": "array"
           },
-          "minimalLogging": {
-            "description": "If true, the system will skip logging roundtrips with an Allow decision.\nDenials, errors, and other non-Allow decisions are still logged. When\ncombined with no embedded policy, this effectively disables all logging.",
-            "type": "boolean"
-          },
-          "model": {
-            "description": "The model used by the request.",
-            "example": "claude-3-7-sonnet",
-            "type": "string"
-          },
           "provider": {
-            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.",
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
             "example": "openai",
             "type": "string"
+          },
+          "redactContent": {
+            "description": "If true, the user data is removed from the logged roundtrip, while the\nanalysis and all other metadata are kept. This only affects what is logged:\nthe response of this call always carries the full content.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is also true, the user data is kept in the\nlogged roundtrip whenever the decision reports a violation, so that the\ncontent behind a denial stays available for review. It has no effect on\nits own.",
+            "type": "boolean"
           },
           "redactions": {
             "description": "The redactions to perform if they are detected.",
@@ -1513,6 +1515,9 @@
             },
             "type": "array"
           },
+          "source": {
+            "$ref": "#/components/schemas/requestsource"
+          },
           "tools": {
             "additionalProperties": {
               "$ref": "#/components/schemas/tool"
@@ -1520,6 +1525,9 @@
             "description": "The various tools used by the request.",
             "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
             "type": "object"
+          },
+          "trace": {
+            "$ref": "#/components/schemas/requesttrace"
           },
           "type": {
             "description": "The type of text.",
@@ -1563,6 +1571,10 @@
             "example": "7.64.1",
             "type": "string"
           },
+          "contentRedacted": {
+            "description": "If true, the content of the extractions was stripped from the audit entry for\nthis request, and only the analysis and other metadata were kept. It reports\nwhat actually happened, which is not the same as what was requested:\nredactContentBypass can leave the content in place.",
+            "type": "boolean"
+          },
           "decision": {
             "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
@@ -1578,6 +1590,9 @@
               "Error",
               "UpstreamError"
             ]
+          },
+          "destination": {
+            "$ref": "#/components/schemas/destination"
           },
           "error": {
             "$ref": "#/components/schemas/roundtriperror"
@@ -1990,7 +2005,7 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/_acuvity/analyzers": {
+    "/api/v1/analyzers": {
       "get": {
         "description": "List of all available analyzers.",
         "operationId": "get-all-Analyzers",
@@ -2016,7 +2031,7 @@
                 }
               }
             },
-            "description": "Unable to determine response decoding."
+            "description": "The Accept or Content-Type header could not be parsed."
           },
           "401": {
             "content": {
@@ -2026,7 +2041,17 @@
                 }
               }
             },
-            "description": "The caller is not authenticated."
+            "description": "The caller is not authenticated. The token is missing, malformed, expired or revoked."
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/elementalerror"
+                }
+              }
+            },
+            "description": "Neither the Accept nor the Content-Type header names a media type this API can produce."
           },
           "500": {
             "content": {
@@ -2036,7 +2061,7 @@
                 }
               }
             },
-            "description": "Unable to retrieve list of analyzers."
+            "description": "The list of analyzers could not be retrieved."
           }
         },
         "tags": [
@@ -2050,7 +2075,7 @@
         }
       }
     },
-    "/_acuvity/police": {
+    "/api/v1/police": {
       "post": {
         "description": "Processes the scan and police request.",
         "operationId": "create-PoliceRequest-as-PoliceResponse",
@@ -2073,7 +2098,7 @@
                 }
               }
             },
-            "description": "Successfully processing a scan and police request returns a police response."
+            "description": "The request was processed and the response carries the enforcement decision.\nA platform failure inside the pipeline is also reported here rather than as\nan HTTP error: the response then carries the decision the application's\nfailClose strategy dictates, Deny when failing closed and Allow when\nfailing open, together with the structured error and the decision that was\nintended."
           },
           "400": {
             "content": {
@@ -2083,17 +2108,17 @@
                 }
               }
             },
-            "description": "The scan and police request could not be decoded."
+            "description": "The request body could not be decoded, a header could not be parsed, an egress request named neither a provider nor a destination app and component, or the app component or provider it named does not exist."
           },
           "401": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/elementalerror"
                 }
               }
             },
-            "description": "The caller is not authenticated."
+            "description": "The caller is not authenticated, or the token is not an application component token scoped to an apps project namespace."
           },
           "403": {
             "content": {
@@ -2103,7 +2128,7 @@
                 }
               }
             },
-            "description": "The caller is not authorized or has a team or policy assignment issue."
+            "description": "The caller is not authorized to use the police API in this namespace."
           },
           "415": {
             "content": {
@@ -2113,7 +2138,7 @@
                 }
               }
             },
-            "description": "Could not find a supported content type in the provided header."
+            "description": "Neither the Accept nor the Content-Type header names a media type this API can produce or consume."
           },
           "422": {
             "content": {
@@ -2123,17 +2148,17 @@
                 }
               }
             },
-            "description": "Sending an invalid scan and police request returns an unprocessable entity error. Your models might be outdated."
+            "description": "The request was decoded but failed validation. The error data names the offending attribute."
           },
           "429": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/elementalerror"
                 }
               }
             },
-            "description": "Too many requests. You are being rate limited."
+            "description": "The rate limit of this Apex was exceeded. Retry later."
           },
           "500": {
             "content": {
@@ -2143,7 +2168,7 @@
                 }
               }
             },
-            "description": "Processing the scan and police request failed because policies could not be assigned or running the analysis failed internally."
+            "description": "No response could be built at all. A pipeline failure is normally answered with a 200 carrying the failClose decision, so this means even that response could not be produced."
           }
         },
         "tags": [
@@ -2158,7 +2183,7 @@
         }
       }
     },
-    "/_acuvity/scan": {
+    "/api/v1/scan": {
       "post": {
         "description": "Processes the scan request.",
         "operationId": "create-ScanRequest-as-ScanResponse",
@@ -2181,7 +2206,7 @@
                 }
               }
             },
-            "description": "Successfully processing a scan request returns a scan response."
+            "description": "The request was processed. Scan renders no verdict of its own, so the response carries the analysis with a decision of NotApplicable."
           },
           "400": {
             "content": {
@@ -2191,17 +2216,17 @@
                 }
               }
             },
-            "description": "The scan request could not be decoded."
+            "description": "The request body could not be decoded, a header could not be parsed, or the destination app component or provider named by the request does not exist."
           },
           "401": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/elementalerror"
                 }
               }
             },
-            "description": "The caller is not authenticated."
+            "description": "The caller is not authenticated, or the token is not an application component token scoped to an apps project namespace."
           },
           "403": {
             "content": {
@@ -2211,7 +2236,7 @@
                 }
               }
             },
-            "description": "The caller is not authorized or has a team or policy assignment issue."
+            "description": "The caller is not authorized to use the scan API in this namespace."
           },
           "415": {
             "content": {
@@ -2221,7 +2246,7 @@
                 }
               }
             },
-            "description": "Could not find a supported content type in the provided header."
+            "description": "Neither the Accept nor the Content-Type header names a media type this API can produce or consume."
           },
           "422": {
             "content": {
@@ -2231,17 +2256,17 @@
                 }
               }
             },
-            "description": "Sending an invalid scan request returns an unprocessable entity error. Your models might be outdated."
+            "description": "The request was decoded but failed validation. The error data names the offending attribute."
           },
           "429": {
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/elementalerror"
                 }
               }
             },
-            "description": "Too many requests. You are being rate limited."
+            "description": "The rate limit of this Apex was exceeded. Retry later."
           },
           "500": {
             "content": {
@@ -2251,7 +2276,7 @@
                 }
               }
             },
-            "description": "Processing the scan request failed because policies could not be assigned or running the analysis failed internally."
+            "description": "Apex could not complete the request because running the analysis, the redaction or the conversion of the result into a response failed."
           }
         },
         "tags": [

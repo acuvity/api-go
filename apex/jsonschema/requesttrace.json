@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "RequestTrace",
+  "$friendlyNamePlural": "RequestTraces",
+  "$modelName": "RequestTrace",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "requesttraces",
+  "$modelRestName": "requesttrace",
+  "additionalProperties": false,
+  "description": "RequestTrace is the trace context a caller hands to the Apex APIs so that this request is placed inside the caller's own trace. It is deliberately narrower than the trace reference reported back on the response: the caller only says which trace this request belongs to and which span to hang it under. Everything else about the span, meaning its ID, name, kind, start, end and status, describes what Apex actually did, so Apex generates it.",
+  "properties": {
+    "parentSpanID": {
+      "$friendlyName": "Parent Span ID",
+      "description": "The span ID, as a hex encoded string, that the span Apex creates for this request must be a child of. Leave it out when you have a trace but no span to attach this request to, in which case the span Apex creates becomes a root span of that trace.",
+      "title": "parentSpanID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "traceID": {
+      "$friendlyName": "Trace ID",
+      "$required": true,
+      "description": "The trace ID, as a hex encoded string, this request belongs to.",
+      "title": "traceID",
+      "type": "string"
+    }
+  },
+  "required": [
+    "traceID"
+  ],
+  "title": "RequestTrace",
+  "type": "object"
+}

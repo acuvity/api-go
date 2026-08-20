@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/mail"
 	"net/url"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -158,6 +159,10 @@ func ValidateTagsExpression(attribute string, expression [][]string) error {
 
 	for _, tags := range expression {
 
+		if len(tags) == 0 {
+			return makeErr(attribute, "Empty tag expression condition not allowed")
+		}
+
 		for _, tag := range tags {
 
 			if err := ValidateTag(attribute, tag); err != nil {
@@ -195,8 +200,18 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 	index := 0
 	for i, moderation := range contentPolicy.Moderations {
 
+		if moderation.Action == ModerationActionNone && !moderation.Redact && strings.TrimSpace(moderation.AlertDefinition) == "" {
+			return makeErr(fmt.Sprintf("moderations/%d", i), "Each moderation must have at least one option enabled: Alert, Redact, or Action")
+		}
+
 		if err := ValidateToolMisalignmentExploit(moderation, i); err != nil {
 			return err
+		}
+
+		for j, predicate := range moderation.Predicates {
+			if predicate.Key == PredicateKeyMCPAttacks {
+				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), "'MCPAttacks' can only be used in threat definitions")
+			}
 		}
 
 		if moderation.Redact {
@@ -206,7 +221,7 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 					continue
 				}
 				if predicate.Operator == PredicateOperatorEqualsOrGreaterThan {
-					return makeErr(fmt.Sprintf("moderation/%d/predicates/%d", i, j), fmt.Sprintf("Cannot pair %s '%s' with redaction; use '%s' or '%s' instead",
+					return makeErr(fmt.Sprintf("moderations/%d/predicates/%d", i, j), fmt.Sprintf("Cannot pair %s '%s' with redaction; use '%s' or '%s' instead",
 						predicate.Key, predicate.Operator, PredicateOperatorAny, PredicateOperatorNotEmpty,
 					))
 				}
@@ -215,16 +230,41 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 				break
 			}
 			if !hasRedactedValue {
-				return makeErr(fmt.Sprintf("moderation/%d/predicates/%d", i, index), "'Redact' must have at least one keyword, PII, CDT or secret tied to it")
+				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d", i, index), "'Redact' must have at least one keyword, PII, CDT or secret tied to it")
 			}
 		}
 
 		if moderation.Action == ModerationActionWarn && strings.ReplaceAll(moderation.Message, " ", "") == "" {
-			return makeErr(fmt.Sprintf("moderation/%d/message", i), "'Message' must not be empty when 'Action' is 'Warn'")
+			return makeErr(fmt.Sprintf("moderations/%d/message", i), "'Message' must not be empty when 'Action' is 'Warn'")
 		}
 
 		if moderation.Action == ModerationActionBlock && strings.ReplaceAll(moderation.Message, " ", "") == "" {
-			return makeErr(fmt.Sprintf("moderation/%d/message", i), "'Message' must not be empty when 'Action' is 'Block'")
+			return makeErr(fmt.Sprintf("moderations/%d/message", i), "'Message' must not be empty when 'Action' is 'Block'")
+		}
+	}
+
+	return nil
+}
+
+// ValidateThreatDefinition validates the entire threat definition object.
+func ValidateThreatDefinition(threatDefinition *ThreatDefinition) error {
+
+	allowedMatchKeys := map[PredicateKeyValue]struct{}{
+		PredicateKeyExploits:    {},
+		PredicateKeyKeywords:    {},
+		PredicateKeyLanguages:   {},
+		PredicateKeyMalcontents: {},
+		PredicateKeyMCPAttacks:  {},
+		PredicateKeyPIIs:        {},
+		PredicateKeySecrets:     {},
+	}
+
+	for i, predicate := range threatDefinition.Match {
+		if _, ok := allowedMatchKeys[predicate.Key]; !ok {
+			return makeErr(
+				fmt.Sprintf("match/%d/key", i),
+				"Threat definition 'match' only supports keys 'Exploits', 'Keywords', 'Languages', 'Malcontents', 'MCPAttacks', 'PIIs', and 'Secrets'",
+			)
 		}
 	}
 
@@ -267,6 +307,10 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 	}
 	for i, criteria := range accessPolicy.Match {
 
+		if criteria.Key == PredicateKeyMCPAttacks {
+			return makeErr(fmt.Sprintf("match/%d/key", i), "'MCPAttacks' can only be used in threat definitions")
+		}
+
 		keyop := [2]string{string(criteria.Key), string(criteria.Operator)}
 		if _, ok := seenPredicates[keyop]; !ok {
 			seenPredicates[keyop] = struct{}{}
@@ -288,7 +332,10 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 			}
 
 			oppositeValues := valueOverlapPredicates[oppositeKeyOp]
-			for _, value := range criteria.Values {
+			for j, value := range criteria.Values {
+				if !reflect.TypeOf(value).Comparable() {
+					return makeErr(fmt.Sprintf("match/%d/values/%d", i, j), fmt.Sprintf("value must be a comparable type (string, number, or boolean), not %T", value))
+				}
 				if _, ok := oppositeValues[value]; ok {
 					// Ensure consistent operator order in error message
 					op1, op2 := criteria.Operator, oppositeOperator
@@ -802,13 +849,37 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyMCPAttacks:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'MCPAttacks' only supports operators 'Any' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'MCPAttacks' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPAttacks' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPAttacks' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'MCPAttacks' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyMCPServer:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
 			return makeErr("operator", "Key 'MCPServer' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
 		}
 		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
-				return makeErr("values", "'MCPServer' must have at least one value")
+				return makeErr("values", "'MCP Servers' must have at least one value")
 			}
 			for i, v := range v {
 				strVal, ok := v.(string)
@@ -847,6 +918,60 @@ func ValidatePredicate(p *Predicate) error {
 		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
 			if len(v) > 0 {
 				return makeErr("values", "Key 'Gateways' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyMetadata:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'Metadata' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'Metadata' must have at least one value")
+			}
+			seenVals := make(map[string]struct{}, len(v))
+			var metaKey string
+			for i, val := range v {
+				strVal, ok := val.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Metadata' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Metadata' must not have a value that contains a quote")
+				}
+				parts := strings.SplitN(strVal, "/", 2)
+				if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Metadata' values must be in the form '<metadata-key>/<metadata-value>'")
+				}
+				if metaKey == "" {
+					metaKey = parts[0]
+				} else if metaKey != parts[0] {
+					return makeErr(fmt.Sprintf("values/%d", i), "All Metadata values must use the same metadata key")
+				}
+				if _, ok := seenVals[strVal]; ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Metadata' must not have duplicate values")
+				}
+				seenVals[strVal] = struct{}{}
+			}
+		}
+
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) != 1 {
+				return makeErr("values", "Key 'Metadata' only supports exactly one bare metadata key when operation is 'Empty' or 'NotEmpty'")
+			}
+			strVal, ok := v[0].(string)
+			if !ok {
+				return makeErr("values/0", "Key 'Metadata' only supports string values")
+			}
+			if strings.Contains(strVal, "/") {
+				return makeErr("values/0", "Key 'Metadata' must not contain '/' for Empty/NotEmpty operators")
+			}
+			if strVal == "" {
+				return makeErr("values/0", "Key 'Metadata' must not be empty")
+			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr("values/0", "Key 'Metadata' must not have a value that contains a quote")
 			}
 		}
 
@@ -1165,6 +1290,37 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyEmailDomain:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'EmailDomain' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
+			if len(v) == 0 {
+				return makeErr("values", "'EmailDomain' must have at least one value")
+			}
+			m := make(map[string]struct{}, len(v))
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' only supports string values")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have a value that contains a quote")
+				}
+				strVal = strings.ToLower(strVal)
+				if _, ok := m[strVal]; ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have duplicate values")
+				}
+				m[strVal] = struct{}{}
+				p.Values[i] = strVal
+			}
+		}
+		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'EmailDomain' only supports no values when operation is 'Empty' or 'NotEmpty'")
+			}
+		}
+
 	case PredicateKeyTopics:
 		if o != PredicateOperatorAny {
 			return makeErr("operator", "Key 'Topics' only supports operator 'Any'")
@@ -1326,36 +1482,43 @@ func ValidateSink(sink *Sink) error {
 		if sink.Databahn == nil {
 			return makeErr("databahn", "'Databahn' must have its configuration defined.")
 		}
-		if sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
+		if sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
 			return makeErr("type", "If type is 'Databahn', only the databahn property must be set.")
 		}
 	case SinkTypeEmail:
 		if sink.Email == nil {
 			return makeErr("email", "'Email' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
+		if sink.Databahn != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
 			return makeErr("type", "If type is 'Email', only the email property must be set.")
 		}
 	case SinkTypePagerDuty:
 		if sink.PagerDuty == nil {
 			return makeErr("pagerDuty", "'PagerDuty' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.Slack != nil || sink.Splunk != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
 			return makeErr("type", "If type is 'PageDuty', only the pagerDuty property must be set.")
 		}
 	case SinkTypeSlack:
 		if sink.Slack == nil {
 			return makeErr("slack", "'Slack' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Splunk != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Splunk != nil || sink.MsTeams != nil {
 			return makeErr("type", "If type is 'Slack', only the slack property must be set.")
 		}
 	case SinkTypeSplunk:
 		if sink.Splunk == nil {
 			return makeErr("splunk", "'Splunk' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.MsTeams != nil {
 			return makeErr("type", "If type is 'Splunk', only the splunk property must be set.")
+		}
+	case SinkTypeMSTeams:
+		if sink.MsTeams == nil {
+			return makeErr("msTeams", "'MSTeams' must have its configuration defined.")
+		}
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
+			return makeErr("type", "If type is 'MSTeams', only the msTeams property must be set.")
 		}
 	}
 
@@ -1472,15 +1635,21 @@ func ValidateMTLSSource(source *MTLSSource) error {
 		entra = &a3sapi.MTLSSourceEntra{}
 	}
 
+	var googleWorkspace *a3sapi.MTLSSourceGoogle
+	if source.GoogleWorkspaceApplicationCredentials != nil {
+		googleWorkspace = &a3sapi.MTLSSourceGoogle{}
+	}
+
 	var okta *a3sapi.MTLSSourceOkta
 	if source.OktaApplicationCredentials != nil {
 		okta = &a3sapi.MTLSSourceOkta{}
 	}
 
 	return a3sapi.ValidateMTLSSource(&a3sapi.MTLSSource{
-		ClaimsRetrievalMode:         a3sapi.MTLSSourceClaimsRetrievalModeValue(source.ClaimsRetrievalMode),
-		EntraApplicationCredentials: entra,
-		OktaApplicationCredentials:  okta,
+		ClaimsRetrievalMode:                   a3sapi.MTLSSourceClaimsRetrievalModeValue(source.ClaimsRetrievalMode),
+		EntraApplicationCredentials:           entra,
+		GoogleWorkspaceApplicationCredentials: googleWorkspace,
+		OktaApplicationCredentials:            okta,
 	})
 }
 
@@ -1654,6 +1823,19 @@ func ValidatePort(attribute string, portStr string) error {
 
 	if port <= 0 || port >= 65535 {
 		return makeErr(attribute, fmt.Sprintf("Invalid port '%d': must be within range of 0 and 65535", port))
+	}
+
+	return nil
+}
+
+// ValidatePorts checks that every port in the given list is a valid port number
+// in the range 1-65535.
+func ValidatePorts(attribute string, ports []int) error {
+
+	for i, port := range ports {
+		if port < 1 || port > 65535 {
+			return makeErr(attribute, fmt.Sprintf("Invalid port '%d' at index %d: must be within range of 1 and 65535", port, i))
+		}
 	}
 
 	return nil
@@ -2044,6 +2226,48 @@ func ValidateKubernetesWorkloadGroupSelector(kubernetesSelector *KubernetesWorkl
 	}
 }
 
+// ValidateConnectionMonitorSelector validates the connection monitor selector object.
+func ValidateConnectionMonitorSelector(selector *ConnectionMonitorSelector) error {
+
+	// NOTE: 'required' on a refList is not enforced by the generated code, so the
+	// non-empty check has to happen here.
+	if len(selector.WorkloadGroupSetSelectors) == 0 {
+		return makeErr("workloadGroupSetSelectors", "At least one workload group set selector must be defined.")
+	}
+
+	return nil
+}
+
+// ValidateConnectionMonitorWorkloadGroupSetSelector validates the connection monitor
+// workload group set selector object.
+func ValidateConnectionMonitorWorkloadGroupSetSelector(setSelector *ConnectionMonitorWorkloadGroupSetSelector) error {
+
+	switch setSelector.Type {
+	case ConnectionMonitorWorkloadGroupSetSelectorTypeKubernetes:
+		if setSelector.Kubernetes == nil {
+			return makeErr("kubernetes", "Kubernetes workload group set selector must be defined if connection monitor workload group set selector 'type' is set to 'Kubernetes'.")
+		}
+		return nil
+	default:
+		return makeErr("type", fmt.Sprintf("Unknown connection monitor workload group set selector type '%s'.", setSelector.Type))
+	}
+}
+
+// ValidateConnectionMonitorWorkloadGroupSelector validates the connection monitor
+// workload group selector object.
+func ValidateConnectionMonitorWorkloadGroupSelector(selector *ConnectionMonitorWorkloadGroupSelector) error {
+
+	switch selector.Type {
+	case ConnectionMonitorWorkloadGroupSelectorTypeKubernetes:
+		if selector.Kubernetes == nil {
+			return makeErr("kubernetes", "Kubernetes workload group selector must be defined if connection monitor workload group selector 'type' is set to 'Kubernetes'.")
+		}
+		return nil
+	default:
+		return makeErr("type", fmt.Sprintf("Unknown connection monitor workload group selector type '%s'.", selector.Type))
+	}
+}
+
 // ValidateAppReport validates the app report object.
 func ValidateAppReport(appReport *AppReport) error {
 	if len(appReport.ConnectionReports) == 0 && len(appReport.DNSReports) == 0 {
@@ -2113,12 +2337,22 @@ func ValidateConnectionReport(connectionReport *ConnectionReport) error {
 
 // ValidateEgressPolicy validates the egress policy object.
 func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
+
+	if len(egressPolicy.ExcludedUserClaims) > 0 && len(egressPolicy.UserClaims) == 0 {
+		return makeErr("excludedUserClaims", "'excludedUserClaims' can only be set when 'userClaims' is also set")
+	}
+
 	return nil
 }
 
 // ValidateIngressPolicy validates the ingress policy object.
 func ValidateIngressPolicy(ingressPolicy *IngressPolicy) error {
 	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
+
+	if len(ingressPolicy.ExcludedUserClaims) > 0 && len(ingressPolicy.UserClaims) == 0 {
+		return makeErr("excludedUserClaims", "'excludedUserClaims' can only be set when 'userClaims' is also set")
+	}
+
 	return nil
 }
 
@@ -2175,7 +2409,7 @@ func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int
 
 	if hasIntentToolMismatch && !hasToolUsesWithNames {
 		return makeErr(
-			fmt.Sprintf("moderation/%d/predicates/%d", moderationIndex, exploitIndex),
+			fmt.Sprintf("moderations/%d/predicates/%d", moderationIndex, exploitIndex),
 			fmt.Sprintf(
 				"Tool misalignment exploit need to be paired with Tool Use with '%s' or '%s' operator",
 				PredicateOperatorAny,
@@ -2261,12 +2495,36 @@ func ValidateGatewaySlugs(attribute string, slugs SlugsList) error {
 }
 
 func ValidateAppComponentEgressPolicies(attribute string, policies []*EgressPolicy) error {
-	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
+
+	if len(policies) == 0 {
+		return nil
+	}
+
+	policyNames := make(map[string]int, len(policies))
+	for i, policy := range policies {
+		if idx, ok := policyNames[policy.Name]; ok {
+			return makeErr(attribute, fmt.Sprintf("policy[%d]: egress policy with same name exists at index %d", i, idx))
+		}
+		policyNames[policy.Name] = i
+	}
+
 	return nil
 }
 
 func ValidateAppComponentIngressPolicies(attribute string, policies []*IngressPolicy) error {
-	// UNIFIED TODO: validate the policy itself, but for now we just want to make sure that the app component is not used in multiple policies
+
+	if len(policies) == 0 {
+		return nil
+	}
+
+	policyNames := make(map[string]int, len(policies))
+	for i, policy := range policies {
+		if idx, ok := policyNames[policy.Name]; ok {
+			return makeErr(attribute, fmt.Sprintf("policy[%d]: ingress policy with same name exists at index %d", i, idx))
+		}
+		policyNames[policy.Name] = i
+	}
+
 	return nil
 }
 

@@ -294,6 +294,18 @@ func (o *ContentPolicy) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *ContentPolicy) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *ContentPolicy) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *ContentPolicy) GetImportHash() string {
 
@@ -316,6 +328,18 @@ func (o *ContentPolicy) GetImportLabel() string {
 func (o *ContentPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *ContentPolicy) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *ContentPolicy) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -689,8 +713,10 @@ var ContentPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -743,7 +769,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -852,8 +880,10 @@ var ContentPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -906,7 +936,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1334,6 +1366,22 @@ func (o *SparseContentPolicy) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseContentPolicy) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseContentPolicy) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseContentPolicy) GetImportHash() (out string) {
 
@@ -1364,6 +1412,22 @@ func (o *SparseContentPolicy) GetImportLabel() (out string) {
 func (o *SparseContentPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseContentPolicy) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseContentPolicy) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.

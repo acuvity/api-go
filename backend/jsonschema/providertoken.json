@@ -3,7 +3,8 @@
     "@sharded",
     "@identifiable",
     "@timed",
-    "@parentable"
+    "@parentable",
+    "@auto-propagated"
   ],
   "$friendlyName": "Provider Token",
   "$friendlyNamePlural": "Provider Tokens",
@@ -43,13 +44,6 @@
         "null"
       ]
     },
-    "keyID": {
-      "$friendlyName": "Key ID",
-      "$required": true,
-      "description": "The key ID used to identify the encryption key for this token.",
-      "title": "keyID",
-      "type": "string"
-    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,
@@ -70,10 +64,27 @@
         "null"
       ]
     },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "publicKeyName": {
+      "$friendlyName": "Public Key Name",
+      "$required": true,
+      "description": "The name of the public key used to encrypt this token.",
+      "title": "publicKeyName",
+      "type": "string"
+    },
     "token": {
       "$friendlyName": "Token",
       "$required": true,
-      "description": "Token that will be encrypted using the key referenced by keyID.",
+      "description": "Token that will be encrypted using the key referenced by publicKeyName.",
       "title": "token",
       "type": "string"
     },
@@ -89,7 +100,7 @@
     }
   },
   "required": [
-    "keyID",
+    "publicKeyName",
     "token"
   ],
   "title": "ProviderToken",

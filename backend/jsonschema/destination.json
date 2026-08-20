@@ -32,10 +32,12 @@
     },
     "host": {
       "$friendlyName": "Host",
-      "$required": true,
-      "description": "The host name of the request.",
+      "description": "The host name of the request. Optional, matching the destination of a scan or police request: the caller may omit it, and it is only filled in when the resolved provider or app component declares a host of its own.",
       "title": "host",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "ip": {
       "$friendlyName": "IP",
@@ -95,9 +97,7 @@
       ]
     }
   },
-  "required": [
-    "host"
-  ],
+  "required": [],
   "title": "Destination",
   "type": "object"
 }

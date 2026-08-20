@@ -144,6 +144,21 @@
         "null"
       ]
     },
+    "policyRef": {
+      "$friendlyName": "Policy Reference",
+      "$ref": "policyref.json",
+      "description": "Reference to the threat definition that triggered this finding.",
+      "title": "policyRef"
+    },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "References to the threat definitions that triggered this finding.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
+    },
     "resolutionIdentities": {
       "$friendlyName": "Identities",
       "description": "The identities that can resolve this finding.",

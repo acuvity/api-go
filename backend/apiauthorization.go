@@ -47,6 +47,9 @@ const (
 	// APIAuthorizationRoleSecurityAdministrator represents the value SecurityAdministrator.
 	APIAuthorizationRoleSecurityAdministrator APIAuthorizationRoleValue = "SecurityAdministrator"
 
+	// APIAuthorizationRoleSecurityViewer represents the value SecurityViewer.
+	APIAuthorizationRoleSecurityViewer APIAuthorizationRoleValue = "SecurityViewer"
+
 	// APIAuthorizationRoleViewer represents the value Viewer.
 	APIAuthorizationRoleViewer APIAuthorizationRoleValue = "Viewer"
 )
@@ -529,8 +532,12 @@ func (o *APIAuthorization) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"}, false); err != nil {
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"Administrator", "SecurityAdministrator", "SecurityViewer", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredExternal("subject", o.Subject); err != nil {
+		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
@@ -724,7 +731,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"Role": {
-		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"},
+		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "SecurityViewer", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -742,6 +749,7 @@ same import operation.`,
 		Exposed:        true,
 		Name:           "subject",
 		Orderable:      true,
+		Required:       true,
 		Stored:         true,
 		SubType:        "[][]string",
 		Type:           "external",
@@ -893,7 +901,7 @@ same import operation.`,
 		Type:           "list",
 	},
 	"role": {
-		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"},
+		AllowedChoices: []string{"Administrator", "SecurityAdministrator", "SecurityViewer", "Application", "Custom", "Employee", "OpenTelemetryCollector", "Owner", "Proxy", "Viewer", "ExternalIDP", "Maxibridge"},
 		BSONFieldName:  "role",
 		ConvertedName:  "Role",
 		Description:    `The role for the subjects.`,
@@ -911,6 +919,7 @@ same import operation.`,
 		Exposed:        true,
 		Name:           "subject",
 		Orderable:      true,
+		Required:       true,
 		Stored:         true,
 		SubType:        "[][]string",
 		Type:           "external",

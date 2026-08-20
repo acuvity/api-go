@@ -13,8 +13,8 @@ import (
 
 // AIGatewayConfToken represents the model of a aigatewayconftoken
 type AIGatewayConfToken struct {
-	// The token, encrypted using the key referenced by keyID, consumed by the AI
-	// Gateway.
+	// The token, encrypted using the key referenced by publicKeyName, consumed by
+	// the AI Gateway.
 	EncryptedToken string `json:"encryptedToken,omitempty" msgpack:"encryptedToken,omitempty" bson:"-" mapstructure:"encryptedToken,omitempty"`
 
 	// The header key used to pass the token to the provider.
@@ -23,8 +23,8 @@ type AIGatewayConfToken struct {
 	// The header value used to pass the token to the provider.
 	HeaderValue string `json:"headerValue,omitempty" msgpack:"headerValue,omitempty" bson:"-" mapstructure:"headerValue,omitempty"`
 
-	// The key ID used to identify the encryption key for this token.
-	KeyID string `json:"keyID,omitempty" msgpack:"keyID,omitempty" bson:"-" mapstructure:"keyID,omitempty"`
+	// The name of the public key used to encrypt this token.
+	PublicKeyName string `json:"publicKeyName,omitempty" msgpack:"publicKeyName,omitempty" bson:"-" mapstructure:"publicKeyName,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -179,8 +179,8 @@ func (o *AIGatewayConfToken) ValueForAttribute(name string) any {
 		return o.HeaderKey
 	case "headerValue":
 		return o.HeaderValue
-	case "keyID":
-		return o.KeyID
+	case "publicKeyName":
+		return o.PublicKeyName
 	}
 
 	return nil
@@ -191,8 +191,8 @@ var AIGatewayConfTokenAttributesMap = map[string]elemental.AttributeSpecificatio
 	"EncryptedToken": {
 		AllowedChoices: []string{},
 		ConvertedName:  "EncryptedToken",
-		Description: `The token, encrypted using the key referenced by keyID, consumed by the AI
-Gateway.`,
+		Description: `The token, encrypted using the key referenced by publicKeyName, consumed by
+the AI Gateway.`,
 		Exposed: true,
 		Name:    "encryptedToken",
 		Type:    "string",
@@ -213,12 +213,12 @@ Gateway.`,
 		Name:           "headerValue",
 		Type:           "string",
 	},
-	"KeyID": {
+	"PublicKeyName": {
 		AllowedChoices: []string{},
-		ConvertedName:  "KeyID",
-		Description:    `The key ID used to identify the encryption key for this token.`,
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt this token.`,
 		Exposed:        true,
-		Name:           "keyID",
+		Name:           "publicKeyName",
 		Type:           "string",
 	},
 }
@@ -228,8 +228,8 @@ var AIGatewayConfTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"encryptedtoken": {
 		AllowedChoices: []string{},
 		ConvertedName:  "EncryptedToken",
-		Description: `The token, encrypted using the key referenced by keyID, consumed by the AI
-Gateway.`,
+		Description: `The token, encrypted using the key referenced by publicKeyName, consumed by
+the AI Gateway.`,
 		Exposed: true,
 		Name:    "encryptedToken",
 		Type:    "string",
@@ -250,12 +250,12 @@ Gateway.`,
 		Name:           "headerValue",
 		Type:           "string",
 	},
-	"keyid": {
+	"publickeyname": {
 		AllowedChoices: []string{},
-		ConvertedName:  "KeyID",
-		Description:    `The key ID used to identify the encryption key for this token.`,
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt this token.`,
 		Exposed:        true,
-		Name:           "keyID",
+		Name:           "publicKeyName",
 		Type:           "string",
 	},
 }

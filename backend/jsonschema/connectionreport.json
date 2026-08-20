@@ -44,6 +44,24 @@
         "null"
       ]
     },
+    "deployment": {
+      "$friendlyName": "Deployment",
+      "description": "The name of the deployment that produced this report.",
+      "title": "deployment",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deploymentInstance": {
+      "$friendlyName": "Deployment Instance",
+      "description": "The hostname of the deployment instance that produced this report.",
+      "title": "deploymentInstance",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "direction": {
       "$friendlyName": "Direction",
       "$required": true,
@@ -87,7 +105,7 @@
     },
     "gateway": {
       "$friendlyName": "Gateway",
-      "description": "The name of the gateway that produced this report.",
+      "description": "DEPRECATED The name of the gateway that produced this report.",
       "title": "gateway",
       "type": [
         "string",
@@ -96,7 +114,7 @@
     },
     "gatewayInstance": {
       "$friendlyName": "Gateway Instance",
-      "description": "The hostname of the gateway instance that produced this report.",
+      "description": "DEPRECATED The hostname of the gateway instance that produced this report.",
       "title": "gatewayInstance",
       "type": [
         "string",

@@ -222,6 +222,12 @@
       },
       "type": "array"
     },
+    "aisecurityprobes": {
+      "items": {
+        "$ref": "aisecurityprobe.json"
+      },
+      "type": "array"
+    },
     "aiskills": {
       "items": {
         "$ref": "aiskill.json"
@@ -297,6 +303,18 @@
     "apiauthorizations": {
       "items": {
         "$ref": "apiauthorization.json"
+      },
+      "type": "array"
+    },
+    "appagentconfs": {
+      "items": {
+        "$ref": "appagentconf.json"
+      },
+      "type": "array"
+    },
+    "appagentconfupdates": {
+      "items": {
+        "$ref": "appagentconfupdate.json"
       },
       "type": "array"
     },
@@ -429,6 +447,24 @@
     "connectionencryptions": {
       "items": {
         "$ref": "connectionencryption.json"
+      },
+      "type": "array"
+    },
+    "connectionmonitorselectors": {
+      "items": {
+        "$ref": "connectionmonitorselector.json"
+      },
+      "type": "array"
+    },
+    "connectionmonitorworkloadgroupselectors": {
+      "items": {
+        "$ref": "connectionmonitorworkloadgroupselector.json"
+      },
+      "type": "array"
+    },
+    "connectionmonitorworkloadgroupsetselectors": {
+      "items": {
+        "$ref": "connectionmonitorworkloadgroupsetselector.json"
       },
       "type": "array"
     },
@@ -756,9 +792,33 @@
       },
       "type": "array"
     },
+    "mcpserverscopes": {
+      "items": {
+        "$ref": "mcpserverscope.json"
+      },
+      "type": "array"
+    },
     "mcptoolannotations": {
       "items": {
         "$ref": "mcptoolannotations.json"
+      },
+      "type": "array"
+    },
+    "mcptools": {
+      "items": {
+        "$ref": "mcptool.json"
+      },
+      "type": "array"
+    },
+    "mcptoolscopes": {
+      "items": {
+        "$ref": "mcptoolscope.json"
+      },
+      "type": "array"
+    },
+    "mcptoolsnapshots": {
+      "items": {
+        "$ref": "mcptoolsnapshot.json"
       },
       "type": "array"
     },
@@ -801,6 +861,12 @@
     "mtlssourceentra": {
       "items": {
         "$ref": "mtlssourceentra.json"
+      },
+      "type": "array"
+    },
+    "mtlssourcegoogle": {
+      "items": {
+        "$ref": "mtlssourcegoogle.json"
       },
       "type": "array"
     },
@@ -1107,6 +1173,12 @@
     "sinkemail": {
       "items": {
         "$ref": "sinkemail.json"
+      },
+      "type": "array"
+    },
+    "sinkmsteams": {
+      "items": {
+        "$ref": "sinkmsteams.json"
       },
       "type": "array"
     },

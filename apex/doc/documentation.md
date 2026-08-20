@@ -99,23 +99,20 @@ The namespace of the object.
 
 ### PoliceRequest
 
-This is a police request.
+This is a police request. Police enforces policy, so an egress request must name
+its target: either a provider or a destination app and component.
 
 #### Example
 
 ```json
 {
-  "annotations": {
-    "key1": "value1",
-    "key2": "value2"
-  },
   "anonymization": "FixedSize",
-  "bypassHash": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
+  "conversationID": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
+  "direction": "Egress",
   "messages": [
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
-  "model": "claude-3-7-sonnet",
   "provider": "openai",
   "tools": "{
   \"tool1\": {
@@ -135,12 +132,6 @@ Processes the scan and police request.
 
 #### Attributes
 
-##### `annotations`
-
-Type: `map[string]string`
-
-Annotations attached to the extraction.
-
 ##### `anonymization`
 
 Type: `enum(FixedSize | VariableSize)`
@@ -153,21 +144,15 @@ Default value:
 "FixedSize"
 ```
 
-##### `app`
-
-Type: [`requestapp`](#requestapp)
-
-The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.
-
-##### `bypassHash`
+##### `conversationID`
 
 Type: `string`
 
-In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.
+Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.
 
 ##### `destination`
 
@@ -175,6 +160,25 @@ Type: [`requestdestination`](#requestdestination)
 
 The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.
+
+##### `direction`
+
+Type: `enum(Egress | Ingress)`
+
+The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.
+
+Default value:
+
+```json
+"Egress"
+```
 
 ##### `extractions`
 
@@ -189,18 +193,23 @@ Type: `[]string`
 Messages to process and provide detections for. Use data in extractions for
 processing binary data.
 
-##### `model`
-
-Type: `string`
-
-The model used by the request.
-
 ##### `provider`
 
 Type: `string`
 
 The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.
+
+##### `source`
+
+Type: [`requestsource`](#requestsource)
+
+The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.
 
 ##### `tools`
 
@@ -210,23 +219,19 @@ The various tools used by the request.
 
 ##### `trace`
 
-Type: [`traceref`](#traceref)
+Type: [`requesttrace`](#requesttrace)
 
-References to the trace of the request.
+The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.
 
 ##### `type`
 
 Type: `enum(Input | Output)`
 
 The type of text.
-
-##### `user`
-
-Type: [`requestuser`](#requestuser)
-
-The user information for this request. For police requests in an employees
-namespace, this represents the end user on whose behalf the request is made
-and is used for policy resolution via team assignment.
 
 ### PoliceResponse
 
@@ -238,8 +243,11 @@ This is a scan and police response.
 {
   "client": "curl",
   "clientVersion": "7.64.1",
+  "contentRedacted": false,
   "decision": "Deny",
   "model": "claude-3-7-sonnet",
+  "offband": false,
+  "permissive": false,
   "principal": "{
   \"type\": \"User\",
   \"user\": {
@@ -292,6 +300,15 @@ Type: `string`
 
 The version of the client used to send the request.
 
+##### `contentRedacted`
+
+Type: `boolean`
+
+If true, the content of the extractions was stripped from the audit entry for
+this request, and only the analysis and other metadata were kept. This is
+driven by the policy that produced this decision, so it is reported here
+because the caller has no other way to know it happened.
+
 ##### `decision`
 
 Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | NotApplicable | Error | UpstreamError)`
@@ -309,6 +326,12 @@ Error field instead.
 NOTE: safe to drop Error and UpstreamError from this enum on or
 after 2026-07-19 (two months after the structured RoundtripError
 landed on 2026-05-19), once consumers have rolled forward.
+
+##### `destination`
+
+Type: [`destination`](#destination)
+
+Captures all details of the destination of the request.
 
 ##### `error`
 
@@ -353,6 +376,29 @@ The model used by the request.
 Type: `string`
 
 The namespace of the object.
+
+##### `offband`
+
+Type: `boolean`
+
+If true, the policy that produced this decision asked for the analysis to
+run offband. The decision was therefore made without waiting for the
+analyzers, so the extractions in this response carry no detections, and any
+redaction the analyzers would have found was not applied. The full analyzer
+set runs after this response is sent, so the stored roundtrip for this
+request can report a stricter outcome than the one reported here.
+
+##### `permissive`
+
+Type: `boolean`
+
+If true, the policy that produced this decision is configured in permissive
+mode, so the content decision reported here is what the policy would have
+enforced and is not meant to be enforced. A caller acting on this response
+must let the request through when the decision is Deny, Ask or Report.
+This covers the content decision only. A decision of ForbiddenUser comes
+from the access policy, which permissive does not affect, and must still be
+enforced.
 
 ##### `pipelineName`
 
@@ -426,100 +472,15 @@ Type: `enum(Input | Output)`
 
 The type of text.
 
-### RequestApp
-
-RequestApp holds the application processing information for a request. For
-police requests in an apps namespace, this is required when using an AppToken.
-When using a ComponentToken, the app and component are inferred from the token
-claims; if provided, they must match. For scan requests, this is optional and
-enhances logging with app/component context.
-
-#### Example
-
-```json
-{
-  "IP": "192.0.2.42",
-  "component": "email-agent",
-  "direction": "Egress",
-  "name": "acme-ai-app",
-  "userClaims": [
-    "name=John Doe",
-    "email=john.doe@acme.com",
-    "@validated=false"
-  ],
-  "username": "john.doe@acme.com"
-}
-```
-
-#### Attributes
-
-##### `IP`
-
-Type: `string`
-
-The source IP address of the request.
-
-##### `component` [`required`]
-
-Type: `string`
-
-The name of the component.
-
-##### `direction` [`required`]
-
-Type: `enum(Egress | Ingress)`
-
-The direction of the traffic for this request. Determines whether ingress or
-egress policies are evaluated for the app component.
-
-Default value:
-
-```json
-"Egress"
-```
-
-##### `ingressSourceToken`
-
-Type: `string`
-
-A valid component token representing the source application component for
-ingress requests. When set, it will be validated and used to populate the
-request principal with the source app/component identity. Only applicable
-when the direction is Ingress.
-
-##### `name` [`required`]
-
-Type: `string`
-
-The name of the application.
-
-##### `port`
-
-Type: `integer`
-
-The port of the ingress listener for this request. Required when direction
-is Ingress to select the correct listener configuration. Mirrors the
-X-Acuvity-Ingress-Port header used by the cloud-apex agent.
-
-##### `userClaims`
-
-Type: `[]string`
-
-The optional user claims of the request. This can be an incomplete list, and
-claims can be mapped to different keys.
-
-##### `username`
-
-Type: `string`
-
-The optional username of the request.
-
 ### RequestDestination
 
 RequestDestination holds the destination information for a request. When app
 and component are set, the request is evaluated against the app component's
 policies instead of a provider. In that case, the provider field must not be
 set.
+On the police API an egress request must name its target, so app and component
+are required unless a provider is given. On the scan API they may be left out
+to run a plain scan that targets nothing.
 
 #### Example
 
@@ -528,7 +489,8 @@ set.
   "app": "other-ai-app",
   "component": "backend",
   "host": "api.openai.com",
-  "ip": "192.0.2.42"
+  "ip": "192.0.2.42",
+  "port": 443
 }
 ```
 
@@ -538,13 +500,15 @@ set.
 
 Type: `string`
 
-The name of the destination application.
+The name of the destination application. Only takes effect together with
+component: setting one without the other counts as no destination at all.
 
 ##### `component`
 
 Type: `string`
 
-The component of the destination application.
+The component of the destination application. Only takes effect together with
+app: setting one without the other counts as no destination at all.
 
 ##### `host`
 
@@ -558,17 +522,28 @@ Type: `string`
 
 The destination IP address. Optional, for logging enrichment.
 
-### RequestUser
+##### `port`
 
-RequestUser holds the user information for a request. For police requests in an
-employees namespace, this represents the end user on whose behalf the request
-is made and is used for policy resolution. For scan requests, this is optional
-and enhances logging with user context.
+Type: `integer`
+
+The destination port of the request. Optional: when it is not set, 443 is
+assumed. It is made available to policies as destinationPort.
+
+### RequestSource
+
+RequestSource holds the information about where a request originates from. On
+egress, the source is the app component the caller's token identifies, and this
+only carries optional enrichment. On ingress, the source is whoever is calling
+into that app component, and the token field identifies it.
+The username and userClaims are only used when no token is given, or when the
+given token carries no user identity of its own: identity derived from a
+validated token always wins over identity asserted in the request body.
 
 #### Example
 
 ```json
 {
+  "ip": "192.0.2.42",
   "userClaims": [
     "name=John Doe",
     "email=john.doe@acme.com",
@@ -579,6 +554,23 @@ and enhances logging with user context.
 ```
 
 #### Attributes
+
+##### `ip`
+
+Type: `string`
+
+The source IP address of the request. Optional, for logging enrichment.
+
+##### `token`
+
+Type: `string`
+
+A valid token identifying the source of the request. Only applicable when the
+direction is Ingress. This can either be a component token, in which case the
+request principal is populated with the source app and component identity, or
+a token issued for an application component OAuth client, in which case the
+source app and component as well as the user identity are both derived from
+it.
 
 ##### `userClaims`
 
@@ -593,9 +585,48 @@ Type: `string`
 
 The optional username of the request.
 
+### RequestTrace
+
+RequestTrace is the trace context a caller hands to the Apex APIs so that this
+request is placed inside the caller's own trace. It is deliberately narrower
+than
+the trace reference reported back on the response: the caller only says which
+trace this request belongs to and which span to hang it under. Everything else
+about the span, meaning its ID, name, kind, start, end and status, describes
+what
+Apex actually did, so Apex generates it.
+
+#### Example
+
+```json
+{
+  "parentSpanID": "00f067aa0ba902b7",
+  "traceID": "4bf92f3577b34da6a3ce929d0e0e4736"
+}
+```
+
+#### Attributes
+
+##### `parentSpanID`
+
+Type: `string`
+
+The span ID, as a hex encoded string, that the span Apex creates for this
+request must be a child of. Leave it out when you have a trace but no span to
+attach this request to, in which case the span Apex creates becomes a root span
+of that trace.
+
+##### `traceID` [`required`]
+
+Type: `string`
+
+The trace ID, as a hex encoded string, this request belongs to.
+
 ### ScanRequest
 
-This is a scan request.
+This is a scan request. Scan enforces no policy, so unlike police it can be used
+as a plain analyzer with no destination in mind: provider, destination and
+direction may all be left out.
 
 #### Example
 
@@ -604,12 +635,9 @@ This is a scan request.
   "analyzers": [
     "Malcontents"
   ],
-  "annotations": {
-    "key1": "value1",
-    "key2": "value2"
-  },
   "anonymization": "FixedSize",
-  "bypassHash": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
+  "conversationID": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
+  "direction": "Egress",
   "keywords": [
     "legal",
     "technical",
@@ -619,9 +647,9 @@ This is a scan request.
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
-  "minimalLogging": false,
-  "model": "claude-3-7-sonnet",
   "provider": "openai",
+  "redactContent": false,
+  "redactContentBypass": false,
   "redactions": [
     "person",
     "ssn",
@@ -644,19 +672,6 @@ This is a scan request.
 Processes the scan request.
 
 #### Attributes
-
-##### `accessPolicy`
-
-Type: `string`
-
-AccessPolicy allows to pass optional Rego access policy. If not set,
-The action is always Allow,
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.
 
 ##### `analyzers`
 
@@ -683,12 +698,6 @@ An analyzers entry can be specified using:
 
 If left empty, all default analyzers will be executed.
 
-##### `annotations`
-
-Type: `map[string]string`
-
-Annotations attached to the extraction.
-
 ##### `anonymization`
 
 Type: `enum(FixedSize | VariableSize)`
@@ -701,34 +710,15 @@ Default value:
 "FixedSize"
 ```
 
-##### `app`
-
-Type: [`requestapp`](#requestapp)
-
-The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.
-
-##### `bypassHash`
+##### `conversationID`
 
 Type: `string`
 
-In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.
-
-##### `contentPolicy`
-
-Type: `string`
-
-ContentPolicy allows to pass optional Rego content policy. If not set,
-The action is always Allow, and there cannot be any alerts raised etc
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.
+Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.
 
 ##### `destination`
 
@@ -736,6 +726,25 @@ Type: [`requestdestination`](#requestdestination)
 
 The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.
+
+##### `direction`
+
+Type: `enum(Egress | Ingress)`
+
+The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.
+
+Default value:
+
+```json
+"Egress"
+```
 
 ##### `extractions`
 
@@ -756,26 +765,32 @@ Type: `[]string`
 Messages to process and provide detections for. Use data in extractions for
 processing binary data.
 
-##### `minimalLogging`
-
-Type: `boolean`
-
-If true, the system will skip logging roundtrips with an Allow decision.
-Denials, errors, and other non-Allow decisions are still logged. When
-combined with no embedded policy, this effectively disables all logging.
-
-##### `model`
-
-Type: `string`
-
-The model used by the request.
-
 ##### `provider`
 
 Type: `string`
 
 The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.
+
+##### `redactContent`
+
+Type: `boolean`
+
+If true, the user data is removed from the logged roundtrip, while the
+analysis and all other metadata are kept. This only affects what is logged:
+the response of this call always carries the full content.
+
+##### `redactContentBypass`
+
+Type: `boolean`
+
+If true, and redactContent is also true, the user data is kept in the
+logged roundtrip whenever the decision reports a violation, so that the
+content behind a denial stays available for review. It has no effect on
+its own.
 
 ##### `redactions`
 
@@ -783,11 +798,29 @@ Type: `[]string`
 
 The redactions to perform if they are detected.
 
+##### `source`
+
+Type: [`requestsource`](#requestsource)
+
+The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.
+
 ##### `tools`
 
 Type: [`map[string]tool`](#tool)
 
 The various tools used by the request.
+
+##### `trace`
+
+Type: [`requesttrace`](#requesttrace)
+
+The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.
 
 ##### `type`
 
@@ -805,6 +838,7 @@ This is a scan response.
 {
   "client": "curl",
   "clientVersion": "7.64.1",
+  "contentRedacted": false,
   "decision": "Deny",
   "model": "claude-3-7-sonnet",
   "principal": "{
@@ -859,6 +893,15 @@ Type: `string`
 
 The version of the client used to send the request.
 
+##### `contentRedacted`
+
+Type: `boolean`
+
+If true, the content of the extractions was stripped from the audit entry for
+this request, and only the analysis and other metadata were kept. It reports
+what actually happened, which is not the same as what was requested:
+redactContentBypass can leave the content in place.
+
 ##### `decision`
 
 Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | Redirected | NotApplicable | Error | UpstreamError)`
@@ -876,6 +919,12 @@ Error field instead.
 NOTE: safe to drop Error and UpstreamError from this enum on or
 after 2026-07-19 (two months after the structured RoundtripError
 landed on 2026-05-19), once consumers have rolled forward.
+
+##### `destination`
+
+Type: [`destination`](#destination)
+
+Captures all details of the destination of the request.
 
 ##### `error`
 
@@ -1207,6 +1256,87 @@ The name of the model.
 Type: `string`
 
 The revision of the model.
+
+### Destination
+
+Represents the destination that this request was made to.
+
+#### Example
+
+```json
+{
+  "app": "MyApp",
+  "component": "frontend",
+  "host": "api.openai.com",
+  "ip": "192.0.2.42",
+  "labels": [
+    "country=us",
+    "another-label"
+  ],
+  "workloadGroupHash": "wg-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
+  "workloadGroupSetHash": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+  "workloadGroupSetLabel": "k8s:namespace=demo"
+}
+```
+
+#### Attributes
+
+##### `app`
+
+Type: `string`
+
+The name of the application that the domain belongs to.
+
+##### `component`
+
+Type: `string`
+
+The component of the application that the domain belongs to.
+
+##### `host`
+
+Type: `string`
+
+The host name of the request. Optional, matching the destination of a scan or
+police request: the caller may omit it, and it is only filled in when the
+resolved provider or app component declares a host of its own.
+
+##### `ip`
+
+Type: `string`
+
+The destination IP address of the request.
+
+##### `labels`
+
+Type: `[]string`
+
+The list of labels attached to the application request destination.
+
+##### `workloadGroupHash`
+
+Type: `string`
+
+The hash of the workload group this application belongs to.
+
+##### `workloadGroupLabel`
+
+Type: `string`
+
+The label format of the workload group this application belongs to.
+
+##### `workloadGroupSetHash`
+
+Type: `string`
+
+The hash of the workload group set this application belongs to.
+
+##### `workloadGroupSetLabel`
+
+Type: `string`
+
+The label format of the workload group set this application belongs to.
 
 ### Detector
 
@@ -1668,9 +1798,6 @@ Represents the extraction that the user wants to extract.
 
 ```json
 {
-  "internal": false,
-  "isFile": false,
-  "isStored": false,
   "kind": "Message",
   "role": "User"
 }
@@ -1678,36 +1805,11 @@ Represents the extraction that the user wants to extract.
 
 #### Attributes
 
-##### `annotations`
-
-Type: `map[string]string`
-
-Annotations attached to the extraction.
-
 ##### `data`
 
 Type: `[]byte`
 
 The binary data to request extraction for.
-
-##### `internal`
-
-Type: `boolean`
-
-If true, this extraction is for internal use only. This can be used by agentic
-systems to mark an extraction as internal only as opposed to user facing.
-
-##### `isFile`
-
-Type: `boolean`
-
-If true, the data of the extraction is a file.
-
-##### `isStored`
-
-Type: `boolean`
-
-If true, indicates that the file has been stored.
 
 ##### `kind`
 
@@ -1733,13 +1835,6 @@ Default value:
 ```json
 "Message"
 ```
-
-##### `label`
-
-Type: `string`
-
-Contains events and other information that are not actual user content, and will
-not go through analysis.
 
 ##### `role`
 
@@ -1860,6 +1955,13 @@ How much time it took to run content analysis in nanoseconds.
 Type: `integer`
 
 How much time it took to run the assign policy in nanoseconds.
+
+##### `contentAttribution`
+
+Type: `integer`
+
+How much time it took to attribute a content decision to conversation
+extractions in nanoseconds.
 
 ##### `contentPolicy`
 
@@ -2459,13 +2561,14 @@ the policy would have decided otherwise.
 
 ##### `stage`
 
-Type: `enum(Extraction | Analysis | ContentPolicy | AssignPolicy | AccessPolicy | Upstream)`
+Type: `enum(Extraction | Analysis | ContentPolicy | AssignPolicy | AccessPolicy | Upstream | Redaction)`
 
 The pipeline component that produced the error. Combined with the
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,
+Redaction),
 customer-owned (ContentPolicy), provider-owned (Upstream).
 
 ##### `type`

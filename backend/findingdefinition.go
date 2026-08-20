@@ -276,6 +276,18 @@ func (o *FindingDefinition) String() string {
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *FindingDefinition) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *FindingDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *FindingDefinition) GetImportHash() string {
 
@@ -298,6 +310,18 @@ func (o *FindingDefinition) GetImportLabel() string {
 func (o *FindingDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *FindingDefinition) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *FindingDefinition) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -641,8 +665,10 @@ var FindingDefinitionAttributesMap = map[string]elemental.AttributeSpecification
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -694,7 +720,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -811,8 +839,10 @@ var FindingDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -864,7 +894,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1270,6 +1302,22 @@ func (o *SparseFindingDefinition) DecryptAttributes(encrypter elemental.Attribut
 	return nil
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseFindingDefinition) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseFindingDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseFindingDefinition) GetImportHash() (out string) {
 
@@ -1300,6 +1348,22 @@ func (o *SparseFindingDefinition) GetImportLabel() (out string) {
 func (o *SparseFindingDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseFindingDefinition) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseFindingDefinition) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.

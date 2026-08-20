@@ -1,0 +1,57 @@
+{
+  "$extends": [
+    "@userinfo"
+  ],
+  "$friendlyName": "RequestSource",
+  "$friendlyNamePlural": "RequestSources",
+  "$modelName": "RequestSource",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "requestsources",
+  "$modelRestName": "requestsource",
+  "additionalProperties": false,
+  "description": "RequestSource holds the information about where a request originates from. On egress, the source is the app component the caller's token identifies, and this only carries optional enrichment. On ingress, the source is whoever is calling into that app component, and the token field identifies it. The username and userClaims are only used when no token is given, or when the given token carries no user identity of its own: identity derived from a validated token always wins over identity asserted in the request body.",
+  "properties": {
+    "ip": {
+      "$friendlyName": "IP",
+      "description": "The source IP address of the request. Optional, for logging enrichment.",
+      "title": "ip",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "token": {
+      "$friendlyName": "Token",
+      "description": "A valid token identifying the source of the request. Only applicable when the direction is Ingress. This can either be a component token, in which case the request principal is populated with the source app and component identity, or a token issued for an application component OAuth client, in which case the source app and component as well as the user identity are both derived from it.",
+      "title": "token",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The optional user claims of the request. This can be an incomplete list, and claims can be mapped to different keys.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    },
+    "username": {
+      "$friendlyName": "Username",
+      "description": "The optional username of the request.",
+      "title": "username",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "RequestSource",
+  "type": "object"
+}

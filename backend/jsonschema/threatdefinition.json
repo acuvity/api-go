@@ -2,6 +2,7 @@
   "$extends": [
     "@sharded",
     "@identifiable",
+    "@importable",
     "@timed",
     "@namelinkable",
     "@auto-propagated"
@@ -59,6 +60,26 @@
       "description": "Friendly name of the object.",
       "title": "friendlyName",
       "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "match": {
       "$friendlyName": "Match",

@@ -27,6 +27,24 @@
       "title": "AIDomains",
       "type": "array"
     },
+    "AIGatewayConnectors": {
+      "$friendlyName": "AI Gateway Connectors",
+      "description": "AI Gateway Connectors to import.",
+      "items": {
+        "$ref": "aigatewayconnector.json"
+      },
+      "title": "AIGatewayConnectors",
+      "type": "array"
+    },
+    "AIGateways": {
+      "$friendlyName": "AI Gateways",
+      "description": "AI Gateways to import.",
+      "items": {
+        "$ref": "aigateway.json"
+      },
+      "title": "AIGateways",
+      "type": "array"
+    },
     "AIMCPServers": {
       "$friendlyName": "AI MCP Servers",
       "description": "AI MCP servers to import.",
@@ -43,6 +61,15 @@
         "$ref": "aiplugin.json"
       },
       "title": "AIPlugins",
+      "type": "array"
+    },
+    "AISecurityProbes": {
+      "$friendlyName": "AI Security Probes",
+      "description": "AI security probes to import.",
+      "items": {
+        "$ref": "aisecurityprobe.json"
+      },
+      "title": "AISecurityProbes",
       "type": "array"
     },
     "AISkills": {
@@ -335,6 +362,15 @@
         "$ref": "team.json"
       },
       "title": "teams",
+      "type": "array"
+    },
+    "threatDefinitions": {
+      "$friendlyName": "Threat Definitions",
+      "description": "Threat definitions to import.",
+      "items": {
+        "$ref": "threatdefinition.json"
+      },
+      "title": "threatDefinitions",
       "type": "array"
     },
     "visitedurls": {

@@ -1,0 +1,56 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "AppAgentConf",
+  "$friendlyNamePlural": "AppAgentConfs",
+  "$modelName": "AppAgentConf",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appagentconfs",
+  "$modelRestName": "appagentconf",
+  "additionalProperties": false,
+  "description": "AppAgentConf is the rendered configuration for a perrin deployment.",
+  "properties": {
+    "DNSMonitoring": {
+      "$friendlyName": "DNS Monitoring",
+      "description": "Whether DNS monitoring is enabled. True if any associated AI Security Probe has DNS monitoring enabled.",
+      "title": "DNSMonitoring",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectionMonitoring": {
+      "$friendlyName": "Connection Monitoring",
+      "description": "The merged list of connection monitoring selectors from all associated AI Security Probes.",
+      "items": {
+        "$ref": "connectionmonitorselector.json"
+      },
+      "title": "connectionMonitoring",
+      "type": "array"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppAgentConf",
+  "type": "object"
+}

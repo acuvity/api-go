@@ -91,11 +91,11 @@ type PublicKey struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments whose instances hold the corresponding private key.
-	Deployments []string `json:"deployments" msgpack:"deployments" bson:"deployments" mapstructure:"deployments,omitempty"`
-
 	// The description of the public key.
-	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// Friendly name of the object.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -104,10 +104,8 @@ type PublicKey struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The key ID used to reference this public key.
-	KeyID string `json:"keyID" msgpack:"keyID" bson:"keyid" mapstructure:"keyID,omitempty"`
-
-	// The name of the public key.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -136,7 +134,6 @@ func NewPublicKey() *PublicKey {
 
 	return &PublicKey{
 		ModelVersion: 1,
-		Deployments:  []string{},
 		Propagate:    true,
 	}
 }
@@ -173,11 +170,10 @@ func (o *PublicKey) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
-	s.Deployments = o.Deployments
 	s.Description = o.Description
+	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
-	s.KeyID = o.KeyID
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
@@ -204,11 +200,10 @@ func (o *PublicKey) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
-	o.Deployments = s.Deployments
 	o.Description = s.Description
+	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
-	o.KeyID = s.KeyID
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
@@ -262,6 +257,18 @@ func (o *PublicKey) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *PublicKey) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *PublicKey) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *PublicKey) GetImportHash() string {
 
@@ -284,6 +291,18 @@ func (o *PublicKey) GetImportLabel() string {
 func (o *PublicKey) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *PublicKey) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *PublicKey) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -329,20 +348,19 @@ func (o *PublicKey) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePublicKey{
-			ID:          &o.ID,
-			CreateTime:  &o.CreateTime,
-			Deployments: &o.Deployments,
-			Description: &o.Description,
-			ImportHash:  &o.ImportHash,
-			ImportLabel: &o.ImportLabel,
-			KeyID:       &o.KeyID,
-			Name:        &o.Name,
-			Namespace:   &o.Namespace,
-			Propagate:   &o.Propagate,
-			PublicKey:   &o.PublicKey,
-			UpdateTime:  &o.UpdateTime,
-			ZHash:       &o.ZHash,
-			Zone:        &o.Zone,
+			ID:           &o.ID,
+			CreateTime:   &o.CreateTime,
+			Description:  &o.Description,
+			FriendlyName: &o.FriendlyName,
+			ImportHash:   &o.ImportHash,
+			ImportLabel:  &o.ImportLabel,
+			Name:         &o.Name,
+			Namespace:    &o.Namespace,
+			Propagate:    &o.Propagate,
+			PublicKey:    &o.PublicKey,
+			UpdateTime:   &o.UpdateTime,
+			ZHash:        &o.ZHash,
+			Zone:         &o.Zone,
 		}
 	}
 
@@ -353,16 +371,14 @@ func (o *PublicKey) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
-		case "deployments":
-			sp.Deployments = &(o.Deployments)
 		case "description":
 			sp.Description = &(o.Description)
+		case "friendlyName":
+			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
-		case "keyID":
-			sp.KeyID = &(o.KeyID)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -396,20 +412,17 @@ func (o *PublicKey) Patch(sparse elemental.SparseIdentifiable) {
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
-	if so.Deployments != nil {
-		o.Deployments = *so.Deployments
-	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.FriendlyName != nil {
+		o.FriendlyName = *so.FriendlyName
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
-	}
-	if so.KeyID != nil {
-		o.KeyID = *so.KeyID
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -478,12 +491,19 @@ func (o *PublicKey) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("keyID", o.KeyID); err != nil {
+	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidateRequiredString("publicKey", o.PublicKey); err != nil {
@@ -535,16 +555,14 @@ func (o *PublicKey) ValueForAttribute(name string) any {
 		return o.ID
 	case "createTime":
 		return o.CreateTime
-	case "deployments":
-		return o.Deployments
 	case "description":
 		return o.Description
+	case "friendlyName":
+		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
-	case "keyID":
-		return o.KeyID
 	case "name":
 		return o.Name
 	case "namespace":
@@ -596,17 +614,6 @@ var PublicKeyAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
-	"Deployments": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "deployments",
-		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments whose instances hold the corresponding private key.`,
-		Exposed:        true,
-		Name:           "deployments",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -614,6 +621,19 @@ var PublicKeyAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `The description of the public key.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -645,28 +665,20 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"KeyID": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "keyid",
-		ConvertedName:  "KeyID",
-		CreationOnly:   true,
-		Description:    `The key ID used to reference this public key.`,
-		Exposed:        true,
-		Name:           "keyID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"Name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the public key.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -757,17 +769,6 @@ var PublicKeyLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Stored:         true,
 		Type:           "time",
 	},
-	"deployments": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "deployments",
-		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments whose instances hold the corresponding private key.`,
-		Exposed:        true,
-		Name:           "deployments",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
@@ -775,6 +776,19 @@ var PublicKeyLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Description:    `The description of the public key.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -806,28 +820,20 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
-	"keyid": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "keyid",
-		ConvertedName:  "KeyID",
-		CreationOnly:   true,
-		Description:    `The key ID used to reference this public key.`,
-		Exposed:        true,
-		Name:           "keyID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the public key.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -955,11 +961,11 @@ type SparsePublicKey struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments whose instances hold the corresponding private key.
-	Deployments *[]string `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
-
 	// The description of the public key.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Friendly name of the object.
+	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -968,10 +974,8 @@ type SparsePublicKey struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The key ID used to reference this public key.
-	KeyID *string `json:"keyID,omitempty" msgpack:"keyID,omitempty" bson:"keyid,omitempty" mapstructure:"keyID,omitempty"`
-
-	// The name of the public key.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -1041,20 +1045,17 @@ func (o *SparsePublicKey) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
-	if o.Deployments != nil {
-		s.Deployments = o.Deployments
-	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.FriendlyName != nil {
+		s.FriendlyName = o.FriendlyName
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
-	}
-	if o.KeyID != nil {
-		s.KeyID = o.KeyID
 	}
 	if o.Name != nil {
 		s.Name = o.Name
@@ -1099,20 +1100,17 @@ func (o *SparsePublicKey) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
-	if s.Deployments != nil {
-		o.Deployments = s.Deployments
-	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.FriendlyName != nil {
+		o.FriendlyName = s.FriendlyName
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
-	}
-	if s.KeyID != nil {
-		o.KeyID = s.KeyID
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1155,20 +1153,17 @@ func (o *SparsePublicKey) ToPlain() elemental.PlainIdentifiable {
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
-	if o.Deployments != nil {
-		out.Deployments = *o.Deployments
-	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.FriendlyName != nil {
+		out.FriendlyName = *o.FriendlyName
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
-	}
-	if o.KeyID != nil {
-		out.KeyID = *o.KeyID
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1223,6 +1218,22 @@ func (o *SparsePublicKey) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparsePublicKey) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparsePublicKey) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparsePublicKey) GetImportHash() (out string) {
 
@@ -1253,6 +1264,22 @@ func (o *SparsePublicKey) GetImportLabel() (out string) {
 func (o *SparsePublicKey) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparsePublicKey) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparsePublicKey) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -1328,34 +1355,32 @@ func (o *SparsePublicKey) DeepCopyInto(out *SparsePublicKey) {
 }
 
 type mongoAttributesPublicKey struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  time.Time     `bson:"createtime"`
-	Deployments []string      `bson:"deployments"`
-	Description string        `bson:"description,omitempty"`
-	ImportHash  string        `bson:"importhash,omitempty"`
-	ImportLabel string        `bson:"importlabel,omitempty"`
-	KeyID       string        `bson:"keyid"`
-	Name        string        `bson:"name"`
-	Namespace   string        `bson:"namespace,omitempty"`
-	Propagate   bool          `bson:"propagate"`
-	PublicKey   string        `bson:"publickey"`
-	UpdateTime  time.Time     `bson:"updatetime"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   time.Time     `bson:"createtime"`
+	Description  string        `bson:"description"`
+	FriendlyName string        `bson:"friendlyname"`
+	ImportHash   string        `bson:"importhash,omitempty"`
+	ImportLabel  string        `bson:"importlabel,omitempty"`
+	Name         string        `bson:"name"`
+	Namespace    string        `bson:"namespace,omitempty"`
+	Propagate    bool          `bson:"propagate"`
+	PublicKey    string        `bson:"publickey"`
+	UpdateTime   time.Time     `bson:"updatetime"`
+	ZHash        int           `bson:"zhash"`
+	Zone         int           `bson:"zone"`
 }
 type mongoAttributesSparsePublicKey struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  *time.Time    `bson:"createtime,omitempty"`
-	Deployments *[]string     `bson:"deployments,omitempty"`
-	Description *string       `bson:"description,omitempty"`
-	ImportHash  *string       `bson:"importhash,omitempty"`
-	ImportLabel *string       `bson:"importlabel,omitempty"`
-	KeyID       *string       `bson:"keyid,omitempty"`
-	Name        *string       `bson:"name,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	Propagate   *bool         `bson:"propagate,omitempty"`
-	PublicKey   *string       `bson:"publickey,omitempty"`
-	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   *time.Time    `bson:"createtime,omitempty"`
+	Description  *string       `bson:"description,omitempty"`
+	FriendlyName *string       `bson:"friendlyname,omitempty"`
+	ImportHash   *string       `bson:"importhash,omitempty"`
+	ImportLabel  *string       `bson:"importlabel,omitempty"`
+	Name         *string       `bson:"name,omitempty"`
+	Namespace    *string       `bson:"namespace,omitempty"`
+	Propagate    *bool         `bson:"propagate,omitempty"`
+	PublicKey    *string       `bson:"publickey,omitempty"`
+	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
+	ZHash        *int          `bson:"zhash,omitempty"`
+	Zone         *int          `bson:"zone,omitempty"`
 }

@@ -4,7 +4,8 @@
     "@importable",
     "@identifiable",
     "@timed",
-    "@auto-propagated"
+    "@auto-propagated",
+    "@namelinkable"
   ],
   "$friendlyName": "PublicKey",
   "$friendlyNamePlural": "PublicKeys",
@@ -35,18 +36,6 @@
         "null"
       ]
     },
-    "deployments": {
-      "$friendlyName": "Deployments",
-      "description": "The name of the deployments whose instances hold the corresponding private key.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "deployments",
-      "type": "array"
-    },
     "description": {
       "$friendlyName": "Description",
       "description": "The description of the public key.",
@@ -55,6 +44,13 @@
         "string",
         "null"
       ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
     },
     "importHash": {
       "$creationOnly": true,
@@ -76,20 +72,16 @@
         "null"
       ]
     },
-    "keyID": {
-      "$creationOnly": true,
-      "$friendlyName": "Key ID",
-      "$required": true,
-      "description": "The key ID used to reference this public key.",
-      "title": "keyID",
-      "type": "string"
-    },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "The name of the public key.",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -131,8 +123,7 @@
     }
   },
   "required": [
-    "keyID",
-    "name",
+    "friendlyName",
     "publicKey"
   ],
   "title": "PublicKey",

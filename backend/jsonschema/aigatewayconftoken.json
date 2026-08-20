@@ -11,7 +11,7 @@
   "properties": {
     "encryptedToken": {
       "$friendlyName": "Encrypted Token",
-      "description": "The token, encrypted using the key referenced by keyID, consumed by the AI Gateway.",
+      "description": "The token, encrypted using the key referenced by publicKeyName, consumed by the AI Gateway.",
       "title": "encryptedToken",
       "type": [
         "string",
@@ -36,10 +36,10 @@
         "null"
       ]
     },
-    "keyID": {
-      "$friendlyName": "Key ID",
-      "description": "The key ID used to identify the encryption key for this token.",
-      "title": "keyID",
+    "publicKeyName": {
+      "$friendlyName": "Public Key Name",
+      "description": "The name of the public key used to encrypt this token.",
+      "title": "publicKeyName",
       "type": [
         "string",
         "null"

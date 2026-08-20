@@ -20,6 +20,9 @@ const (
 	// MTLSSourceClaimsRetrievalModeEntra represents the value Entra.
 	MTLSSourceClaimsRetrievalModeEntra MTLSSourceClaimsRetrievalModeValue = "Entra"
 
+	// MTLSSourceClaimsRetrievalModeGoogleWorkspace represents the value GoogleWorkspace.
+	MTLSSourceClaimsRetrievalModeGoogleWorkspace MTLSSourceClaimsRetrievalModeValue = "GoogleWorkspace"
+
 	// MTLSSourceClaimsRetrievalModeOkta represents the value Okta.
 	MTLSSourceClaimsRetrievalModeOkta MTLSSourceClaimsRetrievalModeValue = "Okta"
 
@@ -134,6 +137,10 @@ type MTLSSource struct {
 	// The fingerprint of the CAs in the chain.
 	Fingerprints []string `json:"fingerprints" msgpack:"fingerprints" bson:"fingerprints" mapstructure:"fingerprints,omitempty"`
 
+	// Additional information required when claims retrieval mode is set to
+	// GoogleWorkspace.
+	GoogleWorkspaceApplicationCredentials *MTLSSourceGoogle `json:"googleWorkspaceApplicationCredentials" msgpack:"googleWorkspaceApplicationCredentials" bson:"googleworkspaceapplicationcredentials" mapstructure:"googleWorkspaceApplicationCredentials,omitempty"`
+
 	// A list of claims that will be filtered out from the identity token. A claim will
 	// be ignored if it is prefixed with one of the items in the ignoredKeys list. This
 	// runs before includedKeys computation.
@@ -233,6 +240,7 @@ func (o *MTLSSource) GetBSON() (any, error) {
 	s.Description = o.Description
 	s.EntraApplicationCredentials = o.EntraApplicationCredentials
 	s.Fingerprints = o.Fingerprints
+	s.GoogleWorkspaceApplicationCredentials = o.GoogleWorkspaceApplicationCredentials
 	s.IgnoredKeys = o.IgnoredKeys
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -270,6 +278,7 @@ func (o *MTLSSource) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.EntraApplicationCredentials = s.EntraApplicationCredentials
 	o.Fingerprints = s.Fingerprints
+	o.GoogleWorkspaceApplicationCredentials = s.GoogleWorkspaceApplicationCredentials
 	o.IgnoredKeys = s.IgnoredKeys
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -395,26 +404,27 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseMTLSSource{
-			CA:                          &o.CA,
-			ID:                          &o.ID,
-			ClaimsRetrievalMode:         &o.ClaimsRetrievalMode,
-			CreateTime:                  &o.CreateTime,
-			Description:                 &o.Description,
-			EntraApplicationCredentials: o.EntraApplicationCredentials,
-			Fingerprints:                &o.Fingerprints,
-			IgnoredKeys:                 &o.IgnoredKeys,
-			ImportHash:                  &o.ImportHash,
-			ImportLabel:                 &o.ImportLabel,
-			IncludedKeys:                &o.IncludedKeys,
-			Modifier:                    o.Modifier,
-			Name:                        &o.Name,
-			Namespace:                   &o.Namespace,
-			OktaApplicationCredentials:  o.OktaApplicationCredentials,
-			PrincipalUserX509Field:      &o.PrincipalUserX509Field,
-			SubjectKeyIDs:               &o.SubjectKeyIDs,
-			UpdateTime:                  &o.UpdateTime,
-			ZHash:                       &o.ZHash,
-			Zone:                        &o.Zone,
+			CA:                                    &o.CA,
+			ID:                                    &o.ID,
+			ClaimsRetrievalMode:                   &o.ClaimsRetrievalMode,
+			CreateTime:                            &o.CreateTime,
+			Description:                           &o.Description,
+			EntraApplicationCredentials:           o.EntraApplicationCredentials,
+			Fingerprints:                          &o.Fingerprints,
+			GoogleWorkspaceApplicationCredentials: o.GoogleWorkspaceApplicationCredentials,
+			IgnoredKeys:                           &o.IgnoredKeys,
+			ImportHash:                            &o.ImportHash,
+			ImportLabel:                           &o.ImportLabel,
+			IncludedKeys:                          &o.IncludedKeys,
+			Modifier:                              o.Modifier,
+			Name:                                  &o.Name,
+			Namespace:                             &o.Namespace,
+			OktaApplicationCredentials:            o.OktaApplicationCredentials,
+			PrincipalUserX509Field:                &o.PrincipalUserX509Field,
+			SubjectKeyIDs:                         &o.SubjectKeyIDs,
+			UpdateTime:                            &o.UpdateTime,
+			ZHash:                                 &o.ZHash,
+			Zone:                                  &o.Zone,
 		}
 	}
 
@@ -435,6 +445,8 @@ func (o *MTLSSource) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.EntraApplicationCredentials = o.EntraApplicationCredentials
 		case "fingerprints":
 			sp.Fingerprints = &(o.Fingerprints)
+		case "googleWorkspaceApplicationCredentials":
+			sp.GoogleWorkspaceApplicationCredentials = o.GoogleWorkspaceApplicationCredentials
 		case "ignoredKeys":
 			sp.IgnoredKeys = &(o.IgnoredKeys)
 		case "importHash":
@@ -495,6 +507,9 @@ func (o *MTLSSource) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Fingerprints != nil {
 		o.Fingerprints = *so.Fingerprints
 	}
+	if so.GoogleWorkspaceApplicationCredentials != nil {
+		o.GoogleWorkspaceApplicationCredentials = so.GoogleWorkspaceApplicationCredentials
+	}
 	if so.IgnoredKeys != nil {
 		o.IgnoredKeys = *so.IgnoredKeys
 	}
@@ -545,6 +560,12 @@ func (o *MTLSSource) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 		}
 	}
 
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		if err := o.GoogleWorkspaceApplicationCredentials.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'GoogleWorkspaceApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Modifier != nil {
 		if err := o.Modifier.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Modifier' for 'MTLSSource' (%s): %w", o.Identifier(), err)
@@ -566,6 +587,12 @@ func (o *MTLSSource) DecryptAttributes(encrypter elemental.AttributeEncrypter) (
 	if o.EntraApplicationCredentials != nil {
 		if err := o.EntraApplicationCredentials.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'EntraApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		if err := o.GoogleWorkspaceApplicationCredentials.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'GoogleWorkspaceApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -624,7 +651,7 @@ func (o *MTLSSource) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("claimsRetrievalMode", string(o.ClaimsRetrievalMode), []string{"Entra", "Okta", "X509"}, false); err != nil {
+	if err := elemental.ValidateStringInList("claimsRetrievalMode", string(o.ClaimsRetrievalMode), []string{"Entra", "GoogleWorkspace", "Okta", "X509"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -632,6 +659,13 @@ func (o *MTLSSource) Validate() error {
 		if err := o.EntraApplicationCredentials.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "entraApplicationCredentials")
+		}
+	}
+
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		if err := o.GoogleWorkspaceApplicationCredentials.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "googleWorkspaceApplicationCredentials")
 		}
 	}
 
@@ -718,6 +752,8 @@ func (o *MTLSSource) ValueForAttribute(name string) any {
 		return o.EntraApplicationCredentials
 	case "fingerprints":
 		return o.Fingerprints
+	case "googleWorkspaceApplicationCredentials":
+		return o.GoogleWorkspaceApplicationCredentials
 	case "ignoredKeys":
 		return o.IgnoredKeys
 	case "importHash":
@@ -778,7 +814,7 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"ClaimsRetrievalMode": {
-		AllowedChoices: []string{"Entra", "Okta", "X509"},
+		AllowedChoices: []string{"Entra", "GoogleWorkspace", "Okta", "X509"},
 		BSONFieldName:  "claimsretrievalmode",
 		ConvertedName:  "ClaimsRetrievalMode",
 		DefaultValue:   MTLSSourceClaimsRetrievalModeX509,
@@ -836,6 +872,18 @@ var MTLSSourceAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"GoogleWorkspaceApplicationCredentials": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "googleworkspaceapplicationcredentials",
+		ConvertedName:  "GoogleWorkspaceApplicationCredentials",
+		Description: `Additional information required when claims retrieval mode is set to
+GoogleWorkspace.`,
+		Exposed: true,
+		Name:    "googleWorkspaceApplicationCredentials",
+		Stored:  true,
+		SubType: "mtlssourcegoogle",
+		Type:    "ref",
 	},
 	"IgnoredKeys": {
 		AllowedChoices: []string{},
@@ -1012,7 +1060,7 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Type:           "string",
 	},
 	"claimsretrievalmode": {
-		AllowedChoices: []string{"Entra", "Okta", "X509"},
+		AllowedChoices: []string{"Entra", "GoogleWorkspace", "Okta", "X509"},
 		BSONFieldName:  "claimsretrievalmode",
 		ConvertedName:  "ClaimsRetrievalMode",
 		DefaultValue:   MTLSSourceClaimsRetrievalModeX509,
@@ -1070,6 +1118,18 @@ var MTLSSourceLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"googleworkspaceapplicationcredentials": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "googleworkspaceapplicationcredentials",
+		ConvertedName:  "GoogleWorkspaceApplicationCredentials",
+		Description: `Additional information required when claims retrieval mode is set to
+GoogleWorkspace.`,
+		Exposed: true,
+		Name:    "googleWorkspaceApplicationCredentials",
+		Stored:  true,
+		SubType: "mtlssourcegoogle",
+		Type:    "ref",
 	},
 	"ignoredkeys": {
 		AllowedChoices: []string{},
@@ -1301,6 +1361,10 @@ type SparseMTLSSource struct {
 	// The fingerprint of the CAs in the chain.
 	Fingerprints *[]string `json:"fingerprints,omitempty" msgpack:"fingerprints,omitempty" bson:"fingerprints,omitempty" mapstructure:"fingerprints,omitempty"`
 
+	// Additional information required when claims retrieval mode is set to
+	// GoogleWorkspace.
+	GoogleWorkspaceApplicationCredentials *MTLSSourceGoogle `json:"googleWorkspaceApplicationCredentials,omitempty" msgpack:"googleWorkspaceApplicationCredentials,omitempty" bson:"googleworkspaceapplicationcredentials,omitempty" mapstructure:"googleWorkspaceApplicationCredentials,omitempty"`
+
 	// A list of claims that will be filtered out from the identity token. A claim will
 	// be ignored if it is prefixed with one of the items in the ignoredKeys list. This
 	// runs before includedKeys computation.
@@ -1410,6 +1474,9 @@ func (o *SparseMTLSSource) GetBSON() (any, error) {
 	if o.Fingerprints != nil {
 		s.Fingerprints = o.Fingerprints
 	}
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		s.GoogleWorkspaceApplicationCredentials = o.GoogleWorkspaceApplicationCredentials
+	}
 	if o.IgnoredKeys != nil {
 		s.IgnoredKeys = o.IgnoredKeys
 	}
@@ -1486,6 +1553,9 @@ func (o *SparseMTLSSource) SetBSON(raw bson.Raw) error {
 	if s.Fingerprints != nil {
 		o.Fingerprints = s.Fingerprints
 	}
+	if s.GoogleWorkspaceApplicationCredentials != nil {
+		o.GoogleWorkspaceApplicationCredentials = s.GoogleWorkspaceApplicationCredentials
+	}
 	if s.IgnoredKeys != nil {
 		o.IgnoredKeys = s.IgnoredKeys
 	}
@@ -1560,6 +1630,9 @@ func (o *SparseMTLSSource) ToPlain() elemental.PlainIdentifiable {
 	if o.Fingerprints != nil {
 		out.Fingerprints = *o.Fingerprints
 	}
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		out.GoogleWorkspaceApplicationCredentials = o.GoogleWorkspaceApplicationCredentials
+	}
 	if o.IgnoredKeys != nil {
 		out.IgnoredKeys = *o.IgnoredKeys
 	}
@@ -1612,6 +1685,12 @@ func (o *SparseMTLSSource) EncryptAttributes(encrypter elemental.AttributeEncryp
 		}
 	}
 
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		if err := o.GoogleWorkspaceApplicationCredentials.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'GoogleWorkspaceApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Modifier != nil {
 		if err := o.Modifier.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Modifier' for 'MTLSSource' (%s): %w", o.Identifier(), err)
@@ -1633,6 +1712,12 @@ func (o *SparseMTLSSource) DecryptAttributes(encrypter elemental.AttributeEncryp
 	if o.EntraApplicationCredentials != nil {
 		if err := o.EntraApplicationCredentials.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'EntraApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.GoogleWorkspaceApplicationCredentials != nil {
+		if err := o.GoogleWorkspaceApplicationCredentials.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'GoogleWorkspaceApplicationCredentials' for 'MTLSSource' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1776,46 +1861,48 @@ func (o *SparseMTLSSource) DeepCopyInto(out *SparseMTLSSource) {
 }
 
 type mongoAttributesMTLSSource struct {
-	CA                          string                                `bson:"ca"`
-	ID                          bson.ObjectId                         `bson:"_id,omitempty"`
-	ClaimsRetrievalMode         MTLSSourceClaimsRetrievalModeValue    `bson:"claimsretrievalmode,omitempty"`
-	CreateTime                  time.Time                             `bson:"createtime"`
-	Description                 string                                `bson:"description"`
-	EntraApplicationCredentials *MTLSSourceEntra                      `bson:"entraapplicationcredentials"`
-	Fingerprints                []string                              `bson:"fingerprints"`
-	IgnoredKeys                 []string                              `bson:"ignoredkeys"`
-	ImportHash                  string                                `bson:"importhash,omitempty"`
-	ImportLabel                 string                                `bson:"importlabel,omitempty"`
-	IncludedKeys                []string                              `bson:"includedkeys"`
-	Modifier                    *IdentityModifier                     `bson:"modifier,omitempty"`
-	Name                        string                                `bson:"name"`
-	Namespace                   string                                `bson:"namespace,omitempty"`
-	OktaApplicationCredentials  *MTLSSourceOkta                       `bson:"oktaapplicationcredentials"`
-	PrincipalUserX509Field      MTLSSourcePrincipalUserX509FieldValue `bson:"principaluserx509field"`
-	SubjectKeyIDs               []string                              `bson:"subjectkeyids"`
-	UpdateTime                  time.Time                             `bson:"updatetime"`
-	ZHash                       int                                   `bson:"zhash"`
-	Zone                        int                                   `bson:"zone"`
+	CA                                    string                                `bson:"ca"`
+	ID                                    bson.ObjectId                         `bson:"_id,omitempty"`
+	ClaimsRetrievalMode                   MTLSSourceClaimsRetrievalModeValue    `bson:"claimsretrievalmode,omitempty"`
+	CreateTime                            time.Time                             `bson:"createtime"`
+	Description                           string                                `bson:"description"`
+	EntraApplicationCredentials           *MTLSSourceEntra                      `bson:"entraapplicationcredentials"`
+	Fingerprints                          []string                              `bson:"fingerprints"`
+	GoogleWorkspaceApplicationCredentials *MTLSSourceGoogle                     `bson:"googleworkspaceapplicationcredentials"`
+	IgnoredKeys                           []string                              `bson:"ignoredkeys"`
+	ImportHash                            string                                `bson:"importhash,omitempty"`
+	ImportLabel                           string                                `bson:"importlabel,omitempty"`
+	IncludedKeys                          []string                              `bson:"includedkeys"`
+	Modifier                              *IdentityModifier                     `bson:"modifier,omitempty"`
+	Name                                  string                                `bson:"name"`
+	Namespace                             string                                `bson:"namespace,omitempty"`
+	OktaApplicationCredentials            *MTLSSourceOkta                       `bson:"oktaapplicationcredentials"`
+	PrincipalUserX509Field                MTLSSourcePrincipalUserX509FieldValue `bson:"principaluserx509field"`
+	SubjectKeyIDs                         []string                              `bson:"subjectkeyids"`
+	UpdateTime                            time.Time                             `bson:"updatetime"`
+	ZHash                                 int                                   `bson:"zhash"`
+	Zone                                  int                                   `bson:"zone"`
 }
 type mongoAttributesSparseMTLSSource struct {
-	CA                          *string                                `bson:"ca,omitempty"`
-	ID                          bson.ObjectId                          `bson:"_id,omitempty"`
-	ClaimsRetrievalMode         *MTLSSourceClaimsRetrievalModeValue    `bson:"claimsretrievalmode,omitempty"`
-	CreateTime                  *time.Time                             `bson:"createtime,omitempty"`
-	Description                 *string                                `bson:"description,omitempty"`
-	EntraApplicationCredentials *MTLSSourceEntra                       `bson:"entraapplicationcredentials,omitempty"`
-	Fingerprints                *[]string                              `bson:"fingerprints,omitempty"`
-	IgnoredKeys                 *[]string                              `bson:"ignoredkeys,omitempty"`
-	ImportHash                  *string                                `bson:"importhash,omitempty"`
-	ImportLabel                 *string                                `bson:"importlabel,omitempty"`
-	IncludedKeys                *[]string                              `bson:"includedkeys,omitempty"`
-	Modifier                    *IdentityModifier                      `bson:"modifier,omitempty"`
-	Name                        *string                                `bson:"name,omitempty"`
-	Namespace                   *string                                `bson:"namespace,omitempty"`
-	OktaApplicationCredentials  *MTLSSourceOkta                        `bson:"oktaapplicationcredentials,omitempty"`
-	PrincipalUserX509Field      *MTLSSourcePrincipalUserX509FieldValue `bson:"principaluserx509field,omitempty"`
-	SubjectKeyIDs               *[]string                              `bson:"subjectkeyids,omitempty"`
-	UpdateTime                  *time.Time                             `bson:"updatetime,omitempty"`
-	ZHash                       *int                                   `bson:"zhash,omitempty"`
-	Zone                        *int                                   `bson:"zone,omitempty"`
+	CA                                    *string                                `bson:"ca,omitempty"`
+	ID                                    bson.ObjectId                          `bson:"_id,omitempty"`
+	ClaimsRetrievalMode                   *MTLSSourceClaimsRetrievalModeValue    `bson:"claimsretrievalmode,omitempty"`
+	CreateTime                            *time.Time                             `bson:"createtime,omitempty"`
+	Description                           *string                                `bson:"description,omitempty"`
+	EntraApplicationCredentials           *MTLSSourceEntra                       `bson:"entraapplicationcredentials,omitempty"`
+	Fingerprints                          *[]string                              `bson:"fingerprints,omitempty"`
+	GoogleWorkspaceApplicationCredentials *MTLSSourceGoogle                      `bson:"googleworkspaceapplicationcredentials,omitempty"`
+	IgnoredKeys                           *[]string                              `bson:"ignoredkeys,omitempty"`
+	ImportHash                            *string                                `bson:"importhash,omitempty"`
+	ImportLabel                           *string                                `bson:"importlabel,omitempty"`
+	IncludedKeys                          *[]string                              `bson:"includedkeys,omitempty"`
+	Modifier                              *IdentityModifier                      `bson:"modifier,omitempty"`
+	Name                                  *string                                `bson:"name,omitempty"`
+	Namespace                             *string                                `bson:"namespace,omitempty"`
+	OktaApplicationCredentials            *MTLSSourceOkta                        `bson:"oktaapplicationcredentials,omitempty"`
+	PrincipalUserX509Field                *MTLSSourcePrincipalUserX509FieldValue `bson:"principaluserx509field,omitempty"`
+	SubjectKeyIDs                         *[]string                              `bson:"subjectkeyids,omitempty"`
+	UpdateTime                            *time.Time                             `bson:"updatetime,omitempty"`
+	ZHash                                 *int                                   `bson:"zhash,omitempty"`
+	Zone                                  *int                                   `bson:"zone,omitempty"`
 }

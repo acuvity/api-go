@@ -10,6 +10,7 @@
   "description": "Represents a moderation to take in the content policy.",
   "properties": {
     "action": {
+      "$defaultValue": "None",
       "$friendlyName": "Action",
       "$required": true,
       "description": "The actual action to take when triggered.",

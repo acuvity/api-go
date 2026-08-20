@@ -23,6 +23,9 @@ const (
 	// SinkTypeEmail represents the value Email.
 	SinkTypeEmail SinkTypeValue = "Email"
 
+	// SinkTypeMSTeams represents the value MSTeams.
+	SinkTypeMSTeams SinkTypeValue = "MSTeams"
+
 	// SinkTypePagerDuty represents the value PagerDuty.
 	SinkTypePagerDuty SinkTypeValue = "PagerDuty"
 
@@ -130,6 +133,9 @@ type Sink struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Contains additional configuration for sending a Microsoft Teams message.
+	MsTeams *SinkMSTeams `json:"msTeams,omitempty" msgpack:"msTeams,omitempty" bson:"msteams,omitempty" mapstructure:"msTeams,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -212,6 +218,7 @@ func (o *Sink) GetBSON() (any, error) {
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.MsTeams = o.MsTeams
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.PagerDuty = o.PagerDuty
@@ -247,6 +254,7 @@ func (o *Sink) SetBSON(raw bson.Raw) error {
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.MsTeams = s.MsTeams
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.PagerDuty = s.PagerDuty
@@ -302,6 +310,18 @@ func (o *Sink) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *Sink) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *Sink) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *Sink) GetImportHash() string {
 
@@ -324,6 +344,18 @@ func (o *Sink) GetImportLabel() string {
 func (o *Sink) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *Sink) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *Sink) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -377,6 +409,7 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			FriendlyName: &o.FriendlyName,
 			ImportHash:   &o.ImportHash,
 			ImportLabel:  &o.ImportLabel,
+			MsTeams:      o.MsTeams,
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
 			PagerDuty:    o.PagerDuty,
@@ -409,6 +442,8 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "msTeams":
+			sp.MsTeams = o.MsTeams
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -466,6 +501,9 @@ func (o *Sink) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
+	if so.MsTeams != nil {
+		o.MsTeams = so.MsTeams
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -513,6 +551,12 @@ func (o *Sink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 		}
 	}
 
+	if o.MsTeams != nil {
+		if err := o.MsTeams.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MsTeams' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.PagerDuty != nil {
 		if err := o.PagerDuty.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
@@ -546,6 +590,12 @@ func (o *Sink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 	if o.Email != nil {
 		if err := o.Email.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.MsTeams != nil {
+		if err := o.MsTeams.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MsTeams' for 'Sink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -627,6 +677,13 @@ func (o *Sink) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.MsTeams != nil {
+		if err := o.MsTeams.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "msTeams")
+		}
+	}
+
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -656,7 +713,7 @@ func (o *Sink) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -715,6 +772,8 @@ func (o *Sink) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "msTeams":
+		return o.MsTeams
 	case "name":
 		return o.Name
 	case "namespace":
@@ -810,8 +869,10 @@ var SinkAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -843,6 +904,17 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"MsTeams": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "msteams",
+		ConvertedName:  "MsTeams",
+		Description:    `Contains additional configuration for sending a Microsoft Teams message.`,
+		Exposed:        true,
+		Name:           "msTeams",
+		Stored:         true,
+		SubType:        "sinkmsteams",
+		Type:           "ref",
+	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
@@ -852,7 +924,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -918,7 +992,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -1016,8 +1090,10 @@ var SinkLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1049,6 +1125,17 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"msteams": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "msteams",
+		ConvertedName:  "MsTeams",
+		Description:    `Contains additional configuration for sending a Microsoft Teams message.`,
+		Exposed:        true,
+		Name:           "msTeams",
+		Stored:         true,
+		SubType:        "sinkmsteams",
+		Type:           "ref",
+	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
@@ -1058,7 +1145,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1124,7 +1213,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -1240,6 +1329,9 @@ type SparseSink struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Contains additional configuration for sending a Microsoft Teams message.
+	MsTeams *SinkMSTeams `json:"msTeams,omitempty" msgpack:"msTeams,omitempty" bson:"msteams,omitempty" mapstructure:"msTeams,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1338,6 +1430,9 @@ func (o *SparseSink) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.MsTeams != nil {
+		s.MsTeams = o.MsTeams
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1408,6 +1503,9 @@ func (o *SparseSink) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.MsTeams != nil {
+		o.MsTeams = s.MsTeams
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -1476,6 +1574,9 @@ func (o *SparseSink) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
+	if o.MsTeams != nil {
+		out.MsTeams = o.MsTeams
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -1525,6 +1626,12 @@ func (o *SparseSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 		}
 	}
 
+	if o.MsTeams != nil {
+		if err := o.MsTeams.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MsTeams' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.PagerDuty != nil {
 		if err := o.PagerDuty.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'PagerDuty' for 'Sink' (%s): %w", o.Identifier(), err)
@@ -1558,6 +1665,12 @@ func (o *SparseSink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (
 	if o.Email != nil {
 		if err := o.Email.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Email' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.MsTeams != nil {
+		if err := o.MsTeams.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MsTeams' for 'Sink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1598,6 +1711,22 @@ func (o *SparseSink) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseSink) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseSink) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseSink) GetImportHash() (out string) {
 
@@ -1628,6 +1757,22 @@ func (o *SparseSink) GetImportLabel() (out string) {
 func (o *SparseSink) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseSink) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseSink) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -1711,6 +1856,7 @@ type mongoAttributesSink struct {
 	FriendlyName string         `bson:"friendlyname"`
 	ImportHash   string         `bson:"importhash,omitempty"`
 	ImportLabel  string         `bson:"importlabel,omitempty"`
+	MsTeams      *SinkMSTeams   `bson:"msteams,omitempty"`
 	Name         string         `bson:"name"`
 	Namespace    string         `bson:"namespace,omitempty"`
 	PagerDuty    *SinkPagerDuty `bson:"pagerduty,omitempty"`
@@ -1731,6 +1877,7 @@ type mongoAttributesSparseSink struct {
 	FriendlyName *string        `bson:"friendlyname,omitempty"`
 	ImportHash   *string        `bson:"importhash,omitempty"`
 	ImportLabel  *string        `bson:"importlabel,omitempty"`
+	MsTeams      *SinkMSTeams   `bson:"msteams,omitempty"`
 	Name         *string        `bson:"name,omitempty"`
 	Namespace    *string        `bson:"namespace,omitempty"`
 	PagerDuty    *SinkPagerDuty `bson:"pagerduty,omitempty"`

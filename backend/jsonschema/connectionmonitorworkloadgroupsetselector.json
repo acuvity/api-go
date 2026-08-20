@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Connection Monitor Workload Group Set Selector",
+  "$friendlyNamePlural": "Connection Monitor Workload Group Set Selectors",
+  "$modelName": "ConnectionMonitorWorkloadGroupSetSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "connectionmonitorworkloadgroupsetselectors",
+  "$modelRestName": "connectionmonitorworkloadgroupsetselector",
+  "additionalProperties": false,
+  "description": "Defines a workload group set selector for connection monitoring.",
+  "properties": {
+    "kubernetes": {
+      "$friendlyName": "Kubernetes",
+      "$ref": "kubernetesworkloadgroupsetselector.json",
+      "description": "If type is 'Kubernetes', this field contains the Kubernetes-specific selector configuration.",
+      "title": "kubernetes"
+    },
+    "type": {
+      "$defaultValue": "Kubernetes",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of selector.",
+      "enum": [
+        "Kubernetes"
+      ],
+      "title": "type"
+    },
+    "workloadGroupSelectors": {
+      "$friendlyName": "Workload Group Selectors",
+      "description": "An optional list of workload group selectors that selects all workload groups for which connection monitoring will be limited to within this workload group set. By default, all workload groups of this workload group set will be monitored.",
+      "items": {
+        "$ref": "connectionmonitorworkloadgroupselector.json"
+      },
+      "title": "workloadGroupSelectors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "ConnectionMonitorWorkloadGroupSetSelector",
+  "type": "object"
+}

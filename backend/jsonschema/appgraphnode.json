@@ -66,7 +66,8 @@
         "Provider",
         "AIDomain",
         "Domain",
-        "IP"
+        "IP",
+        "Deployment"
       ],
       "title": "type"
     },

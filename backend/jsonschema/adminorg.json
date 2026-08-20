@@ -31,6 +31,16 @@
         "null"
       ]
     },
+    "entitlementAgenticSecurity": {
+      "$defaultValue": false,
+      "$friendlyName": "Agentic Security Entitlement",
+      "description": "Indicates whether the organization is entitled to use Agentic Security.",
+      "title": "entitlementAgenticSecurity",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "forceReimportTemplate": {
       "$friendlyName": "Force Reimport Template",
       "description": "This property if true will force reimport the template data. Setting it false is a noop.",

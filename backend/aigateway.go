@@ -94,7 +94,7 @@ type AIGateway struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments this AI gateway is bound to.
+	// The name of the deployments this object is bound to.
 	Deployments []string `json:"deployments" msgpack:"deployments" bson:"deployments" mapstructure:"deployments,omitempty"`
 
 	// The description of the AI Gateway.
@@ -619,7 +619,7 @@ var AIGatewayAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "deployments",
 		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments this AI gateway is bound to.`,
+		Description:    `The name of the deployments this object is bound to.`,
 		Exposed:        true,
 		Name:           "deployments",
 		Stored:         true,
@@ -782,7 +782,7 @@ var AIGatewayLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		AllowedChoices: []string{},
 		BSONFieldName:  "deployments",
 		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments this AI gateway is bound to.`,
+		Description:    `The name of the deployments this object is bound to.`,
 		Exposed:        true,
 		Name:           "deployments",
 		Stored:         true,
@@ -970,7 +970,7 @@ type SparseAIGateway struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments this AI gateway is bound to.
+	// The name of the deployments this object is bound to.
 	Deployments *[]string `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
 
 	// The description of the AI Gateway.

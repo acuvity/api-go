@@ -263,6 +263,16 @@
         "string",
         "null"
       ]
+    },
+    "websocketOutputMode": {
+      "$defaultValue": "SingleFrame",
+      "$friendlyName": "WebSocket Output Mode",
+      "description": "This property defines how injected output should be written back to a WebSocket client. The default writes the injected output as a single WebSocket message.",
+      "enum": [
+        "SingleFrame",
+        "JSONArrayFrames"
+      ],
+      "title": "websocketOutputMode"
     }
   },
   "required": [

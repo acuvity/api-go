@@ -53,6 +53,12 @@ type IngressPolicy struct {
 	// If true, the policy is disabled.
 	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
+	// The list of excluded user claims that this rule applies to.
+	ExcludedUserClaims [][]string `json:"excludedUserClaims" msgpack:"excludedUserClaims" bson:"excludeduserclaims" mapstructure:"excludedUserClaims,omitempty"`
+
+	// DEPRECATED: use redactContent, optionally together with redactContentBypass,
+	// instead. Those keep the log entry and remove the user data from it, rather
+	// than dropping the entry altogether.
 	// If true, the system will not log the messages that are not considered as
 	// violations.
 	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
@@ -60,14 +66,25 @@ type IngressPolicy struct {
 	// The name of the access policy.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
-	// If true, the system will run analysis in parallel of the user request. When this
-	// is active, no further policing will be done, and no content policy will run.
-	// This can be used to observe the transmitted data and have analysis report,
-	// without adding latency to the end user request, at the price of not being able
-	// to do any form of content moderation.
+	// If true, the decision is made on the extracted data without waiting for the
+	// analyzers. The content policy still runs and is still enforced, but it sees
+	// no analysis, so any moderation that depends on a detector cannot match.
+	// That applies to redactions as well: a redaction the analyzers would have
+	// found is not applied, and the data reaches the provider unredacted.
+	// redactionFailClose does not catch this, because no redaction was ever
+	// requested.
+	// The full analyzer set then runs in parallel and its result is attached to
+	// the log, which can report a stricter outcome than the one the request
+	// received, but never changes it. This trades detection coverage on the live
+	// request for latency.
 	OffbandAnalysis bool `json:"offbandAnalysis" msgpack:"offbandAnalysis" bson:"offbandanalysis" mapstructure:"offbandAnalysis,omitempty"`
 
-	// If set, just log the decision, but don't enforce it.
+	// If set, the content decision is computed and reported but not enforced: the
+	// request and the response go through untouched, and the verdict the policy
+	// would have applied is recorded on the log entry instead. Redactions are not
+	// applied either.
+	// This covers the content decision only. Access is still enforced: a request
+	// this policy denies, or redirects, is still denied or redirected.
 	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
 	// The Policy ID is the unique identifier for this policy.
@@ -81,6 +98,17 @@ type IngressPolicy struct {
 	// violations.
 	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
 
+	// If true, reject the request when the content policy requires a redaction
+	// that cannot be applied, for example sensitive data detected inside a
+	// non-text attachment such as a PDF or an image, where there is no
+	// character range to rewrite. When false (default), the request is allowed
+	// through with the redaction unapplied and the failed attempt is recorded
+	// on the round-trip. Default false.
+	RedactionFailClose bool `json:"redactionFailClose" msgpack:"redactionFailClose" bson:"redactionfailclose" mapstructure:"redactionFailClose,omitempty"`
+
+	// The list of user claims that this rule applies to.
+	UserClaims [][]string `json:"userClaims" msgpack:"userClaims" bson:"userclaims" mapstructure:"userClaims,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -88,10 +116,12 @@ type IngressPolicy struct {
 func NewIngressPolicy() *IngressPolicy {
 
 	return &IngressPolicy{
-		ModelVersion:    1,
-		Action:          IngressPolicyActionAllow,
-		AppComponents:   []string{},
-		ContentPolicies: []string{},
+		ModelVersion:       1,
+		Action:             IngressPolicyActionAllow,
+		AppComponents:      []string{},
+		ContentPolicies:    []string{},
+		ExcludedUserClaims: [][]string{},
+		UserClaims:         [][]string{},
 	}
 }
 func (o *IngressPolicy) Identity() elemental.Identity {
@@ -123,6 +153,7 @@ func (o *IngressPolicy) GetBSON() (any, error) {
 	s.ContentPolicies = o.ContentPolicies
 	s.Description = o.Description
 	s.Disabled = o.Disabled
+	s.ExcludedUserClaims = o.ExcludedUserClaims
 	s.MinimalLogging = o.MinimalLogging
 	s.Name = o.Name
 	s.OffbandAnalysis = o.OffbandAnalysis
@@ -130,6 +161,8 @@ func (o *IngressPolicy) GetBSON() (any, error) {
 	s.PolicyID = o.PolicyID
 	s.RedactContent = o.RedactContent
 	s.RedactContentBypass = o.RedactContentBypass
+	s.RedactionFailClose = o.RedactionFailClose
+	s.UserClaims = o.UserClaims
 
 	return s, nil
 }
@@ -154,6 +187,7 @@ func (o *IngressPolicy) SetBSON(raw bson.Raw) error {
 	o.ContentPolicies = s.ContentPolicies
 	o.Description = s.Description
 	o.Disabled = s.Disabled
+	o.ExcludedUserClaims = s.ExcludedUserClaims
 	o.MinimalLogging = s.MinimalLogging
 	o.Name = s.Name
 	o.OffbandAnalysis = s.OffbandAnalysis
@@ -161,6 +195,8 @@ func (o *IngressPolicy) SetBSON(raw bson.Raw) error {
 	o.PolicyID = s.PolicyID
 	o.RedactContent = s.RedactContent
 	o.RedactContentBypass = s.RedactContentBypass
+	o.RedactionFailClose = s.RedactionFailClose
+	o.UserClaims = s.UserClaims
 
 	return nil
 }
@@ -235,6 +271,10 @@ func (o *IngressPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateTagsExpression("excludedUserClaims", o.ExcludedUserClaims); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -244,6 +284,10 @@ func (o *IngressPolicy) Validate() error {
 	}
 
 	if err := ValidateTrimmed("name", o.Name); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateTagsExpression("userClaims", o.UserClaims); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -300,6 +344,8 @@ func (o *IngressPolicy) ValueForAttribute(name string) any {
 		return o.Description
 	case "disabled":
 		return o.Disabled
+	case "excludedUserClaims":
+		return o.ExcludedUserClaims
 	case "minimalLogging":
 		return o.MinimalLogging
 	case "name":
@@ -314,6 +360,10 @@ func (o *IngressPolicy) ValueForAttribute(name string) any {
 		return o.RedactContent
 	case "redactContentBypass":
 		return o.RedactContentBypass
+	case "redactionFailClose":
+		return o.RedactionFailClose
+	case "userClaims":
+		return o.UserClaims
 	}
 
 	return nil
@@ -399,11 +449,26 @@ where the app/component is defined.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"ExcludedUserClaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludeduserclaims",
+		ConvertedName:  "ExcludedUserClaims",
+		Description:    `The list of excluded user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "excludedUserClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 	"MinimalLogging": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -426,11 +491,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -440,11 +511,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"PolicyID": {
 		AllowedChoices: []string{},
@@ -479,6 +555,32 @@ violations.`,
 		Name:    "redactContentBypass",
 		Stored:  true,
 		Type:    "boolean",
+	},
+	"RedactionFailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"UserClaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description:    `The list of user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "userClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
 	},
 }
 
@@ -562,11 +664,26 @@ where the app/component is defined.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"excludeduserclaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludeduserclaims",
+		ConvertedName:  "ExcludedUserClaims",
+		Description:    `The list of excluded user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "excludedUserClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 	"minimallogging": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -589,11 +706,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -603,11 +726,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"policyid": {
 		AllowedChoices: []string{},
@@ -643,6 +771,32 @@ violations.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"redactionfailclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"userclaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description:    `The list of user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "userClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 }
 
 type mongoAttributesIngressPolicy struct {
@@ -653,6 +807,7 @@ type mongoAttributesIngressPolicy struct {
 	ContentPolicies     []string                 `bson:"contentpolicies"`
 	Description         string                   `bson:"description"`
 	Disabled            bool                     `bson:"disabled"`
+	ExcludedUserClaims  [][]string               `bson:"excludeduserclaims"`
 	MinimalLogging      bool                     `bson:"minimallogging"`
 	Name                string                   `bson:"name"`
 	OffbandAnalysis     bool                     `bson:"offbandanalysis"`
@@ -660,4 +815,6 @@ type mongoAttributesIngressPolicy struct {
 	PolicyID            string                   `bson:"policyid"`
 	RedactContent       bool                     `bson:"redactcontent"`
 	RedactContentBypass bool                     `bson:"redactcontentbypass"`
+	RedactionFailClose  bool                     `bson:"redactionfailclose"`
+	UserClaims          [][]string               `bson:"userclaims"`
 }

@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Tool Scope",
+  "$friendlyNamePlural": "MCP Tool Scopes",
+  "$modelName": "MCPToolScope",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcptoolscopes",
+  "$modelRestName": "mcptoolscope",
+  "additionalProperties": false,
+  "description": "Represents a tool on an MCP server.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the tool, as advertised by the MCP server.",
+      "title": "name",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "MCPToolScope",
+  "type": "object"
+}

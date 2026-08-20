@@ -108,6 +108,7 @@
       "enum": [
         "Administrator",
         "SecurityAdministrator",
+        "SecurityViewer",
         "Application",
         "Custom",
         "Employee",
@@ -122,6 +123,7 @@
     },
     "subject": {
       "$friendlyName": "Subject",
+      "$required": true,
       "description": "A tag expression that identifies the authorized user(s).",
       "items": {
         "items": {
@@ -157,7 +159,8 @@
   },
   "required": [
     "name",
-    "role"
+    "role",
+    "subject"
   ],
   "title": "APIAuthorization",
   "type": "object"

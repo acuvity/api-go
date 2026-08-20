@@ -21,6 +21,9 @@ const (
 	// AppGraphNodeTypeAppComponent represents the value AppComponent.
 	AppGraphNodeTypeAppComponent AppGraphNodeTypeValue = "AppComponent"
 
+	// AppGraphNodeTypeDeployment represents the value Deployment.
+	AppGraphNodeTypeDeployment AppGraphNodeTypeValue = "Deployment"
+
 	// AppGraphNodeTypeDomain represents the value Domain.
 	AppGraphNodeTypeDomain AppGraphNodeTypeValue = "Domain"
 
@@ -226,7 +229,7 @@ func (o *AppGraphNode) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP", "Deployment"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -339,7 +342,7 @@ var AppGraphNodeAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP"},
+		AllowedChoices: []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP", "Deployment"},
 		ConvertedName:  "Type",
 		Description:    `The type of the application graph node.`,
 		Exposed:        true,
@@ -445,7 +448,7 @@ var AppGraphNodeLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"type": {
-		AllowedChoices: []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP"},
+		AllowedChoices: []string{"WorkloadGroup", "AppComponent", "Provider", "AIDomain", "Domain", "IP", "Deployment"},
 		ConvertedName:  "Type",
 		Description:    `The type of the application graph node.`,
 		Exposed:        true,

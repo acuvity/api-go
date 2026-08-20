@@ -5,7 +5,8 @@
     "@identifiable",
     "@timed",
     "@tokenrenewable",
-    "@auto-propagated"
+    "@auto-propagated",
+    "@namelinkable"
   ],
   "$friendlyName": "Deployment",
   "$friendlyNamePlural": "Deployments",
@@ -45,6 +46,13 @@
         "null"
       ]
     },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -68,11 +76,13 @@
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "The name of the deployment.",
-      "pattern": "^[a-zA-Z0-9-_]+$",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -94,16 +104,28 @@
         "null"
       ]
     },
-    "publicHostnames": {
-      "$friendlyName": "Public Hostnames",
-      "description": "Host names of the deployment to perform connection terminations.",
+    "publicKeys": {
+      "$friendlyName": "Public Keys",
+      "description": "The names of the public keys whose corresponding private key is available on this deployment's instances.",
       "items": {
         "type": [
           "string",
           "null"
         ]
       },
-      "title": "publicHostnames",
+      "title": "publicKeys",
+      "type": "array"
+    },
+    "publicURLs": {
+      "$friendlyName": "Public URLs",
+      "description": "Public URLs of the deployment.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "publicURLs",
       "type": "array"
     },
     "renewToken": {
@@ -156,7 +178,7 @@
     }
   },
   "required": [
-    "name"
+    "friendlyName"
   ],
   "title": "Deployment",
   "type": "object"

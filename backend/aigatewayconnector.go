@@ -114,7 +114,7 @@ type AIGatewayConnector struct {
 	// The description of the AI Gateway Connector.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
-	// Friendly name of AI Gateway Connector.
+	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
@@ -124,11 +124,15 @@ type AIGatewayConnector struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the AI Gateway Connector.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// The provider this AI Gateway Connector accesses.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
@@ -164,6 +168,7 @@ func NewAIGatewayConnector() *AIGatewayConnector {
 
 	return &AIGatewayConnector{
 		ModelVersion:       1,
+		Propagate:          true,
 		ProviderTokenPools: []string{},
 	}
 }
@@ -209,6 +214,7 @@ func (o *AIGatewayConnector) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Propagate = o.Propagate
 	s.Provider = o.Provider
 	s.ProviderTokenPools = o.ProviderTokenPools
 	s.Route = o.Route
@@ -245,6 +251,7 @@ func (o *AIGatewayConnector) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Propagate = s.Propagate
 	o.Provider = s.Provider
 	o.ProviderTokenPools = s.ProviderTokenPools
 	o.Route = s.Route
@@ -298,6 +305,18 @@ func (o *AIGatewayConnector) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *AIGatewayConnector) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *AIGatewayConnector) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *AIGatewayConnector) GetImportHash() string {
 
@@ -322,6 +341,18 @@ func (o *AIGatewayConnector) SetImportLabel(importLabel string) {
 	o.ImportLabel = importLabel
 }
 
+// GetName returns the Name of the receiver.
+func (o *AIGatewayConnector) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *AIGatewayConnector) SetName(name string) {
+
+	o.Name = name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *AIGatewayConnector) GetNamespace() string {
 
@@ -332,6 +363,18 @@ func (o *AIGatewayConnector) GetNamespace() string {
 func (o *AIGatewayConnector) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *AIGatewayConnector) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *AIGatewayConnector) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -364,6 +407,7 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 			ImportLabel:        &o.ImportLabel,
 			Name:               &o.Name,
 			Namespace:          &o.Namespace,
+			Propagate:          &o.Propagate,
 			Provider:           &o.Provider,
 			ProviderTokenPools: &o.ProviderTokenPools,
 			Route:              &o.Route,
@@ -400,6 +444,8 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		case "provider":
 			sp.Provider = &(o.Provider)
 		case "providerTokenPools":
@@ -461,6 +507,9 @@ func (o *AIGatewayConnector) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
@@ -544,11 +593,14 @@ func (o *AIGatewayConnector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, true); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -632,6 +684,8 @@ func (o *AIGatewayConnector) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "propagate":
+		return o.Propagate
 	case "provider":
 		return o.Provider
 	case "providerTokenPools":
@@ -731,10 +785,12 @@ var AIGatewayConnectorAttributesMap = map[string]elemental.AttributeSpecificatio
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of AI Gateway Connector.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -772,12 +828,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `Name of the AI Gateway Connector.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -793,6 +851,19 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"Provider": {
 		AllowedChoices: []string{},
@@ -944,10 +1015,12 @@ var AIGatewayConnectorLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of AI Gateway Connector.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -985,12 +1058,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `Name of the AI Gateway Connector.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -1006,6 +1081,19 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"provider": {
 		AllowedChoices: []string{},
@@ -1160,7 +1248,7 @@ type SparseAIGatewayConnector struct {
 	// The description of the AI Gateway Connector.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// Friendly name of AI Gateway Connector.
+	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
@@ -1170,11 +1258,15 @@ type SparseAIGatewayConnector struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the AI Gateway Connector.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// The provider this AI Gateway Connector accesses.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
@@ -1278,6 +1370,9 @@ func (o *SparseAIGatewayConnector) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
 	if o.Provider != nil {
 		s.Provider = o.Provider
 	}
@@ -1351,6 +1446,9 @@ func (o *SparseAIGatewayConnector) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
 	if s.Provider != nil {
 		o.Provider = s.Provider
 	}
@@ -1422,6 +1520,9 @@ func (o *SparseAIGatewayConnector) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
+	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
 	}
@@ -1486,6 +1587,22 @@ func (o *SparseAIGatewayConnector) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseAIGatewayConnector) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseAIGatewayConnector) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseAIGatewayConnector) GetImportHash() (out string) {
 
@@ -1518,6 +1635,22 @@ func (o *SparseAIGatewayConnector) SetImportLabel(importLabel string) {
 	o.ImportLabel = &importLabel
 }
 
+// GetName returns the Name of the receiver.
+func (o *SparseAIGatewayConnector) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseAIGatewayConnector) SetName(name string) {
+
+	o.Name = &name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseAIGatewayConnector) GetNamespace() (out string) {
 
@@ -1532,6 +1665,22 @@ func (o *SparseAIGatewayConnector) GetNamespace() (out string) {
 func (o *SparseAIGatewayConnector) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseAIGatewayConnector) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseAIGatewayConnector) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -1586,6 +1735,7 @@ type mongoAttributesAIGatewayConnector struct {
 	ImportLabel        string                      `bson:"importlabel,omitempty"`
 	Name               string                      `bson:"name"`
 	Namespace          string                      `bson:"namespace,omitempty"`
+	Propagate          bool                        `bson:"propagate"`
 	Provider           string                      `bson:"provider"`
 	ProviderTokenPools []string                    `bson:"providertokenpools"`
 	Route              string                      `bson:"route"`
@@ -1607,6 +1757,7 @@ type mongoAttributesSparseAIGatewayConnector struct {
 	ImportLabel        *string                      `bson:"importlabel,omitempty"`
 	Name               *string                      `bson:"name,omitempty"`
 	Namespace          *string                      `bson:"namespace,omitempty"`
+	Propagate          *bool                        `bson:"propagate,omitempty"`
 	Provider           *string                      `bson:"provider,omitempty"`
 	ProviderTokenPools *[]string                    `bson:"providertokenpools,omitempty"`
 	Route              *string                      `bson:"route,omitempty"`

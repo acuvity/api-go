@@ -211,6 +211,55 @@ Enables background jobs to maintain subscriptions to Entra to be notified of
 changes in groups, users and memmber assignation. This requires A3S to be
 configured with an event hook endpoint.
 
+### MTLSSourceGoogle
+
+Additional authentication information for MTLS source getting information from
+Google Workspace.
+
+You will need a Google Cloud service account with domain-wide delegation
+enabled in the Google Workspace Admin console, granted the
+admin.directory.user.readonly and admin.directory.group.readonly scopes.
+
+#### Example
+
+```json
+{
+  "clientEmail": "a3s@my-project.iam.gserviceaccount.com",
+  "privateKey": "-----BEGIN PRIVATE KEY-----
+...
+-----END PRIVATE KEY-----",
+  "privateKeyID": "3cb0a1d5f7e9b2c4a6d8e0f1234567890abcdef1",
+  "subject": "admin@my-org.com"
+}
+```
+
+#### Attributes
+
+##### `clientEmail` [`required`]
+
+Type: `string`
+
+The email of the service account used to call the Directory API.
+
+##### `privateKey` [`required`]
+
+Type: `string`
+
+The service account private key.
+
+##### `privateKeyID` [`required`]
+
+Type: `string`
+
+The identifier of the service account private key.
+
+##### `subject` [`required`]
+
+Type: `string`
+
+The email of the Google Workspace administrator to impersonate when calling
+the Directory API. This is required for domain-wide delegation.
+
 ### MTLSSourceOkta
 
 Additional authentication information for MTLS source getting information from
@@ -408,7 +457,7 @@ ID is the identifier of the object.
 
 ##### `claimsRetrievalMode`
 
-Type: `enum(Entra | Okta | X509)`
+Type: `enum(Entra | GoogleWorkspace | Okta | X509)`
 
 Defines if and how you want to enable auto login with client certificates.
 
@@ -441,6 +490,13 @@ Additional information required when claims retrieval mode is set to Entra.
 Type: `[]string`
 
 The fingerprint of the CAs in the chain.
+
+##### `googleWorkspaceApplicationCredentials`
+
+Type: [`mtlssourcegoogle`](#mtlssourcegoogle)
+
+Additional information required when claims retrieval mode is set to
+GoogleWorkspace.
 
 ##### `ignoredKeys`
 
@@ -887,6 +943,7 @@ queries, and other security or compliance measures by applying Content Policies.
   "permissive": false,
   "redactContent": false,
   "redactContentBypass": false,
+  "redactionFailClose": false,
   "transportMode": "Proxy"
 }
 ```
@@ -1009,8 +1066,13 @@ The match criteria used to take a decision on the access.
 
 ##### `minimalLogging`
 
+_This attribute is deprecated_.
+
 Type: `boolean`
 
+DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
 If true, the system will not log the messages that are not considered as
 violations.
 
@@ -1030,17 +1092,28 @@ The namespace of the object.
 
 Type: `boolean`
 
-If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.
+If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.
 
 ##### `permissive`
 
 Type: `boolean`
 
-If set, just log the decision, but don't enforce it.
+If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.
 
 ##### `redactContent`
 
@@ -1055,6 +1128,17 @@ Type: `boolean`
 
 If true, and redactContent is true, ignore redaction if there are some
 violations.
+
+##### `redactionFailClose`
+
+Type: `boolean`
+
+If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.
 
 ##### `redirectMessage`
 
@@ -1073,6 +1157,12 @@ If set, redirect the user to that URL.
 Type: `enum(Proxy | Gateway)`
 
 Specify if this policy applies to transparent proxy or gateway.
+
+Default value:
+
+```json
+"Proxy"
+```
 
 ##### `updateTime` [`autogenerated`,`read_only`]
 
@@ -2824,7 +2914,7 @@ Creation date of the object.
 
 Type: `[]string`
 
-The name of the deployments this AI gateway is bound to.
+The name of the deployments this object is bound to.
 
 ##### `description`
 
@@ -2889,6 +2979,8 @@ Represents OAuth clients connected to AI gateways.
 
 ```json
 {
+  "appComponent": "chatbot-demo/agent",
+  "appComponentNamespace": "/my/namespace",
   "clientID": "my-client",
   "clientSecret": "s3cr3t",
   "parentID": "6a1dbccfbb0c837c0bf039d5",
@@ -2928,13 +3020,27 @@ Type: `string`
 
 ID is the identifier of the object.
 
-##### `clientID` [`required`,`creation_only`]
+##### `appComponent` [`creation_only`]
+
+Type: `string`
+
+The app component that uses this client. If provided, the
+client ID will be derived from it.
+
+##### `appComponentNamespace` [`creation_only`]
+
+Type: `string`
+
+Defines the namespace of the app component that uses this client.
+If empty, the object's namespace will be used.
+
+##### `clientID` [`creation_only`]
 
 Type: `string`
 
 Client identifier used in OAuth requests.
 
-##### `clientSecret`
+##### `clientSecret` [`required`]
 
 Type: `string`
 
@@ -3049,10 +3155,10 @@ configuration.
 ```json
 {
   "MCPServerName": "fetch_provider",
-  "appComponent": "chatbot-demo/agent",
   "clientID": "my-client",
   "clientSecret": "s3cr3t",
   "name": "fetch-provider",
+  "namespace": "/orgs/acme",
   "oauthTokenEncryptionClaim": "ai:session:secret",
   "provider": "fetch-provider",
   "route": "/openai-api",
@@ -3074,12 +3180,6 @@ Type: [`[]aigatewayconfmcptool`](#aigatewayconfmcptool)
 
 The rendered MCP tools attached to this backend.
 
-##### `appComponent`
-
-Type: `string`
-
-The app component that this target represents.
-
 ##### `clientID`
 
 Type: `string`
@@ -3097,6 +3197,12 @@ Upstream OAuth client secret.
 Type: `string`
 
 The name of the connector.
+
+##### `namespace`
+
+Type: `string`
+
+The namespace of the underlying connector.
 
 ##### `oauthTokenEncryptionClaim`
 
@@ -3184,7 +3290,7 @@ The rendered token shape consumed by the AI Gateway.
   "encryptedToken": "encryptedtoken1",
   "headerKey": "Authorization",
   "headerValue": "Bearer {{.Token}}",
-  "keyID": "kid-8276173"
+  "publicKeyName": "my-deployment-key"
 }
 ```
 
@@ -3194,8 +3300,8 @@ The rendered token shape consumed by the AI Gateway.
 
 Type: `string`
 
-The token, encrypted using the key referenced by keyID, consumed by the AI
-Gateway.
+The token, encrypted using the key referenced by publicKeyName, consumed by
+the AI Gateway.
 
 ##### `headerKey`
 
@@ -3209,11 +3315,11 @@ Type: `string`
 
 The header value used to pass the token to the provider.
 
-##### `keyID`
+##### `publicKeyName`
 
 Type: `string`
 
-The key ID used to identify the encryption key for this token.
+The name of the public key used to encrypt this token.
 
 ### AIGatewayConfTokenPool
 
@@ -3253,8 +3359,9 @@ Represents an AI Gateway Connector attached to an AI gateway.
   "clientID": "my-client",
   "clientSecret": "s3cr3t",
   "description": "Connector for the OpenAI API",
-  "friendlyName": "GithubConnector1",
-  "name": "connector1",
+  "friendlyName": "Simple name",
+  "name": "my-simple-policy",
+  "propagate": true,
   "provider": "anthropic-api",
   "route": "/openai-api",
   "type": "MCP",
@@ -3330,7 +3437,7 @@ The description of the AI Gateway Connector.
 
 Type: `string`
 
-Friendly name of AI Gateway Connector.
+Friendly name of the object.
 
 ##### `importHash` [`autogenerated`,`creation_only`]
 
@@ -3345,17 +3452,30 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
+##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
 
 Type: `string`
 
-Name of the AI Gateway Connector.
+The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.
 
 ##### `namespace` [`autogenerated`,`read_only`]
 
 Type: `string`
 
 The namespace of the object.
+
+##### `propagate`
+
+Type: `boolean`
+
+Propagates the object to all child namespaces. This is always true.
+
+Default value:
+
+```json
+true
+```
 
 ##### `provider`
 
@@ -3997,6 +4117,138 @@ The edge identifier for the web extension.
 Type: `string`
 
 The firefox identifier for the web extension.
+
+### AISecurityProbe
+
+AI Security Probe defines configuration for probing mechanisms that provide
+discovery data about an environment.
+
+#### Example
+
+```json
+{
+  "DNSMonitoring": "Enabled",
+  "deployments": [
+    "my-deployment1",
+    "my-deployment2"
+  ],
+  "description": "Created in JIRA ticket ADM-4242.",
+  "friendlyName": "Simple name",
+  "name": "my-simple-policy"
+}
+```
+
+#### Relations
+
+##### `GET /aisecurityprobes`
+
+List all AI Security Probes.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /aisecurityprobes`
+
+Creates a new AI Security Probe.
+
+##### `DELETE /aisecurityprobes/:id`
+
+Deletes the AI security probe with the given ID.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `GET /aisecurityprobes/:id`
+
+Retrieves the AI security probe with the given ID.
+
+##### `PUT /aisecurityprobes/:id`
+
+Updates the AI security probe with the given ID.
+
+#### Attributes
+
+##### `DNSMonitoring`
+
+Type: `enum(Enabled | Disabled)`
+
+Enable or disable DNS monitoring.
+
+Default value:
+
+```json
+"Enabled"
+```
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `connectionMonitoring`
+
+Type: [`[]connectionmonitorselector`](#connectionmonitorselector)
+
+Selects a list of targets for which to perform connection monitoring.
+
+##### `createTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Creation date of the object.
+
+##### `deployments`
+
+Type: `[]string`
+
+The name of the deployments this object is bound to.
+
+##### `description`
+
+Type: `string`
+
+The description of the AI Security Probe configuration.
+
+##### `friendlyName` [`required`]
+
+Type: `string`
+
+Friendly name of the object.
+
+##### `importHash` [`autogenerated`,`creation_only`]
+
+Type: `string`
+
+The hash of the structure used to compare with new import version.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
+
+##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
+
+Type: `string`
+
+The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `updateTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Last update date of the object.
 
 ### AISkill
 
@@ -4777,6 +5029,14 @@ console.
   "disabled": false,
   "name": "my api authorization.",
   "role": "Employee",
+  "subject": [
+    [
+      "email=admin@company.ai"
+    ],
+    [
+      "email=xyz@company.ai"
+    ]
+  ],
   "targetNamespaces": "/my/namespace"
 }
 ```
@@ -4870,11 +5130,11 @@ The individual permissions. Only works if role is Custom.
 
 ##### `role` [`required`]
 
-Type: `enum(Administrator | SecurityAdministrator | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | ExternalIDP | Maxibridge)`
+Type: `enum(Administrator | SecurityAdministrator | SecurityViewer | Application | Custom | Employee | OpenTelemetryCollector | Owner | Proxy | Viewer | ExternalIDP | Maxibridge)`
 
 The role for the subjects.
 
-##### `subject`
+##### `subject` [`required`]
 
 Type: `[][]string`
 
@@ -5244,6 +5504,98 @@ Type: [`[]workload`](#workload)
 
 The list of active workloads managed by this app agent.
 
+### AppAgentConf
+
+AppAgentConf is the rendered configuration for a perrin deployment.
+
+#### Example
+
+```json
+{
+  "DNSMonitoring": false
+}
+```
+
+#### Relations
+
+##### `GET /appagentconfs`
+
+List all available appagentconf.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /appagentconfs`
+
+Get a particular appagentconf.
+
+#### Attributes
+
+##### `DNSMonitoring`
+
+Type: `boolean`
+
+Whether DNS monitoring is enabled. True if any associated AI Security Probe
+has DNS monitoring enabled.
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `connectionMonitoring`
+
+Type: [`[]connectionmonitorselector`](#connectionmonitorselector)
+
+The merged list of connection monitoring selectors from all associated AI
+Security Probes.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+### AppAgentConfUpdate
+
+Object used to notify Perrin for relevant changes.
+
+#### Example
+
+```json
+{
+  "propagate": true
+}
+```
+
+#### Attributes
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `propagate`
+
+Type: `boolean`
+
+Propagates the object to all child namespaces. This is always true.
+
+Default value:
+
+```json
+true
+```
+
 ### AppComponent
 
 Represents a particular component of the application.
@@ -5427,6 +5779,12 @@ Type: `string`
 
 The computed rego access policy for the proxy.
 
+##### `proxyAssignPolicy` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The computed rego assign policy for the proxy.
+
 ##### `proxyContentPolicy` [`autogenerated`,`read_only`]
 
 Type: `string`
@@ -5499,6 +5857,12 @@ that traffic will be intercepted on or mirrored from.
 Type: `string`
 
 The computed rego access policy for the proxy.
+
+##### `proxyAssignPolicy` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The computed rego assign policy for the proxy.
 
 ##### `proxyContentPolicy` [`autogenerated`,`read_only`]
 
@@ -5850,15 +6214,40 @@ node generated from the different logs collected by the app agents.
 
 ```json
 {
+  "APIs": {
+    "dep1": {
+      "allow": 3,
+      "deny": 1
+    }
+  },
   "findings": {
     "pii": {
       "credit_card": 1
+    }
+  },
+  "gateways": {
+    "my-gateway": {
+      "allow": 3,
+      "deny": 1
+    }
+  },
+  "proxies": {
+    "dep1": {
+      "allow": 3,
+      "deny": 1
     }
   }
 }
 ```
 
 #### Attributes
+
+##### `APIs`
+
+Type: `map[string]map[string]int`
+
+The number of allowed and denied requests to this node broken down by the
+deployment they went through.
 
 ##### `allow`
 
@@ -5884,6 +6273,13 @@ Type: `map[string]map[string]int`
 
 The findings categorized by type detected in the logs for this node.
 
+##### `gateways`
+
+Type: `map[string]map[string]int`
+
+The number of allowed and denied requests to this node broken down by the
+gateway they went through.
+
 ##### `insecureEncryption`
 
 Type: `integer`
@@ -5896,6 +6292,13 @@ or 1.1).
 Type: [`[]proxyroundtrip`](#proxyroundtrip)
 
 The log links from this node to other nodes in the application graph.
+
+##### `proxies`
+
+Type: `map[string]map[string]int`
+
+The number of allowed and denied requests to this node broken down by the
+deployment they went through.
 
 ##### `unencrypted`
 
@@ -6005,7 +6408,7 @@ The unique identifier of the application graph node.
 
 ##### `type` [`required`]
 
-Type: `enum(WorkloadGroup | AppComponent | Provider | AIDomain | Domain | IP)`
+Type: `enum(WorkloadGroup | AppComponent | Provider | AIDomain | Domain | IP | Deployment)`
 
 The type of the application graph node.
 
@@ -6656,6 +7059,134 @@ Type: [`tlsstate`](#tlsstate)
 If the connection used TLS encryption, this field contains the TLS state
 details.
 
+### ConnectionMonitorSelector
+
+Defines a selector for connection monitoring.
+
+#### Example
+
+```json
+{
+  "excludedDestinationNetworks": [
+    "10.0.0.0/8",
+    "192.168.1.0/24"
+  ],
+  "excludedListeningPorts": [
+    22,
+    9100
+  ],
+  "workloadGroupSetSelectors": [
+    {
+      "kubernetes": {
+        "kubernetesNamespace": "default"
+      },
+      "type": "Kubernetes"
+    }
+  ]
+}
+```
+
+#### Attributes
+
+##### `excludedDestinationNetworks`
+
+Type: `[]string`
+
+The list of destination networks to exclude from being monitored for the
+selected workloads. This applies to connections where the destination IP
+addresses match the list of excluded networks that the selected workloads try to
+connect to.
+
+##### `excludedListeningPorts`
+
+Type: `[]integer`
+
+The list of listening ports to exclude from being monitored for the selected
+workloads. This applies to connections arriving at matching listening ports of
+the selected workloads.
+
+##### `workloadGroupSetSelectors` [`required`]
+
+Type: [`[]connectionmonitorworkloadgroupsetselector`](#connectionmonitorworkloadgroupsetselector)
+
+A list of workload group set selectors for which connection monitoring will be
+enabled.
+
+### ConnectionMonitorWorkloadGroupSelector
+
+Defines a workload group selector for connection monitoring.
+
+#### Example
+
+```json
+{
+  "type": "Kubernetes"
+}
+```
+
+#### Attributes
+
+##### `kubernetes`
+
+Type: [`kubernetesworkloadgroupselector`](#kubernetesworkloadgroupselector)
+
+If type is 'Kubernetes', this field contains the Kubernetes-specific selector
+configuration.
+
+##### `type` [`required`]
+
+Type: `enum(Kubernetes)`
+
+The type of selector.
+
+Default value:
+
+```json
+"Kubernetes"
+```
+
+### ConnectionMonitorWorkloadGroupSetSelector
+
+Defines a workload group set selector for connection monitoring.
+
+#### Example
+
+```json
+{
+  "type": "Kubernetes"
+}
+```
+
+#### Attributes
+
+##### `kubernetes`
+
+Type: [`kubernetesworkloadgroupsetselector`](#kubernetesworkloadgroupsetselector)
+
+If type is 'Kubernetes', this field contains the Kubernetes-specific selector
+configuration.
+
+##### `type` [`required`]
+
+Type: `enum(Kubernetes)`
+
+The type of selector.
+
+Default value:
+
+```json
+"Kubernetes"
+```
+
+##### `workloadGroupSelectors`
+
+Type: [`[]connectionmonitorworkloadgroupselector`](#connectionmonitorworkloadgroupselector)
+
+An optional list of workload group selectors that selects all workload groups
+for which connection monitoring will be limited to within this workload group
+set. By default, all workload groups of this workload group set will be
+monitored.
+
 ### ConnectionReport
 
 Represents a connection report sent by an app agent within an app report.
@@ -6724,6 +7255,18 @@ Type: `string`
 
 The app component that this target represents.
 
+##### `deployment`
+
+Type: `string`
+
+The name of the deployment that produced this report.
+
+##### `deploymentInstance`
+
+Type: `string`
+
+The hostname of the deployment instance that produced this report.
+
 ##### `direction` [`required`]
 
 Type: `enum(Ingress | Egress)`
@@ -6763,15 +7306,19 @@ semantics.
 
 ##### `gateway`
 
+_This attribute is deprecated_.
+
 Type: `string`
 
-The name of the gateway that produced this report.
+DEPRECATED The name of the gateway that produced this report.
 
 ##### `gatewayInstance`
 
+_This attribute is deprecated_.
+
 Type: `string`
 
-The hostname of the gateway instance that produced this report.
+DEPRECATED The hostname of the gateway instance that produced this report.
 
 ##### `hostname`
 
@@ -7292,11 +7839,16 @@ Deployment represents an AI Security Gateway Deployment.
 ```json
 {
   "description": "Production AI Security Gateway deployment on cluster-east-1 (ADM-4242)",
-  "name": "aisg",
+  "friendlyName": "Simple name",
+  "name": "my-simple-policy",
   "propagate": true,
-  "publicHostnames": [
-    "api.test.com",
-    "k8s.svc.local"
+  "publicKeys": [
+    "us-east-1",
+    "us-west-1"
+  ],
+  "publicURLs": [
+    "http://aisg.proofpoint.svc.cluster.local",
+    "https://aisg.example.com"
   ],
   "renewToken": false
 }
@@ -7359,6 +7911,12 @@ Type: `string`
 
 The description of the deployment.
 
+##### `friendlyName` [`required`]
+
+Type: `string`
+
+Friendly name of the object.
+
 ##### `importHash` [`autogenerated`,`creation_only`]
 
 Type: `string`
@@ -7372,11 +7930,12 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
+##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
 
 Type: `string`
 
-The name of the deployment.
+The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.
 
 ##### `namespace` [`autogenerated`,`read_only`]
 
@@ -7396,11 +7955,18 @@ Default value:
 true
 ```
 
-##### `publicHostnames`
+##### `publicKeys`
 
 Type: `[]string`
 
-Host names of the deployment to perform connection terminations.
+The names of the public keys whose corresponding private key is available on
+this deployment's instances.
+
+##### `publicURLs`
+
+Type: `[]string`
+
+Public URLs of the deployment.
 
 ##### `renewToken`
 
@@ -7588,11 +8154,13 @@ Type: `string`
 
 The component of the application that the domain belongs to.
 
-##### `host` [`required`]
+##### `host`
 
 Type: `string`
 
-The host name of the request.
+The host name of the request. Optional, matching the destination of a scan or
+police request: the caller may omit it, and it is only filled in when the
+resolved provider or app component declares a host of its own.
 
 ##### `ip`
 
@@ -7857,6 +8425,18 @@ Type: `string`
 
 The app component that this target represents.
 
+##### `deployment`
+
+Type: `string`
+
+The name of the deployment that produced this report.
+
+##### `deploymentInstance`
+
+Type: `string`
+
+The hostname of the deployment instance that produced this report.
+
 ##### `domain` [`required`]
 
 Type: `string`
@@ -7877,15 +8457,19 @@ semantics.
 
 ##### `gateway`
 
+_This attribute is deprecated_.
+
 Type: `string`
 
-The name of the gateway that produced this report.
+DEPRECATED The name of the gateway that produced this report.
 
 ##### `gatewayInstance`
 
+_This attribute is deprecated_.
+
 Type: `string`
 
-The hostname of the gateway instance that produced this report.
+DEPRECATED The hostname of the gateway instance that produced this report.
 
 ##### `hits` [`required`,`min_value=1.000000`]
 
@@ -8028,6 +8612,7 @@ Represents an egress policy of an application component.
   ],
   "redactContent": false,
   "redactContentBypass": false,
+  "redactionFailClose": false,
   "tools": [
     "Github__read_repository"
   ],
@@ -8036,6 +8621,14 @@ Represents an egress policy of an application component.
 ```
 
 #### Attributes
+
+##### `MCPScopes`
+
+Type: [`[]mcpserverscope`](#mcpserverscope)
+
+The MCP servers, and optionally the tools on those servers, that this
+rule applies to. A scope with no tools listed applies to every tool on
+that server.
 
 ##### `accessDeniedMessage`
 
@@ -8114,6 +8707,12 @@ Type: `boolean`
 
 If true, the policy is disabled.
 
+##### `excludedUserClaims`
+
+Type: `[][]string`
+
+The list of excluded user claims that this rule applies to.
+
 ##### `gateways`
 
 Type: `[]string`
@@ -8122,8 +8721,13 @@ The list of gateways that this rule applies to.
 
 ##### `minimalLogging`
 
+_This attribute is deprecated_.
+
 Type: `boolean`
 
+DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
 If true, the system will not log the messages that are not considered as
 violations.
 
@@ -8137,17 +8741,28 @@ The name of the access policy.
 
 Type: `boolean`
 
-If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.
+If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.
 
 ##### `permissive`
 
 Type: `boolean`
 
-If set, just log the decision, but don't enforce it.
+If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.
 
 ##### `policyID` [`autogenerated`,`read_only`]
 
@@ -8175,6 +8790,17 @@ Type: `boolean`
 If true, and redactContent is true, ignore redaction if there are some
 violations.
 
+##### `redactionFailClose`
+
+Type: `boolean`
+
+If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.
+
 ##### `tools`
 
 Type: `[]string`
@@ -8186,6 +8812,18 @@ The list of tools that this rule applies to.
 Type: `enum(Proxy | Gateway)`
 
 Specify if this policy applies to transparent proxy or gateway.
+
+Default value:
+
+```json
+"Proxy"
+```
+
+##### `userClaims`
+
+Type: `[][]string`
+
+The list of user claims that this rule applies to.
 
 ### ErrorTransformer
 
@@ -8218,6 +8856,10 @@ that will take as parameters:
 - `action`: The decision (`ask` or `deny`)
 - `messages`: a list containing table object with keys `reason` and `link`.
 - `code`: the original error code.
+- `context`: transport metadata. `context.transport` is `http` or `websocket`.
+  Websocket contexts contain `direction` (`input` or `output`), a unique
+  `error_id`, `ticket`, and request `method`, `host`, and `path`. They also
+  contain the triggering frame `type` (`text` or `binary`) and `body`.
 
 This function must return either nil, an empty table, or a table containing the
 following keys:
@@ -8225,6 +8867,11 @@ following keys:
 - `code`: the transformer HTTP code as a number.
 - `content_type`: the transformed Content-Type as a string.
 - `body`: The transformer body as a string.
+- `websocket`: an optional table containing provider-native `frames`, whether to
+  `terminate` the connection (defaults to true), an optional `close_code`, and
+  optional `assistant_content` containing the exact semantic Assistant message
+  rendered by those frames. Each frame must contain a `type` (`text` or
+  `binary`) and string `body`.
 
 ### Extraction
 
@@ -8733,7 +9380,8 @@ An extractor allows to create a reusable extractor for providers.
   "propagate": true,
   "skipAnalysis": false,
   "streamSplitter": "SSE",
-  "type": "Input"
+  "type": "Input",
+  "websocketOutputMode": "SingleFrame"
 }
 ```
 
@@ -8960,6 +9608,19 @@ The type of extractor.
 Type: `time`
 
 Last update date of the object.
+
+##### `websocketOutputMode`
+
+Type: `enum(SingleFrame | JSONArrayFrames)`
+
+This property defines how injected output should be written back to a WebSocket
+client. The default writes the injected output as a single WebSocket message.
+
+Default value:
+
+```json
+"SingleFrame"
+```
 
 ### ExtractorLib
 
@@ -9361,6 +10022,18 @@ Name if empty.
 Type: `string`
 
 The namespace of the object.
+
+##### `policyRef`
+
+Type: [`policyref`](#policyref)
+
+Reference to the threat definition that triggered this finding.
+
+##### `policyRefs`
+
+Type: [`[]policyref`](#policyref)
+
+References to the threat definitions that triggered this finding.
 
 ##### `resolutionIdentities`
 
@@ -10161,7 +10834,8 @@ Represents an ingress policy of an application component.
   "offbandAnalysis": false,
   "permissive": false,
   "redactContent": false,
-  "redactContentBypass": false
+  "redactContentBypass": false,
+  "redactionFailClose": false
 }
 ```
 
@@ -10220,10 +10894,21 @@ Type: `boolean`
 
 If true, the policy is disabled.
 
+##### `excludedUserClaims`
+
+Type: `[][]string`
+
+The list of excluded user claims that this rule applies to.
+
 ##### `minimalLogging`
+
+_This attribute is deprecated_.
 
 Type: `boolean`
 
+DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
 If true, the system will not log the messages that are not considered as
 violations.
 
@@ -10237,17 +10922,28 @@ The name of the access policy.
 
 Type: `boolean`
 
-If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.
+If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.
 
 ##### `permissive`
 
 Type: `boolean`
 
-If set, just log the decision, but don't enforce it.
+If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.
 
 ##### `policyID` [`autogenerated`,`read_only`]
 
@@ -10268,6 +10964,23 @@ Type: `boolean`
 
 If true, and redactContent is true, ignore redaction if there are some
 violations.
+
+##### `redactionFailClose`
+
+Type: `boolean`
+
+If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.
+
+##### `userClaims`
+
+Type: `[][]string`
+
+The list of user claims that this rule applies to.
 
 ### Injector
 
@@ -10565,6 +11278,13 @@ Type: `integer`
 
 How much time it took to run the assign policy in nanoseconds.
 
+##### `contentAttribution`
+
+Type: `integer`
+
+How much time it took to attribute a content decision to conversation
+extractions in nanoseconds.
+
 ##### `contentPolicy`
 
 Type: `integer`
@@ -10760,6 +11480,72 @@ Type: `string`
 
 The URL of the MCP server.
 
+### MCPServerScope
+
+Represents an MCP server and the tools it applies to.
+
+#### Example
+
+```json
+{
+  "name": "github-mcp"
+}
+```
+
+#### Attributes
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the MCP server.
+
+##### `tools`
+
+Type: [`[]mcptoolscope`](#mcptoolscope)
+
+The tools on this server that this scope applies to. If empty, the scope
+applies to every tool on the server.
+
+### MCPTool
+
+The rendered tool shape from upstream MCP providers.
+
+#### Example
+
+```json
+{
+  "description": "Fetch a website and return Markdown.",
+  "name": "fetch_provider__fetch_markdown"
+}
+```
+
+#### Attributes
+
+##### `annotations`
+
+Type: [`mcptoolannotations`](#mcptoolannotations)
+
+The optional annotations defined for the tool.
+
+##### `description`
+
+Type: `string`
+
+The description of the tool.
+
+##### `inputSchema`
+
+Type: `map[string]any`
+
+The JSON schema of the tool input arguments.
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the tool.
+
 ### MCPToolAnnotations
 
 Represents the tool annotations as they can be optionally defined for MCP tools.
@@ -10806,6 +11592,164 @@ If true, the tool does not modify its environment.
 Type: `string`
 
 Human-readable title for the tool.
+
+### MCPToolScope
+
+Represents a tool on an MCP server.
+
+#### Example
+
+```json
+{
+  "name": "read_repository"
+}
+```
+
+#### Attributes
+
+##### `name` [`required`]
+
+Type: `string`
+
+The name of the tool, as advertised by the MCP server.
+
+### MCPToolSnapshot
+
+Holds the latest dynamic snapshot of tools advertised by an MCP connector for
+a given gateway.
+
+#### Example
+
+```json
+{
+  "connectorName": "openai-dev",
+  "drifted": false,
+  "gatewayName": "my-ai-gateway",
+  "mcpServer": "my-mcp-server"
+}
+```
+
+#### Relations
+
+##### `GET /mcptoolsnapshots`
+
+List all available MCP tool snapshots.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `POST /mcptoolsnapshots`
+
+Reports a new MCP tool snapshot.
+
+##### `DELETE /mcptoolsnapshots/:id`
+
+Deletes the MCP tool snapshot with the given ID.
+
+Parameters:
+
+- `q` (`string`): This is an example.
+
+##### `GET /mcptoolsnapshots/:id`
+
+Retrieves the MCP tool snapshot with the given ID.
+
+#### Attributes
+
+##### `ID` [`identifier`,`autogenerated`,`read_only`]
+
+Type: `string`
+
+ID is the identifier of the object.
+
+##### `connectorHash` [`read_only`]
+
+Type: `string`
+
+The hash of the resolved connector at the time of the snapshot. Used to
+distinguish upstream drift from connector configuration changes.
+
+##### `connectorName` [`required`]
+
+Type: `string`
+
+The Name of the MCP connector this snapshot describes.
+
+##### `createTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Creation date of the object.
+
+##### `diagnostic`
+
+Type: [`[]diagnostic`](#diagnostic)
+
+A diagnostic explaining the drift outcome.
+
+##### `drifted`
+
+Type: `boolean`
+
+Whether the live tools list diverges from the baseline.
+
+##### `extraction`
+
+Type: [`extraction`](#extraction)
+
+The analyzer findings from running the drifted tool list through the analyzers.
+Populated only when the snapshot is in a drifted state.
+
+##### `firstDriftedAt`
+
+Type: `time`
+
+When divergence was first observed. Set on entering drift, cleared on leaving
+it.
+
+##### `gatewayName` [`required`]
+
+Type: `string`
+
+The Name of the AI gateway this snapshot belongs to.
+
+##### `lastFetchedAt`
+
+Type: `time`
+
+When the last successful upstream fetch occurred.
+
+##### `mcpServer`
+
+Type: `string`
+
+The Name of the MCP server backing this connector, used to scope access policies
+when resolving MCP attack findings.
+
+##### `namespace` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The namespace of the object.
+
+##### `rawTools`
+
+Type: `string`
+
+The raw tools list as fetched from upstream, sent by the gateway on create.
+
+##### `tools`
+
+Type: [`[]tool`](#tool)
+
+The tools list as last fetched from upstream.
+
+##### `updateTime` [`autogenerated`,`read_only`]
+
+Type: `time`
+
+Last update date of the object.
 
 ### Metric
 
@@ -11239,6 +12183,12 @@ Type: `enum(Warn | Block | None)`
 
 The actual action to take when triggered.
 
+Default value:
+
+```json
+"None"
+```
+
 ##### `alertDefinition`
 
 Type: `string`
@@ -11378,13 +12328,6 @@ Type: `string`
 
 If set, defines the message that will be shown to the user during the consent
 acceptance. If empty a default message will be used.
-
-##### `contentModerationsSuggestions`
-
-Type: `[]string`
-
-List of content moderation policies names that the UI will offer as
-suggestions when creating a new access policy.
 
 ##### `contentPolicy`
 
@@ -12198,7 +13141,7 @@ Represents a Predicate.
 
 ##### `key` [`required`]
 
-Type: `enum(Categories | ClientType | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | DstProject | Exploits | FeatureName | Gateways | IsIngress | Keywords | Languages | MCPServer | Malcontents | Modality | Model | PIIs | Plugin | Provider | ProviderType | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | SrcProject | Status | Team | Tier | Tools | ToolUses | Topics | Workspace)`
+Type: `enum(Categories | ClientType | Confidentiality | CustomDataTypes | DstApp | DstComponent | DstIPRange | DstProject | Exploits | EmailDomain | FeatureName | Gateways | IsIngress | Keywords | Languages | MCPScope | MCPAttacks | MCPServer | Malcontents | Metadata | Modality | Model | PIIs | Plugin | Provider | ProviderType | Relevance | RiskScore | Secrets | Size | SrcApp | SrcComponent | SrcIPRange | SrcProject | Status | Team | Tier | Tools | ToolUses | Topics | Workspace)`
 
 The key of the predicate.
 
@@ -12544,7 +13487,7 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `name` [`required`,`format=^[a-zA-Z0-9-_/@. ]+$`]
+##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_/@. ]+$`]
 
 Type: `string`
 
@@ -13111,8 +14054,9 @@ be used by the Proofpoint AI Security proxy.
 ```json
 {
   "description": "OpenAI API Production key created in ADM-4342",
-  "keyID": "kid-8276173",
   "parentID": "6a1dbccfbb0c837c0bf039d5",
+  "propagate": true,
+  "publicKeyName": "my-deployment-key",
   "token": "token1"
 }
 ```
@@ -13155,12 +14099,6 @@ Type: `string`
 
 The description of the provider token.
 
-##### `keyID` [`required`]
-
-Type: `string`
-
-The key ID used to identify the encryption key for this token.
-
 ##### `namespace` [`autogenerated`,`read_only`]
 
 Type: `string`
@@ -13173,11 +14111,29 @@ Type: `string`
 
 The ID of the parent resource.
 
+##### `propagate`
+
+Type: `boolean`
+
+Propagates the object to all child namespaces. This is always true.
+
+Default value:
+
+```json
+true
+```
+
+##### `publicKeyName` [`required`]
+
+Type: `string`
+
+The name of the public key used to encrypt this token.
+
 ##### `token` [`required`]
 
 Type: `string`
 
-Token that will be encrypted using the key referenced by keyID.
+Token that will be encrypted using the key referenced by publicKeyName.
 
 ##### `updateTime` [`autogenerated`,`read_only`]
 
@@ -13196,10 +14152,11 @@ decrypt the tokens.
 ```json
 {
   "description": "OpenAI API Production pool keys created in ADM-4342",
-  "friendlyName": "OpenAI",
+  "friendlyName": "Simple name",
   "headerKey": "Authorization",
   "headerValueTemplate": "Bearer {{.Token}}",
-  "name": "openai-api-prod"
+  "name": "my-simple-policy",
+  "propagate": true
 }
 ```
 
@@ -13261,7 +14218,7 @@ The description of the provider token pool.
 
 Type: `string`
 
-Friendly name of the provider token pool.
+Friendly name of the object.
 
 ##### `headerKey`
 
@@ -13300,17 +14257,30 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `name` [`required`,`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
+##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
 
 Type: `string`
 
-Name of the provider token pool.
+The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.
 
 ##### `namespace` [`autogenerated`,`read_only`]
 
 Type: `string`
 
 The namespace of the object.
+
+##### `propagate`
+
+Type: `boolean`
+
+Propagates the object to all child namespaces. This is always true.
+
+Default value:
+
+```json
+true
+```
 
 ##### `updateTime` [`autogenerated`,`read_only`]
 
@@ -13636,6 +14606,11 @@ This is a Proxy roundtrip.
   "clientVersion": "7.64.1",
   "contentRedacted": false,
   "decision": "Deny",
+  "gatewayConnectorName": "openai-prod",
+  "gatewayConnectorNamespace": "/orgs/acme",
+  "gatewayName": "aisg1",
+  "gatewayNamespace": "/orgs/acme",
+  "gatewayUpstreamURL": "https://api.openai.com/v1/chat/completions",
   "model": "claude-3-7-sonnet",
   "offband": false,
   "permissive": false,
@@ -13725,6 +14700,13 @@ NOTE: safe to drop Error and UpstreamError from this enum on or
 after 2026-07-19 (two months after the structured RoundtripError
 landed on 2026-05-19), once consumers have rolled forward.
 
+##### `deploymentName`
+
+Type: `string`
+
+This is the name of the deployment (apex instance) that processed this
+request. Only set when the request was handled by a known deployment.
+
 ##### `destination`
 
 Type: [`destination`](#destination)
@@ -13756,6 +14738,43 @@ UpstreamError), the failing stage, and a human-readable message.
 Type: [`[]extraction`](#extraction)
 
 The extractions to log.
+
+##### `gatewayConnectorName`
+
+Type: `string`
+
+This is the AI gateway connector that this request has been processed through.
+This is only set for requests where the processor was set to gateway. The AI
+gateway connector name will be set under gateway name.
+
+##### `gatewayConnectorNamespace`
+
+Type: `string`
+
+This is the namespace of the AI gateway connector as encoded in the original
+request URL. This is only set for requests where the processor was set to
+gateway.
+
+##### `gatewayName`
+
+Type: `string`
+
+This is the AI gateway that this request has been processed through. This is
+only set for requests where the processor is set to gateway.
+
+##### `gatewayNamespace`
+
+Type: `string`
+
+This is the namespace of the AI gateway as encoded in the original request
+URL. This is only set for requests where the processor was set to gateway.
+
+##### `gatewayUpstreamURL`
+
+Type: `string`
+
+This is the upstream URL that the AI gateway routed this request to. This
+is only set for requests where the processor was set to gateway.
 
 ##### `hash`
 
@@ -13804,21 +14823,22 @@ The namespace of the object.
 
 Type: `boolean`
 
-If true, the analysis ran offband. That means that we extracted the data
-from the user request, assigned team and verified access permissions, but
-then we forwarded the request as is to the provider untouched
-immediately, while running the analysis and policies in the background,
-reporting what we would have done.
+If true, the policy asked for the analysis to run offband. That means that
+we extracted the data from the user request, verified access permissions,
+and then made the decision without waiting for the analyzers. The full
+analyzer set ran afterwards, and this log entry reflects that later
+evaluation, which can report a stricter outcome than the one the request
+actually received.
 
 ##### `permissive`
 
 Type: `boolean`
 
-If true, the policy has been applied in permissive mode.  That means that
-we extracted the data from the user request, assigned team, verified
-access permissions, run analysis, apply content policies and reported what
-we would have done, but ultimately let the request go to the provider
-untouched.
+If true, the policy was applied in permissive mode: the content decision
+recorded here is what the policy would have enforced, and it was not
+enforced. The request went to the provider untouched, and no redaction was
+applied to it. Access was still enforced, so this entry exists only because
+the request was allowed to reach the content stage.
 
 ##### `pipelineName`
 
@@ -13840,11 +14860,13 @@ The principal of the object.
 
 ##### `processor`
 
-Type: `enum(Proxy | API)`
+Type: `enum(Proxy | API | Gateway)`
 
-Denotes the processor of the log. If the processor is Proxy, then the proxy
-function will further denote if this was a forward proxy or a reverse proxy. If
-the processor is API, the proxy function will be set to NotApplicable.
+Denotes the processor of the log. If the processor is Proxy or API, then the
+proxy function will further denote if this was a forward proxy or a reverse
+proxy. If the processor is Gateway, the proxy function will be set to reverse
+proxy, and the gateway name and gateway connector name will further denote which
+gateway and which connector was used.
 
 Default value:
 
@@ -13868,13 +14890,14 @@ The type of the provider.
 
 Type: `enum(ForwardProxy | ReverseProxy | NotApplicable)`
 
-Denotes the function of this proxy in the chain of servers. By default the apex
-always sits on the egress side between a client or application and the origin
-server in which case the apex acts as a forwarding proxy. However, in the case
-of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy. If this log is
-the result of a ScanRequest or PoliceRequest API call, this will be set to
-NonApplicable and the processor will be API.
+Denotes the proxy function of this processor in the chain of servers. The proxy
+processor acts as a forwarding proxy on the egress side, between a client or
+application and the origin server, and as a reverse proxy on the ingress side,
+in front of an application. The gateway processor always operates as a reverse
+proxy. The API processor (scan and police APIs) never sit in the data path, but
+they simulate proxy behaviour, so they are reported as a forwarding or a
+reverse proxy according to the direction of the request. NotApplicable is
+currently not in use, and only appears on roundtrips recorded by an older apex.
 
 Default value:
 
@@ -13933,13 +14956,9 @@ available on deployment instances.
 
 ```json
 {
-  "deployments": [
-    "my-deployment1",
-    "my-deployment2"
-  ],
   "description": "Created in JIRA ticket ADM-4242.",
-  "keyID": "kid-8276173",
-  "name": "us-east-1",
+  "friendlyName": "Simple name",
+  "name": "my-simple-policy",
   "propagate": true,
   "publicKey": "PEM KEY"
 }
@@ -13985,17 +15004,17 @@ Type: `time`
 
 Creation date of the object.
 
-##### `deployments`
-
-Type: `[]string`
-
-The name of the deployments whose instances hold the corresponding private key.
-
 ##### `description`
 
 Type: `string`
 
 The description of the public key.
+
+##### `friendlyName` [`required`]
+
+Type: `string`
+
+Friendly name of the object.
 
 ##### `importHash` [`autogenerated`,`creation_only`]
 
@@ -14010,17 +15029,12 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
-##### `keyID` [`required`,`creation_only`]
+##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
 
 Type: `string`
 
-The key ID used to reference this public key.
-
-##### `name` [`required`]
-
-Type: `string`
-
-The name of the public key.
+The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.
 
 ##### `namespace` [`autogenerated`,`read_only`]
 
@@ -14497,13 +15511,14 @@ the policy would have decided otherwise.
 
 ##### `stage`
 
-Type: `enum(Extraction | Analysis | ContentPolicy | AssignPolicy | AccessPolicy | Upstream)`
+Type: `enum(Extraction | Analysis | ContentPolicy | AssignPolicy | AccessPolicy | Upstream | Redaction)`
 
 The pipeline component that produced the error. Combined with the
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,
+Redaction),
 customer-owned (ContentPolicy), provider-owned (Upstream).
 
 ##### `type`
@@ -15311,6 +16326,19 @@ If true, the threat definition is disabled.
 Type: `string`
 
 Friendly name of the object.
+
+##### `importHash` [`autogenerated`,`creation_only`]
+
+Type: `string`
+
+The hash of the structure used to compare with new import version.
+
+##### `importLabel` [`creation_only`]
+
+Type: `string`
+
+The user-defined import label that allows the system to group resources from the
+same import operation.
 
 ##### `match`
 
@@ -17059,6 +18087,7 @@ Sends an import request.
 Parameters:
 
 - `delete` (`boolean`): If set, delete the current imported data.
+- `mode` (`enum(Replace | Update)`): Import mode.
 
 #### Attributes
 
@@ -17074,6 +18103,18 @@ Type: [`[]aidomain`](#aidomain)
 
 AI domains to import.
 
+##### `AIGatewayConnectors`
+
+Type: [`[]aigatewayconnector`](#aigatewayconnector)
+
+AI Gateway Connectors to import.
+
+##### `AIGateways`
+
+Type: [`[]aigateway`](#aigateway)
+
+AI Gateways to import.
+
 ##### `AIMCPServers`
 
 Type: [`[]aimcpserver`](#aimcpserver)
@@ -17085,6 +18126,12 @@ AI MCP servers to import.
 Type: [`[]aiplugin`](#aiplugin)
 
 AI plugins to import.
+
+##### `AISecurityProbes`
+
+Type: [`[]aisecurityprobe`](#aisecurityprobe)
+
+AI security probes to import.
 
 ##### `AISkills`
 
@@ -17290,6 +18337,12 @@ Sinks to import.
 Type: [`[]team`](#team)
 
 Teams to import.
+
+##### `threatDefinitions`
+
+Type: [`[]threatdefinition`](#threatdefinition)
+
+Threat definitions to import.
 
 ##### `visitedurls`
 
@@ -18410,6 +19463,12 @@ Type: `string`
 The user-defined import label that allows the system to group resources from the
 same import operation.
 
+##### `msTeams`
+
+Type: [`sinkmsteams`](#sinkmsteams)
+
+Contains additional configuration for sending a Microsoft Teams message.
+
 ##### `name` [`creation_only`,`format=^[a-zA-Z0-9-_]+$`]
 
 Type: `string`
@@ -18455,7 +19514,7 @@ Contains additional configuration for sending the alert to Splunk.
 
 ##### `type` [`required`]
 
-Type: `enum(Databahn | Email | PagerDuty | Slack | Splunk)`
+Type: `enum(Databahn | Email | PagerDuty | Slack | Splunk | MSTeams)`
 
 The type of sink.
 
@@ -18520,6 +19579,26 @@ Additional configuration for sending an email.
 Type: `[]string`
 
 The list of email recipients the notification will be sent to.
+
+### SinkMSTeams
+
+Additional configuration for sending a Microsoft Teams message.
+
+#### Example
+
+```json
+{
+  "webhookURL": "https://xxxx.webhook.office.com/webhookb2/xxxx@xxxxx/IncomingWebhook/xxxx/xxxx"
+}
+```
+
+#### Attributes
+
+##### `webhookURL` [`required`]
+
+Type: `string`
+
+The webhook URL to send the Teams messages to.
 
 ### SinkPagerDuty
 

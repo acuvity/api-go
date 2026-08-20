@@ -93,6 +93,10 @@ type Latency struct {
 	// How much time it took to run the assign policy in nanoseconds.
 	AssignPolicy int `json:"assignPolicy" msgpack:"assignPolicy" bson:"assignpolicy" mapstructure:"assignPolicy,omitempty"`
 
+	// How much time it took to attribute a content decision to conversation
+	// extractions in nanoseconds.
+	ContentAttribution int `json:"contentAttribution" msgpack:"contentAttribution" bson:"contentattribution" mapstructure:"contentAttribution,omitempty"`
+
 	// How much time it took to run content policy in nanoseconds.
 	ContentPolicy int `json:"contentPolicy" msgpack:"contentPolicy" bson:"contentpolicy" mapstructure:"contentPolicy,omitempty"`
 
@@ -140,6 +144,7 @@ func (o *Latency) GetBSON() (any, error) {
 	s.AccessPolicy = o.AccessPolicy
 	s.Analysis = o.Analysis
 	s.AssignPolicy = o.AssignPolicy
+	s.ContentAttribution = o.ContentAttribution
 	s.ContentPolicy = o.ContentPolicy
 	s.Extraction = o.Extraction
 
@@ -162,6 +167,7 @@ func (o *Latency) SetBSON(raw bson.Raw) error {
 	o.AccessPolicy = s.AccessPolicy
 	o.Analysis = s.Analysis
 	o.AssignPolicy = s.AssignPolicy
+	o.ContentAttribution = s.ContentAttribution
 	o.ContentPolicy = s.ContentPolicy
 	o.Extraction = s.Extraction
 
@@ -204,11 +210,12 @@ func (o *Latency) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseLatency{
-			AccessPolicy:  &o.AccessPolicy,
-			Analysis:      &o.Analysis,
-			AssignPolicy:  &o.AssignPolicy,
-			ContentPolicy: &o.ContentPolicy,
-			Extraction:    &o.Extraction,
+			AccessPolicy:       &o.AccessPolicy,
+			Analysis:           &o.Analysis,
+			AssignPolicy:       &o.AssignPolicy,
+			ContentAttribution: &o.ContentAttribution,
+			ContentPolicy:      &o.ContentPolicy,
+			Extraction:         &o.Extraction,
 		}
 	}
 
@@ -221,6 +228,8 @@ func (o *Latency) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Analysis = &(o.Analysis)
 		case "assignPolicy":
 			sp.AssignPolicy = &(o.AssignPolicy)
+		case "contentAttribution":
+			sp.ContentAttribution = &(o.ContentAttribution)
 		case "contentPolicy":
 			sp.ContentPolicy = &(o.ContentPolicy)
 		case "extraction":
@@ -246,6 +255,9 @@ func (o *Latency) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.AssignPolicy != nil {
 		o.AssignPolicy = *so.AssignPolicy
+	}
+	if so.ContentAttribution != nil {
+		o.ContentAttribution = *so.ContentAttribution
 	}
 	if so.ContentPolicy != nil {
 		o.ContentPolicy = *so.ContentPolicy
@@ -339,6 +351,8 @@ func (o *Latency) ValueForAttribute(name string) any {
 		return o.Analysis
 	case "assignPolicy":
 		return o.AssignPolicy
+	case "contentAttribution":
+		return o.ContentAttribution
 	case "contentPolicy":
 		return o.ContentPolicy
 	case "extraction":
@@ -379,6 +393,17 @@ var LatencyAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "assignPolicy",
 		Stored:         true,
 		Type:           "integer",
+	},
+	"ContentAttribution": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentattribution",
+		ConvertedName:  "ContentAttribution",
+		Description: `How much time it took to attribute a content decision to conversation
+extractions in nanoseconds.`,
+		Exposed: true,
+		Name:    "contentAttribution",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"ContentPolicy": {
 		AllowedChoices: []string{},
@@ -433,6 +458,17 @@ var LatencyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "assignPolicy",
 		Stored:         true,
 		Type:           "integer",
+	},
+	"contentattribution": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "contentattribution",
+		ConvertedName:  "ContentAttribution",
+		Description: `How much time it took to attribute a content decision to conversation
+extractions in nanoseconds.`,
+		Exposed: true,
+		Name:    "contentAttribution",
+		Stored:  true,
+		Type:    "integer",
 	},
 	"contentpolicy": {
 		AllowedChoices: []string{},
@@ -528,6 +564,10 @@ type SparseLatency struct {
 	// How much time it took to run the assign policy in nanoseconds.
 	AssignPolicy *int `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"assignpolicy,omitempty" mapstructure:"assignPolicy,omitempty"`
 
+	// How much time it took to attribute a content decision to conversation
+	// extractions in nanoseconds.
+	ContentAttribution *int `json:"contentAttribution,omitempty" msgpack:"contentAttribution,omitempty" bson:"contentattribution,omitempty" mapstructure:"contentAttribution,omitempty"`
+
 	// How much time it took to run content policy in nanoseconds.
 	ContentPolicy *int `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"contentpolicy,omitempty" mapstructure:"contentPolicy,omitempty"`
 
@@ -578,6 +618,9 @@ func (o *SparseLatency) GetBSON() (any, error) {
 	if o.AssignPolicy != nil {
 		s.AssignPolicy = o.AssignPolicy
 	}
+	if o.ContentAttribution != nil {
+		s.ContentAttribution = o.ContentAttribution
+	}
 	if o.ContentPolicy != nil {
 		s.ContentPolicy = o.ContentPolicy
 	}
@@ -610,6 +653,9 @@ func (o *SparseLatency) SetBSON(raw bson.Raw) error {
 	if s.AssignPolicy != nil {
 		o.AssignPolicy = s.AssignPolicy
 	}
+	if s.ContentAttribution != nil {
+		o.ContentAttribution = s.ContentAttribution
+	}
 	if s.ContentPolicy != nil {
 		o.ContentPolicy = s.ContentPolicy
 	}
@@ -638,6 +684,9 @@ func (o *SparseLatency) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.AssignPolicy != nil {
 		out.AssignPolicy = *o.AssignPolicy
+	}
+	if o.ContentAttribution != nil {
+		out.ContentAttribution = *o.ContentAttribution
 	}
 	if o.ContentPolicy != nil {
 		out.ContentPolicy = *o.ContentPolicy
@@ -686,16 +735,18 @@ func (o *SparseLatency) DeepCopyInto(out *SparseLatency) {
 }
 
 type mongoAttributesLatency struct {
-	AccessPolicy  int `bson:"accesspolicy"`
-	Analysis      int `bson:"analysis"`
-	AssignPolicy  int `bson:"assignpolicy"`
-	ContentPolicy int `bson:"contentpolicy"`
-	Extraction    int `bson:"extraction"`
+	AccessPolicy       int `bson:"accesspolicy"`
+	Analysis           int `bson:"analysis"`
+	AssignPolicy       int `bson:"assignpolicy"`
+	ContentAttribution int `bson:"contentattribution"`
+	ContentPolicy      int `bson:"contentpolicy"`
+	Extraction         int `bson:"extraction"`
 }
 type mongoAttributesSparseLatency struct {
-	AccessPolicy  *int `bson:"accesspolicy,omitempty"`
-	Analysis      *int `bson:"analysis,omitempty"`
-	AssignPolicy  *int `bson:"assignpolicy,omitempty"`
-	ContentPolicy *int `bson:"contentpolicy,omitempty"`
-	Extraction    *int `bson:"extraction,omitempty"`
+	AccessPolicy       *int `bson:"accesspolicy,omitempty"`
+	Analysis           *int `bson:"analysis,omitempty"`
+	AssignPolicy       *int `bson:"assignpolicy,omitempty"`
+	ContentAttribution *int `bson:"contentattribution,omitempty"`
+	ContentPolicy      *int `bson:"contentpolicy,omitempty"`
+	Extraction         *int `bson:"extraction,omitempty"`
 }

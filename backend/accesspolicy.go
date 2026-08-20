@@ -152,6 +152,9 @@ type AccessPolicy struct {
 	// The match criteria used to take a decision on the access.
 	Match []*Predicate `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
 
+	// DEPRECATED: use redactContent, optionally together with redactContentBypass,
+	// instead. Those keep the log entry and remove the user data from it, rather
+	// than dropping the entry altogether.
 	// If true, the system will not log the messages that are not considered as
 	// violations.
 	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
@@ -162,14 +165,25 @@ type AccessPolicy struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the system will run analysis in parallel of the user request. When this
-	// is active, no further policing will be done, and no content policy will run.
-	// This can be used to observe the transmitted data and have analysis report,
-	// without adding latency to the end user request, at the price of not being able
-	// to do any form of content moderation.
+	// If true, the decision is made on the extracted data without waiting for the
+	// analyzers. The content policy still runs and is still enforced, but it sees
+	// no analysis, so any moderation that depends on a detector cannot match.
+	// That applies to redactions as well: a redaction the analyzers would have
+	// found is not applied, and the data reaches the provider unredacted.
+	// redactionFailClose does not catch this, because no redaction was ever
+	// requested.
+	// The full analyzer set then runs in parallel and its result is attached to
+	// the log, which can report a stricter outcome than the one the request
+	// received, but never changes it. This trades detection coverage on the live
+	// request for latency.
 	OffbandAnalysis bool `json:"offbandAnalysis" msgpack:"offbandAnalysis" bson:"offbandanalysis" mapstructure:"offbandAnalysis,omitempty"`
 
-	// If set, just log the decision, but don't enforce it.
+	// If set, the content decision is computed and reported but not enforced: the
+	// request and the response go through untouched, and the verdict the policy
+	// would have applied is recorded on the log entry instead. Redactions are not
+	// applied either.
+	// This covers the content decision only. Access is still enforced: a request
+	// this policy denies, or redirects, is still denied or redirected.
 	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
 	// If true, the system will remove all user data from the reported data, while
@@ -179,6 +193,14 @@ type AccessPolicy struct {
 	// If true, and redactContent is true, ignore redaction if there are some
 	// violations.
 	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
+
+	// If true, reject the request when the content policy requires a redaction
+	// that cannot be applied, for example sensitive data detected inside a
+	// non-text attachment such as a PDF or an image, where there is no
+	// character range to rewrite. When false (default), the request is allowed
+	// through with the redaction unapplied and the failed attempt is recorded
+	// on the round-trip. Default false.
+	RedactionFailClose bool `json:"redactionFailClose" msgpack:"redactionFailClose" bson:"redactionfailclose" mapstructure:"redactionFailClose,omitempty"`
 
 	// If set, show this message to user before the redirection.
 	RedirectMessage string `json:"redirectMessage" msgpack:"redirectMessage" bson:"redirectmessage" mapstructure:"redirectMessage,omitempty"`
@@ -208,6 +230,7 @@ func NewAccessPolicy() *AccessPolicy {
 		ModelVersion:    1,
 		Action:          AccessPolicyActionAllow,
 		ContentPolicies: []string{},
+		TransportMode:   AccessPolicyTransportModeProxy,
 	}
 }
 
@@ -260,6 +283,7 @@ func (o *AccessPolicy) GetBSON() (any, error) {
 	s.Permissive = o.Permissive
 	s.RedactContent = o.RedactContent
 	s.RedactContentBypass = o.RedactContentBypass
+	s.RedactionFailClose = o.RedactionFailClose
 	s.RedirectMessage = o.RedirectMessage
 	s.RedirectURL = o.RedirectURL
 	s.TransportMode = o.TransportMode
@@ -302,6 +326,7 @@ func (o *AccessPolicy) SetBSON(raw bson.Raw) error {
 	o.Permissive = s.Permissive
 	o.RedactContent = s.RedactContent
 	o.RedactContentBypass = s.RedactContentBypass
+	o.RedactionFailClose = s.RedactionFailClose
 	o.RedirectMessage = s.RedirectMessage
 	o.RedirectURL = s.RedirectURL
 	o.TransportMode = s.TransportMode
@@ -430,6 +455,7 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Permissive:          &o.Permissive,
 			RedactContent:       &o.RedactContent,
 			RedactContentBypass: &o.RedactContentBypass,
+			RedactionFailClose:  &o.RedactionFailClose,
 			RedirectMessage:     &o.RedirectMessage,
 			RedirectURL:         &o.RedirectURL,
 			TransportMode:       &o.TransportMode,
@@ -480,6 +506,8 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RedactContent = &(o.RedactContent)
 		case "redactContentBypass":
 			sp.RedactContentBypass = &(o.RedactContentBypass)
+		case "redactionFailClose":
+			sp.RedactionFailClose = &(o.RedactionFailClose)
 		case "redirectMessage":
 			sp.RedirectMessage = &(o.RedirectMessage)
 		case "redirectURL":
@@ -561,6 +589,9 @@ func (o *AccessPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RedactContentBypass != nil {
 		o.RedactContentBypass = *so.RedactContentBypass
+	}
+	if so.RedactionFailClose != nil {
+		o.RedactionFailClose = *so.RedactionFailClose
 	}
 	if so.RedirectMessage != nil {
 		o.RedirectMessage = *so.RedirectMessage
@@ -762,6 +793,8 @@ func (o *AccessPolicy) ValueForAttribute(name string) any {
 		return o.RedactContent
 	case "redactContentBypass":
 		return o.RedactContentBypass
+	case "redactionFailClose":
+		return o.RedactionFailClose
 	case "redirectMessage":
 		return o.RedirectMessage
 	case "redirectURL":
@@ -931,7 +964,11 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -969,11 +1006,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -983,11 +1026,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"RedactContent": {
 		AllowedChoices: []string{},
@@ -1008,6 +1056,21 @@ keeping the analysis and metadata.`,
 violations.`,
 		Exposed: true,
 		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"RedactionFailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
 		Stored:  true,
 		Type:    "boolean",
 	},
@@ -1035,6 +1098,7 @@ violations.`,
 		AllowedChoices: []string{"Proxy", "Gateway"},
 		BSONFieldName:  "transportmode",
 		ConvertedName:  "TransportMode",
+		DefaultValue:   AccessPolicyTransportModeProxy,
 		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
 		Exposed:        true,
 		Name:           "transportMode",
@@ -1211,7 +1275,11 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -1249,11 +1317,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -1263,11 +1337,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"redactcontent": {
 		AllowedChoices: []string{},
@@ -1288,6 +1367,21 @@ keeping the analysis and metadata.`,
 violations.`,
 		Exposed: true,
 		Name:    "redactContentBypass",
+		Stored:  true,
+		Type:    "boolean",
+	},
+	"redactionfailclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
 		Stored:  true,
 		Type:    "boolean",
 	},
@@ -1315,6 +1409,7 @@ violations.`,
 		AllowedChoices: []string{"Proxy", "Gateway"},
 		BSONFieldName:  "transportmode",
 		ConvertedName:  "TransportMode",
+		DefaultValue:   AccessPolicyTransportModeProxy,
 		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
 		Exposed:        true,
 		Name:           "transportMode",
@@ -1444,6 +1539,9 @@ type SparseAccessPolicy struct {
 	// The match criteria used to take a decision on the access.
 	Match *[]*Predicate `json:"match,omitempty" msgpack:"match,omitempty" bson:"match,omitempty" mapstructure:"match,omitempty"`
 
+	// DEPRECATED: use redactContent, optionally together with redactContentBypass,
+	// instead. Those keep the log entry and remove the user data from it, rather
+	// than dropping the entry altogether.
 	// If true, the system will not log the messages that are not considered as
 	// violations.
 	MinimalLogging *bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"minimallogging,omitempty" mapstructure:"minimalLogging,omitempty"`
@@ -1454,14 +1552,25 @@ type SparseAccessPolicy struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the system will run analysis in parallel of the user request. When this
-	// is active, no further policing will be done, and no content policy will run.
-	// This can be used to observe the transmitted data and have analysis report,
-	// without adding latency to the end user request, at the price of not being able
-	// to do any form of content moderation.
+	// If true, the decision is made on the extracted data without waiting for the
+	// analyzers. The content policy still runs and is still enforced, but it sees
+	// no analysis, so any moderation that depends on a detector cannot match.
+	// That applies to redactions as well: a redaction the analyzers would have
+	// found is not applied, and the data reaches the provider unredacted.
+	// redactionFailClose does not catch this, because no redaction was ever
+	// requested.
+	// The full analyzer set then runs in parallel and its result is attached to
+	// the log, which can report a stricter outcome than the one the request
+	// received, but never changes it. This trades detection coverage on the live
+	// request for latency.
 	OffbandAnalysis *bool `json:"offbandAnalysis,omitempty" msgpack:"offbandAnalysis,omitempty" bson:"offbandanalysis,omitempty" mapstructure:"offbandAnalysis,omitempty"`
 
-	// If set, just log the decision, but don't enforce it.
+	// If set, the content decision is computed and reported but not enforced: the
+	// request and the response go through untouched, and the verdict the policy
+	// would have applied is recorded on the log entry instead. Redactions are not
+	// applied either.
+	// This covers the content decision only. Access is still enforced: a request
+	// this policy denies, or redirects, is still denied or redirected.
 	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// If true, the system will remove all user data from the reported data, while
@@ -1471,6 +1580,14 @@ type SparseAccessPolicy struct {
 	// If true, and redactContent is true, ignore redaction if there are some
 	// violations.
 	RedactContentBypass *bool `json:"redactContentBypass,omitempty" msgpack:"redactContentBypass,omitempty" bson:"redactcontentbypass,omitempty" mapstructure:"redactContentBypass,omitempty"`
+
+	// If true, reject the request when the content policy requires a redaction
+	// that cannot be applied, for example sensitive data detected inside a
+	// non-text attachment such as a PDF or an image, where there is no
+	// character range to rewrite. When false (default), the request is allowed
+	// through with the redaction unapplied and the failed attempt is recorded
+	// on the round-trip. Default false.
+	RedactionFailClose *bool `json:"redactionFailClose,omitempty" msgpack:"redactionFailClose,omitempty" bson:"redactionfailclose,omitempty" mapstructure:"redactionFailClose,omitempty"`
 
 	// If set, show this message to user before the redirection.
 	RedirectMessage *string `json:"redirectMessage,omitempty" msgpack:"redirectMessage,omitempty" bson:"redirectmessage,omitempty" mapstructure:"redirectMessage,omitempty"`
@@ -1590,6 +1707,9 @@ func (o *SparseAccessPolicy) GetBSON() (any, error) {
 	if o.RedactContentBypass != nil {
 		s.RedactContentBypass = o.RedactContentBypass
 	}
+	if o.RedactionFailClose != nil {
+		s.RedactionFailClose = o.RedactionFailClose
+	}
 	if o.RedirectMessage != nil {
 		s.RedirectMessage = o.RedirectMessage
 	}
@@ -1681,6 +1801,9 @@ func (o *SparseAccessPolicy) SetBSON(raw bson.Raw) error {
 	if s.RedactContentBypass != nil {
 		o.RedactContentBypass = s.RedactContentBypass
 	}
+	if s.RedactionFailClose != nil {
+		o.RedactionFailClose = s.RedactionFailClose
+	}
 	if s.RedirectMessage != nil {
 		o.RedirectMessage = s.RedirectMessage
 	}
@@ -1769,6 +1892,9 @@ func (o *SparseAccessPolicy) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RedactContentBypass != nil {
 		out.RedactContentBypass = *o.RedactContentBypass
+	}
+	if o.RedactionFailClose != nil {
+		out.RedactionFailClose = *o.RedactionFailClose
 	}
 	if o.RedirectMessage != nil {
 		out.RedirectMessage = *o.RedirectMessage
@@ -1950,6 +2076,7 @@ type mongoAttributesAccessPolicy struct {
 	Permissive          bool                           `bson:"permissive"`
 	RedactContent       bool                           `bson:"redactcontent"`
 	RedactContentBypass bool                           `bson:"redactcontentbypass"`
+	RedactionFailClose  bool                           `bson:"redactionfailclose"`
 	RedirectMessage     string                         `bson:"redirectmessage"`
 	RedirectURL         string                         `bson:"redirecturl"`
 	TransportMode       AccessPolicyTransportModeValue `bson:"transportmode"`
@@ -1977,6 +2104,7 @@ type mongoAttributesSparseAccessPolicy struct {
 	Permissive          *bool                           `bson:"permissive,omitempty"`
 	RedactContent       *bool                           `bson:"redactcontent,omitempty"`
 	RedactContentBypass *bool                           `bson:"redactcontentbypass,omitempty"`
+	RedactionFailClose  *bool                           `bson:"redactionfailclose,omitempty"`
 	RedirectMessage     *string                         `bson:"redirectmessage,omitempty"`
 	RedirectURL         *string                         `bson:"redirecturl,omitempty"`
 	TransportMode       *AccessPolicyTransportModeValue `bson:"transportmode,omitempty"`

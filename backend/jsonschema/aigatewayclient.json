@@ -25,22 +25,42 @@
         "null"
       ]
     },
-    "clientID": {
+    "appComponent": {
       "$creationOnly": true,
-      "$friendlyName": "Client ID",
-      "$required": true,
-      "description": "Client identifier used in OAuth requests.",
-      "title": "clientID",
-      "type": "string"
-    },
-    "clientSecret": {
-      "$friendlyName": "Client Secret",
-      "description": "Client secret associated with the client ID.",
-      "title": "clientSecret",
+      "$friendlyName": "App Component",
+      "description": "The app component that uses this client. If provided, the client ID will be derived from it.",
+      "title": "appComponent",
       "type": [
         "string",
         "null"
       ]
+    },
+    "appComponentNamespace": {
+      "$creationOnly": true,
+      "$friendlyName": "App Component Namespace",
+      "description": "Defines the namespace of the app component that uses this client. If empty, the object's namespace will be used.",
+      "title": "appComponentNamespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientID": {
+      "$creationOnly": true,
+      "$friendlyName": "Client ID",
+      "description": "Client identifier used in OAuth requests.",
+      "title": "clientID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "clientSecret": {
+      "$friendlyName": "Client Secret",
+      "$required": true,
+      "description": "Client secret associated with the client ID.",
+      "title": "clientSecret",
+      "type": "string"
     },
     "createTime": {
       "$friendlyName": "CreateTime",
@@ -130,7 +150,7 @@
     }
   },
   "required": [
-    "clientID",
+    "clientSecret",
     "redirectURIs"
   ],
   "title": "AIGatewayClient",

@@ -24,6 +24,12 @@
       },
       "type": "array"
     },
+    "destinations": {
+      "items": {
+        "$ref": "destination.json"
+      },
+      "type": "array"
+    },
     "detectors": {
       "items": {
         "$ref": "detector.json"
@@ -126,21 +132,21 @@
       },
       "type": "array"
     },
-    "requestapps": {
-      "items": {
-        "$ref": "requestapp.json"
-      },
-      "type": "array"
-    },
     "requestdestinations": {
       "items": {
         "$ref": "requestdestination.json"
       },
       "type": "array"
     },
-    "requestusers": {
+    "requestsources": {
       "items": {
-        "$ref": "requestuser.json"
+        "$ref": "requestsource.json"
+      },
+      "type": "array"
+    },
+    "requesttraces": {
+      "items": {
+        "$ref": "requesttrace.json"
       },
       "type": "array"
     },

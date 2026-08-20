@@ -54,6 +54,7 @@ func NewModeration() *Moderation {
 
 	return &Moderation{
 		ModelVersion: 1,
+		Action:       ModerationActionNone,
 	}
 }
 func (o *Moderation) Identity() elemental.Identity {
@@ -273,6 +274,7 @@ var ModerationAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{"Warn", "Block", "None"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
+		DefaultValue:   ModerationActionNone,
 		Description:    `The actual action to take when triggered.`,
 		Exposed:        true,
 		Name:           "action",
@@ -340,6 +342,7 @@ var ModerationLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		AllowedChoices: []string{"Warn", "Block", "None"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
+		DefaultValue:   ModerationActionNone,
 		Description:    `The actual action to take when triggered.`,
 		Exposed:        true,
 		Name:           "action",

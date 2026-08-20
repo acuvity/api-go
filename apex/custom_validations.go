@@ -64,6 +64,27 @@ func ValidateNonEmptyList[T any](attribute string, list []T) error {
 	return nil
 }
 
+// ValidateDestination validates the destination object.
+//
+// Deliberately leaner than the backend package's validator of the same name: a
+// destination on this side is built by apex from a resolved app component or
+// provider rather than supplied by the caller, so the hash-matches-label check
+// has nothing to catch. The pairing invariant is still worth asserting, since a
+// half-populated destination would mean apex resolved something incompletely.
+// ValidatePrincipal is split the same way for the same reason.
+func ValidateDestination(destination *Destination) error {
+
+	if (destination.WorkloadGroupLabel == "") != (destination.WorkloadGroupHash == "") {
+		return makeErr("workloadGroupHash", "workload group label and hash must both be set or both be empty")
+	}
+
+	if (destination.WorkloadGroupSetLabel == "") != (destination.WorkloadGroupSetHash == "") {
+		return makeErr("workloadGroupSetHash", "workload group set label and hash must both be set or both be empty")
+	}
+
+	return nil
+}
+
 // ValidatePrincipal validates the principal object.
 func ValidatePrincipal(principal *Principal) error {
 
@@ -94,36 +115,68 @@ func ValidatePrincipal(principal *Principal) error {
 	return nil
 }
 
-// ValidateRequestApp validates the request app.
-func ValidateRequestApp(o *RequestApp) error {
+// validateRequestMessages validates that no entry of a request's messages list is
+// empty. An empty message is never useful: the extractor turns each entry into its
+// own extraction, and the inspector skips empty extractions before analysis, so the
+// entry would silently do nothing.
+func validateRequestMessages(messages []string) error {
 
-	if o.Direction == RequestAppDirectionIngress {
-		if o.Port <= 0 {
-			return makeErr("port", "'port' must be set and > 0 when direction is Ingress")
+	for i, m := range messages {
+		if m == "" {
+			return makeErr("messages", fmt.Sprintf("'messages' entry at index %d is empty", i))
 		}
 	}
 
 	return nil
 }
 
+// hasNonEmptyExtraction reports whether at least one extraction carries something
+// the analyzer can work with: an extraction with no data is still meaningful when
+// it holds tool uses or tool results, which are analyzer inputs in their own
+// right. It is a near-mirror of extractor.Extraction.Empty(), which also counts
+// annotations — a request extraction cannot carry any, so kind and role alone do
+// not make one non-empty.
+func hasNonEmptyExtraction(extractions []*ExtractionRequest) bool {
+
+	for _, e := range extractions {
+
+		if e == nil {
+			continue
+		}
+
+		if len(e.Data) > 0 ||
+			len(e.ToolUses) > 0 ||
+			len(e.ToolResults) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
 // ValidateScanRequest validates the scan request.
+//
+// The body is deliberately a duplicate of ValidatePoliceRequest: both check the
+// same @requestcore attributes, but the generated request types are distinct and
+// each carries its own direction enum, so there is nothing to share short of an
+// interface that would obscure more than it saves.
 func ValidateScanRequest(o *ScanRequest) error {
 
-	// Existing validations.
-	if len(o.Redactions) > 0 && o.ContentPolicy != "" {
-		return makeErr("redactions", "if redactions are set, you cannot use contentPolicy and vice versa")
-	}
-	if len(o.Keywords) > 0 && o.AccessPolicy != "" {
-		return makeErr("keywords", "if keywords are set, you cannot use accessPolicy and vice versa")
-	}
-	if len(o.Analyzers) > 0 && o.AccessPolicy != "" {
-		return makeErr("analyzers", "if analyzers are set, you cannot use accessPolicy and vice versa")
+	if err := validateRequestMessages(o.Messages); err != nil {
+		return err
 	}
 
-	// When app/destination/provider are optionally provided, same rules as police apply.
+	// Scan has nothing to report on without content. Tools alone are not enough:
+	// the analyzer runs once per extraction, so a request with no extraction and
+	// no message never reaches it, whatever its 'tools' map holds. Police accepts
+	// that case, because a moderation can decide on the tools by itself.
+	if len(o.Messages) == 0 && !hasNonEmptyExtraction(o.Extractions) {
+		return makeErr("messages", "you must set at least one 'messages' entry or one non-empty 'extractions' entry")
+	}
+
 	hasDestApp := o.Destination != nil && o.Destination.App != "" && o.Destination.Component != ""
 	hasProvider := o.Provider != ""
-	isIngress := o.App != nil && o.App.Direction == RequestAppDirectionIngress
+	isIngress := o.Direction == ScanRequestDirectionIngress
 
 	if hasDestApp && hasProvider {
 		return makeErr("provider", "'provider' must not be set when destination app and component are set")
@@ -134,7 +187,7 @@ func ValidateScanRequest(o *ScanRequest) error {
 			return makeErr("provider", "'provider' must not be set when direction is Ingress")
 		}
 		if hasDestApp {
-			return makeErr("destination", "'destination' must not be set when direction is Ingress; the app field is the destination")
+			return makeErr("destination", "'destination' app and component must not be set when direction is Ingress; the app component identified by your token is the destination")
 		}
 	}
 
@@ -144,9 +197,19 @@ func ValidateScanRequest(o *ScanRequest) error {
 // ValidatePoliceRequest validates the police request.
 func ValidatePoliceRequest(o *PoliceRequest) error {
 
+	if err := validateRequestMessages(o.Messages); err != nil {
+		return err
+	}
+
+	// Police must have something to decide on. Unlike scan, tools on their own
+	// qualify: a moderation can be written against the tools of the request alone.
+	if len(o.Messages) == 0 && len(o.Tools) == 0 && !hasNonEmptyExtraction(o.Extractions) {
+		return makeErr("messages", "you must set at least one 'messages' entry, one non-empty 'extractions' entry or one 'tools' entry")
+	}
+
 	hasDestApp := o.Destination != nil && o.Destination.App != "" && o.Destination.Component != ""
 	hasProvider := o.Provider != ""
-	isIngress := o.App != nil && o.App.Direction == RequestAppDirectionIngress
+	isIngress := o.Direction == PoliceRequestDirectionIngress
 
 	if hasDestApp && hasProvider {
 		return makeErr("provider", "'provider' must not be set when destination app and component are set")
@@ -157,7 +220,7 @@ func ValidatePoliceRequest(o *PoliceRequest) error {
 			return makeErr("provider", "'provider' must not be set when direction is Ingress")
 		}
 		if hasDestApp {
-			return makeErr("destination", "'destination' must not be set when direction is Ingress; the app field is the destination")
+			return makeErr("destination", "'destination' app and component must not be set when direction is Ingress; the app component identified by your token is the destination")
 		}
 	}
 

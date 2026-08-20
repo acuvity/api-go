@@ -1,0 +1,49 @@
+{
+  "$extends": [
+    "@identifiable",
+    "@auto-propagated"
+  ],
+  "$friendlyName": "App Agent Conf Update",
+  "$friendlyNamePlural": "App Agent Conf Updates",
+  "$modelName": "AppAgentConfUpdate",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appagentconfupdates",
+  "$modelRestName": "appagentconfupdate",
+  "additionalProperties": false,
+  "description": "Object used to notify Perrin for relevant changes.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppAgentConfUpdate",
+  "type": "object"
+}

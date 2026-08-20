@@ -94,16 +94,19 @@ type ProviderToken struct {
 	// The description of the provider token.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The key ID used to identify the encryption key for this token.
-	KeyID string `json:"keyID" msgpack:"keyID" bson:"keyid" mapstructure:"keyID,omitempty"`
-
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The ID of the parent resource.
 	ParentID string `json:"parentID" msgpack:"parentID" bson:"parentid" mapstructure:"parentID,omitempty"`
 
-	// Token that will be encrypted using the key referenced by keyID.
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
+
+	// The name of the public key used to encrypt this token.
+	PublicKeyName string `json:"publicKeyName" msgpack:"publicKeyName" bson:"publickeyname" mapstructure:"publicKeyName,omitempty"`
+
+	// Token that will be encrypted using the key referenced by publicKeyName.
 	Token string `json:"token" msgpack:"token" bson:"token" mapstructure:"token,omitempty"`
 
 	// Last update date of the object.
@@ -123,6 +126,7 @@ func NewProviderToken() *ProviderToken {
 
 	return &ProviderToken{
 		ModelVersion: 1,
+		Propagate:    true,
 	}
 }
 
@@ -159,9 +163,10 @@ func (o *ProviderToken) GetBSON() (any, error) {
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
-	s.KeyID = o.KeyID
 	s.Namespace = o.Namespace
 	s.ParentID = o.ParentID
+	s.Propagate = o.Propagate
+	s.PublicKeyName = o.PublicKeyName
 	s.Token = o.Token
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -186,9 +191,10 @@ func (o *ProviderToken) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
-	o.KeyID = s.KeyID
 	o.Namespace = s.Namespace
 	o.ParentID = s.ParentID
+	o.Propagate = s.Propagate
+	o.PublicKeyName = s.PublicKeyName
 	o.Token = s.Token
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -263,6 +269,18 @@ func (o *ProviderToken) SetParentID(parentID string) {
 	o.ParentID = parentID
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *ProviderToken) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *ProviderToken) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
 func (o *ProviderToken) GetUpdateTime() time.Time {
 
@@ -282,16 +300,17 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProviderToken{
-			ID:          &o.ID,
-			CreateTime:  &o.CreateTime,
-			Description: &o.Description,
-			KeyID:       &o.KeyID,
-			Namespace:   &o.Namespace,
-			ParentID:    &o.ParentID,
-			Token:       &o.Token,
-			UpdateTime:  &o.UpdateTime,
-			ZHash:       &o.ZHash,
-			Zone:        &o.Zone,
+			ID:            &o.ID,
+			CreateTime:    &o.CreateTime,
+			Description:   &o.Description,
+			Namespace:     &o.Namespace,
+			ParentID:      &o.ParentID,
+			Propagate:     &o.Propagate,
+			PublicKeyName: &o.PublicKeyName,
+			Token:         &o.Token,
+			UpdateTime:    &o.UpdateTime,
+			ZHash:         &o.ZHash,
+			Zone:          &o.Zone,
 		}
 	}
 
@@ -304,12 +323,14 @@ func (o *ProviderToken) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
-		case "keyID":
-			sp.KeyID = &(o.KeyID)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "parentID":
 			sp.ParentID = &(o.ParentID)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
+		case "publicKeyName":
+			sp.PublicKeyName = &(o.PublicKeyName)
 		case "token":
 			sp.Token = &(o.Token)
 		case "updateTime":
@@ -340,14 +361,17 @@ func (o *ProviderToken) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
-	if so.KeyID != nil {
-		o.KeyID = *so.KeyID
-	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
 	if so.ParentID != nil {
 		o.ParentID = *so.ParentID
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
+	}
+	if so.PublicKeyName != nil {
+		o.PublicKeyName = *so.PublicKeyName
 	}
 	if so.Token != nil {
 		o.Token = *so.Token
@@ -415,7 +439,7 @@ func (o *ProviderToken) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("keyID", o.KeyID); err != nil {
+	if err := elemental.ValidateRequiredString("publicKeyName", o.PublicKeyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
@@ -459,12 +483,14 @@ func (o *ProviderToken) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
-	case "keyID":
-		return o.KeyID
 	case "namespace":
 		return o.Namespace
 	case "parentID":
 		return o.ParentID
+	case "propagate":
+		return o.Propagate
+	case "publicKeyName":
+		return o.PublicKeyName
 	case "token":
 		return o.Token
 	case "updateTime":
@@ -520,17 +546,6 @@ var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"KeyID": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "keyid",
-		ConvertedName:  "KeyID",
-		Description:    `The key ID used to identify the encryption key for this token.`,
-		Exposed:        true,
-		Name:           "keyID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"Namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -560,11 +575,35 @@ var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"PublicKeyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publickeyname",
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt this token.`,
+		Exposed:        true,
+		Name:           "publicKeyName",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"Token": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "token",
 		ConvertedName:  "Token",
-		Description:    `Token that will be encrypted using the key referenced by keyID.`,
+		Description:    `Token that will be encrypted using the key referenced by publicKeyName.`,
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "token",
@@ -633,17 +672,6 @@ var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "string",
 	},
-	"keyid": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "keyid",
-		ConvertedName:  "KeyID",
-		Description:    `The key ID used to identify the encryption key for this token.`,
-		Exposed:        true,
-		Name:           "keyID",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
-	},
 	"namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -673,11 +701,35 @@ var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "string",
 	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"publickeyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publickeyname",
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt this token.`,
+		Exposed:        true,
+		Name:           "publicKeyName",
+		Required:       true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"token": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "token",
 		ConvertedName:  "Token",
-		Description:    `Token that will be encrypted using the key referenced by keyID.`,
+		Description:    `Token that will be encrypted using the key referenced by publicKeyName.`,
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "token",
@@ -776,16 +828,19 @@ type SparseProviderToken struct {
 	// The description of the provider token.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// The key ID used to identify the encryption key for this token.
-	KeyID *string `json:"keyID,omitempty" msgpack:"keyID,omitempty" bson:"keyid,omitempty" mapstructure:"keyID,omitempty"`
-
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The ID of the parent resource.
 	ParentID *string `json:"parentID,omitempty" msgpack:"parentID,omitempty" bson:"parentid,omitempty" mapstructure:"parentID,omitempty"`
 
-	// Token that will be encrypted using the key referenced by keyID.
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
+	// The name of the public key used to encrypt this token.
+	PublicKeyName *string `json:"publicKeyName,omitempty" msgpack:"publicKeyName,omitempty" bson:"publickeyname,omitempty" mapstructure:"publicKeyName,omitempty"`
+
+	// Token that will be encrypted using the key referenced by publicKeyName.
 	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"token,omitempty" mapstructure:"token,omitempty"`
 
 	// Last update date of the object.
@@ -849,14 +904,17 @@ func (o *SparseProviderToken) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
-	if o.KeyID != nil {
-		s.KeyID = o.KeyID
-	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
 	if o.ParentID != nil {
 		s.ParentID = o.ParentID
+	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
+	if o.PublicKeyName != nil {
+		s.PublicKeyName = o.PublicKeyName
 	}
 	if o.Token != nil {
 		s.Token = o.Token
@@ -895,14 +953,17 @@ func (o *SparseProviderToken) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
-	if s.KeyID != nil {
-		o.KeyID = s.KeyID
-	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
 	if s.ParentID != nil {
 		o.ParentID = s.ParentID
+	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
+	if s.PublicKeyName != nil {
+		o.PublicKeyName = s.PublicKeyName
 	}
 	if s.Token != nil {
 		o.Token = s.Token
@@ -939,14 +1000,17 @@ func (o *SparseProviderToken) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
-	if o.KeyID != nil {
-		out.KeyID = *o.KeyID
-	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
 	if o.ParentID != nil {
 		out.ParentID = *o.ParentID
+	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
+	}
+	if o.PublicKeyName != nil {
+		out.PublicKeyName = *o.PublicKeyName
 	}
 	if o.Token != nil {
 		out.Token = *o.Token
@@ -1032,6 +1096,22 @@ func (o *SparseProviderToken) SetParentID(parentID string) {
 	o.ParentID = &parentID
 }
 
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseProviderToken) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseProviderToken) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
+}
+
 // GetUpdateTime returns the UpdateTime of the receiver.
 func (o *SparseProviderToken) GetUpdateTime() (out time.Time) {
 
@@ -1073,26 +1153,28 @@ func (o *SparseProviderToken) DeepCopyInto(out *SparseProviderToken) {
 }
 
 type mongoAttributesProviderToken struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  time.Time     `bson:"createtime"`
-	Description string        `bson:"description,omitempty"`
-	KeyID       string        `bson:"keyid"`
-	Namespace   string        `bson:"namespace,omitempty"`
-	ParentID    string        `bson:"parentid"`
-	Token       string        `bson:"token"`
-	UpdateTime  time.Time     `bson:"updatetime"`
-	ZHash       int           `bson:"zhash"`
-	Zone        int           `bson:"zone"`
+	ID            bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime    time.Time     `bson:"createtime"`
+	Description   string        `bson:"description,omitempty"`
+	Namespace     string        `bson:"namespace,omitempty"`
+	ParentID      string        `bson:"parentid"`
+	Propagate     bool          `bson:"propagate"`
+	PublicKeyName string        `bson:"publickeyname"`
+	Token         string        `bson:"token"`
+	UpdateTime    time.Time     `bson:"updatetime"`
+	ZHash         int           `bson:"zhash"`
+	Zone          int           `bson:"zone"`
 }
 type mongoAttributesSparseProviderToken struct {
-	ID          bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime  *time.Time    `bson:"createtime,omitempty"`
-	Description *string       `bson:"description,omitempty"`
-	KeyID       *string       `bson:"keyid,omitempty"`
-	Namespace   *string       `bson:"namespace,omitempty"`
-	ParentID    *string       `bson:"parentid,omitempty"`
-	Token       *string       `bson:"token,omitempty"`
-	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`
-	ZHash       *int          `bson:"zhash,omitempty"`
-	Zone        *int          `bson:"zone,omitempty"`
+	ID            bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime    *time.Time    `bson:"createtime,omitempty"`
+	Description   *string       `bson:"description,omitempty"`
+	Namespace     *string       `bson:"namespace,omitempty"`
+	ParentID      *string       `bson:"parentid,omitempty"`
+	Propagate     *bool         `bson:"propagate,omitempty"`
+	PublicKeyName *string       `bson:"publickeyname,omitempty"`
+	Token         *string       `bson:"token,omitempty"`
+	UpdateTime    *time.Time    `bson:"updatetime,omitempty"`
+	ZHash         *int          `bson:"zhash,omitempty"`
+	Zone          *int          `bson:"zone,omitempty"`
 }

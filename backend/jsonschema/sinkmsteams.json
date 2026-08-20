@@ -1,0 +1,25 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink MS Teams",
+  "$friendlyNamePlural": "Sink MS Teams",
+  "$modelName": "SinkMSTeams",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkmsteams",
+  "$modelRestName": "sinkmsteams",
+  "additionalProperties": false,
+  "description": "Additional configuration for sending a Microsoft Teams message.",
+  "properties": {
+    "webhookURL": {
+      "$friendlyName": "Webhook URL",
+      "$required": true,
+      "description": "The webhook URL to send the Teams messages to.",
+      "title": "webhookURL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "webhookURL"
+  ],
+  "title": "SinkMSTeams",
+  "type": "object"
+}

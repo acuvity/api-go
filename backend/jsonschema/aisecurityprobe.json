@@ -1,0 +1,143 @@
+{
+  "$extends": [
+    "@sharded",
+    "@importable",
+    "@identifiable",
+    "@timed",
+    "@namelinkable",
+    "@deploymentrefs"
+  ],
+  "$friendlyName": "AI Security Probe",
+  "$friendlyNamePlural": "AI Security Probes",
+  "$modelName": "AISecurityProbe",
+  "$modelPackage": "lain",
+  "$modelResourceName": "aisecurityprobes",
+  "$modelRestName": "aisecurityprobe",
+  "additionalProperties": false,
+  "description": "AI Security Probe defines configuration for probing mechanisms that provide discovery data about an environment.",
+  "properties": {
+    "DNSMonitoring": {
+      "$defaultValue": "Enabled",
+      "$friendlyName": "DNS Monitoring",
+      "description": "Enable or disable DNS monitoring.",
+      "enum": [
+        "Enabled",
+        "Disabled"
+      ],
+      "title": "DNSMonitoring"
+    },
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectionMonitoring": {
+      "$friendlyName": "Connection Monitoring",
+      "description": "Selects a list of targets for which to perform connection monitoring.",
+      "items": {
+        "$ref": "connectionmonitorselector.json"
+      },
+      "title": "connectionMonitoring",
+      "type": "array"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "deployments": {
+      "$friendlyName": "Deployments",
+      "description": "The name of the deployments this object is bound to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "deployments",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the AI Security Probe configuration.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "friendlyName"
+  ],
+  "title": "AISecurityProbe",
+  "type": "object"
+}

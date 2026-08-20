@@ -69,6 +69,16 @@
         "null"
       ]
     },
+    "proxyAssignPolicy": {
+      "$friendlyName": "Proxy Assign Policy",
+      "$readOnly": true,
+      "description": "The computed rego assign policy for the proxy.",
+      "title": "proxyAssignPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "proxyContentPolicy": {
       "$friendlyName": "Proxy Content Policy",
       "$readOnly": true,

@@ -88,6 +88,14 @@ type AIGatewayClient struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The app component that uses this client. If provided, the
+	// client ID will be derived from it.
+	AppComponent string `json:"appComponent" msgpack:"appComponent" bson:"appcomponent" mapstructure:"appComponent,omitempty"`
+
+	// Defines the namespace of the app component that uses this client.
+	// If empty, the object's namespace will be used.
+	AppComponentNamespace string `json:"appComponentNamespace" msgpack:"appComponentNamespace" bson:"appcomponentnamespace" mapstructure:"appComponentNamespace,omitempty"`
+
 	// Client identifier used in OAuth requests.
 	ClientID string `json:"clientID" msgpack:"clientID" bson:"clientid" mapstructure:"clientID,omitempty"`
 
@@ -171,6 +179,8 @@ func (o *AIGatewayClient) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AppComponent = o.AppComponent
+	s.AppComponentNamespace = o.AppComponentNamespace
 	s.ClientID = o.ClientID
 	s.ClientSecret = o.ClientSecret
 	s.CreateTime = o.CreateTime
@@ -202,6 +212,8 @@ func (o *AIGatewayClient) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.AppComponent = s.AppComponent
+	o.AppComponentNamespace = s.AppComponentNamespace
 	o.ClientID = s.ClientID
 	o.ClientSecret = s.ClientSecret
 	o.CreateTime = s.CreateTime
@@ -327,20 +339,22 @@ func (o *AIGatewayClient) ToSparse(fields ...string) elemental.SparseIdentifiabl
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAIGatewayClient{
-			ID:           &o.ID,
-			ClientID:     &o.ClientID,
-			ClientSecret: &o.ClientSecret,
-			CreateTime:   &o.CreateTime,
-			Description:  &o.Description,
-			ImportHash:   &o.ImportHash,
-			ImportLabel:  &o.ImportLabel,
-			Namespace:    &o.Namespace,
-			OauthClient:  o.OauthClient,
-			ParentID:     &o.ParentID,
-			RedirectURIs: &o.RedirectURIs,
-			UpdateTime:   &o.UpdateTime,
-			ZHash:        &o.ZHash,
-			Zone:         &o.Zone,
+			ID:                    &o.ID,
+			AppComponent:          &o.AppComponent,
+			AppComponentNamespace: &o.AppComponentNamespace,
+			ClientID:              &o.ClientID,
+			ClientSecret:          &o.ClientSecret,
+			CreateTime:            &o.CreateTime,
+			Description:           &o.Description,
+			ImportHash:            &o.ImportHash,
+			ImportLabel:           &o.ImportLabel,
+			Namespace:             &o.Namespace,
+			OauthClient:           o.OauthClient,
+			ParentID:              &o.ParentID,
+			RedirectURIs:          &o.RedirectURIs,
+			UpdateTime:            &o.UpdateTime,
+			ZHash:                 &o.ZHash,
+			Zone:                  &o.Zone,
 		}
 	}
 
@@ -349,6 +363,10 @@ func (o *AIGatewayClient) ToSparse(fields ...string) elemental.SparseIdentifiabl
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "appComponent":
+			sp.AppComponent = &(o.AppComponent)
+		case "appComponentNamespace":
+			sp.AppComponentNamespace = &(o.AppComponentNamespace)
 		case "clientID":
 			sp.ClientID = &(o.ClientID)
 		case "clientSecret":
@@ -390,6 +408,12 @@ func (o *AIGatewayClient) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseAIGatewayClient)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AppComponent != nil {
+		o.AppComponent = *so.AppComponent
+	}
+	if so.AppComponentNamespace != nil {
+		o.AppComponentNamespace = *so.AppComponentNamespace
 	}
 	if so.ClientID != nil {
 		o.ClientID = *so.ClientID
@@ -496,10 +520,6 @@ func (o *AIGatewayClient) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("clientID", o.ClientID); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if o.OauthClient != nil {
 		if err := o.OauthClient.Validate(); err != nil {
 			errors = errors.Append(err)
@@ -551,6 +571,10 @@ func (o *AIGatewayClient) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "appComponent":
+		return o.AppComponent
+	case "appComponentNamespace":
+		return o.AppComponentNamespace
 	case "clientID":
 		return o.ClientID
 	case "clientSecret":
@@ -599,6 +623,30 @@ var AIGatewayClientAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"AppComponent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponent",
+		ConvertedName:  "AppComponent",
+		CreationOnly:   true,
+		Description: `The app component that uses this client. If provided, the
+client ID will be derived from it.`,
+		Exposed: true,
+		Name:    "appComponent",
+		Stored:  true,
+		Type:    "string",
+	},
+	"AppComponentNamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponentnamespace",
+		ConvertedName:  "AppComponentNamespace",
+		CreationOnly:   true,
+		Description: `Defines the namespace of the app component that uses this client.
+If empty, the object's namespace will be used.`,
+		Exposed: true,
+		Name:    "appComponentNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ClientID": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "clientid",
@@ -607,7 +655,6 @@ var AIGatewayClientAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `Client identifier used in OAuth requests.`,
 		Exposed:        true,
 		Name:           "clientID",
-		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -619,6 +666,7 @@ var AIGatewayClientAttributesMap = map[string]elemental.AttributeSpecification{
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "clientSecret",
+		Required:       true,
 		Secret:         true,
 		Stored:         true,
 		Transient:      true,
@@ -765,6 +813,30 @@ var AIGatewayClientLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		Stored:         true,
 		Type:           "string",
 	},
+	"appcomponent": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponent",
+		ConvertedName:  "AppComponent",
+		CreationOnly:   true,
+		Description: `The app component that uses this client. If provided, the
+client ID will be derived from it.`,
+		Exposed: true,
+		Name:    "appComponent",
+		Stored:  true,
+		Type:    "string",
+	},
+	"appcomponentnamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "appcomponentnamespace",
+		ConvertedName:  "AppComponentNamespace",
+		CreationOnly:   true,
+		Description: `Defines the namespace of the app component that uses this client.
+If empty, the object's namespace will be used.`,
+		Exposed: true,
+		Name:    "appComponentNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
 	"clientid": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "clientid",
@@ -773,7 +845,6 @@ var AIGatewayClientLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		Description:    `Client identifier used in OAuth requests.`,
 		Exposed:        true,
 		Name:           "clientID",
-		Required:       true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -785,6 +856,7 @@ var AIGatewayClientLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		Encrypted:      true,
 		Exposed:        true,
 		Name:           "clientSecret",
+		Required:       true,
 		Secret:         true,
 		Stored:         true,
 		Transient:      true,
@@ -980,6 +1052,14 @@ type SparseAIGatewayClient struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The app component that uses this client. If provided, the
+	// client ID will be derived from it.
+	AppComponent *string `json:"appComponent,omitempty" msgpack:"appComponent,omitempty" bson:"appcomponent,omitempty" mapstructure:"appComponent,omitempty"`
+
+	// Defines the namespace of the app component that uses this client.
+	// If empty, the object's namespace will be used.
+	AppComponentNamespace *string `json:"appComponentNamespace,omitempty" msgpack:"appComponentNamespace,omitempty" bson:"appcomponentnamespace,omitempty" mapstructure:"appComponentNamespace,omitempty"`
+
 	// Client identifier used in OAuth requests.
 	ClientID *string `json:"clientID,omitempty" msgpack:"clientID,omitempty" bson:"clientid,omitempty" mapstructure:"clientID,omitempty"`
 
@@ -1066,6 +1146,12 @@ func (o *SparseAIGatewayClient) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.AppComponent != nil {
+		s.AppComponent = o.AppComponent
+	}
+	if o.AppComponentNamespace != nil {
+		s.AppComponentNamespace = o.AppComponentNamespace
+	}
 	if o.ClientID != nil {
 		s.ClientID = o.ClientID
 	}
@@ -1124,6 +1210,12 @@ func (o *SparseAIGatewayClient) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AppComponent != nil {
+		o.AppComponent = s.AppComponent
+	}
+	if s.AppComponentNamespace != nil {
+		o.AppComponentNamespace = s.AppComponentNamespace
+	}
 	if s.ClientID != nil {
 		o.ClientID = s.ClientID
 	}
@@ -1179,6 +1271,12 @@ func (o *SparseAIGatewayClient) ToPlain() elemental.PlainIdentifiable {
 	out := NewAIGatewayClient()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.AppComponent != nil {
+		out.AppComponent = *o.AppComponent
+	}
+	if o.AppComponentNamespace != nil {
+		out.AppComponentNamespace = *o.AppComponentNamespace
 	}
 	if o.ClientID != nil {
 		out.ClientID = *o.ClientID
@@ -1376,34 +1474,38 @@ func (o *SparseAIGatewayClient) DeepCopyInto(out *SparseAIGatewayClient) {
 }
 
 type mongoAttributesAIGatewayClient struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	ClientID     string        `bson:"clientid"`
-	ClientSecret string        `bson:"clientsecret"`
-	CreateTime   time.Time     `bson:"createtime"`
-	Description  string        `bson:"description"`
-	ImportHash   string        `bson:"importhash,omitempty"`
-	ImportLabel  string        `bson:"importlabel,omitempty"`
-	Namespace    string        `bson:"namespace,omitempty"`
-	OauthClient  *IdentityRef  `bson:"oauthclient,omitempty"`
-	ParentID     string        `bson:"parentid"`
-	RedirectURIs []string      `bson:"redirecturis"`
-	UpdateTime   time.Time     `bson:"updatetime"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+	ID                    bson.ObjectId `bson:"_id,omitempty"`
+	AppComponent          string        `bson:"appcomponent"`
+	AppComponentNamespace string        `bson:"appcomponentnamespace"`
+	ClientID              string        `bson:"clientid"`
+	ClientSecret          string        `bson:"clientsecret"`
+	CreateTime            time.Time     `bson:"createtime"`
+	Description           string        `bson:"description"`
+	ImportHash            string        `bson:"importhash,omitempty"`
+	ImportLabel           string        `bson:"importlabel,omitempty"`
+	Namespace             string        `bson:"namespace,omitempty"`
+	OauthClient           *IdentityRef  `bson:"oauthclient,omitempty"`
+	ParentID              string        `bson:"parentid"`
+	RedirectURIs          []string      `bson:"redirecturis"`
+	UpdateTime            time.Time     `bson:"updatetime"`
+	ZHash                 int           `bson:"zhash"`
+	Zone                  int           `bson:"zone"`
 }
 type mongoAttributesSparseAIGatewayClient struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	ClientID     *string       `bson:"clientid,omitempty"`
-	ClientSecret *string       `bson:"clientsecret,omitempty"`
-	CreateTime   *time.Time    `bson:"createtime,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	ImportHash   *string       `bson:"importhash,omitempty"`
-	ImportLabel  *string       `bson:"importlabel,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	OauthClient  *IdentityRef  `bson:"oauthclient,omitempty"`
-	ParentID     *string       `bson:"parentid,omitempty"`
-	RedirectURIs *[]string     `bson:"redirecturis,omitempty"`
-	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+	ID                    bson.ObjectId `bson:"_id,omitempty"`
+	AppComponent          *string       `bson:"appcomponent,omitempty"`
+	AppComponentNamespace *string       `bson:"appcomponentnamespace,omitempty"`
+	ClientID              *string       `bson:"clientid,omitempty"`
+	ClientSecret          *string       `bson:"clientsecret,omitempty"`
+	CreateTime            *time.Time    `bson:"createtime,omitempty"`
+	Description           *string       `bson:"description,omitempty"`
+	ImportHash            *string       `bson:"importhash,omitempty"`
+	ImportLabel           *string       `bson:"importlabel,omitempty"`
+	Namespace             *string       `bson:"namespace,omitempty"`
+	OauthClient           *IdentityRef  `bson:"oauthclient,omitempty"`
+	ParentID              *string       `bson:"parentid,omitempty"`
+	RedirectURIs          *[]string     `bson:"redirecturis,omitempty"`
+	UpdateTime            *time.Time    `bson:"updatetime,omitempty"`
+	ZHash                 *int          `bson:"zhash,omitempty"`
+	Zone                  *int          `bson:"zone,omitempty"`
 }

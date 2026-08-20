@@ -62,6 +62,9 @@ const (
 	// RoundtripErrorStageExtraction represents the value Extraction.
 	RoundtripErrorStageExtraction RoundtripErrorStageValue = "Extraction"
 
+	// RoundtripErrorStageRedaction represents the value Redaction.
+	RoundtripErrorStageRedaction RoundtripErrorStageValue = "Redaction"
+
 	// RoundtripErrorStageUpstream represents the value Upstream.
 	RoundtripErrorStageUpstream RoundtripErrorStageValue = "Upstream"
 )
@@ -92,7 +95,8 @@ type RoundtripError struct {
 	// Type axis on the parent round-trip (Input/Output) and the Offband
 	// flag, gives the full discrimination of where a platform/upstream
 	// failure originated. Each value maps to an ownership tier:
-	// Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+	// Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,
+	// Redaction),
 	// customer-owned (ContentPolicy), provider-owned (Upstream).
 	Stage RoundtripErrorStageValue `json:"stage" msgpack:"stage" bson:"stage" mapstructure:"stage,omitempty"`
 
@@ -233,7 +237,7 @@ func (o *RoundtripError) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("stage", string(o.Stage), []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream"}, false); err != nil {
+	if err := elemental.ValidateStringInList("stage", string(o.Stage), []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream", "Redaction"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -316,14 +320,15 @@ the policy would have decided otherwise.`,
 		Type:     "enum",
 	},
 	"Stage": {
-		AllowedChoices: []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream"},
+		AllowedChoices: []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream", "Redaction"},
 		BSONFieldName:  "stage",
 		ConvertedName:  "Stage",
 		Description: `The pipeline component that produced the error. Combined with the
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,
+Redaction),
 customer-owned (ContentPolicy), provider-owned (Upstream).`,
 		Exposed: true,
 		Name:    "stage",
@@ -373,14 +378,15 @@ the policy would have decided otherwise.`,
 		Type:     "enum",
 	},
 	"stage": {
-		AllowedChoices: []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream"},
+		AllowedChoices: []string{"Extraction", "Analysis", "ContentPolicy", "AssignPolicy", "AccessPolicy", "Upstream", "Redaction"},
 		BSONFieldName:  "stage",
 		ConvertedName:  "Stage",
 		Description: `The pipeline component that produced the error. Combined with the
 Type axis on the parent round-trip (Input/Output) and the Offband
 flag, gives the full discrimination of where a platform/upstream
 failure originated. Each value maps to an ownership tier:
-Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),
+Proofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,
+Redaction),
 customer-owned (ContentPolicy), provider-owned (Upstream).`,
 		Exposed: true,
 		Name:    "stage",

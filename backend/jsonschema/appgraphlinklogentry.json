@@ -9,6 +9,18 @@
   "additionalProperties": false,
   "description": "Represents an application graph link log entry for an application graph node generated from the different logs collected by the app agents.",
   "properties": {
+    "APIs": {
+      "$friendlyName": "APIs",
+      "description": "The number of allowed and denied requests to this node broken down by the deployment they went through.",
+      "items": {
+        "items": {
+          "type": "int"
+        },
+        "type": "object"
+      },
+      "title": "APIs",
+      "type": "object"
+    },
     "allow": {
       "$friendlyName": "Allow",
       "description": "The number of allowed connections to this node.",
@@ -48,6 +60,18 @@
       "title": "findings",
       "type": "object"
     },
+    "gateways": {
+      "$friendlyName": "Gateways",
+      "description": "The number of allowed and denied requests to this node broken down by the gateway they went through.",
+      "items": {
+        "items": {
+          "type": "int"
+        },
+        "type": "object"
+      },
+      "title": "gateways",
+      "type": "object"
+    },
     "insecureEncryption": {
       "$friendlyName": "Insecure Encryption",
       "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0 or 1.1).",
@@ -65,6 +89,18 @@
       },
       "title": "logs",
       "type": "array"
+    },
+    "proxies": {
+      "$friendlyName": "Proxies",
+      "description": "The number of allowed and denied requests to this node broken down by the deployment they went through.",
+      "items": {
+        "items": {
+          "type": "int"
+        },
+        "type": "object"
+      },
+      "title": "proxies",
+      "type": "object"
     },
     "unencrypted": {
       "$friendlyName": "Unencrypted",

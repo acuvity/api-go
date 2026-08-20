@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Server Scope",
+  "$friendlyNamePlural": "MCP Server Scopes",
+  "$modelName": "MCPServerScope",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcpserverscopes",
+  "$modelRestName": "mcpserverscope",
+  "additionalProperties": false,
+  "description": "Represents an MCP server and the tools it applies to.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the MCP server.",
+      "title": "name",
+      "type": "string"
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The tools on this server that this scope applies to. If empty, the scope applies to every tool on the server.",
+      "items": {
+        "$ref": "mcptoolscope.json"
+      },
+      "title": "tools",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "title": "MCPServerScope",
+  "type": "object"
+}

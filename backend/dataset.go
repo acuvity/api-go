@@ -277,6 +277,18 @@ func (o *DataSet) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *DataSet) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *DataSet) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *DataSet) GetImportHash() string {
 
@@ -299,6 +311,18 @@ func (o *DataSet) GetImportLabel() string {
 func (o *DataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *DataSet) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *DataSet) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -638,8 +662,10 @@ var DataSetAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -680,7 +706,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -799,8 +827,10 @@ var DataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -841,7 +871,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1239,6 +1271,22 @@ func (o *SparseDataSet) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseDataSet) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseDataSet) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseDataSet) GetImportHash() (out string) {
 
@@ -1269,6 +1317,22 @@ func (o *SparseDataSet) GetImportLabel() (out string) {
 func (o *SparseDataSet) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseDataSet) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseDataSet) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.

@@ -59,21 +59,8 @@ const (
 
 // ExtractionRequest represents the model of a extractionrequest
 type ExtractionRequest struct {
-	// Annotations attached to the extraction.
-	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
-
 	// The binary data to request extraction for.
 	Data []byte `json:"data" msgpack:"data" bson:"-" mapstructure:"data,omitempty"`
-
-	// If true, this extraction is for internal use only. This can be used by agentic
-	// systems to mark an extraction as internal only as opposed to user facing.
-	Internal bool `json:"internal,omitempty" msgpack:"internal,omitempty" bson:"internal,omitempty" mapstructure:"internal,omitempty"`
-
-	// If true, the data of the extraction is a file.
-	IsFile bool `json:"isFile,omitempty" msgpack:"isFile,omitempty" bson:"isfile,omitempty" mapstructure:"isFile,omitempty"`
-
-	// If true, indicates that the file has been stored.
-	IsStored bool `json:"isStored,omitempty" msgpack:"isStored,omitempty" bson:"isstored,omitempty" mapstructure:"isStored,omitempty"`
 
 	// The kind of content carried by this extraction. Used together with role to
 	// label what the extracted blob represents so the UI can render it correctly and
@@ -90,13 +77,6 @@ type ExtractionRequest struct {
 	// document, search result, MCP resource).
 	// - Event: control or lifecycle marker with no analyzable content.
 	Kind ExtractionRequestKindValue `json:"kind" msgpack:"kind" bson:"kind" mapstructure:"kind,omitempty"`
-
-	// Contains events and other information that are not actual user content, and will
-	// not go through analysis.
-	Label string `json:"label,omitempty" msgpack:"label,omitempty" bson:"label,omitempty" mapstructure:"label,omitempty"`
-
-	// This is an internal field and has no api meaning.
-	OriginalData string `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
 	// The role of the message represented by this extraction.
 	Role ExtractionRequestRoleValue `json:"role" msgpack:"role" bson:"role" mapstructure:"role,omitempty"`
@@ -115,7 +95,6 @@ func NewExtractionRequest() *ExtractionRequest {
 
 	return &ExtractionRequest{
 		ModelVersion: 1,
-		Annotations:  map[string]string{},
 		Data:         []byte{},
 		Kind:         ExtractionRequestKindMessage,
 		Role:         ExtractionRequestRoleUser,
@@ -143,12 +122,7 @@ func (o *ExtractionRequest) GetBSON() (any, error) {
 
 	s := &mongoAttributesExtractionRequest{}
 
-	s.Annotations = o.Annotations
-	s.Internal = o.Internal
-	s.IsFile = o.IsFile
-	s.IsStored = o.IsStored
 	s.Kind = o.Kind
-	s.Label = o.Label
 	s.Role = o.Role
 	s.ToolResults = o.ToolResults
 	s.ToolUses = o.ToolUses
@@ -169,12 +143,7 @@ func (o *ExtractionRequest) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.Annotations = s.Annotations
-	o.Internal = s.Internal
-	o.IsFile = s.IsFile
-	o.IsStored = s.IsStored
 	o.Kind = s.Kind
-	o.Label = s.Label
 	o.Role = s.Role
 	o.ToolResults = s.ToolResults
 	o.ToolUses = s.ToolUses
@@ -324,22 +293,10 @@ func (*ExtractionRequest) AttributeSpecifications() map[string]elemental.Attribu
 func (o *ExtractionRequest) ValueForAttribute(name string) any {
 
 	switch name {
-	case "annotations":
-		return o.Annotations
 	case "data":
 		return o.Data
-	case "internal":
-		return o.Internal
-	case "isFile":
-		return o.IsFile
-	case "isStored":
-		return o.IsStored
 	case "kind":
 		return o.Kind
-	case "label":
-		return o.Label
-	case "originalData":
-		return o.OriginalData
 	case "role":
 		return o.Role
 	case "toolResults":
@@ -353,17 +310,6 @@ func (o *ExtractionRequest) ValueForAttribute(name string) any {
 
 // ExtractionRequestAttributesMap represents the map of attribute for ExtractionRequest.
 var ExtractionRequestAttributesMap = map[string]elemental.AttributeSpecification{
-	"Annotations": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "annotations",
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"Data": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Data",
@@ -372,37 +318,6 @@ var ExtractionRequestAttributesMap = map[string]elemental.AttributeSpecification
 		Name:           "data",
 		SubType:        "[]byte",
 		Type:           "external",
-	},
-	"Internal": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "internal",
-		ConvertedName:  "Internal",
-		Description: `If true, this extraction is for internal use only. This can be used by agentic
-systems to mark an extraction as internal only as opposed to user facing.`,
-		Exposed: true,
-		Name:    "internal",
-		Stored:  true,
-		Type:    "boolean",
-	},
-	"IsFile": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "isfile",
-		ConvertedName:  "IsFile",
-		Description:    `If true, the data of the extraction is a file.`,
-		Exposed:        true,
-		Name:           "isFile",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"IsStored": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "isstored",
-		ConvertedName:  "IsStored",
-		Description:    `If true, indicates that the file has been stored.`,
-		Exposed:        true,
-		Name:           "isStored",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"Kind": {
 		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
@@ -428,18 +343,6 @@ document, search result, MCP resource).
 		Stored:  true,
 		Type:    "enum",
 	},
-	"Label": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "label",
-		ConvertedName:  "Label",
-		Description: `Contains events and other information that are not actual user content, and will
-not go through analysis.`,
-		Exposed: true,
-		Name:    "label",
-		Stored:  true,
-		Type:    "string",
-	},
-
 	"Role": {
 		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
 		BSONFieldName:  "role",
@@ -477,17 +380,6 @@ not go through analysis.`,
 
 // ExtractionRequestLowerCaseAttributesMap represents the map of attribute for ExtractionRequest.
 var ExtractionRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"annotations": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "annotations",
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"data": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Data",
@@ -496,37 +388,6 @@ var ExtractionRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		Name:           "data",
 		SubType:        "[]byte",
 		Type:           "external",
-	},
-	"internal": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "internal",
-		ConvertedName:  "Internal",
-		Description: `If true, this extraction is for internal use only. This can be used by agentic
-systems to mark an extraction as internal only as opposed to user facing.`,
-		Exposed: true,
-		Name:    "internal",
-		Stored:  true,
-		Type:    "boolean",
-	},
-	"isfile": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "isfile",
-		ConvertedName:  "IsFile",
-		Description:    `If true, the data of the extraction is a file.`,
-		Exposed:        true,
-		Name:           "isFile",
-		Stored:         true,
-		Type:           "boolean",
-	},
-	"isstored": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "isstored",
-		ConvertedName:  "IsStored",
-		Description:    `If true, indicates that the file has been stored.`,
-		Exposed:        true,
-		Name:           "isStored",
-		Stored:         true,
-		Type:           "boolean",
 	},
 	"kind": {
 		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
@@ -552,18 +413,6 @@ document, search result, MCP resource).
 		Stored:  true,
 		Type:    "enum",
 	},
-	"label": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "label",
-		ConvertedName:  "Label",
-		Description: `Contains events and other information that are not actual user content, and will
-not go through analysis.`,
-		Exposed: true,
-		Name:    "label",
-		Stored:  true,
-		Type:    "string",
-	},
-
 	"role": {
 		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
 		BSONFieldName:  "role",
@@ -600,12 +449,7 @@ not go through analysis.`,
 }
 
 type mongoAttributesExtractionRequest struct {
-	Annotations map[string]string          `bson:"annotations,omitempty"`
-	Internal    bool                       `bson:"internal,omitempty"`
-	IsFile      bool                       `bson:"isfile,omitempty"`
-	IsStored    bool                       `bson:"isstored,omitempty"`
 	Kind        ExtractionRequestKindValue `bson:"kind"`
-	Label       string                     `bson:"label,omitempty"`
 	Role        ExtractionRequestRoleValue `bson:"role"`
 	ToolResults []ToolResult               `bson:"toolresults,omitempty"`
 	ToolUses    []ToolUse                  `bson:"tooluses,omitempty"`

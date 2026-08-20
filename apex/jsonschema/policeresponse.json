@@ -1,5 +1,6 @@
 {
   "$extends": [
+    "@destinationable",
     "@identifiable",
     "@pipelinepasstype",
     "@principalable",
@@ -61,6 +62,15 @@
         "null"
       ]
     },
+    "contentRedacted": {
+      "$friendlyName": "Content Redacted",
+      "description": "If true, the content of the extractions was stripped from the audit entry for this request, and only the analysis and other metadata were kept. This is driven by the policy that produced this decision, so it is reported here because the caller has no other way to know it happened.",
+      "title": "contentRedacted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "decision": {
       "$friendlyName": "Decision",
       "description": "User-facing outcome of the roundtrip. Reflects the policy engine's verdict, or in case of platform failure, the result of the failClose strategy (Deny on fail-close, Allow on fail-open, with structured error field carring the detail). NotApplicable is used by the scan and police APIs, which analyze content without rendering an enforcement decision. Error and UpstreamError stay in the allowed_choices list for backward compatibility with clients that still PUT those values; new round-trips never emit them — platform/upstream failures now surface via the structured Error field instead. NOTE: safe to drop Error and UpstreamError from this enum on or after 2026-07-19 (two months after the structured RoundtripError landed on 2026-05-19), once consumers have rolled forward.",
@@ -78,6 +88,12 @@
         "UpstreamError"
       ],
       "title": "decision"
+    },
+    "destination": {
+      "$friendlyName": "Destination",
+      "$ref": "destination.json",
+      "description": "Captures all details of the destination of the request.",
+      "title": "destination"
     },
     "error": {
       "$friendlyName": "Error",
@@ -131,6 +147,24 @@
       "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "offband": {
+      "$friendlyName": "Offband",
+      "description": "If true, the policy that produced this decision asked for the analysis to run offband. The decision was therefore made without waiting for the analyzers, so the extractions in this response carry no detections, and any redaction the analyzers would have found was not applied. The full analyzer set runs after this response is sent, so the stored roundtrip for this request can report a stricter outcome than the one reported here.",
+      "title": "offband",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "permissive": {
+      "$friendlyName": "Permissive",
+      "description": "If true, the policy that produced this decision is configured in permissive mode, so the content decision reported here is what the policy would have enforced and is not meant to be enforced. A caller acting on this response must let the request through when the decision is Deny, Ask or Report. This covers the content decision only. A decision of ForbiddenUser comes from the access policy, which permissive does not affect, and must still be enforced.",
+      "title": "permissive",
+      "type": [
+        "boolean",
         "null"
       ]
     },

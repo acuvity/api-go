@@ -1,0 +1,156 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "MCP Tool Snapshot",
+  "$friendlyNamePlural": "MCP Tool Snapshots",
+  "$modelName": "MCPToolSnapshot",
+  "$modelPackage": "lain",
+  "$modelResourceName": "mcptoolsnapshots",
+  "$modelRestName": "mcptoolsnapshot",
+  "additionalProperties": false,
+  "description": "Holds the latest dynamic snapshot of tools advertised by an MCP connector for a given gateway.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectorHash": {
+      "$friendlyName": "Connector Hash",
+      "$readOnly": true,
+      "description": "The hash of the resolved connector at the time of the snapshot. Used to distinguish upstream drift from connector configuration changes.",
+      "title": "connectorHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectorName": {
+      "$friendlyName": "Connector Name",
+      "$required": true,
+      "description": "The Name of the MCP connector this snapshot describes.",
+      "title": "connectorName",
+      "type": "string"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "diagnostic": {
+      "$friendlyName": "Diagnostic",
+      "description": "A diagnostic explaining the drift outcome.",
+      "items": {
+        "$ref": "diagnostic.json"
+      },
+      "title": "diagnostic",
+      "type": "array"
+    },
+    "drifted": {
+      "$friendlyName": "Drifted",
+      "description": "Whether the live tools list diverges from the baseline.",
+      "title": "drifted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "extraction": {
+      "$friendlyName": "Extraction",
+      "$ref": "extraction.json",
+      "description": "The analyzer findings from running the drifted tool list through the analyzers. Populated only when the snapshot is in a drifted state.",
+      "title": "extraction"
+    },
+    "firstDriftedAt": {
+      "$friendlyName": "First Drifted At",
+      "description": "When divergence was first observed. Set on entering drift, cleared on leaving it.",
+      "title": "firstDriftedAt",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "$required": true,
+      "description": "The Name of the AI gateway this snapshot belongs to.",
+      "title": "gatewayName",
+      "type": "string"
+    },
+    "lastFetchedAt": {
+      "$friendlyName": "Last Fetched At",
+      "description": "When the last successful upstream fetch occurred.",
+      "title": "lastFetchedAt",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mcpServer": {
+      "$friendlyName": "MCP Server",
+      "description": "The Name of the MCP server backing this connector, used to scope access policies when resolving MCP attack findings.",
+      "title": "mcpServer",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rawTools": {
+      "$friendlyName": "Raw Tools",
+      "description": "The raw tools list as fetched from upstream, sent by the gateway on create.",
+      "title": "rawTools",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The tools list as last fetched from upstream.",
+      "items": {
+        "$ref": "tool.json"
+      },
+      "title": "tools",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "connectorName",
+    "gatewayName"
+  ],
+  "title": "MCPToolSnapshot",
+  "type": "object"
+}

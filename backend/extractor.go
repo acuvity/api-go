@@ -100,6 +100,17 @@ const (
 	ExtractorTypeOutput ExtractorTypeValue = "Output"
 )
 
+// ExtractorWebsocketOutputModeValue represents the possible values for attribute "websocketOutputMode".
+type ExtractorWebsocketOutputModeValue string
+
+const (
+	// ExtractorWebsocketOutputModeJSONArrayFrames represents the value JSONArrayFrames.
+	ExtractorWebsocketOutputModeJSONArrayFrames ExtractorWebsocketOutputModeValue = "JSONArrayFrames"
+
+	// ExtractorWebsocketOutputModeSingleFrame represents the value SingleFrame.
+	ExtractorWebsocketOutputModeSingleFrame ExtractorWebsocketOutputModeValue = "SingleFrame"
+)
+
 // ExtractorIdentity represents the Identity of the object.
 var ExtractorIdentity = elemental.Identity{
 	Name:     "extractor",
@@ -257,6 +268,10 @@ type Extractor struct {
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
+	// This property defines how injected output should be written back to a WebSocket
+	// client. The default writes the injected output as a single WebSocket message.
+	WebsocketOutputMode ExtractorWebsocketOutputModeValue `json:"websocketOutputMode" msgpack:"websocketOutputMode" bson:"websocketoutputmode" mapstructure:"websocketOutputMode,omitempty"`
+
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
 
@@ -270,14 +285,15 @@ type Extractor struct {
 func NewExtractor() *Extractor {
 
 	return &Extractor{
-		ModelVersion:   1,
-		Anonymization:  ExtractorAnonymizationFixedSize,
-		Behavior:       ExtractorBehaviorPopup,
-		Block:          false,
-		CancelBehavior: ExtractorCancelBehaviorBlock,
-		Libs:           []string{},
-		Propagate:      true,
-		StreamSplitter: ExtractorStreamSplitterSSE,
+		ModelVersion:        1,
+		Anonymization:       ExtractorAnonymizationFixedSize,
+		Behavior:            ExtractorBehaviorPopup,
+		Block:               false,
+		CancelBehavior:      ExtractorCancelBehaviorBlock,
+		Libs:                []string{},
+		Propagate:           true,
+		StreamSplitter:      ExtractorStreamSplitterSSE,
+		WebsocketOutputMode: ExtractorWebsocketOutputModeSingleFrame,
 	}
 }
 
@@ -336,6 +352,7 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.StreamSplitter = o.StreamSplitter
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
+	s.WebsocketOutputMode = o.WebsocketOutputMode
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -380,6 +397,7 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.StreamSplitter = s.StreamSplitter
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
+	o.WebsocketOutputMode = s.WebsocketOutputMode
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -500,33 +518,34 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseExtractor{
-			ID:                 &o.ID,
-			Anonymization:      &o.Anonymization,
-			Behavior:           &o.Behavior,
-			Block:              &o.Block,
-			CancelBehavior:     &o.CancelBehavior,
-			CreateTime:         &o.CreateTime,
-			Deanonymize:        &o.Deanonymize,
-			Description:        &o.Description,
-			FeatureName:        &o.FeatureName,
-			HonorPriorDecision: &o.HonorPriorDecision,
-			Ignore:             &o.Ignore,
-			ImportHash:         &o.ImportHash,
-			ImportLabel:        &o.ImportLabel,
-			Libs:               &o.Libs,
-			Method:             &o.Method,
-			Name:               &o.Name,
-			Namespace:          &o.Namespace,
-			Path:               &o.Path,
-			PoliceOutput:       &o.PoliceOutput,
-			Propagate:          &o.Propagate,
-			Script:             &o.Script,
-			SkipAnalysis:       &o.SkipAnalysis,
-			StreamSplitter:     &o.StreamSplitter,
-			Type:               &o.Type,
-			UpdateTime:         &o.UpdateTime,
-			ZHash:              &o.ZHash,
-			Zone:               &o.Zone,
+			ID:                  &o.ID,
+			Anonymization:       &o.Anonymization,
+			Behavior:            &o.Behavior,
+			Block:               &o.Block,
+			CancelBehavior:      &o.CancelBehavior,
+			CreateTime:          &o.CreateTime,
+			Deanonymize:         &o.Deanonymize,
+			Description:         &o.Description,
+			FeatureName:         &o.FeatureName,
+			HonorPriorDecision:  &o.HonorPriorDecision,
+			Ignore:              &o.Ignore,
+			ImportHash:          &o.ImportHash,
+			ImportLabel:         &o.ImportLabel,
+			Libs:                &o.Libs,
+			Method:              &o.Method,
+			Name:                &o.Name,
+			Namespace:           &o.Namespace,
+			Path:                &o.Path,
+			PoliceOutput:        &o.PoliceOutput,
+			Propagate:           &o.Propagate,
+			Script:              &o.Script,
+			SkipAnalysis:        &o.SkipAnalysis,
+			StreamSplitter:      &o.StreamSplitter,
+			Type:                &o.Type,
+			UpdateTime:          &o.UpdateTime,
+			WebsocketOutputMode: &o.WebsocketOutputMode,
+			ZHash:               &o.ZHash,
+			Zone:                &o.Zone,
 		}
 	}
 
@@ -583,6 +602,8 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "websocketOutputMode":
+			sp.WebsocketOutputMode = &(o.WebsocketOutputMode)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -674,6 +695,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
+	}
+	if so.WebsocketOutputMode != nil {
+		o.WebsocketOutputMode = *so.WebsocketOutputMode
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -775,6 +799,10 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("websocketOutputMode", string(o.WebsocketOutputMode), []string{"SingleFrame", "JSONArrayFrames"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	// Custom object validation.
 	if err := ValidateExtractor(o); err != nil {
 		errors = errors.Append(err)
@@ -864,6 +892,8 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.Type
 	case "updateTime":
 		return o.UpdateTime
+	case "websocketOutputMode":
+		return o.WebsocketOutputMode
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -1178,6 +1208,18 @@ stream.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"WebsocketOutputMode": {
+		AllowedChoices: []string{"SingleFrame", "JSONArrayFrames"},
+		BSONFieldName:  "websocketoutputmode",
+		ConvertedName:  "WebsocketOutputMode",
+		DefaultValue:   ExtractorWebsocketOutputModeSingleFrame,
+		Description: `This property defines how injected output should be written back to a WebSocket
+client. The default writes the injected output as a single WebSocket message.`,
+		Exposed: true,
+		Name:    "websocketOutputMode",
+		Stored:  true,
+		Type:    "enum",
+	},
 }
 
 // ExtractorLowerCaseAttributesMap represents the map of attribute for Extractor.
@@ -1485,6 +1527,18 @@ stream.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"websocketoutputmode": {
+		AllowedChoices: []string{"SingleFrame", "JSONArrayFrames"},
+		BSONFieldName:  "websocketoutputmode",
+		ConvertedName:  "WebsocketOutputMode",
+		DefaultValue:   ExtractorWebsocketOutputModeSingleFrame,
+		Description: `This property defines how injected output should be written back to a WebSocket
+client. The default writes the injected output as a single WebSocket message.`,
+		Exposed: true,
+		Name:    "websocketOutputMode",
+		Stored:  true,
+		Type:    "enum",
+	},
 }
 
 // SparseExtractorsList represents a list of SparseExtractors
@@ -1635,6 +1689,10 @@ type SparseExtractor struct {
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
+	// This property defines how injected output should be written back to a WebSocket
+	// client. The default writes the injected output as a single WebSocket message.
+	WebsocketOutputMode *ExtractorWebsocketOutputModeValue `json:"websocketOutputMode,omitempty" msgpack:"websocketOutputMode,omitempty" bson:"websocketoutputmode,omitempty" mapstructure:"websocketOutputMode,omitempty"`
+
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
 
@@ -1759,6 +1817,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
+	if o.WebsocketOutputMode != nil {
+		s.WebsocketOutputMode = o.WebsocketOutputMode
+	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
 	}
@@ -1856,6 +1917,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
+	if s.WebsocketOutputMode != nil {
+		o.WebsocketOutputMode = s.WebsocketOutputMode
+	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
 	}
@@ -1950,6 +2014,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
+	}
+	if o.WebsocketOutputMode != nil {
+		out.WebsocketOutputMode = *o.WebsocketOutputMode
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -2104,60 +2171,62 @@ func (o *SparseExtractor) DeepCopyInto(out *SparseExtractor) {
 }
 
 type mongoAttributesExtractor struct {
-	ID                 bson.ObjectId                `bson:"_id,omitempty"`
-	Anonymization      ExtractorAnonymizationValue  `bson:"anonymization"`
-	Behavior           ExtractorBehaviorValue       `bson:"behavior,omitempty"`
-	Block              bool                         `bson:"block"`
-	CancelBehavior     ExtractorCancelBehaviorValue `bson:"cancelbehavior"`
-	CreateTime         time.Time                    `bson:"createtime"`
-	Deanonymize        bool                         `bson:"deanonymize"`
-	Description        string                       `bson:"description"`
-	FeatureName        string                       `bson:"featurename"`
-	HonorPriorDecision bool                         `bson:"honorpriordecision"`
-	Ignore             bool                         `bson:"ignore"`
-	ImportHash         string                       `bson:"importhash,omitempty"`
-	ImportLabel        string                       `bson:"importlabel,omitempty"`
-	Libs               []string                     `bson:"libs"`
-	Method             ExtractorMethodValue         `bson:"method"`
-	Name               string                       `bson:"name"`
-	Namespace          string                       `bson:"namespace,omitempty"`
-	Path               string                       `bson:"path"`
-	PoliceOutput       bool                         `bson:"policeoutput"`
-	Propagate          bool                         `bson:"propagate"`
-	Script             string                       `bson:"script,omitempty"`
-	SkipAnalysis       bool                         `bson:"skipanalysis"`
-	StreamSplitter     ExtractorStreamSplitterValue `bson:"streamsplitter"`
-	Type               ExtractorTypeValue           `bson:"type"`
-	UpdateTime         time.Time                    `bson:"updatetime"`
-	ZHash              int                          `bson:"zhash"`
-	Zone               int                          `bson:"zone"`
+	ID                  bson.ObjectId                     `bson:"_id,omitempty"`
+	Anonymization       ExtractorAnonymizationValue       `bson:"anonymization"`
+	Behavior            ExtractorBehaviorValue            `bson:"behavior,omitempty"`
+	Block               bool                              `bson:"block"`
+	CancelBehavior      ExtractorCancelBehaviorValue      `bson:"cancelbehavior"`
+	CreateTime          time.Time                         `bson:"createtime"`
+	Deanonymize         bool                              `bson:"deanonymize"`
+	Description         string                            `bson:"description"`
+	FeatureName         string                            `bson:"featurename"`
+	HonorPriorDecision  bool                              `bson:"honorpriordecision"`
+	Ignore              bool                              `bson:"ignore"`
+	ImportHash          string                            `bson:"importhash,omitempty"`
+	ImportLabel         string                            `bson:"importlabel,omitempty"`
+	Libs                []string                          `bson:"libs"`
+	Method              ExtractorMethodValue              `bson:"method"`
+	Name                string                            `bson:"name"`
+	Namespace           string                            `bson:"namespace,omitempty"`
+	Path                string                            `bson:"path"`
+	PoliceOutput        bool                              `bson:"policeoutput"`
+	Propagate           bool                              `bson:"propagate"`
+	Script              string                            `bson:"script,omitempty"`
+	SkipAnalysis        bool                              `bson:"skipanalysis"`
+	StreamSplitter      ExtractorStreamSplitterValue      `bson:"streamsplitter"`
+	Type                ExtractorTypeValue                `bson:"type"`
+	UpdateTime          time.Time                         `bson:"updatetime"`
+	WebsocketOutputMode ExtractorWebsocketOutputModeValue `bson:"websocketoutputmode"`
+	ZHash               int                               `bson:"zhash"`
+	Zone                int                               `bson:"zone"`
 }
 type mongoAttributesSparseExtractor struct {
-	ID                 bson.ObjectId                 `bson:"_id,omitempty"`
-	Anonymization      *ExtractorAnonymizationValue  `bson:"anonymization,omitempty"`
-	Behavior           *ExtractorBehaviorValue       `bson:"behavior,omitempty"`
-	Block              *bool                         `bson:"block,omitempty"`
-	CancelBehavior     *ExtractorCancelBehaviorValue `bson:"cancelbehavior,omitempty"`
-	CreateTime         *time.Time                    `bson:"createtime,omitempty"`
-	Deanonymize        *bool                         `bson:"deanonymize,omitempty"`
-	Description        *string                       `bson:"description,omitempty"`
-	FeatureName        *string                       `bson:"featurename,omitempty"`
-	HonorPriorDecision *bool                         `bson:"honorpriordecision,omitempty"`
-	Ignore             *bool                         `bson:"ignore,omitempty"`
-	ImportHash         *string                       `bson:"importhash,omitempty"`
-	ImportLabel        *string                       `bson:"importlabel,omitempty"`
-	Libs               *[]string                     `bson:"libs,omitempty"`
-	Method             *ExtractorMethodValue         `bson:"method,omitempty"`
-	Name               *string                       `bson:"name,omitempty"`
-	Namespace          *string                       `bson:"namespace,omitempty"`
-	Path               *string                       `bson:"path,omitempty"`
-	PoliceOutput       *bool                         `bson:"policeoutput,omitempty"`
-	Propagate          *bool                         `bson:"propagate,omitempty"`
-	Script             *string                       `bson:"script,omitempty"`
-	SkipAnalysis       *bool                         `bson:"skipanalysis,omitempty"`
-	StreamSplitter     *ExtractorStreamSplitterValue `bson:"streamsplitter,omitempty"`
-	Type               *ExtractorTypeValue           `bson:"type,omitempty"`
-	UpdateTime         *time.Time                    `bson:"updatetime,omitempty"`
-	ZHash              *int                          `bson:"zhash,omitempty"`
-	Zone               *int                          `bson:"zone,omitempty"`
+	ID                  bson.ObjectId                      `bson:"_id,omitempty"`
+	Anonymization       *ExtractorAnonymizationValue       `bson:"anonymization,omitempty"`
+	Behavior            *ExtractorBehaviorValue            `bson:"behavior,omitempty"`
+	Block               *bool                              `bson:"block,omitempty"`
+	CancelBehavior      *ExtractorCancelBehaviorValue      `bson:"cancelbehavior,omitempty"`
+	CreateTime          *time.Time                         `bson:"createtime,omitempty"`
+	Deanonymize         *bool                              `bson:"deanonymize,omitempty"`
+	Description         *string                            `bson:"description,omitempty"`
+	FeatureName         *string                            `bson:"featurename,omitempty"`
+	HonorPriorDecision  *bool                              `bson:"honorpriordecision,omitempty"`
+	Ignore              *bool                              `bson:"ignore,omitempty"`
+	ImportHash          *string                            `bson:"importhash,omitempty"`
+	ImportLabel         *string                            `bson:"importlabel,omitempty"`
+	Libs                *[]string                          `bson:"libs,omitempty"`
+	Method              *ExtractorMethodValue              `bson:"method,omitempty"`
+	Name                *string                            `bson:"name,omitempty"`
+	Namespace           *string                            `bson:"namespace,omitempty"`
+	Path                *string                            `bson:"path,omitempty"`
+	PoliceOutput        *bool                              `bson:"policeoutput,omitempty"`
+	Propagate           *bool                              `bson:"propagate,omitempty"`
+	Script              *string                            `bson:"script,omitempty"`
+	SkipAnalysis        *bool                              `bson:"skipanalysis,omitempty"`
+	StreamSplitter      *ExtractorStreamSplitterValue      `bson:"streamsplitter,omitempty"`
+	Type                *ExtractorTypeValue                `bson:"type,omitempty"`
+	UpdateTime          *time.Time                         `bson:"updatetime,omitempty"`
+	WebsocketOutputMode *ExtractorWebsocketOutputModeValue `bson:"websocketoutputmode,omitempty"`
+	ZHash               *int                               `bson:"zhash,omitempty"`
+	Zone                *int                               `bson:"zone,omitempty"`
 }

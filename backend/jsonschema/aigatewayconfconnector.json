@@ -27,15 +27,6 @@
       "title": "MCPTools",
       "type": "array"
     },
-    "appComponent": {
-      "$friendlyName": "App Component",
-      "description": "The app component that this target represents.",
-      "title": "appComponent",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "clientID": {
       "$friendlyName": "Client ID",
       "description": "Upstream OAuth client ID.",
@@ -58,6 +49,15 @@
       "$friendlyName": "Name",
       "description": "The name of the connector.",
       "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "description": "The namespace of the underlying connector.",
+      "title": "namespace",
       "type": [
         "string",
         "null"

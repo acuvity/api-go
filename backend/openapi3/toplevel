@@ -69,7 +69,8 @@
             "type": "array"
           },
           "minimalLogging": {
-            "description": "If true, the system will not log the messages that are not considered as\nviolations.",
+            "deprecated": true,
+            "description": "DEPRECATED: use redactContent, optionally together with redactContentBypass,\ninstead. Those keep the log entry and remove the user data from it, rather\nthan dropping the entry altogether.\nIf true, the system will not log the messages that are not considered as\nviolations.",
             "type": "boolean"
           },
           "name": {
@@ -83,11 +84,11 @@
             "type": "string"
           },
           "offbandAnalysis": {
-            "description": "If true, the system will run analysis in parallel of the user request. When this\nis active, no further policing will be done, and no content policy will run.\nThis can be used to observe the transmitted data and have analysis report,\nwithout adding latency to the end user request, at the price of not being able\nto do any form of content moderation.",
+            "description": "If true, the decision is made on the extracted data without waiting for the\nanalyzers. The content policy still runs and is still enforced, but it sees\nno analysis, so any moderation that depends on a detector cannot match.\nThat applies to redactions as well: a redaction the analyzers would have\nfound is not applied, and the data reaches the provider unredacted.\nredactionFailClose does not catch this, because no redaction was ever\nrequested.\nThe full analyzer set then runs in parallel and its result is attached to\nthe log, which can report a stricter outcome than the one the request\nreceived, but never changes it. This trades detection coverage on the live\nrequest for latency.",
             "type": "boolean"
           },
           "permissive": {
-            "description": "If set, just log the decision, but don't enforce it.",
+            "description": "If set, the content decision is computed and reported but not enforced: the\nrequest and the response go through untouched, and the verdict the policy\nwould have applied is recorded on the log entry instead. Redactions are not\napplied either.\nThis covers the content decision only. Access is still enforced: a request\nthis policy denies, or redirects, is still denied or redirected.",
             "type": "boolean"
           },
           "redactContent": {
@@ -96,6 +97,10 @@
           },
           "redactContentBypass": {
             "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
+            "type": "boolean"
+          },
+          "redactionFailClose": {
+            "description": "If true, reject the request when the content policy requires a redaction\nthat cannot be applied, for example sensitive data detected inside a\nnon-text attachment such as a PDF or an image, where there is no\ncharacter range to rewrite. When false (default), the request is allowed\nthrough with the redaction unapplied and the failed attempt is recorded\non the round-trip. Default false.",
             "type": "boolean"
           },
           "redirectMessage": {
@@ -107,6 +112,7 @@
             "type": "string"
           },
           "transportMode": {
+            "default": "Proxy",
             "description": "Specify if this policy applies to transparent proxy or gateway.",
             "enum": [
               "Proxy",
@@ -236,6 +242,11 @@
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "entitlementAgenticSecurity": {
+            "default": false,
+            "description": "Indicates whether the organization is entitled to use Agentic Security.",
+            "type": "boolean"
           },
           "forceReimportTemplate": {
             "description": "This property if true will force reimport the template data. Setting it false is\na noop.",
@@ -1503,7 +1514,7 @@
             "type": "string"
           },
           "deployments": {
-            "description": "The name of the deployments this AI gateway is bound to.",
+            "description": "The name of the deployments this object is bound to.",
             "example": [
               "my-deployment1",
               "my-deployment2"
@@ -1562,6 +1573,16 @@
           "ID": {
             "description": "ID is the identifier of the object.",
             "readOnly": true,
+            "type": "string"
+          },
+          "appComponent": {
+            "description": "The app component that uses this client. If provided, the\nclient ID will be derived from it.",
+            "example": "chatbot-demo/agent",
+            "type": "string"
+          },
+          "appComponentNamespace": {
+            "description": "Defines the namespace of the app component that uses this client.\nIf empty, the object's namespace will be used.",
+            "example": "/my/namespace",
             "type": "string"
           },
           "clientID": {
@@ -1624,7 +1645,7 @@
           }
         },
         "required": [
-          "clientID",
+          "clientSecret",
           "redirectURIs"
         ],
         "type": "object"
@@ -1676,11 +1697,6 @@
             },
             "type": "array"
           },
-          "appComponent": {
-            "description": "The app component that this target represents.",
-            "example": "chatbot-demo/agent",
-            "type": "string"
-          },
           "clientID": {
             "description": "Upstream OAuth client ID.",
             "example": "my-client",
@@ -1694,6 +1710,11 @@
           "name": {
             "description": "The name of the connector.",
             "example": "fetch-provider",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the underlying connector.",
+            "example": "/orgs/acme",
             "type": "string"
           },
           "oauthTokenEncryptionClaim": {
@@ -1763,7 +1784,7 @@
         "description": "The rendered token shape consumed by the AI Gateway.",
         "properties": {
           "encryptedToken": {
-            "description": "The token, encrypted using the key referenced by keyID, consumed by the AI\nGateway.",
+            "description": "The token, encrypted using the key referenced by publicKeyName, consumed by\nthe AI Gateway.",
             "example": "encryptedtoken1",
             "type": "string"
           },
@@ -1777,9 +1798,9 @@
             "example": "Bearer {{.Token}}",
             "type": "string"
           },
-          "keyID": {
-            "description": "The key ID used to identify the encryption key for this token.",
-            "example": "kid-8276173",
+          "publicKeyName": {
+            "description": "The name of the public key used to encrypt this token.",
+            "example": "my-deployment-key",
             "type": "string"
           }
         },
@@ -1838,8 +1859,8 @@
             "type": "string"
           },
           "friendlyName": {
-            "description": "Friendly name of AI Gateway Connector.",
-            "example": "GithubConnector1",
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
             "type": "string"
           },
           "importHash": {
@@ -1851,14 +1872,19 @@
             "type": "string"
           },
           "name": {
-            "description": "Name of the AI Gateway Connector.",
-            "example": "connector1",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
           },
           "provider": {
             "description": "The provider this AI Gateway Connector accesses.",
@@ -1899,7 +1925,6 @@
         },
         "required": [
           "friendlyName",
-          "name",
           "type"
         ],
         "type": "object"
@@ -2306,6 +2331,86 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "aisecurityprobe": {
+        "description": "AI Security Probe defines configuration for probing mechanisms that provide\ndiscovery data about an environment.",
+        "properties": {
+          "DNSMonitoring": {
+            "default": "Enabled",
+            "description": "Enable or disable DNS monitoring.",
+            "enum": [
+              "Enabled",
+              "Disabled"
+            ]
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectionMonitoring": {
+            "description": "Selects a list of targets for which to perform connection monitoring.",
+            "items": {
+              "$ref": "#/components/schemas/connectionmonitorselector"
+            },
+            "type": "array"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "deployments": {
+            "description": "The name of the deployments this object is bound to.",
+            "example": [
+              "my-deployment1",
+              "my-deployment2"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the AI Security Probe configuration.",
+            "example": "Created in JIRA ticket ADM-4242.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName"
+        ],
         "type": "object"
       },
       "aiskill": {
@@ -3100,6 +3205,7 @@
             "enum": [
               "Administrator",
               "SecurityAdministrator",
+              "SecurityViewer",
               "Application",
               "Custom",
               "Employee",
@@ -3114,6 +3220,14 @@
           },
           "subject": {
             "description": "A tag expression that identifies the authorized user(s).",
+            "example": [
+              [
+                "email=admin@company.ai"
+              ],
+              [
+                "email=xyz@company.ai"
+              ]
+            ],
             "items": {
               "items": {
                 "type": "string"
@@ -3139,7 +3253,8 @@
         },
         "required": [
           "name",
-          "role"
+          "role",
+          "subject"
         ],
         "type": "object"
       },
@@ -3342,6 +3457,54 @@
         ],
         "type": "object"
       },
+      "appagentconf": {
+        "description": "AppAgentConf is the rendered configuration for a perrin deployment.",
+        "properties": {
+          "DNSMonitoring": {
+            "description": "Whether DNS monitoring is enabled. True if any associated AI Security Probe\nhas DNS monitoring enabled.",
+            "type": "boolean"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectionMonitoring": {
+            "description": "The merged list of connection monitoring selectors from all associated AI\nSecurity Probes.",
+            "items": {
+              "$ref": "#/components/schemas/connectionmonitorselector"
+            },
+            "type": "array"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "appagentconfupdate": {
+        "description": "Object used to notify Perrin for relevant changes.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "appcomponent": {
         "description": "Represents a particular component of the application.",
         "properties": {
@@ -3439,6 +3602,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "proxyAssignPolicy": {
+            "description": "The computed rego assign policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          },
           "proxyContentPolicy": {
             "description": "The computed rego content policy for the proxy.",
             "readOnly": true,
@@ -3481,6 +3649,11 @@
           },
           "proxyAccessPolicy": {
             "description": "The computed rego access policy for the proxy.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "proxyAssignPolicy": {
+            "description": "The computed rego assign policy for the proxy.",
             "readOnly": true,
             "type": "string"
           },
@@ -3737,6 +3910,22 @@
       "appgraphlinklogentry": {
         "description": "Represents an application graph link log entry for an application graph\nnode generated from the different logs collected by the app agents.",
         "properties": {
+          "APIs": {
+            "description": "The number of allowed and denied requests to this node broken down by the\ndeployment they went through.",
+            "example": {
+              "dep1": {
+                "allow": 3,
+                "deny": 1
+              }
+            },
+            "items": {
+              "items": {
+                "type": "int"
+              },
+              "type": "object"
+            },
+            "type": "object"
+          },
           "allow": {
             "description": "The number of allowed connections to this node.",
             "type": "integer"
@@ -3764,6 +3953,22 @@
             },
             "type": "object"
           },
+          "gateways": {
+            "description": "The number of allowed and denied requests to this node broken down by the\ngateway they went through.",
+            "example": {
+              "my-gateway": {
+                "allow": 3,
+                "deny": 1
+              }
+            },
+            "items": {
+              "items": {
+                "type": "int"
+              },
+              "type": "object"
+            },
+            "type": "object"
+          },
           "insecureEncryption": {
             "description": "The number of connections to this node with insecure encryption (e.g., TLS 1.0\nor 1.1).",
             "type": "integer"
@@ -3774,6 +3979,22 @@
               "$ref": "#/components/schemas/proxyroundtrip"
             },
             "type": "array"
+          },
+          "proxies": {
+            "description": "The number of allowed and denied requests to this node broken down by the\ndeployment they went through.",
+            "example": {
+              "dep1": {
+                "allow": 3,
+                "deny": 1
+              }
+            },
+            "items": {
+              "items": {
+                "type": "int"
+              },
+              "type": "object"
+            },
+            "type": "object"
           },
           "unencrypted": {
             "description": "The number of unencrypted connections to this node.",
@@ -3860,7 +4081,8 @@
               "Provider",
               "AIDomain",
               "Domain",
-              "IP"
+              "IP",
+              "Deployment"
             ],
             "example": "WorkloadGroup"
           },
@@ -4290,6 +4512,97 @@
         },
         "type": "object"
       },
+      "connectionmonitorselector": {
+        "description": "Defines a selector for connection monitoring.",
+        "properties": {
+          "excludedDestinationNetworks": {
+            "description": "The list of destination networks to exclude from being monitored for the\nselected workloads. This applies to connections where the destination IP\naddresses match the list of excluded networks that the selected workloads try to\nconnect to.",
+            "example": [
+              "10.0.0.0/8",
+              "192.168.1.0/24"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "excludedListeningPorts": {
+            "description": "The list of listening ports to exclude from being monitored for the selected\nworkloads. This applies to connections arriving at matching listening ports of\nthe selected workloads.",
+            "example": [
+              22,
+              9100
+            ],
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "workloadGroupSetSelectors": {
+            "description": "A list of workload group set selectors for which connection monitoring will be\nenabled.",
+            "example": [
+              {
+                "kubernetes": {
+                  "kubernetesNamespace": "default"
+                },
+                "type": "Kubernetes"
+              }
+            ],
+            "items": {
+              "$ref": "#/components/schemas/connectionmonitorworkloadgroupsetselector"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "workloadGroupSetSelectors"
+        ],
+        "type": "object"
+      },
+      "connectionmonitorworkloadgroupselector": {
+        "description": "Defines a workload group selector for connection monitoring.",
+        "properties": {
+          "kubernetes": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupselector"
+          },
+          "type": {
+            "default": "Kubernetes",
+            "description": "The type of selector.",
+            "enum": [
+              "Kubernetes"
+            ]
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
+      "connectionmonitorworkloadgroupsetselector": {
+        "description": "Defines a workload group set selector for connection monitoring.",
+        "properties": {
+          "kubernetes": {
+            "$ref": "#/components/schemas/kubernetesworkloadgroupsetselector"
+          },
+          "type": {
+            "default": "Kubernetes",
+            "description": "The type of selector.",
+            "enum": [
+              "Kubernetes"
+            ]
+          },
+          "workloadGroupSelectors": {
+            "description": "An optional list of workload group selectors that selects all workload groups\nfor which connection monitoring will be limited to within this workload group\nset. By default, all workload groups of this workload group set will be\nmonitored.",
+            "items": {
+              "$ref": "#/components/schemas/connectionmonitorworkloadgroupselector"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "type": "object"
+      },
       "connectionreport": {
         "description": "Represents a connection report sent by an app agent within an app report.",
         "properties": {
@@ -4310,6 +4623,14 @@
           "appComponent": {
             "description": "The app component that this target represents.",
             "example": "mcp-chatbot-demo/agent",
+            "type": "string"
+          },
+          "deployment": {
+            "description": "The name of the deployment that produced this report.",
+            "type": "string"
+          },
+          "deploymentInstance": {
+            "description": "The hostname of the deployment instance that produced this report.",
             "type": "string"
           },
           "direction": {
@@ -4337,11 +4658,13 @@
             "$ref": "#/components/schemas/roundtriperror"
           },
           "gateway": {
-            "description": "The name of the gateway that produced this report.",
+            "deprecated": true,
+            "description": "DEPRECATED The name of the gateway that produced this report.",
             "type": "string"
           },
           "gatewayInstance": {
-            "description": "The hostname of the gateway instance that produced this report.",
+            "deprecated": true,
+            "description": "DEPRECATED The hostname of the gateway instance that produced this report.",
             "type": "string"
           },
           "hostname": {
@@ -4702,6 +5025,11 @@
             "example": "Production AI Security Gateway deployment on cluster-east-1 (ADM-4242)",
             "type": "string"
           },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
@@ -4711,8 +5039,8 @@
             "type": "string"
           },
           "name": {
-            "description": "The name of the deployment.",
-            "example": "aisg",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
@@ -4725,11 +5053,22 @@
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
           },
-          "publicHostnames": {
-            "description": "Host names of the deployment to perform connection terminations.",
+          "publicKeys": {
+            "description": "The names of the public keys whose corresponding private key is available on\nthis deployment's instances.",
             "example": [
-              "api.test.com",
-              "k8s.svc.local"
+              "us-east-1",
+              "us-west-1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "publicURLs": {
+            "description": "Public URLs of the deployment.",
+            "example": [
+              "http://aisg.proofpoint.svc.cluster.local",
+              "https://aisg.example.com"
             ],
             "items": {
               "type": "string"
@@ -4765,7 +5104,7 @@
           }
         },
         "required": [
-          "name"
+          "friendlyName"
         ],
         "type": "object"
       },
@@ -4865,7 +5204,7 @@
             "type": "string"
           },
           "host": {
-            "description": "The host name of the request.",
+            "description": "The host name of the request. Optional, matching the destination of a scan or\npolice request: the caller may omit it, and it is only filled in when the\nresolved provider or app component declares a host of its own.",
             "example": "api.openai.com",
             "type": "string"
           },
@@ -4906,9 +5245,6 @@
             "type": "string"
           }
         },
-        "required": [
-          "host"
-        ],
         "type": "object"
       },
       "detection": {
@@ -5126,6 +5462,14 @@
             "example": "mcp-chatbot-demo/agent",
             "type": "string"
           },
+          "deployment": {
+            "description": "The name of the deployment that produced this report.",
+            "type": "string"
+          },
+          "deploymentInstance": {
+            "description": "The hostname of the deployment instance that produced this report.",
+            "type": "string"
+          },
           "domain": {
             "description": "The domain that was queried.",
             "example": "example.com",
@@ -5135,11 +5479,13 @@
             "$ref": "#/components/schemas/roundtriperror"
           },
           "gateway": {
-            "description": "The name of the gateway that produced this report.",
+            "deprecated": true,
+            "description": "DEPRECATED The name of the gateway that produced this report.",
             "type": "string"
           },
           "gatewayInstance": {
-            "description": "The hostname of the gateway instance that produced this report.",
+            "deprecated": true,
+            "description": "DEPRECATED The hostname of the gateway instance that produced this report.",
             "type": "string"
           },
           "hits": {
@@ -5237,6 +5583,13 @@
       "egresspolicy": {
         "description": "Represents an egress policy of an application component.",
         "properties": {
+          "MCPScopes": {
+            "description": "The MCP servers, and optionally the tools on those servers, that this\nrule applies to. A scope with no tools listed applies to every tool on\nthat server.",
+            "items": {
+              "$ref": "#/components/schemas/mcpserverscope"
+            },
+            "type": "array"
+          },
           "accessDeniedMessage": {
             "description": "The message that is sent if the access is denied.",
             "example": "You must use the company workspace",
@@ -5294,6 +5647,16 @@
             "description": "If true, the policy is disabled.",
             "type": "boolean"
           },
+          "excludedUserClaims": {
+            "description": "The list of excluded user claims that this rule applies to.",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
           "gateways": {
             "description": "The list of gateways that this rule applies to.",
             "example": [
@@ -5306,7 +5669,8 @@
             "type": "array"
           },
           "minimalLogging": {
-            "description": "If true, the system will not log the messages that are not considered as\nviolations.",
+            "deprecated": true,
+            "description": "DEPRECATED: use redactContent, optionally together with redactContentBypass,\ninstead. Those keep the log entry and remove the user data from it, rather\nthan dropping the entry altogether.\nIf true, the system will not log the messages that are not considered as\nviolations.",
             "type": "boolean"
           },
           "name": {
@@ -5315,11 +5679,11 @@
             "type": "string"
           },
           "offbandAnalysis": {
-            "description": "If true, the system will run analysis in parallel of the user request. When this\nis active, no further policing will be done, and no content policy will run.\nThis can be used to observe the transmitted data and have analysis report,\nwithout adding latency to the end user request, at the price of not being able\nto do any form of content moderation.",
+            "description": "If true, the decision is made on the extracted data without waiting for the\nanalyzers. The content policy still runs and is still enforced, but it sees\nno analysis, so any moderation that depends on a detector cannot match.\nThat applies to redactions as well: a redaction the analyzers would have\nfound is not applied, and the data reaches the provider unredacted.\nredactionFailClose does not catch this, because no redaction was ever\nrequested.\nThe full analyzer set then runs in parallel and its result is attached to\nthe log, which can report a stricter outcome than the one the request\nreceived, but never changes it. This trades detection coverage on the live\nrequest for latency.",
             "type": "boolean"
           },
           "permissive": {
-            "description": "If set, just log the decision, but don't enforce it.",
+            "description": "If set, the content decision is computed and reported but not enforced: the\nrequest and the response go through untouched, and the verdict the policy\nwould have applied is recorded on the log entry instead. Redactions are not\napplied either.\nThis covers the content decision only. Access is still enforced: a request\nthis policy denies, or redirects, is still denied or redirected.",
             "type": "boolean"
           },
           "policyID": {
@@ -5346,6 +5710,10 @@
             "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
             "type": "boolean"
           },
+          "redactionFailClose": {
+            "description": "If true, reject the request when the content policy requires a redaction\nthat cannot be applied, for example sensitive data detected inside a\nnon-text attachment such as a PDF or an image, where there is no\ncharacter range to rewrite. When false (default), the request is allowed\nthrough with the redaction unapplied and the failed attempt is recorded\non the round-trip. Default false.",
+            "type": "boolean"
+          },
           "tools": {
             "description": "The list of tools that this rule applies to.",
             "example": [
@@ -5357,12 +5725,23 @@
             "type": "array"
           },
           "transportMode": {
+            "default": "Proxy",
             "description": "Specify if this policy applies to transparent proxy or gateway.",
             "enum": [
               "Proxy",
               "Gateway"
             ],
             "example": "Proxy"
+          },
+          "userClaims": {
+            "description": "The list of user claims that this rule applies to.",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
           }
         },
         "required": [
@@ -5375,7 +5754,7 @@
         "description": "Used to transform errors before sending them back to the client.",
         "properties": {
           "script": {
-            "description": "If set, run the lua code to transform the error.\nThe script must contain a top level function called `transform()`\nthat will take as parameters:\n\n- `action`: The decision (`ask` or `deny`)\n- `messages`: a list containing table object with keys `reason` and `link`.\n- `code`: the original error code.\n\nThis function must return either nil, an empty table, or a table containing the\nfollowing keys:\n\n- `code`: the transformer HTTP code as a number.\n- `content_type`: the transformed Content-Type as a string.\n- `body`: The transformer body as a string.",
+            "description": "If set, run the lua code to transform the error.\nThe script must contain a top level function called `transform()`\nthat will take as parameters:\n\n- `action`: The decision (`ask` or `deny`)\n- `messages`: a list containing table object with keys `reason` and `link`.\n- `code`: the original error code.\n- `context`: transport metadata. `context.transport` is `http` or `websocket`.\n  Websocket contexts contain `direction` (`input` or `output`), a unique\n  `error_id`, `ticket`, and request `method`, `host`, and `path`. They also\n  contain the triggering frame `type` (`text` or `binary`) and `body`.\n\nThis function must return either nil, an empty table, or a table containing the\nfollowing keys:\n\n- `code`: the transformer HTTP code as a number.\n- `content_type`: the transformed Content-Type as a string.\n- `body`: The transformer body as a string.\n- `websocket`: an optional table containing provider-native `frames`, whether to\n  `terminate` the connection (defaults to true), an optional `close_code`, and\n  optional `assistant_content` containing the exact semantic Assistant message\n  rendered by those frames. Each frame must contain a `type` (`text` or\n  `binary`) and string `body`.",
             "example": "function transform(action, messages, code)\n  return json.encode({\n    code = 422,\n    content_type = \"text/plain\",\n    body = \"oh noes\",\n  })\nend\"",
             "type": "string"
           }
@@ -5833,6 +6212,14 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "websocketOutputMode": {
+            "default": "SingleFrame",
+            "description": "This property defines how injected output should be written back to a WebSocket\nclient. The default writes the injected output as a single WebSocket message.",
+            "enum": [
+              "SingleFrame",
+              "JSONArrayFrames"
+            ]
           }
         },
         "required": [
@@ -6071,6 +6458,16 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "policyRef": {
+            "$ref": "#/components/schemas/policyref"
+          },
+          "policyRefs": {
+            "description": "References to the threat definitions that triggered this finding.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
           },
           "resolutionIdentities": {
             "description": "The identities that can resolve this finding.",
@@ -6564,6 +6961,20 @@
             },
             "type": "array"
           },
+          "AIGatewayConnectors": {
+            "description": "AI Gateway Connectors to import.",
+            "items": {
+              "$ref": "#/components/schemas/aigatewayconnector"
+            },
+            "type": "array"
+          },
+          "AIGateways": {
+            "description": "AI Gateways to import.",
+            "items": {
+              "$ref": "#/components/schemas/aigateway"
+            },
+            "type": "array"
+          },
           "AIMCPServers": {
             "description": "AI MCP servers to import.",
             "items": {
@@ -6575,6 +6986,13 @@
             "description": "AI plugins to import.",
             "items": {
               "$ref": "#/components/schemas/aiplugin"
+            },
+            "type": "array"
+          },
+          "AISecurityProbes": {
+            "description": "AI security probes to import.",
+            "items": {
+              "$ref": "#/components/schemas/aisecurityprobe"
             },
             "type": "array"
           },
@@ -6802,6 +7220,13 @@
             },
             "type": "array"
           },
+          "threatDefinitions": {
+            "description": "Threat definitions to import.",
+            "items": {
+              "$ref": "#/components/schemas/threatdefinition"
+            },
+            "type": "array"
+          },
           "visitedurls": {
             "description": "Visited URLs to import.",
             "items": {
@@ -6906,8 +7331,19 @@
             "description": "If true, the policy is disabled.",
             "type": "boolean"
           },
+          "excludedUserClaims": {
+            "description": "The list of excluded user claims that this rule applies to.",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          },
           "minimalLogging": {
-            "description": "If true, the system will not log the messages that are not considered as\nviolations.",
+            "deprecated": true,
+            "description": "DEPRECATED: use redactContent, optionally together with redactContentBypass,\ninstead. Those keep the log entry and remove the user data from it, rather\nthan dropping the entry altogether.\nIf true, the system will not log the messages that are not considered as\nviolations.",
             "type": "boolean"
           },
           "name": {
@@ -6916,11 +7352,11 @@
             "type": "string"
           },
           "offbandAnalysis": {
-            "description": "If true, the system will run analysis in parallel of the user request. When this\nis active, no further policing will be done, and no content policy will run.\nThis can be used to observe the transmitted data and have analysis report,\nwithout adding latency to the end user request, at the price of not being able\nto do any form of content moderation.",
+            "description": "If true, the decision is made on the extracted data without waiting for the\nanalyzers. The content policy still runs and is still enforced, but it sees\nno analysis, so any moderation that depends on a detector cannot match.\nThat applies to redactions as well: a redaction the analyzers would have\nfound is not applied, and the data reaches the provider unredacted.\nredactionFailClose does not catch this, because no redaction was ever\nrequested.\nThe full analyzer set then runs in parallel and its result is attached to\nthe log, which can report a stricter outcome than the one the request\nreceived, but never changes it. This trades detection coverage on the live\nrequest for latency.",
             "type": "boolean"
           },
           "permissive": {
-            "description": "If set, just log the decision, but don't enforce it.",
+            "description": "If set, the content decision is computed and reported but not enforced: the\nrequest and the response go through untouched, and the verdict the policy\nwould have applied is recorded on the log entry instead. Redactions are not\napplied either.\nThis covers the content decision only. Access is still enforced: a request\nthis policy denies, or redirects, is still denied or redirected.",
             "type": "boolean"
           },
           "policyID": {
@@ -6935,6 +7371,20 @@
           "redactContentBypass": {
             "description": "If true, and redactContent is true, ignore redaction if there are some\nviolations.",
             "type": "boolean"
+          },
+          "redactionFailClose": {
+            "description": "If true, reject the request when the content policy requires a redaction\nthat cannot be applied, for example sensitive data detected inside a\nnon-text attachment such as a PDF or an image, where there is no\ncharacter range to rewrite. When false (default), the request is allowed\nthrough with the redaction unapplied and the failed attempt is recorded\non the round-trip. Default false.",
+            "type": "boolean"
+          },
+          "userClaims": {
+            "description": "The list of user claims that this rule applies to.",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
           }
         },
         "required": [
@@ -7160,6 +7610,10 @@
           },
           "assignPolicy": {
             "description": "How much time it took to run the assign policy in nanoseconds.",
+            "type": "integer"
+          },
+          "contentAttribution": {
+            "description": "How much time it took to attribute a content decision to conversation\nextractions in nanoseconds.",
             "type": "integer"
           },
           "contentPolicy": {
@@ -7737,6 +8191,53 @@
         ],
         "type": "object"
       },
+      "mcpserverscope": {
+        "description": "Represents an MCP server and the tools it applies to.",
+        "properties": {
+          "name": {
+            "description": "The name of the MCP server.",
+            "example": "github-mcp",
+            "type": "string"
+          },
+          "tools": {
+            "description": "The tools on this server that this scope applies to. If empty, the scope\napplies to every tool on the server.",
+            "items": {
+              "$ref": "#/components/schemas/mcptoolscope"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "mcptool": {
+        "description": "The rendered tool shape from upstream MCP providers.",
+        "properties": {
+          "annotations": {
+            "$ref": "#/components/schemas/mcptoolannotations"
+          },
+          "description": {
+            "description": "The description of the tool.",
+            "example": "Fetch a website and return Markdown.",
+            "type": "string"
+          },
+          "inputSchema": {
+            "description": "The JSON schema of the tool input arguments.",
+            "type": "object"
+          },
+          "name": {
+            "description": "The name of the tool.",
+            "example": "fetch_provider__fetch_markdown",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
       "mcptoolannotations": {
         "description": "Represents the tool annotations as they can be optionally defined for MCP tools.",
         "properties": {
@@ -7761,6 +8262,107 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "mcptoolscope": {
+        "description": "Represents a tool on an MCP server.",
+        "properties": {
+          "name": {
+            "description": "The name of the tool, as advertised by the MCP server.",
+            "example": "read_repository",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "type": "object"
+      },
+      "mcptoolsnapshot": {
+        "description": "Holds the latest dynamic snapshot of tools advertised by an MCP connector for\na given gateway.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectorHash": {
+            "description": "The hash of the resolved connector at the time of the snapshot. Used to\ndistinguish upstream drift from connector configuration changes.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectorName": {
+            "description": "The Name of the MCP connector this snapshot describes.",
+            "example": "openai-dev",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "diagnostic": {
+            "description": "A diagnostic explaining the drift outcome.",
+            "items": {
+              "$ref": "#/components/schemas/diagnostic"
+            },
+            "type": "array"
+          },
+          "drifted": {
+            "description": "Whether the live tools list diverges from the baseline.",
+            "type": "boolean"
+          },
+          "extraction": {
+            "$ref": "#/components/schemas/extraction"
+          },
+          "firstDriftedAt": {
+            "description": "When divergence was first observed. Set on entering drift, cleared on leaving\nit.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "gatewayName": {
+            "description": "The Name of the AI gateway this snapshot belongs to.",
+            "example": "my-ai-gateway",
+            "type": "string"
+          },
+          "lastFetchedAt": {
+            "description": "When the last successful upstream fetch occurred.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "mcpServer": {
+            "description": "The Name of the MCP server backing this connector, used to scope access policies\nwhen resolving MCP attack findings.",
+            "example": "my-mcp-server",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "rawTools": {
+            "description": "The raw tools list as fetched from upstream, sent by the gateway on create.",
+            "type": "string"
+          },
+          "tools": {
+            "description": "The tools list as last fetched from upstream.",
+            "items": {
+              "$ref": "#/components/schemas/tool"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "connectorName",
+          "gatewayName"
+        ],
         "type": "object"
       },
       "metric": {
@@ -8017,6 +8619,7 @@
         "description": "Represents a moderation to take in the content policy.",
         "properties": {
           "action": {
+            "default": "None",
             "description": "The actual action to take when triggered.",
             "enum": [
               "Warn",
@@ -8074,6 +8677,7 @@
             "description": "Defines if and how you want to enable auto login with client certificates.",
             "enum": [
               "Entra",
+              "GoogleWorkspace",
               "Okta",
               "X509"
             ]
@@ -8098,6 +8702,9 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "googleWorkspaceApplicationCredentials": {
+            "$ref": "#/components/schemas/mtlssourcegoogle"
           },
           "ignoredKeys": {
             "description": "A list of claims that will be filtered out from the identity token. A claim will\nbe ignored if it is prefixed with one of the items in the ignoredKeys list. This\nruns before includedKeys computation.",
@@ -8194,6 +8801,38 @@
           "clientID",
           "clientSecret",
           "clientTenantID"
+        ],
+        "type": "object"
+      },
+      "mtlssourcegoogle": {
+        "description": "Additional authentication information for MTLS source getting information from\nGoogle Workspace.\n\nYou will need a Google Cloud service account with domain-wide delegation\nenabled in the Google Workspace Admin console, granted the\nadmin.directory.user.readonly and admin.directory.group.readonly scopes.",
+        "properties": {
+          "clientEmail": {
+            "description": "The email of the service account used to call the Directory API.",
+            "example": "a3s@my-project.iam.gserviceaccount.com",
+            "type": "string"
+          },
+          "privateKey": {
+            "description": "The service account private key.",
+            "example": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----",
+            "type": "string"
+          },
+          "privateKeyID": {
+            "description": "The identifier of the service account private key.",
+            "example": "3cb0a1d5f7e9b2c4a6d8e0f1234567890abcdef1",
+            "type": "string"
+          },
+          "subject": {
+            "description": "The email of the Google Workspace administrator to impersonate when calling\nthe Directory API. This is required for domain-wide delegation.",
+            "example": "admin@my-org.com",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clientEmail",
+          "privateKey",
+          "privateKeyID",
+          "subject"
         ],
         "type": "object"
       },
@@ -8361,13 +9000,6 @@
           "consentMessage": {
             "description": "If set, defines the message that will be shown to the user during the consent\nacceptance. If empty a default message will be used.",
             "type": "string"
-          },
-          "contentModerationsSuggestions": {
-            "description": "List of content moderation policies names that the UI will offer as\nsuggestions when creating a new access policy.",
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
           },
           "contentPolicy": {
             "description": "The policy that decides how to handle the request content, once access\nhas been granted by accessPolicy and the content analysis was performed.\nIf this empty, the dynamic policy transpiled from AccessPolicies API\nobjects will be used by Apexes. If set however, everything computed by\nAPI objects are ignored and this becomes the final policy.",
@@ -8918,13 +9550,17 @@
               "DstIPRange",
               "DstProject",
               "Exploits",
+              "EmailDomain",
               "FeatureName",
               "Gateways",
               "IsIngress",
               "Keywords",
               "Languages",
+              "MCPScope",
+              "MCPAttacks",
               "MCPServer",
               "Malcontents",
+              "Metadata",
               "Modality",
               "Model",
               "PIIs",
@@ -9578,11 +10214,6 @@
             "example": "OpenAI API Production key created in ADM-4342",
             "type": "string"
           },
-          "keyID": {
-            "description": "The key ID used to identify the encryption key for this token.",
-            "example": "kid-8276173",
-            "type": "string"
-          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -9594,8 +10225,18 @@
             "readOnly": true,
             "type": "string"
           },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "publicKeyName": {
+            "description": "The name of the public key used to encrypt this token.",
+            "example": "my-deployment-key",
+            "type": "string"
+          },
           "token": {
-            "description": "Token that will be encrypted using the key referenced by keyID.",
+            "description": "Token that will be encrypted using the key referenced by publicKeyName.",
             "example": "token1",
             "type": "string"
           },
@@ -9607,7 +10248,7 @@
           }
         },
         "required": [
-          "keyID",
+          "publicKeyName",
           "token"
         ],
         "type": "object"
@@ -9632,8 +10273,8 @@
             "type": "string"
           },
           "friendlyName": {
-            "description": "Friendly name of the provider token pool.",
-            "example": "OpenAI",
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
             "type": "string"
           },
           "headerKey": {
@@ -9655,14 +10296,19 @@
             "type": "string"
           },
           "name": {
-            "description": "Name of the provider token pool.",
-            "example": "openai-api-prod",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -9672,8 +10318,7 @@
           }
         },
         "required": [
-          "friendlyName",
-          "name"
+          "friendlyName"
         ],
         "type": "object"
       },
@@ -9965,6 +10610,10 @@
               "UpstreamError"
             ]
           },
+          "deploymentName": {
+            "description": "This is the name of the deployment (apex instance) that processed this\nrequest. Only set when the request was handled by a known deployment.",
+            "type": "string"
+          },
           "destination": {
             "$ref": "#/components/schemas/destination"
           },
@@ -9983,6 +10632,31 @@
               "$ref": "#/components/schemas/extraction"
             },
             "type": "array"
+          },
+          "gatewayConnectorName": {
+            "description": "This is the AI gateway connector that this request has been processed through.\nThis is only set for requests where the processor was set to gateway. The AI\ngateway connector name will be set under gateway name.",
+            "example": "openai-prod",
+            "type": "string"
+          },
+          "gatewayConnectorNamespace": {
+            "description": "This is the namespace of the AI gateway connector as encoded in the original\nrequest URL. This is only set for requests where the processor was set to\ngateway.",
+            "example": "/orgs/acme",
+            "type": "string"
+          },
+          "gatewayName": {
+            "description": "This is the AI gateway that this request has been processed through. This is\nonly set for requests where the processor is set to gateway.",
+            "example": "aisg1",
+            "type": "string"
+          },
+          "gatewayNamespace": {
+            "description": "This is the namespace of the AI gateway as encoded in the original request\nURL. This is only set for requests where the processor was set to gateway.",
+            "example": "/orgs/acme",
+            "type": "string"
+          },
+          "gatewayUpstreamURL": {
+            "description": "This is the upstream URL that the AI gateway routed this request to. This\nis only set for requests where the processor was set to gateway.",
+            "example": "https://api.openai.com/v1/chat/completions",
+            "type": "string"
           },
           "hash": {
             "description": "The hash of the input.",
@@ -10013,11 +10687,11 @@
             "type": "string"
           },
           "offband": {
-            "description": "If true, the analysis ran offband. That means that we extracted the data\nfrom the user request, assigned team and verified access permissions, but\nthen we forwarded the request as is to the provider untouched\nimmediately, while running the analysis and policies in the background,\nreporting what we would have done.",
+            "description": "If true, the policy asked for the analysis to run offband. That means that\nwe extracted the data from the user request, verified access permissions,\nand then made the decision without waiting for the analyzers. The full\nanalyzer set ran afterwards, and this log entry reflects that later\nevaluation, which can report a stricter outcome than the one the request\nactually received.",
             "type": "boolean"
           },
           "permissive": {
-            "description": "If true, the policy has been applied in permissive mode.  That means that\nwe extracted the data from the user request, assigned team, verified\naccess permissions, run analysis, apply content policies and reported what\nwe would have done, but ultimately let the request go to the provider\nuntouched.",
+            "description": "If true, the policy was applied in permissive mode: the content decision\nrecorded here is what the policy would have enforced, and it was not\nenforced. The request went to the provider untouched, and no redaction was\napplied to it. Access was still enforced, so this entry exists only because\nthe request was allowed to reach the content stage.",
             "type": "boolean"
           },
           "pipelineName": {
@@ -10036,10 +10710,11 @@
           },
           "processor": {
             "default": "Proxy",
-            "description": "Denotes the processor of the log. If the processor is Proxy, then the proxy\nfunction will further denote if this was a forward proxy or a reverse proxy. If\nthe processor is API, the proxy function will be set to NotApplicable.",
+            "description": "Denotes the processor of the log. If the processor is Proxy or API, then the\nproxy function will further denote if this was a forward proxy or a reverse\nproxy. If the processor is Gateway, the proxy function will be set to reverse\nproxy, and the gateway name and gateway connector name will further denote which\ngateway and which connector was used.",
             "enum": [
               "Proxy",
-              "API"
+              "API",
+              "Gateway"
             ]
           },
           "provider": {
@@ -10057,7 +10732,7 @@
           },
           "proxyFunction": {
             "default": "ForwardProxy",
-            "description": "Denotes the function of this proxy in the chain of servers. By default the apex\nalways sits on the egress side between a client or application and the origin\nserver in which case the apex acts as a forwarding proxy. However, in the case\nof applications the proxy can also be located before the application as an\ningress provider in which case the apex acts as a reverse proxy. If this log is\nthe result of a ScanRequest or PoliceRequest API call, this will be set to\nNonApplicable and the processor will be API.",
+            "description": "Denotes the proxy function of this processor in the chain of servers. The proxy\nprocessor acts as a forwarding proxy on the egress side, between a client or\napplication and the origin server, and as a reverse proxy on the ingress side,\nin front of an application. The gateway processor always operates as a reverse\nproxy. The API processor (scan and police APIs) never sit in the data path, but\nthey simulate proxy behaviour, so they are reported as a forwarding or a\nreverse proxy according to the direction of the request. NotApplicable is\ncurrently not in use, and only appears on roundtrips recorded by an older apex.",
             "enum": [
               "ForwardProxy",
               "ReverseProxy",
@@ -10121,20 +10796,14 @@
             "readOnly": true,
             "type": "string"
           },
-          "deployments": {
-            "description": "The name of the deployments whose instances hold the corresponding private key.",
-            "example": [
-              "my-deployment1",
-              "my-deployment2"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "description": {
             "description": "The description of the public key.",
             "example": "Created in JIRA ticket ADM-4242.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
             "type": "string"
           },
           "importHash": {
@@ -10145,14 +10814,9 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
-          "keyID": {
-            "description": "The key ID used to reference this public key.",
-            "example": "kid-8276173",
-            "type": "string"
-          },
           "name": {
-            "description": "The name of the public key.",
-            "example": "us-east-1",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
@@ -10178,8 +10842,7 @@
           }
         },
         "required": [
-          "keyID",
-          "name",
+          "friendlyName",
           "publicKey"
         ],
         "type": "object"
@@ -10472,14 +11135,15 @@
             "readOnly": true
           },
           "stage": {
-            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nProofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
+            "description": "The pipeline component that produced the error. Combined with the\nType axis on the parent round-trip (Input/Output) and the Offband\nflag, gives the full discrimination of where a platform/upstream\nfailure originated. Each value maps to an ownership tier:\nProofpoint AI Security-owned (Extraction, Analysis, AssignPolicy, AccessPolicy,\nRedaction),\ncustomer-owned (ContentPolicy), provider-owned (Upstream).",
             "enum": [
               "Extraction",
               "Analysis",
               "ContentPolicy",
               "AssignPolicy",
               "AccessPolicy",
-              "Upstream"
+              "Upstream",
+              "Redaction"
             ]
           },
           "type": {
@@ -11027,6 +11691,9 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
+          "msTeams": {
+            "$ref": "#/components/schemas/sinkmsteams"
+          },
           "name": {
             "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
             "example": "my-simple-policy",
@@ -11059,7 +11726,8 @@
               "Email",
               "PagerDuty",
               "Slack",
-              "Splunk"
+              "Splunk",
+              "MSTeams"
             ]
           },
           "updateTime": {
@@ -11112,6 +11780,20 @@
         },
         "required": [
           "recipients"
+        ],
+        "type": "object"
+      },
+      "sinkmsteams": {
+        "description": "Additional configuration for sending a Microsoft Teams message.",
+        "properties": {
+          "webhookURL": {
+            "description": "The webhook URL to send the Teams messages to.",
+            "example": "https://xxxx.webhook.office.com/webhookb2/xxxx@xxxxx/IncomingWebhook/xxxx/xxxx",
+            "type": "string"
+          }
+        },
+        "required": [
+          "webhookURL"
         ],
         "type": "object"
       },
@@ -11329,6 +12011,14 @@
           "friendlyName": {
             "description": "Friendly name of the object.",
             "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
           "match": {
@@ -14202,6 +14892,160 @@
         ]
       }
     },
+    "/aisecurityprobes": {
+      "get": {
+        "description": "List all AI Security Probes.",
+        "operationId": "get-all-AISecurityProbes",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aisecurityprobe"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new AI Security Probe.",
+        "operationId": "create-AISecurityProbe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aisecurityprobe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aisecurityprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aisecurityprobes/{id}": {
+      "delete": {
+        "description": "Deletes the AI security probe with the given ID.",
+        "operationId": "delete-AISecurityProbe",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aisecurityprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the AI security probe with the given ID.",
+        "operationId": "get-AISecurityProbe",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aisecurityprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the AI security probe with the given ID.",
+        "operationId": "update-AISecurityProbe",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aisecurityprobe"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aisecurityprobe"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/aiskills": {
       "get": {
         "description": "List all AI skills.",
@@ -14974,6 +15818,70 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/apiauthorization"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/appagentconfs": {
+      "get": {
+        "description": "List all available appagentconf.",
+        "operationId": "get-all-AppAgentConfs",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/appagentconf"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Get a particular appagentconf.",
+        "operationId": "create-AppAgentConf",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/appagentconf"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/appagentconf"
                 }
               }
             },
@@ -17790,6 +18698,18 @@
             "schema": {
               "type": "boolean"
             }
+          },
+          {
+            "description": "Import mode.",
+            "example": "Replace",
+            "in": "query",
+            "name": "mode",
+            "schema": {
+              "enum": [
+                "Replace",
+                "Update"
+              ]
+            }
           }
         ],
         "requestBody": {
@@ -18359,6 +19279,131 @@
         },
         "tags": [
           "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/mcptoolsnapshots": {
+      "get": {
+        "description": "List all available MCP tool snapshots.",
+        "operationId": "get-all-MCPToolSnapshots",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcptoolsnapshot"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Reports a new MCP tool snapshot.",
+        "operationId": "create-MCPToolSnapshot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/mcptoolsnapshot"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcptoolsnapshot"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/mcptoolsnapshots/{id}": {
+      "delete": {
+        "description": "Deletes the MCP tool snapshot with the given ID.",
+        "operationId": "delete-MCPToolSnapshot",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcptoolsnapshot"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the MCP tool snapshot with the given ID.",
+        "operationId": "get-MCPToolSnapshot",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcptoolsnapshot"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
         ]
       },
       "parameters": [

@@ -282,17 +282,6 @@ func (o *SinkDatabahn) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("webhookURL", o.WebhookURL); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := ValidateURL("webhookURL", o.WebhookURL); err != nil {
-		errors = errors.Append(err)
-	}
-	if err := ValidateWebSchemeURL("webhookURL", o.WebhookURL); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -363,6 +352,7 @@ var SinkDatabahnAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Secret:         true,
 		Stored:         true,
+		Transient:      true,
 		Type:           "string",
 	},
 }
@@ -394,6 +384,7 @@ var SinkDatabahnLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Required:       true,
 		Secret:         true,
 		Stored:         true,
+		Transient:      true,
 		Type:           "string",
 	},
 }

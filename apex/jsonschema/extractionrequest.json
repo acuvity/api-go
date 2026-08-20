@@ -1,6 +1,6 @@
 {
   "$extends": [
-    "@extractionmetadata"
+    "@extractionrequestmetadata"
   ],
   "$friendlyName": "ExtractionRequest",
   "$friendlyNamePlural": "ExtractionRequests",
@@ -11,48 +11,12 @@
   "additionalProperties": false,
   "description": "Represents the extraction that the user wants to extract.",
   "properties": {
-    "annotations": {
-      "$friendlyName": "Annotations",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Annotations attached to the extraction.",
-      "title": "annotations",
-      "type": "object"
-    },
     "data": {
       "$friendlyName": "Data",
       "contentEncoding": "base64",
       "description": "The binary data to request extraction for.",
       "title": "data",
       "type": "string"
-    },
-    "internal": {
-      "$friendlyName": "Internal",
-      "description": "If true, this extraction is for internal use only. This can be used by agentic systems to mark an extraction as internal only as opposed to user facing.",
-      "title": "internal",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "isFile": {
-      "$friendlyName": "isFile",
-      "description": "If true, the data of the extraction is a file.",
-      "title": "isFile",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "isStored": {
-      "$friendlyName": "isStored",
-      "description": "If true, indicates that the file has been stored.",
-      "title": "isStored",
-      "type": [
-        "boolean",
-        "null"
-      ]
     },
     "kind": {
       "$defaultValue": "Message",
@@ -69,15 +33,6 @@
         "Event"
       ],
       "title": "kind"
-    },
-    "label": {
-      "$friendlyName": "Label",
-      "description": "Contains events and other information that are not actual user content, and will not go through analysis.",
-      "title": "label",
-      "type": [
-        "string",
-        "null"
-      ]
     },
     "role": {
       "$defaultValue": "User",

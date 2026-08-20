@@ -82,9 +82,21 @@
         "null"
       ]
     },
+    "excludedUserClaims": {
+      "$friendlyName": "Excluded User Claims",
+      "description": "The list of excluded user claims that this rule applies to.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "excludedUserClaims",
+      "type": "array"
+    },
     "minimalLogging": {
       "$friendlyName": "Minimal Logging",
-      "description": "If true, the system will not log the messages that are not considered as violations.",
+      "description": "DEPRECATED: use redactContent, optionally together with redactContentBypass, instead. Those keep the log entry and remove the user data from it, rather than dropping the entry altogether. If true, the system will not log the messages that are not considered as violations.",
       "title": "minimalLogging",
       "type": [
         "boolean",
@@ -101,7 +113,7 @@
     },
     "offbandAnalysis": {
       "$friendlyName": "Offband Analysis",
-      "description": "If true, the system will run analysis in parallel of the user request. When this is active, no further policing will be done, and no content policy will run. This can be used to observe the transmitted data and have analysis report, without adding latency to the end user request, at the price of not being able to do any form of content moderation.",
+      "description": "If true, the decision is made on the extracted data without waiting for the analyzers. The content policy still runs and is still enforced, but it sees no analysis, so any moderation that depends on a detector cannot match. That applies to redactions as well: a redaction the analyzers would have found is not applied, and the data reaches the provider unredacted. redactionFailClose does not catch this, because no redaction was ever requested. The full analyzer set then runs in parallel and its result is attached to the log, which can report a stricter outcome than the one the request received, but never changes it. This trades detection coverage on the live request for latency.",
       "title": "offbandAnalysis",
       "type": [
         "boolean",
@@ -110,7 +122,7 @@
     },
     "permissive": {
       "$friendlyName": "Permissive",
-      "description": "If set, just log the decision, but don't enforce it.",
+      "description": "If set, the content decision is computed and reported but not enforced: the request and the response go through untouched, and the verdict the policy would have applied is recorded on the log entry instead. Redactions are not applied either. This covers the content decision only. Access is still enforced: a request this policy denies, or redirects, is still denied or redirected.",
       "title": "permissive",
       "type": [
         "boolean",
@@ -144,6 +156,27 @@
         "boolean",
         "null"
       ]
+    },
+    "redactionFailClose": {
+      "$friendlyName": "Block non-redactable content",
+      "description": "If true, reject the request when the content policy requires a redaction that cannot be applied, for example sensitive data detected inside a non-text attachment such as a PDF or an image, where there is no character range to rewrite. When false (default), the request is allowed through with the redaction unapplied and the failed attempt is recorded on the round-trip. Default false.",
+      "title": "redactionFailClose",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The list of user claims that this rule applies to.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "userClaims",
+      "type": "array"
     }
   },
   "required": [

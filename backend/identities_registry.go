@@ -28,7 +28,8 @@ var (
 
 		"aiplugin": AIPluginIdentity,
 
-		"aiskill": AISkillIdentity,
+		"aisecurityprobe": AISecurityProbeIdentity,
+		"aiskill":         AISkillIdentity,
 
 		"aitool": AIToolIdentity,
 
@@ -39,10 +40,12 @@ var (
 
 		"analyzer": AnalyzerIdentity,
 
-		"apiauthorization": APIAuthorizationIdentity,
-		"app":              AppIdentity,
-		"appagent":         AppAgentIdentity,
-		"appcomponent":     AppComponentIdentity,
+		"apiauthorization":   APIAuthorizationIdentity,
+		"app":                AppIdentity,
+		"appagent":           AppAgentIdentity,
+		"appagentconf":       AppAgentConfIdentity,
+		"appagentconfupdate": AppAgentConfUpdateIdentity,
+		"appcomponent":       AppComponentIdentity,
 
 		"appgraphquery": AppGraphQueryIdentity,
 
@@ -90,6 +93,9 @@ var (
 		"mcpgatewayclient":  MCPGatewayClientIdentity,
 		"mcpgatewayconf":    MCPGatewayConfIdentity,
 
+		"mcptool": MCPToolIdentity,
+
+		"mcptoolsnapshot":  MCPToolSnapshotIdentity,
 		"metric":           MetricIdentity,
 		"metriclabelvalue": MetricLabelValueIdentity,
 		"metricrange":      MetricRangeIdentity,
@@ -142,6 +148,7 @@ var (
 		"sink":          SinkIdentity,
 		"sinkdatabahn":  SinkDatabahnIdentity,
 		"sinkemail":     SinkEmailIdentity,
+		"sinkmsteams":   SinkMSTeamsIdentity,
 		"sinkpagerduty": SinkPagerDutyIdentity,
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
@@ -186,7 +193,8 @@ var (
 
 		"aiplugins": AIPluginIdentity,
 
-		"aiskills": AISkillIdentity,
+		"aisecurityprobes": AISecurityProbeIdentity,
+		"aiskills":         AISkillIdentity,
 
 		"aitools": AIToolIdentity,
 
@@ -197,10 +205,12 @@ var (
 
 		"analyzers": AnalyzerIdentity,
 
-		"apiauthorizations": APIAuthorizationIdentity,
-		"apps":              AppIdentity,
-		"appagents":         AppAgentIdentity,
-		"appcomponents":     AppComponentIdentity,
+		"apiauthorizations":   APIAuthorizationIdentity,
+		"apps":                AppIdentity,
+		"appagents":           AppAgentIdentity,
+		"appagentconfs":       AppAgentConfIdentity,
+		"appagentconfupdates": AppAgentConfUpdateIdentity,
+		"appcomponents":       AppComponentIdentity,
 
 		"appgraphqueries": AppGraphQueryIdentity,
 
@@ -248,6 +258,9 @@ var (
 		"clients":            MCPGatewayClientIdentity,
 		"mcpgatewayconfs":    MCPGatewayConfIdentity,
 
+		"mcptools": MCPToolIdentity,
+
+		"mcptoolsnapshots":  MCPToolSnapshotIdentity,
 		"metrics":           MetricIdentity,
 		"metriclabelvalues": MetricLabelValueIdentity,
 		"metricranges":      MetricRangeIdentity,
@@ -300,6 +313,7 @@ var (
 		"sinks":          SinkIdentity,
 		"sinkdatabahn":   SinkDatabahnIdentity,
 		"sinkemail":      SinkEmailIdentity,
+		"sinkmsteams":    SinkMSTeamsIdentity,
 		"sinkpagerduty":  SinkPagerDutyIdentity,
 		"sinkslack":      SinkSlackIdentity,
 		"sinksplunk":     SinkSplunkIdentity,
@@ -410,6 +424,13 @@ var (
 			{"namespace", "name"},
 			{"namespace", "vetted"},
 		},
+		"aisecurityprobe": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"aiskill": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -462,6 +483,14 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "hostname"},
 			{"namespace", "importLabel"},
+		},
+		"appagentconf": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"appagentconfupdate": {
+			{"namespace"},
+			{"namespace", "ID"},
 		},
 		"appcomponent": nil,
 		"appgraphquery": {
@@ -628,6 +657,14 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 		},
+		"mcptool": nil,
+		"mcptoolsnapshot": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "gatewayName"},
+			{"namespace", "gatewayName", "connectorName"},
+		},
 		"metric": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -738,7 +775,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
-			{"namespace", "keyID"},
+			{"namespace", "publicKeyName"},
 		},
 		"providertokenpool": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -765,7 +802,7 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
-			{"namespace", "keyID"},
+			{"namespace", "name"},
 		},
 		"query": {
 			{"namespace"},
@@ -823,6 +860,7 @@ var (
 		},
 		"sinkdatabahn":  nil,
 		"sinkemail":     nil,
+		"sinkmsteams":   nil,
 		"sinkpagerduty": nil,
 		"sinkslack":     nil,
 		"sinksplunk":    nil,
@@ -838,6 +876,7 @@ var (
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
+			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
 		"trace": {
@@ -953,6 +992,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAIMCPServer()
 	case AIPluginIdentity:
 		return NewAIPlugin()
+	case AISecurityProbeIdentity:
+		return NewAISecurityProbe()
 	case AISkillIdentity:
 		return NewAISkill()
 	case AIToolIdentity:
@@ -971,6 +1012,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewApp()
 	case AppAgentIdentity:
 		return NewAppAgent()
+	case AppAgentConfIdentity:
+		return NewAppAgentConf()
+	case AppAgentConfUpdateIdentity:
+		return NewAppAgentConfUpdate()
 	case AppComponentIdentity:
 		return NewAppComponent()
 	case AppGraphQueryIdentity:
@@ -1039,6 +1084,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewMCPGatewayClient()
 	case MCPGatewayConfIdentity:
 		return NewMCPGatewayConf()
+	case MCPToolIdentity:
+		return NewMCPTool()
+	case MCPToolSnapshotIdentity:
+		return NewMCPToolSnapshot()
 	case MetricIdentity:
 		return NewMetric()
 	case MetricLabelValueIdentity:
@@ -1121,6 +1170,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSinkDatabahn()
 	case SinkEmailIdentity:
 		return NewSinkEmail()
+	case SinkMSTeamsIdentity:
+		return NewSinkMSTeams()
 	case SinkPagerDutyIdentity:
 		return NewSinkPagerDuty()
 	case SinkSlackIdentity:
@@ -1190,6 +1241,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAIMCPServer()
 	case AIPluginIdentity:
 		return NewSparseAIPlugin()
+	case AISecurityProbeIdentity:
+		return NewSparseAISecurityProbe()
 	case AISkillIdentity:
 		return NewSparseAISkill()
 	case AIToolIdentity:
@@ -1208,6 +1261,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseApp()
 	case AppAgentIdentity:
 		return NewSparseAppAgent()
+	case AppAgentConfIdentity:
+		return NewSparseAppAgentConf()
+	case AppAgentConfUpdateIdentity:
+		return NewSparseAppAgentConfUpdate()
 	case AppComponentIdentity:
 		return NewSparseAppComponent()
 	case AppGraphQueryIdentity:
@@ -1276,6 +1333,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseMCPGatewayClient()
 	case MCPGatewayConfIdentity:
 		return NewSparseMCPGatewayConf()
+	case MCPToolIdentity:
+		return NewSparseMCPTool()
+	case MCPToolSnapshotIdentity:
+		return NewSparseMCPToolSnapshot()
 	case MetricIdentity:
 		return NewSparseMetric()
 	case MetricLabelValueIdentity:
@@ -1356,6 +1417,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSinkDatabahn()
 	case SinkEmailIdentity:
 		return NewSparseSinkEmail()
+	case SinkMSTeamsIdentity:
+		return NewSparseSinkMSTeams()
 	case SinkPagerDutyIdentity:
 		return NewSparseSinkPagerDuty()
 	case SinkSlackIdentity:
@@ -1435,6 +1498,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIMCPServersList{}
 	case AIPluginIdentity:
 		return &AIPluginsList{}
+	case AISecurityProbeIdentity:
+		return &AISecurityProbesList{}
 	case AISkillIdentity:
 		return &AISkillsList{}
 	case AIToolIdentity:
@@ -1453,6 +1518,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AppsList{}
 	case AppAgentIdentity:
 		return &AppAgentsList{}
+	case AppAgentConfIdentity:
+		return &AppAgentConfsList{}
+	case AppAgentConfUpdateIdentity:
+		return &AppAgentConfUpdatesList{}
 	case AppComponentIdentity:
 		return &AppComponentsList{}
 	case AppGraphQueryIdentity:
@@ -1521,6 +1590,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &MCPGatewayClientsList{}
 	case MCPGatewayConfIdentity:
 		return &MCPGatewayConfsList{}
+	case MCPToolIdentity:
+		return &MCPToolsList{}
+	case MCPToolSnapshotIdentity:
+		return &MCPToolSnapshotsList{}
 	case MetricIdentity:
 		return &MetricsList{}
 	case MetricLabelValueIdentity:
@@ -1601,6 +1674,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SinkDatabahnsList{}
 	case SinkEmailIdentity:
 		return &SinkEmailsList{}
+	case SinkMSTeamsIdentity:
+		return &SinkMSTeamsList{}
 	case SinkPagerDutyIdentity:
 		return &SinkPagerDutiesList{}
 	case SinkSlackIdentity:
@@ -1670,6 +1745,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIMCPServersList{}
 	case AIPluginIdentity:
 		return &SparseAIPluginsList{}
+	case AISecurityProbeIdentity:
+		return &SparseAISecurityProbesList{}
 	case AISkillIdentity:
 		return &SparseAISkillsList{}
 	case AIToolIdentity:
@@ -1688,6 +1765,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAppsList{}
 	case AppAgentIdentity:
 		return &SparseAppAgentsList{}
+	case AppAgentConfIdentity:
+		return &SparseAppAgentConfsList{}
+	case AppAgentConfUpdateIdentity:
+		return &SparseAppAgentConfUpdatesList{}
 	case AppComponentIdentity:
 		return &SparseAppComponentsList{}
 	case AppGraphQueryIdentity:
@@ -1756,6 +1837,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseMCPGatewayClientsList{}
 	case MCPGatewayConfIdentity:
 		return &SparseMCPGatewayConfsList{}
+	case MCPToolIdentity:
+		return &SparseMCPToolsList{}
+	case MCPToolSnapshotIdentity:
+		return &SparseMCPToolSnapshotsList{}
 	case MetricIdentity:
 		return &SparseMetricsList{}
 	case MetricLabelValueIdentity:
@@ -1836,6 +1921,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSinkDatabahnsList{}
 	case SinkEmailIdentity:
 		return &SparseSinkEmailsList{}
+	case SinkMSTeamsIdentity:
+		return &SparseSinkMSTeamsList{}
 	case SinkPagerDutyIdentity:
 		return &SparseSinkPagerDutiesList{}
 	case SinkSlackIdentity:
@@ -1975,6 +2062,12 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAppSelector()
 	case "connectionencryption", "ConnectionEncryption":
 		return NewConnectionEncryption()
+	case "connectionmonitorselector", "ConnectionMonitorSelector":
+		return NewConnectionMonitorSelector()
+	case "connectionmonitorworkloadgroupselector", "ConnectionMonitorWorkloadGroupSelector":
+		return NewConnectionMonitorWorkloadGroupSelector()
+	case "connectionmonitorworkloadgroupsetselector", "ConnectionMonitorWorkloadGroupSetSelector":
+		return NewConnectionMonitorWorkloadGroupSetSelector()
 	case "connectionreport", "ConnectionReport":
 		return NewConnectionReport()
 	case "destination", "Destination":
@@ -2027,14 +2120,20 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMCPMessage()
 	case "mcpserver", "MCPServer":
 		return NewMCPServer()
+	case "mcpserverscope", "MCPServerScope":
+		return NewMCPServerScope()
 	case "mcptoolannotations", "MCPToolAnnotations":
 		return NewMCPToolAnnotations()
+	case "mcptoolscope", "MCPToolScope":
+		return NewMCPToolScope()
 	case "modality", "Modality":
 		return NewModality()
 	case "moderation", "Moderation":
 		return NewModeration()
 	case "mtlssourceentra", "MTLSSourceEntra":
 		return NewMTLSSourceEntra()
+	case "mtlssourcegoogle", "MTLSSourceGoogle":
+		return NewMTLSSourceGoogle()
 	case "mtlssourceokta", "MTLSSourceOkta":
 		return NewMTLSSourceOkta()
 	case "otlpendpoint", "OTLPEndpoint":
@@ -2116,6 +2215,7 @@ func AllIdentities() []elemental.Identity {
 		AIGatewayConnectorIdentity,
 		AIMCPServerIdentity,
 		AIPluginIdentity,
+		AISecurityProbeIdentity,
 		AISkillIdentity,
 		AIToolIdentity,
 		AlertIdentity,
@@ -2125,6 +2225,8 @@ func AllIdentities() []elemental.Identity {
 		APIAuthorizationIdentity,
 		AppIdentity,
 		AppAgentIdentity,
+		AppAgentConfIdentity,
+		AppAgentConfUpdateIdentity,
 		AppComponentIdentity,
 		AppGraphQueryIdentity,
 		AppReportIdentity,
@@ -2159,6 +2261,8 @@ func AllIdentities() []elemental.Identity {
 		MCPGatewayBackendIdentity,
 		MCPGatewayClientIdentity,
 		MCPGatewayConfIdentity,
+		MCPToolIdentity,
+		MCPToolSnapshotIdentity,
 		MetricIdentity,
 		MetricLabelValueIdentity,
 		MetricRangeIdentity,
@@ -2200,6 +2304,7 @@ func AllIdentities() []elemental.Identity {
 		SinkIdentity,
 		SinkDatabahnIdentity,
 		SinkEmailIdentity,
+		SinkMSTeamsIdentity,
 		SinkPagerDutyIdentity,
 		SinkSlackIdentity,
 		SinkSplunkIdentity,
@@ -2250,6 +2355,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AIPluginIdentity:
 		return []string{}
+	case AISecurityProbeIdentity:
+		return []string{}
 	case AISkillIdentity:
 		return []string{}
 	case AIToolIdentity:
@@ -2267,6 +2374,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AppIdentity:
 		return []string{}
 	case AppAgentIdentity:
+		return []string{}
+	case AppAgentConfIdentity:
+		return []string{}
+	case AppAgentConfUpdateIdentity:
 		return []string{}
 	case AppComponentIdentity:
 		return []string{}
@@ -2335,6 +2446,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case MCPGatewayClientIdentity:
 		return []string{}
 	case MCPGatewayConfIdentity:
+		return []string{}
+	case MCPToolIdentity:
+		return []string{}
+	case MCPToolSnapshotIdentity:
 		return []string{}
 	case MetricIdentity:
 		return []string{}
@@ -2417,6 +2532,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SinkDatabahnIdentity:
 		return []string{}
 	case SinkEmailIdentity:
+		return []string{}
+	case SinkMSTeamsIdentity:
 		return []string{}
 	case SinkPagerDutyIdentity:
 		return []string{}

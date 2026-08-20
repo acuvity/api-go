@@ -48,6 +48,12 @@ type DNSReport struct {
 	// The app component that this target represents.
 	AppComponent string `json:"appComponent,omitempty" msgpack:"appComponent,omitempty" bson:"appcomponent,omitempty" mapstructure:"appComponent,omitempty"`
 
+	// The name of the deployment that produced this report.
+	Deployment string `json:"deployment,omitempty" msgpack:"deployment,omitempty" bson:"deployment,omitempty" mapstructure:"deployment,omitempty"`
+
+	// The hostname of the deployment instance that produced this report.
+	DeploymentInstance string `json:"deploymentInstance,omitempty" msgpack:"deploymentInstance,omitempty" bson:"deploymentinstance,omitempty" mapstructure:"deploymentInstance,omitempty"`
+
 	// The domain that was queried.
 	Domain string `json:"domain" msgpack:"domain" bson:"domain" mapstructure:"domain,omitempty"`
 
@@ -60,10 +66,10 @@ type DNSReport struct {
 	// semantics.
 	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
-	// The name of the gateway that produced this report.
+	// DEPRECATED The name of the gateway that produced this report.
 	Gateway string `json:"gateway,omitempty" msgpack:"gateway,omitempty" bson:"gateway,omitempty" mapstructure:"gateway,omitempty"`
 
-	// The hostname of the gateway instance that produced this report.
+	// DEPRECATED The hostname of the gateway instance that produced this report.
 	GatewayInstance string `json:"gatewayInstance,omitempty" msgpack:"gatewayInstance,omitempty" bson:"gatewayinstance,omitempty" mapstructure:"gatewayInstance,omitempty"`
 
 	// The number of times this domain was queried.
@@ -130,6 +136,8 @@ func (o *DNSReport) GetBSON() (any, error) {
 	s.Action = o.Action
 	s.ActionOrigin = o.ActionOrigin
 	s.AppComponent = o.AppComponent
+	s.Deployment = o.Deployment
+	s.DeploymentInstance = o.DeploymentInstance
 	s.Domain = o.Domain
 	s.Error = o.Error
 	s.Gateway = o.Gateway
@@ -164,6 +172,8 @@ func (o *DNSReport) SetBSON(raw bson.Raw) error {
 	o.Action = s.Action
 	o.ActionOrigin = s.ActionOrigin
 	o.AppComponent = s.AppComponent
+	o.Deployment = s.Deployment
+	o.DeploymentInstance = s.DeploymentInstance
 	o.Domain = s.Domain
 	o.Error = s.Error
 	o.Gateway = s.Gateway
@@ -334,6 +344,10 @@ func (o *DNSReport) ValueForAttribute(name string) any {
 		return o.ActionOrigin
 	case "appComponent":
 		return o.AppComponent
+	case "deployment":
+		return o.Deployment
+	case "deploymentInstance":
+		return o.DeploymentInstance
 	case "domain":
 		return o.Domain
 	case "error":
@@ -425,6 +439,26 @@ NOTE: safe to drop Error from this enum on or after 2026-07-19
 		Stored:         true,
 		Type:           "string",
 	},
+	"Deployment": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployment",
+		ConvertedName:  "Deployment",
+		Description:    `The name of the deployment that produced this report.`,
+		Exposed:        true,
+		Name:           "deployment",
+		Stored:         true,
+		Type:           "string",
+	},
+	"DeploymentInstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentinstance",
+		ConvertedName:  "DeploymentInstance",
+		Description:    `The hostname of the deployment instance that produced this report.`,
+		Exposed:        true,
+		Name:           "deploymentInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Domain": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "domain",
@@ -457,7 +491,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateway",
 		ConvertedName:  "Gateway",
-		Description:    `The name of the gateway that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The name of the gateway that produced this report.`,
 		Exposed:        true,
 		Name:           "gateway",
 		Stored:         true,
@@ -467,7 +502,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gatewayinstance",
 		ConvertedName:  "GatewayInstance",
-		Description:    `The hostname of the gateway instance that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The hostname of the gateway instance that produced this report.`,
 		Exposed:        true,
 		Name:           "gatewayInstance",
 		Stored:         true,
@@ -619,6 +655,26 @@ NOTE: safe to drop Error from this enum on or after 2026-07-19
 		Stored:         true,
 		Type:           "string",
 	},
+	"deployment": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployment",
+		ConvertedName:  "Deployment",
+		Description:    `The name of the deployment that produced this report.`,
+		Exposed:        true,
+		Name:           "deployment",
+		Stored:         true,
+		Type:           "string",
+	},
+	"deploymentinstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentinstance",
+		ConvertedName:  "DeploymentInstance",
+		Description:    `The hostname of the deployment instance that produced this report.`,
+		Exposed:        true,
+		Name:           "deploymentInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"domain": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "domain",
@@ -651,7 +707,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateway",
 		ConvertedName:  "Gateway",
-		Description:    `The name of the gateway that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The name of the gateway that produced this report.`,
 		Exposed:        true,
 		Name:           "gateway",
 		Stored:         true,
@@ -661,7 +718,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gatewayinstance",
 		ConvertedName:  "GatewayInstance",
-		Description:    `The hostname of the gateway instance that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The hostname of the gateway instance that produced this report.`,
 		Exposed:        true,
 		Name:           "gatewayInstance",
 		Stored:         true,
@@ -757,6 +815,8 @@ type mongoAttributesDNSReport struct {
 	Action                DNSReportActionValue `bson:"action"`
 	ActionOrigin          string               `bson:"actionorigin,omitempty"`
 	AppComponent          string               `bson:"appcomponent,omitempty"`
+	Deployment            string               `bson:"deployment,omitempty"`
+	DeploymentInstance    string               `bson:"deploymentinstance,omitempty"`
 	Domain                string               `bson:"domain"`
 	Error                 *RoundtripError      `bson:"error,omitempty"`
 	Gateway               string               `bson:"gateway,omitempty"`

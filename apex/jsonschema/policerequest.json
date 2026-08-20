@@ -2,8 +2,7 @@
   "$extends": [
     "@anonymizationable",
     "@pipelinepasstype",
-    "@requestcore",
-    "@traceable"
+    "@requestcore"
   ],
   "$friendlyName": "PoliceRequest",
   "$friendlyNamePlural": "PoliceRequests",
@@ -12,17 +11,8 @@
   "$modelResourceName": "policerequests",
   "$modelRestName": "policerequest",
   "additionalProperties": false,
-  "description": "This is a police request.",
+  "description": "This is a police request. Police enforces policy, so an egress request must name its target: either a provider or a destination app and component.",
   "properties": {
-    "annotations": {
-      "$friendlyName": "Annotations",
-      "additionalProperties": {
-        "type": "string"
-      },
-      "description": "Annotations attached to the extraction.",
-      "title": "annotations",
-      "type": "object"
-    },
     "anonymization": {
       "$defaultValue": "FixedSize",
       "$friendlyName": "Anonymization",
@@ -33,16 +23,10 @@
       ],
       "title": "anonymization"
     },
-    "app": {
-      "$friendlyName": "App",
-      "$ref": "requestapp.json",
-      "description": "The application processing information for this request. For police requests in an apps namespace, this is required when using an AppToken. For scan requests, this is optional and enhances logging with app/component context.",
-      "title": "app"
-    },
-    "bypassHash": {
-      "$friendlyName": "Bypass Hash",
-      "description": "In the case of a contentPolicy that asks for a confirmation, this is the hash you must send back to bypass the block. This is only useful when a content policy has been set or is evaluated remotely.",
-      "title": "bypassHash",
+    "conversationID": {
+      "$friendlyName": "Conversation ID",
+      "description": "Identifies the conversation this request belongs to. Apex records it on the resulting log, which is what groups the successive requests of one conversation together in the logs and in the conversation view, and it is also made available to the analyzers and to policies. Send the same value on every request of the same conversation.",
+      "title": "conversationID",
       "type": [
         "string",
         "null"
@@ -51,8 +35,18 @@
     "destination": {
       "$friendlyName": "Destination",
       "$ref": "requestdestination.json",
-      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set.",
+      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set. On the police API an egress request must set either this or the provider: the policy needs a target. On the scan API both may be omitted to run a plain scan that targets nothing, in which case the app component identified by the caller's token is reported as the destination so that the request still shows up in traces.",
       "title": "destination"
+    },
+    "direction": {
+      "$defaultValue": "Egress",
+      "$friendlyName": "Direction",
+      "description": "The direction of the traffic for this request, relative to the app component the caller's token identifies. Determines whether the ingress or the egress policies of that app component are evaluated.",
+      "enum": [
+        "Egress",
+        "Ingress"
+      ],
+      "title": "direction"
     },
     "extractions": {
       "$friendlyName": "Extractions",
@@ -75,23 +69,20 @@
       "title": "messages",
       "type": "array"
     },
-    "model": {
-      "$friendlyName": "Model",
-      "description": "The model used by the request.",
-      "title": "model",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "provider": {
       "$friendlyName": "Provider",
-      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set.",
+      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set. On the police API an egress request must set either this or the destination app and component. On the scan API both may be omitted to run a plain scan that targets nothing.",
       "title": "provider",
       "type": [
         "string",
         "null"
       ]
+    },
+    "source": {
+      "$friendlyName": "Source",
+      "$ref": "requestsource.json",
+      "description": "The source of this request. Optional: on egress the source is already known from the caller's token, and on ingress it can be left out for an anonymous external caller.",
+      "title": "source"
     },
     "tools": {
       "$friendlyName": "Tools",
@@ -104,8 +95,8 @@
     },
     "trace": {
       "$friendlyName": "Trace",
-      "$ref": "traceref.json",
-      "description": "References to the trace of the request.",
+      "$ref": "requesttrace.json",
+      "description": "The trace context this request belongs to. When it is set, Apex places the span it creates for this request inside your trace instead of starting a new one, and setting it enables tracing for this request even when the application is otherwise configured not to trace. What Apex actually recorded is reported back in the 'trace' field of the response.",
       "title": "trace"
     },
     "type": {
@@ -116,12 +107,6 @@
         "Output"
       ],
       "title": "type"
-    },
-    "user": {
-      "$friendlyName": "User",
-      "$ref": "requestuser.json",
-      "description": "The user information for this request. For police requests in an employees namespace, this represents the end user on whose behalf the request is made and is used for policy resolution via team assignment.",
-      "title": "user"
     }
   },
   "required": [],

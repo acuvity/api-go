@@ -4,7 +4,8 @@
     "@identifiable",
     "@importable",
     "@timed",
-    "@auto-propagated"
+    "@auto-propagated",
+    "@deploymentrefs"
   ],
   "$friendlyName": "AI Gateway",
   "$friendlyNamePlural": "AI Gateways",
@@ -49,7 +50,7 @@
     },
     "deployments": {
       "$friendlyName": "Deployments",
-      "description": "The name of the deployments this AI gateway is bound to.",
+      "description": "The name of the deployments this object is bound to.",
       "items": {
         "type": [
           "string",

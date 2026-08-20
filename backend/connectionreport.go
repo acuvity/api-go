@@ -71,6 +71,12 @@ type ConnectionReport struct {
 	// The app component that this target represents.
 	AppComponent string `json:"appComponent,omitempty" msgpack:"appComponent,omitempty" bson:"appcomponent,omitempty" mapstructure:"appComponent,omitempty"`
 
+	// The name of the deployment that produced this report.
+	Deployment string `json:"deployment,omitempty" msgpack:"deployment,omitempty" bson:"deployment,omitempty" mapstructure:"deployment,omitempty"`
+
+	// The hostname of the deployment instance that produced this report.
+	DeploymentInstance string `json:"deploymentInstance,omitempty" msgpack:"deploymentInstance,omitempty" bson:"deploymentinstance,omitempty" mapstructure:"deploymentInstance,omitempty"`
+
 	// The direction of the connection relative to the perspective of the workload.
 	Direction ConnectionReportDirectionValue `json:"direction" msgpack:"direction" bson:"direction" mapstructure:"direction,omitempty"`
 
@@ -93,10 +99,10 @@ type ConnectionReport struct {
 	// semantics.
 	Error *RoundtripError `json:"error,omitempty" msgpack:"error,omitempty" bson:"error,omitempty" mapstructure:"error,omitempty"`
 
-	// The name of the gateway that produced this report.
+	// DEPRECATED The name of the gateway that produced this report.
 	Gateway string `json:"gateway,omitempty" msgpack:"gateway,omitempty" bson:"gateway,omitempty" mapstructure:"gateway,omitempty"`
 
-	// The hostname of the gateway instance that produced this report.
+	// DEPRECATED The hostname of the gateway instance that produced this report.
 	GatewayInstance string `json:"gatewayInstance,omitempty" msgpack:"gatewayInstance,omitempty" bson:"gatewayinstance,omitempty" mapstructure:"gatewayInstance,omitempty"`
 
 	// The hostname that the connection is made to, if available.
@@ -190,6 +196,8 @@ func (o *ConnectionReport) GetBSON() (any, error) {
 	s.Action = o.Action
 	s.ActionOrigin = o.ActionOrigin
 	s.AppComponent = o.AppComponent
+	s.Deployment = o.Deployment
+	s.DeploymentInstance = o.DeploymentInstance
 	s.Direction = o.Direction
 	s.DstIP = o.DstIP
 	s.DstPort = o.DstPort
@@ -233,6 +241,8 @@ func (o *ConnectionReport) SetBSON(raw bson.Raw) error {
 	o.Action = s.Action
 	o.ActionOrigin = s.ActionOrigin
 	o.AppComponent = s.AppComponent
+	o.Deployment = s.Deployment
+	o.DeploymentInstance = s.DeploymentInstance
 	o.Direction = s.Direction
 	o.DstIP = s.DstIP
 	o.DstPort = s.DstPort
@@ -445,6 +455,10 @@ func (o *ConnectionReport) ValueForAttribute(name string) any {
 		return o.ActionOrigin
 	case "appComponent":
 		return o.AppComponent
+	case "deployment":
+		return o.Deployment
+	case "deploymentInstance":
+		return o.DeploymentInstance
 	case "direction":
 		return o.Direction
 	case "dstIP":
@@ -536,6 +550,26 @@ NOTE: safe to drop Error from this enum on or after 2026-07-19
 		Stored:         true,
 		Type:           "string",
 	},
+	"Deployment": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployment",
+		ConvertedName:  "Deployment",
+		Description:    `The name of the deployment that produced this report.`,
+		Exposed:        true,
+		Name:           "deployment",
+		Stored:         true,
+		Type:           "string",
+	},
+	"DeploymentInstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentinstance",
+		ConvertedName:  "DeploymentInstance",
+		Description:    `The hostname of the deployment instance that produced this report.`,
+		Exposed:        true,
+		Name:           "deploymentInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"Direction": {
 		AllowedChoices: []string{"Ingress", "Egress"},
 		BSONFieldName:  "direction",
@@ -601,7 +635,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateway",
 		ConvertedName:  "Gateway",
-		Description:    `The name of the gateway that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The name of the gateway that produced this report.`,
 		Exposed:        true,
 		Name:           "gateway",
 		Stored:         true,
@@ -611,7 +646,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gatewayinstance",
 		ConvertedName:  "GatewayInstance",
-		Description:    `The hostname of the gateway instance that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The hostname of the gateway instance that produced this report.`,
 		Exposed:        true,
 		Name:           "gatewayInstance",
 		Stored:         true,
@@ -828,6 +864,26 @@ NOTE: safe to drop Error from this enum on or after 2026-07-19
 		Stored:         true,
 		Type:           "string",
 	},
+	"deployment": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deployment",
+		ConvertedName:  "Deployment",
+		Description:    `The name of the deployment that produced this report.`,
+		Exposed:        true,
+		Name:           "deployment",
+		Stored:         true,
+		Type:           "string",
+	},
+	"deploymentinstance": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentinstance",
+		ConvertedName:  "DeploymentInstance",
+		Description:    `The hostname of the deployment instance that produced this report.`,
+		Exposed:        true,
+		Name:           "deploymentInstance",
+		Stored:         true,
+		Type:           "string",
+	},
 	"direction": {
 		AllowedChoices: []string{"Ingress", "Egress"},
 		BSONFieldName:  "direction",
@@ -893,7 +949,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateway",
 		ConvertedName:  "Gateway",
-		Description:    `The name of the gateway that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The name of the gateway that produced this report.`,
 		Exposed:        true,
 		Name:           "gateway",
 		Stored:         true,
@@ -903,7 +960,8 @@ semantics.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "gatewayinstance",
 		ConvertedName:  "GatewayInstance",
-		Description:    `The hostname of the gateway instance that produced this report.`,
+		Deprecated:     true,
+		Description:    `DEPRECATED The hostname of the gateway instance that produced this report.`,
 		Exposed:        true,
 		Name:           "gatewayInstance",
 		Stored:         true,
@@ -1084,6 +1142,8 @@ type mongoAttributesConnectionReport struct {
 	Action                 ConnectionReportActionValue     `bson:"action"`
 	ActionOrigin           string                          `bson:"actionorigin,omitempty"`
 	AppComponent           string                          `bson:"appcomponent,omitempty"`
+	Deployment             string                          `bson:"deployment,omitempty"`
+	DeploymentInstance     string                          `bson:"deploymentinstance,omitempty"`
 	Direction              ConnectionReportDirectionValue  `bson:"direction"`
 	DstIP                  string                          `bson:"dstip,omitempty"`
 	DstPort                int                             `bson:"dstport,omitempty"`

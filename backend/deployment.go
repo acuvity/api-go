@@ -94,6 +94,9 @@ type Deployment struct {
 	// The description of the deployment.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Friendly name of the object.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -101,7 +104,8 @@ type Deployment struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the deployment.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -110,8 +114,12 @@ type Deployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// Host names of the deployment to perform connection terminations.
-	PublicHostnames []string `json:"publicHostnames,omitempty" msgpack:"publicHostnames,omitempty" bson:"publichostnames,omitempty" mapstructure:"publicHostnames,omitempty"`
+	// The names of the public keys whose corresponding private key is available on
+	// this deployment's instances.
+	PublicKeys []string `json:"publicKeys" msgpack:"publicKeys" bson:"publickeys" mapstructure:"publicKeys,omitempty"`
+
+	// Public URLs of the deployment.
+	PublicURLs []string `json:"publicURLs" msgpack:"publicURLs" bson:"publicurls" mapstructure:"publicURLs,omitempty"`
 
 	// Set to true on update to issue a new credential.
 	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
@@ -142,9 +150,10 @@ type Deployment struct {
 func NewDeployment() *Deployment {
 
 	return &Deployment{
-		ModelVersion:    1,
-		Propagate:       true,
-		PublicHostnames: []string{},
+		ModelVersion: 1,
+		Propagate:    true,
+		PublicKeys:   []string{},
+		PublicURLs:   []string{},
 	}
 }
 
@@ -181,12 +190,14 @@ func (o *Deployment) GetBSON() (any, error) {
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
-	s.PublicHostnames = o.PublicHostnames
+	s.PublicKeys = o.PublicKeys
+	s.PublicURLs = o.PublicURLs
 	s.TokenRefs = o.TokenRefs
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -211,12 +222,14 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
-	o.PublicHostnames = s.PublicHostnames
+	o.PublicKeys = s.PublicKeys
+	o.PublicURLs = s.PublicURLs
 	o.TokenRefs = s.TokenRefs
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -266,6 +279,18 @@ func (o *Deployment) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *Deployment) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *Deployment) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *Deployment) GetImportHash() string {
 
@@ -288,6 +313,18 @@ func (o *Deployment) GetImportLabel() string {
 func (o *Deployment) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *Deployment) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *Deployment) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -333,22 +370,24 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseDeployment{
-			ID:              &o.ID,
-			CreateTime:      &o.CreateTime,
-			Description:     &o.Description,
-			ImportHash:      &o.ImportHash,
-			ImportLabel:     &o.ImportLabel,
-			Name:            &o.Name,
-			Namespace:       &o.Namespace,
-			Propagate:       &o.Propagate,
-			PublicHostnames: &o.PublicHostnames,
-			RenewToken:      &o.RenewToken,
-			RenewTokenTag:   &o.RenewTokenTag,
-			Token:           &o.Token,
-			TokenRefs:       &o.TokenRefs,
-			UpdateTime:      &o.UpdateTime,
-			ZHash:           &o.ZHash,
-			Zone:            &o.Zone,
+			ID:            &o.ID,
+			CreateTime:    &o.CreateTime,
+			Description:   &o.Description,
+			FriendlyName:  &o.FriendlyName,
+			ImportHash:    &o.ImportHash,
+			ImportLabel:   &o.ImportLabel,
+			Name:          &o.Name,
+			Namespace:     &o.Namespace,
+			Propagate:     &o.Propagate,
+			PublicKeys:    &o.PublicKeys,
+			PublicURLs:    &o.PublicURLs,
+			RenewToken:    &o.RenewToken,
+			RenewTokenTag: &o.RenewTokenTag,
+			Token:         &o.Token,
+			TokenRefs:     &o.TokenRefs,
+			UpdateTime:    &o.UpdateTime,
+			ZHash:         &o.ZHash,
+			Zone:          &o.Zone,
 		}
 	}
 
@@ -361,6 +400,8 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "friendlyName":
+			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -371,8 +412,10 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "publicHostnames":
-			sp.PublicHostnames = &(o.PublicHostnames)
+		case "publicKeys":
+			sp.PublicKeys = &(o.PublicKeys)
+		case "publicURLs":
+			sp.PublicURLs = &(o.PublicURLs)
 		case "renewToken":
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
@@ -409,6 +452,9 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.FriendlyName != nil {
+		o.FriendlyName = *so.FriendlyName
+	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
@@ -424,8 +470,11 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.PublicHostnames != nil {
-		o.PublicHostnames = *so.PublicHostnames
+	if so.PublicKeys != nil {
+		o.PublicKeys = *so.PublicKeys
+	}
+	if so.PublicURLs != nil {
+		o.PublicURLs = *so.PublicURLs
 	}
 	if so.RenewToken != nil {
 		o.RenewToken = *so.RenewToken
@@ -512,15 +561,25 @@ func (o *Deployment) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
+	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, true); err != nil {
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateDNSNames("publicHostnames", o.PublicHostnames); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateURLs("publicURLs", o.PublicURLs); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateWebSchemeURLs("publicURLs", o.PublicURLs); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -574,6 +633,8 @@ func (o *Deployment) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "friendlyName":
+		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -584,8 +645,10 @@ func (o *Deployment) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
-	case "publicHostnames":
-		return o.PublicHostnames
+	case "publicKeys":
+		return o.PublicKeys
+	case "publicURLs":
+		return o.PublicURLs
 	case "renewToken":
 		return o.RenewToken
 	case "renewTokenTag":
@@ -647,6 +710,19 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"ImportHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -681,12 +757,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `The name of the deployment.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -716,13 +794,25 @@ same import operation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"PublicHostnames": {
+	"PublicKeys": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "publichostnames",
-		ConvertedName:  "PublicHostnames",
-		Description:    `Host names of the deployment to perform connection terminations.`,
+		BSONFieldName:  "publickeys",
+		ConvertedName:  "PublicKeys",
+		Description: `The names of the public keys whose corresponding private key is available on
+this deployment's instances.`,
+		Exposed: true,
+		Name:    "publicKeys",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"PublicURLs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publicurls",
+		ConvertedName:  "PublicURLs",
+		Description:    `Public URLs of the deployment.`,
 		Exposed:        true,
-		Name:           "publicHostnames",
+		Name:           "publicURLs",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
@@ -829,6 +919,19 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"importhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -863,12 +966,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `The name of the deployment.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -898,13 +1003,25 @@ same import operation.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"publichostnames": {
+	"publickeys": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "publichostnames",
-		ConvertedName:  "PublicHostnames",
-		Description:    `Host names of the deployment to perform connection terminations.`,
+		BSONFieldName:  "publickeys",
+		ConvertedName:  "PublicKeys",
+		Description: `The names of the public keys whose corresponding private key is available on
+this deployment's instances.`,
+		Exposed: true,
+		Name:    "publicKeys",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"publicurls": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "publicurls",
+		ConvertedName:  "PublicURLs",
+		Description:    `Public URLs of the deployment.`,
 		Exposed:        true,
-		Name:           "publicHostnames",
+		Name:           "publicURLs",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
@@ -1041,6 +1158,9 @@ type SparseDeployment struct {
 	// The description of the deployment.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// Friendly name of the object.
+	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -1048,7 +1168,8 @@ type SparseDeployment struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// The name of the deployment.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -1057,8 +1178,12 @@ type SparseDeployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// Host names of the deployment to perform connection terminations.
-	PublicHostnames *[]string `json:"publicHostnames,omitempty" msgpack:"publicHostnames,omitempty" bson:"publichostnames,omitempty" mapstructure:"publicHostnames,omitempty"`
+	// The names of the public keys whose corresponding private key is available on
+	// this deployment's instances.
+	PublicKeys *[]string `json:"publicKeys,omitempty" msgpack:"publicKeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publicKeys,omitempty"`
+
+	// Public URLs of the deployment.
+	PublicURLs *[]string `json:"publicURLs,omitempty" msgpack:"publicURLs,omitempty" bson:"publicurls,omitempty" mapstructure:"publicURLs,omitempty"`
 
 	// Set to true on update to issue a new credential.
 	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
@@ -1134,6 +1259,9 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.FriendlyName != nil {
+		s.FriendlyName = o.FriendlyName
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
@@ -1149,8 +1277,11 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.PublicHostnames != nil {
-		s.PublicHostnames = o.PublicHostnames
+	if o.PublicKeys != nil {
+		s.PublicKeys = o.PublicKeys
+	}
+	if o.PublicURLs != nil {
+		s.PublicURLs = o.PublicURLs
 	}
 	if o.TokenRefs != nil {
 		s.TokenRefs = o.TokenRefs
@@ -1189,6 +1320,9 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.FriendlyName != nil {
+		o.FriendlyName = s.FriendlyName
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
@@ -1204,8 +1338,11 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.PublicHostnames != nil {
-		o.PublicHostnames = s.PublicHostnames
+	if s.PublicKeys != nil {
+		o.PublicKeys = s.PublicKeys
+	}
+	if s.PublicURLs != nil {
+		o.PublicURLs = s.PublicURLs
 	}
 	if s.TokenRefs != nil {
 		o.TokenRefs = s.TokenRefs
@@ -1242,6 +1379,9 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
+	if o.FriendlyName != nil {
+		out.FriendlyName = *o.FriendlyName
+	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
@@ -1257,8 +1397,11 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.PublicHostnames != nil {
-		out.PublicHostnames = *o.PublicHostnames
+	if o.PublicKeys != nil {
+		out.PublicKeys = *o.PublicKeys
+	}
+	if o.PublicURLs != nil {
+		out.PublicURLs = *o.PublicURLs
 	}
 	if o.RenewToken != nil {
 		out.RenewToken = *o.RenewToken
@@ -1335,6 +1478,22 @@ func (o *SparseDeployment) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseDeployment) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseDeployment) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseDeployment) GetImportHash() (out string) {
 
@@ -1365,6 +1524,22 @@ func (o *SparseDeployment) GetImportLabel() (out string) {
 func (o *SparseDeployment) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseDeployment) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseDeployment) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -1440,32 +1615,36 @@ func (o *SparseDeployment) DeepCopyInto(out *SparseDeployment) {
 }
 
 type mongoAttributesDeployment struct {
-	ID              bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime      time.Time     `bson:"createtime"`
-	Description     string        `bson:"description,omitempty"`
-	ImportHash      string        `bson:"importhash,omitempty"`
-	ImportLabel     string        `bson:"importlabel,omitempty"`
-	Name            string        `bson:"name"`
-	Namespace       string        `bson:"namespace,omitempty"`
-	Propagate       bool          `bson:"propagate"`
-	PublicHostnames []string      `bson:"publichostnames,omitempty"`
-	TokenRefs       []*TokenRef   `bson:"tokenrefs"`
-	UpdateTime      time.Time     `bson:"updatetime"`
-	ZHash           int           `bson:"zhash"`
-	Zone            int           `bson:"zone"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   time.Time     `bson:"createtime"`
+	Description  string        `bson:"description,omitempty"`
+	FriendlyName string        `bson:"friendlyname"`
+	ImportHash   string        `bson:"importhash,omitempty"`
+	ImportLabel  string        `bson:"importlabel,omitempty"`
+	Name         string        `bson:"name"`
+	Namespace    string        `bson:"namespace,omitempty"`
+	Propagate    bool          `bson:"propagate"`
+	PublicKeys   []string      `bson:"publickeys"`
+	PublicURLs   []string      `bson:"publicurls"`
+	TokenRefs    []*TokenRef   `bson:"tokenrefs"`
+	UpdateTime   time.Time     `bson:"updatetime"`
+	ZHash        int           `bson:"zhash"`
+	Zone         int           `bson:"zone"`
 }
 type mongoAttributesSparseDeployment struct {
-	ID              bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime      *time.Time    `bson:"createtime,omitempty"`
-	Description     *string       `bson:"description,omitempty"`
-	ImportHash      *string       `bson:"importhash,omitempty"`
-	ImportLabel     *string       `bson:"importlabel,omitempty"`
-	Name            *string       `bson:"name,omitempty"`
-	Namespace       *string       `bson:"namespace,omitempty"`
-	Propagate       *bool         `bson:"propagate,omitempty"`
-	PublicHostnames *[]string     `bson:"publichostnames,omitempty"`
-	TokenRefs       *[]*TokenRef  `bson:"tokenrefs,omitempty"`
-	UpdateTime      *time.Time    `bson:"updatetime,omitempty"`
-	ZHash           *int          `bson:"zhash,omitempty"`
-	Zone            *int          `bson:"zone,omitempty"`
+	ID           bson.ObjectId `bson:"_id,omitempty"`
+	CreateTime   *time.Time    `bson:"createtime,omitempty"`
+	Description  *string       `bson:"description,omitempty"`
+	FriendlyName *string       `bson:"friendlyname,omitempty"`
+	ImportHash   *string       `bson:"importhash,omitempty"`
+	ImportLabel  *string       `bson:"importlabel,omitempty"`
+	Name         *string       `bson:"name,omitempty"`
+	Namespace    *string       `bson:"namespace,omitempty"`
+	Propagate    *bool         `bson:"propagate,omitempty"`
+	PublicKeys   *[]string     `bson:"publickeys,omitempty"`
+	PublicURLs   *[]string     `bson:"publicurls,omitempty"`
+	TokenRefs    *[]*TokenRef  `bson:"tokenrefs,omitempty"`
+	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
+	ZHash        *int          `bson:"zhash,omitempty"`
+	Zone         *int          `bson:"zone,omitempty"`
 }

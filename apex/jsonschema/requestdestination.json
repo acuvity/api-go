@@ -7,11 +7,11 @@
   "$modelResourceName": "requestdestinations",
   "$modelRestName": "requestdestination",
   "additionalProperties": false,
-  "description": "RequestDestination holds the destination information for a request. When app and component are set, the request is evaluated against the app component's policies instead of a provider. In that case, the provider field must not be set.",
+  "description": "RequestDestination holds the destination information for a request. When app and component are set, the request is evaluated against the app component's policies instead of a provider. In that case, the provider field must not be set. On the police API an egress request must name its target, so app and component are required unless a provider is given. On the scan API they may be left out to run a plain scan that targets nothing.",
   "properties": {
     "app": {
       "$friendlyName": "App",
-      "description": "The name of the destination application.",
+      "description": "The name of the destination application. Only takes effect together with component: setting one without the other counts as no destination at all.",
       "title": "app",
       "type": [
         "string",
@@ -20,7 +20,7 @@
     },
     "component": {
       "$friendlyName": "Component",
-      "description": "The component of the destination application.",
+      "description": "The component of the destination application. Only takes effect together with app: setting one without the other counts as no destination at all.",
       "title": "component",
       "type": [
         "string",
@@ -42,6 +42,15 @@
       "title": "ip",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "port": {
+      "$friendlyName": "Port",
+      "description": "The destination port of the request. Optional: when it is not set, 443 is assumed. It is made available to policies as destinationPort.",
+      "title": "port",
+      "type": [
+        "integer",
         "null"
       ]
     }

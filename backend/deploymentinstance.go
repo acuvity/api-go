@@ -110,7 +110,7 @@ type DeploymentInstance struct {
 	CurrentVersion string `json:"currentVersion" msgpack:"currentVersion" bson:"currentversion" mapstructure:"currentVersion,omitempty"`
 
 	// List of diagnostics for this instance.
-	Diagnostics []Diagnostic `json:"diagnostics,omitempty" msgpack:"diagnostics,omitempty" bson:"diagnostics,omitempty" mapstructure:"diagnostics,omitempty"`
+	Diagnostics []Diagnostic `json:"diagnostics" msgpack:"diagnostics" bson:"diagnostics" mapstructure:"diagnostics,omitempty"`
 
 	// The name of the host where the deployment instance is running.
 	Hostname string `json:"hostname" msgpack:"hostname" bson:"hostname" mapstructure:"hostname,omitempty"`
@@ -1229,7 +1229,7 @@ type mongoAttributesDeploymentInstance struct {
 	ID             bson.ObjectId                 `bson:"_id,omitempty"`
 	Config         string                        `bson:"config"`
 	CurrentVersion string                        `bson:"currentversion"`
-	Diagnostics    []Diagnostic                  `bson:"diagnostics,omitempty"`
+	Diagnostics    []Diagnostic                  `bson:"diagnostics"`
 	Hostname       string                        `bson:"hostname"`
 	Namespace      string                        `bson:"namespace,omitempty"`
 	ParentID       string                        `bson:"parentid"`

@@ -94,7 +94,7 @@ type ProviderTokenPool struct {
 	// The description of the provider token pool.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// Friendly name of the provider token pool.
+	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
 	// The header key used to pass the token to the provider.
@@ -110,11 +110,15 @@ type ProviderTokenPool struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the provider token pool.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -135,6 +139,7 @@ func NewProviderTokenPool() *ProviderTokenPool {
 		ModelVersion:        1,
 		HeaderKey:           "Authorization",
 		HeaderValueTemplate: "Bearer {{.Token}}",
+		Propagate:           true,
 	}
 }
 
@@ -178,6 +183,7 @@ func (o *ProviderTokenPool) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Propagate = o.Propagate
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -208,6 +214,7 @@ func (o *ProviderTokenPool) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Propagate = s.Propagate
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -258,6 +265,18 @@ func (o *ProviderTokenPool) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *ProviderTokenPool) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *ProviderTokenPool) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *ProviderTokenPool) GetImportHash() string {
 
@@ -282,6 +301,18 @@ func (o *ProviderTokenPool) SetImportLabel(importLabel string) {
 	o.ImportLabel = importLabel
 }
 
+// GetName returns the Name of the receiver.
+func (o *ProviderTokenPool) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *ProviderTokenPool) SetName(name string) {
+
+	o.Name = name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *ProviderTokenPool) GetNamespace() string {
 
@@ -292,6 +323,18 @@ func (o *ProviderTokenPool) GetNamespace() string {
 func (o *ProviderTokenPool) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *ProviderTokenPool) GetPropagate() bool {
+
+	return o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the given value.
+func (o *ProviderTokenPool) SetPropagate(propagate bool) {
+
+	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -323,6 +366,7 @@ func (o *ProviderTokenPool) ToSparse(fields ...string) elemental.SparseIdentifia
 			ImportLabel:         &o.ImportLabel,
 			Name:                &o.Name,
 			Namespace:           &o.Namespace,
+			Propagate:           &o.Propagate,
 			UpdateTime:          &o.UpdateTime,
 			ZHash:               &o.ZHash,
 			Zone:                &o.Zone,
@@ -352,6 +396,8 @@ func (o *ProviderTokenPool) ToSparse(fields ...string) elemental.SparseIdentifia
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "propagate":
+			sp.Propagate = &(o.Propagate)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -400,6 +446,9 @@ func (o *ProviderTokenPool) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Propagate != nil {
+		o.Propagate = *so.Propagate
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -460,11 +509,14 @@ func (o *ProviderTokenPool) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, true); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -522,6 +574,8 @@ func (o *ProviderTokenPool) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "propagate":
+		return o.Propagate
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -579,10 +633,12 @@ var ProviderTokenPoolAttributesMap = map[string]elemental.AttributeSpecification
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of the provider token pool.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -642,12 +698,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `Name of the provider token pool.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -663,6 +721,19 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -727,10 +798,12 @@ var ProviderTokenPoolLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly name of the provider token pool.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -790,12 +863,14 @@ same import operation.`,
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
 		CreationOnly:   true,
-		Description:    `Name of the provider token pool.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -811,6 +886,19 @@ same import operation.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"propagate": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "propagate",
+		ConvertedName:  "Propagate",
+		DefaultValue:   true,
+		Description:    `Propagates the object to all child namespaces. This is always true.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "propagate",
+		Setter:         true,
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -901,7 +989,7 @@ type SparseProviderTokenPool struct {
 	// The description of the provider token pool.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
-	// Friendly name of the provider token pool.
+	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
 	// The header key used to pass the token to the provider.
@@ -917,11 +1005,15 @@ type SparseProviderTokenPool struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
-	// Name of the provider token pool.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// Propagates the object to all child namespaces. This is always true.
+	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1005,6 +1097,9 @@ func (o *SparseProviderTokenPool) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Propagate != nil {
+		s.Propagate = o.Propagate
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
@@ -1060,6 +1155,9 @@ func (o *SparseProviderTokenPool) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Propagate != nil {
+		o.Propagate = s.Propagate
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
@@ -1113,6 +1211,9 @@ func (o *SparseProviderTokenPool) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.Propagate != nil {
+		out.Propagate = *o.Propagate
+	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
 	}
@@ -1154,6 +1255,22 @@ func (o *SparseProviderTokenPool) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseProviderTokenPool) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseProviderTokenPool) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseProviderTokenPool) GetImportHash() (out string) {
 
@@ -1186,6 +1303,22 @@ func (o *SparseProviderTokenPool) SetImportLabel(importLabel string) {
 	o.ImportLabel = &importLabel
 }
 
+// GetName returns the Name of the receiver.
+func (o *SparseProviderTokenPool) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseProviderTokenPool) SetName(name string) {
+
+	o.Name = &name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseProviderTokenPool) GetNamespace() (out string) {
 
@@ -1200,6 +1333,22 @@ func (o *SparseProviderTokenPool) GetNamespace() (out string) {
 func (o *SparseProviderTokenPool) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
+}
+
+// GetPropagate returns the Propagate of the receiver.
+func (o *SparseProviderTokenPool) GetPropagate() (out bool) {
+
+	if o.Propagate == nil {
+		return
+	}
+
+	return *o.Propagate
+}
+
+// SetPropagate sets the property Propagate of the receiver using the address of the given value.
+func (o *SparseProviderTokenPool) SetPropagate(propagate bool) {
+
+	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
@@ -1253,6 +1402,7 @@ type mongoAttributesProviderTokenPool struct {
 	ImportLabel         string        `bson:"importlabel,omitempty"`
 	Name                string        `bson:"name"`
 	Namespace           string        `bson:"namespace,omitempty"`
+	Propagate           bool          `bson:"propagate"`
 	UpdateTime          time.Time     `bson:"updatetime"`
 	ZHash               int           `bson:"zhash"`
 	Zone                int           `bson:"zone"`
@@ -1268,6 +1418,7 @@ type mongoAttributesSparseProviderTokenPool struct {
 	ImportLabel         *string       `bson:"importlabel,omitempty"`
 	Name                *string       `bson:"name,omitempty"`
 	Namespace           *string       `bson:"namespace,omitempty"`
+	Propagate           *bool         `bson:"propagate,omitempty"`
 	UpdateTime          *time.Time    `bson:"updatetime,omitempty"`
 	ZHash               *int          `bson:"zhash,omitempty"`
 	Zone                *int          `bson:"zone,omitempty"`

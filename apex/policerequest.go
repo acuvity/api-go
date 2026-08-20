@@ -23,6 +23,17 @@ const (
 	PoliceRequestAnonymizationVariableSize PoliceRequestAnonymizationValue = "VariableSize"
 )
 
+// PoliceRequestDirectionValue represents the possible values for attribute "direction".
+type PoliceRequestDirectionValue string
+
+const (
+	// PoliceRequestDirectionEgress represents the value Egress.
+	PoliceRequestDirectionEgress PoliceRequestDirectionValue = "Egress"
+
+	// PoliceRequestDirectionIngress represents the value Ingress.
+	PoliceRequestDirectionIngress PoliceRequestDirectionValue = "Ingress"
+)
+
 // PoliceRequestTypeValue represents the possible values for attribute "type".
 type PoliceRequestTypeValue string
 
@@ -106,25 +117,29 @@ func (o PoliceRequestsList) Version() int {
 
 // PoliceRequest represents the model of a policerequest
 type PoliceRequest struct {
-	// Annotations attached to the extraction.
-	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"-" mapstructure:"annotations,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization PoliceRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
-	// The application processing information for this request. For police requests
-	// in an apps namespace, this is required when using an AppToken. For scan
-	// requests, this is optional and enhances logging with app/component context.
-	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
-
-	// In the case of a contentPolicy that asks for a confirmation, this is the
-	// hash you must send back to bypass the block. This is only useful when a
-	// content policy has been set or is evaluated remotely.
-	BypassHash string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
+	// Identifies the conversation this request belongs to. Apex records it on the
+	// resulting log, which is what groups the successive requests of one conversation
+	// together in the logs and in the conversation view, and it is also made available
+	// to the analyzers and to policies. Send the same value on every request of the
+	// same conversation.
+	ConversationID string `json:"conversationID,omitempty" msgpack:"conversationID,omitempty" bson:"-" mapstructure:"conversationID,omitempty"`
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
+	// On the police API an egress request must set either this or the provider: the
+	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// that targets nothing, in which case the app component identified by the
+	// caller's token is reported as the destination so that the request still shows
+	// up in traces.
 	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
+	// The direction of the traffic for this request, relative to the app component
+	// the caller's token identifies. Determines whether the ingress or the egress
+	// policies of that app component are evaluated.
+	Direction PoliceRequestDirectionValue `json:"direction" msgpack:"direction" bson:"-" mapstructure:"direction,omitempty"`
 
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
@@ -133,26 +148,30 @@ type PoliceRequest struct {
 	// processing binary data.
 	Messages []string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// The model used by the request.
-	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
-
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
+	// On the police API an egress request must set either this or the destination app
+	// and component. On the scan API both may be omitted to run a plain scan that
+	// targets nothing.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// The source of this request. Optional: on egress the source is already known
+	// from the caller's token, and on ingress it can be left out for an anonymous
+	// external caller.
+	Source *RequestSource `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
 
 	// The various tools used by the request.
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
-	// References to the trace of the request.
-	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
+	// The trace context this request belongs to. When it is set, Apex places the span
+	// it creates for this request inside your trace instead of starting a new one, and
+	// setting it enables tracing for this request even when the application is
+	// otherwise configured not to trace. What Apex actually recorded is reported back
+	// in the 'trace' field of the response.
+	Trace *RequestTrace `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"-" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type PoliceRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
-
-	// The user information for this request. For police requests in an employees
-	// namespace, this represents the end user on whose behalf the request is made
-	// and is used for policy resolution via team assignment.
-	User *RequestUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -162,8 +181,8 @@ func NewPoliceRequest() *PoliceRequest {
 
 	return &PoliceRequest{
 		ModelVersion:  1,
-		Annotations:   map[string]string{},
 		Anonymization: PoliceRequestAnonymizationFixedSize,
+		Direction:     PoliceRequestDirectionEgress,
 	}
 }
 
@@ -195,10 +214,7 @@ func (o *PoliceRequest) GetBSON() (any, error) {
 	s := &mongoAttributesPoliceRequest{}
 
 	s.Anonymization = o.Anonymization
-	s.BypassHash = o.BypassHash
-	s.Model = o.Model
 	s.Tools = o.Tools
-	s.Trace = o.Trace
 	s.Type = o.Type
 
 	return s, nil
@@ -218,10 +234,7 @@ func (o *PoliceRequest) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Anonymization = s.Anonymization
-	o.BypassHash = s.BypassHash
-	o.Model = s.Model
 	o.Tools = s.Tools
-	o.Trace = s.Trace
 	o.Type = s.Type
 
 	return nil
@@ -248,7 +261,8 @@ func (o *PoliceRequest) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *PoliceRequest) Doc() string {
 
-	return `This is a police request.`
+	return `This is a police request. Police enforces policy, so an egress request must name
+its target: either a provider or a destination app and component.`
 }
 
 func (o *PoliceRequest) String() string {
@@ -263,51 +277,45 @@ func (o *PoliceRequest) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePoliceRequest{
-			Annotations:   &o.Annotations,
-			Anonymization: &o.Anonymization,
-			App:           o.App,
-			BypassHash:    &o.BypassHash,
-			Destination:   o.Destination,
-			Extractions:   &o.Extractions,
-			Messages:      &o.Messages,
-			Model:         &o.Model,
-			Provider:      &o.Provider,
-			Tools:         &o.Tools,
-			Trace:         o.Trace,
-			Type:          &o.Type,
-			User:          o.User,
+			Anonymization:  &o.Anonymization,
+			ConversationID: &o.ConversationID,
+			Destination:    o.Destination,
+			Direction:      &o.Direction,
+			Extractions:    &o.Extractions,
+			Messages:       &o.Messages,
+			Provider:       &o.Provider,
+			Source:         o.Source,
+			Tools:          &o.Tools,
+			Trace:          o.Trace,
+			Type:           &o.Type,
 		}
 	}
 
 	sp := &SparsePoliceRequest{}
 	for _, f := range fields {
 		switch f {
-		case "annotations":
-			sp.Annotations = &(o.Annotations)
 		case "anonymization":
 			sp.Anonymization = &(o.Anonymization)
-		case "app":
-			sp.App = o.App
-		case "bypassHash":
-			sp.BypassHash = &(o.BypassHash)
+		case "conversationID":
+			sp.ConversationID = &(o.ConversationID)
 		case "destination":
 			sp.Destination = o.Destination
+		case "direction":
+			sp.Direction = &(o.Direction)
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "messages":
 			sp.Messages = &(o.Messages)
-		case "model":
-			sp.Model = &(o.Model)
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "source":
+			sp.Source = o.Source
 		case "tools":
 			sp.Tools = &(o.Tools)
 		case "trace":
 			sp.Trace = o.Trace
 		case "type":
 			sp.Type = &(o.Type)
-		case "user":
-			sp.User = o.User
 		}
 	}
 
@@ -321,20 +329,17 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparsePoliceRequest)
-	if so.Annotations != nil {
-		o.Annotations = *so.Annotations
-	}
 	if so.Anonymization != nil {
 		o.Anonymization = *so.Anonymization
 	}
-	if so.App != nil {
-		o.App = so.App
-	}
-	if so.BypassHash != nil {
-		o.BypassHash = *so.BypassHash
+	if so.ConversationID != nil {
+		o.ConversationID = *so.ConversationID
 	}
 	if so.Destination != nil {
 		o.Destination = so.Destination
+	}
+	if so.Direction != nil {
+		o.Direction = *so.Direction
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
@@ -342,11 +347,11 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Messages != nil {
 		o.Messages = *so.Messages
 	}
-	if so.Model != nil {
-		o.Model = *so.Model
-	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.Source != nil {
+		o.Source = so.Source
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
@@ -357,19 +362,10 @@ func (o *PoliceRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Type != nil {
 		o.Type = *so.Type
 	}
-	if so.User != nil {
-		o.User = so.User
-	}
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
@@ -383,6 +379,12 @@ func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.Source != nil {
+		if err := o.Source.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Source' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -401,23 +403,11 @@ func (o *PoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter
 		}
 	}
 
-	if o.User != nil {
-		if err := o.User.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
-
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *PoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
@@ -434,6 +424,12 @@ func (o *PoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Source' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Tools {
 		if sub == nil {
 			continue
@@ -446,12 +442,6 @@ func (o *PoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter
 	if o.Trace != nil {
 		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.User != nil {
-		if err := o.User.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -494,18 +484,15 @@ func (o *PoliceRequest) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if o.App != nil {
-		if err := o.App.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "app")
-		}
-	}
-
 	if o.Destination != nil {
 		if err := o.Destination.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "destination")
 		}
+	}
+
+	if err := elemental.ValidateStringInList("direction", string(o.Direction), []string{"Egress", "Ingress"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for i, sub := range o.Extractions {
@@ -515,6 +502,13 @@ func (o *PoliceRequest) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
+		}
+	}
+
+	if o.Source != nil {
+		if err := o.Source.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "source")
 		}
 	}
 
@@ -537,13 +531,6 @@ func (o *PoliceRequest) Validate() error {
 
 	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
 		errors = errors.Append(err)
-	}
-
-	if o.User != nil {
-		if err := o.User.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "user")
-		}
 	}
 
 	// Custom object validation.
@@ -585,32 +572,28 @@ func (*PoliceRequest) AttributeSpecifications() map[string]elemental.AttributeSp
 func (o *PoliceRequest) ValueForAttribute(name string) any {
 
 	switch name {
-	case "annotations":
-		return o.Annotations
 	case "anonymization":
 		return o.Anonymization
-	case "app":
-		return o.App
-	case "bypassHash":
-		return o.BypassHash
+	case "conversationID":
+		return o.ConversationID
 	case "destination":
 		return o.Destination
+	case "direction":
+		return o.Direction
 	case "extractions":
 		return o.Extractions
 	case "messages":
 		return o.Messages
-	case "model":
-		return o.Model
 	case "provider":
 		return o.Provider
+	case "source":
+		return o.Source
 	case "tools":
 		return o.Tools
 	case "trace":
 		return o.Trace
 	case "type":
 		return o.Type
-	case "user":
-		return o.User
 	}
 
 	return nil
@@ -618,15 +601,6 @@ func (o *PoliceRequest) ValueForAttribute(name string) any {
 
 // PoliceRequestAttributesMap represents the map of attribute for PoliceRequest.
 var PoliceRequestAttributesMap = map[string]elemental.AttributeSpecification{
-	"Annotations": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"Anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -638,38 +612,43 @@ var PoliceRequestAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "enum",
 	},
-	"App": {
+	"ConversationID": {
 		AllowedChoices: []string{},
-		ConvertedName:  "App",
-		Description: `The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.`,
+		ConvertedName:  "ConversationID",
+		Description: `Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.`,
 		Exposed: true,
-		Name:    "app",
-		SubType: "requestapp",
-		Type:    "ref",
-	},
-	"BypassHash": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "bypasshash",
-		ConvertedName:  "BypassHash",
-		Description: `In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.`,
-		Exposed: true,
-		Name:    "bypassHash",
-		Stored:  true,
+		Name:    "conversationID",
 		Type:    "string",
 	},
 	"Destination": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
-they become the policy target and the provider field must not be set.`,
+they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.`,
 		Exposed: true,
 		Name:    "destination",
 		SubType: "requestdestination",
 		Type:    "ref",
+	},
+	"Direction": {
+		AllowedChoices: []string{"Egress", "Ingress"},
+		ConvertedName:  "Direction",
+		DefaultValue:   PoliceRequestDirectionEgress,
+		Description: `The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.`,
+		Exposed: true,
+		Name:    "direction",
+		Type:    "enum",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -690,24 +669,28 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"Model": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "model",
-		ConvertedName:  "Model",
-		Description:    `The model used by the request.`,
-		Exposed:        true,
-		Name:           "model",
-		Stored:         true,
-		Type:           "string",
-	},
 	"Provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
-destination app and component are set.`,
+destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"Source": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Source",
+		Description: `The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.`,
+		Exposed: true,
+		Name:    "source",
+		SubType: "requestsource",
+		Type:    "ref",
 	},
 	"Tools": {
 		AllowedChoices: []string{},
@@ -722,14 +705,16 @@ destination app and component are set.`,
 	},
 	"Trace": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "trace",
 		ConvertedName:  "Trace",
-		Description:    `References to the trace of the request.`,
-		Exposed:        true,
-		Name:           "trace",
-		Stored:         true,
-		SubType:        "traceref",
-		Type:           "ref",
+		Description: `The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.`,
+		Exposed: true,
+		Name:    "trace",
+		SubType: "requesttrace",
+		Type:    "ref",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -741,30 +726,10 @@ destination app and component are set.`,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"User": {
-		AllowedChoices: []string{},
-		ConvertedName:  "User",
-		Description: `The user information for this request. For police requests in an employees
-namespace, this represents the end user on whose behalf the request is made
-and is used for policy resolution via team assignment.`,
-		Exposed: true,
-		Name:    "user",
-		SubType: "requestuser",
-		Type:    "ref",
-	},
 }
 
 // PoliceRequestLowerCaseAttributesMap represents the map of attribute for PoliceRequest.
 var PoliceRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"annotations": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -776,38 +741,43 @@ var PoliceRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Stored:         true,
 		Type:           "enum",
 	},
-	"app": {
+	"conversationid": {
 		AllowedChoices: []string{},
-		ConvertedName:  "App",
-		Description: `The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.`,
+		ConvertedName:  "ConversationID",
+		Description: `Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.`,
 		Exposed: true,
-		Name:    "app",
-		SubType: "requestapp",
-		Type:    "ref",
-	},
-	"bypasshash": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "bypasshash",
-		ConvertedName:  "BypassHash",
-		Description: `In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.`,
-		Exposed: true,
-		Name:    "bypassHash",
-		Stored:  true,
+		Name:    "conversationID",
 		Type:    "string",
 	},
 	"destination": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
-they become the policy target and the provider field must not be set.`,
+they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.`,
 		Exposed: true,
 		Name:    "destination",
 		SubType: "requestdestination",
 		Type:    "ref",
+	},
+	"direction": {
+		AllowedChoices: []string{"Egress", "Ingress"},
+		ConvertedName:  "Direction",
+		DefaultValue:   PoliceRequestDirectionEgress,
+		Description: `The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.`,
+		Exposed: true,
+		Name:    "direction",
+		Type:    "enum",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -828,24 +798,28 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"model": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "model",
-		ConvertedName:  "Model",
-		Description:    `The model used by the request.`,
-		Exposed:        true,
-		Name:           "model",
-		Stored:         true,
-		Type:           "string",
-	},
 	"provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
-destination app and component are set.`,
+destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"source": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Source",
+		Description: `The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.`,
+		Exposed: true,
+		Name:    "source",
+		SubType: "requestsource",
+		Type:    "ref",
 	},
 	"tools": {
 		AllowedChoices: []string{},
@@ -860,14 +834,16 @@ destination app and component are set.`,
 	},
 	"trace": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "trace",
 		ConvertedName:  "Trace",
-		Description:    `References to the trace of the request.`,
-		Exposed:        true,
-		Name:           "trace",
-		Stored:         true,
-		SubType:        "traceref",
-		Type:           "ref",
+		Description: `The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.`,
+		Exposed: true,
+		Name:    "trace",
+		SubType: "requesttrace",
+		Type:    "ref",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -878,17 +854,6 @@ destination app and component are set.`,
 		Name:           "type",
 		Stored:         true,
 		Type:           "enum",
-	},
-	"user": {
-		AllowedChoices: []string{},
-		ConvertedName:  "User",
-		Description: `The user information for this request. For police requests in an employees
-namespace, this represents the end user on whose behalf the request is made
-and is used for policy resolution via team assignment.`,
-		Exposed: true,
-		Name:    "user",
-		SubType: "requestuser",
-		Type:    "ref",
 	},
 }
 
@@ -955,25 +920,29 @@ func (o SparsePoliceRequestsList) Version() int {
 
 // SparsePoliceRequest represents the sparse version of a policerequest.
 type SparsePoliceRequest struct {
-	// Annotations attached to the extraction.
-	Annotations *map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"-" mapstructure:"annotations,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization *PoliceRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
-	// The application processing information for this request. For police requests
-	// in an apps namespace, this is required when using an AppToken. For scan
-	// requests, this is optional and enhances logging with app/component context.
-	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
-
-	// In the case of a contentPolicy that asks for a confirmation, this is the
-	// hash you must send back to bypass the block. This is only useful when a
-	// content policy has been set or is evaluated remotely.
-	BypassHash *string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
+	// Identifies the conversation this request belongs to. Apex records it on the
+	// resulting log, which is what groups the successive requests of one conversation
+	// together in the logs and in the conversation view, and it is also made available
+	// to the analyzers and to policies. Send the same value on every request of the
+	// same conversation.
+	ConversationID *string `json:"conversationID,omitempty" msgpack:"conversationID,omitempty" bson:"-" mapstructure:"conversationID,omitempty"`
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
+	// On the police API an egress request must set either this or the provider: the
+	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// that targets nothing, in which case the app component identified by the
+	// caller's token is reported as the destination so that the request still shows
+	// up in traces.
 	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
+	// The direction of the traffic for this request, relative to the app component
+	// the caller's token identifies. Determines whether the ingress or the egress
+	// policies of that app component are evaluated.
+	Direction *PoliceRequestDirectionValue `json:"direction,omitempty" msgpack:"direction,omitempty" bson:"-" mapstructure:"direction,omitempty"`
 
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
@@ -982,26 +951,30 @@ type SparsePoliceRequest struct {
 	// processing binary data.
 	Messages *[]string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// The model used by the request.
-	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
-
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
+	// On the police API an egress request must set either this or the destination app
+	// and component. On the scan API both may be omitted to run a plain scan that
+	// targets nothing.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// The source of this request. Optional: on egress the source is already known
+	// from the caller's token, and on ingress it can be left out for an anonymous
+	// external caller.
+	Source *RequestSource `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
 
 	// The various tools used by the request.
 	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
 
-	// References to the trace of the request.
-	Trace *TraceRef `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"trace,omitempty" mapstructure:"trace,omitempty"`
+	// The trace context this request belongs to. When it is set, Apex places the span
+	// it creates for this request inside your trace instead of starting a new one, and
+	// setting it enables tracing for this request even when the application is
+	// otherwise configured not to trace. What Apex actually recorded is reported back
+	// in the 'trace' field of the response.
+	Trace *RequestTrace `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"-" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type *PoliceRequestTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
-
-	// The user information for this request. For police requests in an employees
-	// namespace, this represents the end user on whose behalf the request is made
-	// and is used for policy resolution via team assignment.
-	User *RequestUser `json:"user,omitempty" msgpack:"user,omitempty" bson:"-" mapstructure:"user,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -1041,17 +1014,8 @@ func (o *SparsePoliceRequest) GetBSON() (any, error) {
 	if o.Anonymization != nil {
 		s.Anonymization = o.Anonymization
 	}
-	if o.BypassHash != nil {
-		s.BypassHash = o.BypassHash
-	}
-	if o.Model != nil {
-		s.Model = o.Model
-	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
-	}
-	if o.Trace != nil {
-		s.Trace = o.Trace
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1076,17 +1040,8 @@ func (o *SparsePoliceRequest) SetBSON(raw bson.Raw) error {
 	if s.Anonymization != nil {
 		o.Anonymization = s.Anonymization
 	}
-	if s.BypassHash != nil {
-		o.BypassHash = s.BypassHash
-	}
-	if s.Model != nil {
-		o.Model = s.Model
-	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
-	}
-	if s.Trace != nil {
-		o.Trace = s.Trace
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1105,20 +1060,17 @@ func (o *SparsePoliceRequest) Version() int {
 func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewPoliceRequest()
-	if o.Annotations != nil {
-		out.Annotations = *o.Annotations
-	}
 	if o.Anonymization != nil {
 		out.Anonymization = *o.Anonymization
 	}
-	if o.App != nil {
-		out.App = o.App
-	}
-	if o.BypassHash != nil {
-		out.BypassHash = *o.BypassHash
+	if o.ConversationID != nil {
+		out.ConversationID = *o.ConversationID
 	}
 	if o.Destination != nil {
 		out.Destination = o.Destination
+	}
+	if o.Direction != nil {
+		out.Direction = *o.Direction
 	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
@@ -1126,11 +1078,11 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Messages != nil {
 		out.Messages = *o.Messages
 	}
-	if o.Model != nil {
-		out.Model = *o.Model
-	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.Source != nil {
+		out.Source = o.Source
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
@@ -1141,21 +1093,12 @@ func (o *SparsePoliceRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Type != nil {
 		out.Type = *o.Type
 	}
-	if o.User != nil {
-		out.User = o.User
-	}
 
 	return out
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
@@ -1171,6 +1114,12 @@ func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEnc
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractions' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Source != nil {
+		if err := o.Source.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Source' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1191,23 +1140,11 @@ func (o *SparsePoliceRequest) EncryptAttributes(encrypter elemental.AttributeEnc
 		}
 	}
 
-	if o.User != nil {
-		if err := o.User.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
-
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparsePoliceRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
@@ -1226,6 +1163,12 @@ func (o *SparsePoliceRequest) DecryptAttributes(encrypter elemental.AttributeEnc
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Source' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Tools != nil {
 		for _, sub := range *o.Tools {
 			if sub == nil {
@@ -1240,12 +1183,6 @@ func (o *SparsePoliceRequest) DecryptAttributes(encrypter elemental.AttributeEnc
 	if o.Trace != nil {
 		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.User != nil {
-		if err := o.User.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'User' for 'PoliceRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1278,17 +1215,11 @@ func (o *SparsePoliceRequest) DeepCopyInto(out *SparsePoliceRequest) {
 
 type mongoAttributesPoliceRequest struct {
 	Anonymization PoliceRequestAnonymizationValue `bson:"anonymization"`
-	BypassHash    string                          `bson:"bypasshash,omitempty"`
-	Model         string                          `bson:"model,omitempty"`
 	Tools         map[string]*Tool                `bson:"tools,omitempty"`
-	Trace         *TraceRef                       `bson:"trace,omitempty"`
 	Type          PoliceRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparsePoliceRequest struct {
 	Anonymization *PoliceRequestAnonymizationValue `bson:"anonymization,omitempty"`
-	BypassHash    *string                          `bson:"bypasshash,omitempty"`
-	Model         *string                          `bson:"model,omitempty"`
 	Tools         *map[string]*Tool                `bson:"tools,omitempty"`
-	Trace         *TraceRef                        `bson:"trace,omitempty"`
 	Type          *PoliceRequestTypeValue          `bson:"type,omitempty"`
 }

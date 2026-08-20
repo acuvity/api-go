@@ -91,11 +91,20 @@ type Import struct {
 	// AI domains to import.
 	AIDomains AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"aidomains,omitempty" mapstructure:"AIDomains,omitempty"`
 
+	// AI Gateway Connectors to import.
+	AIGatewayConnectors AIGatewayConnectorsList `json:"AIGatewayConnectors,omitempty" msgpack:"AIGatewayConnectors,omitempty" bson:"aigatewayconnectors,omitempty" mapstructure:"AIGatewayConnectors,omitempty"`
+
+	// AI Gateways to import.
+	AIGateways AIGatewaysList `json:"AIGateways,omitempty" msgpack:"AIGateways,omitempty" bson:"aigateways,omitempty" mapstructure:"AIGateways,omitempty"`
+
 	// AI MCP servers to import.
 	AIMCPServers AIMCPServersList `json:"AIMCPServers,omitempty" msgpack:"AIMCPServers,omitempty" bson:"aimcpservers,omitempty" mapstructure:"AIMCPServers,omitempty"`
 
 	// AI plugins to import.
 	AIPlugins AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
+
+	// AI security probes to import.
+	AISecurityProbes AISecurityProbesList `json:"AISecurityProbes,omitempty" msgpack:"AISecurityProbes,omitempty" bson:"aisecurityprobes,omitempty" mapstructure:"AISecurityProbes,omitempty"`
 
 	// AI skills to import.
 	AISkills AISkillsList `json:"AISkills,omitempty" msgpack:"AISkills,omitempty" bson:"aiskills,omitempty" mapstructure:"AISkills,omitempty"`
@@ -200,6 +209,9 @@ type Import struct {
 	// Teams to import.
 	Teams TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
+	// Threat definitions to import.
+	ThreatDefinitions ThreatDefinitionsList `json:"threatDefinitions,omitempty" msgpack:"threatDefinitions,omitempty" bson:"threatdefinitions,omitempty" mapstructure:"threatDefinitions,omitempty"`
+
 	// Visited URLs to import.
 	Visitedurls VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
 
@@ -216,8 +228,11 @@ func NewImport() *Import {
 		ModelVersion:        1,
 		AIApps:              AIAppsList{},
 		AIDomains:           AIDomainsList{},
+		AIGatewayConnectors: AIGatewayConnectorsList{},
+		AIGateways:          AIGatewaysList{},
 		AIMCPServers:        AIMCPServersList{},
 		AIPlugins:           AIPluginsList{},
+		AISecurityProbes:    AISecurityProbesList{},
 		AISkills:            AISkillsList{},
 		AITools:             AIToolsList{},
 		APIAuthorizations:   APIAuthorizationsList{},
@@ -251,6 +266,7 @@ func NewImport() *Import {
 		Publickeys:          PublicKeysList{},
 		Sinks:               SinksList{},
 		Teams:               TeamsList{},
+		ThreatDefinitions:   ThreatDefinitionsList{},
 		Visitedurls:         VisitedURLsList{},
 		WebExtensionConfigs: WebExtensionConfigsList{},
 	}
@@ -285,8 +301,11 @@ func (o *Import) GetBSON() (any, error) {
 
 	s.AIApps = o.AIApps
 	s.AIDomains = o.AIDomains
+	s.AIGatewayConnectors = o.AIGatewayConnectors
+	s.AIGateways = o.AIGateways
 	s.AIMCPServers = o.AIMCPServers
 	s.AIPlugins = o.AIPlugins
+	s.AISecurityProbes = o.AISecurityProbes
 	s.AISkills = o.AISkills
 	s.AITools = o.AITools
 	s.APIAuthorizations = o.APIAuthorizations
@@ -321,6 +340,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.Publickeys = o.Publickeys
 	s.Sinks = o.Sinks
 	s.Teams = o.Teams
+	s.ThreatDefinitions = o.ThreatDefinitions
 	s.Visitedurls = o.Visitedurls
 	s.WebExtensionConfigs = o.WebExtensionConfigs
 
@@ -342,8 +362,11 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 
 	o.AIApps = s.AIApps
 	o.AIDomains = s.AIDomains
+	o.AIGatewayConnectors = s.AIGatewayConnectors
+	o.AIGateways = s.AIGateways
 	o.AIMCPServers = s.AIMCPServers
 	o.AIPlugins = s.AIPlugins
+	o.AISecurityProbes = s.AISecurityProbes
 	o.AISkills = s.AISkills
 	o.AITools = s.AITools
 	o.APIAuthorizations = s.APIAuthorizations
@@ -378,6 +401,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.Publickeys = s.Publickeys
 	o.Sinks = s.Sinks
 	o.Teams = s.Teams
+	o.ThreatDefinitions = s.ThreatDefinitions
 	o.Visitedurls = s.Visitedurls
 	o.WebExtensionConfigs = s.WebExtensionConfigs
 
@@ -422,8 +446,11 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseImport{
 			AIApps:              &o.AIApps,
 			AIDomains:           &o.AIDomains,
+			AIGatewayConnectors: &o.AIGatewayConnectors,
+			AIGateways:          &o.AIGateways,
 			AIMCPServers:        &o.AIMCPServers,
 			AIPlugins:           &o.AIPlugins,
+			AISecurityProbes:    &o.AISecurityProbes,
 			AISkills:            &o.AISkills,
 			AITools:             &o.AITools,
 			APIAuthorizations:   &o.APIAuthorizations,
@@ -458,6 +485,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Publickeys:          &o.Publickeys,
 			Sinks:               &o.Sinks,
 			Teams:               &o.Teams,
+			ThreatDefinitions:   &o.ThreatDefinitions,
 			Visitedurls:         &o.Visitedurls,
 			WebExtensionConfigs: &o.WebExtensionConfigs,
 		}
@@ -470,10 +498,16 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AIApps = &(o.AIApps)
 		case "AIDomains":
 			sp.AIDomains = &(o.AIDomains)
+		case "AIGatewayConnectors":
+			sp.AIGatewayConnectors = &(o.AIGatewayConnectors)
+		case "AIGateways":
+			sp.AIGateways = &(o.AIGateways)
 		case "AIMCPServers":
 			sp.AIMCPServers = &(o.AIMCPServers)
 		case "AIPlugins":
 			sp.AIPlugins = &(o.AIPlugins)
+		case "AISecurityProbes":
+			sp.AISecurityProbes = &(o.AISecurityProbes)
 		case "AISkills":
 			sp.AISkills = &(o.AISkills)
 		case "AITools":
@@ -542,6 +576,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Sinks = &(o.Sinks)
 		case "teams":
 			sp.Teams = &(o.Teams)
+		case "threatDefinitions":
+			sp.ThreatDefinitions = &(o.ThreatDefinitions)
 		case "visitedurls":
 			sp.Visitedurls = &(o.Visitedurls)
 		case "webExtensionConfigs":
@@ -565,11 +601,20 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AIDomains != nil {
 		o.AIDomains = *so.AIDomains
 	}
+	if so.AIGatewayConnectors != nil {
+		o.AIGatewayConnectors = *so.AIGatewayConnectors
+	}
+	if so.AIGateways != nil {
+		o.AIGateways = *so.AIGateways
+	}
 	if so.AIMCPServers != nil {
 		o.AIMCPServers = *so.AIMCPServers
 	}
 	if so.AIPlugins != nil {
 		o.AIPlugins = *so.AIPlugins
+	}
+	if so.AISecurityProbes != nil {
+		o.AISecurityProbes = *so.AISecurityProbes
 	}
 	if so.AISkills != nil {
 		o.AISkills = *so.AISkills
@@ -673,6 +718,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Teams != nil {
 		o.Teams = *so.Teams
 	}
+	if so.ThreatDefinitions != nil {
+		o.ThreatDefinitions = *so.ThreatDefinitions
+	}
 	if so.Visitedurls != nil {
 		o.Visitedurls = *so.Visitedurls
 	}
@@ -702,6 +750,24 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.AIGatewayConnectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGatewayConnectors' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGateways' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.AIMCPServers {
 		if sub == nil {
 			continue
@@ -717,6 +783,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AISecurityProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AISecurityProbes' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -981,6 +1056,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.ThreatDefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Visitedurls {
 		if sub == nil {
 			continue
@@ -1023,6 +1107,24 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.AIGatewayConnectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGatewayConnectors' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AIGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGateways' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.AIMCPServers {
 		if sub == nil {
 			continue
@@ -1038,6 +1140,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.AISecurityProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AISecurityProbes' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1302,6 +1413,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.ThreatDefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Visitedurls {
 		if sub == nil {
 			continue
@@ -1375,6 +1495,26 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for i, sub := range o.AIGatewayConnectors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGatewayConnectors", i))
+		}
+	}
+
+	for i, sub := range o.AIGateways {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGateways", i))
+		}
+	}
+
 	for i, sub := range o.AIMCPServers {
 		if sub == nil {
 			continue
@@ -1392,6 +1532,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIPlugins", i))
+		}
+	}
+
+	for i, sub := range o.AISecurityProbes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AISecurityProbes", i))
 		}
 	}
 
@@ -1689,6 +1839,16 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for i, sub := range o.ThreatDefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "threatDefinitions", i))
+		}
+	}
+
 	for i, sub := range o.Visitedurls {
 		if sub == nil {
 			continue
@@ -1747,10 +1907,16 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AIApps
 	case "AIDomains":
 		return o.AIDomains
+	case "AIGatewayConnectors":
+		return o.AIGatewayConnectors
+	case "AIGateways":
+		return o.AIGateways
 	case "AIMCPServers":
 		return o.AIMCPServers
 	case "AIPlugins":
 		return o.AIPlugins
+	case "AISecurityProbes":
+		return o.AISecurityProbes
 	case "AISkills":
 		return o.AISkills
 	case "AITools":
@@ -1819,6 +1985,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Sinks
 	case "teams":
 		return o.Teams
+	case "threatDefinitions":
+		return o.ThreatDefinitions
 	case "visitedurls":
 		return o.Visitedurls
 	case "webExtensionConfigs":
@@ -1852,6 +2020,28 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "aidomain",
 		Type:           "refList",
 	},
+	"AIGatewayConnectors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aigatewayconnectors",
+		ConvertedName:  "AIGatewayConnectors",
+		Description:    `AI Gateway Connectors to import.`,
+		Exposed:        true,
+		Name:           "AIGatewayConnectors",
+		Stored:         true,
+		SubType:        "aigatewayconnector",
+		Type:           "refList",
+	},
+	"AIGateways": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aigateways",
+		ConvertedName:  "AIGateways",
+		Description:    `AI Gateways to import.`,
+		Exposed:        true,
+		Name:           "AIGateways",
+		Stored:         true,
+		SubType:        "aigateway",
+		Type:           "refList",
+	},
 	"AIMCPServers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "aimcpservers",
@@ -1872,6 +2062,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "AIPlugins",
 		Stored:         true,
 		SubType:        "aiplugin",
+		Type:           "refList",
+	},
+	"AISecurityProbes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aisecurityprobes",
+		ConvertedName:  "AISecurityProbes",
+		Description:    `AI security probes to import.`,
+		Exposed:        true,
+		Name:           "AISecurityProbes",
+		Stored:         true,
+		SubType:        "aisecurityprobe",
 		Type:           "refList",
 	},
 	"AISkills": {
@@ -2249,6 +2450,17 @@ resource.`,
 		SubType:        "team",
 		Type:           "refList",
 	},
+	"ThreatDefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "threatdefinitions",
+		ConvertedName:  "ThreatDefinitions",
+		Description:    `Threat definitions to import.`,
+		Exposed:        true,
+		Name:           "threatDefinitions",
+		Stored:         true,
+		SubType:        "threatdefinition",
+		Type:           "refList",
+	},
 	"Visitedurls": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "visitedurls",
@@ -2297,6 +2509,28 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "aidomain",
 		Type:           "refList",
 	},
+	"aigatewayconnectors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aigatewayconnectors",
+		ConvertedName:  "AIGatewayConnectors",
+		Description:    `AI Gateway Connectors to import.`,
+		Exposed:        true,
+		Name:           "AIGatewayConnectors",
+		Stored:         true,
+		SubType:        "aigatewayconnector",
+		Type:           "refList",
+	},
+	"aigateways": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aigateways",
+		ConvertedName:  "AIGateways",
+		Description:    `AI Gateways to import.`,
+		Exposed:        true,
+		Name:           "AIGateways",
+		Stored:         true,
+		SubType:        "aigateway",
+		Type:           "refList",
+	},
 	"aimcpservers": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "aimcpservers",
@@ -2317,6 +2551,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "AIPlugins",
 		Stored:         true,
 		SubType:        "aiplugin",
+		Type:           "refList",
+	},
+	"aisecurityprobes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "aisecurityprobes",
+		ConvertedName:  "AISecurityProbes",
+		Description:    `AI security probes to import.`,
+		Exposed:        true,
+		Name:           "AISecurityProbes",
+		Stored:         true,
+		SubType:        "aisecurityprobe",
 		Type:           "refList",
 	},
 	"aiskills": {
@@ -2694,6 +2939,17 @@ resource.`,
 		SubType:        "team",
 		Type:           "refList",
 	},
+	"threatdefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "threatdefinitions",
+		ConvertedName:  "ThreatDefinitions",
+		Description:    `Threat definitions to import.`,
+		Exposed:        true,
+		Name:           "threatDefinitions",
+		Stored:         true,
+		SubType:        "threatdefinition",
+		Type:           "refList",
+	},
 	"visitedurls": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "visitedurls",
@@ -2787,11 +3043,20 @@ type SparseImport struct {
 	// AI domains to import.
 	AIDomains *AIDomainsList `json:"AIDomains,omitempty" msgpack:"AIDomains,omitempty" bson:"aidomains,omitempty" mapstructure:"AIDomains,omitempty"`
 
+	// AI Gateway Connectors to import.
+	AIGatewayConnectors *AIGatewayConnectorsList `json:"AIGatewayConnectors,omitempty" msgpack:"AIGatewayConnectors,omitempty" bson:"aigatewayconnectors,omitempty" mapstructure:"AIGatewayConnectors,omitempty"`
+
+	// AI Gateways to import.
+	AIGateways *AIGatewaysList `json:"AIGateways,omitempty" msgpack:"AIGateways,omitempty" bson:"aigateways,omitempty" mapstructure:"AIGateways,omitempty"`
+
 	// AI MCP servers to import.
 	AIMCPServers *AIMCPServersList `json:"AIMCPServers,omitempty" msgpack:"AIMCPServers,omitempty" bson:"aimcpservers,omitempty" mapstructure:"AIMCPServers,omitempty"`
 
 	// AI plugins to import.
 	AIPlugins *AIPluginsList `json:"AIPlugins,omitempty" msgpack:"AIPlugins,omitempty" bson:"aiplugins,omitempty" mapstructure:"AIPlugins,omitempty"`
+
+	// AI security probes to import.
+	AISecurityProbes *AISecurityProbesList `json:"AISecurityProbes,omitempty" msgpack:"AISecurityProbes,omitempty" bson:"aisecurityprobes,omitempty" mapstructure:"AISecurityProbes,omitempty"`
 
 	// AI skills to import.
 	AISkills *AISkillsList `json:"AISkills,omitempty" msgpack:"AISkills,omitempty" bson:"aiskills,omitempty" mapstructure:"AISkills,omitempty"`
@@ -2896,6 +3161,9 @@ type SparseImport struct {
 	// Teams to import.
 	Teams *TeamsList `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"teams,omitempty" mapstructure:"teams,omitempty"`
 
+	// Threat definitions to import.
+	ThreatDefinitions *ThreatDefinitionsList `json:"threatDefinitions,omitempty" msgpack:"threatDefinitions,omitempty" bson:"threatdefinitions,omitempty" mapstructure:"threatDefinitions,omitempty"`
+
 	// Visited URLs to import.
 	Visitedurls *VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
 
@@ -2943,11 +3211,20 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.AIDomains != nil {
 		s.AIDomains = o.AIDomains
 	}
+	if o.AIGatewayConnectors != nil {
+		s.AIGatewayConnectors = o.AIGatewayConnectors
+	}
+	if o.AIGateways != nil {
+		s.AIGateways = o.AIGateways
+	}
 	if o.AIMCPServers != nil {
 		s.AIMCPServers = o.AIMCPServers
 	}
 	if o.AIPlugins != nil {
 		s.AIPlugins = o.AIPlugins
+	}
+	if o.AISecurityProbes != nil {
+		s.AISecurityProbes = o.AISecurityProbes
 	}
 	if o.AISkills != nil {
 		s.AISkills = o.AISkills
@@ -3051,6 +3328,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.Teams != nil {
 		s.Teams = o.Teams
 	}
+	if o.ThreatDefinitions != nil {
+		s.ThreatDefinitions = o.ThreatDefinitions
+	}
 	if o.Visitedurls != nil {
 		s.Visitedurls = o.Visitedurls
 	}
@@ -3080,11 +3360,20 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.AIDomains != nil {
 		o.AIDomains = s.AIDomains
 	}
+	if s.AIGatewayConnectors != nil {
+		o.AIGatewayConnectors = s.AIGatewayConnectors
+	}
+	if s.AIGateways != nil {
+		o.AIGateways = s.AIGateways
+	}
 	if s.AIMCPServers != nil {
 		o.AIMCPServers = s.AIMCPServers
 	}
 	if s.AIPlugins != nil {
 		o.AIPlugins = s.AIPlugins
+	}
+	if s.AISecurityProbes != nil {
+		o.AISecurityProbes = s.AISecurityProbes
 	}
 	if s.AISkills != nil {
 		o.AISkills = s.AISkills
@@ -3188,6 +3477,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.Teams != nil {
 		o.Teams = s.Teams
 	}
+	if s.ThreatDefinitions != nil {
+		o.ThreatDefinitions = s.ThreatDefinitions
+	}
 	if s.Visitedurls != nil {
 		o.Visitedurls = s.Visitedurls
 	}
@@ -3214,11 +3506,20 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.AIDomains != nil {
 		out.AIDomains = *o.AIDomains
 	}
+	if o.AIGatewayConnectors != nil {
+		out.AIGatewayConnectors = *o.AIGatewayConnectors
+	}
+	if o.AIGateways != nil {
+		out.AIGateways = *o.AIGateways
+	}
 	if o.AIMCPServers != nil {
 		out.AIMCPServers = *o.AIMCPServers
 	}
 	if o.AIPlugins != nil {
 		out.AIPlugins = *o.AIPlugins
+	}
+	if o.AISecurityProbes != nil {
+		out.AISecurityProbes = *o.AISecurityProbes
 	}
 	if o.AISkills != nil {
 		out.AISkills = *o.AISkills
@@ -3322,6 +3623,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.Teams != nil {
 		out.Teams = *o.Teams
 	}
+	if o.ThreatDefinitions != nil {
+		out.ThreatDefinitions = *o.ThreatDefinitions
+	}
 	if o.Visitedurls != nil {
 		out.Visitedurls = *o.Visitedurls
 	}
@@ -3357,6 +3661,28 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.AIGatewayConnectors != nil {
+		for _, sub := range *o.AIGatewayConnectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGatewayConnectors' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIGateways != nil {
+		for _, sub := range *o.AIGateways {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIGateways' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.AIMCPServers != nil {
 		for _, sub := range *o.AIMCPServers {
 			if sub == nil {
@@ -3375,6 +3701,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AISecurityProbes != nil {
+		for _, sub := range *o.AISecurityProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AISecurityProbes' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -3698,6 +4035,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.ThreatDefinitions != nil {
+		for _, sub := range *o.ThreatDefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Visitedurls != nil {
 		for _, sub := range *o.Visitedurls {
 			if sub == nil {
@@ -3748,6 +4096,28 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.AIGatewayConnectors != nil {
+		for _, sub := range *o.AIGatewayConnectors {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGatewayConnectors' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AIGateways != nil {
+		for _, sub := range *o.AIGateways {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIGateways' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.AIMCPServers != nil {
 		for _, sub := range *o.AIMCPServers {
 			if sub == nil {
@@ -3766,6 +4136,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AIPlugins' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.AISecurityProbes != nil {
+		for _, sub := range *o.AISecurityProbes {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AISecurityProbes' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4089,6 +4470,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.ThreatDefinitions != nil {
+		for _, sub := range *o.ThreatDefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Visitedurls != nil {
 		for _, sub := range *o.Visitedurls {
 			if sub == nil {
@@ -4141,8 +4533,11 @@ func (o *SparseImport) DeepCopyInto(out *SparseImport) {
 type mongoAttributesImport struct {
 	AIApps              AIAppsList              `bson:"aiapps,omitempty"`
 	AIDomains           AIDomainsList           `bson:"aidomains,omitempty"`
+	AIGatewayConnectors AIGatewayConnectorsList `bson:"aigatewayconnectors,omitempty"`
+	AIGateways          AIGatewaysList          `bson:"aigateways,omitempty"`
 	AIMCPServers        AIMCPServersList        `bson:"aimcpservers,omitempty"`
 	AIPlugins           AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISecurityProbes    AISecurityProbesList    `bson:"aisecurityprobes,omitempty"`
 	AISkills            AISkillsList            `bson:"aiskills,omitempty"`
 	AITools             AIToolsList             `bson:"aitools,omitempty"`
 	APIAuthorizations   APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
@@ -4177,14 +4572,18 @@ type mongoAttributesImport struct {
 	Publickeys          PublicKeysList          `bson:"publickeys,omitempty"`
 	Sinks               SinksList               `bson:"sinks,omitempty"`
 	Teams               TeamsList               `bson:"teams,omitempty"`
+	ThreatDefinitions   ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
 	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 }
 type mongoAttributesSparseImport struct {
 	AIApps              *AIAppsList              `bson:"aiapps,omitempty"`
 	AIDomains           *AIDomainsList           `bson:"aidomains,omitempty"`
+	AIGatewayConnectors *AIGatewayConnectorsList `bson:"aigatewayconnectors,omitempty"`
+	AIGateways          *AIGatewaysList          `bson:"aigateways,omitempty"`
 	AIMCPServers        *AIMCPServersList        `bson:"aimcpservers,omitempty"`
 	AIPlugins           *AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISecurityProbes    *AISecurityProbesList    `bson:"aisecurityprobes,omitempty"`
 	AISkills            *AISkillsList            `bson:"aiskills,omitempty"`
 	AITools             *AIToolsList             `bson:"aitools,omitempty"`
 	APIAuthorizations   *APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
@@ -4219,6 +4618,7 @@ type mongoAttributesSparseImport struct {
 	Publickeys          *PublicKeysList          `bson:"publickeys,omitempty"`
 	Sinks               *SinksList               `bson:"sinks,omitempty"`
 	Teams               *TeamsList               `bson:"teams,omitempty"`
+	ThreatDefinitions   *ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
 	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs *WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 }

@@ -131,6 +131,13 @@ type ThreatDefinition struct {
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
+	// The hash of the structure used to compare with new import version.
+	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
 	// The list of predicates that define this threat pattern.
 	Match []*Predicate `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
 
@@ -208,6 +215,8 @@ func (o *ThreatDefinition) GetBSON() (any, error) {
 	s.Description = o.Description
 	s.Disabled = o.Disabled
 	s.FriendlyName = o.FriendlyName
+	s.ImportHash = o.ImportHash
+	s.ImportLabel = o.ImportLabel
 	s.Match = o.Match
 	s.Name = o.Name
 	s.Namespace = o.Namespace
@@ -239,6 +248,8 @@ func (o *ThreatDefinition) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.Disabled = s.Disabled
 	o.FriendlyName = s.FriendlyName
+	o.ImportHash = s.ImportHash
+	o.ImportLabel = s.ImportLabel
 	o.Match = s.Match
 	o.Name = s.Name
 	o.Namespace = s.Namespace
@@ -295,6 +306,54 @@ func (o *ThreatDefinition) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *ThreatDefinition) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *ThreatDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
+// GetImportHash returns the ImportHash of the receiver.
+func (o *ThreatDefinition) GetImportHash() string {
+
+	return o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the given value.
+func (o *ThreatDefinition) SetImportHash(importHash string) {
+
+	o.ImportHash = importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *ThreatDefinition) GetImportLabel() string {
+
+	return o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the given value.
+func (o *ThreatDefinition) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *ThreatDefinition) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *ThreatDefinition) SetName(name string) {
+
+	o.Name = name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *ThreatDefinition) GetNamespace() string {
 
@@ -343,6 +402,8 @@ func (o *ThreatDefinition) ToSparse(fields ...string) elemental.SparseIdentifiab
 			Description:  &o.Description,
 			Disabled:     &o.Disabled,
 			FriendlyName: &o.FriendlyName,
+			ImportHash:   &o.ImportHash,
+			ImportLabel:  &o.ImportLabel,
 			Match:        &o.Match,
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
@@ -368,6 +429,10 @@ func (o *ThreatDefinition) ToSparse(fields ...string) elemental.SparseIdentifiab
 			sp.Disabled = &(o.Disabled)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
+		case "importHash":
+			sp.ImportHash = &(o.ImportHash)
+		case "importLabel":
+			sp.ImportLabel = &(o.ImportLabel)
 		case "match":
 			sp.Match = &(o.Match)
 		case "name":
@@ -413,6 +478,12 @@ func (o *ThreatDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
+	}
+	if so.ImportHash != nil {
+		o.ImportHash = *so.ImportHash
+	}
+	if so.ImportLabel != nil {
+		o.ImportLabel = *so.ImportLabel
 	}
 	if so.Match != nil {
 		o.Match = *so.Match
@@ -546,6 +617,11 @@ func (o *ThreatDefinition) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	// Custom object validation.
+	if err := ValidateThreatDefinition(o); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -590,6 +666,10 @@ func (o *ThreatDefinition) ValueForAttribute(name string) any {
 		return o.Disabled
 	case "friendlyName":
 		return o.FriendlyName
+	case "importHash":
+		return o.ImportHash
+	case "importLabel":
+		return o.ImportLabel
 	case "match":
 		return o.Match
 	case "name":
@@ -671,10 +751,40 @@ var ThreatDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ImportHash": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		CreationOnly:   true,
+		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "importHash",
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"ImportLabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Match": {
 		AllowedChoices: []string{},
@@ -696,7 +806,9 @@ var ThreatDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -827,10 +939,40 @@ var ThreatDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"importhash": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "importhash",
+		ConvertedName:  "ImportHash",
+		CreationOnly:   true,
+		Description:    `The hash of the structure used to compare with new import version.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "importHash",
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"importlabel": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "importlabel",
+		ConvertedName:  "ImportLabel",
+		CreationOnly:   true,
+		Description: `The user-defined import label that allows the system to group resources from the
+same import operation.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "importLabel",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"match": {
 		AllowedChoices: []string{},
@@ -852,7 +994,9 @@ var ThreatDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1003,6 +1147,13 @@ type SparseThreatDefinition struct {
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
+	// The hash of the structure used to compare with new import version.
+	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
+
+	// The user-defined import label that allows the system to group resources from the
+	// same import operation.
+	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
 	// The list of predicates that define this threat pattern.
 	Match *[]*Predicate `json:"match,omitempty" msgpack:"match,omitempty" bson:"match,omitempty" mapstructure:"match,omitempty"`
 
@@ -1089,6 +1240,12 @@ func (o *SparseThreatDefinition) GetBSON() (any, error) {
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
 	}
+	if o.ImportHash != nil {
+		s.ImportHash = o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		s.ImportLabel = o.ImportLabel
+	}
 	if o.Match != nil {
 		s.Match = o.Match
 	}
@@ -1147,6 +1304,12 @@ func (o *SparseThreatDefinition) SetBSON(raw bson.Raw) error {
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
 	}
+	if s.ImportHash != nil {
+		o.ImportHash = s.ImportHash
+	}
+	if s.ImportLabel != nil {
+		o.ImportLabel = s.ImportLabel
+	}
 	if s.Match != nil {
 		o.Match = s.Match
 	}
@@ -1202,6 +1365,12 @@ func (o *SparseThreatDefinition) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
+	}
+	if o.ImportHash != nil {
+		out.ImportHash = *o.ImportHash
+	}
+	if o.ImportLabel != nil {
+		out.ImportLabel = *o.ImportLabel
 	}
 	if o.Match != nil {
 		out.Match = *o.Match
@@ -1284,6 +1453,70 @@ func (o *SparseThreatDefinition) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseThreatDefinition) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseThreatDefinition) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
+// GetImportHash returns the ImportHash of the receiver.
+func (o *SparseThreatDefinition) GetImportHash() (out string) {
+
+	if o.ImportHash == nil {
+		return
+	}
+
+	return *o.ImportHash
+}
+
+// SetImportHash sets the property ImportHash of the receiver using the address of the given value.
+func (o *SparseThreatDefinition) SetImportHash(importHash string) {
+
+	o.ImportHash = &importHash
+}
+
+// GetImportLabel returns the ImportLabel of the receiver.
+func (o *SparseThreatDefinition) GetImportLabel() (out string) {
+
+	if o.ImportLabel == nil {
+		return
+	}
+
+	return *o.ImportLabel
+}
+
+// SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
+func (o *SparseThreatDefinition) SetImportLabel(importLabel string) {
+
+	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseThreatDefinition) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseThreatDefinition) SetName(name string) {
+
+	o.Name = &name
+}
+
 // GetNamespace returns the Namespace of the receiver.
 func (o *SparseThreatDefinition) GetNamespace() (out string) {
 
@@ -1362,6 +1595,8 @@ type mongoAttributesThreatDefinition struct {
 	Description  string                        `bson:"description"`
 	Disabled     bool                          `bson:"disabled"`
 	FriendlyName string                        `bson:"friendlyname"`
+	ImportHash   string                        `bson:"importhash,omitempty"`
+	ImportLabel  string                        `bson:"importlabel,omitempty"`
 	Match        []*Predicate                  `bson:"match"`
 	Name         string                        `bson:"name"`
 	Namespace    string                        `bson:"namespace,omitempty"`
@@ -1378,6 +1613,8 @@ type mongoAttributesSparseThreatDefinition struct {
 	Description  *string                        `bson:"description,omitempty"`
 	Disabled     *bool                          `bson:"disabled,omitempty"`
 	FriendlyName *string                        `bson:"friendlyname,omitempty"`
+	ImportHash   *string                        `bson:"importhash,omitempty"`
+	ImportLabel  *string                        `bson:"importlabel,omitempty"`
 	Match        *[]*Predicate                  `bson:"match,omitempty"`
 	Name         *string                        `bson:"name,omitempty"`
 	Namespace    *string                        `bson:"namespace,omitempty"`

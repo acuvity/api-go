@@ -38,6 +38,11 @@ const (
 
 // EgressPolicy represents the model of a egresspolicy
 type EgressPolicy struct {
+	// The MCP servers, and optionally the tools on those servers, that this
+	// rule applies to. A scope with no tools listed applies to every tool on
+	// that server.
+	MCPScopes []*MCPServerScope `json:"MCPScopes" msgpack:"MCPScopes" bson:"mcpscopes" mapstructure:"MCPScopes,omitempty"`
+
 	// The message that is sent if the access is denied.
 	AccessDeniedMessage string `json:"accessDeniedMessage" msgpack:"accessDeniedMessage" bson:"accessdeniedmessage" mapstructure:"accessDeniedMessage,omitempty"`
 
@@ -70,9 +75,15 @@ type EgressPolicy struct {
 	// If true, the policy is disabled.
 	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
 
+	// The list of excluded user claims that this rule applies to.
+	ExcludedUserClaims [][]string `json:"excludedUserClaims" msgpack:"excludedUserClaims" bson:"excludeduserclaims" mapstructure:"excludedUserClaims,omitempty"`
+
 	// The list of gateways that this rule applies to.
 	Gateways []string `json:"gateways" msgpack:"gateways" bson:"gateways" mapstructure:"gateways,omitempty"`
 
+	// DEPRECATED: use redactContent, optionally together with redactContentBypass,
+	// instead. Those keep the log entry and remove the user data from it, rather
+	// than dropping the entry altogether.
 	// If true, the system will not log the messages that are not considered as
 	// violations.
 	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
@@ -80,14 +91,25 @@ type EgressPolicy struct {
 	// The name of the access policy.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
-	// If true, the system will run analysis in parallel of the user request. When this
-	// is active, no further policing will be done, and no content policy will run.
-	// This can be used to observe the transmitted data and have analysis report,
-	// without adding latency to the end user request, at the price of not being able
-	// to do any form of content moderation.
+	// If true, the decision is made on the extracted data without waiting for the
+	// analyzers. The content policy still runs and is still enforced, but it sees
+	// no analysis, so any moderation that depends on a detector cannot match.
+	// That applies to redactions as well: a redaction the analyzers would have
+	// found is not applied, and the data reaches the provider unredacted.
+	// redactionFailClose does not catch this, because no redaction was ever
+	// requested.
+	// The full analyzer set then runs in parallel and its result is attached to
+	// the log, which can report a stricter outcome than the one the request
+	// received, but never changes it. This trades detection coverage on the live
+	// request for latency.
 	OffbandAnalysis bool `json:"offbandAnalysis" msgpack:"offbandAnalysis" bson:"offbandanalysis" mapstructure:"offbandAnalysis,omitempty"`
 
-	// If set, just log the decision, but don't enforce it.
+	// If set, the content decision is computed and reported but not enforced: the
+	// request and the response go through untouched, and the verdict the policy
+	// would have applied is recorded on the log entry instead. Redactions are not
+	// applied either.
+	// This covers the content decision only. Access is still enforced: a request
+	// this policy denies, or redirects, is still denied or redirected.
 	Permissive bool `json:"permissive" msgpack:"permissive" bson:"permissive" mapstructure:"permissive,omitempty"`
 
 	// The Policy ID is the unique identifier for this policy.
@@ -104,11 +126,22 @@ type EgressPolicy struct {
 	// violations.
 	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"redactcontentbypass" mapstructure:"redactContentBypass,omitempty"`
 
+	// If true, reject the request when the content policy requires a redaction
+	// that cannot be applied, for example sensitive data detected inside a
+	// non-text attachment such as a PDF or an image, where there is no
+	// character range to rewrite. When false (default), the request is allowed
+	// through with the redaction unapplied and the failed attempt is recorded
+	// on the round-trip. Default false.
+	RedactionFailClose bool `json:"redactionFailClose" msgpack:"redactionFailClose" bson:"redactionfailclose" mapstructure:"redactionFailClose,omitempty"`
+
 	// The list of tools that this rule applies to.
 	Tools []string `json:"tools" msgpack:"tools" bson:"tools" mapstructure:"tools,omitempty"`
 
 	// Specify if this policy applies to transparent proxy or gateway.
 	TransportMode EgressPolicyTransportModeValue `json:"transportMode" msgpack:"transportMode" bson:"transportmode" mapstructure:"transportMode,omitempty"`
+
+	// The list of user claims that this rule applies to.
+	UserClaims [][]string `json:"userClaims" msgpack:"userClaims" bson:"userclaims" mapstructure:"userClaims,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -117,15 +150,18 @@ type EgressPolicy struct {
 func NewEgressPolicy() *EgressPolicy {
 
 	return &EgressPolicy{
-		ModelVersion:      1,
-		Action:            EgressPolicyActionAllow,
-		AnyGatewayAllowed: false,
-		AnyToolAllowed:    false,
-		AppComponents:     []string{},
-		ContentPolicies:   []string{},
-		Gateways:          []string{},
-		Providers:         []string{},
-		Tools:             []string{},
+		ModelVersion:       1,
+		Action:             EgressPolicyActionAllow,
+		AnyGatewayAllowed:  false,
+		AnyToolAllowed:     false,
+		AppComponents:      []string{},
+		ContentPolicies:    []string{},
+		ExcludedUserClaims: [][]string{},
+		Gateways:           []string{},
+		Providers:          []string{},
+		Tools:              []string{},
+		TransportMode:      EgressPolicyTransportModeProxy,
+		UserClaims:         [][]string{},
 	}
 }
 func (o *EgressPolicy) Identity() elemental.Identity {
@@ -150,6 +186,7 @@ func (o *EgressPolicy) GetBSON() (any, error) {
 
 	s := &mongoAttributesEgressPolicy{}
 
+	s.MCPScopes = o.MCPScopes
 	s.AccessDeniedMessage = o.AccessDeniedMessage
 	s.Action = o.Action
 	s.AlertDefinition = o.AlertDefinition
@@ -159,6 +196,7 @@ func (o *EgressPolicy) GetBSON() (any, error) {
 	s.ContentPolicies = o.ContentPolicies
 	s.Description = o.Description
 	s.Disabled = o.Disabled
+	s.ExcludedUserClaims = o.ExcludedUserClaims
 	s.Gateways = o.Gateways
 	s.MinimalLogging = o.MinimalLogging
 	s.Name = o.Name
@@ -168,8 +206,10 @@ func (o *EgressPolicy) GetBSON() (any, error) {
 	s.Providers = o.Providers
 	s.RedactContent = o.RedactContent
 	s.RedactContentBypass = o.RedactContentBypass
+	s.RedactionFailClose = o.RedactionFailClose
 	s.Tools = o.Tools
 	s.TransportMode = o.TransportMode
+	s.UserClaims = o.UserClaims
 
 	return s, nil
 }
@@ -187,6 +227,7 @@ func (o *EgressPolicy) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.MCPScopes = s.MCPScopes
 	o.AccessDeniedMessage = s.AccessDeniedMessage
 	o.Action = s.Action
 	o.AlertDefinition = s.AlertDefinition
@@ -196,6 +237,7 @@ func (o *EgressPolicy) SetBSON(raw bson.Raw) error {
 	o.ContentPolicies = s.ContentPolicies
 	o.Description = s.Description
 	o.Disabled = s.Disabled
+	o.ExcludedUserClaims = s.ExcludedUserClaims
 	o.Gateways = s.Gateways
 	o.MinimalLogging = s.MinimalLogging
 	o.Name = s.Name
@@ -205,8 +247,10 @@ func (o *EgressPolicy) SetBSON(raw bson.Raw) error {
 	o.Providers = s.Providers
 	o.RedactContent = s.RedactContent
 	o.RedactContentBypass = s.RedactContentBypass
+	o.RedactionFailClose = s.RedactionFailClose
 	o.Tools = s.Tools
 	o.TransportMode = s.TransportMode
+	o.UserClaims = s.UserClaims
 
 	return nil
 }
@@ -232,11 +276,29 @@ func (o *EgressPolicy) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *EgressPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.MCPScopes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MCPScopes' for 'EgressPolicy' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *EgressPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.MCPScopes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MCPScopes' for 'EgressPolicy' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -273,11 +335,25 @@ func (o *EgressPolicy) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	for i, sub := range o.MCPScopes {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "MCPScopes", i))
+		}
+	}
+
 	if err := elemental.ValidateStringInList("action", string(o.Action), []string{"Allow", "Deny", "Redirect"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
 	if err := ValidateAppComponentReferences("appComponents", o.AppComponents); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateTagsExpression("excludedUserClaims", o.ExcludedUserClaims); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -298,6 +374,10 @@ func (o *EgressPolicy) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("transportMode", string(o.TransportMode), []string{"Proxy", "Gateway"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := ValidateTagsExpression("userClaims", o.UserClaims); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -340,6 +420,8 @@ func (*EgressPolicy) AttributeSpecifications() map[string]elemental.AttributeSpe
 func (o *EgressPolicy) ValueForAttribute(name string) any {
 
 	switch name {
+	case "MCPScopes":
+		return o.MCPScopes
 	case "accessDeniedMessage":
 		return o.AccessDeniedMessage
 	case "action":
@@ -358,6 +440,8 @@ func (o *EgressPolicy) ValueForAttribute(name string) any {
 		return o.Description
 	case "disabled":
 		return o.Disabled
+	case "excludedUserClaims":
+		return o.ExcludedUserClaims
 	case "gateways":
 		return o.Gateways
 	case "minimalLogging":
@@ -376,10 +460,14 @@ func (o *EgressPolicy) ValueForAttribute(name string) any {
 		return o.RedactContent
 	case "redactContentBypass":
 		return o.RedactContentBypass
+	case "redactionFailClose":
+		return o.RedactionFailClose
 	case "tools":
 		return o.Tools
 	case "transportMode":
 		return o.TransportMode
+	case "userClaims":
+		return o.UserClaims
 	}
 
 	return nil
@@ -387,6 +475,19 @@ func (o *EgressPolicy) ValueForAttribute(name string) any {
 
 // EgressPolicyAttributesMap represents the map of attribute for EgressPolicy.
 var EgressPolicyAttributesMap = map[string]elemental.AttributeSpecification{
+	"MCPScopes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpscopes",
+		ConvertedName:  "MCPScopes",
+		Description: `The MCP servers, and optionally the tools on those servers, that this
+rule applies to. A scope with no tools listed applies to every tool on
+that server.`,
+		Exposed: true,
+		Name:    "MCPScopes",
+		Stored:  true,
+		SubType: "mcpserverscope",
+		Type:    "refList",
+	},
 	"AccessDeniedMessage": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "accessdeniedmessage",
@@ -485,6 +586,17 @@ where the app/component is defined.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"ExcludedUserClaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludeduserclaims",
+		ConvertedName:  "ExcludedUserClaims",
+		Description:    `The list of excluded user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "excludedUserClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 	"Gateways": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateways",
@@ -500,7 +612,11 @@ where the app/component is defined.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -523,11 +639,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -537,11 +659,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"PolicyID": {
 		AllowedChoices: []string{},
@@ -588,6 +715,21 @@ violations.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"RedactionFailClose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"Tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -603,6 +745,7 @@ violations.`,
 		AllowedChoices: []string{"Proxy", "Gateway"},
 		BSONFieldName:  "transportmode",
 		ConvertedName:  "TransportMode",
+		DefaultValue:   EgressPolicyTransportModeProxy,
 		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
 		Exposed:        true,
 		Name:           "transportMode",
@@ -610,10 +753,34 @@ violations.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"UserClaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description:    `The list of user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "userClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 }
 
 // EgressPolicyLowerCaseAttributesMap represents the map of attribute for EgressPolicy.
 var EgressPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"mcpscopes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mcpscopes",
+		ConvertedName:  "MCPScopes",
+		Description: `The MCP servers, and optionally the tools on those servers, that this
+rule applies to. A scope with no tools listed applies to every tool on
+that server.`,
+		Exposed: true,
+		Name:    "MCPScopes",
+		Stored:  true,
+		SubType: "mcpserverscope",
+		Type:    "refList",
+	},
 	"accessdeniedmessage": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "accessdeniedmessage",
@@ -712,6 +879,17 @@ where the app/component is defined.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"excludeduserclaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "excludeduserclaims",
+		ConvertedName:  "ExcludedUserClaims",
+		Description:    `The list of excluded user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "excludedUserClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 	"gateways": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "gateways",
@@ -727,7 +905,11 @@ where the app/component is defined.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "minimallogging",
 		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will not log the messages that are not considered as
+		Deprecated:     true,
+		Description: `DEPRECATED: use redactContent, optionally together with redactContentBypass,
+instead. Those keep the log entry and remove the user data from it, rather
+than dropping the entry altogether.
+If true, the system will not log the messages that are not considered as
 violations.`,
 		Exposed: true,
 		Name:    "minimalLogging",
@@ -750,11 +932,17 @@ violations.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offbandanalysis",
 		ConvertedName:  "OffbandAnalysis",
-		Description: `If true, the system will run analysis in parallel of the user request. When this
-is active, no further policing will be done, and no content policy will run.
-This can be used to observe the transmitted data and have analysis report,
-without adding latency to the end user request, at the price of not being able
-to do any form of content moderation.`,
+		Description: `If true, the decision is made on the extracted data without waiting for the
+analyzers. The content policy still runs and is still enforced, but it sees
+no analysis, so any moderation that depends on a detector cannot match.
+That applies to redactions as well: a redaction the analyzers would have
+found is not applied, and the data reaches the provider unredacted.
+redactionFailClose does not catch this, because no redaction was ever
+requested.
+The full analyzer set then runs in parallel and its result is attached to
+the log, which can report a stricter outcome than the one the request
+received, but never changes it. This trades detection coverage on the live
+request for latency.`,
 		Exposed: true,
 		Name:    "offbandAnalysis",
 		Stored:  true,
@@ -764,11 +952,16 @@ to do any form of content moderation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description:    `If set, just log the decision, but don't enforce it.`,
-		Exposed:        true,
-		Name:           "permissive",
-		Stored:         true,
-		Type:           "boolean",
+		Description: `If set, the content decision is computed and reported but not enforced: the
+request and the response go through untouched, and the verdict the policy
+would have applied is recorded on the log entry instead. Redactions are not
+applied either.
+This covers the content decision only. Access is still enforced: a request
+this policy denies, or redirects, is still denied or redirected.`,
+		Exposed: true,
+		Name:    "permissive",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"policyid": {
 		AllowedChoices: []string{},
@@ -815,6 +1008,21 @@ violations.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"redactionfailclose": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "redactionfailclose",
+		ConvertedName:  "RedactionFailClose",
+		Description: `If true, reject the request when the content policy requires a redaction
+that cannot be applied, for example sensitive data detected inside a
+non-text attachment such as a PDF or an image, where there is no
+character range to rewrite. When false (default), the request is allowed
+through with the redaction unapplied and the failed attempt is recorded
+on the round-trip. Default false.`,
+		Exposed: true,
+		Name:    "redactionFailClose",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -830,6 +1038,7 @@ violations.`,
 		AllowedChoices: []string{"Proxy", "Gateway"},
 		BSONFieldName:  "transportmode",
 		ConvertedName:  "TransportMode",
+		DefaultValue:   EgressPolicyTransportModeProxy,
 		Description:    `Specify if this policy applies to transparent proxy or gateway.`,
 		Exposed:        true,
 		Name:           "transportMode",
@@ -837,9 +1046,21 @@ violations.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"userclaims": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "userclaims",
+		ConvertedName:  "UserClaims",
+		Description:    `The list of user claims that this rule applies to.`,
+		Exposed:        true,
+		Name:           "userClaims",
+		Stored:         true,
+		SubType:        "[][]string",
+		Type:           "external",
+	},
 }
 
 type mongoAttributesEgressPolicy struct {
+	MCPScopes           []*MCPServerScope              `bson:"mcpscopes"`
 	AccessDeniedMessage string                         `bson:"accessdeniedmessage"`
 	Action              EgressPolicyActionValue        `bson:"action"`
 	AlertDefinition     string                         `bson:"alertdefinition"`
@@ -849,6 +1070,7 @@ type mongoAttributesEgressPolicy struct {
 	ContentPolicies     []string                       `bson:"contentpolicies"`
 	Description         string                         `bson:"description"`
 	Disabled            bool                           `bson:"disabled"`
+	ExcludedUserClaims  [][]string                     `bson:"excludeduserclaims"`
 	Gateways            []string                       `bson:"gateways"`
 	MinimalLogging      bool                           `bson:"minimallogging"`
 	Name                string                         `bson:"name"`
@@ -858,6 +1080,8 @@ type mongoAttributesEgressPolicy struct {
 	Providers           []string                       `bson:"providers"`
 	RedactContent       bool                           `bson:"redactcontent"`
 	RedactContentBypass bool                           `bson:"redactcontentbypass"`
+	RedactionFailClose  bool                           `bson:"redactionfailclose"`
 	Tools               []string                       `bson:"tools"`
 	TransportMode       EgressPolicyTransportModeValue `bson:"transportmode"`
+	UserClaims          [][]string                     `bson:"userclaims"`
 }

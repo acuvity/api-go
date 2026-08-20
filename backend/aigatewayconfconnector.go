@@ -19,9 +19,6 @@ type AIGatewayConfConnector struct {
 	// The rendered MCP tools attached to this backend.
 	MCPTools []*AIGatewayConfMCPTool `json:"MCPTools,omitempty" msgpack:"MCPTools,omitempty" bson:"-" mapstructure:"MCPTools,omitempty"`
 
-	// The app component that this target represents.
-	AppComponent string `json:"appComponent,omitempty" msgpack:"appComponent,omitempty" bson:"-" mapstructure:"appComponent,omitempty"`
-
 	// Upstream OAuth client ID.
 	ClientID string `json:"clientID,omitempty" msgpack:"clientID,omitempty" bson:"-" mapstructure:"clientID,omitempty"`
 
@@ -30,6 +27,9 @@ type AIGatewayConfConnector struct {
 
 	// The name of the connector.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"-" mapstructure:"name,omitempty"`
+
+	// The namespace of the underlying connector.
+	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"-" mapstructure:"namespace,omitempty"`
 
 	// The claim used to derive the encryption key for stored OAuth tokens.
 	OauthTokenEncryptionClaim string `json:"oauthTokenEncryptionClaim,omitempty" msgpack:"oauthTokenEncryptionClaim,omitempty" bson:"-" mapstructure:"oauthTokenEncryptionClaim,omitempty"`
@@ -265,14 +265,14 @@ func (o *AIGatewayConfConnector) ValueForAttribute(name string) any {
 		return o.MCPServerName
 	case "MCPTools":
 		return o.MCPTools
-	case "appComponent":
-		return o.AppComponent
 	case "clientID":
 		return o.ClientID
 	case "clientSecret":
 		return o.ClientSecret
 	case "name":
 		return o.Name
+	case "namespace":
+		return o.Namespace
 	case "oauthTokenEncryptionClaim":
 		return o.OauthTokenEncryptionClaim
 	case "oauthTokenIndexingClaims":
@@ -309,14 +309,6 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		SubType:        "aigatewayconfmcptool",
 		Type:           "refList",
 	},
-	"AppComponent": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AppComponent",
-		Description:    `The app component that this target represents.`,
-		Exposed:        true,
-		Name:           "appComponent",
-		Type:           "string",
-	},
 	"ClientID": {
 		AllowedChoices: []string{},
 		ConvertedName:  "ClientID",
@@ -339,6 +331,14 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		Description:    `The name of the connector.`,
 		Exposed:        true,
 		Name:           "name",
+		Type:           "string",
+	},
+	"Namespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Namespace",
+		Description:    `The namespace of the underlying connector.`,
+		Exposed:        true,
+		Name:           "namespace",
 		Type:           "string",
 	},
 	"OauthTokenEncryptionClaim": {
@@ -412,14 +412,6 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		SubType:        "aigatewayconfmcptool",
 		Type:           "refList",
 	},
-	"appcomponent": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AppComponent",
-		Description:    `The app component that this target represents.`,
-		Exposed:        true,
-		Name:           "appComponent",
-		Type:           "string",
-	},
 	"clientid": {
 		AllowedChoices: []string{},
 		ConvertedName:  "ClientID",
@@ -442,6 +434,14 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		Description:    `The name of the connector.`,
 		Exposed:        true,
 		Name:           "name",
+		Type:           "string",
+	},
+	"namespace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Namespace",
+		Description:    `The namespace of the underlying connector.`,
+		Exposed:        true,
+		Name:           "namespace",
 		Type:           "string",
 	},
 	"oauthtokenencryptionclaim": {

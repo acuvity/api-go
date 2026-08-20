@@ -58,6 +58,9 @@ const (
 	// ProxyRoundtripProcessorAPI represents the value API.
 	ProxyRoundtripProcessorAPI ProxyRoundtripProcessorValue = "API"
 
+	// ProxyRoundtripProcessorGateway represents the value Gateway.
+	ProxyRoundtripProcessorGateway ProxyRoundtripProcessorValue = "Gateway"
+
 	// ProxyRoundtripProcessorProxy represents the value Proxy.
 	ProxyRoundtripProcessorProxy ProxyRoundtripProcessorValue = "Proxy"
 )
@@ -205,6 +208,10 @@ type ProxyRoundtrip struct {
 	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision ProxyRoundtripDecisionValue `json:"decision" msgpack:"decision" bson:"decision" mapstructure:"decision,omitempty"`
 
+	// This is the name of the deployment (apex instance) that processed this
+	// request. Only set when the request was handled by a known deployment.
+	DeploymentName string `json:"deploymentName,omitempty" msgpack:"deploymentName,omitempty" bson:"deploymentname,omitempty" mapstructure:"deploymentName,omitempty"`
+
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
@@ -221,6 +228,28 @@ type ProxyRoundtrip struct {
 
 	// The extractions to log.
 	Extractions []*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
+
+	// This is the AI gateway connector that this request has been processed through.
+	// This is only set for requests where the processor was set to gateway. The AI
+	// gateway connector name will be set under gateway name.
+	GatewayConnectorName string `json:"gatewayConnectorName,omitempty" msgpack:"gatewayConnectorName,omitempty" bson:"gatewayconnectorname,omitempty" mapstructure:"gatewayConnectorName,omitempty"`
+
+	// This is the namespace of the AI gateway connector as encoded in the original
+	// request URL. This is only set for requests where the processor was set to
+	// gateway.
+	GatewayConnectorNamespace string `json:"gatewayConnectorNamespace,omitempty" msgpack:"gatewayConnectorNamespace,omitempty" bson:"gatewayconnectornamespace,omitempty" mapstructure:"gatewayConnectorNamespace,omitempty"`
+
+	// This is the AI gateway that this request has been processed through. This is
+	// only set for requests where the processor is set to gateway.
+	GatewayName string `json:"gatewayName,omitempty" msgpack:"gatewayName,omitempty" bson:"gatewayname,omitempty" mapstructure:"gatewayName,omitempty"`
+
+	// This is the namespace of the AI gateway as encoded in the original request
+	// URL. This is only set for requests where the processor was set to gateway.
+	GatewayNamespace string `json:"gatewayNamespace,omitempty" msgpack:"gatewayNamespace,omitempty" bson:"gatewaynamespace,omitempty" mapstructure:"gatewayNamespace,omitempty"`
+
+	// This is the upstream URL that the AI gateway routed this request to. This
+	// is only set for requests where the processor was set to gateway.
+	GatewayUpstreamURL string `json:"gatewayUpstreamURL,omitempty" msgpack:"gatewayUpstreamURL,omitempty" bson:"gatewayupstreamurl,omitempty" mapstructure:"gatewayUpstreamURL,omitempty"`
 
 	// The hash of the input.
 	Hash string `json:"hash" msgpack:"hash" bson:"hash" mapstructure:"hash,omitempty"`
@@ -244,18 +273,19 @@ type ProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the analysis ran offband. That means that we extracted the data
-	// from the user request, assigned team and verified access permissions, but
-	// then we forwarded the request as is to the provider untouched
-	// immediately, while running the analysis and policies in the background,
-	// reporting what we would have done.
+	// If true, the policy asked for the analysis to run offband. That means that
+	// we extracted the data from the user request, verified access permissions,
+	// and then made the decision without waiting for the analyzers. The full
+	// analyzer set ran afterwards, and this log entry reflects that later
+	// evaluation, which can report a stricter outcome than the one the request
+	// actually received.
 	Offband bool `json:"offband" msgpack:"offband" bson:"offband" mapstructure:"offband,omitempty"`
 
-	// If true, the policy has been applied in permissive mode.  That means that
-	// we extracted the data from the user request, assigned team, verified
-	// access permissions, run analysis, apply content policies and reported what
-	// we would have done, but ultimately let the request go to the provider
-	// untouched.
+	// If true, the policy was applied in permissive mode: the content decision
+	// recorded here is what the policy would have enforced, and it was not
+	// enforced. The request went to the provider untouched, and no redaction was
+	// applied to it. Access was still enforced, so this entry exists only because
+	// the request was allowed to reach the content stage.
 	Permissive bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// The name of the particular pipeline that extracted the text.
@@ -267,9 +297,11 @@ type ProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal" msgpack:"principal" bson:"principal" mapstructure:"principal,omitempty"`
 
-	// Denotes the processor of the log. If the processor is Proxy, then the proxy
-	// function will further denote if this was a forward proxy or a reverse proxy. If
-	// the processor is API, the proxy function will be set to NotApplicable.
+	// Denotes the processor of the log. If the processor is Proxy or API, then the
+	// proxy function will further denote if this was a forward proxy or a reverse
+	// proxy. If the processor is Gateway, the proxy function will be set to reverse
+	// proxy, and the gateway name and gateway connector name will further denote which
+	// gateway and which connector was used.
 	Processor ProxyRoundtripProcessorValue `json:"processor,omitempty" msgpack:"processor,omitempty" bson:"processor,omitempty" mapstructure:"processor,omitempty"`
 
 	// The provider to use.
@@ -278,13 +310,14 @@ type ProxyRoundtrip struct {
 	// The type of the provider.
 	ProviderType ProxyRoundtripProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
-	// Denotes the function of this proxy in the chain of servers. By default the apex
-	// always sits on the egress side between a client or application and the origin
-	// server in which case the apex acts as a forwarding proxy. However, in the case
-	// of applications the proxy can also be located before the application as an
-	// ingress provider in which case the apex acts as a reverse proxy. If this log is
-	// the result of a ScanRequest or PoliceRequest API call, this will be set to
-	// NonApplicable and the processor will be API.
+	// Denotes the proxy function of this processor in the chain of servers. The proxy
+	// processor acts as a forwarding proxy on the egress side, between a client or
+	// application and the origin server, and as a reverse proxy on the ingress side,
+	// in front of an application. The gateway processor always operates as a reverse
+	// proxy. The API processor (scan and police APIs) never sit in the data path, but
+	// they simulate proxy behaviour, so they are reported as a forwarding or a
+	// reverse proxy according to the direction of the request. NotApplicable is
+	// currently not in use, and only appears on roundtrips recorded by an older apex.
 	ProxyFunction ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -361,11 +394,17 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.ClientVersion = o.ClientVersion
 	s.ContentRedacted = o.ContentRedacted
 	s.Decision = o.Decision
+	s.DeploymentName = o.DeploymentName
 	s.Destination = o.Destination
 	s.EncryptionEgress = o.EncryptionEgress
 	s.EncryptionIngress = o.EncryptionIngress
 	s.Error = o.Error
 	s.Extractions = o.Extractions
+	s.GatewayConnectorName = o.GatewayConnectorName
+	s.GatewayConnectorNamespace = o.GatewayConnectorNamespace
+	s.GatewayName = o.GatewayName
+	s.GatewayNamespace = o.GatewayNamespace
+	s.GatewayUpstreamURL = o.GatewayUpstreamURL
 	s.Hash = o.Hash
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -412,11 +451,17 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.ClientVersion = s.ClientVersion
 	o.ContentRedacted = s.ContentRedacted
 	o.Decision = s.Decision
+	o.DeploymentName = s.DeploymentName
 	o.Destination = s.Destination
 	o.EncryptionEgress = s.EncryptionEgress
 	o.EncryptionIngress = s.EncryptionIngress
 	o.Error = s.Error
 	o.Extractions = s.Extractions
+	o.GatewayConnectorName = s.GatewayConnectorName
+	o.GatewayConnectorNamespace = s.GatewayConnectorNamespace
+	o.GatewayName = s.GatewayName
+	o.GatewayNamespace = s.GatewayNamespace
+	o.GatewayUpstreamURL = s.GatewayUpstreamURL
 	o.Hash = s.Hash
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -515,41 +560,47 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProxyRoundtrip{
-			ID:                &o.ID,
-			Alerts:            &o.Alerts,
-			Annotations:       &o.Annotations,
-			Client:            &o.Client,
-			ClientVersion:     &o.ClientVersion,
-			ContentRedacted:   &o.ContentRedacted,
-			Decision:          &o.Decision,
-			Destination:       o.Destination,
-			EncryptionEgress:  o.EncryptionEgress,
-			EncryptionIngress: o.EncryptionIngress,
-			Error:             o.Error,
-			Extractions:       &o.Extractions,
-			Hash:              &o.Hash,
-			ImportHash:        &o.ImportHash,
-			ImportLabel:       &o.ImportLabel,
-			Latency:           o.Latency,
-			McpMessage:        o.McpMessage,
-			Model:             &o.Model,
-			Namespace:         &o.Namespace,
-			Offband:           &o.Offband,
-			Permissive:        &o.Permissive,
-			PipelineName:      &o.PipelineName,
-			PolicyRefs:        &o.PolicyRefs,
-			Principal:         o.Principal,
-			Processor:         &o.Processor,
-			Provider:          &o.Provider,
-			ProviderType:      &o.ProviderType,
-			ProxyFunction:     &o.ProxyFunction,
-			Reasons:           &o.Reasons,
-			Summary:           o.Summary,
-			Time:              &o.Time,
-			ToolChoice:        o.ToolChoice,
-			Tools:             &o.Tools,
-			Trace:             o.Trace,
-			Type:              &o.Type,
+			ID:                        &o.ID,
+			Alerts:                    &o.Alerts,
+			Annotations:               &o.Annotations,
+			Client:                    &o.Client,
+			ClientVersion:             &o.ClientVersion,
+			ContentRedacted:           &o.ContentRedacted,
+			Decision:                  &o.Decision,
+			DeploymentName:            &o.DeploymentName,
+			Destination:               o.Destination,
+			EncryptionEgress:          o.EncryptionEgress,
+			EncryptionIngress:         o.EncryptionIngress,
+			Error:                     o.Error,
+			Extractions:               &o.Extractions,
+			GatewayConnectorName:      &o.GatewayConnectorName,
+			GatewayConnectorNamespace: &o.GatewayConnectorNamespace,
+			GatewayName:               &o.GatewayName,
+			GatewayNamespace:          &o.GatewayNamespace,
+			GatewayUpstreamURL:        &o.GatewayUpstreamURL,
+			Hash:                      &o.Hash,
+			ImportHash:                &o.ImportHash,
+			ImportLabel:               &o.ImportLabel,
+			Latency:                   o.Latency,
+			McpMessage:                o.McpMessage,
+			Model:                     &o.Model,
+			Namespace:                 &o.Namespace,
+			Offband:                   &o.Offband,
+			Permissive:                &o.Permissive,
+			PipelineName:              &o.PipelineName,
+			PolicyRefs:                &o.PolicyRefs,
+			Principal:                 o.Principal,
+			Processor:                 &o.Processor,
+			Provider:                  &o.Provider,
+			ProviderType:              &o.ProviderType,
+			ProxyFunction:             &o.ProxyFunction,
+			Reasons:                   &o.Reasons,
+			Summary:                   o.Summary,
+			Time:                      &o.Time,
+			ToolChoice:                o.ToolChoice,
+			Tools:                     &o.Tools,
+			Trace:                     o.Trace,
+			Type:                      &o.Type,
 		}
 	}
 
@@ -570,6 +621,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ContentRedacted = &(o.ContentRedacted)
 		case "decision":
 			sp.Decision = &(o.Decision)
+		case "deploymentName":
+			sp.DeploymentName = &(o.DeploymentName)
 		case "destination":
 			sp.Destination = o.Destination
 		case "encryptionEgress":
@@ -580,6 +633,16 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Error = o.Error
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
+		case "gatewayConnectorName":
+			sp.GatewayConnectorName = &(o.GatewayConnectorName)
+		case "gatewayConnectorNamespace":
+			sp.GatewayConnectorNamespace = &(o.GatewayConnectorNamespace)
+		case "gatewayName":
+			sp.GatewayName = &(o.GatewayName)
+		case "gatewayNamespace":
+			sp.GatewayNamespace = &(o.GatewayNamespace)
+		case "gatewayUpstreamURL":
+			sp.GatewayUpstreamURL = &(o.GatewayUpstreamURL)
 		case "hash":
 			sp.Hash = &(o.Hash)
 		case "importHash":
@@ -660,6 +723,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Decision != nil {
 		o.Decision = *so.Decision
 	}
+	if so.DeploymentName != nil {
+		o.DeploymentName = *so.DeploymentName
+	}
 	if so.Destination != nil {
 		o.Destination = so.Destination
 	}
@@ -674,6 +740,21 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
+	}
+	if so.GatewayConnectorName != nil {
+		o.GatewayConnectorName = *so.GatewayConnectorName
+	}
+	if so.GatewayConnectorNamespace != nil {
+		o.GatewayConnectorNamespace = *so.GatewayConnectorNamespace
+	}
+	if so.GatewayName != nil {
+		o.GatewayName = *so.GatewayName
+	}
+	if so.GatewayNamespace != nil {
+		o.GatewayNamespace = *so.GatewayNamespace
+	}
+	if so.GatewayUpstreamURL != nil {
+		o.GatewayUpstreamURL = *so.GatewayUpstreamURL
 	}
 	if so.Hash != nil {
 		o.Hash = *so.Hash
@@ -1065,7 +1146,7 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("processor", string(o.Processor), []string{"Proxy", "API"}, false); err != nil {
+	if err := elemental.ValidateStringInList("processor", string(o.Processor), []string{"Proxy", "API", "Gateway"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1164,6 +1245,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.ContentRedacted
 	case "decision":
 		return o.Decision
+	case "deploymentName":
+		return o.DeploymentName
 	case "destination":
 		return o.Destination
 	case "encryptionEgress":
@@ -1174,6 +1257,16 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Error
 	case "extractions":
 		return o.Extractions
+	case "gatewayConnectorName":
+		return o.GatewayConnectorName
+	case "gatewayConnectorNamespace":
+		return o.GatewayConnectorNamespace
+	case "gatewayName":
+		return o.GatewayName
+	case "gatewayNamespace":
+		return o.GatewayNamespace
+	case "gatewayUpstreamURL":
+		return o.GatewayUpstreamURL
 	case "hash":
 		return o.Hash
 	case "importHash":
@@ -1318,6 +1411,17 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Stored:  true,
 		Type:    "enum",
 	},
+	"DeploymentName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentname",
+		ConvertedName:  "DeploymentName",
+		Description: `This is the name of the deployment (apex instance) that processed this
+request. Only set when the request was handled by a known deployment.`,
+		Exposed: true,
+		Name:    "deploymentName",
+		Stored:  true,
+		Type:    "string",
+	},
 	"Destination": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "destination",
@@ -1374,6 +1478,63 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Stored:         true,
 		SubType:        "extraction",
 		Type:           "refList",
+	},
+	"GatewayConnectorName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayconnectorname",
+		ConvertedName:  "GatewayConnectorName",
+		Description: `This is the AI gateway connector that this request has been processed through.
+This is only set for requests where the processor was set to gateway. The AI
+gateway connector name will be set under gateway name.`,
+		Exposed: true,
+		Name:    "gatewayConnectorName",
+		Stored:  true,
+		Type:    "string",
+	},
+	"GatewayConnectorNamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayconnectornamespace",
+		ConvertedName:  "GatewayConnectorNamespace",
+		Description: `This is the namespace of the AI gateway connector as encoded in the original
+request URL. This is only set for requests where the processor was set to
+gateway.`,
+		Exposed: true,
+		Name:    "gatewayConnectorNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
+	"GatewayName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayname",
+		ConvertedName:  "GatewayName",
+		Description: `This is the AI gateway that this request has been processed through. This is
+only set for requests where the processor is set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayName",
+		Stored:  true,
+		Type:    "string",
+	},
+	"GatewayNamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewaynamespace",
+		ConvertedName:  "GatewayNamespace",
+		Description: `This is the namespace of the AI gateway as encoded in the original request
+URL. This is only set for requests where the processor was set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
+	"GatewayUpstreamURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayupstreamurl",
+		ConvertedName:  "GatewayUpstreamURL",
+		Description: `This is the upstream URL that the AI gateway routed this request to. This
+is only set for requests where the processor was set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayUpstreamURL",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Hash": {
 		AllowedChoices: []string{},
@@ -1464,11 +1625,12 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the analysis ran offband. That means that we extracted the data
-from the user request, assigned team and verified access permissions, but
-then we forwarded the request as is to the provider untouched
-immediately, while running the analysis and policies in the background,
-reporting what we would have done.`,
+		Description: `If true, the policy asked for the analysis to run offband. That means that
+we extracted the data from the user request, verified access permissions,
+and then made the decision without waiting for the analyzers. The full
+analyzer set ran afterwards, and this log entry reflects that later
+evaluation, which can report a stricter outcome than the one the request
+actually received.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -1478,11 +1640,11 @@ reporting what we would have done.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description: `If true, the policy has been applied in permissive mode.  That means that
-we extracted the data from the user request, assigned team, verified
-access permissions, run analysis, apply content policies and reported what
-we would have done, but ultimately let the request go to the provider
-untouched.`,
+		Description: `If true, the policy was applied in permissive mode: the content decision
+recorded here is what the policy would have enforced, and it was not
+enforced. The request went to the provider untouched, and no redaction was
+applied to it. Access was still enforced, so this entry exists only because
+the request was allowed to reach the content stage.`,
 		Exposed: true,
 		Name:    "permissive",
 		Stored:  true,
@@ -1522,13 +1684,15 @@ untouched.`,
 		Type:           "ref",
 	},
 	"Processor": {
-		AllowedChoices: []string{"Proxy", "API"},
+		AllowedChoices: []string{"Proxy", "API", "Gateway"},
 		BSONFieldName:  "processor",
 		ConvertedName:  "Processor",
 		DefaultValue:   ProxyRoundtripProcessorProxy,
-		Description: `Denotes the processor of the log. If the processor is Proxy, then the proxy
-function will further denote if this was a forward proxy or a reverse proxy. If
-the processor is API, the proxy function will be set to NotApplicable.`,
+		Description: `Denotes the processor of the log. If the processor is Proxy or API, then the
+proxy function will further denote if this was a forward proxy or a reverse
+proxy. If the processor is Gateway, the proxy function will be set to reverse
+proxy, and the gateway name and gateway connector name will further denote which
+gateway and which connector was used.`,
 		Exposed: true,
 		Name:    "processor",
 		Stored:  true,
@@ -1560,13 +1724,14 @@ the processor is API, the proxy function will be set to NotApplicable.`,
 		BSONFieldName:  "proxyfunction",
 		ConvertedName:  "ProxyFunction",
 		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
-		Description: `Denotes the function of this proxy in the chain of servers. By default the apex
-always sits on the egress side between a client or application and the origin
-server in which case the apex acts as a forwarding proxy. However, in the case
-of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy. If this log is
-the result of a ScanRequest or PoliceRequest API call, this will be set to
-NonApplicable and the processor will be API.`,
+		Description: `Denotes the proxy function of this processor in the chain of servers. The proxy
+processor acts as a forwarding proxy on the egress side, between a client or
+application and the origin server, and as a reverse proxy on the ingress side,
+in front of an application. The gateway processor always operates as a reverse
+proxy. The API processor (scan and police APIs) never sit in the data path, but
+they simulate proxy behaviour, so they are reported as a forwarding or a
+reverse proxy according to the direction of the request. NotApplicable is
+currently not in use, and only appears on roundtrips recorded by an older apex.`,
 		Exposed: true,
 		Name:    "proxyFunction",
 		Stored:  true,
@@ -1740,6 +1905,17 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Stored:  true,
 		Type:    "enum",
 	},
+	"deploymentname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "deploymentname",
+		ConvertedName:  "DeploymentName",
+		Description: `This is the name of the deployment (apex instance) that processed this
+request. Only set when the request was handled by a known deployment.`,
+		Exposed: true,
+		Name:    "deploymentName",
+		Stored:  true,
+		Type:    "string",
+	},
 	"destination": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "destination",
@@ -1796,6 +1972,63 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Stored:         true,
 		SubType:        "extraction",
 		Type:           "refList",
+	},
+	"gatewayconnectorname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayconnectorname",
+		ConvertedName:  "GatewayConnectorName",
+		Description: `This is the AI gateway connector that this request has been processed through.
+This is only set for requests where the processor was set to gateway. The AI
+gateway connector name will be set under gateway name.`,
+		Exposed: true,
+		Name:    "gatewayConnectorName",
+		Stored:  true,
+		Type:    "string",
+	},
+	"gatewayconnectornamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayconnectornamespace",
+		ConvertedName:  "GatewayConnectorNamespace",
+		Description: `This is the namespace of the AI gateway connector as encoded in the original
+request URL. This is only set for requests where the processor was set to
+gateway.`,
+		Exposed: true,
+		Name:    "gatewayConnectorNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
+	"gatewayname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayname",
+		ConvertedName:  "GatewayName",
+		Description: `This is the AI gateway that this request has been processed through. This is
+only set for requests where the processor is set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayName",
+		Stored:  true,
+		Type:    "string",
+	},
+	"gatewaynamespace": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewaynamespace",
+		ConvertedName:  "GatewayNamespace",
+		Description: `This is the namespace of the AI gateway as encoded in the original request
+URL. This is only set for requests where the processor was set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayNamespace",
+		Stored:  true,
+		Type:    "string",
+	},
+	"gatewayupstreamurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "gatewayupstreamurl",
+		ConvertedName:  "GatewayUpstreamURL",
+		Description: `This is the upstream URL that the AI gateway routed this request to. This
+is only set for requests where the processor was set to gateway.`,
+		Exposed: true,
+		Name:    "gatewayUpstreamURL",
+		Stored:  true,
+		Type:    "string",
 	},
 	"hash": {
 		AllowedChoices: []string{},
@@ -1886,11 +2119,12 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the analysis ran offband. That means that we extracted the data
-from the user request, assigned team and verified access permissions, but
-then we forwarded the request as is to the provider untouched
-immediately, while running the analysis and policies in the background,
-reporting what we would have done.`,
+		Description: `If true, the policy asked for the analysis to run offband. That means that
+we extracted the data from the user request, verified access permissions,
+and then made the decision without waiting for the analyzers. The full
+analyzer set ran afterwards, and this log entry reflects that later
+evaluation, which can report a stricter outcome than the one the request
+actually received.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -1900,11 +2134,11 @@ reporting what we would have done.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "permissive",
 		ConvertedName:  "Permissive",
-		Description: `If true, the policy has been applied in permissive mode.  That means that
-we extracted the data from the user request, assigned team, verified
-access permissions, run analysis, apply content policies and reported what
-we would have done, but ultimately let the request go to the provider
-untouched.`,
+		Description: `If true, the policy was applied in permissive mode: the content decision
+recorded here is what the policy would have enforced, and it was not
+enforced. The request went to the provider untouched, and no redaction was
+applied to it. Access was still enforced, so this entry exists only because
+the request was allowed to reach the content stage.`,
 		Exposed: true,
 		Name:    "permissive",
 		Stored:  true,
@@ -1944,13 +2178,15 @@ untouched.`,
 		Type:           "ref",
 	},
 	"processor": {
-		AllowedChoices: []string{"Proxy", "API"},
+		AllowedChoices: []string{"Proxy", "API", "Gateway"},
 		BSONFieldName:  "processor",
 		ConvertedName:  "Processor",
 		DefaultValue:   ProxyRoundtripProcessorProxy,
-		Description: `Denotes the processor of the log. If the processor is Proxy, then the proxy
-function will further denote if this was a forward proxy or a reverse proxy. If
-the processor is API, the proxy function will be set to NotApplicable.`,
+		Description: `Denotes the processor of the log. If the processor is Proxy or API, then the
+proxy function will further denote if this was a forward proxy or a reverse
+proxy. If the processor is Gateway, the proxy function will be set to reverse
+proxy, and the gateway name and gateway connector name will further denote which
+gateway and which connector was used.`,
 		Exposed: true,
 		Name:    "processor",
 		Stored:  true,
@@ -1982,13 +2218,14 @@ the processor is API, the proxy function will be set to NotApplicable.`,
 		BSONFieldName:  "proxyfunction",
 		ConvertedName:  "ProxyFunction",
 		DefaultValue:   ProxyRoundtripProxyFunctionForwardProxy,
-		Description: `Denotes the function of this proxy in the chain of servers. By default the apex
-always sits on the egress side between a client or application and the origin
-server in which case the apex acts as a forwarding proxy. However, in the case
-of applications the proxy can also be located before the application as an
-ingress provider in which case the apex acts as a reverse proxy. If this log is
-the result of a ScanRequest or PoliceRequest API call, this will be set to
-NonApplicable and the processor will be API.`,
+		Description: `Denotes the proxy function of this processor in the chain of servers. The proxy
+processor acts as a forwarding proxy on the egress side, between a client or
+application and the origin server, and as a reverse proxy on the ingress side,
+in front of an application. The gateway processor always operates as a reverse
+proxy. The API processor (scan and police APIs) never sit in the data path, but
+they simulate proxy behaviour, so they are reported as a forwarding or a
+reverse proxy according to the direction of the request. NotApplicable is
+currently not in use, and only appears on roundtrips recorded by an older apex.`,
 		Exposed: true,
 		Name:    "proxyFunction",
 		Stored:  true,
@@ -2167,6 +2404,10 @@ type SparseProxyRoundtrip struct {
 	// landed on 2026-05-19), once consumers have rolled forward.
 	Decision *ProxyRoundtripDecisionValue `json:"decision,omitempty" msgpack:"decision,omitempty" bson:"decision,omitempty" mapstructure:"decision,omitempty"`
 
+	// This is the name of the deployment (apex instance) that processed this
+	// request. Only set when the request was handled by a known deployment.
+	DeploymentName *string `json:"deploymentName,omitempty" msgpack:"deploymentName,omitempty" bson:"deploymentname,omitempty" mapstructure:"deploymentName,omitempty"`
+
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
@@ -2183,6 +2424,28 @@ type SparseProxyRoundtrip struct {
 
 	// The extractions to log.
 	Extractions *[]*Extraction `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"extractions,omitempty" mapstructure:"extractions,omitempty"`
+
+	// This is the AI gateway connector that this request has been processed through.
+	// This is only set for requests where the processor was set to gateway. The AI
+	// gateway connector name will be set under gateway name.
+	GatewayConnectorName *string `json:"gatewayConnectorName,omitempty" msgpack:"gatewayConnectorName,omitempty" bson:"gatewayconnectorname,omitempty" mapstructure:"gatewayConnectorName,omitempty"`
+
+	// This is the namespace of the AI gateway connector as encoded in the original
+	// request URL. This is only set for requests where the processor was set to
+	// gateway.
+	GatewayConnectorNamespace *string `json:"gatewayConnectorNamespace,omitempty" msgpack:"gatewayConnectorNamespace,omitempty" bson:"gatewayconnectornamespace,omitempty" mapstructure:"gatewayConnectorNamespace,omitempty"`
+
+	// This is the AI gateway that this request has been processed through. This is
+	// only set for requests where the processor is set to gateway.
+	GatewayName *string `json:"gatewayName,omitempty" msgpack:"gatewayName,omitempty" bson:"gatewayname,omitempty" mapstructure:"gatewayName,omitempty"`
+
+	// This is the namespace of the AI gateway as encoded in the original request
+	// URL. This is only set for requests where the processor was set to gateway.
+	GatewayNamespace *string `json:"gatewayNamespace,omitempty" msgpack:"gatewayNamespace,omitempty" bson:"gatewaynamespace,omitempty" mapstructure:"gatewayNamespace,omitempty"`
+
+	// This is the upstream URL that the AI gateway routed this request to. This
+	// is only set for requests where the processor was set to gateway.
+	GatewayUpstreamURL *string `json:"gatewayUpstreamURL,omitempty" msgpack:"gatewayUpstreamURL,omitempty" bson:"gatewayupstreamurl,omitempty" mapstructure:"gatewayUpstreamURL,omitempty"`
 
 	// The hash of the input.
 	Hash *string `json:"hash,omitempty" msgpack:"hash,omitempty" bson:"hash,omitempty" mapstructure:"hash,omitempty"`
@@ -2206,18 +2469,19 @@ type SparseProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the analysis ran offband. That means that we extracted the data
-	// from the user request, assigned team and verified access permissions, but
-	// then we forwarded the request as is to the provider untouched
-	// immediately, while running the analysis and policies in the background,
-	// reporting what we would have done.
+	// If true, the policy asked for the analysis to run offband. That means that
+	// we extracted the data from the user request, verified access permissions,
+	// and then made the decision without waiting for the analyzers. The full
+	// analyzer set ran afterwards, and this log entry reflects that later
+	// evaluation, which can report a stricter outcome than the one the request
+	// actually received.
 	Offband *bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
 
-	// If true, the policy has been applied in permissive mode.  That means that
-	// we extracted the data from the user request, assigned team, verified
-	// access permissions, run analysis, apply content policies and reported what
-	// we would have done, but ultimately let the request go to the provider
-	// untouched.
+	// If true, the policy was applied in permissive mode: the content decision
+	// recorded here is what the policy would have enforced, and it was not
+	// enforced. The request went to the provider untouched, and no redaction was
+	// applied to it. Access was still enforced, so this entry exists only because
+	// the request was allowed to reach the content stage.
 	Permissive *bool `json:"permissive,omitempty" msgpack:"permissive,omitempty" bson:"permissive,omitempty" mapstructure:"permissive,omitempty"`
 
 	// The name of the particular pipeline that extracted the text.
@@ -2229,9 +2493,11 @@ type SparseProxyRoundtrip struct {
 	// The principal of the object.
 	Principal *Principal `json:"principal,omitempty" msgpack:"principal,omitempty" bson:"principal,omitempty" mapstructure:"principal,omitempty"`
 
-	// Denotes the processor of the log. If the processor is Proxy, then the proxy
-	// function will further denote if this was a forward proxy or a reverse proxy. If
-	// the processor is API, the proxy function will be set to NotApplicable.
+	// Denotes the processor of the log. If the processor is Proxy or API, then the
+	// proxy function will further denote if this was a forward proxy or a reverse
+	// proxy. If the processor is Gateway, the proxy function will be set to reverse
+	// proxy, and the gateway name and gateway connector name will further denote which
+	// gateway and which connector was used.
 	Processor *ProxyRoundtripProcessorValue `json:"processor,omitempty" msgpack:"processor,omitempty" bson:"processor,omitempty" mapstructure:"processor,omitempty"`
 
 	// The provider to use.
@@ -2240,13 +2506,14 @@ type SparseProxyRoundtrip struct {
 	// The type of the provider.
 	ProviderType *ProxyRoundtripProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
 
-	// Denotes the function of this proxy in the chain of servers. By default the apex
-	// always sits on the egress side between a client or application and the origin
-	// server in which case the apex acts as a forwarding proxy. However, in the case
-	// of applications the proxy can also be located before the application as an
-	// ingress provider in which case the apex acts as a reverse proxy. If this log is
-	// the result of a ScanRequest or PoliceRequest API call, this will be set to
-	// NonApplicable and the processor will be API.
+	// Denotes the proxy function of this processor in the chain of servers. The proxy
+	// processor acts as a forwarding proxy on the egress side, between a client or
+	// application and the origin server, and as a reverse proxy on the ingress side,
+	// in front of an application. The gateway processor always operates as a reverse
+	// proxy. The API processor (scan and police APIs) never sit in the data path, but
+	// they simulate proxy behaviour, so they are reported as a forwarding or a
+	// reverse proxy according to the direction of the request. NotApplicable is
+	// currently not in use, and only appears on roundtrips recorded by an older apex.
 	ProxyFunction *ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -2334,6 +2601,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.Decision != nil {
 		s.Decision = o.Decision
 	}
+	if o.DeploymentName != nil {
+		s.DeploymentName = o.DeploymentName
+	}
 	if o.Destination != nil {
 		s.Destination = o.Destination
 	}
@@ -2348,6 +2618,21 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	}
 	if o.Extractions != nil {
 		s.Extractions = o.Extractions
+	}
+	if o.GatewayConnectorName != nil {
+		s.GatewayConnectorName = o.GatewayConnectorName
+	}
+	if o.GatewayConnectorNamespace != nil {
+		s.GatewayConnectorNamespace = o.GatewayConnectorNamespace
+	}
+	if o.GatewayName != nil {
+		s.GatewayName = o.GatewayName
+	}
+	if o.GatewayNamespace != nil {
+		s.GatewayNamespace = o.GatewayNamespace
+	}
+	if o.GatewayUpstreamURL != nil {
+		s.GatewayUpstreamURL = o.GatewayUpstreamURL
 	}
 	if o.Hash != nil {
 		s.Hash = o.Hash
@@ -2452,6 +2737,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.Decision != nil {
 		o.Decision = s.Decision
 	}
+	if s.DeploymentName != nil {
+		o.DeploymentName = s.DeploymentName
+	}
 	if s.Destination != nil {
 		o.Destination = s.Destination
 	}
@@ -2466,6 +2754,21 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	}
 	if s.Extractions != nil {
 		o.Extractions = s.Extractions
+	}
+	if s.GatewayConnectorName != nil {
+		o.GatewayConnectorName = s.GatewayConnectorName
+	}
+	if s.GatewayConnectorNamespace != nil {
+		o.GatewayConnectorNamespace = s.GatewayConnectorNamespace
+	}
+	if s.GatewayName != nil {
+		o.GatewayName = s.GatewayName
+	}
+	if s.GatewayNamespace != nil {
+		o.GatewayNamespace = s.GatewayNamespace
+	}
+	if s.GatewayUpstreamURL != nil {
+		o.GatewayUpstreamURL = s.GatewayUpstreamURL
 	}
 	if s.Hash != nil {
 		o.Hash = s.Hash
@@ -2568,6 +2871,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.Decision != nil {
 		out.Decision = *o.Decision
 	}
+	if o.DeploymentName != nil {
+		out.DeploymentName = *o.DeploymentName
+	}
 	if o.Destination != nil {
 		out.Destination = o.Destination
 	}
@@ -2582,6 +2888,21 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
+	}
+	if o.GatewayConnectorName != nil {
+		out.GatewayConnectorName = *o.GatewayConnectorName
+	}
+	if o.GatewayConnectorNamespace != nil {
+		out.GatewayConnectorNamespace = *o.GatewayConnectorNamespace
+	}
+	if o.GatewayName != nil {
+		out.GatewayName = *o.GatewayName
+	}
+	if o.GatewayNamespace != nil {
+		out.GatewayNamespace = *o.GatewayNamespace
+	}
+	if o.GatewayUpstreamURL != nil {
+		out.GatewayUpstreamURL = *o.GatewayUpstreamURL
 	}
 	if o.Hash != nil {
 		out.Hash = *o.Hash
@@ -2949,74 +3270,86 @@ func (o *SparseProxyRoundtrip) DeepCopyInto(out *SparseProxyRoundtrip) {
 }
 
 type mongoAttributesProxyRoundtrip struct {
-	ID                bson.ObjectId                    `bson:"_id,omitempty"`
-	Alerts            []*AlertEvent                    `bson:"alerts,omitempty"`
-	Annotations       map[string]string                `bson:"annotations,omitempty"`
-	Client            string                           `bson:"client,omitempty"`
-	ClientVersion     string                           `bson:"clientversion,omitempty"`
-	ContentRedacted   bool                             `bson:"contentredacted,omitempty"`
-	Decision          ProxyRoundtripDecisionValue      `bson:"decision"`
-	Destination       *Destination                     `bson:"destination,omitempty"`
-	EncryptionEgress  *TLSState                        `bson:"encryptionegress,omitempty"`
-	EncryptionIngress *TLSState                        `bson:"encryptioningress,omitempty"`
-	Error             *RoundtripError                  `bson:"error,omitempty"`
-	Extractions       []*Extraction                    `bson:"extractions,omitempty"`
-	Hash              string                           `bson:"hash"`
-	ImportHash        string                           `bson:"importhash,omitempty"`
-	ImportLabel       string                           `bson:"importlabel,omitempty"`
-	Latency           *Latency                         `bson:"latency,omitempty"`
-	McpMessage        *MCPMessage                      `bson:"mcpmessage,omitempty"`
-	Model             string                           `bson:"model,omitempty"`
-	Namespace         string                           `bson:"namespace,omitempty"`
-	Offband           bool                             `bson:"offband"`
-	Permissive        bool                             `bson:"permissive,omitempty"`
-	PipelineName      string                           `bson:"pipelinename"`
-	PolicyRefs        PolicyRefsList                   `bson:"policyrefs"`
-	Principal         *Principal                       `bson:"principal"`
-	Processor         ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
-	Provider          string                           `bson:"provider"`
-	ProviderType      ProxyRoundtripProviderTypeValue  `bson:"providertype"`
-	ProxyFunction     ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
-	Reasons           []string                         `bson:"reasons,omitempty"`
-	Summary           *ExtractionSummary               `bson:"summary,omitempty"`
-	ToolChoice        *ToolChoice                      `bson:"toolchoice,omitempty"`
-	Tools             map[string]*Tool                 `bson:"tools,omitempty"`
-	Trace             *TraceRef                        `bson:"trace,omitempty"`
-	Type              ProxyRoundtripTypeValue          `bson:"type"`
+	ID                        bson.ObjectId                    `bson:"_id,omitempty"`
+	Alerts                    []*AlertEvent                    `bson:"alerts,omitempty"`
+	Annotations               map[string]string                `bson:"annotations,omitempty"`
+	Client                    string                           `bson:"client,omitempty"`
+	ClientVersion             string                           `bson:"clientversion,omitempty"`
+	ContentRedacted           bool                             `bson:"contentredacted,omitempty"`
+	Decision                  ProxyRoundtripDecisionValue      `bson:"decision"`
+	DeploymentName            string                           `bson:"deploymentname,omitempty"`
+	Destination               *Destination                     `bson:"destination,omitempty"`
+	EncryptionEgress          *TLSState                        `bson:"encryptionegress,omitempty"`
+	EncryptionIngress         *TLSState                        `bson:"encryptioningress,omitempty"`
+	Error                     *RoundtripError                  `bson:"error,omitempty"`
+	Extractions               []*Extraction                    `bson:"extractions,omitempty"`
+	GatewayConnectorName      string                           `bson:"gatewayconnectorname,omitempty"`
+	GatewayConnectorNamespace string                           `bson:"gatewayconnectornamespace,omitempty"`
+	GatewayName               string                           `bson:"gatewayname,omitempty"`
+	GatewayNamespace          string                           `bson:"gatewaynamespace,omitempty"`
+	GatewayUpstreamURL        string                           `bson:"gatewayupstreamurl,omitempty"`
+	Hash                      string                           `bson:"hash"`
+	ImportHash                string                           `bson:"importhash,omitempty"`
+	ImportLabel               string                           `bson:"importlabel,omitempty"`
+	Latency                   *Latency                         `bson:"latency,omitempty"`
+	McpMessage                *MCPMessage                      `bson:"mcpmessage,omitempty"`
+	Model                     string                           `bson:"model,omitempty"`
+	Namespace                 string                           `bson:"namespace,omitempty"`
+	Offband                   bool                             `bson:"offband"`
+	Permissive                bool                             `bson:"permissive,omitempty"`
+	PipelineName              string                           `bson:"pipelinename"`
+	PolicyRefs                PolicyRefsList                   `bson:"policyrefs"`
+	Principal                 *Principal                       `bson:"principal"`
+	Processor                 ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
+	Provider                  string                           `bson:"provider"`
+	ProviderType              ProxyRoundtripProviderTypeValue  `bson:"providertype"`
+	ProxyFunction             ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
+	Reasons                   []string                         `bson:"reasons,omitempty"`
+	Summary                   *ExtractionSummary               `bson:"summary,omitempty"`
+	ToolChoice                *ToolChoice                      `bson:"toolchoice,omitempty"`
+	Tools                     map[string]*Tool                 `bson:"tools,omitempty"`
+	Trace                     *TraceRef                        `bson:"trace,omitempty"`
+	Type                      ProxyRoundtripTypeValue          `bson:"type"`
 }
 type mongoAttributesSparseProxyRoundtrip struct {
-	ID                bson.ObjectId                     `bson:"_id,omitempty"`
-	Alerts            *[]*AlertEvent                    `bson:"alerts,omitempty"`
-	Annotations       *map[string]string                `bson:"annotations,omitempty"`
-	Client            *string                           `bson:"client,omitempty"`
-	ClientVersion     *string                           `bson:"clientversion,omitempty"`
-	ContentRedacted   *bool                             `bson:"contentredacted,omitempty"`
-	Decision          *ProxyRoundtripDecisionValue      `bson:"decision,omitempty"`
-	Destination       *Destination                      `bson:"destination,omitempty"`
-	EncryptionEgress  *TLSState                         `bson:"encryptionegress,omitempty"`
-	EncryptionIngress *TLSState                         `bson:"encryptioningress,omitempty"`
-	Error             *RoundtripError                   `bson:"error,omitempty"`
-	Extractions       *[]*Extraction                    `bson:"extractions,omitempty"`
-	Hash              *string                           `bson:"hash,omitempty"`
-	ImportHash        *string                           `bson:"importhash,omitempty"`
-	ImportLabel       *string                           `bson:"importlabel,omitempty"`
-	Latency           *Latency                          `bson:"latency,omitempty"`
-	McpMessage        *MCPMessage                       `bson:"mcpmessage,omitempty"`
-	Model             *string                           `bson:"model,omitempty"`
-	Namespace         *string                           `bson:"namespace,omitempty"`
-	Offband           *bool                             `bson:"offband,omitempty"`
-	Permissive        *bool                             `bson:"permissive,omitempty"`
-	PipelineName      *string                           `bson:"pipelinename,omitempty"`
-	PolicyRefs        *PolicyRefsList                   `bson:"policyrefs,omitempty"`
-	Principal         *Principal                        `bson:"principal,omitempty"`
-	Processor         *ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
-	Provider          *string                           `bson:"provider,omitempty"`
-	ProviderType      *ProxyRoundtripProviderTypeValue  `bson:"providertype,omitempty"`
-	ProxyFunction     *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
-	Reasons           *[]string                         `bson:"reasons,omitempty"`
-	Summary           *ExtractionSummary                `bson:"summary,omitempty"`
-	ToolChoice        *ToolChoice                       `bson:"toolchoice,omitempty"`
-	Tools             *map[string]*Tool                 `bson:"tools,omitempty"`
-	Trace             *TraceRef                         `bson:"trace,omitempty"`
-	Type              *ProxyRoundtripTypeValue          `bson:"type,omitempty"`
+	ID                        bson.ObjectId                     `bson:"_id,omitempty"`
+	Alerts                    *[]*AlertEvent                    `bson:"alerts,omitempty"`
+	Annotations               *map[string]string                `bson:"annotations,omitempty"`
+	Client                    *string                           `bson:"client,omitempty"`
+	ClientVersion             *string                           `bson:"clientversion,omitempty"`
+	ContentRedacted           *bool                             `bson:"contentredacted,omitempty"`
+	Decision                  *ProxyRoundtripDecisionValue      `bson:"decision,omitempty"`
+	DeploymentName            *string                           `bson:"deploymentname,omitempty"`
+	Destination               *Destination                      `bson:"destination,omitempty"`
+	EncryptionEgress          *TLSState                         `bson:"encryptionegress,omitempty"`
+	EncryptionIngress         *TLSState                         `bson:"encryptioningress,omitempty"`
+	Error                     *RoundtripError                   `bson:"error,omitempty"`
+	Extractions               *[]*Extraction                    `bson:"extractions,omitempty"`
+	GatewayConnectorName      *string                           `bson:"gatewayconnectorname,omitempty"`
+	GatewayConnectorNamespace *string                           `bson:"gatewayconnectornamespace,omitempty"`
+	GatewayName               *string                           `bson:"gatewayname,omitempty"`
+	GatewayNamespace          *string                           `bson:"gatewaynamespace,omitempty"`
+	GatewayUpstreamURL        *string                           `bson:"gatewayupstreamurl,omitempty"`
+	Hash                      *string                           `bson:"hash,omitempty"`
+	ImportHash                *string                           `bson:"importhash,omitempty"`
+	ImportLabel               *string                           `bson:"importlabel,omitempty"`
+	Latency                   *Latency                          `bson:"latency,omitempty"`
+	McpMessage                *MCPMessage                       `bson:"mcpmessage,omitempty"`
+	Model                     *string                           `bson:"model,omitempty"`
+	Namespace                 *string                           `bson:"namespace,omitempty"`
+	Offband                   *bool                             `bson:"offband,omitempty"`
+	Permissive                *bool                             `bson:"permissive,omitempty"`
+	PipelineName              *string                           `bson:"pipelinename,omitempty"`
+	PolicyRefs                *PolicyRefsList                   `bson:"policyrefs,omitempty"`
+	Principal                 *Principal                        `bson:"principal,omitempty"`
+	Processor                 *ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
+	Provider                  *string                           `bson:"provider,omitempty"`
+	ProviderType              *ProxyRoundtripProviderTypeValue  `bson:"providertype,omitempty"`
+	ProxyFunction             *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
+	Reasons                   *[]string                         `bson:"reasons,omitempty"`
+	Summary                   *ExtractionSummary                `bson:"summary,omitempty"`
+	ToolChoice                *ToolChoice                       `bson:"toolchoice,omitempty"`
+	Tools                     *map[string]*Tool                 `bson:"tools,omitempty"`
+	Trace                     *TraceRef                         `bson:"trace,omitempty"`
+	Type                      *ProxyRoundtripTypeValue          `bson:"type,omitempty"`
 }

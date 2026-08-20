@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Connection Monitor Selector",
+  "$friendlyNamePlural": "Connection Monitor Selectors",
+  "$modelName": "ConnectionMonitorSelector",
+  "$modelPackage": "lain",
+  "$modelResourceName": "connectionmonitorselectors",
+  "$modelRestName": "connectionmonitorselector",
+  "additionalProperties": false,
+  "description": "Defines a selector for connection monitoring.",
+  "properties": {
+    "excludedDestinationNetworks": {
+      "$friendlyName": "Excluded Destination Networks",
+      "description": "The list of destination networks to exclude from being monitored for the selected workloads. This applies to connections where the destination IP addresses match the list of excluded networks that the selected workloads try to connect to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "excludedDestinationNetworks",
+      "type": "array"
+    },
+    "excludedListeningPorts": {
+      "$friendlyName": "Excluded Listening Ports",
+      "description": "The list of listening ports to exclude from being monitored for the selected workloads. This applies to connections arriving at matching listening ports of the selected workloads.",
+      "items": {
+        "type": [
+          "integer",
+          "null"
+        ]
+      },
+      "title": "excludedListeningPorts",
+      "type": "array"
+    },
+    "workloadGroupSetSelectors": {
+      "$friendlyName": "Workload Group Set Selectors",
+      "$required": true,
+      "description": "A list of workload group set selectors for which connection monitoring will be enabled.",
+      "items": {
+        "$ref": "connectionmonitorworkloadgroupsetselector.json"
+      },
+      "title": "workloadGroupSetSelectors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "workloadGroupSetSelectors"
+  ],
+  "title": "ConnectionMonitorSelector",
+  "type": "object"
+}

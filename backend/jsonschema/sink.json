@@ -84,6 +84,12 @@
         "null"
       ]
     },
+    "msTeams": {
+      "$friendlyName": "MS Teams",
+      "$ref": "sinkmsteams.json",
+      "description": "Contains additional configuration for sending a Microsoft Teams message.",
+      "title": "msTeams"
+    },
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",
@@ -143,7 +149,8 @@
         "Email",
         "PagerDuty",
         "Slack",
-        "Splunk"
+        "Splunk",
+        "MSTeams"
       ],
       "title": "type"
     },

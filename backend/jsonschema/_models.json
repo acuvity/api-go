@@ -111,6 +111,9 @@
     "aipluginwebext": {
       "$ref": "aipluginwebext.json"
     },
+    "aisecurityprobe": {
+      "$ref": "aisecurityprobe.json"
+    },
     "aiskill": {
       "$ref": "aiskill.json"
     },
@@ -155,6 +158,12 @@
     },
     "appagent": {
       "$ref": "appagent.json"
+    },
+    "appagentconf": {
+      "$ref": "appagentconf.json"
+    },
+    "appagentconfupdate": {
+      "$ref": "appagentconfupdate.json"
     },
     "appcomponent": {
       "$ref": "appcomponent.json"
@@ -215,6 +224,15 @@
     },
     "connectionencryption": {
       "$ref": "connectionencryption.json"
+    },
+    "connectionmonitorselector": {
+      "$ref": "connectionmonitorselector.json"
+    },
+    "connectionmonitorworkloadgroupselector": {
+      "$ref": "connectionmonitorworkloadgroupselector.json"
+    },
+    "connectionmonitorworkloadgroupsetselector": {
+      "$ref": "connectionmonitorworkloadgroupsetselector.json"
     },
     "connectionreport": {
       "$ref": "connectionreport.json"
@@ -381,8 +399,20 @@
     "mcpserver": {
       "$ref": "mcpserver.json"
     },
+    "mcpserverscope": {
+      "$ref": "mcpserverscope.json"
+    },
+    "mcptool": {
+      "$ref": "mcptool.json"
+    },
     "mcptoolannotations": {
       "$ref": "mcptoolannotations.json"
+    },
+    "mcptoolscope": {
+      "$ref": "mcptoolscope.json"
+    },
+    "mcptoolsnapshot": {
+      "$ref": "mcptoolsnapshot.json"
     },
     "metric": {
       "$ref": "metric.json"
@@ -407,6 +437,9 @@
     },
     "mtlssourceentra": {
       "$ref": "mtlssourceentra.json"
+    },
+    "mtlssourcegoogle": {
+      "$ref": "mtlssourcegoogle.json"
     },
     "mtlssourceokta": {
       "$ref": "mtlssourceokta.json"
@@ -560,6 +593,9 @@
     },
     "sinkemail": {
       "$ref": "sinkemail.json"
+    },
+    "sinkmsteams": {
+      "$ref": "sinkmsteams.json"
     },
     "sinkpagerduty": {
       "$ref": "sinkpagerduty.json"

@@ -163,6 +163,12 @@ type Finding struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Reference to the threat definition that triggered this finding.
+	PolicyRef *PolicyRef `json:"policyRef,omitempty" msgpack:"policyRef,omitempty" bson:"policyref,omitempty" mapstructure:"policyRef,omitempty"`
+
+	// References to the threat definitions that triggered this finding.
+	PolicyRefs PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
+
 	// The identities that can resolve this finding.
 	ResolutionIdentities []string `json:"resolutionIdentities" msgpack:"resolutionIdentities" bson:"resolutionidentities" mapstructure:"resolutionIdentities,omitempty"`
 
@@ -237,6 +243,8 @@ func (o *Finding) GetBSON() (any, error) {
 	s.LastSeenTime = o.LastSeenTime
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.PolicyRef = o.PolicyRef
+	s.PolicyRefs = o.PolicyRefs
 	s.ResolutionIdentities = o.ResolutionIdentities
 	s.Severity = o.Severity
 	s.State = o.State
@@ -273,6 +281,8 @@ func (o *Finding) SetBSON(raw bson.Raw) error {
 	o.LastSeenTime = s.LastSeenTime
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.PolicyRef = s.PolicyRef
+	o.PolicyRefs = s.PolicyRefs
 	o.ResolutionIdentities = s.ResolutionIdentities
 	o.Severity = s.Severity
 	o.State = s.State
@@ -312,6 +322,18 @@ func (o *Finding) String() string {
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *Finding) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *Finding) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *Finding) GetImportHash() string {
 
@@ -334,6 +356,18 @@ func (o *Finding) GetImportLabel() string {
 func (o *Finding) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *Finding) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *Finding) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -369,6 +403,8 @@ func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			LastSeenTime:          &o.LastSeenTime,
 			Name:                  &o.Name,
 			Namespace:             &o.Namespace,
+			PolicyRef:             o.PolicyRef,
+			PolicyRefs:            &o.PolicyRefs,
 			ResolutionIdentities:  &o.ResolutionIdentities,
 			Severity:              &o.Severity,
 			State:                 &o.State,
@@ -409,6 +445,10 @@ func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "policyRef":
+			sp.PolicyRef = o.PolicyRef
+		case "policyRefs":
+			sp.PolicyRefs = &(o.PolicyRefs)
 		case "resolutionIdentities":
 			sp.ResolutionIdentities = &(o.ResolutionIdentities)
 		case "severity":
@@ -476,6 +516,12 @@ func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.PolicyRef != nil {
+		o.PolicyRef = so.PolicyRef
+	}
+	if so.PolicyRefs != nil {
+		o.PolicyRefs = *so.PolicyRefs
+	}
 	if so.ResolutionIdentities != nil {
 		o.ResolutionIdentities = *so.ResolutionIdentities
 	}
@@ -508,6 +554,18 @@ func (o *Finding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err
 		}
 	}
 
+	if o.PolicyRef != nil {
+		if err := o.PolicyRef.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PolicyRefs {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -520,6 +578,18 @@ func (o *Finding) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'LastResolutionItems' for 'Finding' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PolicyRef != nil {
+		if err := o.PolicyRef.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PolicyRefs {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -581,6 +651,20 @@ func (o *Finding) Validate() error {
 
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.PolicyRef != nil {
+		if err := o.PolicyRef.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "policyRef")
+		}
+	}
+
+	for i, sub := range o.PolicyRefs {
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policyRefs", i))
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("severity", string(o.Severity)); err != nil {
@@ -661,6 +745,10 @@ func (o *Finding) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "policyRef":
+		return o.PolicyRef
+	case "policyRefs":
+		return o.PolicyRefs
 	case "resolutionIdentities":
 		return o.ResolutionIdentities
 	case "severity":
@@ -741,8 +829,10 @@ var FindingAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -828,7 +918,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -846,6 +938,28 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"PolicyRef": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyref",
+		ConvertedName:  "PolicyRef",
+		Description:    `Reference to the threat definition that triggered this finding.`,
+		Exposed:        true,
+		Name:           "policyRef",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "ref",
+	},
+	"PolicyRefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `References to the threat definitions that triggered this finding.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
 	},
 	"ResolutionIdentities": {
 		AllowedChoices: []string{},
@@ -956,8 +1070,10 @@ var FindingLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		ConvertedName:  "FriendlyName",
 		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1043,7 +1159,9 @@ same import operation.`,
 		Description: `The internal reference name of the object. It is a sanitized version of Friendly
 Name if empty.`,
 		Exposed: true,
+		Getter:  true,
 		Name:    "name",
+		Setter:  true,
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1061,6 +1179,28 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"policyref": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyref",
+		ConvertedName:  "PolicyRef",
+		Description:    `Reference to the threat definition that triggered this finding.`,
+		Exposed:        true,
+		Name:           "policyRef",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "ref",
+	},
+	"policyrefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `References to the threat definitions that triggered this finding.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
 	},
 	"resolutionidentities": {
 		AllowedChoices: []string{},
@@ -1215,6 +1355,12 @@ type SparseFinding struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// Reference to the threat definition that triggered this finding.
+	PolicyRef *PolicyRef `json:"policyRef,omitempty" msgpack:"policyRef,omitempty" bson:"policyref,omitempty" mapstructure:"policyRef,omitempty"`
+
+	// References to the threat definitions that triggered this finding.
+	PolicyRefs *PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
+
 	// The identities that can resolve this finding.
 	ResolutionIdentities *[]string `json:"resolutionIdentities,omitempty" msgpack:"resolutionIdentities,omitempty" bson:"resolutionidentities,omitempty" mapstructure:"resolutionIdentities,omitempty"`
 
@@ -1315,6 +1461,12 @@ func (o *SparseFinding) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.PolicyRef != nil {
+		s.PolicyRef = o.PolicyRef
+	}
+	if o.PolicyRefs != nil {
+		s.PolicyRefs = o.PolicyRefs
+	}
 	if o.ResolutionIdentities != nil {
 		s.ResolutionIdentities = o.ResolutionIdentities
 	}
@@ -1387,6 +1539,12 @@ func (o *SparseFinding) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.PolicyRef != nil {
+		o.PolicyRef = s.PolicyRef
+	}
+	if s.PolicyRefs != nil {
+		o.PolicyRefs = s.PolicyRefs
 	}
 	if s.ResolutionIdentities != nil {
 		o.ResolutionIdentities = s.ResolutionIdentities
@@ -1462,6 +1620,12 @@ func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.PolicyRef != nil {
+		out.PolicyRef = o.PolicyRef
+	}
+	if o.PolicyRefs != nil {
+		out.PolicyRefs = *o.PolicyRefs
+	}
 	if o.ResolutionIdentities != nil {
 		out.ResolutionIdentities = *o.ResolutionIdentities
 	}
@@ -1498,6 +1662,20 @@ func (o *SparseFinding) EncryptAttributes(encrypter elemental.AttributeEncrypter
 		}
 	}
 
+	if o.PolicyRef != nil {
+		if err := o.PolicyRef.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -1515,7 +1693,37 @@ func (o *SparseFinding) DecryptAttributes(encrypter elemental.AttributeEncrypter
 		}
 	}
 
+	if o.PolicyRef != nil {
+		if err := o.PolicyRef.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.PolicyRefs != nil {
+		for _, sub := range *o.PolicyRefs {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
+}
+
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseFinding) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseFinding) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
@@ -1548,6 +1756,22 @@ func (o *SparseFinding) GetImportLabel() (out string) {
 func (o *SparseFinding) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseFinding) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseFinding) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -1604,6 +1828,8 @@ type mongoAttributesFinding struct {
 	LastSeenTime          time.Time            `bson:"lastseentime"`
 	Name                  string               `bson:"name"`
 	Namespace             string               `bson:"namespace,omitempty"`
+	PolicyRef             *PolicyRef           `bson:"policyref,omitempty"`
+	PolicyRefs            PolicyRefsList       `bson:"policyrefs,omitempty"`
 	ResolutionIdentities  []string             `bson:"resolutionidentities"`
 	Severity              FindingSeverityValue `bson:"severity"`
 	State                 map[string]any       `bson:"state,omitempty"`
@@ -1625,6 +1851,8 @@ type mongoAttributesSparseFinding struct {
 	LastSeenTime          *time.Time            `bson:"lastseentime,omitempty"`
 	Name                  *string               `bson:"name,omitempty"`
 	Namespace             *string               `bson:"namespace,omitempty"`
+	PolicyRef             *PolicyRef            `bson:"policyref,omitempty"`
+	PolicyRefs            *PolicyRefsList       `bson:"policyrefs,omitempty"`
 	ResolutionIdentities  *[]string             `bson:"resolutionidentities,omitempty"`
 	Severity              *FindingSeverityValue `bson:"severity,omitempty"`
 	State                 *map[string]any       `bson:"state,omitempty"`

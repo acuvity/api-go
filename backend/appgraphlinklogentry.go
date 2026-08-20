@@ -13,6 +13,10 @@ import (
 
 // AppGraphLinkLogEntry represents the model of a appgraphlinklogentry
 type AppGraphLinkLogEntry struct {
+	// The number of allowed and denied requests to this node broken down by the
+	// deployment they went through.
+	APIs map[string]map[string]int `json:"APIs,omitempty" msgpack:"APIs,omitempty" bson:"-" mapstructure:"APIs,omitempty"`
+
 	// The number of allowed connections to this node.
 	Allow int `json:"allow" msgpack:"allow" bson:"-" mapstructure:"allow,omitempty"`
 
@@ -25,12 +29,20 @@ type AppGraphLinkLogEntry struct {
 	// The findings categorized by type detected in the logs for this node.
 	Findings map[string]map[string]int `json:"findings,omitempty" msgpack:"findings,omitempty" bson:"-" mapstructure:"findings,omitempty"`
 
+	// The number of allowed and denied requests to this node broken down by the
+	// gateway they went through.
+	Gateways map[string]map[string]int `json:"gateways,omitempty" msgpack:"gateways,omitempty" bson:"-" mapstructure:"gateways,omitempty"`
+
 	// The number of connections to this node with insecure encryption (e.g., TLS 1.0
 	// or 1.1).
 	InsecureEncryption int `json:"insecureEncryption,omitempty" msgpack:"insecureEncryption,omitempty" bson:"-" mapstructure:"insecureEncryption,omitempty"`
 
 	// The log links from this node to other nodes in the application graph.
 	Logs ProxyRoundtripsList `json:"logs,omitempty" msgpack:"logs,omitempty" bson:"-" mapstructure:"logs,omitempty"`
+
+	// The number of allowed and denied requests to this node broken down by the
+	// deployment they went through.
+	Proxies map[string]map[string]int `json:"proxies,omitempty" msgpack:"proxies,omitempty" bson:"-" mapstructure:"proxies,omitempty"`
 
 	// The number of unencrypted connections to this node.
 	Unencrypted int `json:"unencrypted" msgpack:"unencrypted" bson:"-" mapstructure:"unencrypted,omitempty"`
@@ -202,6 +214,8 @@ func (*AppGraphLinkLogEntry) AttributeSpecifications() map[string]elemental.Attr
 func (o *AppGraphLinkLogEntry) ValueForAttribute(name string) any {
 
 	switch name {
+	case "APIs":
+		return o.APIs
 	case "allow":
 		return o.Allow
 	case "deny":
@@ -210,10 +224,14 @@ func (o *AppGraphLinkLogEntry) ValueForAttribute(name string) any {
 		return o.Encrypted
 	case "findings":
 		return o.Findings
+	case "gateways":
+		return o.Gateways
 	case "insecureEncryption":
 		return o.InsecureEncryption
 	case "logs":
 		return o.Logs
+	case "proxies":
+		return o.Proxies
 	case "unencrypted":
 		return o.Unencrypted
 	}
@@ -223,6 +241,16 @@ func (o *AppGraphLinkLogEntry) ValueForAttribute(name string) any {
 
 // AppGraphLinkLogEntryAttributesMap represents the map of attribute for AppGraphLinkLogEntry.
 var AppGraphLinkLogEntryAttributesMap = map[string]elemental.AttributeSpecification{
+	"APIs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "APIs",
+		Description: `The number of allowed and denied requests to this node broken down by the
+deployment they went through.`,
+		Exposed: true,
+		Name:    "APIs",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
+	},
 	"Allow": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Allow",
@@ -256,6 +284,16 @@ var AppGraphLinkLogEntryAttributesMap = map[string]elemental.AttributeSpecificat
 		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
+	"Gateways": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Gateways",
+		Description: `The number of allowed and denied requests to this node broken down by the
+gateway they went through.`,
+		Exposed: true,
+		Name:    "gateways",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
+	},
 	"InsecureEncryption": {
 		AllowedChoices: []string{},
 		ConvertedName:  "InsecureEncryption",
@@ -274,6 +312,16 @@ or 1.1).`,
 		SubType:        "proxyroundtrip",
 		Type:           "refList",
 	},
+	"Proxies": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Proxies",
+		Description: `The number of allowed and denied requests to this node broken down by the
+deployment they went through.`,
+		Exposed: true,
+		Name:    "proxies",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
+	},
 	"Unencrypted": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Unencrypted",
@@ -286,6 +334,16 @@ or 1.1).`,
 
 // AppGraphLinkLogEntryLowerCaseAttributesMap represents the map of attribute for AppGraphLinkLogEntry.
 var AppGraphLinkLogEntryLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"apis": {
+		AllowedChoices: []string{},
+		ConvertedName:  "APIs",
+		Description: `The number of allowed and denied requests to this node broken down by the
+deployment they went through.`,
+		Exposed: true,
+		Name:    "APIs",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
+	},
 	"allow": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Allow",
@@ -319,6 +377,16 @@ var AppGraphLinkLogEntryLowerCaseAttributesMap = map[string]elemental.AttributeS
 		SubType:        "map[string]map[string]int",
 		Type:           "external",
 	},
+	"gateways": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Gateways",
+		Description: `The number of allowed and denied requests to this node broken down by the
+gateway they went through.`,
+		Exposed: true,
+		Name:    "gateways",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
+	},
 	"insecureencryption": {
 		AllowedChoices: []string{},
 		ConvertedName:  "InsecureEncryption",
@@ -336,6 +404,16 @@ or 1.1).`,
 		Name:           "logs",
 		SubType:        "proxyroundtrip",
 		Type:           "refList",
+	},
+	"proxies": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Proxies",
+		Description: `The number of allowed and denied requests to this node broken down by the
+deployment they went through.`,
+		Exposed: true,
+		Name:    "proxies",
+		SubType: "map[string]map[string]int",
+		Type:    "external",
 	},
 	"unencrypted": {
 		AllowedChoices: []string{},

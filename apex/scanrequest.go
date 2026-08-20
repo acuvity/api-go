@@ -23,6 +23,17 @@ const (
 	ScanRequestAnonymizationVariableSize ScanRequestAnonymizationValue = "VariableSize"
 )
 
+// ScanRequestDirectionValue represents the possible values for attribute "direction".
+type ScanRequestDirectionValue string
+
+const (
+	// ScanRequestDirectionEgress represents the value Egress.
+	ScanRequestDirectionEgress ScanRequestDirectionValue = "Egress"
+
+	// ScanRequestDirectionIngress represents the value Ingress.
+	ScanRequestDirectionIngress ScanRequestDirectionValue = "Ingress"
+)
+
 // ScanRequestTypeValue represents the possible values for attribute "type".
 type ScanRequestTypeValue string
 
@@ -106,16 +117,6 @@ func (o ScanRequestsList) Version() int {
 
 // ScanRequest represents the model of a scanrequest
 type ScanRequest struct {
-	// AccessPolicy allows to pass optional Rego access policy. If not set,
-	// The action is always Allow,
-	// If it is set, it will be run, and the final decision will be computed based
-	// on that policy.
-	// If the rego code does not start with package main, then the needed
-	// classic package definition and  acuvity imports will be added
-	// automatically.
-	// If the code starts with package main, then everything remains untouched.
-	AccessPolicy string `json:"accessPolicy,omitempty" msgpack:"accessPolicy,omitempty" bson:"-" mapstructure:"accessPolicy,omitempty"`
-
 	// The analyzers parameter allows for customizing which analyzers should be used,
 	// overriding the default selection. Each analyzer entry can optionally include a
 	// prefix to modify its behavior:
@@ -138,35 +139,29 @@ type ScanRequest struct {
 	// If left empty, all default analyzers will be executed.
 	Analyzers []string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
 
-	// Annotations attached to the extraction.
-	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"-" mapstructure:"annotations,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization ScanRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
-	// The application processing information for this request. For police requests
-	// in an apps namespace, this is required when using an AppToken. For scan
-	// requests, this is optional and enhances logging with app/component context.
-	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
-
-	// In the case of a contentPolicy that asks for a confirmation, this is the
-	// hash you must send back to bypass the block. This is only useful when a
-	// content policy has been set or is evaluated remotely.
-	BypassHash string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
-
-	// ContentPolicy allows to pass optional Rego content policy. If not set,
-	// The action is always Allow, and there cannot be any alerts raised etc
-	// If it is set, it will be run, and the final decision will be computed based
-	// on that policy.
-	// If the rego code does not start with package main, then the needed
-	// classic package definition and  acuvity imports will be added
-	// automatically.
-	// If the code starts with package main, then everything remains untouched.
-	ContentPolicy string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
+	// Identifies the conversation this request belongs to. Apex records it on the
+	// resulting log, which is what groups the successive requests of one conversation
+	// together in the logs and in the conversation view, and it is also made available
+	// to the analyzers and to policies. Send the same value on every request of the
+	// same conversation.
+	ConversationID string `json:"conversationID,omitempty" msgpack:"conversationID,omitempty" bson:"-" mapstructure:"conversationID,omitempty"`
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
+	// On the police API an egress request must set either this or the provider: the
+	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// that targets nothing, in which case the app component identified by the
+	// caller's token is reported as the destination so that the request still shows
+	// up in traces.
 	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
+	// The direction of the traffic for this request, relative to the app component
+	// the caller's token identifies. Determines whether the ingress or the egress
+	// policies of that app component are evaluated.
+	Direction ScanRequestDirectionValue `json:"direction" msgpack:"direction" bson:"-" mapstructure:"direction,omitempty"`
 
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
@@ -178,23 +173,41 @@ type ScanRequest struct {
 	// processing binary data.
 	Messages []string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// If true, the system will skip logging roundtrips with an Allow decision.
-	// Denials, errors, and other non-Allow decisions are still logged. When
-	// combined with no embedded policy, this effectively disables all logging.
-	MinimalLogging bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
-
-	// The model used by the request.
-	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
-
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
+	// On the police API an egress request must set either this or the destination app
+	// and component. On the scan API both may be omitted to run a plain scan that
+	// targets nothing.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// If true, the user data is removed from the logged roundtrip, while the
+	// analysis and all other metadata are kept. This only affects what is logged:
+	// the response of this call always carries the full content.
+	RedactContent bool `json:"redactContent,omitempty" msgpack:"redactContent,omitempty" bson:"-" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is also true, the user data is kept in the
+	// logged roundtrip whenever the decision reports a violation, so that the
+	// content behind a denial stays available for review. It has no effect on
+	// its own.
+	RedactContentBypass bool `json:"redactContentBypass,omitempty" msgpack:"redactContentBypass,omitempty" bson:"-" mapstructure:"redactContentBypass,omitempty"`
 
 	// The redactions to perform if they are detected.
 	Redactions []string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
 
+	// The source of this request. Optional: on egress the source is already known
+	// from the caller's token, and on ingress it can be left out for an anonymous
+	// external caller.
+	Source *RequestSource `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
+
 	// The various tools used by the request.
 	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
+	// The trace context this request belongs to. When it is set, Apex places the span
+	// it creates for this request inside your trace instead of starting a new one, and
+	// setting it enables tracing for this request even when the application is
+	// otherwise configured not to trace. What Apex actually recorded is reported back
+	// in the 'trace' field of the response.
+	Trace *RequestTrace `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"-" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type ScanRequestTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
@@ -208,8 +221,8 @@ func NewScanRequest() *ScanRequest {
 	return &ScanRequest{
 		ModelVersion:  1,
 		Analyzers:     []string{},
-		Annotations:   map[string]string{},
 		Anonymization: ScanRequestAnonymizationFixedSize,
+		Direction:     ScanRequestDirectionEgress,
 	}
 }
 
@@ -241,8 +254,6 @@ func (o *ScanRequest) GetBSON() (any, error) {
 	s := &mongoAttributesScanRequest{}
 
 	s.Anonymization = o.Anonymization
-	s.BypassHash = o.BypassHash
-	s.Model = o.Model
 	s.Redactions = o.Redactions
 	s.Tools = o.Tools
 	s.Type = o.Type
@@ -264,8 +275,6 @@ func (o *ScanRequest) SetBSON(raw bson.Raw) error {
 	}
 
 	o.Anonymization = s.Anonymization
-	o.BypassHash = s.BypassHash
-	o.Model = s.Model
 	o.Redactions = s.Redactions
 	o.Tools = s.Tools
 	o.Type = s.Type
@@ -294,7 +303,9 @@ func (o *ScanRequest) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *ScanRequest) Doc() string {
 
-	return `This is a scan request.`
+	return `This is a scan request. Scan enforces no policy, so unlike police it can be used
+as a plain analyzer with no destination in mind: provider, destination and
+direction may all be left out.`
 }
 
 func (o *ScanRequest) String() string {
@@ -309,61 +320,58 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseScanRequest{
-			AccessPolicy:   &o.AccessPolicy,
-			Analyzers:      &o.Analyzers,
-			Annotations:    &o.Annotations,
-			Anonymization:  &o.Anonymization,
-			App:            o.App,
-			BypassHash:     &o.BypassHash,
-			ContentPolicy:  &o.ContentPolicy,
-			Destination:    o.Destination,
-			Extractions:    &o.Extractions,
-			Keywords:       &o.Keywords,
-			Messages:       &o.Messages,
-			MinimalLogging: &o.MinimalLogging,
-			Model:          &o.Model,
-			Provider:       &o.Provider,
-			Redactions:     &o.Redactions,
-			Tools:          &o.Tools,
-			Type:           &o.Type,
+			Analyzers:           &o.Analyzers,
+			Anonymization:       &o.Anonymization,
+			ConversationID:      &o.ConversationID,
+			Destination:         o.Destination,
+			Direction:           &o.Direction,
+			Extractions:         &o.Extractions,
+			Keywords:            &o.Keywords,
+			Messages:            &o.Messages,
+			Provider:            &o.Provider,
+			RedactContent:       &o.RedactContent,
+			RedactContentBypass: &o.RedactContentBypass,
+			Redactions:          &o.Redactions,
+			Source:              o.Source,
+			Tools:               &o.Tools,
+			Trace:               o.Trace,
+			Type:                &o.Type,
 		}
 	}
 
 	sp := &SparseScanRequest{}
 	for _, f := range fields {
 		switch f {
-		case "accessPolicy":
-			sp.AccessPolicy = &(o.AccessPolicy)
 		case "analyzers":
 			sp.Analyzers = &(o.Analyzers)
-		case "annotations":
-			sp.Annotations = &(o.Annotations)
 		case "anonymization":
 			sp.Anonymization = &(o.Anonymization)
-		case "app":
-			sp.App = o.App
-		case "bypassHash":
-			sp.BypassHash = &(o.BypassHash)
-		case "contentPolicy":
-			sp.ContentPolicy = &(o.ContentPolicy)
+		case "conversationID":
+			sp.ConversationID = &(o.ConversationID)
 		case "destination":
 			sp.Destination = o.Destination
+		case "direction":
+			sp.Direction = &(o.Direction)
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "keywords":
 			sp.Keywords = &(o.Keywords)
 		case "messages":
 			sp.Messages = &(o.Messages)
-		case "minimalLogging":
-			sp.MinimalLogging = &(o.MinimalLogging)
-		case "model":
-			sp.Model = &(o.Model)
 		case "provider":
 			sp.Provider = &(o.Provider)
+		case "redactContent":
+			sp.RedactContent = &(o.RedactContent)
+		case "redactContentBypass":
+			sp.RedactContentBypass = &(o.RedactContentBypass)
 		case "redactions":
 			sp.Redactions = &(o.Redactions)
+		case "source":
+			sp.Source = o.Source
 		case "tools":
 			sp.Tools = &(o.Tools)
+		case "trace":
+			sp.Trace = o.Trace
 		case "type":
 			sp.Type = &(o.Type)
 		}
@@ -379,29 +387,20 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseScanRequest)
-	if so.AccessPolicy != nil {
-		o.AccessPolicy = *so.AccessPolicy
-	}
 	if so.Analyzers != nil {
 		o.Analyzers = *so.Analyzers
-	}
-	if so.Annotations != nil {
-		o.Annotations = *so.Annotations
 	}
 	if so.Anonymization != nil {
 		o.Anonymization = *so.Anonymization
 	}
-	if so.App != nil {
-		o.App = so.App
-	}
-	if so.BypassHash != nil {
-		o.BypassHash = *so.BypassHash
-	}
-	if so.ContentPolicy != nil {
-		o.ContentPolicy = *so.ContentPolicy
+	if so.ConversationID != nil {
+		o.ConversationID = *so.ConversationID
 	}
 	if so.Destination != nil {
 		o.Destination = so.Destination
+	}
+	if so.Direction != nil {
+		o.Direction = *so.Direction
 	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
@@ -412,20 +411,26 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Messages != nil {
 		o.Messages = *so.Messages
 	}
-	if so.MinimalLogging != nil {
-		o.MinimalLogging = *so.MinimalLogging
-	}
-	if so.Model != nil {
-		o.Model = *so.Model
-	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
+	}
+	if so.RedactContent != nil {
+		o.RedactContent = *so.RedactContent
+	}
+	if so.RedactContentBypass != nil {
+		o.RedactContentBypass = *so.RedactContentBypass
 	}
 	if so.Redactions != nil {
 		o.Redactions = *so.Redactions
 	}
+	if so.Source != nil {
+		o.Source = so.Source
+	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
+	}
+	if so.Trace != nil {
+		o.Trace = so.Trace
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -434,12 +439,6 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
@@ -456,6 +455,12 @@ func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) 
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Source' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Tools {
 		if sub == nil {
 			continue
@@ -465,17 +470,17 @@ func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) 
 		}
 	}
 
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *ScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
@@ -492,12 +497,24 @@ func (o *ScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) 
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Source' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Tools {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -536,22 +553,7 @@ func (o *ScanRequest) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := ValidateRego("accessPolicy", o.AccessPolicy); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateStringInList("anonymization", string(o.Anonymization), []string{"FixedSize", "VariableSize"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if o.App != nil {
-		if err := o.App.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "app")
-		}
-	}
-
-	if err := ValidateRego("contentPolicy", o.ContentPolicy); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -560,6 +562,10 @@ func (o *ScanRequest) Validate() error {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, "destination")
 		}
+	}
+
+	if err := elemental.ValidateStringInList("direction", string(o.Direction), []string{"Egress", "Ingress"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for i, sub := range o.Extractions {
@@ -572,6 +578,13 @@ func (o *ScanRequest) Validate() error {
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "source")
+		}
+	}
+
 	for i, sub := range o.Tools {
 		if sub == nil {
 			continue
@@ -579,6 +592,13 @@ func (o *ScanRequest) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trace")
 		}
 	}
 
@@ -625,38 +645,36 @@ func (*ScanRequest) AttributeSpecifications() map[string]elemental.AttributeSpec
 func (o *ScanRequest) ValueForAttribute(name string) any {
 
 	switch name {
-	case "accessPolicy":
-		return o.AccessPolicy
 	case "analyzers":
 		return o.Analyzers
-	case "annotations":
-		return o.Annotations
 	case "anonymization":
 		return o.Anonymization
-	case "app":
-		return o.App
-	case "bypassHash":
-		return o.BypassHash
-	case "contentPolicy":
-		return o.ContentPolicy
+	case "conversationID":
+		return o.ConversationID
 	case "destination":
 		return o.Destination
+	case "direction":
+		return o.Direction
 	case "extractions":
 		return o.Extractions
 	case "keywords":
 		return o.Keywords
 	case "messages":
 		return o.Messages
-	case "minimalLogging":
-		return o.MinimalLogging
-	case "model":
-		return o.Model
 	case "provider":
 		return o.Provider
+	case "redactContent":
+		return o.RedactContent
+	case "redactContentBypass":
+		return o.RedactContentBypass
 	case "redactions":
 		return o.Redactions
+	case "source":
+		return o.Source
 	case "tools":
 		return o.Tools
+	case "trace":
+		return o.Trace
 	case "type":
 		return o.Type
 	}
@@ -666,21 +684,6 @@ func (o *ScanRequest) ValueForAttribute(name string) any {
 
 // ScanRequestAttributesMap represents the map of attribute for ScanRequest.
 var ScanRequestAttributesMap = map[string]elemental.AttributeSpecification{
-	"AccessPolicy": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AccessPolicy",
-		Description: `AccessPolicy allows to pass optional Rego access policy. If not set,
-The action is always Allow,
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.`,
-		Exposed: true,
-		Name:    "accessPolicy",
-		Type:    "string",
-	},
 	"Analyzers": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Analyzers",
@@ -709,15 +712,6 @@ If left empty, all default analyzers will be executed.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"Annotations": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"Anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -729,53 +723,43 @@ If left empty, all default analyzers will be executed.`,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"App": {
+	"ConversationID": {
 		AllowedChoices: []string{},
-		ConvertedName:  "App",
-		Description: `The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.`,
+		ConvertedName:  "ConversationID",
+		Description: `Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.`,
 		Exposed: true,
-		Name:    "app",
-		SubType: "requestapp",
-		Type:    "ref",
-	},
-	"BypassHash": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "bypasshash",
-		ConvertedName:  "BypassHash",
-		Description: `In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.`,
-		Exposed: true,
-		Name:    "bypassHash",
-		Stored:  true,
-		Type:    "string",
-	},
-	"ContentPolicy": {
-		AllowedChoices: []string{},
-		ConvertedName:  "ContentPolicy",
-		Description: `ContentPolicy allows to pass optional Rego content policy. If not set,
-The action is always Allow, and there cannot be any alerts raised etc
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.`,
-		Exposed: true,
-		Name:    "contentPolicy",
+		Name:    "conversationID",
 		Type:    "string",
 	},
 	"Destination": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
-they become the policy target and the provider field must not be set.`,
+they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.`,
 		Exposed: true,
 		Name:    "destination",
 		SubType: "requestdestination",
 		Type:    "ref",
+	},
+	"Direction": {
+		AllowedChoices: []string{"Egress", "Ingress"},
+		ConvertedName:  "Direction",
+		DefaultValue:   ScanRequestDirectionEgress,
+		Description: `The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.`,
+		Exposed: true,
+		Name:    "direction",
+		Type:    "enum",
 	},
 	"Extractions": {
 		AllowedChoices: []string{},
@@ -805,34 +789,38 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"MinimalLogging": {
-		AllowedChoices: []string{},
-		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will skip logging roundtrips with an Allow decision.
-Denials, errors, and other non-Allow decisions are still logged. When
-combined with no embedded policy, this effectively disables all logging.`,
-		Exposed: true,
-		Name:    "minimalLogging",
-		Type:    "boolean",
-	},
-	"Model": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "model",
-		ConvertedName:  "Model",
-		Description:    `The model used by the request.`,
-		Exposed:        true,
-		Name:           "model",
-		Stored:         true,
-		Type:           "string",
-	},
 	"Provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
-destination app and component are set.`,
+destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"RedactContent": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedactContent",
+		Description: `If true, the user data is removed from the logged roundtrip, while the
+analysis and all other metadata are kept. This only affects what is logged:
+the response of this call always carries the full content.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Type:    "boolean",
+	},
+	"RedactContentBypass": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is also true, the user data is kept in the
+logged roundtrip whenever the decision reports a violation, so that the
+content behind a denial stays available for review. It has no effect on
+its own.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Type:    "boolean",
 	},
 	"Redactions": {
 		AllowedChoices: []string{},
@@ -845,6 +833,17 @@ destination app and component are set.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"Source": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Source",
+		Description: `The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.`,
+		Exposed: true,
+		Name:    "source",
+		SubType: "requestsource",
+		Type:    "ref",
+	},
 	"Tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -855,6 +854,19 @@ destination app and component are set.`,
 		Stored:         true,
 		SubType:        "tool",
 		Type:           "refMap",
+	},
+	"Trace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Trace",
+		Description: `The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.`,
+		Exposed: true,
+		Name:    "trace",
+		SubType: "requesttrace",
+		Type:    "ref",
 	},
 	"Type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -870,21 +882,6 @@ destination app and component are set.`,
 
 // ScanRequestLowerCaseAttributesMap represents the map of attribute for ScanRequest.
 var ScanRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"accesspolicy": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AccessPolicy",
-		Description: `AccessPolicy allows to pass optional Rego access policy. If not set,
-The action is always Allow,
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.`,
-		Exposed: true,
-		Name:    "accessPolicy",
-		Type:    "string",
-	},
 	"analyzers": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Analyzers",
@@ -913,15 +910,6 @@ If left empty, all default analyzers will be executed.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"annotations": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		SubType:        "map[string]string",
-		Type:           "external",
-	},
 	"anonymization": {
 		AllowedChoices: []string{"FixedSize", "VariableSize"},
 		BSONFieldName:  "anonymization",
@@ -933,53 +921,43 @@ If left empty, all default analyzers will be executed.`,
 		Stored:         true,
 		Type:           "enum",
 	},
-	"app": {
+	"conversationid": {
 		AllowedChoices: []string{},
-		ConvertedName:  "App",
-		Description: `The application processing information for this request. For police requests
-in an apps namespace, this is required when using an AppToken. For scan
-requests, this is optional and enhances logging with app/component context.`,
+		ConvertedName:  "ConversationID",
+		Description: `Identifies the conversation this request belongs to. Apex records it on the
+resulting log, which is what groups the successive requests of one conversation
+together in the logs and in the conversation view, and it is also made available
+to the analyzers and to policies. Send the same value on every request of the
+same conversation.`,
 		Exposed: true,
-		Name:    "app",
-		SubType: "requestapp",
-		Type:    "ref",
-	},
-	"bypasshash": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "bypasshash",
-		ConvertedName:  "BypassHash",
-		Description: `In the case of a contentPolicy that asks for a confirmation, this is the
-hash you must send back to bypass the block. This is only useful when a
-content policy has been set or is evaluated remotely.`,
-		Exposed: true,
-		Name:    "bypassHash",
-		Stored:  true,
-		Type:    "string",
-	},
-	"contentpolicy": {
-		AllowedChoices: []string{},
-		ConvertedName:  "ContentPolicy",
-		Description: `ContentPolicy allows to pass optional Rego content policy. If not set,
-The action is always Allow, and there cannot be any alerts raised etc
-If it is set, it will be run, and the final decision will be computed based
-on that policy.
-If the rego code does not start with package main, then the needed
-classic package definition and  acuvity imports will be added
-automatically.
-If the code starts with package main, then everything remains untouched.`,
-		Exposed: true,
-		Name:    "contentPolicy",
+		Name:    "conversationID",
 		Type:    "string",
 	},
 	"destination": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
-they become the policy target and the provider field must not be set.`,
+they become the policy target and the provider field must not be set.
+On the police API an egress request must set either this or the provider: the
+policy needs a target. On the scan API both may be omitted to run a plain scan
+that targets nothing, in which case the app component identified by the
+caller's token is reported as the destination so that the request still shows
+up in traces.`,
 		Exposed: true,
 		Name:    "destination",
 		SubType: "requestdestination",
 		Type:    "ref",
+	},
+	"direction": {
+		AllowedChoices: []string{"Egress", "Ingress"},
+		ConvertedName:  "Direction",
+		DefaultValue:   ScanRequestDirectionEgress,
+		Description: `The direction of the traffic for this request, relative to the app component
+the caller's token identifies. Determines whether the ingress or the egress
+policies of that app component are evaluated.`,
+		Exposed: true,
+		Name:    "direction",
+		Type:    "enum",
 	},
 	"extractions": {
 		AllowedChoices: []string{},
@@ -1009,34 +987,38 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
-	"minimallogging": {
-		AllowedChoices: []string{},
-		ConvertedName:  "MinimalLogging",
-		Description: `If true, the system will skip logging roundtrips with an Allow decision.
-Denials, errors, and other non-Allow decisions are still logged. When
-combined with no embedded policy, this effectively disables all logging.`,
-		Exposed: true,
-		Name:    "minimalLogging",
-		Type:    "boolean",
-	},
-	"model": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "model",
-		ConvertedName:  "Model",
-		Description:    `The model used by the request.`,
-		Exposed:        true,
-		Name:           "model",
-		Stored:         true,
-		Type:           "string",
-	},
 	"provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
-destination app and component are set.`,
+destination app and component are set.
+On the police API an egress request must set either this or the destination app
+and component. On the scan API both may be omitted to run a plain scan that
+targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
+	},
+	"redactcontent": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedactContent",
+		Description: `If true, the user data is removed from the logged roundtrip, while the
+analysis and all other metadata are kept. This only affects what is logged:
+the response of this call always carries the full content.`,
+		Exposed: true,
+		Name:    "redactContent",
+		Type:    "boolean",
+	},
+	"redactcontentbypass": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RedactContentBypass",
+		Description: `If true, and redactContent is also true, the user data is kept in the
+logged roundtrip whenever the decision reports a violation, so that the
+content behind a denial stays available for review. It has no effect on
+its own.`,
+		Exposed: true,
+		Name:    "redactContentBypass",
+		Type:    "boolean",
 	},
 	"redactions": {
 		AllowedChoices: []string{},
@@ -1049,6 +1031,17 @@ destination app and component are set.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"source": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Source",
+		Description: `The source of this request. Optional: on egress the source is already known
+from the caller's token, and on ingress it can be left out for an anonymous
+external caller.`,
+		Exposed: true,
+		Name:    "source",
+		SubType: "requestsource",
+		Type:    "ref",
+	},
 	"tools": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "tools",
@@ -1059,6 +1052,19 @@ destination app and component are set.`,
 		Stored:         true,
 		SubType:        "tool",
 		Type:           "refMap",
+	},
+	"trace": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Trace",
+		Description: `The trace context this request belongs to. When it is set, Apex places the span
+it creates for this request inside your trace instead of starting a new one, and
+setting it enables tracing for this request even when the application is
+otherwise configured not to trace. What Apex actually recorded is reported back
+in the 'trace' field of the response.`,
+		Exposed: true,
+		Name:    "trace",
+		SubType: "requesttrace",
+		Type:    "ref",
 	},
 	"type": {
 		AllowedChoices: []string{"Input", "Output"},
@@ -1135,16 +1141,6 @@ func (o SparseScanRequestsList) Version() int {
 
 // SparseScanRequest represents the sparse version of a scanrequest.
 type SparseScanRequest struct {
-	// AccessPolicy allows to pass optional Rego access policy. If not set,
-	// The action is always Allow,
-	// If it is set, it will be run, and the final decision will be computed based
-	// on that policy.
-	// If the rego code does not start with package main, then the needed
-	// classic package definition and  acuvity imports will be added
-	// automatically.
-	// If the code starts with package main, then everything remains untouched.
-	AccessPolicy *string `json:"accessPolicy,omitempty" msgpack:"accessPolicy,omitempty" bson:"-" mapstructure:"accessPolicy,omitempty"`
-
 	// The analyzers parameter allows for customizing which analyzers should be used,
 	// overriding the default selection. Each analyzer entry can optionally include a
 	// prefix to modify its behavior:
@@ -1167,35 +1163,29 @@ type SparseScanRequest struct {
 	// If left empty, all default analyzers will be executed.
 	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
 
-	// Annotations attached to the extraction.
-	Annotations *map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"-" mapstructure:"annotations,omitempty"`
-
 	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
 	Anonymization *ScanRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
-	// The application processing information for this request. For police requests
-	// in an apps namespace, this is required when using an AppToken. For scan
-	// requests, this is optional and enhances logging with app/component context.
-	App *RequestApp `json:"app,omitempty" msgpack:"app,omitempty" bson:"-" mapstructure:"app,omitempty"`
-
-	// In the case of a contentPolicy that asks for a confirmation, this is the
-	// hash you must send back to bypass the block. This is only useful when a
-	// content policy has been set or is evaluated remotely.
-	BypassHash *string `json:"bypassHash,omitempty" msgpack:"bypassHash,omitempty" bson:"bypasshash,omitempty" mapstructure:"bypassHash,omitempty"`
-
-	// ContentPolicy allows to pass optional Rego content policy. If not set,
-	// The action is always Allow, and there cannot be any alerts raised etc
-	// If it is set, it will be run, and the final decision will be computed based
-	// on that policy.
-	// If the rego code does not start with package main, then the needed
-	// classic package definition and  acuvity imports will be added
-	// automatically.
-	// If the code starts with package main, then everything remains untouched.
-	ContentPolicy *string `json:"contentPolicy,omitempty" msgpack:"contentPolicy,omitempty" bson:"-" mapstructure:"contentPolicy,omitempty"`
+	// Identifies the conversation this request belongs to. Apex records it on the
+	// resulting log, which is what groups the successive requests of one conversation
+	// together in the logs and in the conversation view, and it is also made available
+	// to the analyzers and to policies. Send the same value on every request of the
+	// same conversation.
+	ConversationID *string `json:"conversationID,omitempty" msgpack:"conversationID,omitempty" bson:"-" mapstructure:"conversationID,omitempty"`
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
+	// On the police API an egress request must set either this or the provider: the
+	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// that targets nothing, in which case the app component identified by the
+	// caller's token is reported as the destination so that the request still shows
+	// up in traces.
 	Destination *RequestDestination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"-" mapstructure:"destination,omitempty"`
+
+	// The direction of the traffic for this request, relative to the app component
+	// the caller's token identifies. Determines whether the ingress or the egress
+	// policies of that app component are evaluated.
+	Direction *ScanRequestDirectionValue `json:"direction,omitempty" msgpack:"direction,omitempty" bson:"-" mapstructure:"direction,omitempty"`
 
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
@@ -1207,23 +1197,41 @@ type SparseScanRequest struct {
 	// processing binary data.
 	Messages *[]string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
-	// If true, the system will skip logging roundtrips with an Allow decision.
-	// Denials, errors, and other non-Allow decisions are still logged. When
-	// combined with no embedded policy, this effectively disables all logging.
-	MinimalLogging *bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"-" mapstructure:"minimalLogging,omitempty"`
-
-	// The model used by the request.
-	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"model,omitempty" mapstructure:"model,omitempty"`
-
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
+	// On the police API an egress request must set either this or the destination app
+	// and component. On the scan API both may be omitted to run a plain scan that
+	// targets nothing.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
+
+	// If true, the user data is removed from the logged roundtrip, while the
+	// analysis and all other metadata are kept. This only affects what is logged:
+	// the response of this call always carries the full content.
+	RedactContent *bool `json:"redactContent,omitempty" msgpack:"redactContent,omitempty" bson:"-" mapstructure:"redactContent,omitempty"`
+
+	// If true, and redactContent is also true, the user data is kept in the
+	// logged roundtrip whenever the decision reports a violation, so that the
+	// content behind a denial stays available for review. It has no effect on
+	// its own.
+	RedactContentBypass *bool `json:"redactContentBypass,omitempty" msgpack:"redactContentBypass,omitempty" bson:"-" mapstructure:"redactContentBypass,omitempty"`
 
 	// The redactions to perform if they are detected.
 	Redactions *[]string `json:"redactions,omitempty" msgpack:"redactions,omitempty" bson:"redactions,omitempty" mapstructure:"redactions,omitempty"`
 
+	// The source of this request. Optional: on egress the source is already known
+	// from the caller's token, and on ingress it can be left out for an anonymous
+	// external caller.
+	Source *RequestSource `json:"source,omitempty" msgpack:"source,omitempty" bson:"-" mapstructure:"source,omitempty"`
+
 	// The various tools used by the request.
 	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
+
+	// The trace context this request belongs to. When it is set, Apex places the span
+	// it creates for this request inside your trace instead of starting a new one, and
+	// setting it enables tracing for this request even when the application is
+	// otherwise configured not to trace. What Apex actually recorded is reported back
+	// in the 'trace' field of the response.
+	Trace *RequestTrace `json:"trace,omitempty" msgpack:"trace,omitempty" bson:"-" mapstructure:"trace,omitempty"`
 
 	// The type of text.
 	Type *ScanRequestTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
@@ -1266,12 +1274,6 @@ func (o *SparseScanRequest) GetBSON() (any, error) {
 	if o.Anonymization != nil {
 		s.Anonymization = o.Anonymization
 	}
-	if o.BypassHash != nil {
-		s.BypassHash = o.BypassHash
-	}
-	if o.Model != nil {
-		s.Model = o.Model
-	}
 	if o.Redactions != nil {
 		s.Redactions = o.Redactions
 	}
@@ -1301,12 +1303,6 @@ func (o *SparseScanRequest) SetBSON(raw bson.Raw) error {
 	if s.Anonymization != nil {
 		o.Anonymization = s.Anonymization
 	}
-	if s.BypassHash != nil {
-		o.BypassHash = s.BypassHash
-	}
-	if s.Model != nil {
-		o.Model = s.Model
-	}
 	if s.Redactions != nil {
 		o.Redactions = s.Redactions
 	}
@@ -1330,29 +1326,20 @@ func (o *SparseScanRequest) Version() int {
 func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewScanRequest()
-	if o.AccessPolicy != nil {
-		out.AccessPolicy = *o.AccessPolicy
-	}
 	if o.Analyzers != nil {
 		out.Analyzers = *o.Analyzers
-	}
-	if o.Annotations != nil {
-		out.Annotations = *o.Annotations
 	}
 	if o.Anonymization != nil {
 		out.Anonymization = *o.Anonymization
 	}
-	if o.App != nil {
-		out.App = o.App
-	}
-	if o.BypassHash != nil {
-		out.BypassHash = *o.BypassHash
-	}
-	if o.ContentPolicy != nil {
-		out.ContentPolicy = *o.ContentPolicy
+	if o.ConversationID != nil {
+		out.ConversationID = *o.ConversationID
 	}
 	if o.Destination != nil {
 		out.Destination = o.Destination
+	}
+	if o.Direction != nil {
+		out.Direction = *o.Direction
 	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
@@ -1363,20 +1350,26 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Messages != nil {
 		out.Messages = *o.Messages
 	}
-	if o.MinimalLogging != nil {
-		out.MinimalLogging = *o.MinimalLogging
-	}
-	if o.Model != nil {
-		out.Model = *o.Model
-	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
+	}
+	if o.RedactContent != nil {
+		out.RedactContent = *o.RedactContent
+	}
+	if o.RedactContentBypass != nil {
+		out.RedactContentBypass = *o.RedactContentBypass
 	}
 	if o.Redactions != nil {
 		out.Redactions = *o.Redactions
 	}
+	if o.Source != nil {
+		out.Source = o.Source
+	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
+	}
+	if o.Trace != nil {
+		out.Trace = o.Trace
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -1387,12 +1380,6 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
@@ -1411,6 +1398,12 @@ func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncry
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Source' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Tools != nil {
 		for _, sub := range *o.Tools {
 			if sub == nil {
@@ -1422,17 +1415,17 @@ func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncry
 		}
 	}
 
+	if o.Trace != nil {
+		if err := o.Trace.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Trace' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
-
-	if o.App != nil {
-		if err := o.App.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'App' for 'ScanRequest' (%s): %w", o.Identifier(), err)
-		}
-	}
 
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
@@ -1451,6 +1444,12 @@ func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncry
 		}
 	}
 
+	if o.Source != nil {
+		if err := o.Source.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Source' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.Tools != nil {
 		for _, sub := range *o.Tools {
 			if sub == nil {
@@ -1459,6 +1458,12 @@ func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncry
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tools' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.Trace != nil {
+		if err := o.Trace.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Trace' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1491,16 +1496,12 @@ func (o *SparseScanRequest) DeepCopyInto(out *SparseScanRequest) {
 
 type mongoAttributesScanRequest struct {
 	Anonymization ScanRequestAnonymizationValue `bson:"anonymization"`
-	BypassHash    string                        `bson:"bypasshash,omitempty"`
-	Model         string                        `bson:"model,omitempty"`
 	Redactions    []string                      `bson:"redactions,omitempty"`
 	Tools         map[string]*Tool              `bson:"tools,omitempty"`
 	Type          ScanRequestTypeValue          `bson:"type"`
 }
 type mongoAttributesSparseScanRequest struct {
 	Anonymization *ScanRequestAnonymizationValue `bson:"anonymization,omitempty"`
-	BypassHash    *string                        `bson:"bypasshash,omitempty"`
-	Model         *string                        `bson:"model,omitempty"`
 	Redactions    *[]string                      `bson:"redactions,omitempty"`
 	Tools         *map[string]*Tool              `bson:"tools,omitempty"`
 	Type          *ScanRequestTypeValue          `bson:"type,omitempty"`
