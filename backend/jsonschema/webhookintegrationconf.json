@@ -1,0 +1,99 @@
+{
+  "$extends": [
+    "@failclose"
+  ],
+  "$friendlyName": "Webhook Integration Conf",
+  "$friendlyNamePlural": "Webhook Integration Confs",
+  "$modelName": "WebhookIntegrationConf",
+  "$modelPackage": "lain",
+  "$modelResourceName": "webhookintegrationconfs",
+  "$modelRestName": "webhookintegrationconf",
+  "additionalProperties": false,
+  "description": "The rendered webhook integration shape consumed by the AI Gateway.",
+  "properties": {
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "description": "The routes of this integration. Each one serves a method and a path under the route of the connector the integration is attached to.",
+      "items": {
+        "$ref": "webhookextractor.json"
+      },
+      "title": "extractors",
+      "type": "array"
+    },
+    "failClose": {
+      "$friendlyName": "Fail Close",
+      "description": "If true, when any non-user-facing platform stage fails during request handling (extractor, mapper, analyzer, content policy, body read, etc.), the request is rejected. When false (default), the request is allowed through unanalyzed (fail-open), trading safety for availability. User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected and continue to be enforced. Default false.",
+      "title": "failClose",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "lib": {
+      "$friendlyName": "Lib",
+      "description": "If set, this snippet of lua will be available in all webhook extractors of the integration, acting as an effective library. It must be a valid lua module. It will be available to all extractors by doing local plib = require('plib').",
+      "title": "lib",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "maxBodySize": {
+      "$friendlyName": "Max Body Size",
+      "description": "The maximum size in bytes of a request body the route of the integration accepts. A larger body is rejected without being inspected. When it is 0, the system default applies.",
+      "title": "maxBodySize",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the webhook integration.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "description": "The namespace of the underlying webhook integration.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "redactContent": {
+      "$friendlyName": "Redact Content",
+      "description": "If true, the user data is removed from the logged roundtrip while the analysis and all other metadata are kept. It only applies to routes whose mode is Scan. On a Police route the access policy decides this.",
+      "title": "redactContent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactContentBypass": {
+      "$friendlyName": "Redact Content Bypass",
+      "description": "If true, and redactContent is also true, the user data is kept in the logged roundtrip whenever the analysis reports a violation, so the content behind a finding stays available for review. It has no effect on its own, and like redactContent it only applies to Scan-mode routes.",
+      "title": "redactContentBypass",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "timeout": {
+      "$friendlyName": "Timeout",
+      "description": "How long a call may take in total, including the scan or police pass. When it elapses, the call is answered according to failClose. When empty, the system default applies.",
+      "title": "timeout",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "WebhookIntegrationConf",
+  "type": "object"
+}

@@ -1,6 +1,6 @@
 module go.acuvity.ai/api
 
-go 1.27.0
+go 1.27.1
 
 require (
 	github.com/ghodss/yaml v1.0.0
@@ -9,10 +9,10 @@ require (
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20260813234739-7314c8512cce
+	go.acuvity.ai/a3s v0.0.0-20260908164510-8b40062dfbd9
 	go.acuvity.ai/aculib v0.0.0-20260824190401-9f5d5a223598
 	go.acuvity.ai/elemental v0.0.0-20260723202512-a9644d6bbbb1
-	go.opentelemetry.io/collector/pdata v1.65.0
+	go.opentelemetry.io/collector/pdata v1.66.0
 )
 
 require (
@@ -49,12 +49,12 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4 // indirect
 	go.acuvity.ai/tg v1.0.1-0.20260708162706-306a91e4d7dd // indirect
-	go.opentelemetry.io/collector/featuregate v1.65.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.66.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.54.0 // indirect
-	golang.org/x/net v0.57.0 // indirect
+	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.40.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

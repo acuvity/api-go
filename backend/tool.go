@@ -18,6 +18,9 @@ const (
 	// ToolCategoryClient represents the value Client.
 	ToolCategoryClient ToolCategoryValue = "Client"
 
+	// ToolCategoryNone represents the value None.
+	ToolCategoryNone ToolCategoryValue = "None"
+
 	// ToolCategoryRemoteMCP represents the value RemoteMCP.
 	ToolCategoryRemoteMCP ToolCategoryValue = "RemoteMCP"
 
@@ -57,6 +60,7 @@ func NewTool() *Tool {
 
 	return &Tool{
 		ModelVersion: 1,
+		Category:     ToolCategoryNone,
 	}
 }
 func (o *Tool) Identity() elemental.Identity {
@@ -244,7 +248,7 @@ func (o *Tool) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("category", string(o.Category), []string{"Client", "Server", "RemoteMCP"}, false); err != nil {
+	if err := elemental.ValidateStringInList("category", string(o.Category), []string{"None", "Client", "Server", "RemoteMCP"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -337,9 +341,10 @@ var ToolAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "refList",
 	},
 	"Category": {
-		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
+		AllowedChoices: []string{"None", "Client", "Server", "RemoteMCP"},
 		BSONFieldName:  "category",
 		ConvertedName:  "Category",
+		DefaultValue:   ToolCategoryNone,
 		Description: `The category of the tool. This relays information about where the tool is being
 used. This can be empty if unknown or if this is a tool listing of MCP servers.`,
 		Exposed: true,
@@ -415,9 +420,10 @@ var ToolLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "refList",
 	},
 	"category": {
-		AllowedChoices: []string{"Client", "Server", "RemoteMCP"},
+		AllowedChoices: []string{"None", "Client", "Server", "RemoteMCP"},
 		BSONFieldName:  "category",
 		ConvertedName:  "Category",
+		DefaultValue:   ToolCategoryNone,
 		Description: `The category of the tool. This relays information about where the tool is being
 used. This can be empty if unknown or if this is a tool listing of MCP servers.`,
 		Exposed: true,

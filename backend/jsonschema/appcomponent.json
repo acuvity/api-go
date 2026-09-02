@@ -77,6 +77,15 @@
         "null"
       ]
     },
+    "renewTokenValidity": {
+      "$friendlyName": "Renew Token Validity",
+      "description": "Set to value on update to set the validity for a token.",
+      "title": "renewTokenValidity",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "selector": {
       "$friendlyName": "Selector",
       "$ref": "appcomponentselector.json",

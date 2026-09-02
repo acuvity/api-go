@@ -1,0 +1,45 @@
+{
+  "$extends": [
+    "@failclose"
+  ],
+  "$friendlyName": "Webhook Integration Config",
+  "$friendlyNamePlural": "Webhook Integration Configs",
+  "$modelName": "WebhookIntegrationConfig",
+  "$modelPackage": "lain",
+  "$modelResourceName": "webhookintegrationconfigs",
+  "$modelRestName": "webhookintegrationconfig",
+  "additionalProperties": false,
+  "description": "Configures how a webhook integration behaves on the AI Gateway connector it is attached to. It configures what happens when a call cannot be evaluated and what of its content is kept in the logs. Two connectors can run the same integration with different settings. When it is not set, the defaults apply.",
+  "properties": {
+    "failClose": {
+      "$friendlyName": "Fail Close",
+      "description": "If true, when any non-user-facing platform stage fails during request handling (extractor, mapper, analyzer, content policy, body read, etc.), the request is rejected. When false (default), the request is allowed through unanalyzed (fail-open), trading safety for availability. User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected and continue to be enforced. Default false.",
+      "title": "failClose",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactContent": {
+      "$friendlyName": "Redact Content",
+      "description": "If true, the user data is removed from the logged roundtrip while the analysis and all other metadata are kept. It only applies to routes whose mode is Scan. On a Police route the access policy decides this.",
+      "title": "redactContent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "redactContentBypass": {
+      "$friendlyName": "Redact Content Bypass",
+      "description": "If true, and redactContent is also true, the user data is kept in the logged roundtrip whenever the analysis reports a violation, so the content behind a finding stays available for review. It has no effect on its own, and like redactContent it only applies to Scan-mode routes.",
+      "title": "redactContentBypass",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "WebhookIntegrationConfig",
+  "type": "object"
+}

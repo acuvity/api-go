@@ -22,18 +22,6 @@
         "null"
       ]
     },
-    "appGraphKind": {
-      "$defaultValue": "All",
-      "$friendlyName": "App Graph Kind",
-      "description": "Filters by application graph kind. Must not be combined with workloadGroupSetHashes.",
-      "enum": [
-        "All",
-        "Defined",
-        "Undefined",
-        "UndefinedWithAIDomains"
-      ],
-      "title": "appGraphKind"
-    },
     "direction": {
       "$defaultValue": "Backward",
       "$friendlyName": "Direction",
@@ -70,6 +58,16 @@
         "boolean",
         "null"
       ]
+    },
+    "level": {
+      "$defaultValue": "Full",
+      "$friendlyName": "Level",
+      "description": "Determines how much data to return.",
+      "enum": [
+        "Full",
+        "AppInventory"
+      ],
+      "title": "level"
     },
     "limit": {
       "$defaultValue": 100,
@@ -126,24 +124,21 @@
     },
     "traceID": {
       "$friendlyName": "Trace ID",
-      "description": "The Trace ID that the graph is being generated for. If this option is set, only a single application graph will be generated for the trace. Values for appGraphKinds and workloadGroupSetHashes will be ignored.",
+      "description": "The Trace ID that the graph is being generated for. If this option is set, only a single application graph will be generated for the trace. Values for appGraphKind and workloadGroupSetHash will be ignored.",
       "title": "traceID",
       "type": [
         "string",
         "null"
       ]
     },
-    "workloadGroupSetHashes": {
-      "$friendlyName": "Workload Group Set Hashes",
-      "description": "Filters by hashes of the workload group sets to generate application graphs for. Must not be combined with appGraphKinds.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "workloadGroupSetHashes",
-      "type": "array"
+    "workloadGroupSetHash": {
+      "$friendlyName": "Workload Group Set Hash",
+      "description": "The hash of the workload group set to generate the full application graph for. Required when level is Full. Must not be combined with appGraphKind.",
+      "title": "workloadGroupSetHash",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [],

@@ -219,6 +219,9 @@
     "apptoken": {
       "$ref": "apptoken.json"
     },
+    "assetref": {
+      "$ref": "assetref.json"
+    },
     "authsettings": {
       "$ref": "authsettings.json"
     },
@@ -543,6 +546,12 @@
     "revocation": {
       "$ref": "revocation.json"
     },
+    "riskdefinition": {
+      "$ref": "riskdefinition.json"
+    },
+    "riskfinding": {
+      "$ref": "riskfinding.json"
+    },
     "role": {
       "$ref": "role.json"
     },
@@ -581,6 +590,9 @@
     },
     "serie": {
       "$ref": "serie.json"
+    },
+    "severityoverride": {
+      "$ref": "severityoverride.json"
     },
     "signup": {
       "$ref": "signup.json"
@@ -680,6 +692,18 @@
     },
     "webextensionconfig": {
       "$ref": "webextensionconfig.json"
+    },
+    "webhookextractor": {
+      "$ref": "webhookextractor.json"
+    },
+    "webhookintegration": {
+      "$ref": "webhookintegration.json"
+    },
+    "webhookintegrationconf": {
+      "$ref": "webhookintegrationconf.json"
+    },
+    "webhookintegrationconfig": {
+      "$ref": "webhookintegrationconfig.json"
     },
     "workload": {
       "$ref": "workload.json"

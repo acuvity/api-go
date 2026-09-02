@@ -111,6 +111,17 @@
         "null"
       ]
     },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of the connector.",
+      "enum": [
+        "MCP",
+        "LLM",
+        "WebhookIntegration"
+      ],
+      "title": "type"
+    },
     "upstreamURL": {
       "$friendlyName": "Upstream URL",
       "description": "The upstream URL of the backend.",
@@ -119,9 +130,17 @@
         "string",
         "null"
       ]
+    },
+    "webhookIntegration": {
+      "$friendlyName": "Webhook Integration",
+      "$ref": "webhookintegrationconf.json",
+      "description": "The resolved and rendered webhook integration and its configuration this connector serves. Required when the type is WebhookIntegration.",
+      "title": "webhookIntegration"
     }
   },
-  "required": [],
+  "required": [
+    "type"
+  ],
   "title": "AIGatewayConfConnector",
   "type": "object"
 }

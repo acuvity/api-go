@@ -116,6 +116,9 @@ type Gateway struct {
 	// Set to value on update to associate a tag with the issued token.
 	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
 
+	// Set to value on update to set the validity for a token.
+	RenewTokenValidity string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
+
 	// List of route slugs for gateway path routing.
 	Slugs SlugsList `json:"slugs,omitempty" msgpack:"slugs,omitempty" bson:"slugs,omitempty" mapstructure:"slugs,omitempty"`
 
@@ -320,22 +323,23 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseGateway{
-			ID:            &o.ID,
-			CreateTime:    &o.CreateTime,
-			Description:   &o.Description,
-			Hostnames:     &o.Hostnames,
-			ImportHash:    &o.ImportHash,
-			ImportLabel:   &o.ImportLabel,
-			Name:          &o.Name,
-			Namespace:     &o.Namespace,
-			RenewToken:    &o.RenewToken,
-			RenewTokenTag: &o.RenewTokenTag,
-			Slugs:         &o.Slugs,
-			Token:         &o.Token,
-			TokenRefs:     &o.TokenRefs,
-			UpdateTime:    &o.UpdateTime,
-			ZHash:         &o.ZHash,
-			Zone:          &o.Zone,
+			ID:                 &o.ID,
+			CreateTime:         &o.CreateTime,
+			Description:        &o.Description,
+			Hostnames:          &o.Hostnames,
+			ImportHash:         &o.ImportHash,
+			ImportLabel:        &o.ImportLabel,
+			Name:               &o.Name,
+			Namespace:          &o.Namespace,
+			RenewToken:         &o.RenewToken,
+			RenewTokenTag:      &o.RenewTokenTag,
+			RenewTokenValidity: &o.RenewTokenValidity,
+			Slugs:              &o.Slugs,
+			Token:              &o.Token,
+			TokenRefs:          &o.TokenRefs,
+			UpdateTime:         &o.UpdateTime,
+			ZHash:              &o.ZHash,
+			Zone:               &o.Zone,
 		}
 	}
 
@@ -362,6 +366,8 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
 			sp.RenewTokenTag = &(o.RenewTokenTag)
+		case "renewTokenValidity":
+			sp.RenewTokenValidity = &(o.RenewTokenValidity)
 		case "slugs":
 			sp.Slugs = &(o.Slugs)
 		case "token":
@@ -416,6 +422,9 @@ func (o *Gateway) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RenewTokenTag != nil {
 		o.RenewTokenTag = *so.RenewTokenTag
+	}
+	if so.RenewTokenValidity != nil {
+		o.RenewTokenValidity = *so.RenewTokenValidity
 	}
 	if so.Slugs != nil {
 		o.Slugs = *so.Slugs
@@ -598,6 +607,8 @@ func (o *Gateway) ValueForAttribute(name string) any {
 		return o.RenewToken
 	case "renewTokenTag":
 		return o.RenewTokenTag
+	case "renewTokenValidity":
+		return o.RenewTokenValidity
 	case "slugs":
 		return o.Slugs
 	case "token":
@@ -739,6 +750,15 @@ same import operation.`,
 		Description:    `Set to value on update to associate a tag with the issued token.`,
 		Exposed:        true,
 		Name:           "renewTokenTag",
+		Transient:      true,
+		Type:           "string",
+	},
+	"RenewTokenValidity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenValidity",
+		Description:    `Set to value on update to set the validity for a token.`,
+		Exposed:        true,
+		Name:           "renewTokenValidity",
 		Transient:      true,
 		Type:           "string",
 	},
@@ -922,6 +942,15 @@ same import operation.`,
 		Transient:      true,
 		Type:           "string",
 	},
+	"renewtokenvalidity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenValidity",
+		Description:    `Set to value on update to set the validity for a token.`,
+		Exposed:        true,
+		Name:           "renewTokenValidity",
+		Transient:      true,
+		Type:           "string",
+	},
 	"slugs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "slugs",
@@ -1068,6 +1097,9 @@ type SparseGateway struct {
 
 	// Set to value on update to associate a tag with the issued token.
 	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
+	// Set to value on update to set the validity for a token.
+	RenewTokenValidity *string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
 
 	// List of route slugs for gateway path routing.
 	Slugs *SlugsList `json:"slugs,omitempty" msgpack:"slugs,omitempty" bson:"slugs,omitempty" mapstructure:"slugs,omitempty"`
@@ -1268,6 +1300,9 @@ func (o *SparseGateway) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RenewTokenTag != nil {
 		out.RenewTokenTag = *o.RenewTokenTag
+	}
+	if o.RenewTokenValidity != nil {
+		out.RenewTokenValidity = *o.RenewTokenValidity
 	}
 	if o.Slugs != nil {
 		out.Slugs = *o.Slugs

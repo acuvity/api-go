@@ -51,7 +51,8 @@ var (
 
 		"appreport": AppReportIdentity,
 
-		"apptoken":     AppTokenIdentity,
+		"apptoken": AppTokenIdentity,
+
 		"authsettings": AuthSettingsIdentity,
 
 		"contentpolicy":      ContentPolicyIdentity,
@@ -133,10 +134,12 @@ var (
 		"query":               QueryIdentity,
 		"queryrange":          QueryRangeIdentity,
 
-		"resolve":    ResolveIdentity,
-		"revocation": RevocationIdentity,
-		"role":       RoleIdentity,
-		"root":       RootIdentity,
+		"resolve":        ResolveIdentity,
+		"revocation":     RevocationIdentity,
+		"riskdefinition": RiskDefinitionIdentity,
+		"riskfinding":    RiskFindingIdentity,
+		"role":           RoleIdentity,
+		"root":           RootIdentity,
 
 		"samlsource": SAMLSourceIdentity,
 
@@ -144,6 +147,7 @@ var (
 
 		"schemaversion": SchemaVersionIdentity,
 		"serie":         SerieIdentity,
+
 		"signup":        SignupIdentity,
 		"sink":          SinkIdentity,
 		"sinkdatabahn":  SinkDatabahnIdentity,
@@ -169,6 +173,8 @@ var (
 		"watchedorg":         WatchedOrgIdentity,
 		"webextension":       WebExtensionIdentity,
 		"webextensionconfig": WebExtensionConfigIdentity,
+
+		"webhookintegration": WebhookIntegrationIdentity,
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
@@ -216,7 +222,8 @@ var (
 
 		"appreports": AppReportIdentity,
 
-		"apptokens":    AppTokenIdentity,
+		"apptokens": AppTokenIdentity,
+
 		"authsettings": AuthSettingsIdentity,
 
 		"contentpolicies":     ContentPolicyIdentity,
@@ -298,10 +305,12 @@ var (
 		"queries":              QueryIdentity,
 		"queryranges":          QueryRangeIdentity,
 
-		"resolve":     ResolveIdentity,
-		"revocations": RevocationIdentity,
-		"roles":       RoleIdentity,
-		"root":        RootIdentity,
+		"resolve":         ResolveIdentity,
+		"revocations":     RevocationIdentity,
+		"riskdefinitions": RiskDefinitionIdentity,
+		"riskfindings":    RiskFindingIdentity,
+		"roles":           RoleIdentity,
+		"root":            RootIdentity,
 
 		"samlsources": SAMLSourceIdentity,
 
@@ -309,16 +318,17 @@ var (
 
 		"schemaversions": SchemaVersionIdentity,
 		"series":         SerieIdentity,
-		"signups":        SignupIdentity,
-		"sinks":          SinkIdentity,
-		"sinkdatabahn":   SinkDatabahnIdentity,
-		"sinkemail":      SinkEmailIdentity,
-		"sinkmsteams":    SinkMSTeamsIdentity,
-		"sinkpagerduty":  SinkPagerDutyIdentity,
-		"sinkslack":      SinkSlackIdentity,
-		"sinksplunk":     SinkSplunkIdentity,
-		"slugs":          SlugIdentity,
-		"teams":          TeamIdentity,
+
+		"signups":       SignupIdentity,
+		"sinks":         SinkIdentity,
+		"sinkdatabahn":  SinkDatabahnIdentity,
+		"sinkemail":     SinkEmailIdentity,
+		"sinkmsteams":   SinkMSTeamsIdentity,
+		"sinkpagerduty": SinkPagerDutyIdentity,
+		"sinkslack":     SinkSlackIdentity,
+		"sinksplunk":    SinkSplunkIdentity,
+		"slugs":         SlugIdentity,
+		"teams":         TeamIdentity,
 
 		"threatdefinitions": ThreatDefinitionIdentity,
 
@@ -334,6 +344,8 @@ var (
 		"watchedorgs":         WatchedOrgIdentity,
 		"webextensions":       WebExtensionIdentity,
 		"webextensionconfigs": WebExtensionConfigIdentity,
+
+		"webhookintegrations": WebhookIntegrationIdentity,
 	}
 
 	aliasesMap = map[string]elemental.Identity{}
@@ -824,6 +836,22 @@ var (
 			{"namespace", "tokenid"},
 			{"tokenid"},
 		},
+		"riskdefinition": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"riskfinding": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+			{"namespace", "severity"},
+			{"namespace", "status"},
+		},
 		"role": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -920,6 +948,13 @@ var (
 			{"namespace", "installationID"},
 		},
 		"webextensionconfig": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"webhookintegration": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
@@ -1150,6 +1185,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewResolve()
 	case RevocationIdentity:
 		return NewRevocation()
+	case RiskDefinitionIdentity:
+		return NewRiskDefinition()
+	case RiskFindingIdentity:
+		return NewRiskFinding()
 	case RoleIdentity:
 		return NewRole()
 	case RootIdentity:
@@ -1206,6 +1245,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewWebExtension()
 	case WebExtensionConfigIdentity:
 		return NewWebExtensionConfig()
+	case WebhookIntegrationIdentity:
+		return NewWebhookIntegration()
 	default:
 		return nil
 	}
@@ -1399,6 +1440,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseResolve()
 	case RevocationIdentity:
 		return NewSparseRevocation()
+	case RiskDefinitionIdentity:
+		return NewSparseRiskDefinition()
+	case RiskFindingIdentity:
+		return NewSparseRiskFinding()
 	case RoleIdentity:
 		return NewSparseRole()
 	case SAMLSourceIdentity:
@@ -1453,6 +1498,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseWebExtension()
 	case WebExtensionConfigIdentity:
 		return NewSparseWebExtensionConfig()
+	case WebhookIntegrationIdentity:
+		return NewSparseWebhookIntegration()
 	default:
 		return nil
 	}
@@ -1656,6 +1703,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ResolvesList{}
 	case RevocationIdentity:
 		return &RevocationsList{}
+	case RiskDefinitionIdentity:
+		return &RiskDefinitionsList{}
+	case RiskFindingIdentity:
+		return &RiskFindingsList{}
 	case RoleIdentity:
 		return &RolesList{}
 	case SAMLSourceIdentity:
@@ -1710,6 +1761,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &WebExtensionsList{}
 	case WebExtensionConfigIdentity:
 		return &WebExtensionConfigsList{}
+	case WebhookIntegrationIdentity:
+		return &WebhookIntegrationsList{}
 	default:
 		return nil
 	}
@@ -1903,6 +1956,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseResolvesList{}
 	case RevocationIdentity:
 		return &SparseRevocationsList{}
+	case RiskDefinitionIdentity:
+		return &SparseRiskDefinitionsList{}
+	case RiskFindingIdentity:
+		return &SparseRiskFindingsList{}
 	case RoleIdentity:
 		return &SparseRolesList{}
 	case SAMLSourceIdentity:
@@ -1957,6 +2014,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseWebExtensionsList{}
 	case WebExtensionConfigIdentity:
 		return &SparseWebExtensionConfigsList{}
+	case WebhookIntegrationIdentity:
+		return &SparseWebhookIntegrationsList{}
 	default:
 		return nil
 	}
@@ -2060,6 +2119,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAppGraphTraceLink()
 	case "appselector", "AppSelector":
 		return NewAppSelector()
+	case "assetref", "AssetRef":
+		return NewAssetRef()
 	case "connectionencryption", "ConnectionEncryption":
 		return NewConnectionEncryption()
 	case "connectionmonitorselector", "ConnectionMonitorSelector":
@@ -2162,6 +2223,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewScanResultTLS()
 	case "scanuser", "ScanUser":
 		return NewScanUser()
+	case "severityoverride", "SeverityOverride":
+		return NewSeverityOverride()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
 	case "tlscertinfo", "TLSCertInfo":
@@ -2184,6 +2247,12 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewTunnelProxyAuth()
 	case "tunnelproxyauthbasic", "TunnelProxyAuthBasic":
 		return NewTunnelProxyAuthBasic()
+	case "webhookextractor", "WebhookExtractor":
+		return NewWebhookExtractor()
+	case "webhookintegrationconf", "WebhookIntegrationConf":
+		return NewWebhookIntegrationConf()
+	case "webhookintegrationconfig", "WebhookIntegrationConfig":
+		return NewWebhookIntegrationConfig()
 	case "workload", "Workload":
 		return NewWorkload()
 	case "workloadstatus", "WorkloadStatus":
@@ -2294,6 +2363,8 @@ func AllIdentities() []elemental.Identity {
 		QueryRangeIdentity,
 		ResolveIdentity,
 		RevocationIdentity,
+		RiskDefinitionIdentity,
+		RiskFindingIdentity,
 		RoleIdentity,
 		RootIdentity,
 		SAMLSourceIdentity,
@@ -2322,6 +2393,7 @@ func AllIdentities() []elemental.Identity {
 		WatchedOrgIdentity,
 		WebExtensionIdentity,
 		WebExtensionConfigIdentity,
+		WebhookIntegrationIdentity,
 	}
 }
 
@@ -2513,6 +2585,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case RevocationIdentity:
 		return []string{}
+	case RiskDefinitionIdentity:
+		return []string{}
+	case RiskFindingIdentity:
+		return []string{}
 	case RoleIdentity:
 		return []string{}
 	case RootIdentity:
@@ -2568,6 +2644,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case WebExtensionIdentity:
 		return []string{}
 	case WebExtensionConfigIdentity:
+		return []string{}
+	case WebhookIntegrationIdentity:
 		return []string{}
 	}
 

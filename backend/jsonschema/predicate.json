@@ -14,10 +14,13 @@
       "$required": true,
       "description": "The key of the predicate.",
       "enum": [
+        "AccessControlRisk",
         "Categories",
         "ClientType",
+        "ComplianceRisk",
         "Confidentiality",
         "CustomDataTypes",
+        "DataPolicyRisk",
         "DstApp",
         "DstComponent",
         "DstIPRange",

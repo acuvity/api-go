@@ -1,0 +1,102 @@
+{
+  "$extends": [
+    "@anonymizationable",
+    "@urlmatcher"
+  ],
+  "$friendlyName": "Webhook Extractor",
+  "$friendlyNamePlural": "Webhook Extractors",
+  "$modelName": "WebhookExtractor",
+  "$modelPackage": "lain",
+  "$modelResourceName": "webhookextractors",
+  "$modelRestName": "webhookextractor",
+  "additionalProperties": false,
+  "description": "A webhook extractor handles one route of a webhook integration. It is to a webhook integration what an extractor is to a provider: the method and path select it, and the lua script does the work. Unlike a provider extractor it never sees an upstream response, so both directions of one vendor call arrive on the same route as inbound requests, and it is the payload that says which one it is. The script therefore reports what the call is about rather than having it configured here. Reusable helper code belongs in an extractorlib, referenced through libs, or in the lib of the integration.",
+  "properties": {
+    "anonymization": {
+      "$defaultValue": "FixedSize",
+      "$friendlyName": "Anonymization",
+      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "enum": [
+        "FixedSize",
+        "VariableSize"
+      ],
+      "title": "anonymization"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the webhook extractor.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "libs": {
+      "$friendlyName": "Libraries",
+      "description": "References existing extractorlibs by name to make them importable in the webhook extractor script. The name plib is reserved for the lib of the integration and cannot be used here.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "libs",
+      "type": "array"
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "$required": true,
+      "description": "The method to match.",
+      "enum": [
+        "Post",
+        "Put",
+        "Patch",
+        "Get",
+        "Delete",
+        "Options",
+        "Head"
+      ],
+      "title": "method"
+    },
+    "mode": {
+      "$defaultValue": "Police",
+      "$friendlyName": "Mode",
+      "description": "What this route runs. Police evaluates policy and can reject a call, Scan only analyzes and logs, which is all a vendor whose contract cannot carry a rejection can support. It states a property of that contract, so it is fixed here rather than decided per call.",
+      "enum": [
+        "Police",
+        "Scan"
+      ],
+      "title": "mode"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The internal reference name of the route, unique within its integration. It identifies the route in logs and errors.",
+      "pattern": "^[a-zA-Z0-9-_/]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "path": {
+      "$friendlyName": "Path",
+      "$required": true,
+      "description": "A regular expression to match a URL path to log.",
+      "title": "path",
+      "type": "string"
+    },
+    "script": {
+      "$friendlyName": "Lua Script",
+      "$required": true,
+      "description": "The lua code that runs this route. It has the same globals as a provider extractor script, so the incoming call is read through `input`.  It must contain a top level function called `webhook_input()` taking no parameters. It returns nil or an empty table when there is nothing to inspect, in which case no scan or police pass runs. Otherwise it returns a table containing:  - `type`: `input` or `output`. Required. - `direction`: `egress` or `ingress`. Defaults to `egress`. - `model`: the model the call is addressed to. The provider is resolved   from it unless `provider` or `destination` is given. - `provider`: names the policy target explicitly. - `destination`: a table with `app` and `component`, and optional `host`   and `port`. Mutually exclusive with `provider`. - `conversationID`: groups the calls of one conversation in the logs. - `trace`: a table with `traceID` and optional `parentSpanID`. - `user`: a table with `username` and a list of `claims`. - `annotations`: a table of string keys and values recorded on the log. - `extractions`: the list of things to inspect. Each entry has a `luaID`   that identifies it in the result handed to `webhook_output()`, its   `content`, and optionally `role`, `kind`, `isFile`, `annotations`,   `toolUses` and `toolResults`. - `tools`: the tools advertised by the call, keyed by name. - `analyzers` and `redactions`: only honored when mode is Scan, where no   policy runs to decide them. The script owns them because both follow from   what this payload carries and from what the vendor accepts back.  It must also contain a top level function called `webhook_output()`, which builds the answer this route sends back. It runs in the same lua state, so whatever `webhook_input()` kept in a local is still available to it, which is how a script maps a verdict back onto the exact place it came from in the vendor's payload. It takes one table parameter containing:  - `action`: the decision. - `permissive`: true when the decision must not be enforced. - `reasons`: a list of tables with keys `reason` and `link`. - `redactions`: the redacted content, keyed by `luaID`. - `decisions`: per `luaID`, a table with `action` and `reasons`. - `extractions`: per `luaID`, the resulting extraction with its `data` and   its detections.  It must return a table containing the following keys:  - `code`: the HTTP status code as a number. Defaults to 200. Third-party   products commonly ignore it and only read the body, so a rejection   usually still has to be a 200. - `content_type`: the Content-Type as a string. Defaults to   `application/json`. - `body`: the response body as a string.  It must also contain a top level function called `webhook_error()`, called instead of `webhook_output()` whenever a stage of the pass failed and there is therefore no verdict to report. A provider can let such a failure become a plain HTTP error, but a webhook cannot: a vendor does not read an HTTP error as a verdict, and will fall back to whatever its own configuration says instead of to what this deployment decided. What to answer when we cannot answer is part of an integration's contract, not something to be inferred, which is why it is required rather than optional. It takes one table parameter describing the failure:  - `stage`: where it happened. `Target` when no policy target could be   determined, otherwise the round-trip error stages (`Extraction`,   `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`. - `message`: the error. - `failClose`: what the deployment configured, so a script may answer the   vendor's equivalent of 'reject' or of 'no objection' accordingly.  It returns the same table `webhook_output()` does. The engine only answers a failure on its own, generically and according to the configured fail close behavior, when the script could not be run at all.",
+      "title": "script",
+      "type": "string"
+    }
+  },
+  "required": [
+    "method",
+    "name",
+    "path",
+    "script"
+  ],
+  "title": "WebhookExtractor",
+  "type": "object"
+}

@@ -12,23 +12,6 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// AppGraphQueryAppGraphKindValue represents the possible values for attribute "appGraphKind".
-type AppGraphQueryAppGraphKindValue string
-
-const (
-	// AppGraphQueryAppGraphKindAll represents the value All.
-	AppGraphQueryAppGraphKindAll AppGraphQueryAppGraphKindValue = "All"
-
-	// AppGraphQueryAppGraphKindDefined represents the value Defined.
-	AppGraphQueryAppGraphKindDefined AppGraphQueryAppGraphKindValue = "Defined"
-
-	// AppGraphQueryAppGraphKindUndefined represents the value Undefined.
-	AppGraphQueryAppGraphKindUndefined AppGraphQueryAppGraphKindValue = "Undefined"
-
-	// AppGraphQueryAppGraphKindUndefinedWithAIDomains represents the value UndefinedWithAIDomains.
-	AppGraphQueryAppGraphKindUndefinedWithAIDomains AppGraphQueryAppGraphKindValue = "UndefinedWithAIDomains"
-)
-
 // AppGraphQueryDirectionValue represents the possible values for attribute "direction".
 type AppGraphQueryDirectionValue string
 
@@ -38,6 +21,17 @@ const (
 
 	// AppGraphQueryDirectionForward represents the value Forward.
 	AppGraphQueryDirectionForward AppGraphQueryDirectionValue = "Forward"
+)
+
+// AppGraphQueryLevelValue represents the possible values for attribute "level".
+type AppGraphQueryLevelValue string
+
+const (
+	// AppGraphQueryLevelAppInventory represents the value AppInventory.
+	AppGraphQueryLevelAppInventory AppGraphQueryLevelValue = "AppInventory"
+
+	// AppGraphQueryLevelFull represents the value Full.
+	AppGraphQueryLevelFull AppGraphQueryLevelValue = "Full"
 )
 
 // AppGraphQueryIdentity represents the Identity of the object.
@@ -115,10 +109,6 @@ type AppGraphQuery struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Filters by application graph kind. Must not be combined with
-	// workloadGroupSetHashes.
-	AppGraphKind AppGraphQueryAppGraphKindValue `json:"appGraphKind" msgpack:"appGraphKind" bson:"-" mapstructure:"appGraphKind,omitempty"`
-
 	// Determines the sort order of logs.
 	Direction AppGraphQueryDirectionValue `json:"direction" msgpack:"direction" bson:"-" mapstructure:"direction,omitempty"`
 
@@ -134,6 +124,9 @@ type AppGraphQuery struct {
 	// the response. At the moment, this is only taken into consideration for the trace
 	// ID based application graph generation.
 	IncludeData bool `json:"includeData" msgpack:"includeData" bson:"-" mapstructure:"includeData,omitempty"`
+
+	// Determines how much data to return.
+	Level AppGraphQueryLevelValue `json:"level" msgpack:"level" bson:"-" mapstructure:"level,omitempty"`
 
 	// The maximum number of results for logs to return per graph per node per link
 	// type.
@@ -158,12 +151,12 @@ type AppGraphQuery struct {
 
 	// The Trace ID that the graph is being generated for. If this option is set, only
 	// a single application graph will be generated for the trace. Values for
-	// appGraphKinds and workloadGroupSetHashes will be ignored.
+	// appGraphKind and workloadGroupSetHash will be ignored.
 	TraceID string `json:"traceID,omitempty" msgpack:"traceID,omitempty" bson:"-" mapstructure:"traceID,omitempty"`
 
-	// Filters by hashes of the workload group sets to generate application graphs for.
-	// Must not be combined with appGraphKinds.
-	WorkloadGroupSetHashes []string `json:"workloadGroupSetHashes,omitempty" msgpack:"workloadGroupSetHashes,omitempty" bson:"-" mapstructure:"workloadGroupSetHashes,omitempty"`
+	// The hash of the workload group set to generate the full application graph for.
+	// Required when level is Full. Must not be combined with appGraphKind.
+	WorkloadGroupSetHash string `json:"workloadGroupSetHash,omitempty" msgpack:"workloadGroupSetHash,omitempty" bson:"-" mapstructure:"workloadGroupSetHash,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -172,12 +165,11 @@ type AppGraphQuery struct {
 func NewAppGraphQuery() *AppGraphQuery {
 
 	return &AppGraphQuery{
-		ModelVersion:           1,
-		AppGraphKind:           AppGraphQueryAppGraphKindAll,
-		Direction:              AppGraphQueryDirectionBackward,
-		Limit:                  100,
-		Trace:                  map[string]any{},
-		WorkloadGroupSetHashes: []string{},
+		ModelVersion: 1,
+		Direction:    AppGraphQueryDirectionBackward,
+		Level:        AppGraphQueryLevelFull,
+		Limit:        100,
+		Trace:        map[string]any{},
 	}
 }
 
@@ -321,20 +313,20 @@ func (o *AppGraphQuery) ToSparse(fields ...string) elemental.SparseIdentifiable 
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAppGraphQuery{
-			ID:                     &o.ID,
-			AppGraphKind:           &o.AppGraphKind,
-			Direction:              &o.Direction,
-			End:                    &o.End,
-			EndRelative:            &o.EndRelative,
-			IncludeData:            &o.IncludeData,
-			Limit:                  &o.Limit,
-			Namespace:              &o.Namespace,
-			Result:                 &o.Result,
-			Start:                  &o.Start,
-			StartRelative:          &o.StartRelative,
-			Trace:                  &o.Trace,
-			TraceID:                &o.TraceID,
-			WorkloadGroupSetHashes: &o.WorkloadGroupSetHashes,
+			ID:                   &o.ID,
+			Direction:            &o.Direction,
+			End:                  &o.End,
+			EndRelative:          &o.EndRelative,
+			IncludeData:          &o.IncludeData,
+			Level:                &o.Level,
+			Limit:                &o.Limit,
+			Namespace:            &o.Namespace,
+			Result:               &o.Result,
+			Start:                &o.Start,
+			StartRelative:        &o.StartRelative,
+			Trace:                &o.Trace,
+			TraceID:              &o.TraceID,
+			WorkloadGroupSetHash: &o.WorkloadGroupSetHash,
 		}
 	}
 
@@ -343,8 +335,6 @@ func (o *AppGraphQuery) ToSparse(fields ...string) elemental.SparseIdentifiable 
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
-		case "appGraphKind":
-			sp.AppGraphKind = &(o.AppGraphKind)
 		case "direction":
 			sp.Direction = &(o.Direction)
 		case "end":
@@ -353,6 +343,8 @@ func (o *AppGraphQuery) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.EndRelative = &(o.EndRelative)
 		case "includeData":
 			sp.IncludeData = &(o.IncludeData)
+		case "level":
+			sp.Level = &(o.Level)
 		case "limit":
 			sp.Limit = &(o.Limit)
 		case "namespace":
@@ -367,8 +359,8 @@ func (o *AppGraphQuery) ToSparse(fields ...string) elemental.SparseIdentifiable 
 			sp.Trace = &(o.Trace)
 		case "traceID":
 			sp.TraceID = &(o.TraceID)
-		case "workloadGroupSetHashes":
-			sp.WorkloadGroupSetHashes = &(o.WorkloadGroupSetHashes)
+		case "workloadGroupSetHash":
+			sp.WorkloadGroupSetHash = &(o.WorkloadGroupSetHash)
 		}
 	}
 
@@ -385,9 +377,6 @@ func (o *AppGraphQuery) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
-	if so.AppGraphKind != nil {
-		o.AppGraphKind = *so.AppGraphKind
-	}
 	if so.Direction != nil {
 		o.Direction = *so.Direction
 	}
@@ -399,6 +388,9 @@ func (o *AppGraphQuery) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.IncludeData != nil {
 		o.IncludeData = *so.IncludeData
+	}
+	if so.Level != nil {
+		o.Level = *so.Level
 	}
 	if so.Limit != nil {
 		o.Limit = *so.Limit
@@ -421,8 +413,8 @@ func (o *AppGraphQuery) Patch(sparse elemental.SparseIdentifiable) {
 	if so.TraceID != nil {
 		o.TraceID = *so.TraceID
 	}
-	if so.WorkloadGroupSetHashes != nil {
-		o.WorkloadGroupSetHashes = *so.WorkloadGroupSetHashes
+	if so.WorkloadGroupSetHash != nil {
+		o.WorkloadGroupSetHash = *so.WorkloadGroupSetHash
 	}
 }
 
@@ -488,15 +480,15 @@ func (o *AppGraphQuery) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateStringInList("appGraphKind", string(o.AppGraphKind), []string{"All", "Defined", "Undefined", "UndefinedWithAIDomains"}, false); err != nil {
-		errors = errors.Append(err)
-	}
-
 	if err := elemental.ValidateStringInList("direction", string(o.Direction), []string{"Forward", "Backward"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
 	if err := ValidateDuration("endRelative", o.EndRelative); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("level", string(o.Level), []string{"Full", "AppInventory"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -559,8 +551,6 @@ func (o *AppGraphQuery) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
-	case "appGraphKind":
-		return o.AppGraphKind
 	case "direction":
 		return o.Direction
 	case "end":
@@ -569,6 +559,8 @@ func (o *AppGraphQuery) ValueForAttribute(name string) any {
 		return o.EndRelative
 	case "includeData":
 		return o.IncludeData
+	case "level":
+		return o.Level
 	case "limit":
 		return o.Limit
 	case "namespace":
@@ -583,8 +575,8 @@ func (o *AppGraphQuery) ValueForAttribute(name string) any {
 		return o.Trace
 	case "traceID":
 		return o.TraceID
-	case "workloadGroupSetHashes":
-		return o.WorkloadGroupSetHashes
+	case "workloadGroupSetHash":
+		return o.WorkloadGroupSetHash
 	}
 
 	return nil
@@ -606,16 +598,6 @@ var AppGraphQueryAttributesMap = map[string]elemental.AttributeSpecification{
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"AppGraphKind": {
-		AllowedChoices: []string{"All", "Defined", "Undefined", "UndefinedWithAIDomains"},
-		ConvertedName:  "AppGraphKind",
-		DefaultValue:   AppGraphQueryAppGraphKindAll,
-		Description: `Filters by application graph kind. Must not be combined with
-workloadGroupSetHashes.`,
-		Exposed: true,
-		Name:    "appGraphKind",
-		Type:    "enum",
 	},
 	"Direction": {
 		AllowedChoices: []string{"Forward", "Backward"},
@@ -656,6 +638,15 @@ ID based application graph generation.`,
 		Exposed: true,
 		Name:    "includeData",
 		Type:    "boolean",
+	},
+	"Level": {
+		AllowedChoices: []string{"Full", "AppInventory"},
+		ConvertedName:  "Level",
+		DefaultValue:   AppGraphQueryLevelFull,
+		Description:    `Determines how much data to return.`,
+		Exposed:        true,
+		Name:           "level",
+		Type:           "enum",
 	},
 	"Limit": {
 		AllowedChoices: []string{},
@@ -726,20 +717,19 @@ itself.`,
 		ConvertedName:  "TraceID",
 		Description: `The Trace ID that the graph is being generated for. If this option is set, only
 a single application graph will be generated for the trace. Values for
-appGraphKinds and workloadGroupSetHashes will be ignored.`,
+appGraphKind and workloadGroupSetHash will be ignored.`,
 		Exposed: true,
 		Name:    "traceID",
 		Type:    "string",
 	},
-	"WorkloadGroupSetHashes": {
+	"WorkloadGroupSetHash": {
 		AllowedChoices: []string{},
-		ConvertedName:  "WorkloadGroupSetHashes",
-		Description: `Filters by hashes of the workload group sets to generate application graphs for.
-Must not be combined with appGraphKinds.`,
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description: `The hash of the workload group set to generate the full application graph for.
+Required when level is Full. Must not be combined with appGraphKind.`,
 		Exposed: true,
-		Name:    "workloadGroupSetHashes",
-		SubType: "string",
-		Type:    "list",
+		Name:    "workloadGroupSetHash",
+		Type:    "string",
 	},
 }
 
@@ -759,16 +749,6 @@ var AppGraphQueryLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
-	},
-	"appgraphkind": {
-		AllowedChoices: []string{"All", "Defined", "Undefined", "UndefinedWithAIDomains"},
-		ConvertedName:  "AppGraphKind",
-		DefaultValue:   AppGraphQueryAppGraphKindAll,
-		Description: `Filters by application graph kind. Must not be combined with
-workloadGroupSetHashes.`,
-		Exposed: true,
-		Name:    "appGraphKind",
-		Type:    "enum",
 	},
 	"direction": {
 		AllowedChoices: []string{"Forward", "Backward"},
@@ -809,6 +789,15 @@ ID based application graph generation.`,
 		Exposed: true,
 		Name:    "includeData",
 		Type:    "boolean",
+	},
+	"level": {
+		AllowedChoices: []string{"Full", "AppInventory"},
+		ConvertedName:  "Level",
+		DefaultValue:   AppGraphQueryLevelFull,
+		Description:    `Determines how much data to return.`,
+		Exposed:        true,
+		Name:           "level",
+		Type:           "enum",
 	},
 	"limit": {
 		AllowedChoices: []string{},
@@ -879,20 +868,19 @@ itself.`,
 		ConvertedName:  "TraceID",
 		Description: `The Trace ID that the graph is being generated for. If this option is set, only
 a single application graph will be generated for the trace. Values for
-appGraphKinds and workloadGroupSetHashes will be ignored.`,
+appGraphKind and workloadGroupSetHash will be ignored.`,
 		Exposed: true,
 		Name:    "traceID",
 		Type:    "string",
 	},
-	"workloadgroupsethashes": {
+	"workloadgroupsethash": {
 		AllowedChoices: []string{},
-		ConvertedName:  "WorkloadGroupSetHashes",
-		Description: `Filters by hashes of the workload group sets to generate application graphs for.
-Must not be combined with appGraphKinds.`,
+		ConvertedName:  "WorkloadGroupSetHash",
+		Description: `The hash of the workload group set to generate the full application graph for.
+Required when level is Full. Must not be combined with appGraphKind.`,
 		Exposed: true,
-		Name:    "workloadGroupSetHashes",
-		SubType: "string",
-		Type:    "list",
+		Name:    "workloadGroupSetHash",
+		Type:    "string",
 	},
 }
 
@@ -962,10 +950,6 @@ type SparseAppGraphQuery struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Filters by application graph kind. Must not be combined with
-	// workloadGroupSetHashes.
-	AppGraphKind *AppGraphQueryAppGraphKindValue `json:"appGraphKind,omitempty" msgpack:"appGraphKind,omitempty" bson:"-" mapstructure:"appGraphKind,omitempty"`
-
 	// Determines the sort order of logs.
 	Direction *AppGraphQueryDirectionValue `json:"direction,omitempty" msgpack:"direction,omitempty" bson:"-" mapstructure:"direction,omitempty"`
 
@@ -981,6 +965,9 @@ type SparseAppGraphQuery struct {
 	// the response. At the moment, this is only taken into consideration for the trace
 	// ID based application graph generation.
 	IncludeData *bool `json:"includeData,omitempty" msgpack:"includeData,omitempty" bson:"-" mapstructure:"includeData,omitempty"`
+
+	// Determines how much data to return.
+	Level *AppGraphQueryLevelValue `json:"level,omitempty" msgpack:"level,omitempty" bson:"-" mapstructure:"level,omitempty"`
 
 	// The maximum number of results for logs to return per graph per node per link
 	// type.
@@ -1005,12 +992,12 @@ type SparseAppGraphQuery struct {
 
 	// The Trace ID that the graph is being generated for. If this option is set, only
 	// a single application graph will be generated for the trace. Values for
-	// appGraphKinds and workloadGroupSetHashes will be ignored.
+	// appGraphKind and workloadGroupSetHash will be ignored.
 	TraceID *string `json:"traceID,omitempty" msgpack:"traceID,omitempty" bson:"-" mapstructure:"traceID,omitempty"`
 
-	// Filters by hashes of the workload group sets to generate application graphs for.
-	// Must not be combined with appGraphKinds.
-	WorkloadGroupSetHashes *[]string `json:"workloadGroupSetHashes,omitempty" msgpack:"workloadGroupSetHashes,omitempty" bson:"-" mapstructure:"workloadGroupSetHashes,omitempty"`
+	// The hash of the workload group set to generate the full application graph for.
+	// Required when level is Full. Must not be combined with appGraphKind.
+	WorkloadGroupSetHash *string `json:"workloadGroupSetHash,omitempty" msgpack:"workloadGroupSetHash,omitempty" bson:"-" mapstructure:"workloadGroupSetHash,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -1100,9 +1087,6 @@ func (o *SparseAppGraphQuery) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
-	if o.AppGraphKind != nil {
-		out.AppGraphKind = *o.AppGraphKind
-	}
 	if o.Direction != nil {
 		out.Direction = *o.Direction
 	}
@@ -1114,6 +1098,9 @@ func (o *SparseAppGraphQuery) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.IncludeData != nil {
 		out.IncludeData = *o.IncludeData
+	}
+	if o.Level != nil {
+		out.Level = *o.Level
 	}
 	if o.Limit != nil {
 		out.Limit = *o.Limit
@@ -1136,8 +1123,8 @@ func (o *SparseAppGraphQuery) ToPlain() elemental.PlainIdentifiable {
 	if o.TraceID != nil {
 		out.TraceID = *o.TraceID
 	}
-	if o.WorkloadGroupSetHashes != nil {
-		out.WorkloadGroupSetHashes = *o.WorkloadGroupSetHashes
+	if o.WorkloadGroupSetHash != nil {
+		out.WorkloadGroupSetHash = *o.WorkloadGroupSetHash
 	}
 
 	return out

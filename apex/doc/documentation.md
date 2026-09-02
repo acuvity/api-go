@@ -381,12 +381,13 @@ The namespace of the object.
 
 Type: `boolean`
 
-If true, the policy that produced this decision asked for the analysis to
-run offband. The decision was therefore made without waiting for the
-analyzers, so the extractions in this response carry no detections, and any
-redaction the analyzers would have found was not applied. The full analyzer
-set runs after this response is sent, so the stored roundtrip for this
-request can report a stricter outcome than the one reported here.
+If true, this decision was made without waiting for the analyzers: the
+policy that produced it either asked for offband analysis, or pinned an
+empty inband analyzer set for this direction. The extractions in this
+response therefore carry no detections, and any redaction the analyzers
+would have found was not applied. The full analyzer set runs after this
+response is sent, so the stored roundtrip for this request can report a
+stricter outcome than the one reported here.
 
 ##### `permissive`
 
@@ -2686,10 +2687,16 @@ The input arguments accepted by this tool.
 
 ##### `category`
 
-Type: `enum(Client | Server | RemoteMCP)`
+Type: `enum(None | Client | Server | RemoteMCP)`
 
 The category of the tool. This relays information about where the tool is being
 used. This can be empty if unknown or if this is a tool listing of MCP servers.
+
+Default value:
+
+```json
+"None"
+```
 
 ##### `description`
 

@@ -64,6 +64,25 @@ type AppComponentProvider struct {
 	// List of user mappers.
 	Mappers []*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
 
+	// The literal prefixes that identify this provider inside a model identifier.
+	// Third-party gateways commonly address a model as the provider they route to
+	// followed by the model name, such as 'openai/gpt-4o' or
+	// '@openai-prod/gpt-4o'.
+	// Include the separator in the entry, so 'openai/' rather than 'openai':
+	// entries are matched as a plain leading string, and the separator is what
+	// keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+	// span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+	// different providers and the longer match wins. Wildcards are not supported
+	// here; use models for those.
+	ModelPrefixes []string `json:"modelPrefixes,omitempty" msgpack:"modelPrefixes,omitempty" bson:"modelprefixes,omitempty" mapstructure:"modelPrefixes,omitempty"`
+
+	// The models served by this provider, as patterns. Wildcards are supported,
+	// so 'gpt-*' covers a family. They are used to resolve a provider when a
+	// model identifier arrives with no prefix, which is what several third-party
+	// gateways send on the response side of a call. Several providers may match
+	// the same model, in which case the most specific pattern wins.
+	Models []string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+
 	// The type of the provider.
 	ProviderType AppComponentProviderProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
@@ -85,9 +104,11 @@ type AppComponentProvider struct {
 func NewAppComponentProvider() *AppComponentProvider {
 
 	return &AppComponentProvider{
-		ModelVersion: 1,
-		Hosts:        []string{},
-		ProviderType: AppComponentProviderProviderTypeLLM,
+		ModelVersion:  1,
+		Hosts:         []string{},
+		ModelPrefixes: []string{},
+		Models:        []string{},
+		ProviderType:  AppComponentProviderProviderTypeLLM,
 	}
 }
 func (o *AppComponentProvider) Identity() elemental.Identity {
@@ -121,6 +142,8 @@ func (o *AppComponentProvider) GetBSON() (any, error) {
 	s.Injectors = o.Injectors
 	s.Lib = o.Lib
 	s.Mappers = o.Mappers
+	s.ModelPrefixes = o.ModelPrefixes
+	s.Models = o.Models
 	s.ProviderType = o.ProviderType
 	s.Tools = o.Tools
 	s.TrustedCA = o.TrustedCA
@@ -151,6 +174,8 @@ func (o *AppComponentProvider) SetBSON(raw bson.Raw) error {
 	o.Injectors = s.Injectors
 	o.Lib = s.Lib
 	o.Mappers = s.Mappers
+	o.ModelPrefixes = s.ModelPrefixes
+	o.Models = s.Models
 	o.ProviderType = s.ProviderType
 	o.Tools = s.Tools
 	o.TrustedCA = s.TrustedCA
@@ -435,6 +460,10 @@ func (o *AppComponentProvider) ValueForAttribute(name string) any {
 		return o.Lib
 	case "mappers":
 		return o.Mappers
+	case "modelPrefixes":
+		return o.ModelPrefixes
+	case "models":
+		return o.Models
 	case "providerType":
 		return o.ProviderType
 	case "tools":
@@ -549,6 +578,41 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		SubType:        "mapper",
 		Type:           "refList",
+	},
+	"ModelPrefixes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "modelprefixes",
+		ConvertedName:  "ModelPrefixes",
+		Description: `The literal prefixes that identify this provider inside a model identifier.
+Third-party gateways commonly address a model as the provider they route to
+followed by the model name, such as 'openai/gpt-4o' or
+'@openai-prod/gpt-4o'.
+Include the separator in the entry, so 'openai/' rather than 'openai':
+entries are matched as a plain leading string, and the separator is what
+keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+different providers and the longer match wins. Wildcards are not supported
+here; use models for those.`,
+		Exposed: true,
+		Name:    "modelPrefixes",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"Models": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "models",
+		ConvertedName:  "Models",
+		Description: `The models served by this provider, as patterns. Wildcards are supported,
+so 'gpt-*' covers a family. They are used to resolve a provider when a
+model identifier arrives with no prefix, which is what several third-party
+gateways send on the response side of a call. Several providers may match
+the same model, in which case the most specific pattern wins.`,
+		Exposed: true,
+		Name:    "models",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"ProviderType": {
 		AllowedChoices: []string{"LLM", "MCPServer"},
@@ -698,6 +762,41 @@ available to all extractor by doing local plib = require('plib').`,
 		SubType:        "mapper",
 		Type:           "refList",
 	},
+	"modelprefixes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "modelprefixes",
+		ConvertedName:  "ModelPrefixes",
+		Description: `The literal prefixes that identify this provider inside a model identifier.
+Third-party gateways commonly address a model as the provider they route to
+followed by the model name, such as 'openai/gpt-4o' or
+'@openai-prod/gpt-4o'.
+Include the separator in the entry, so 'openai/' rather than 'openai':
+entries are matched as a plain leading string, and the separator is what
+keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+different providers and the longer match wins. Wildcards are not supported
+here; use models for those.`,
+		Exposed: true,
+		Name:    "modelPrefixes",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"models": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "models",
+		ConvertedName:  "Models",
+		Description: `The models served by this provider, as patterns. Wildcards are supported,
+so 'gpt-*' covers a family. They are used to resolve a provider when a
+model identifier arrives with no prefix, which is what several third-party
+gateways send on the response side of a call. Several providers may match
+the same model, in which case the most specific pattern wins.`,
+		Exposed: true,
+		Name:    "models",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
 	"providertype": {
 		AllowedChoices: []string{"LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
@@ -754,6 +853,8 @@ type mongoAttributesAppComponentProvider struct {
 	Injectors        []*Injector                           `bson:"injectors,omitempty"`
 	Lib              string                                `bson:"lib"`
 	Mappers          []*Mapper                             `bson:"mappers,omitempty"`
+	ModelPrefixes    []string                              `bson:"modelprefixes,omitempty"`
+	Models           []string                              `bson:"models,omitempty"`
 	ProviderType     AppComponentProviderProviderTypeValue `bson:"providertype"`
 	Tools            []*Tool                               `bson:"tools,omitempty"`
 	TrustedCA        string                                `bson:"trustedca,omitempty"`

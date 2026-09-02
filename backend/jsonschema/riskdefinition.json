@@ -1,27 +1,44 @@
 {
   "$extends": [
     "@sharded",
-    "@importable",
     "@identifiable",
+    "@importable",
     "@timed",
-    "@tokenrenewable",
-    "@auto-propagated",
-    "@namelinkable"
+    "@namelinkable",
+    "@auto-propagated"
   ],
-  "$friendlyName": "Deployment",
-  "$friendlyNamePlural": "Deployments",
-  "$modelName": "Deployment",
+  "$friendlyName": "Risk Definition",
+  "$friendlyNamePlural": "Risk Definitions",
+  "$modelName": "RiskDefinition",
   "$modelPackage": "lain",
-  "$modelResourceName": "deployments",
-  "$modelRestName": "deployment",
+  "$modelResourceName": "riskdefinitions",
+  "$modelRestName": "riskdefinition",
   "additionalProperties": false,
-  "description": "Deployment represents an AI Security Gateway Deployment.",
+  "description": "Defines which types of discovered AI assets can raise risk findings. When an active risk definition covers an asset type, the system raises applicable risk findings for that asset.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
       "$readOnly": true,
       "description": "ID is the identifier of the object.",
       "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "analyzerGroup": {
+      "$friendlyName": "Analyzer Group",
+      "description": "The analyzer group.",
+      "title": "analyzerGroup",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "analyzerName": {
+      "$friendlyName": "Analyzer Name",
+      "description": "The analyzer name.",
+      "title": "analyzerName",
       "type": [
         "string",
         "null"
@@ -39,8 +56,26 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "The description of the deployment.",
+      "description": "Description of the risk definition.",
       "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the risk definition is disabled.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "findingDescription": {
+      "$friendlyName": "Finding Description",
+      "description": "The description that will be set on findings raised by this definition.",
+      "title": "findingDescription",
       "type": [
         "string",
         "null"
@@ -73,6 +108,15 @@
         "null"
       ]
     },
+    "match": {
+      "$friendlyName": "Match",
+      "description": "The list of predicates that define this risk pattern.",
+      "items": {
+        "$ref": "predicate.json"
+      },
+      "title": "match",
+      "type": "array"
+    },
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",
@@ -104,76 +148,39 @@
         "null"
       ]
     },
-    "publicKeys": {
-      "$friendlyName": "Public Keys",
-      "description": "The names of the public keys whose corresponding private key is available on this deployment's instances.",
+    "resolutionIdentities": {
+      "$friendlyName": "Identities",
+      "description": "The identities that can resolve findings raised by this definition.",
       "items": {
         "type": [
           "string",
           "null"
         ]
       },
-      "title": "publicKeys",
+      "title": "resolutionIdentities",
       "type": "array"
     },
-    "publicURLs": {
-      "$friendlyName": "Public URLs",
-      "description": "Public URLs of the deployment.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "publicURLs",
-      "type": "array"
-    },
-    "renewToken": {
-      "$friendlyName": "Renew Token",
-      "description": "Set to true on update to issue a new credential.",
-      "title": "renewToken",
+    "system": {
+      "$friendlyName": "System",
+      "description": "If true, this is a system-seeded risk definition supplying finding identity for a risk pillar, and is excluded from customer opt-in matching.",
+      "title": "system",
       "type": [
         "boolean",
         "null"
       ]
     },
-    "renewTokenTag": {
-      "$friendlyName": "Renew Token Tag",
-      "description": "Set to value on update to associate a tag with the issued token.",
-      "title": "renewTokenTag",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "renewTokenValidity": {
-      "$friendlyName": "Renew Token Validity",
-      "description": "Set to value on update to set the validity for a token.",
-      "title": "renewTokenValidity",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "token": {
-      "$friendlyName": "Token",
-      "$readOnly": true,
-      "description": "The issued JWT, populated only in the response of an update where renewToken was set to true.",
-      "title": "token",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "tokenRefs": {
-      "$friendlyName": "Token References",
-      "$readOnly": true,
-      "description": "The list of references to issued tokens.",
-      "items": {
-        "$ref": "tokenref.json"
-      },
-      "title": "tokenRefs",
-      "type": "array"
+    "type": {
+      "$defaultValue": "All",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "Choose which asset kind the risk definition should apply to.",
+      "enum": [
+        "AIDomain",
+        "AIPlugin",
+        "AISkill",
+        "All"
+      ],
+      "title": "type"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",
@@ -187,8 +194,9 @@
     }
   },
   "required": [
-    "friendlyName"
+    "friendlyName",
+    "type"
   ],
-  "title": "Deployment",
+  "title": "RiskDefinition",
   "type": "object"
 }

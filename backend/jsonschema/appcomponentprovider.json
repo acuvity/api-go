@@ -91,6 +91,30 @@
       "title": "mappers",
       "type": "array"
     },
+    "modelPrefixes": {
+      "$friendlyName": "Model Prefixes",
+      "description": "The literal prefixes that identify this provider inside a model identifier. Third-party gateways commonly address a model as the provider they route to followed by the model name, such as 'openai/gpt-4o' or '@openai-prod/gpt-4o'. Include the separator in the entry, so 'openai/' rather than 'openai': entries are matched as a plain leading string, and the separator is what keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may span several segments, so 'openrouter/openai/' and 'openrouter/' can name different providers and the longer match wins. Wildcards are not supported here; use models for those.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "modelPrefixes",
+      "type": "array"
+    },
+    "models": {
+      "$friendlyName": "Models",
+      "description": "The models served by this provider, as patterns. Wildcards are supported, so 'gpt-*' covers a family. They are used to resolve a provider when a model identifier arrives with no prefix, which is what several third-party gateways send on the response side of a call. Several providers may match the same model, in which case the most specific pattern wins.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "models",
+      "type": "array"
+    },
     "providerType": {
       "$defaultValue": "LLM",
       "$friendlyName": "Provider Type",

@@ -1,0 +1,53 @@
+{
+  "$extends": [],
+  "$friendlyName": "Severity Override",
+  "$friendlyNamePlural": "Severity Overrides",
+  "$modelName": "SeverityOverride",
+  "$modelPackage": "hanni",
+  "$modelResourceName": "severityoverrides",
+  "$modelRestName": "severityoverride",
+  "additionalProperties": false,
+  "description": "A user override of a finding's system generated severity.",
+  "properties": {
+    "feedback": {
+      "$friendlyName": "Feedback",
+      "$required": true,
+      "description": "The reason provided for overriding the system generated severity.",
+      "title": "feedback",
+      "type": "string"
+    },
+    "overrideTime": {
+      "$friendlyName": "Override Time",
+      "description": "The time at which the severity was overridden.",
+      "title": "overrideTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "principal": {
+      "$friendlyName": "Principal",
+      "$ref": "principal.json",
+      "description": "The principal that overrode the severity.",
+      "title": "principal"
+    },
+    "severity": {
+      "$friendlyName": "Severity",
+      "$required": true,
+      "description": "The severity chosen by the user.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "severity"
+    }
+  },
+  "required": [
+    "feedback",
+    "severity"
+  ],
+  "title": "SeverityOverride",
+  "type": "object"
+}

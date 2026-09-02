@@ -432,6 +432,12 @@
       },
       "type": "array"
     },
+    "assetrefs": {
+      "items": {
+        "$ref": "assetref.json"
+      },
+      "type": "array"
+    },
     "authsettings": {
       "items": {
         "$ref": "authsettings.json"
@@ -1080,6 +1086,18 @@
       },
       "type": "array"
     },
+    "riskdefinitions": {
+      "items": {
+        "$ref": "riskdefinition.json"
+      },
+      "type": "array"
+    },
+    "riskfindings": {
+      "items": {
+        "$ref": "riskfinding.json"
+      },
+      "type": "array"
+    },
     "roles": {
       "items": {
         "$ref": "role.json"
@@ -1155,6 +1173,12 @@
     "series": {
       "items": {
         "$ref": "serie.json"
+      },
+      "type": "array"
+    },
+    "severityoverrides": {
+      "items": {
+        "$ref": "severityoverride.json"
       },
       "type": "array"
     },
@@ -1353,6 +1377,30 @@
     "webextensions": {
       "items": {
         "$ref": "webextension.json"
+      },
+      "type": "array"
+    },
+    "webhookextractors": {
+      "items": {
+        "$ref": "webhookextractor.json"
+      },
+      "type": "array"
+    },
+    "webhookintegrationconfigs": {
+      "items": {
+        "$ref": "webhookintegrationconfig.json"
+      },
+      "type": "array"
+    },
+    "webhookintegrationconfs": {
+      "items": {
+        "$ref": "webhookintegrationconf.json"
+      },
+      "type": "array"
+    },
+    "webhookintegrations": {
+      "items": {
+        "$ref": "webhookintegration.json"
       },
       "type": "array"
     },

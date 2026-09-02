@@ -154,6 +154,17 @@ func hasNonEmptyExtraction(extractions []*ExtractionRequest) bool {
 	return false
 }
 
+func validateToolsHaveCategory(tools map[string]*Tool) error {
+
+	for name, tool := range tools {
+		if tool.Category == "" || tool.Category == ToolCategoryNone {
+			return makeErr("tools", fmt.Sprintf("tool '%s' must have a category set", name))
+		}
+	}
+
+	return nil
+}
+
 // ValidateScanRequest validates the scan request.
 //
 // The body is deliberately a duplicate of ValidatePoliceRequest: both check the
@@ -163,6 +174,10 @@ func hasNonEmptyExtraction(extractions []*ExtractionRequest) bool {
 func ValidateScanRequest(o *ScanRequest) error {
 
 	if err := validateRequestMessages(o.Messages); err != nil {
+		return err
+	}
+
+	if err := validateToolsHaveCategory(o.Tools); err != nil {
 		return err
 	}
 
@@ -198,6 +213,10 @@ func ValidateScanRequest(o *ScanRequest) error {
 func ValidatePoliceRequest(o *PoliceRequest) error {
 
 	if err := validateRequestMessages(o.Messages); err != nil {
+		return err
+	}
+
+	if err := validateToolsHaveCategory(o.Tools); err != nil {
 		return err
 	}
 

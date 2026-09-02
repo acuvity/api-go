@@ -273,12 +273,15 @@ type ProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the policy asked for the analysis to run offband. That means that
-	// we extracted the data from the user request, verified access permissions,
-	// and then made the decision without waiting for the analyzers. The full
-	// analyzer set ran afterwards, and this log entry reflects that later
-	// evaluation, which can report a stricter outcome than the one the request
-	// actually received.
+	// If true, the analysis did not inform the decision recorded here: we
+	// extracted the data, verified access permissions, and then decided on the
+	// raw extraction without waiting for the analyzers. A policy causes this
+	// either by asking for offband analysis, or by pinning an empty inband
+	// analyzer set for this direction. The full analyzer set then ran behind the
+	// decision, and this log entry reflects that later evaluation, which can
+	// report a stricter outcome than the one the request actually received. A
+	// permissive round-trip on a streamed response is always deferred this way,
+	// whatever the policy asked for.
 	Offband bool `json:"offband" msgpack:"offband" bson:"offband" mapstructure:"offband,omitempty"`
 
 	// If true, the policy was applied in permissive mode: the content decision
@@ -1625,12 +1628,15 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the policy asked for the analysis to run offband. That means that
-we extracted the data from the user request, verified access permissions,
-and then made the decision without waiting for the analyzers. The full
-analyzer set ran afterwards, and this log entry reflects that later
-evaluation, which can report a stricter outcome than the one the request
-actually received.`,
+		Description: `If true, the analysis did not inform the decision recorded here: we
+extracted the data, verified access permissions, and then decided on the
+raw extraction without waiting for the analyzers. A policy causes this
+either by asking for offband analysis, or by pinning an empty inband
+analyzer set for this direction. The full analyzer set then ran behind the
+decision, and this log entry reflects that later evaluation, which can
+report a stricter outcome than the one the request actually received. A
+permissive round-trip on a streamed response is always deferred this way,
+whatever the policy asked for.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -2119,12 +2125,15 @@ same import operation.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the policy asked for the analysis to run offband. That means that
-we extracted the data from the user request, verified access permissions,
-and then made the decision without waiting for the analyzers. The full
-analyzer set ran afterwards, and this log entry reflects that later
-evaluation, which can report a stricter outcome than the one the request
-actually received.`,
+		Description: `If true, the analysis did not inform the decision recorded here: we
+extracted the data, verified access permissions, and then decided on the
+raw extraction without waiting for the analyzers. A policy causes this
+either by asking for offband analysis, or by pinning an empty inband
+analyzer set for this direction. The full analyzer set then ran behind the
+decision, and this log entry reflects that later evaluation, which can
+report a stricter outcome than the one the request actually received. A
+permissive round-trip on a streamed response is always deferred this way,
+whatever the policy asked for.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -2469,12 +2478,15 @@ type SparseProxyRoundtrip struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the policy asked for the analysis to run offband. That means that
-	// we extracted the data from the user request, verified access permissions,
-	// and then made the decision without waiting for the analyzers. The full
-	// analyzer set ran afterwards, and this log entry reflects that later
-	// evaluation, which can report a stricter outcome than the one the request
-	// actually received.
+	// If true, the analysis did not inform the decision recorded here: we
+	// extracted the data, verified access permissions, and then decided on the
+	// raw extraction without waiting for the analyzers. A policy causes this
+	// either by asking for offband analysis, or by pinning an empty inband
+	// analyzer set for this direction. The full analyzer set then ran behind the
+	// decision, and this log entry reflects that later evaluation, which can
+	// report a stricter outcome than the one the request actually received. A
+	// permissive round-trip on a streamed response is always deferred this way,
+	// whatever the policy asked for.
 	Offband *bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
 
 	// If true, the policy was applied in permissive mode: the content decision

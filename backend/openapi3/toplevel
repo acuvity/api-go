@@ -1761,12 +1761,27 @@
             "example": "/openai-api",
             "type": "string"
           },
+          "type": {
+            "description": "The type of the connector.",
+            "enum": [
+              "MCP",
+              "LLM",
+              "WebhookIntegration"
+            ],
+            "example": "MCP"
+          },
           "upstreamURL": {
             "description": "The upstream URL of the backend.",
             "example": "https://ai.example.com/ai",
             "type": "string"
+          },
+          "webhookIntegration": {
+            "$ref": "#/components/schemas/webhookintegrationconf"
           }
         },
+        "required": [
+          "type"
+        ],
         "type": "object"
       },
       "aigatewayconfmcptool": {
@@ -1848,7 +1863,7 @@
             "type": "string"
           },
           "appComponent": {
-            "description": "The app component that this target represents.",
+            "description": "The app component that this target represents. On a WebhookIntegration connector\nnothing is proxied, so this is optional and this is the fallback policy target\nto evaluate against when the webhook payload does not identify one itself. If\nthis is not set and the webhook does not identify a fallback app component or\nprovider, then an error is triggered.",
             "example": "chatbot-demo/agent",
             "type": "string"
           },
@@ -1902,7 +1917,7 @@
             "type": "boolean"
           },
           "provider": {
-            "description": "The provider this AI Gateway Connector accesses.",
+            "description": "The provider this AI Gateway Connector accesses. On a WebhookIntegration\nconnector nothing is proxied, so this is optional and this is the fallback\npolicy target to evaluate against when the webhook payload does not identify one\nitself. If this is not set and the webhook does not identify a fallback app\ncomponent or provider, then an error is triggered.",
             "example": "anthropic-api",
             "type": "string"
           },
@@ -1914,15 +1929,16 @@
             "type": "array"
           },
           "route": {
-            "description": "The route component.",
+            "description": "The route component. On a WebhookIntegration connector it represents the base\npath the integration routes are served under, so the third-party product is\npointed at the gateway URL plus this, and each path of the webhook extractor is\nappended to it.",
             "example": "/openai-api",
             "type": "string"
           },
           "type": {
-            "description": "The type of the AI Gateway Connector.",
+            "description": "The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.\nWebhookIntegration accepts calls from a third-party product that wants us to\ninspect traffic it is handling itself, so it has no upstream.",
             "enum": [
               "MCP",
-              "LLM"
+              "LLM",
+              "WebhookIntegration"
             ],
             "example": "MCP"
           },
@@ -1933,9 +1949,17 @@
             "type": "string"
           },
           "upstreamURL": {
-            "description": "The optional upstream URL of the connector. By default, the first hostname of a\nprovider (or an app component ingress definition) will be used to build the\nupstream URL.",
+            "description": "The optional upstream URL of the connector. By default, the first hostname of a\nprovider (or an app component ingress definition) will be used to build the\nupstream URL. Not applicable to a WebhookIntegration connector, which has no\nupstream.",
             "example": "https://ai.example.com/ai",
             "type": "string"
+          },
+          "webhookIntegration": {
+            "description": "The name of the webhook integration this connector serves. Required when the\ntype is WebhookIntegration and not allowed otherwise.",
+            "example": "litellm",
+            "type": "string"
+          },
+          "webhookIntegrationConfig": {
+            "$ref": "#/components/schemas/webhookintegrationconfig"
           }
         },
         "required": [
@@ -3562,6 +3586,10 @@
             "description": "Set to value on update to associate a tag with the issued token.",
             "type": "string"
           },
+          "renewTokenValidity": {
+            "description": "Set to value on update to set the validity for a token.",
+            "type": "string"
+          },
           "selector": {
             "$ref": "#/components/schemas/appcomponentselector"
           },
@@ -3738,6 +3766,31 @@
             "description": "List of user mappers.",
             "items": {
               "$ref": "#/components/schemas/mapper"
+            },
+            "type": "array"
+          },
+          "modelPrefixes": {
+            "description": "The literal prefixes that identify this provider inside a model identifier.\nThird-party gateways commonly address a model as the provider they route to\nfollowed by the model name, such as 'openai/gpt-4o' or\n'@openai-prod/gpt-4o'.\nInclude the separator in the entry, so 'openai/' rather than 'openai':\nentries are matched as a plain leading string, and the separator is what\nkeeps 'openai/' from also matching 'openai-community/gpt2'. An entry may\nspan several segments, so 'openrouter/openai/' and 'openrouter/' can name\ndifferent providers and the longer match wins. Wildcards are not supported\nhere; use models for those.",
+            "example": [
+              "openai/",
+              "openrouter/openai/",
+              "@openai-prod/",
+              "anthropic."
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "models": {
+            "description": "The models served by this provider, as patterns. Wildcards are supported,\nso 'gpt-*' covers a family. They are used to resolve a provider when a\nmodel identifier arrives with no prefix, which is what several third-party\ngateways send on the response side of a call. Several providers may match\nthe same model, in which case the most specific pattern wins.",
+            "example": [
+              "gpt-4o",
+              "gpt-*",
+              "o1*"
+            ],
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -4142,16 +4195,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "appGraphKind": {
-            "default": "All",
-            "description": "Filters by application graph kind. Must not be combined with\nworkloadGroupSetHashes.",
-            "enum": [
-              "All",
-              "Defined",
-              "Undefined",
-              "UndefinedWithAIDomains"
-            ]
-          },
           "direction": {
             "default": "Backward",
             "description": "Determines the sort order of logs.",
@@ -4173,6 +4216,14 @@
           "includeData": {
             "description": "If true, includes log data (like proxy, connection or DNS logs) in the generated\napplication graph logs. Note that this can significantly increase the size of\nthe response. At the moment, this is only taken into consideration for the trace\nID based application graph generation.",
             "type": "boolean"
+          },
+          "level": {
+            "default": "Full",
+            "description": "Determines how much data to return.",
+            "enum": [
+              "Full",
+              "AppInventory"
+            ]
           },
           "limit": {
             "default": 100,
@@ -4206,20 +4257,14 @@
             "type": "object"
           },
           "traceID": {
-            "description": "The Trace ID that the graph is being generated for. If this option is set, only\na single application graph will be generated for the trace. Values for\nappGraphKinds and workloadGroupSetHashes will be ignored.",
+            "description": "The Trace ID that the graph is being generated for. If this option is set, only\na single application graph will be generated for the trace. Values for\nappGraphKind and workloadGroupSetHash will be ignored.",
             "example": "4bf92f3577b34da6a3ce929d0e0e4736",
             "type": "string"
           },
-          "workloadGroupSetHashes": {
-            "description": "Filters by hashes of the workload group sets to generate application graphs for.\nMust not be combined with appGraphKinds.",
-            "example": [
-              "wgs-0ff92a76a3765740e26d84947d92e5fc",
-              "wgs-d41d8cd98f00b204e9800998ecf8427e"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
+          "workloadGroupSetHash": {
+            "description": "The hash of the workload group set to generate the full application graph for.\nRequired when level is Full. Must not be combined with appGraphKind.",
+            "example": "wgs-0ff92a76a3765740e26d84947d92e5fc",
+            "type": "string"
           }
         },
         "type": "object"
@@ -4496,6 +4541,40 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "assetref": {
+        "description": "A reference to any object a finding applies to.",
+        "properties": {
+          "ID": {
+            "description": "The identifier of the referenced object.",
+            "example": "123-12343-43543-5434",
+            "type": "string"
+          },
+          "category": {
+            "description": "The category of the referenced object, if it has one.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The display name of the referenced object, if it has one.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the referenced object.",
+            "example": "/my/namespace",
+            "type": "string"
+          },
+          "restName": {
+            "description": "The identity name of the referenced object.",
+            "example": "aidomain",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ID",
+          "namespace",
+          "restName"
         ],
         "type": "object"
       },
@@ -5096,6 +5175,10 @@
           },
           "renewTokenTag": {
             "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
+          "renewTokenValidity": {
+            "description": "Set to value on update to set the validity for a token.",
             "type": "string"
           },
           "token": {
@@ -6148,6 +6231,11 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
+          "inputStream": {
+            "default": false,
+            "description": "This property defines if the input should be handled as a stream of protocol\nmessages using streamSplitter, instead of a single buffered body. It only\napplies to type Input; setting it while type is Output is a validation error.",
+            "type": "boolean"
+          },
           "libs": {
             "description": "References existing extractorlibs by name to make them importable in the\nextractor script.",
             "items": {
@@ -6421,6 +6509,10 @@
             "description": "The analyzer name.",
             "type": "string"
           },
+          "definitionName": {
+            "description": "The name of the FindingDefinition this finding was instantiated from.",
+            "type": "string"
+          },
           "description": {
             "description": "The description of the finding.",
             "type": "string"
@@ -6660,6 +6752,10 @@
           },
           "renewTokenTag": {
             "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
+          "renewTokenValidity": {
+            "description": "Set to value on update to set the validity for a token.",
             "type": "string"
           },
           "slugs": {
@@ -7221,6 +7317,13 @@
             },
             "type": "array"
           },
+          "riskdefinitions": {
+            "description": "Risk definitions to import.",
+            "items": {
+              "$ref": "#/components/schemas/riskdefinition"
+            },
+            "type": "array"
+          },
           "sinks": {
             "description": "Sinks to import.",
             "items": {
@@ -7253,6 +7356,13 @@
             "description": "WebExtension configurations to import.",
             "items": {
               "$ref": "#/components/schemas/webextensionconfig"
+            },
+            "type": "array"
+          },
+          "webhookIntegrations": {
+            "description": "Webhook integrations to import.",
+            "items": {
+              "$ref": "#/components/schemas/webhookintegration"
             },
             "type": "array"
           }
@@ -9556,10 +9666,13 @@
           "key": {
             "description": "The key of the predicate.",
             "enum": [
+              "AccessControlRisk",
               "Categories",
               "ClientType",
+              "ComplianceRisk",
               "Confidentiality",
               "CustomDataTypes",
+              "DataPolicyRisk",
               "DstApp",
               "DstComponent",
               "DstIPRange",
@@ -9968,6 +10081,31 @@
             "description": "List of user mappers.",
             "items": {
               "$ref": "#/components/schemas/mapper"
+            },
+            "type": "array"
+          },
+          "modelPrefixes": {
+            "description": "The literal prefixes that identify this provider inside a model identifier.\nThird-party gateways commonly address a model as the provider they route to\nfollowed by the model name, such as 'openai/gpt-4o' or\n'@openai-prod/gpt-4o'.\nInclude the separator in the entry, so 'openai/' rather than 'openai':\nentries are matched as a plain leading string, and the separator is what\nkeeps 'openai/' from also matching 'openai-community/gpt2'. An entry may\nspan several segments, so 'openrouter/openai/' and 'openrouter/' can name\ndifferent providers and the longer match wins. Wildcards are not supported\nhere; use models for those.",
+            "example": [
+              "openai/",
+              "openrouter/openai/",
+              "@openai-prod/",
+              "anthropic."
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "models": {
+            "description": "The models served by this provider, as patterns. Wildcards are supported,\nso 'gpt-*' covers a family. They are used to resolve a provider when a\nmodel identifier arrives with no prefix, which is what several third-party\ngateways send on the response side of a call. Several providers may match\nthe same model, in which case the most specific pattern wins.",
+            "example": [
+              "gpt-4o",
+              "gpt-*",
+              "o1*"
+            ],
+            "items": {
+              "type": "string"
             },
             "type": "array"
           },
@@ -10702,7 +10840,7 @@
             "type": "string"
           },
           "offband": {
-            "description": "If true, the policy asked for the analysis to run offband. That means that\nwe extracted the data from the user request, verified access permissions,\nand then made the decision without waiting for the analyzers. The full\nanalyzer set ran afterwards, and this log entry reflects that later\nevaluation, which can report a stricter outcome than the one the request\nactually received.",
+            "description": "If true, the analysis did not inform the decision recorded here: we\nextracted the data, verified access permissions, and then decided on the\nraw extraction without waiting for the analyzers. A policy causes this\neither by asking for offband analysis, or by pinning an empty inband\nanalyzer set for this direction. The full analyzer set then ran behind the\ndecision, and this log entry reflects that later evaluation, which can\nreport a stricter outcome than the one the request actually received. A\npermissive round-trip on a streamed response is always deferred this way,\nwhatever the policy asked for.",
             "type": "boolean"
           },
           "permissive": {
@@ -11087,6 +11225,221 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "riskdefinition": {
+        "description": "Defines which types of discovered AI assets can raise risk findings. When an\nactive risk definition covers an asset type, the system raises applicable risk\nfindings for that asset.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "analyzerGroup": {
+            "description": "The analyzer group.",
+            "type": "string"
+          },
+          "analyzerName": {
+            "description": "The analyzer name.",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the risk definition.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the risk definition is disabled.",
+            "type": "boolean"
+          },
+          "findingDescription": {
+            "description": "The description that will be set on findings raised by this definition.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "match": {
+            "description": "The list of predicates that define this risk pattern.",
+            "items": {
+              "$ref": "#/components/schemas/predicate"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "resolutionIdentities": {
+            "description": "The identities that can resolve findings raised by this definition.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "system": {
+            "description": "If true, this is a system-seeded risk definition supplying finding identity for\na risk pillar, and is excluded from customer opt-in matching.",
+            "type": "boolean"
+          },
+          "type": {
+            "default": "All",
+            "description": "Choose which asset kind the risk definition should apply to.",
+            "enum": [
+              "AIDomain",
+              "AIPlugin",
+              "AISkill",
+              "All"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "type"
+        ],
+        "type": "object"
+      },
+      "riskfinding": {
+        "description": "Defines a risk finding instantiated from a risk definition that matched a\ndiscovered AI asset.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "analyzerGroup": {
+            "description": "The analyzer group.",
+            "type": "string"
+          },
+          "analyzerName": {
+            "description": "The analyzer name.",
+            "type": "string"
+          },
+          "assetRef": {
+            "$ref": "#/components/schemas/assetref"
+          },
+          "description": {
+            "description": "The description of the finding.",
+            "type": "string"
+          },
+          "firstSeenTime": {
+            "description": "First time the finding was seen.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "lastResolutionComment": {
+            "description": "Comment about the last resolution.",
+            "type": "string"
+          },
+          "lastSeenTime": {
+            "description": "Last time the finding was seen.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "resolutionIdentities": {
+            "description": "The identities that can resolve this finding.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "severity": {
+            "description": "The severity of the finding.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          },
+          "severityOverride": {
+            "$ref": "#/components/schemas/severityoverride"
+          },
+          "state": {
+            "description": "The state of the finding.",
+            "type": "object"
+          },
+          "status": {
+            "description": "The status of the finding.",
+            "enum": [
+              "Open",
+              "Resolved",
+              "Rejected",
+              "Archived"
+            ],
+            "example": "Open"
+          },
+          "systemGeneratedSeverity": {
+            "description": "The severity computed by the system when the finding was created. Not\naffected by user overrides.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Medium"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "severity",
+          "status"
+        ],
         "type": "object"
       },
       "role": {
@@ -11617,6 +11970,39 @@
         },
         "required": [
           "query"
+        ],
+        "type": "object"
+      },
+      "severityoverride": {
+        "description": "A user override of a finding's system generated severity.",
+        "properties": {
+          "feedback": {
+            "description": "The reason provided for overriding the system generated severity.",
+            "example": "Reviewed manually and downgraded based on business context.",
+            "type": "string"
+          },
+          "overrideTime": {
+            "description": "The time at which the severity was overridden.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "principal": {
+            "$ref": "#/components/schemas/principal"
+          },
+          "severity": {
+            "description": "The severity chosen by the user.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ],
+            "example": "Low"
+          }
+        },
+        "required": [
+          "feedback",
+          "severity"
         ],
         "type": "object"
       },
@@ -12261,8 +12647,10 @@
             "type": "array"
           },
           "category": {
+            "default": "None",
             "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
             "enum": [
+              "None",
               "Client",
               "Server",
               "RemoteMCP"
@@ -13118,6 +13506,225 @@
           "name",
           "subject"
         ],
+        "type": "object"
+      },
+      "webhookextractor": {
+        "description": "A webhook extractor handles one route of a webhook integration. It is to a\nwebhook integration what an extractor is to a provider: the method and path\nselect it, and the lua script does the work.\nUnlike a provider extractor it never sees an upstream response, so both\ndirections of one vendor call arrive on the same route as inbound requests,\nand it is the payload that says which one it is. The script therefore reports\nwhat the call is about rather than having it configured here.\nReusable helper code belongs in an extractorlib, referenced through libs, or\nin the lib of the integration.",
+        "properties": {
+          "anonymization": {
+            "default": "FixedSize",
+            "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+            "enum": [
+              "FixedSize",
+              "VariableSize"
+            ]
+          },
+          "description": {
+            "description": "The description of the webhook extractor.",
+            "type": "string"
+          },
+          "libs": {
+            "description": "References existing extractorlibs by name to make them importable in the\nwebhook extractor script. The name plib is reserved for the lib of the\nintegration and cannot be used here.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "method": {
+            "description": "The method to match.",
+            "enum": [
+              "Post",
+              "Put",
+              "Patch",
+              "Get",
+              "Delete",
+              "Options",
+              "Head"
+            ],
+            "example": [
+              "Post"
+            ]
+          },
+          "mode": {
+            "default": "Police",
+            "description": "What this route runs. Police evaluates policy and can reject a call, Scan\nonly analyzes and logs, which is all a vendor whose contract cannot carry a\nrejection can support. It states a property of that contract, so it is\nfixed here rather than decided per call.",
+            "enum": [
+              "Police",
+              "Scan"
+            ]
+          },
+          "name": {
+            "description": "The internal reference name of the route, unique within its integration.\nIt identifies the route in logs and errors.",
+            "example": "basic-guardrail-api",
+            "type": "string"
+          },
+          "path": {
+            "description": "A regular expression to match a URL path to log.",
+            "example": [
+              "/v1/*/hello/*",
+              "/api/v1"
+            ],
+            "type": "string"
+          },
+          "script": {
+            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It runs in the same lua state, so\nwhatever `webhook_input()` kept in a local is still available to it,\nwhich is how a script maps a verdict back onto the exact place it came from\nin the vendor's payload. It takes one table parameter containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nIt takes one table parameter describing the failure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: what the deployment configured, so a script may answer the\n  vendor's equivalent of 'reject' or of 'no objection' accordingly.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the configured fail\nclose behavior, when the script could not be run at all.",
+            "example": "function webhook_input()\n  local body = json.decode(input.body())\n  return {\n    type = \"input\",\n    model = body.model,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n  }\nend\n\nfunction webhook_output(result)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "name",
+          "path",
+          "script"
+        ],
+        "type": "object"
+      },
+      "webhookintegration": {
+        "description": "A webhook integration lets a third-party product that can call out to an HTTP\nendpoint have the traffic it handles inspected by Acuvity, with no code change\nin that product. It describes one vendor's webhook contract: the routes that\nvendor calls, and for each of them the lua script that turns its payload into\nsomething that can be scanned or policed, and the verdict back into the answer\nit expects.\nIt is served by attaching it to an AI Gateway connector of type\nWebhookIntegration. The connector supplies the base path it is reachable\nunder and the settings it runs with, so the same integration can be attached\nto several connectors.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the webhook integration.",
+            "type": "string"
+          },
+          "extractors": {
+            "description": "The routes of this integration. Each one registers a method and a path\nunder the route of the connector the integration is attached to.",
+            "items": {
+              "$ref": "#/components/schemas/webhookextractor"
+            },
+            "type": "array"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "icon": {
+            "description": "The icon of the webhook integration, base64 encoded.",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "lib": {
+            "description": "If set, this snippet of lua will be available in all webhook extractors of\nthe integration, acting as an effective library. It must be a valid lua\nmodule. It will be available to all extractors by doing local plib =\nrequire('plib').",
+            "example": "local M = {}\nfunction M.hello_world()\n  return \"hello world\"\nend\nreturn M",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "vendorURL": {
+            "description": "URL to the vendor's documentation for this integration point.",
+            "example": "https://docs.litellm.ai/docs/proxy/guardrails/generic_api",
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName"
+        ],
+        "type": "object"
+      },
+      "webhookintegrationconf": {
+        "description": "The rendered webhook integration shape consumed by the AI Gateway.",
+        "properties": {
+          "extractors": {
+            "description": "The routes of this integration. Each one serves a method and a path under\nthe route of the connector the integration is attached to.",
+            "items": {
+              "$ref": "#/components/schemas/webhookextractor"
+            },
+            "type": "array"
+          },
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
+          },
+          "lib": {
+            "description": "If set, this snippet of lua will be available in all webhook extractors of\nthe integration, acting as an effective library. It must be a valid lua\nmodule. It will be available to all extractors by doing local plib =\nrequire('plib').",
+            "example": "local M = {}\nfunction M.hello_world()\n  return \"hello world\"\nend\nreturn M",
+            "type": "string"
+          },
+          "maxBodySize": {
+            "description": "The maximum size in bytes of a request body the route of the integration\naccepts. A larger body is rejected without being inspected. When it is 0,\nthe system default applies.",
+            "example": 1048576,
+            "type": "integer"
+          },
+          "name": {
+            "description": "The name of the webhook integration.",
+            "example": "fetch-provider",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the underlying webhook integration.",
+            "example": "/orgs/acme",
+            "type": "string"
+          },
+          "redactContent": {
+            "description": "If true, the user data is removed from the logged roundtrip while the\nanalysis and all other metadata are kept. It only applies to routes whose\nmode is Scan. On a Police route the access policy decides this.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is also true, the user data is kept in the\nlogged roundtrip whenever the analysis reports a violation, so the content\nbehind a finding stays available for review. It has no effect on its own,\nand like redactContent it only applies to Scan-mode routes.",
+            "type": "boolean"
+          },
+          "timeout": {
+            "description": "How long a call may take in total, including the scan or police pass. When\nit elapses, the call is answered according to failClose. When empty, the\nsystem default applies.",
+            "example": "10s",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "webhookintegrationconfig": {
+        "description": "Configures how a webhook integration behaves on the AI Gateway connector it is\nattached to. It configures what happens when a call cannot be evaluated and\nwhat of its content is kept in the logs. Two connectors can run the same\nintegration with different settings. When it is not set, the defaults apply.",
+        "properties": {
+          "failClose": {
+            "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
+          },
+          "redactContent": {
+            "description": "If true, the user data is removed from the logged roundtrip while the\nanalysis and all other metadata are kept. It only applies to routes whose\nmode is Scan. On a Police route the access policy decides this.",
+            "type": "boolean"
+          },
+          "redactContentBypass": {
+            "description": "If true, and redactContent is also true, the user data is kept in the\nlogged roundtrip whenever the analysis reports a violation, so the content\nbehind a finding stays available for review. It has no effect on its own,\nand like redactContent it only applies to Scan-mode routes.",
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "workload": {
@@ -22070,6 +22677,255 @@
         }
       ]
     },
+    "/riskdefinitions": {
+      "get": {
+        "description": "List all available risk definitions.",
+        "operationId": "get-all-RiskDefinitions",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/riskdefinition"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new risk definition.",
+        "operationId": "create-RiskDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/riskdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/riskdefinitions/{id}": {
+      "delete": {
+        "description": "Deletes the risk definition with the given ID.",
+        "operationId": "delete-RiskDefinition",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the risk definition with the given ID.",
+        "operationId": "get-RiskDefinition",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the risk definition with the given ID.",
+        "operationId": "update-RiskDefinition",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/riskdefinition"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskdefinition"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/riskfindings": {
+      "get": {
+        "description": "List all risk findings.",
+        "operationId": "get-all-RiskFindings",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/riskfinding"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/riskfindings/{id}": {
+      "get": {
+        "description": "Retrieve a risk finding given its identifier.",
+        "operationId": "get-RiskFinding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskfinding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a risk finding given its identifier.",
+        "operationId": "update-RiskFinding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/riskfinding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskfinding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/roles": {
       "get": {
         "description": "List all roles.",
@@ -23581,6 +24437,149 @@
           }
         }
       ]
+    },
+    "/webhookintegrations": {
+      "get": {
+        "description": "List all available webhook integrations.",
+        "operationId": "get-all-WebhookIntegrations",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/webhookintegration"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new webhook integration.",
+        "operationId": "create-WebhookIntegration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhookintegration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webhookintegration"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/webhookintegrations/{id}": {
+      "delete": {
+        "description": "Delete a webhook integration given its identifier.",
+        "operationId": "delete-WebhookIntegration",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webhookintegration"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a webhook integration given its identifier.",
+        "operationId": "get-WebhookIntegration",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webhookintegration"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a webhook integration given its identifier.",
+        "operationId": "update-WebhookIntegration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/webhookintegration"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/webhookintegration"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     }
   },
   "security": [

@@ -26,3 +26,8 @@ func ValidateRestrictedIP(attribute string, host string) error {
 func ValidateRestrictedIPs(attribute string, hosts []string) error {
 	return nil
 }
+
+// ValidateWebhookExtractor validates the given WebhookExtractor.
+func ValidateWebhookExtractor(extractor *WebhookExtractor) error {
+    return nil
+}

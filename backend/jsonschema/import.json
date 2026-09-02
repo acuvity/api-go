@@ -346,6 +346,15 @@
       "title": "publickeys",
       "type": "array"
     },
+    "riskdefinitions": {
+      "$friendlyName": "Risk Definitions",
+      "description": "Risk definitions to import.",
+      "items": {
+        "$ref": "riskdefinition.json"
+      },
+      "title": "riskdefinitions",
+      "type": "array"
+    },
     "sinks": {
       "$friendlyName": "Sinks",
       "description": "Sinks to import.",
@@ -389,6 +398,15 @@
         "$ref": "webextensionconfig.json"
       },
       "title": "webExtensionConfigs",
+      "type": "array"
+    },
+    "webhookIntegrations": {
+      "$friendlyName": "Webhook Integrations",
+      "description": "Webhook integrations to import.",
+      "items": {
+        "$ref": "webhookintegration.json"
+      },
+      "title": "webhookIntegrations",
       "type": "array"
     }
   },

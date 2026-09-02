@@ -22,6 +22,9 @@ const (
 
 	// AIGatewayConnectorTypeMCP represents the value MCP.
 	AIGatewayConnectorTypeMCP AIGatewayConnectorTypeValue = "MCP"
+
+	// AIGatewayConnectorTypeWebhookIntegration represents the value WebhookIntegration.
+	AIGatewayConnectorTypeWebhookIntegration AIGatewayConnectorTypeValue = "WebhookIntegration"
 )
 
 // AIGatewayConnectorIdentity represents the Identity of the object.
@@ -99,7 +102,11 @@ type AIGatewayConnector struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The app component that this target represents.
+	// The app component that this target represents. On a WebhookIntegration connector
+	// nothing is proxied, so this is optional and this is the fallback policy target
+	// to evaluate against when the webhook payload does not identify one itself. If
+	// this is not set and the webhook does not identify a fallback app component or
+	// provider, then an error is triggered.
 	AppComponent string `json:"appComponent" msgpack:"appComponent" bson:"appcomponent" mapstructure:"appComponent,omitempty"`
 
 	// Upstream OAuth client ID.
@@ -134,16 +141,25 @@ type AIGatewayConnector struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// The provider this AI Gateway Connector accesses.
+	// The provider this AI Gateway Connector accesses. On a WebhookIntegration
+	// connector nothing is proxied, so this is optional and this is the fallback
+	// policy target to evaluate against when the webhook payload does not identify one
+	// itself. If this is not set and the webhook does not identify a fallback app
+	// component or provider, then an error is triggered.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
 	// Provider Token pools that this AI Gateway Connector can use.
 	ProviderTokenPools []string `json:"providerTokenPools" msgpack:"providerTokenPools" bson:"providertokenpools" mapstructure:"providerTokenPools,omitempty"`
 
-	// The route component.
+	// The route component. On a WebhookIntegration connector it represents the base
+	// path the integration routes are served under, so the third-party product is
+	// pointed at the gateway URL plus this, and each path of the webhook extractor is
+	// appended to it.
 	Route string `json:"route" msgpack:"route" bson:"route" mapstructure:"route,omitempty"`
 
-	// The type of the AI Gateway Connector.
+	// The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
+	// WebhookIntegration accepts calls from a third-party product that wants us to
+	// inspect traffic it is handling itself, so it has no upstream.
 	Type AIGatewayConnectorTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
@@ -151,8 +167,17 @@ type AIGatewayConnector struct {
 
 	// The optional upstream URL of the connector. By default, the first hostname of a
 	// provider (or an app component ingress definition) will be used to build the
-	// upstream URL.
+	// upstream URL. Not applicable to a WebhookIntegration connector, which has no
+	// upstream.
 	UpstreamURL string `json:"upstreamURL" msgpack:"upstreamURL" bson:"upstreamurl" mapstructure:"upstreamURL,omitempty"`
+
+	// The name of the webhook integration this connector serves. Required when the
+	// type is WebhookIntegration and not allowed otherwise.
+	WebhookIntegration string `json:"webhookIntegration,omitempty" msgpack:"webhookIntegration,omitempty" bson:"webhookintegration,omitempty" mapstructure:"webhookIntegration,omitempty"`
+
+	// The webhook integration specific configuration. Only applicable when the type is
+	// WebhookIntegration. When it is not set, the defaults apply.
+	WebhookIntegrationConfig *WebhookIntegrationConfig `json:"webhookIntegrationConfig,omitempty" msgpack:"webhookIntegrationConfig,omitempty" bson:"webhookintegrationconfig,omitempty" mapstructure:"webhookIntegrationConfig,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -221,6 +246,8 @@ func (o *AIGatewayConnector) GetBSON() (any, error) {
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.UpstreamURL = o.UpstreamURL
+	s.WebhookIntegration = o.WebhookIntegration
+	s.WebhookIntegrationConfig = o.WebhookIntegrationConfig
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -258,6 +285,8 @@ func (o *AIGatewayConnector) SetBSON(raw bson.Raw) error {
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.UpstreamURL = s.UpstreamURL
+	o.WebhookIntegration = s.WebhookIntegration
+	o.WebhookIntegrationConfig = s.WebhookIntegrationConfig
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -396,26 +425,28 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAIGatewayConnector{
-			ID:                 &o.ID,
-			AppComponent:       &o.AppComponent,
-			ClientID:           &o.ClientID,
-			ClientSecret:       &o.ClientSecret,
-			CreateTime:         &o.CreateTime,
-			Description:        &o.Description,
-			FriendlyName:       &o.FriendlyName,
-			ImportHash:         &o.ImportHash,
-			ImportLabel:        &o.ImportLabel,
-			Name:               &o.Name,
-			Namespace:          &o.Namespace,
-			Propagate:          &o.Propagate,
-			Provider:           &o.Provider,
-			ProviderTokenPools: &o.ProviderTokenPools,
-			Route:              &o.Route,
-			Type:               &o.Type,
-			UpdateTime:         &o.UpdateTime,
-			UpstreamURL:        &o.UpstreamURL,
-			ZHash:              &o.ZHash,
-			Zone:               &o.Zone,
+			ID:                       &o.ID,
+			AppComponent:             &o.AppComponent,
+			ClientID:                 &o.ClientID,
+			ClientSecret:             &o.ClientSecret,
+			CreateTime:               &o.CreateTime,
+			Description:              &o.Description,
+			FriendlyName:             &o.FriendlyName,
+			ImportHash:               &o.ImportHash,
+			ImportLabel:              &o.ImportLabel,
+			Name:                     &o.Name,
+			Namespace:                &o.Namespace,
+			Propagate:                &o.Propagate,
+			Provider:                 &o.Provider,
+			ProviderTokenPools:       &o.ProviderTokenPools,
+			Route:                    &o.Route,
+			Type:                     &o.Type,
+			UpdateTime:               &o.UpdateTime,
+			UpstreamURL:              &o.UpstreamURL,
+			WebhookIntegration:       &o.WebhookIntegration,
+			WebhookIntegrationConfig: o.WebhookIntegrationConfig,
+			ZHash:                    &o.ZHash,
+			Zone:                     &o.Zone,
 		}
 	}
 
@@ -458,6 +489,10 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.UpdateTime = &(o.UpdateTime)
 		case "upstreamURL":
 			sp.UpstreamURL = &(o.UpstreamURL)
+		case "webhookIntegration":
+			sp.WebhookIntegration = &(o.WebhookIntegration)
+		case "webhookIntegrationConfig":
+			sp.WebhookIntegrationConfig = o.WebhookIntegrationConfig
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -529,6 +564,12 @@ func (o *AIGatewayConnector) Patch(sparse elemental.SparseIdentifiable) {
 	if so.UpstreamURL != nil {
 		o.UpstreamURL = *so.UpstreamURL
 	}
+	if so.WebhookIntegration != nil {
+		o.WebhookIntegration = *so.WebhookIntegration
+	}
+	if so.WebhookIntegrationConfig != nil {
+		o.WebhookIntegrationConfig = so.WebhookIntegrationConfig
+	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
 	}
@@ -544,6 +585,12 @@ func (o *AIGatewayConnector) EncryptAttributes(encrypter elemental.AttributeEncr
 		return fmt.Errorf("unable to encrypt attribute 'ClientSecret' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
 	}
 
+	if o.WebhookIntegrationConfig != nil {
+		if err := o.WebhookIntegrationConfig.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -552,6 +599,12 @@ func (o *AIGatewayConnector) DecryptAttributes(encrypter elemental.AttributeEncr
 
 	if o.ClientSecret, err = encrypter.DecryptString(o.ClientSecret); err != nil {
 		return fmt.Errorf("unable to decrypt attribute 'ClientSecret' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.WebhookIntegrationConfig != nil {
+		if err := o.WebhookIntegrationConfig.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+		}
 	}
 
 	return nil
@@ -612,7 +665,7 @@ func (o *AIGatewayConnector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"MCP", "LLM"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"MCP", "LLM", "WebhookIntegration"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -621,6 +674,13 @@ func (o *AIGatewayConnector) Validate() error {
 	}
 	if err := ValidateWebSchemeURL("upstreamURL", o.UpstreamURL); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.WebhookIntegrationConfig != nil {
+		if err := o.WebhookIntegrationConfig.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "webhookIntegrationConfig")
+		}
 	}
 
 	// Custom object validation.
@@ -698,6 +758,10 @@ func (o *AIGatewayConnector) ValueForAttribute(name string) any {
 		return o.UpdateTime
 	case "upstreamURL":
 		return o.UpstreamURL
+	case "webhookIntegration":
+		return o.WebhookIntegration
+	case "webhookIntegrationConfig":
+		return o.WebhookIntegrationConfig
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -728,11 +792,15 @@ var AIGatewayConnectorAttributesMap = map[string]elemental.AttributeSpecificatio
 		AllowedChoices: []string{},
 		BSONFieldName:  "appcomponent",
 		ConvertedName:  "AppComponent",
-		Description:    `The app component that this target represents.`,
-		Exposed:        true,
-		Name:           "appComponent",
-		Stored:         true,
-		Type:           "string",
+		Description: `The app component that this target represents. On a WebhookIntegration connector
+nothing is proxied, so this is optional and this is the fallback policy target
+to evaluate against when the webhook payload does not identify one itself. If
+this is not set and the webhook does not identify a fallback app component or
+provider, then an error is triggered.`,
+		Exposed: true,
+		Name:    "appComponent",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ClientID": {
 		AllowedChoices: []string{},
@@ -869,11 +937,15 @@ Name if empty.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `The provider this AI Gateway Connector accesses.`,
-		Exposed:        true,
-		Name:           "provider",
-		Stored:         true,
-		Type:           "string",
+		Description: `The provider this AI Gateway Connector accesses. On a WebhookIntegration
+connector nothing is proxied, so this is optional and this is the fallback
+policy target to evaluate against when the webhook payload does not identify one
+itself. If this is not set and the webhook does not identify a fallback app
+component or provider, then an error is triggered.`,
+		Exposed: true,
+		Name:    "provider",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ProviderTokenPools": {
 		AllowedChoices: []string{},
@@ -891,22 +963,27 @@ Name if empty.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "route",
 		ConvertedName:  "Route",
-		Description:    `The route component.`,
-		Exposed:        true,
-		Name:           "route",
-		Stored:         true,
-		Type:           "string",
+		Description: `The route component. On a WebhookIntegration connector it represents the base
+path the integration routes are served under, so the third-party product is
+pointed at the gateway URL plus this, and each path of the webhook extractor is
+appended to it.`,
+		Exposed: true,
+		Name:    "route",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"MCP", "LLM"},
+		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		Description:    `The type of the AI Gateway Connector.`,
-		Exposed:        true,
-		Name:           "type",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
+WebhookIntegration accepts calls from a third-party product that wants us to
+inspect traffic it is handling itself, so it has no upstream.`,
+		Exposed:  true,
+		Name:     "type",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -929,11 +1006,35 @@ Name if empty.`,
 		ConvertedName:  "UpstreamURL",
 		Description: `The optional upstream URL of the connector. By default, the first hostname of a
 provider (or an app component ingress definition) will be used to build the
-upstream URL.`,
+upstream URL. Not applicable to a WebhookIntegration connector, which has no
+upstream.`,
 		Exposed: true,
 		Name:    "upstreamURL",
 		Stored:  true,
 		Type:    "string",
+	},
+	"WebhookIntegration": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegration",
+		ConvertedName:  "WebhookIntegration",
+		Description: `The name of the webhook integration this connector serves. Required when the
+type is WebhookIntegration and not allowed otherwise.`,
+		Exposed: true,
+		Name:    "webhookIntegration",
+		Stored:  true,
+		Type:    "string",
+	},
+	"WebhookIntegrationConfig": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegrationconfig",
+		ConvertedName:  "WebhookIntegrationConfig",
+		Description: `The webhook integration specific configuration. Only applicable when the type is
+WebhookIntegration. When it is not set, the defaults apply.`,
+		Exposed: true,
+		Name:    "webhookIntegrationConfig",
+		Stored:  true,
+		SubType: "webhookintegrationconfig",
+		Type:    "ref",
 	},
 }
 
@@ -958,11 +1059,15 @@ var AIGatewayConnectorLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		AllowedChoices: []string{},
 		BSONFieldName:  "appcomponent",
 		ConvertedName:  "AppComponent",
-		Description:    `The app component that this target represents.`,
-		Exposed:        true,
-		Name:           "appComponent",
-		Stored:         true,
-		Type:           "string",
+		Description: `The app component that this target represents. On a WebhookIntegration connector
+nothing is proxied, so this is optional and this is the fallback policy target
+to evaluate against when the webhook payload does not identify one itself. If
+this is not set and the webhook does not identify a fallback app component or
+provider, then an error is triggered.`,
+		Exposed: true,
+		Name:    "appComponent",
+		Stored:  true,
+		Type:    "string",
 	},
 	"clientid": {
 		AllowedChoices: []string{},
@@ -1099,11 +1204,15 @@ Name if empty.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
 		ConvertedName:  "Provider",
-		Description:    `The provider this AI Gateway Connector accesses.`,
-		Exposed:        true,
-		Name:           "provider",
-		Stored:         true,
-		Type:           "string",
+		Description: `The provider this AI Gateway Connector accesses. On a WebhookIntegration
+connector nothing is proxied, so this is optional and this is the fallback
+policy target to evaluate against when the webhook payload does not identify one
+itself. If this is not set and the webhook does not identify a fallback app
+component or provider, then an error is triggered.`,
+		Exposed: true,
+		Name:    "provider",
+		Stored:  true,
+		Type:    "string",
 	},
 	"providertokenpools": {
 		AllowedChoices: []string{},
@@ -1121,22 +1230,27 @@ Name if empty.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "route",
 		ConvertedName:  "Route",
-		Description:    `The route component.`,
-		Exposed:        true,
-		Name:           "route",
-		Stored:         true,
-		Type:           "string",
+		Description: `The route component. On a WebhookIntegration connector it represents the base
+path the integration routes are served under, so the third-party product is
+pointed at the gateway URL plus this, and each path of the webhook extractor is
+appended to it.`,
+		Exposed: true,
+		Name:    "route",
+		Stored:  true,
+		Type:    "string",
 	},
 	"type": {
-		AllowedChoices: []string{"MCP", "LLM"},
+		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
-		Description:    `The type of the AI Gateway Connector.`,
-		Exposed:        true,
-		Name:           "type",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
+WebhookIntegration accepts calls from a third-party product that wants us to
+inspect traffic it is handling itself, so it has no upstream.`,
+		Exposed:  true,
+		Name:     "type",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1159,11 +1273,35 @@ Name if empty.`,
 		ConvertedName:  "UpstreamURL",
 		Description: `The optional upstream URL of the connector. By default, the first hostname of a
 provider (or an app component ingress definition) will be used to build the
-upstream URL.`,
+upstream URL. Not applicable to a WebhookIntegration connector, which has no
+upstream.`,
 		Exposed: true,
 		Name:    "upstreamURL",
 		Stored:  true,
 		Type:    "string",
+	},
+	"webhookintegration": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegration",
+		ConvertedName:  "WebhookIntegration",
+		Description: `The name of the webhook integration this connector serves. Required when the
+type is WebhookIntegration and not allowed otherwise.`,
+		Exposed: true,
+		Name:    "webhookIntegration",
+		Stored:  true,
+		Type:    "string",
+	},
+	"webhookintegrationconfig": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegrationconfig",
+		ConvertedName:  "WebhookIntegrationConfig",
+		Description: `The webhook integration specific configuration. Only applicable when the type is
+WebhookIntegration. When it is not set, the defaults apply.`,
+		Exposed: true,
+		Name:    "webhookIntegrationConfig",
+		Stored:  true,
+		SubType: "webhookintegrationconfig",
+		Type:    "ref",
 	},
 }
 
@@ -1233,7 +1371,11 @@ type SparseAIGatewayConnector struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// The app component that this target represents.
+	// The app component that this target represents. On a WebhookIntegration connector
+	// nothing is proxied, so this is optional and this is the fallback policy target
+	// to evaluate against when the webhook payload does not identify one itself. If
+	// this is not set and the webhook does not identify a fallback app component or
+	// provider, then an error is triggered.
 	AppComponent *string `json:"appComponent,omitempty" msgpack:"appComponent,omitempty" bson:"appcomponent,omitempty" mapstructure:"appComponent,omitempty"`
 
 	// Upstream OAuth client ID.
@@ -1268,16 +1410,25 @@ type SparseAIGatewayConnector struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// The provider this AI Gateway Connector accesses.
+	// The provider this AI Gateway Connector accesses. On a WebhookIntegration
+	// connector nothing is proxied, so this is optional and this is the fallback
+	// policy target to evaluate against when the webhook payload does not identify one
+	// itself. If this is not set and the webhook does not identify a fallback app
+	// component or provider, then an error is triggered.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
 	// Provider Token pools that this AI Gateway Connector can use.
 	ProviderTokenPools *[]string `json:"providerTokenPools,omitempty" msgpack:"providerTokenPools,omitempty" bson:"providertokenpools,omitempty" mapstructure:"providerTokenPools,omitempty"`
 
-	// The route component.
+	// The route component. On a WebhookIntegration connector it represents the base
+	// path the integration routes are served under, so the third-party product is
+	// pointed at the gateway URL plus this, and each path of the webhook extractor is
+	// appended to it.
 	Route *string `json:"route,omitempty" msgpack:"route,omitempty" bson:"route,omitempty" mapstructure:"route,omitempty"`
 
-	// The type of the AI Gateway Connector.
+	// The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
+	// WebhookIntegration accepts calls from a third-party product that wants us to
+	// inspect traffic it is handling itself, so it has no upstream.
 	Type *AIGatewayConnectorTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
@@ -1285,8 +1436,17 @@ type SparseAIGatewayConnector struct {
 
 	// The optional upstream URL of the connector. By default, the first hostname of a
 	// provider (or an app component ingress definition) will be used to build the
-	// upstream URL.
+	// upstream URL. Not applicable to a WebhookIntegration connector, which has no
+	// upstream.
 	UpstreamURL *string `json:"upstreamURL,omitempty" msgpack:"upstreamURL,omitempty" bson:"upstreamurl,omitempty" mapstructure:"upstreamURL,omitempty"`
+
+	// The name of the webhook integration this connector serves. Required when the
+	// type is WebhookIntegration and not allowed otherwise.
+	WebhookIntegration *string `json:"webhookIntegration,omitempty" msgpack:"webhookIntegration,omitempty" bson:"webhookintegration,omitempty" mapstructure:"webhookIntegration,omitempty"`
+
+	// The webhook integration specific configuration. Only applicable when the type is
+	// WebhookIntegration. When it is not set, the defaults apply.
+	WebhookIntegrationConfig *WebhookIntegrationConfig `json:"webhookIntegrationConfig,omitempty" msgpack:"webhookIntegrationConfig,omitempty" bson:"webhookintegrationconfig,omitempty" mapstructure:"webhookIntegrationConfig,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1391,6 +1551,12 @@ func (o *SparseAIGatewayConnector) GetBSON() (any, error) {
 	if o.UpstreamURL != nil {
 		s.UpstreamURL = o.UpstreamURL
 	}
+	if o.WebhookIntegration != nil {
+		s.WebhookIntegration = o.WebhookIntegration
+	}
+	if o.WebhookIntegrationConfig != nil {
+		s.WebhookIntegrationConfig = o.WebhookIntegrationConfig
+	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
 	}
@@ -1467,6 +1633,12 @@ func (o *SparseAIGatewayConnector) SetBSON(raw bson.Raw) error {
 	if s.UpstreamURL != nil {
 		o.UpstreamURL = s.UpstreamURL
 	}
+	if s.WebhookIntegration != nil {
+		o.WebhookIntegration = s.WebhookIntegration
+	}
+	if s.WebhookIntegrationConfig != nil {
+		o.WebhookIntegrationConfig = s.WebhookIntegrationConfig
+	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
 	}
@@ -1541,6 +1713,12 @@ func (o *SparseAIGatewayConnector) ToPlain() elemental.PlainIdentifiable {
 	if o.UpstreamURL != nil {
 		out.UpstreamURL = *o.UpstreamURL
 	}
+	if o.WebhookIntegration != nil {
+		out.WebhookIntegration = *o.WebhookIntegration
+	}
+	if o.WebhookIntegrationConfig != nil {
+		out.WebhookIntegrationConfig = o.WebhookIntegrationConfig
+	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
 	}
@@ -1558,6 +1736,12 @@ func (o *SparseAIGatewayConnector) EncryptAttributes(encrypter elemental.Attribu
 		return fmt.Errorf("unable to encrypt attribute 'ClientSecret' for 'SparseAIGatewayConnector' (%s): %w", o.Identifier(), err)
 	}
 
+	if o.WebhookIntegrationConfig != nil {
+		if err := o.WebhookIntegrationConfig.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -1566,6 +1750,12 @@ func (o *SparseAIGatewayConnector) DecryptAttributes(encrypter elemental.Attribu
 
 	if *o.ClientSecret, err = encrypter.DecryptString(*o.ClientSecret); err != nil {
 		return fmt.Errorf("unable to decrypt attribute 'ClientSecret' for 'SparseAIGatewayConnector' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.WebhookIntegrationConfig != nil {
+		if err := o.WebhookIntegrationConfig.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+		}
 	}
 
 	return nil
@@ -1724,46 +1914,50 @@ func (o *SparseAIGatewayConnector) DeepCopyInto(out *SparseAIGatewayConnector) {
 }
 
 type mongoAttributesAIGatewayConnector struct {
-	ID                 bson.ObjectId               `bson:"_id,omitempty"`
-	AppComponent       string                      `bson:"appcomponent"`
-	ClientID           string                      `bson:"clientid"`
-	ClientSecret       string                      `bson:"clientsecret"`
-	CreateTime         time.Time                   `bson:"createtime"`
-	Description        string                      `bson:"description"`
-	FriendlyName       string                      `bson:"friendlyname"`
-	ImportHash         string                      `bson:"importhash,omitempty"`
-	ImportLabel        string                      `bson:"importlabel,omitempty"`
-	Name               string                      `bson:"name"`
-	Namespace          string                      `bson:"namespace,omitempty"`
-	Propagate          bool                        `bson:"propagate"`
-	Provider           string                      `bson:"provider"`
-	ProviderTokenPools []string                    `bson:"providertokenpools"`
-	Route              string                      `bson:"route"`
-	Type               AIGatewayConnectorTypeValue `bson:"type"`
-	UpdateTime         time.Time                   `bson:"updatetime"`
-	UpstreamURL        string                      `bson:"upstreamurl"`
-	ZHash              int                         `bson:"zhash"`
-	Zone               int                         `bson:"zone"`
+	ID                       bson.ObjectId               `bson:"_id,omitempty"`
+	AppComponent             string                      `bson:"appcomponent"`
+	ClientID                 string                      `bson:"clientid"`
+	ClientSecret             string                      `bson:"clientsecret"`
+	CreateTime               time.Time                   `bson:"createtime"`
+	Description              string                      `bson:"description"`
+	FriendlyName             string                      `bson:"friendlyname"`
+	ImportHash               string                      `bson:"importhash,omitempty"`
+	ImportLabel              string                      `bson:"importlabel,omitempty"`
+	Name                     string                      `bson:"name"`
+	Namespace                string                      `bson:"namespace,omitempty"`
+	Propagate                bool                        `bson:"propagate"`
+	Provider                 string                      `bson:"provider"`
+	ProviderTokenPools       []string                    `bson:"providertokenpools"`
+	Route                    string                      `bson:"route"`
+	Type                     AIGatewayConnectorTypeValue `bson:"type"`
+	UpdateTime               time.Time                   `bson:"updatetime"`
+	UpstreamURL              string                      `bson:"upstreamurl"`
+	WebhookIntegration       string                      `bson:"webhookintegration,omitempty"`
+	WebhookIntegrationConfig *WebhookIntegrationConfig   `bson:"webhookintegrationconfig,omitempty"`
+	ZHash                    int                         `bson:"zhash"`
+	Zone                     int                         `bson:"zone"`
 }
 type mongoAttributesSparseAIGatewayConnector struct {
-	ID                 bson.ObjectId                `bson:"_id,omitempty"`
-	AppComponent       *string                      `bson:"appcomponent,omitempty"`
-	ClientID           *string                      `bson:"clientid,omitempty"`
-	ClientSecret       *string                      `bson:"clientsecret,omitempty"`
-	CreateTime         *time.Time                   `bson:"createtime,omitempty"`
-	Description        *string                      `bson:"description,omitempty"`
-	FriendlyName       *string                      `bson:"friendlyname,omitempty"`
-	ImportHash         *string                      `bson:"importhash,omitempty"`
-	ImportLabel        *string                      `bson:"importlabel,omitempty"`
-	Name               *string                      `bson:"name,omitempty"`
-	Namespace          *string                      `bson:"namespace,omitempty"`
-	Propagate          *bool                        `bson:"propagate,omitempty"`
-	Provider           *string                      `bson:"provider,omitempty"`
-	ProviderTokenPools *[]string                    `bson:"providertokenpools,omitempty"`
-	Route              *string                      `bson:"route,omitempty"`
-	Type               *AIGatewayConnectorTypeValue `bson:"type,omitempty"`
-	UpdateTime         *time.Time                   `bson:"updatetime,omitempty"`
-	UpstreamURL        *string                      `bson:"upstreamurl,omitempty"`
-	ZHash              *int                         `bson:"zhash,omitempty"`
-	Zone               *int                         `bson:"zone,omitempty"`
+	ID                       bson.ObjectId                `bson:"_id,omitempty"`
+	AppComponent             *string                      `bson:"appcomponent,omitempty"`
+	ClientID                 *string                      `bson:"clientid,omitempty"`
+	ClientSecret             *string                      `bson:"clientsecret,omitempty"`
+	CreateTime               *time.Time                   `bson:"createtime,omitempty"`
+	Description              *string                      `bson:"description,omitempty"`
+	FriendlyName             *string                      `bson:"friendlyname,omitempty"`
+	ImportHash               *string                      `bson:"importhash,omitempty"`
+	ImportLabel              *string                      `bson:"importlabel,omitempty"`
+	Name                     *string                      `bson:"name,omitempty"`
+	Namespace                *string                      `bson:"namespace,omitempty"`
+	Propagate                *bool                        `bson:"propagate,omitempty"`
+	Provider                 *string                      `bson:"provider,omitempty"`
+	ProviderTokenPools       *[]string                    `bson:"providertokenpools,omitempty"`
+	Route                    *string                      `bson:"route,omitempty"`
+	Type                     *AIGatewayConnectorTypeValue `bson:"type,omitempty"`
+	UpdateTime               *time.Time                   `bson:"updatetime,omitempty"`
+	UpstreamURL              *string                      `bson:"upstreamurl,omitempty"`
+	WebhookIntegration       *string                      `bson:"webhookintegration,omitempty"`
+	WebhookIntegrationConfig *WebhookIntegrationConfig    `bson:"webhookintegrationconfig,omitempty"`
+	ZHash                    *int                         `bson:"zhash,omitempty"`
+	Zone                     *int                         `bson:"zone,omitempty"`
 }

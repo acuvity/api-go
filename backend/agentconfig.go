@@ -161,7 +161,7 @@ type AgentConfig struct {
 
 	// The case-insensitive list of processes the driver will exclude from steering
 	// traffic.
-	DriverExcludedProcesses []string `json:"driverExcludedProcesses" msgpack:"driverExcludedProcesses" bson:"-" mapstructure:"driverExcludedProcesses,omitempty"`
+	DriverExcludedProcesses []string `json:"driverExcludedProcesses" msgpack:"driverExcludedProcesses" bson:"driverexcludedprocesses" mapstructure:"driverExcludedProcesses,omitempty"`
 
 	// The list of port ranges for the driver to listen on.
 	DriverPortRanges []*DriverPortRange `json:"driverPortRanges" msgpack:"driverPortRanges" bson:"driverportranges" mapstructure:"driverPortRanges,omitempty"`
@@ -359,6 +359,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.DomainReportInterval = o.DomainReportInterval
 	s.DriverEnabled = o.DriverEnabled
 	s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
+	s.DriverExcludedProcesses = o.DriverExcludedProcesses
 	s.DriverPortRanges = o.DriverPortRanges
 	s.DriverQUICBlockDisabled = o.DriverQUICBlockDisabled
 	s.EmergencyPauseEnabled = o.EmergencyPauseEnabled
@@ -423,6 +424,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DomainReportInterval = s.DomainReportInterval
 	o.DriverEnabled = s.DriverEnabled
 	o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	o.DriverExcludedProcesses = s.DriverExcludedProcesses
 	o.DriverPortRanges = s.DriverPortRanges
 	o.DriverQUICBlockDisabled = s.DriverQUICBlockDisabled
 	o.EmergencyPauseEnabled = s.EmergencyPauseEnabled
@@ -1377,11 +1379,13 @@ will be truncated.`,
 	},
 	"DriverExcludedProcesses": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludedprocesses",
 		ConvertedName:  "DriverExcludedProcesses",
 		Description: `The case-insensitive list of processes the driver will exclude from steering
 traffic.`,
 		Exposed: true,
 		Name:    "driverExcludedProcesses",
+		Stored:  true,
 		SubType: "string",
 		Type:    "list",
 	},
@@ -1932,11 +1936,13 @@ will be truncated.`,
 	},
 	"driverexcludedprocesses": {
 		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludedprocesses",
 		ConvertedName:  "DriverExcludedProcesses",
 		Description: `The case-insensitive list of processes the driver will exclude from steering
 traffic.`,
 		Exposed: true,
 		Name:    "driverExcludedProcesses",
+		Stored:  true,
 		SubType: "string",
 		Type:    "list",
 	},
@@ -2435,7 +2441,7 @@ type SparseAgentConfig struct {
 
 	// The case-insensitive list of processes the driver will exclude from steering
 	// traffic.
-	DriverExcludedProcesses *[]string `json:"driverExcludedProcesses,omitempty" msgpack:"driverExcludedProcesses,omitempty" bson:"-" mapstructure:"driverExcludedProcesses,omitempty"`
+	DriverExcludedProcesses *[]string `json:"driverExcludedProcesses,omitempty" msgpack:"driverExcludedProcesses,omitempty" bson:"driverexcludedprocesses,omitempty" mapstructure:"driverExcludedProcesses,omitempty"`
 
 	// The list of port ranges for the driver to listen on.
 	DriverPortRanges *[]*DriverPortRange `json:"driverPortRanges,omitempty" msgpack:"driverPortRanges,omitempty" bson:"driverportranges,omitempty" mapstructure:"driverPortRanges,omitempty"`
@@ -2646,6 +2652,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DriverExcludeAddressTimeout != nil {
 		s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
 	}
+	if o.DriverExcludedProcesses != nil {
+		s.DriverExcludedProcesses = o.DriverExcludedProcesses
+	}
 	if o.DriverPortRanges != nil {
 		s.DriverPortRanges = o.DriverPortRanges
 	}
@@ -2802,6 +2811,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.DriverExcludeAddressTimeout != nil {
 		o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	}
+	if s.DriverExcludedProcesses != nil {
+		o.DriverExcludedProcesses = s.DriverExcludedProcesses
 	}
 	if s.DriverPortRanges != nil {
 		o.DriverPortRanges = s.DriverPortRanges
@@ -3254,6 +3266,7 @@ type mongoAttributesAgentConfig struct {
 	DomainReportInterval          string                           `bson:"domainreportinterval"`
 	DriverEnabled                 bool                             `bson:"driverenabled"`
 	DriverExcludeAddressTimeout   string                           `bson:"driverexcludeaddresstimeout"`
+	DriverExcludedProcesses       []string                         `bson:"driverexcludedprocesses"`
 	DriverPortRanges              []*DriverPortRange               `bson:"driverportranges"`
 	DriverQUICBlockDisabled       bool                             `bson:"driverquicblockdisabled"`
 	EmergencyPauseEnabled         bool                             `bson:"emergencypauseenabled"`
@@ -3303,6 +3316,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
 	DriverEnabled                 *bool                             `bson:"driverenabled,omitempty"`
 	DriverExcludeAddressTimeout   *string                           `bson:"driverexcludeaddresstimeout,omitempty"`
+	DriverExcludedProcesses       *[]string                         `bson:"driverexcludedprocesses,omitempty"`
 	DriverPortRanges              *[]*DriverPortRange               `bson:"driverportranges,omitempty"`
 	DriverQUICBlockDisabled       *bool                             `bson:"driverquicblockdisabled,omitempty"`
 	EmergencyPauseEnabled         *bool                             `bson:"emergencypauseenabled,omitempty"`

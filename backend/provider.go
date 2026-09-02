@@ -173,6 +173,25 @@ type Provider struct {
 	// List of user mappers.
 	Mappers []*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
 
+	// The literal prefixes that identify this provider inside a model identifier.
+	// Third-party gateways commonly address a model as the provider they route to
+	// followed by the model name, such as 'openai/gpt-4o' or
+	// '@openai-prod/gpt-4o'.
+	// Include the separator in the entry, so 'openai/' rather than 'openai':
+	// entries are matched as a plain leading string, and the separator is what
+	// keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+	// span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+	// different providers and the longer match wins. Wildcards are not supported
+	// here; use models for those.
+	ModelPrefixes []string `json:"modelPrefixes,omitempty" msgpack:"modelPrefixes,omitempty" bson:"modelprefixes,omitempty" mapstructure:"modelPrefixes,omitempty"`
+
+	// The models served by this provider, as patterns. Wildcards are supported,
+	// so 'gpt-*' covers a family. They are used to resolve a provider when a
+	// model identifier arrives with no prefix, which is what several third-party
+	// gateways send on the response side of a call. Several providers may match
+	// the same model, in which case the most specific pattern wins.
+	Models []string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+
 	// Name of the provider.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -229,6 +248,8 @@ func NewProvider() *Provider {
 		ModelVersion:  1,
 		ExcludedHosts: []string{},
 		Hosts:         []*Host{},
+		ModelPrefixes: []string{},
+		Models:        []string{},
 		Propagate:     true,
 		ProviderType:  ProviderProviderTypeLLM,
 		Status:        ProviderStatusStable,
@@ -282,6 +303,8 @@ func (o *Provider) GetBSON() (any, error) {
 	s.Injectors = o.Injectors
 	s.Lib = o.Lib
 	s.Mappers = o.Mappers
+	s.ModelPrefixes = o.ModelPrefixes
+	s.Models = o.Models
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.OfficialStatusURL = o.OfficialStatusURL
@@ -330,6 +353,8 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.Injectors = s.Injectors
 	o.Lib = s.Lib
 	o.Mappers = s.Mappers
+	o.ModelPrefixes = s.ModelPrefixes
+	o.Models = s.Models
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.OfficialStatusURL = s.OfficialStatusURL
@@ -475,6 +500,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Injectors:         &o.Injectors,
 			Lib:               &o.Lib,
 			Mappers:           &o.Mappers,
+			ModelPrefixes:     &o.ModelPrefixes,
+			Models:            &o.Models,
 			Name:              &o.Name,
 			Namespace:         &o.Namespace,
 			OfficialStatusURL: &o.OfficialStatusURL,
@@ -529,6 +556,10 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Lib = &(o.Lib)
 		case "mappers":
 			sp.Mappers = &(o.Mappers)
+		case "modelPrefixes":
+			sp.ModelPrefixes = &(o.ModelPrefixes)
+		case "models":
+			sp.Models = &(o.Models)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -620,6 +651,12 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Mappers != nil {
 		o.Mappers = *so.Mappers
+	}
+	if so.ModelPrefixes != nil {
+		o.ModelPrefixes = *so.ModelPrefixes
+	}
+	if so.Models != nil {
+		o.Models = *so.Models
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -991,6 +1028,10 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Lib
 	case "mappers":
 		return o.Mappers
+	case "modelPrefixes":
+		return o.ModelPrefixes
+	case "models":
+		return o.Models
 	case "name":
 		return o.Name
 	case "namespace":
@@ -1225,6 +1266,41 @@ available to all extractor by doing local plib = require('plib').`,
 		Stored:         true,
 		SubType:        "mapper",
 		Type:           "refList",
+	},
+	"ModelPrefixes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "modelprefixes",
+		ConvertedName:  "ModelPrefixes",
+		Description: `The literal prefixes that identify this provider inside a model identifier.
+Third-party gateways commonly address a model as the provider they route to
+followed by the model name, such as 'openai/gpt-4o' or
+'@openai-prod/gpt-4o'.
+Include the separator in the entry, so 'openai/' rather than 'openai':
+entries are matched as a plain leading string, and the separator is what
+keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+different providers and the longer match wins. Wildcards are not supported
+here; use models for those.`,
+		Exposed: true,
+		Name:    "modelPrefixes",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"Models": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "models",
+		ConvertedName:  "Models",
+		Description: `The models served by this provider, as patterns. Wildcards are supported,
+so 'gpt-*' covers a family. They are used to resolve a provider when a
+model identifier arrives with no prefix, which is what several third-party
+gateways send on the response side of a call. Several providers may match
+the same model, in which case the most specific pattern wins.`,
+		Exposed: true,
+		Name:    "models",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -1572,6 +1648,41 @@ available to all extractor by doing local plib = require('plib').`,
 		SubType:        "mapper",
 		Type:           "refList",
 	},
+	"modelprefixes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "modelprefixes",
+		ConvertedName:  "ModelPrefixes",
+		Description: `The literal prefixes that identify this provider inside a model identifier.
+Third-party gateways commonly address a model as the provider they route to
+followed by the model name, such as 'openai/gpt-4o' or
+'@openai-prod/gpt-4o'.
+Include the separator in the entry, so 'openai/' rather than 'openai':
+entries are matched as a plain leading string, and the separator is what
+keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+different providers and the longer match wins. Wildcards are not supported
+here; use models for those.`,
+		Exposed: true,
+		Name:    "modelPrefixes",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
+	"models": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "models",
+		ConvertedName:  "Models",
+		Description: `The models served by this provider, as patterns. Wildcards are supported,
+so 'gpt-*' covers a family. They are used to resolve a provider when a
+model identifier arrives with no prefix, which is what several third-party
+gateways send on the response side of a call. Several providers may match
+the same model, in which case the most specific pattern wins.`,
+		Exposed: true,
+		Name:    "models",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -1834,6 +1945,25 @@ type SparseProvider struct {
 	// List of user mappers.
 	Mappers *[]*Mapper `json:"mappers,omitempty" msgpack:"mappers,omitempty" bson:"mappers,omitempty" mapstructure:"mappers,omitempty"`
 
+	// The literal prefixes that identify this provider inside a model identifier.
+	// Third-party gateways commonly address a model as the provider they route to
+	// followed by the model name, such as 'openai/gpt-4o' or
+	// '@openai-prod/gpt-4o'.
+	// Include the separator in the entry, so 'openai/' rather than 'openai':
+	// entries are matched as a plain leading string, and the separator is what
+	// keeps 'openai/' from also matching 'openai-community/gpt2'. An entry may
+	// span several segments, so 'openrouter/openai/' and 'openrouter/' can name
+	// different providers and the longer match wins. Wildcards are not supported
+	// here; use models for those.
+	ModelPrefixes *[]string `json:"modelPrefixes,omitempty" msgpack:"modelPrefixes,omitempty" bson:"modelprefixes,omitempty" mapstructure:"modelPrefixes,omitempty"`
+
+	// The models served by this provider, as patterns. Wildcards are supported,
+	// so 'gpt-*' covers a family. They are used to resolve a provider when a
+	// model identifier arrives with no prefix, which is what several third-party
+	// gateways send on the response side of a call. Several providers may match
+	// the same model, in which case the most specific pattern wins.
+	Models *[]string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+
 	// Name of the provider.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -1974,6 +2104,12 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.Mappers != nil {
 		s.Mappers = o.Mappers
 	}
+	if o.ModelPrefixes != nil {
+		s.ModelPrefixes = o.ModelPrefixes
+	}
+	if o.Models != nil {
+		s.Models = o.Models
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -2083,6 +2219,12 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.Mappers != nil {
 		o.Mappers = s.Mappers
 	}
+	if s.ModelPrefixes != nil {
+		o.ModelPrefixes = s.ModelPrefixes
+	}
+	if s.Models != nil {
+		o.Models = s.Models
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -2189,6 +2331,12 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Mappers != nil {
 		out.Mappers = *o.Mappers
+	}
+	if o.ModelPrefixes != nil {
+		out.ModelPrefixes = *o.ModelPrefixes
+	}
+	if o.Models != nil {
+		out.Models = *o.Models
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -2508,6 +2656,8 @@ type mongoAttributesProvider struct {
 	Injectors         []*Injector               `bson:"injectors,omitempty"`
 	Lib               string                    `bson:"lib"`
 	Mappers           []*Mapper                 `bson:"mappers,omitempty"`
+	ModelPrefixes     []string                  `bson:"modelprefixes,omitempty"`
+	Models            []string                  `bson:"models,omitempty"`
 	Name              string                    `bson:"name"`
 	Namespace         string                    `bson:"namespace,omitempty"`
 	OfficialStatusURL string                    `bson:"officialstatusurl,omitempty"`
@@ -2541,6 +2691,8 @@ type mongoAttributesSparseProvider struct {
 	Injectors         *[]*Injector               `bson:"injectors,omitempty"`
 	Lib               *string                    `bson:"lib,omitempty"`
 	Mappers           *[]*Mapper                 `bson:"mappers,omitempty"`
+	ModelPrefixes     *[]string                  `bson:"modelprefixes,omitempty"`
+	Models            *[]string                  `bson:"models,omitempty"`
 	Name              *string                    `bson:"name,omitempty"`
 	Namespace         *string                    `bson:"namespace,omitempty"`
 	OfficialStatusURL *string                    `bson:"officialstatusurl,omitempty"`

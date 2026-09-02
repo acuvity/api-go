@@ -13,43 +13,60 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// DeploymentIdentity represents the Identity of the object.
-var DeploymentIdentity = elemental.Identity{
-	Name:     "deployment",
-	Category: "deployments",
+// RiskDefinitionTypeValue represents the possible values for attribute "type".
+type RiskDefinitionTypeValue string
+
+const (
+	// RiskDefinitionTypeAIDomain represents the value AIDomain.
+	RiskDefinitionTypeAIDomain RiskDefinitionTypeValue = "AIDomain"
+
+	// RiskDefinitionTypeAIPlugin represents the value AIPlugin.
+	RiskDefinitionTypeAIPlugin RiskDefinitionTypeValue = "AIPlugin"
+
+	// RiskDefinitionTypeAISkill represents the value AISkill.
+	RiskDefinitionTypeAISkill RiskDefinitionTypeValue = "AISkill"
+
+	// RiskDefinitionTypeAll represents the value All.
+	RiskDefinitionTypeAll RiskDefinitionTypeValue = "All"
+)
+
+// RiskDefinitionIdentity represents the Identity of the object.
+var RiskDefinitionIdentity = elemental.Identity{
+	Name:     "riskdefinition",
+	Category: "riskdefinitions",
 	Package:  "lain",
 	Private:  false,
 }
 
-// DeploymentsList represents a list of Deployments
-type DeploymentsList []*Deployment
+// RiskDefinitionsList represents a list of RiskDefinitions
+type RiskDefinitionsList []*RiskDefinition
 
 // Identity returns the identity of the objects in the list.
-func (o DeploymentsList) Identity() elemental.Identity {
+func (o RiskDefinitionsList) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return RiskDefinitionIdentity
 }
 
-// Copy returns a pointer to a copy the DeploymentsList.
-func (o DeploymentsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the RiskDefinitionsList.
+func (o RiskDefinitionsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the DeploymentsList.
-func (o DeploymentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the RiskDefinitionsList.
+func (o RiskDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*Deployment))
+		out = append(out, obj.(*RiskDefinition))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o DeploymentsList) List() elemental.IdentifiablesList {
+func (o RiskDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -60,39 +77,51 @@ func (o DeploymentsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o DeploymentsList) DefaultOrder() []string {
+func (o RiskDefinitionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the DeploymentsList converted to SparseDeploymentsList.
+// ToSparse returns the RiskDefinitionsList converted to SparseRiskDefinitionsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o DeploymentsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o RiskDefinitionsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseDeploymentsList, len(o))
+	out := make(SparseRiskDefinitionsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseDeployment)
+		out[i] = o[i].ToSparse(fields...).(*SparseRiskDefinition)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o DeploymentsList) Version() int {
+func (o RiskDefinitionsList) Version() int {
 
 	return 1
 }
 
-// Deployment represents the model of a deployment
-type Deployment struct {
+// RiskDefinition represents the model of a riskdefinition
+type RiskDefinition struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// The analyzer group.
+	AnalyzerGroup string `json:"analyzerGroup,omitempty" msgpack:"analyzerGroup,omitempty" bson:"analyzergroup,omitempty" mapstructure:"analyzerGroup,omitempty"`
+
+	// The analyzer name.
+	AnalyzerName string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The description of the deployment.
-	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	// Description of the risk definition.
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// If true, the risk definition is disabled.
+	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
+
+	// The description that will be set on findings raised by this definition.
+	FindingDescription string `json:"findingDescription,omitempty" msgpack:"findingDescription,omitempty" bson:"findingdescription,omitempty" mapstructure:"findingDescription,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
@@ -104,6 +133,9 @@ type Deployment struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The list of predicates that define this risk pattern.
+	Match []*Predicate `json:"match" msgpack:"match" bson:"match" mapstructure:"match,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -114,28 +146,15 @@ type Deployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// The names of the public keys whose corresponding private key is available on
-	// this deployment's instances.
-	PublicKeys []string `json:"publicKeys" msgpack:"publicKeys" bson:"publickeys" mapstructure:"publicKeys,omitempty"`
+	// The identities that can resolve findings raised by this definition.
+	ResolutionIdentities []string `json:"resolutionIdentities,omitempty" msgpack:"resolutionIdentities,omitempty" bson:"resolutionidentities,omitempty" mapstructure:"resolutionIdentities,omitempty"`
 
-	// Public URLs of the deployment.
-	PublicURLs []string `json:"publicURLs" msgpack:"publicURLs" bson:"publicurls" mapstructure:"publicURLs,omitempty"`
+	// If true, this is a system-seeded risk definition supplying finding identity for
+	// a risk pillar, and is excluded from customer opt-in matching.
+	System bool `json:"system,omitempty" msgpack:"system,omitempty" bson:"system,omitempty" mapstructure:"system,omitempty"`
 
-	// Set to true on update to issue a new credential.
-	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
-
-	// Set to value on update to associate a tag with the issued token.
-	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
-
-	// Set to value on update to set the validity for a token.
-	RenewTokenValidity string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
-
-	// The issued JWT, populated only in the response of an update where
-	// renewToken was set to true.
-	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
-
-	// The list of references to issued tokens.
-	TokenRefs []*TokenRef `json:"tokenRefs" msgpack:"tokenRefs" bson:"tokenrefs" mapstructure:"tokenRefs,omitempty"`
+	// Choose which asset kind the risk definition should apply to.
+	Type RiskDefinitionTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -149,59 +168,64 @@ type Deployment struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewDeployment returns a new *Deployment
-func NewDeployment() *Deployment {
+// NewRiskDefinition returns a new *RiskDefinition
+func NewRiskDefinition() *RiskDefinition {
 
-	return &Deployment{
-		ModelVersion: 1,
-		Propagate:    true,
-		PublicKeys:   []string{},
-		PublicURLs:   []string{},
+	return &RiskDefinition{
+		ModelVersion:         1,
+		Propagate:            true,
+		ResolutionIdentities: []string{},
+		Type:                 RiskDefinitionTypeAll,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *Deployment) Identity() elemental.Identity {
+func (o *RiskDefinition) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return RiskDefinitionIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Deployment) Identifier() string {
+func (o *RiskDefinition) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Deployment) SetIdentifier(id string) {
+func (o *RiskDefinition) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Deployment) GetBSON() (any, error) {
+func (o *RiskDefinition) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesDeployment{}
+	s := &mongoAttributesRiskDefinition{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AnalyzerGroup = o.AnalyzerGroup
+	s.AnalyzerName = o.AnalyzerName
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.Disabled = o.Disabled
+	s.FindingDescription = o.FindingDescription
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Match = o.Match
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
-	s.PublicKeys = o.PublicKeys
-	s.PublicURLs = o.PublicURLs
-	s.TokenRefs = o.TokenRefs
+	s.ResolutionIdentities = o.ResolutionIdentities
+	s.System = o.System
+	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -211,29 +235,34 @@ func (o *Deployment) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Deployment) SetBSON(raw bson.Raw) error {
+func (o *RiskDefinition) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesDeployment{}
+	s := &mongoAttributesRiskDefinition{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	o.ID = s.ID.Hex()
+	o.AnalyzerGroup = s.AnalyzerGroup
+	o.AnalyzerName = s.AnalyzerName
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.Disabled = s.Disabled
+	o.FindingDescription = s.FindingDescription
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Match = s.Match
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
-	o.PublicKeys = s.PublicKeys
-	o.PublicURLs = s.PublicURLs
-	o.TokenRefs = s.TokenRefs
+	o.ResolutionIdentities = s.ResolutionIdentities
+	o.System = s.System
+	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -242,194 +271,199 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Deployment) Version() int {
+func (o *RiskDefinition) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Deployment) BleveType() string {
+func (o *RiskDefinition) BleveType() string {
 
-	return "deployment"
+	return "riskdefinition"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Deployment) DefaultOrder() []string {
+func (o *RiskDefinition) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Deployment) Doc() string {
+func (o *RiskDefinition) Doc() string {
 
-	return `Deployment represents an AI Security Gateway Deployment.`
+	return `Defines which types of discovered AI assets can raise risk findings. When an
+active risk definition covers an asset type, the system raises applicable risk
+findings for that asset.`
 }
 
-func (o *Deployment) String() string {
+func (o *RiskDefinition) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *Deployment) GetCreateTime() time.Time {
+func (o *RiskDefinition) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *Deployment) SetCreateTime(createTime time.Time) {
+func (o *RiskDefinition) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *Deployment) GetFriendlyName() string {
+func (o *RiskDefinition) GetFriendlyName() string {
 
 	return o.FriendlyName
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the given value.
-func (o *Deployment) SetFriendlyName(friendlyName string) {
+func (o *RiskDefinition) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *Deployment) GetImportHash() string {
+func (o *RiskDefinition) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *Deployment) SetImportHash(importHash string) {
+func (o *RiskDefinition) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *Deployment) GetImportLabel() string {
+func (o *RiskDefinition) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *Deployment) SetImportLabel(importLabel string) {
+func (o *RiskDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *Deployment) GetName() string {
+func (o *RiskDefinition) GetName() string {
 
 	return o.Name
 }
 
 // SetName sets the property Name of the receiver using the given value.
-func (o *Deployment) SetName(name string) {
+func (o *RiskDefinition) SetName(name string) {
 
 	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *Deployment) GetNamespace() string {
+func (o *RiskDefinition) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *Deployment) SetNamespace(namespace string) {
+func (o *RiskDefinition) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *Deployment) GetPropagate() bool {
+func (o *RiskDefinition) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *Deployment) SetPropagate(propagate bool) {
+func (o *RiskDefinition) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *Deployment) GetUpdateTime() time.Time {
+func (o *RiskDefinition) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *Deployment) SetUpdateTime(updateTime time.Time) {
+func (o *RiskDefinition) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *RiskDefinition) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseDeployment{
-			ID:                 &o.ID,
-			CreateTime:         &o.CreateTime,
-			Description:        &o.Description,
-			FriendlyName:       &o.FriendlyName,
-			ImportHash:         &o.ImportHash,
-			ImportLabel:        &o.ImportLabel,
-			Name:               &o.Name,
-			Namespace:          &o.Namespace,
-			Propagate:          &o.Propagate,
-			PublicKeys:         &o.PublicKeys,
-			PublicURLs:         &o.PublicURLs,
-			RenewToken:         &o.RenewToken,
-			RenewTokenTag:      &o.RenewTokenTag,
-			RenewTokenValidity: &o.RenewTokenValidity,
-			Token:              &o.Token,
-			TokenRefs:          &o.TokenRefs,
-			UpdateTime:         &o.UpdateTime,
-			ZHash:              &o.ZHash,
-			Zone:               &o.Zone,
+		return &SparseRiskDefinition{
+			ID:                   &o.ID,
+			AnalyzerGroup:        &o.AnalyzerGroup,
+			AnalyzerName:         &o.AnalyzerName,
+			CreateTime:           &o.CreateTime,
+			Description:          &o.Description,
+			Disabled:             &o.Disabled,
+			FindingDescription:   &o.FindingDescription,
+			FriendlyName:         &o.FriendlyName,
+			ImportHash:           &o.ImportHash,
+			ImportLabel:          &o.ImportLabel,
+			Match:                &o.Match,
+			Name:                 &o.Name,
+			Namespace:            &o.Namespace,
+			Propagate:            &o.Propagate,
+			ResolutionIdentities: &o.ResolutionIdentities,
+			System:               &o.System,
+			Type:                 &o.Type,
+			UpdateTime:           &o.UpdateTime,
+			ZHash:                &o.ZHash,
+			Zone:                 &o.Zone,
 		}
 	}
 
-	sp := &SparseDeployment{}
+	sp := &SparseRiskDefinition{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "analyzerGroup":
+			sp.AnalyzerGroup = &(o.AnalyzerGroup)
+		case "analyzerName":
+			sp.AnalyzerName = &(o.AnalyzerName)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "disabled":
+			sp.Disabled = &(o.Disabled)
+		case "findingDescription":
+			sp.FindingDescription = &(o.FindingDescription)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "match":
+			sp.Match = &(o.Match)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "publicKeys":
-			sp.PublicKeys = &(o.PublicKeys)
-		case "publicURLs":
-			sp.PublicURLs = &(o.PublicURLs)
-		case "renewToken":
-			sp.RenewToken = &(o.RenewToken)
-		case "renewTokenTag":
-			sp.RenewTokenTag = &(o.RenewTokenTag)
-		case "renewTokenValidity":
-			sp.RenewTokenValidity = &(o.RenewTokenValidity)
-		case "token":
-			sp.Token = &(o.Token)
-		case "tokenRefs":
-			sp.TokenRefs = &(o.TokenRefs)
+		case "resolutionIdentities":
+			sp.ResolutionIdentities = &(o.ResolutionIdentities)
+		case "system":
+			sp.System = &(o.System)
+		case "type":
+			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -442,21 +476,33 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseDeployment to the object.
-func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseRiskDefinition to the object.
+func (o *RiskDefinition) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseDeployment)
+	so := sparse.(*SparseRiskDefinition)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AnalyzerGroup != nil {
+		o.AnalyzerGroup = *so.AnalyzerGroup
+	}
+	if so.AnalyzerName != nil {
+		o.AnalyzerName = *so.AnalyzerName
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.Disabled != nil {
+		o.Disabled = *so.Disabled
+	}
+	if so.FindingDescription != nil {
+		o.FindingDescription = *so.FindingDescription
 	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
@@ -467,6 +513,9 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
+	if so.Match != nil {
+		o.Match = *so.Match
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -476,26 +525,14 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.PublicKeys != nil {
-		o.PublicKeys = *so.PublicKeys
+	if so.ResolutionIdentities != nil {
+		o.ResolutionIdentities = *so.ResolutionIdentities
 	}
-	if so.PublicURLs != nil {
-		o.PublicURLs = *so.PublicURLs
+	if so.System != nil {
+		o.System = *so.System
 	}
-	if so.RenewToken != nil {
-		o.RenewToken = *so.RenewToken
-	}
-	if so.RenewTokenTag != nil {
-		o.RenewTokenTag = *so.RenewTokenTag
-	}
-	if so.RenewTokenValidity != nil {
-		o.RenewTokenValidity = *so.RenewTokenValidity
-	}
-	if so.Token != nil {
-		o.Token = *so.Token
-	}
-	if so.TokenRefs != nil {
-		o.TokenRefs = *so.TokenRefs
+	if so.Type != nil {
+		o.Type = *so.Type
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -509,14 +546,14 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *RiskDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.TokenRefs {
+	for _, sub := range o.Match {
 		if sub == nil {
 			continue
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Match' for 'RiskDefinition' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -524,46 +561,46 @@ func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *Deployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *RiskDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.TokenRefs {
+	for _, sub := range o.Match {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Match' for 'RiskDefinition' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the Deployment.
-func (o *Deployment) DeepCopy() *Deployment {
+// DeepCopy returns a deep copy if the RiskDefinition.
+func (o *RiskDefinition) DeepCopy() *RiskDefinition {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Deployment{}
+	out := &RiskDefinition{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Deployment.
-func (o *Deployment) DeepCopyInto(out *Deployment) {
+// DeepCopyInto copies the receiver into the given *RiskDefinition.
+func (o *RiskDefinition) DeepCopyInto(out *RiskDefinition) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Deployment: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy RiskDefinition: %s", err))
 	}
 
-	*out = *target.(*Deployment)
+	*out = *target.(*RiskDefinition)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Deployment) Validate() error {
+func (o *RiskDefinition) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
@@ -581,25 +618,31 @@ func (o *Deployment) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := ValidateURLs("publicURLs", o.PublicURLs); err != nil {
-		errors = errors.Append(err)
-	}
-	if err := ValidateWebSchemeURLs("publicURLs", o.PublicURLs); err != nil {
-		errors = errors.Append(err)
-	}
-
-	for i, sub := range o.TokenRefs {
+	for i, sub := range o.Match {
 		if sub == nil {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenRefs", i))
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "match", i))
 		}
+	}
+
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"AIDomain", "AIPlugin", "AISkill", "All"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateRiskDefinition(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -614,60 +657,62 @@ func (o *Deployment) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Deployment) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*RiskDefinition) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := DeploymentAttributesMap[name]; ok {
+	if v, ok := RiskDefinitionAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return DeploymentLowerCaseAttributesMap[name]
+	return RiskDefinitionLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Deployment) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*RiskDefinition) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return DeploymentAttributesMap
+	return RiskDefinitionAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Deployment) ValueForAttribute(name string) any {
+func (o *RiskDefinition) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
 		return o.ID
+	case "analyzerGroup":
+		return o.AnalyzerGroup
+	case "analyzerName":
+		return o.AnalyzerName
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "disabled":
+		return o.Disabled
+	case "findingDescription":
+		return o.FindingDescription
 	case "friendlyName":
 		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "match":
+		return o.Match
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
-	case "publicKeys":
-		return o.PublicKeys
-	case "publicURLs":
-		return o.PublicURLs
-	case "renewToken":
-		return o.RenewToken
-	case "renewTokenTag":
-		return o.RenewTokenTag
-	case "renewTokenValidity":
-		return o.RenewTokenValidity
-	case "token":
-		return o.Token
-	case "tokenRefs":
-		return o.TokenRefs
+	case "resolutionIdentities":
+		return o.ResolutionIdentities
+	case "system":
+		return o.System
+	case "type":
+		return o.Type
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -679,8 +724,8 @@ func (o *Deployment) ValueForAttribute(name string) any {
 	return nil
 }
 
-// DeploymentAttributesMap represents the map of attribute for Deployment.
-var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
+// RiskDefinitionAttributesMap represents the map of attribute for RiskDefinition.
+var RiskDefinitionAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -693,6 +738,26 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"AnalyzerGroup": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzergroup",
+		ConvertedName:  "AnalyzerGroup",
+		Description:    `The analyzer group.`,
+		Exposed:        true,
+		Name:           "analyzerGroup",
+		Stored:         true,
+		Type:           "string",
+	},
+	"AnalyzerName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzername",
+		ConvertedName:  "AnalyzerName",
+		Description:    `The analyzer name.`,
+		Exposed:        true,
+		Name:           "analyzerName",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -715,9 +780,29 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the deployment.`,
+		Description:    `Description of the risk definition.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Disabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "disabled",
+		ConvertedName:  "Disabled",
+		Description:    `If true, the risk definition is disabled.`,
+		Exposed:        true,
+		Name:           "disabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"FindingDescription": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "findingdescription",
+		ConvertedName:  "FindingDescription",
+		Description:    `The description that will be set on findings raised by this definition.`,
+		Exposed:        true,
+		Name:           "findingDescription",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -762,6 +847,17 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"Match": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "match",
+		ConvertedName:  "Match",
+		Description:    `The list of predicates that define this risk pattern.`,
+		Exposed:        true,
+		Name:           "match",
+		Stored:         true,
+		SubType:        "predicate",
+		Type:           "refList",
+	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
@@ -805,80 +901,39 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"PublicKeys": {
+	"ResolutionIdentities": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "publickeys",
-		ConvertedName:  "PublicKeys",
-		Description: `The names of the public keys whose corresponding private key is available on
-this deployment's instances.`,
-		Exposed: true,
-		Name:    "publicKeys",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
-	"PublicURLs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publicurls",
-		ConvertedName:  "PublicURLs",
-		Description:    `Public URLs of the deployment.`,
+		BSONFieldName:  "resolutionidentities",
+		ConvertedName:  "ResolutionIdentities",
+		Description:    `The identities that can resolve findings raised by this definition.`,
 		Exposed:        true,
-		Name:           "publicURLs",
+		Name:           "resolutionIdentities",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
 	},
-	"RenewToken": {
+	"System": {
 		AllowedChoices: []string{},
-		ConvertedName:  "RenewToken",
-		Description:    `Set to true on update to issue a new credential.`,
-		Exposed:        true,
-		Name:           "renewToken",
-		Transient:      true,
-		Type:           "boolean",
+		BSONFieldName:  "system",
+		ConvertedName:  "System",
+		Description: `If true, this is a system-seeded risk definition supplying finding identity for
+a risk pillar, and is excluded from customer opt-in matching.`,
+		Exposed: true,
+		Name:    "system",
+		Stored:  true,
+		Type:    "boolean",
 	},
-	"RenewTokenTag": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenTag",
-		Description:    `Set to value on update to associate a tag with the issued token.`,
+	"Type": {
+		AllowedChoices: []string{"AIDomain", "AIPlugin", "AISkill", "All"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   RiskDefinitionTypeAll,
+		Description:    `Choose which asset kind the risk definition should apply to.`,
 		Exposed:        true,
-		Name:           "renewTokenTag",
-		Transient:      true,
-		Type:           "string",
-	},
-	"RenewTokenValidity": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenValidity",
-		Description:    `Set to value on update to set the validity for a token.`,
-		Exposed:        true,
-		Name:           "renewTokenValidity",
-		Transient:      true,
-		Type:           "string",
-	},
-	"Token": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		ConvertedName:  "Token",
-		Description: `The issued JWT, populated only in the response of an update where
-renewToken was set to true.`,
-		Exposed:   true,
-		Name:      "token",
-		ReadOnly:  true,
-		Transient: true,
-		Type:      "string",
-	},
-	"TokenRefs": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "tokenrefs",
-		ConvertedName:  "TokenRefs",
-		Description:    `The list of references to issued tokens.`,
-		Exposed:        true,
-		Name:           "tokenRefs",
-		ReadOnly:       true,
+		Name:           "type",
+		Required:       true,
 		Stored:         true,
-		SubType:        "tokenref",
-		Type:           "refList",
+		Type:           "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -897,8 +952,8 @@ renewToken was set to true.`,
 	},
 }
 
-// DeploymentLowerCaseAttributesMap represents the map of attribute for Deployment.
-var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// RiskDefinitionLowerCaseAttributesMap represents the map of attribute for RiskDefinition.
+var RiskDefinitionLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -911,6 +966,26 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "ID",
 		Orderable:      true,
 		ReadOnly:       true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"analyzergroup": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzergroup",
+		ConvertedName:  "AnalyzerGroup",
+		Description:    `The analyzer group.`,
+		Exposed:        true,
+		Name:           "analyzerGroup",
+		Stored:         true,
+		Type:           "string",
+	},
+	"analyzername": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "analyzername",
+		ConvertedName:  "AnalyzerName",
+		Description:    `The analyzer name.`,
+		Exposed:        true,
+		Name:           "analyzerName",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -933,9 +1008,29 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the deployment.`,
+		Description:    `Description of the risk definition.`,
 		Exposed:        true,
 		Name:           "description",
+		Stored:         true,
+		Type:           "string",
+	},
+	"disabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "disabled",
+		ConvertedName:  "Disabled",
+		Description:    `If true, the risk definition is disabled.`,
+		Exposed:        true,
+		Name:           "disabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
+	"findingdescription": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "findingdescription",
+		ConvertedName:  "FindingDescription",
+		Description:    `The description that will be set on findings raised by this definition.`,
+		Exposed:        true,
+		Name:           "findingDescription",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -980,6 +1075,17 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"match": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "match",
+		ConvertedName:  "Match",
+		Description:    `The list of predicates that define this risk pattern.`,
+		Exposed:        true,
+		Name:           "match",
+		Stored:         true,
+		SubType:        "predicate",
+		Type:           "refList",
+	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
@@ -1023,80 +1129,39 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"publickeys": {
+	"resolutionidentities": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "publickeys",
-		ConvertedName:  "PublicKeys",
-		Description: `The names of the public keys whose corresponding private key is available on
-this deployment's instances.`,
-		Exposed: true,
-		Name:    "publicKeys",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
-	"publicurls": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publicurls",
-		ConvertedName:  "PublicURLs",
-		Description:    `Public URLs of the deployment.`,
+		BSONFieldName:  "resolutionidentities",
+		ConvertedName:  "ResolutionIdentities",
+		Description:    `The identities that can resolve findings raised by this definition.`,
 		Exposed:        true,
-		Name:           "publicURLs",
+		Name:           "resolutionIdentities",
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
 	},
-	"renewtoken": {
+	"system": {
 		AllowedChoices: []string{},
-		ConvertedName:  "RenewToken",
-		Description:    `Set to true on update to issue a new credential.`,
-		Exposed:        true,
-		Name:           "renewToken",
-		Transient:      true,
-		Type:           "boolean",
+		BSONFieldName:  "system",
+		ConvertedName:  "System",
+		Description: `If true, this is a system-seeded risk definition supplying finding identity for
+a risk pillar, and is excluded from customer opt-in matching.`,
+		Exposed: true,
+		Name:    "system",
+		Stored:  true,
+		Type:    "boolean",
 	},
-	"renewtokentag": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenTag",
-		Description:    `Set to value on update to associate a tag with the issued token.`,
+	"type": {
+		AllowedChoices: []string{"AIDomain", "AIPlugin", "AISkill", "All"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		DefaultValue:   RiskDefinitionTypeAll,
+		Description:    `Choose which asset kind the risk definition should apply to.`,
 		Exposed:        true,
-		Name:           "renewTokenTag",
-		Transient:      true,
-		Type:           "string",
-	},
-	"renewtokenvalidity": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenValidity",
-		Description:    `Set to value on update to set the validity for a token.`,
-		Exposed:        true,
-		Name:           "renewTokenValidity",
-		Transient:      true,
-		Type:           "string",
-	},
-	"token": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		ConvertedName:  "Token",
-		Description: `The issued JWT, populated only in the response of an update where
-renewToken was set to true.`,
-		Exposed:   true,
-		Name:      "token",
-		ReadOnly:  true,
-		Transient: true,
-		Type:      "string",
-	},
-	"tokenrefs": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "tokenrefs",
-		ConvertedName:  "TokenRefs",
-		Description:    `The list of references to issued tokens.`,
-		Exposed:        true,
-		Name:           "tokenRefs",
-		ReadOnly:       true,
+		Name:           "type",
+		Required:       true,
 		Stored:         true,
-		SubType:        "tokenref",
-		Type:           "refList",
+		Type:           "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1115,35 +1180,35 @@ renewToken was set to true.`,
 	},
 }
 
-// SparseDeploymentsList represents a list of SparseDeployments
-type SparseDeploymentsList []*SparseDeployment
+// SparseRiskDefinitionsList represents a list of SparseRiskDefinitions
+type SparseRiskDefinitionsList []*SparseRiskDefinition
 
 // Identity returns the identity of the objects in the list.
-func (o SparseDeploymentsList) Identity() elemental.Identity {
+func (o SparseRiskDefinitionsList) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return RiskDefinitionIdentity
 }
 
-// Copy returns a pointer to a copy the SparseDeploymentsList.
-func (o SparseDeploymentsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseRiskDefinitionsList.
+func (o SparseRiskDefinitionsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseDeploymentsList.
-func (o SparseDeploymentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseRiskDefinitionsList.
+func (o SparseRiskDefinitionsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseDeployment))
+		out = append(out, obj.(*SparseRiskDefinition))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseDeploymentsList) List() elemental.IdentifiablesList {
+func (o SparseRiskDefinitionsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1154,13 +1219,13 @@ func (o SparseDeploymentsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseDeploymentsList) DefaultOrder() []string {
+func (o SparseRiskDefinitionsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseDeploymentsList converted to DeploymentsList.
-func (o SparseDeploymentsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseRiskDefinitionsList converted to RiskDefinitionsList.
+func (o SparseRiskDefinitionsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1171,21 +1236,33 @@ func (o SparseDeploymentsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseDeploymentsList) Version() int {
+func (o SparseRiskDefinitionsList) Version() int {
 
 	return 1
 }
 
-// SparseDeployment represents the sparse version of a deployment.
-type SparseDeployment struct {
+// SparseRiskDefinition represents the sparse version of a riskdefinition.
+type SparseRiskDefinition struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
+
+	// The analyzer group.
+	AnalyzerGroup *string `json:"analyzerGroup,omitempty" msgpack:"analyzerGroup,omitempty" bson:"analyzergroup,omitempty" mapstructure:"analyzerGroup,omitempty"`
+
+	// The analyzer name.
+	AnalyzerName *string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The description of the deployment.
+	// Description of the risk definition.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// If true, the risk definition is disabled.
+	Disabled *bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
+
+	// The description that will be set on findings raised by this definition.
+	FindingDescription *string `json:"findingDescription,omitempty" msgpack:"findingDescription,omitempty" bson:"findingdescription,omitempty" mapstructure:"findingDescription,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
@@ -1197,6 +1274,9 @@ type SparseDeployment struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The list of predicates that define this risk pattern.
+	Match *[]*Predicate `json:"match,omitempty" msgpack:"match,omitempty" bson:"match,omitempty" mapstructure:"match,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1207,28 +1287,15 @@ type SparseDeployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// The names of the public keys whose corresponding private key is available on
-	// this deployment's instances.
-	PublicKeys *[]string `json:"publicKeys,omitempty" msgpack:"publicKeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publicKeys,omitempty"`
+	// The identities that can resolve findings raised by this definition.
+	ResolutionIdentities *[]string `json:"resolutionIdentities,omitempty" msgpack:"resolutionIdentities,omitempty" bson:"resolutionidentities,omitempty" mapstructure:"resolutionIdentities,omitempty"`
 
-	// Public URLs of the deployment.
-	PublicURLs *[]string `json:"publicURLs,omitempty" msgpack:"publicURLs,omitempty" bson:"publicurls,omitempty" mapstructure:"publicURLs,omitempty"`
+	// If true, this is a system-seeded risk definition supplying finding identity for
+	// a risk pillar, and is excluded from customer opt-in matching.
+	System *bool `json:"system,omitempty" msgpack:"system,omitempty" bson:"system,omitempty" mapstructure:"system,omitempty"`
 
-	// Set to true on update to issue a new credential.
-	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
-
-	// Set to value on update to associate a tag with the issued token.
-	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
-
-	// Set to value on update to set the validity for a token.
-	RenewTokenValidity *string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
-
-	// The issued JWT, populated only in the response of an update where
-	// renewToken was set to true.
-	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
-
-	// The list of references to issued tokens.
-	TokenRefs *[]*TokenRef `json:"tokenRefs,omitempty" msgpack:"tokenRefs,omitempty" bson:"tokenrefs,omitempty" mapstructure:"tokenRefs,omitempty"`
+	// Choose which asset kind the risk definition should apply to.
+	Type *RiskDefinitionTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1242,19 +1309,19 @@ type SparseDeployment struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseDeployment returns a new  SparseDeployment.
-func NewSparseDeployment() *SparseDeployment {
-	return &SparseDeployment{}
+// NewSparseRiskDefinition returns a new  SparseRiskDefinition.
+func NewSparseRiskDefinition() *SparseRiskDefinition {
+	return &SparseRiskDefinition{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseDeployment) Identity() elemental.Identity {
+func (o *SparseRiskDefinition) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return RiskDefinitionIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseDeployment) Identifier() string {
+func (o *SparseRiskDefinition) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1263,7 +1330,7 @@ func (o *SparseDeployment) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseDeployment) SetIdentifier(id string) {
+func (o *SparseRiskDefinition) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1274,22 +1341,34 @@ func (o *SparseDeployment) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseDeployment) GetBSON() (any, error) {
+func (o *SparseRiskDefinition) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseDeployment{}
+	s := &mongoAttributesSparseRiskDefinition{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
+	}
+	if o.AnalyzerGroup != nil {
+		s.AnalyzerGroup = o.AnalyzerGroup
+	}
+	if o.AnalyzerName != nil {
+		s.AnalyzerName = o.AnalyzerName
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.Disabled != nil {
+		s.Disabled = o.Disabled
+	}
+	if o.FindingDescription != nil {
+		s.FindingDescription = o.FindingDescription
 	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
@@ -1300,6 +1379,9 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.Match != nil {
+		s.Match = o.Match
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1309,14 +1391,14 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.PublicKeys != nil {
-		s.PublicKeys = o.PublicKeys
+	if o.ResolutionIdentities != nil {
+		s.ResolutionIdentities = o.ResolutionIdentities
 	}
-	if o.PublicURLs != nil {
-		s.PublicURLs = o.PublicURLs
+	if o.System != nil {
+		s.System = o.System
 	}
-	if o.TokenRefs != nil {
-		s.TokenRefs = o.TokenRefs
+	if o.Type != nil {
+		s.Type = o.Type
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1333,24 +1415,36 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
+func (o *SparseRiskDefinition) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseDeployment{}
+	s := &mongoAttributesSparseRiskDefinition{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AnalyzerGroup != nil {
+		o.AnalyzerGroup = s.AnalyzerGroup
+	}
+	if s.AnalyzerName != nil {
+		o.AnalyzerName = s.AnalyzerName
+	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.Disabled != nil {
+		o.Disabled = s.Disabled
+	}
+	if s.FindingDescription != nil {
+		o.FindingDescription = s.FindingDescription
 	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
@@ -1361,6 +1455,9 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.Match != nil {
+		o.Match = s.Match
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -1370,14 +1467,14 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.PublicKeys != nil {
-		o.PublicKeys = s.PublicKeys
+	if s.ResolutionIdentities != nil {
+		o.ResolutionIdentities = s.ResolutionIdentities
 	}
-	if s.PublicURLs != nil {
-		o.PublicURLs = s.PublicURLs
+	if s.System != nil {
+		o.System = s.System
 	}
-	if s.TokenRefs != nil {
-		o.TokenRefs = s.TokenRefs
+	if s.Type != nil {
+		o.Type = s.Type
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1393,23 +1490,35 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseDeployment) Version() int {
+func (o *SparseRiskDefinition) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseRiskDefinition) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewDeployment()
+	out := NewRiskDefinition()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.AnalyzerGroup != nil {
+		out.AnalyzerGroup = *o.AnalyzerGroup
+	}
+	if o.AnalyzerName != nil {
+		out.AnalyzerName = *o.AnalyzerName
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.Disabled != nil {
+		out.Disabled = *o.Disabled
+	}
+	if o.FindingDescription != nil {
+		out.FindingDescription = *o.FindingDescription
 	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
@@ -1420,6 +1529,9 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
+	if o.Match != nil {
+		out.Match = *o.Match
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -1429,26 +1541,14 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.PublicKeys != nil {
-		out.PublicKeys = *o.PublicKeys
+	if o.ResolutionIdentities != nil {
+		out.ResolutionIdentities = *o.ResolutionIdentities
 	}
-	if o.PublicURLs != nil {
-		out.PublicURLs = *o.PublicURLs
+	if o.System != nil {
+		out.System = *o.System
 	}
-	if o.RenewToken != nil {
-		out.RenewToken = *o.RenewToken
-	}
-	if o.RenewTokenTag != nil {
-		out.RenewTokenTag = *o.RenewTokenTag
-	}
-	if o.RenewTokenValidity != nil {
-		out.RenewTokenValidity = *o.RenewTokenValidity
-	}
-	if o.Token != nil {
-		out.Token = *o.Token
-	}
-	if o.TokenRefs != nil {
-		out.TokenRefs = *o.TokenRefs
+	if o.Type != nil {
+		out.Type = *o.Type
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1464,15 +1564,15 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseRiskDefinition) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.TokenRefs != nil {
-		for _, sub := range *o.TokenRefs {
+	if o.Match != nil {
+		for _, sub := range *o.Match {
 			if sub == nil {
 				continue
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Match' for 'RiskDefinition' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1481,15 +1581,15 @@ func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncryp
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseRiskDefinition) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.TokenRefs != nil {
-		for _, sub := range *o.TokenRefs {
+	if o.Match != nil {
+		for _, sub := range *o.Match {
 			if sub == nil {
 				continue
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Match' for 'RiskDefinition' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1498,7 +1598,7 @@ func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncryp
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseDeployment) GetCreateTime() (out time.Time) {
+func (o *SparseRiskDefinition) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1508,13 +1608,13 @@ func (o *SparseDeployment) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseDeployment) SetCreateTime(createTime time.Time) {
+func (o *SparseRiskDefinition) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *SparseDeployment) GetFriendlyName() (out string) {
+func (o *SparseRiskDefinition) GetFriendlyName() (out string) {
 
 	if o.FriendlyName == nil {
 		return
@@ -1524,13 +1624,13 @@ func (o *SparseDeployment) GetFriendlyName() (out string) {
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
-func (o *SparseDeployment) SetFriendlyName(friendlyName string) {
+func (o *SparseRiskDefinition) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = &friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseDeployment) GetImportHash() (out string) {
+func (o *SparseRiskDefinition) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1540,13 +1640,13 @@ func (o *SparseDeployment) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseDeployment) SetImportHash(importHash string) {
+func (o *SparseRiskDefinition) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseDeployment) GetImportLabel() (out string) {
+func (o *SparseRiskDefinition) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1556,13 +1656,13 @@ func (o *SparseDeployment) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseDeployment) SetImportLabel(importLabel string) {
+func (o *SparseRiskDefinition) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *SparseDeployment) GetName() (out string) {
+func (o *SparseRiskDefinition) GetName() (out string) {
 
 	if o.Name == nil {
 		return
@@ -1572,13 +1672,13 @@ func (o *SparseDeployment) GetName() (out string) {
 }
 
 // SetName sets the property Name of the receiver using the address of the given value.
-func (o *SparseDeployment) SetName(name string) {
+func (o *SparseRiskDefinition) SetName(name string) {
 
 	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseDeployment) GetNamespace() (out string) {
+func (o *SparseRiskDefinition) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1588,13 +1688,13 @@ func (o *SparseDeployment) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseDeployment) SetNamespace(namespace string) {
+func (o *SparseRiskDefinition) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseDeployment) GetPropagate() (out bool) {
+func (o *SparseRiskDefinition) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1604,13 +1704,13 @@ func (o *SparseDeployment) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseDeployment) SetPropagate(propagate bool) {
+func (o *SparseRiskDefinition) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseDeployment) GetUpdateTime() (out time.Time) {
+func (o *SparseRiskDefinition) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1620,66 +1720,76 @@ func (o *SparseDeployment) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseDeployment) SetUpdateTime(updateTime time.Time) {
+func (o *SparseRiskDefinition) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseDeployment.
-func (o *SparseDeployment) DeepCopy() *SparseDeployment {
+// DeepCopy returns a deep copy if the SparseRiskDefinition.
+func (o *SparseRiskDefinition) DeepCopy() *SparseRiskDefinition {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseDeployment{}
+	out := &SparseRiskDefinition{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseDeployment.
-func (o *SparseDeployment) DeepCopyInto(out *SparseDeployment) {
+// DeepCopyInto copies the receiver into the given *SparseRiskDefinition.
+func (o *SparseRiskDefinition) DeepCopyInto(out *SparseRiskDefinition) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseDeployment: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseRiskDefinition: %s", err))
 	}
 
-	*out = *target.(*SparseDeployment)
+	*out = *target.(*SparseRiskDefinition)
 }
 
-type mongoAttributesDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   time.Time     `bson:"createtime"`
-	Description  string        `bson:"description,omitempty"`
-	FriendlyName string        `bson:"friendlyname"`
-	ImportHash   string        `bson:"importhash,omitempty"`
-	ImportLabel  string        `bson:"importlabel,omitempty"`
-	Name         string        `bson:"name"`
-	Namespace    string        `bson:"namespace,omitempty"`
-	Propagate    bool          `bson:"propagate"`
-	PublicKeys   []string      `bson:"publickeys"`
-	PublicURLs   []string      `bson:"publicurls"`
-	TokenRefs    []*TokenRef   `bson:"tokenrefs"`
-	UpdateTime   time.Time     `bson:"updatetime"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+type mongoAttributesRiskDefinition struct {
+	ID                   bson.ObjectId           `bson:"_id,omitempty"`
+	AnalyzerGroup        string                  `bson:"analyzergroup,omitempty"`
+	AnalyzerName         string                  `bson:"analyzername,omitempty"`
+	CreateTime           time.Time               `bson:"createtime"`
+	Description          string                  `bson:"description"`
+	Disabled             bool                    `bson:"disabled"`
+	FindingDescription   string                  `bson:"findingdescription,omitempty"`
+	FriendlyName         string                  `bson:"friendlyname"`
+	ImportHash           string                  `bson:"importhash,omitempty"`
+	ImportLabel          string                  `bson:"importlabel,omitempty"`
+	Match                []*Predicate            `bson:"match"`
+	Name                 string                  `bson:"name"`
+	Namespace            string                  `bson:"namespace,omitempty"`
+	Propagate            bool                    `bson:"propagate"`
+	ResolutionIdentities []string                `bson:"resolutionidentities,omitempty"`
+	System               bool                    `bson:"system,omitempty"`
+	Type                 RiskDefinitionTypeValue `bson:"type"`
+	UpdateTime           time.Time               `bson:"updatetime"`
+	ZHash                int                     `bson:"zhash"`
+	Zone                 int                     `bson:"zone"`
 }
-type mongoAttributesSparseDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   *time.Time    `bson:"createtime,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	FriendlyName *string       `bson:"friendlyname,omitempty"`
-	ImportHash   *string       `bson:"importhash,omitempty"`
-	ImportLabel  *string       `bson:"importlabel,omitempty"`
-	Name         *string       `bson:"name,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	Propagate    *bool         `bson:"propagate,omitempty"`
-	PublicKeys   *[]string     `bson:"publickeys,omitempty"`
-	PublicURLs   *[]string     `bson:"publicurls,omitempty"`
-	TokenRefs    *[]*TokenRef  `bson:"tokenrefs,omitempty"`
-	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+type mongoAttributesSparseRiskDefinition struct {
+	ID                   bson.ObjectId            `bson:"_id,omitempty"`
+	AnalyzerGroup        *string                  `bson:"analyzergroup,omitempty"`
+	AnalyzerName         *string                  `bson:"analyzername,omitempty"`
+	CreateTime           *time.Time               `bson:"createtime,omitempty"`
+	Description          *string                  `bson:"description,omitempty"`
+	Disabled             *bool                    `bson:"disabled,omitempty"`
+	FindingDescription   *string                  `bson:"findingdescription,omitempty"`
+	FriendlyName         *string                  `bson:"friendlyname,omitempty"`
+	ImportHash           *string                  `bson:"importhash,omitempty"`
+	ImportLabel          *string                  `bson:"importlabel,omitempty"`
+	Match                *[]*Predicate            `bson:"match,omitempty"`
+	Name                 *string                  `bson:"name,omitempty"`
+	Namespace            *string                  `bson:"namespace,omitempty"`
+	Propagate            *bool                    `bson:"propagate,omitempty"`
+	ResolutionIdentities *[]string                `bson:"resolutionidentities,omitempty"`
+	System               *bool                    `bson:"system,omitempty"`
+	Type                 *RiskDefinitionTypeValue `bson:"type,omitempty"`
+	UpdateTime           *time.Time               `bson:"updatetime,omitempty"`
+	ZHash                *int                     `bson:"zhash,omitempty"`
+	Zone                 *int                     `bson:"zone,omitempty"`
 }

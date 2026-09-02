@@ -203,6 +203,9 @@ type Import struct {
 	// Public Keys to import.
 	Publickeys PublicKeysList `json:"publickeys,omitempty" msgpack:"publickeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publickeys,omitempty"`
 
+	// Risk definitions to import.
+	Riskdefinitions RiskDefinitionsList `json:"riskdefinitions,omitempty" msgpack:"riskdefinitions,omitempty" bson:"riskdefinitions,omitempty" mapstructure:"riskdefinitions,omitempty"`
+
 	// Sinks to import.
 	Sinks SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
 
@@ -217,6 +220,9 @@ type Import struct {
 
 	// WebExtension configurations to import.
 	WebExtensionConfigs WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"webextensionconfigs,omitempty" mapstructure:"webExtensionConfigs,omitempty"`
+
+	// Webhook integrations to import.
+	WebhookIntegrations WebhookIntegrationsList `json:"webhookIntegrations,omitempty" msgpack:"webhookIntegrations,omitempty" bson:"webhookintegrations,omitempty" mapstructure:"webhookIntegrations,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -264,11 +270,13 @@ func NewImport() *Import {
 		Providers:           ProvidersList{},
 		Proxyroundtrips:     ProxyRoundtripsList{},
 		Publickeys:          PublicKeysList{},
+		Riskdefinitions:     RiskDefinitionsList{},
 		Sinks:               SinksList{},
 		Teams:               TeamsList{},
 		ThreatDefinitions:   ThreatDefinitionsList{},
 		Visitedurls:         VisitedURLsList{},
 		WebExtensionConfigs: WebExtensionConfigsList{},
+		WebhookIntegrations: WebhookIntegrationsList{},
 	}
 }
 
@@ -338,11 +346,13 @@ func (o *Import) GetBSON() (any, error) {
 	s.Providers = o.Providers
 	s.Proxyroundtrips = o.Proxyroundtrips
 	s.Publickeys = o.Publickeys
+	s.Riskdefinitions = o.Riskdefinitions
 	s.Sinks = o.Sinks
 	s.Teams = o.Teams
 	s.ThreatDefinitions = o.ThreatDefinitions
 	s.Visitedurls = o.Visitedurls
 	s.WebExtensionConfigs = o.WebExtensionConfigs
+	s.WebhookIntegrations = o.WebhookIntegrations
 
 	return s, nil
 }
@@ -399,11 +409,13 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.Providers = s.Providers
 	o.Proxyroundtrips = s.Proxyroundtrips
 	o.Publickeys = s.Publickeys
+	o.Riskdefinitions = s.Riskdefinitions
 	o.Sinks = s.Sinks
 	o.Teams = s.Teams
 	o.ThreatDefinitions = s.ThreatDefinitions
 	o.Visitedurls = s.Visitedurls
 	o.WebExtensionConfigs = s.WebExtensionConfigs
+	o.WebhookIntegrations = s.WebhookIntegrations
 
 	return nil
 }
@@ -483,11 +495,13 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Providers:           &o.Providers,
 			Proxyroundtrips:     &o.Proxyroundtrips,
 			Publickeys:          &o.Publickeys,
+			Riskdefinitions:     &o.Riskdefinitions,
 			Sinks:               &o.Sinks,
 			Teams:               &o.Teams,
 			ThreatDefinitions:   &o.ThreatDefinitions,
 			Visitedurls:         &o.Visitedurls,
 			WebExtensionConfigs: &o.WebExtensionConfigs,
+			WebhookIntegrations: &o.WebhookIntegrations,
 		}
 	}
 
@@ -572,6 +586,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Proxyroundtrips = &(o.Proxyroundtrips)
 		case "publickeys":
 			sp.Publickeys = &(o.Publickeys)
+		case "riskdefinitions":
+			sp.Riskdefinitions = &(o.Riskdefinitions)
 		case "sinks":
 			sp.Sinks = &(o.Sinks)
 		case "teams":
@@ -582,6 +598,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Visitedurls = &(o.Visitedurls)
 		case "webExtensionConfigs":
 			sp.WebExtensionConfigs = &(o.WebExtensionConfigs)
+		case "webhookIntegrations":
+			sp.WebhookIntegrations = &(o.WebhookIntegrations)
 		}
 	}
 
@@ -712,6 +730,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Publickeys != nil {
 		o.Publickeys = *so.Publickeys
 	}
+	if so.Riskdefinitions != nil {
+		o.Riskdefinitions = *so.Riskdefinitions
+	}
 	if so.Sinks != nil {
 		o.Sinks = *so.Sinks
 	}
@@ -726,6 +747,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.WebExtensionConfigs != nil {
 		o.WebExtensionConfigs = *so.WebExtensionConfigs
+	}
+	if so.WebhookIntegrations != nil {
+		o.WebhookIntegrations = *so.WebhookIntegrations
 	}
 }
 
@@ -1038,6 +1062,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Riskdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Riskdefinitions' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Sinks {
 		if sub == nil {
 			continue
@@ -1080,6 +1113,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebhookIntegrations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebhookIntegrations' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1395,6 +1437,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.Riskdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Riskdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Sinks {
 		if sub == nil {
 			continue
@@ -1437,6 +1488,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.WebhookIntegrations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebhookIntegrations' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1819,6 +1879,16 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for i, sub := range o.Riskdefinitions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "riskdefinitions", i))
+		}
+	}
+
 	for i, sub := range o.Sinks {
 		if sub == nil {
 			continue
@@ -1866,6 +1936,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
+		}
+	}
+
+	for i, sub := range o.WebhookIntegrations {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webhookIntegrations", i))
 		}
 	}
 
@@ -1981,6 +2061,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Proxyroundtrips
 	case "publickeys":
 		return o.Publickeys
+	case "riskdefinitions":
+		return o.Riskdefinitions
 	case "sinks":
 		return o.Sinks
 	case "teams":
@@ -1991,6 +2073,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Visitedurls
 	case "webExtensionConfigs":
 		return o.WebExtensionConfigs
+	case "webhookIntegrations":
+		return o.WebhookIntegrations
 	}
 
 	return nil
@@ -2428,6 +2512,17 @@ resource.`,
 		SubType:        "publickey",
 		Type:           "refList",
 	},
+	"Riskdefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "riskdefinitions",
+		ConvertedName:  "Riskdefinitions",
+		Description:    `Risk definitions to import.`,
+		Exposed:        true,
+		Name:           "riskdefinitions",
+		Stored:         true,
+		SubType:        "riskdefinition",
+		Type:           "refList",
+	},
 	"Sinks": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "sinks",
@@ -2481,6 +2576,17 @@ resource.`,
 		Name:           "webExtensionConfigs",
 		Stored:         true,
 		SubType:        "webextensionconfig",
+		Type:           "refList",
+	},
+	"WebhookIntegrations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegrations",
+		ConvertedName:  "WebhookIntegrations",
+		Description:    `Webhook integrations to import.`,
+		Exposed:        true,
+		Name:           "webhookIntegrations",
+		Stored:         true,
+		SubType:        "webhookintegration",
 		Type:           "refList",
 	},
 }
@@ -2917,6 +3023,17 @@ resource.`,
 		SubType:        "publickey",
 		Type:           "refList",
 	},
+	"riskdefinitions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "riskdefinitions",
+		ConvertedName:  "Riskdefinitions",
+		Description:    `Risk definitions to import.`,
+		Exposed:        true,
+		Name:           "riskdefinitions",
+		Stored:         true,
+		SubType:        "riskdefinition",
+		Type:           "refList",
+	},
 	"sinks": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "sinks",
@@ -2970,6 +3087,17 @@ resource.`,
 		Name:           "webExtensionConfigs",
 		Stored:         true,
 		SubType:        "webextensionconfig",
+		Type:           "refList",
+	},
+	"webhookintegrations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhookintegrations",
+		ConvertedName:  "WebhookIntegrations",
+		Description:    `Webhook integrations to import.`,
+		Exposed:        true,
+		Name:           "webhookIntegrations",
+		Stored:         true,
+		SubType:        "webhookintegration",
 		Type:           "refList",
 	},
 }
@@ -3155,6 +3283,9 @@ type SparseImport struct {
 	// Public Keys to import.
 	Publickeys *PublicKeysList `json:"publickeys,omitempty" msgpack:"publickeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publickeys,omitempty"`
 
+	// Risk definitions to import.
+	Riskdefinitions *RiskDefinitionsList `json:"riskdefinitions,omitempty" msgpack:"riskdefinitions,omitempty" bson:"riskdefinitions,omitempty" mapstructure:"riskdefinitions,omitempty"`
+
 	// Sinks to import.
 	Sinks *SinksList `json:"sinks,omitempty" msgpack:"sinks,omitempty" bson:"sinks,omitempty" mapstructure:"sinks,omitempty"`
 
@@ -3169,6 +3300,9 @@ type SparseImport struct {
 
 	// WebExtension configurations to import.
 	WebExtensionConfigs *WebExtensionConfigsList `json:"webExtensionConfigs,omitempty" msgpack:"webExtensionConfigs,omitempty" bson:"webextensionconfigs,omitempty" mapstructure:"webExtensionConfigs,omitempty"`
+
+	// Webhook integrations to import.
+	WebhookIntegrations *WebhookIntegrationsList `json:"webhookIntegrations,omitempty" msgpack:"webhookIntegrations,omitempty" bson:"webhookintegrations,omitempty" mapstructure:"webhookIntegrations,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -3322,6 +3456,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.Publickeys != nil {
 		s.Publickeys = o.Publickeys
 	}
+	if o.Riskdefinitions != nil {
+		s.Riskdefinitions = o.Riskdefinitions
+	}
 	if o.Sinks != nil {
 		s.Sinks = o.Sinks
 	}
@@ -3336,6 +3473,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	}
 	if o.WebExtensionConfigs != nil {
 		s.WebExtensionConfigs = o.WebExtensionConfigs
+	}
+	if o.WebhookIntegrations != nil {
+		s.WebhookIntegrations = o.WebhookIntegrations
 	}
 
 	return s, nil
@@ -3471,6 +3611,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.Publickeys != nil {
 		o.Publickeys = s.Publickeys
 	}
+	if s.Riskdefinitions != nil {
+		o.Riskdefinitions = s.Riskdefinitions
+	}
 	if s.Sinks != nil {
 		o.Sinks = s.Sinks
 	}
@@ -3485,6 +3628,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 	if s.WebExtensionConfigs != nil {
 		o.WebExtensionConfigs = s.WebExtensionConfigs
+	}
+	if s.WebhookIntegrations != nil {
+		o.WebhookIntegrations = s.WebhookIntegrations
 	}
 
 	return nil
@@ -3617,6 +3763,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.Publickeys != nil {
 		out.Publickeys = *o.Publickeys
 	}
+	if o.Riskdefinitions != nil {
+		out.Riskdefinitions = *o.Riskdefinitions
+	}
 	if o.Sinks != nil {
 		out.Sinks = *o.Sinks
 	}
@@ -3631,6 +3780,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.WebExtensionConfigs != nil {
 		out.WebExtensionConfigs = *o.WebExtensionConfigs
+	}
+	if o.WebhookIntegrations != nil {
+		out.WebhookIntegrations = *o.WebhookIntegrations
 	}
 
 	return out
@@ -4013,6 +4165,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Riskdefinitions != nil {
+		for _, sub := range *o.Riskdefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Riskdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Sinks != nil {
 		for _, sub := range *o.Sinks {
 			if sub == nil {
@@ -4064,6 +4227,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebhookIntegrations != nil {
+		for _, sub := range *o.WebhookIntegrations {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'WebhookIntegrations' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4448,6 +4622,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.Riskdefinitions != nil {
+		for _, sub := range *o.Riskdefinitions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Riskdefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Sinks != nil {
 		for _, sub := range *o.Sinks {
 			if sub == nil {
@@ -4499,6 +4684,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebExtensionConfigs' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.WebhookIntegrations != nil {
+		for _, sub := range *o.WebhookIntegrations {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'WebhookIntegrations' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4570,11 +4766,13 @@ type mongoAttributesImport struct {
 	Providers           ProvidersList           `bson:"providers,omitempty"`
 	Proxyroundtrips     ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
 	Publickeys          PublicKeysList          `bson:"publickeys,omitempty"`
+	Riskdefinitions     RiskDefinitionsList     `bson:"riskdefinitions,omitempty"`
 	Sinks               SinksList               `bson:"sinks,omitempty"`
 	Teams               TeamsList               `bson:"teams,omitempty"`
 	ThreatDefinitions   ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
 	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
+	WebhookIntegrations WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`
 }
 type mongoAttributesSparseImport struct {
 	AIApps              *AIAppsList              `bson:"aiapps,omitempty"`
@@ -4616,9 +4814,11 @@ type mongoAttributesSparseImport struct {
 	Providers           *ProvidersList           `bson:"providers,omitempty"`
 	Proxyroundtrips     *ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
 	Publickeys          *PublicKeysList          `bson:"publickeys,omitempty"`
+	Riskdefinitions     *RiskDefinitionsList     `bson:"riskdefinitions,omitempty"`
 	Sinks               *SinksList               `bson:"sinks,omitempty"`
 	Teams               *TeamsList               `bson:"teams,omitempty"`
 	ThreatDefinitions   *ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
 	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs *WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
+	WebhookIntegrations *WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`
 }

@@ -13,77 +13,94 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// FindingSeverityValue represents the possible values for attribute "severity".
-type FindingSeverityValue string
+// RiskFindingSeverityValue represents the possible values for attribute "severity".
+type RiskFindingSeverityValue string
 
 const (
-	// FindingSeverityCritical represents the value Critical.
-	FindingSeverityCritical FindingSeverityValue = "Critical"
+	// RiskFindingSeverityCritical represents the value Critical.
+	RiskFindingSeverityCritical RiskFindingSeverityValue = "Critical"
 
-	// FindingSeverityHigh represents the value High.
-	FindingSeverityHigh FindingSeverityValue = "High"
+	// RiskFindingSeverityHigh represents the value High.
+	RiskFindingSeverityHigh RiskFindingSeverityValue = "High"
 
-	// FindingSeverityLow represents the value Low.
-	FindingSeverityLow FindingSeverityValue = "Low"
+	// RiskFindingSeverityLow represents the value Low.
+	RiskFindingSeverityLow RiskFindingSeverityValue = "Low"
 
-	// FindingSeverityMedium represents the value Medium.
-	FindingSeverityMedium FindingSeverityValue = "Medium"
+	// RiskFindingSeverityMedium represents the value Medium.
+	RiskFindingSeverityMedium RiskFindingSeverityValue = "Medium"
 )
 
-// FindingStatusValue represents the possible values for attribute "status".
-type FindingStatusValue string
+// RiskFindingStatusValue represents the possible values for attribute "status".
+type RiskFindingStatusValue string
 
 const (
-	// FindingStatusArchived represents the value Archived.
-	FindingStatusArchived FindingStatusValue = "Archived"
+	// RiskFindingStatusArchived represents the value Archived.
+	RiskFindingStatusArchived RiskFindingStatusValue = "Archived"
 
-	// FindingStatusOpen represents the value Open.
-	FindingStatusOpen FindingStatusValue = "Open"
+	// RiskFindingStatusOpen represents the value Open.
+	RiskFindingStatusOpen RiskFindingStatusValue = "Open"
 
-	// FindingStatusRejected represents the value Rejected.
-	FindingStatusRejected FindingStatusValue = "Rejected"
+	// RiskFindingStatusRejected represents the value Rejected.
+	RiskFindingStatusRejected RiskFindingStatusValue = "Rejected"
 
-	// FindingStatusResolved represents the value Resolved.
-	FindingStatusResolved FindingStatusValue = "Resolved"
+	// RiskFindingStatusResolved represents the value Resolved.
+	RiskFindingStatusResolved RiskFindingStatusValue = "Resolved"
 )
 
-// FindingIdentity represents the Identity of the object.
-var FindingIdentity = elemental.Identity{
-	Name:     "finding",
-	Category: "findings",
+// RiskFindingSystemGeneratedSeverityValue represents the possible values for attribute "systemGeneratedSeverity".
+type RiskFindingSystemGeneratedSeverityValue string
+
+const (
+	// RiskFindingSystemGeneratedSeverityCritical represents the value Critical.
+	RiskFindingSystemGeneratedSeverityCritical RiskFindingSystemGeneratedSeverityValue = "Critical"
+
+	// RiskFindingSystemGeneratedSeverityHigh represents the value High.
+	RiskFindingSystemGeneratedSeverityHigh RiskFindingSystemGeneratedSeverityValue = "High"
+
+	// RiskFindingSystemGeneratedSeverityLow represents the value Low.
+	RiskFindingSystemGeneratedSeverityLow RiskFindingSystemGeneratedSeverityValue = "Low"
+
+	// RiskFindingSystemGeneratedSeverityMedium represents the value Medium.
+	RiskFindingSystemGeneratedSeverityMedium RiskFindingSystemGeneratedSeverityValue = "Medium"
+)
+
+// RiskFindingIdentity represents the Identity of the object.
+var RiskFindingIdentity = elemental.Identity{
+	Name:     "riskfinding",
+	Category: "riskfindings",
 	Package:  "hanni",
 	Private:  false,
 }
 
-// FindingsList represents a list of Findings
-type FindingsList []*Finding
+// RiskFindingsList represents a list of RiskFindings
+type RiskFindingsList []*RiskFinding
 
 // Identity returns the identity of the objects in the list.
-func (o FindingsList) Identity() elemental.Identity {
+func (o RiskFindingsList) Identity() elemental.Identity {
 
-	return FindingIdentity
+	return RiskFindingIdentity
 }
 
-// Copy returns a pointer to a copy the FindingsList.
-func (o FindingsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the RiskFindingsList.
+func (o RiskFindingsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the FindingsList.
-func (o FindingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the RiskFindingsList.
+func (o RiskFindingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*Finding))
+		out = append(out, obj.(*RiskFinding))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o FindingsList) List() elemental.IdentifiablesList {
+func (o RiskFindingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -94,31 +111,31 @@ func (o FindingsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o FindingsList) DefaultOrder() []string {
+func (o RiskFindingsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the FindingsList converted to SparseFindingsList.
+// ToSparse returns the RiskFindingsList converted to SparseRiskFindingsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o FindingsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o RiskFindingsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseFindingsList, len(o))
+	out := make(SparseRiskFindingsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseFinding)
+		out[i] = o[i].ToSparse(fields...).(*SparseRiskFinding)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o FindingsList) Version() int {
+func (o RiskFindingsList) Version() int {
 
 	return 1
 }
 
-// Finding represents the model of a finding
-type Finding struct {
+// RiskFinding represents the model of a riskfinding
+type RiskFinding struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -128,8 +145,8 @@ type Finding struct {
 	// The analyzer name.
 	AnalyzerName string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
 
-	// The name of the FindingDefinition this finding was instantiated from.
-	DefinitionName string `json:"definitionName,omitempty" msgpack:"definitionName,omitempty" bson:"definitionname,omitempty" mapstructure:"definitionName,omitempty"`
+	// Reference to the asset this finding applies to.
+	AssetRef *AssetRef `json:"assetRef,omitempty" msgpack:"assetRef,omitempty" bson:"assetref,omitempty" mapstructure:"assetRef,omitempty"`
 
 	// The description of the finding.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
@@ -150,12 +167,6 @@ type Finding struct {
 	// Comment about the last resolution.
 	LastResolutionComment string `json:"lastResolutionComment,omitempty" msgpack:"lastResolutionComment,omitempty" bson:"lastresolutioncomment,omitempty" mapstructure:"lastResolutionComment,omitempty"`
 
-	// List of the item which helped last resolved this finding.
-	LastResolutionItems []*IdentityRef `json:"lastResolutionItems,omitempty" msgpack:"lastResolutionItems,omitempty" bson:"lastresolutionitems,omitempty" mapstructure:"lastResolutionItems,omitempty"`
-
-	// Last time this finding was resolved.
-	LastResolutionTime time.Time `json:"lastResolutionTime,omitempty" msgpack:"lastResolutionTime,omitempty" bson:"lastresolutiontime,omitempty" mapstructure:"lastResolutionTime,omitempty"`
-
 	// Last time the finding was seen.
 	LastSeenTime time.Time `json:"lastSeenTime" msgpack:"lastSeenTime" bson:"lastseentime" mapstructure:"lastSeenTime,omitempty"`
 
@@ -166,23 +177,25 @@ type Finding struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Reference to the threat definition that triggered this finding.
-	PolicyRef *PolicyRef `json:"policyRef,omitempty" msgpack:"policyRef,omitempty" bson:"policyref,omitempty" mapstructure:"policyRef,omitempty"`
-
-	// References to the threat definitions that triggered this finding.
-	PolicyRefs PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
-
 	// The identities that can resolve this finding.
 	ResolutionIdentities []string `json:"resolutionIdentities" msgpack:"resolutionIdentities" bson:"resolutionidentities" mapstructure:"resolutionIdentities,omitempty"`
 
-	// The severity of the finding that will be created.
-	Severity FindingSeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
+	// The severity of the finding.
+	Severity RiskFindingSeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
+
+	// User override of the system generated severity. When set, the severity
+	// attribute reflects the override.
+	SeverityOverride *SeverityOverride `json:"severityOverride,omitempty" msgpack:"severityOverride,omitempty" bson:"severityoverride,omitempty" mapstructure:"severityOverride,omitempty"`
 
 	// The state of the finding.
 	State map[string]any `json:"state,omitempty" msgpack:"state,omitempty" bson:"state,omitempty" mapstructure:"state,omitempty"`
 
 	// The status of the finding.
-	Status FindingStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
+	Status RiskFindingStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
+
+	// The severity computed by the system when the finding was created. Not
+	// affected by user overrides.
+	SystemGeneratedSeverity RiskFindingSystemGeneratedSeverityValue `json:"systemGeneratedSeverity,omitempty" msgpack:"systemGeneratedSeverity,omitempty" bson:"systemgeneratedseverity,omitempty" mapstructure:"systemGeneratedSeverity,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -193,10 +206,10 @@ type Finding struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewFinding returns a new *Finding
-func NewFinding() *Finding {
+// NewRiskFinding returns a new *RiskFinding
+func NewRiskFinding() *RiskFinding {
 
-	return &Finding{
+	return &RiskFinding{
 		ModelVersion:         1,
 		ResolutionIdentities: []string{},
 		State:                map[string]any{},
@@ -204,56 +217,54 @@ func NewFinding() *Finding {
 }
 
 // Identity returns the Identity of the object.
-func (o *Finding) Identity() elemental.Identity {
+func (o *RiskFinding) Identity() elemental.Identity {
 
-	return FindingIdentity
+	return RiskFindingIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Finding) Identifier() string {
+func (o *RiskFinding) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Finding) SetIdentifier(id string) {
+func (o *RiskFinding) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Finding) GetBSON() (any, error) {
+func (o *RiskFinding) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesFinding{}
+	s := &mongoAttributesRiskFinding{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.AnalyzerGroup = o.AnalyzerGroup
 	s.AnalyzerName = o.AnalyzerName
-	s.DefinitionName = o.DefinitionName
+	s.AssetRef = o.AssetRef
 	s.Description = o.Description
 	s.FirstSeenTime = o.FirstSeenTime
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.LastResolutionComment = o.LastResolutionComment
-	s.LastResolutionItems = o.LastResolutionItems
-	s.LastResolutionTime = o.LastResolutionTime
 	s.LastSeenTime = o.LastSeenTime
 	s.Name = o.Name
 	s.Namespace = o.Namespace
-	s.PolicyRef = o.PolicyRef
-	s.PolicyRefs = o.PolicyRefs
 	s.ResolutionIdentities = o.ResolutionIdentities
 	s.Severity = o.Severity
+	s.SeverityOverride = o.SeverityOverride
 	s.State = o.State
 	s.Status = o.Status
+	s.SystemGeneratedSeverity = o.SystemGeneratedSeverity
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -262,13 +273,13 @@ func (o *Finding) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Finding) SetBSON(raw bson.Raw) error {
+func (o *RiskFinding) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesFinding{}
+	s := &mongoAttributesRiskFinding{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -276,24 +287,22 @@ func (o *Finding) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.AnalyzerGroup = s.AnalyzerGroup
 	o.AnalyzerName = s.AnalyzerName
-	o.DefinitionName = s.DefinitionName
+	o.AssetRef = s.AssetRef
 	o.Description = s.Description
 	o.FirstSeenTime = s.FirstSeenTime
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.LastResolutionComment = s.LastResolutionComment
-	o.LastResolutionItems = s.LastResolutionItems
-	o.LastResolutionTime = s.LastResolutionTime
 	o.LastSeenTime = s.LastSeenTime
 	o.Name = s.Name
 	o.Namespace = s.Namespace
-	o.PolicyRef = s.PolicyRef
-	o.PolicyRefs = s.PolicyRefs
 	o.ResolutionIdentities = s.ResolutionIdentities
 	o.Severity = s.Severity
+	o.SeverityOverride = s.SeverityOverride
 	o.State = s.State
 	o.Status = s.Status
+	o.SystemGeneratedSeverity = s.SystemGeneratedSeverity
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -301,128 +310,127 @@ func (o *Finding) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Finding) Version() int {
+func (o *RiskFinding) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Finding) BleveType() string {
+func (o *RiskFinding) BleveType() string {
 
-	return "finding"
+	return "riskfinding"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Finding) DefaultOrder() []string {
+func (o *RiskFinding) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Finding) Doc() string {
+func (o *RiskFinding) Doc() string {
 
-	return `Defines a finding instanciated from a finding definitions with the same name.`
+	return `Defines a risk finding instantiated from a risk definition that matched a
+discovered AI asset.`
 }
 
-func (o *Finding) String() string {
+func (o *RiskFinding) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *Finding) GetFriendlyName() string {
+func (o *RiskFinding) GetFriendlyName() string {
 
 	return o.FriendlyName
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the given value.
-func (o *Finding) SetFriendlyName(friendlyName string) {
+func (o *RiskFinding) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *Finding) GetImportHash() string {
+func (o *RiskFinding) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *Finding) SetImportHash(importHash string) {
+func (o *RiskFinding) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *Finding) GetImportLabel() string {
+func (o *RiskFinding) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *Finding) SetImportLabel(importLabel string) {
+func (o *RiskFinding) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *Finding) GetName() string {
+func (o *RiskFinding) GetName() string {
 
 	return o.Name
 }
 
 // SetName sets the property Name of the receiver using the given value.
-func (o *Finding) SetName(name string) {
+func (o *RiskFinding) SetName(name string) {
 
 	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *Finding) GetNamespace() string {
+func (o *RiskFinding) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *Finding) SetNamespace(namespace string) {
+func (o *RiskFinding) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *RiskFinding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseFinding{
-			ID:                    &o.ID,
-			AnalyzerGroup:         &o.AnalyzerGroup,
-			AnalyzerName:          &o.AnalyzerName,
-			DefinitionName:        &o.DefinitionName,
-			Description:           &o.Description,
-			FirstSeenTime:         &o.FirstSeenTime,
-			FriendlyName:          &o.FriendlyName,
-			ImportHash:            &o.ImportHash,
-			ImportLabel:           &o.ImportLabel,
-			LastResolutionComment: &o.LastResolutionComment,
-			LastResolutionItems:   &o.LastResolutionItems,
-			LastResolutionTime:    &o.LastResolutionTime,
-			LastSeenTime:          &o.LastSeenTime,
-			Name:                  &o.Name,
-			Namespace:             &o.Namespace,
-			PolicyRef:             o.PolicyRef,
-			PolicyRefs:            &o.PolicyRefs,
-			ResolutionIdentities:  &o.ResolutionIdentities,
-			Severity:              &o.Severity,
-			State:                 &o.State,
-			Status:                &o.Status,
-			ZHash:                 &o.ZHash,
-			Zone:                  &o.Zone,
+		return &SparseRiskFinding{
+			ID:                      &o.ID,
+			AnalyzerGroup:           &o.AnalyzerGroup,
+			AnalyzerName:            &o.AnalyzerName,
+			AssetRef:                o.AssetRef,
+			Description:             &o.Description,
+			FirstSeenTime:           &o.FirstSeenTime,
+			FriendlyName:            &o.FriendlyName,
+			ImportHash:              &o.ImportHash,
+			ImportLabel:             &o.ImportLabel,
+			LastResolutionComment:   &o.LastResolutionComment,
+			LastSeenTime:            &o.LastSeenTime,
+			Name:                    &o.Name,
+			Namespace:               &o.Namespace,
+			ResolutionIdentities:    &o.ResolutionIdentities,
+			Severity:                &o.Severity,
+			SeverityOverride:        o.SeverityOverride,
+			State:                   &o.State,
+			Status:                  &o.Status,
+			SystemGeneratedSeverity: &o.SystemGeneratedSeverity,
+			ZHash:                   &o.ZHash,
+			Zone:                    &o.Zone,
 		}
 	}
 
-	sp := &SparseFinding{}
+	sp := &SparseRiskFinding{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -431,8 +439,8 @@ func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AnalyzerGroup = &(o.AnalyzerGroup)
 		case "analyzerName":
 			sp.AnalyzerName = &(o.AnalyzerName)
-		case "definitionName":
-			sp.DefinitionName = &(o.DefinitionName)
+		case "assetRef":
+			sp.AssetRef = o.AssetRef
 		case "description":
 			sp.Description = &(o.Description)
 		case "firstSeenTime":
@@ -445,28 +453,24 @@ func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportLabel = &(o.ImportLabel)
 		case "lastResolutionComment":
 			sp.LastResolutionComment = &(o.LastResolutionComment)
-		case "lastResolutionItems":
-			sp.LastResolutionItems = &(o.LastResolutionItems)
-		case "lastResolutionTime":
-			sp.LastResolutionTime = &(o.LastResolutionTime)
 		case "lastSeenTime":
 			sp.LastSeenTime = &(o.LastSeenTime)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
-		case "policyRef":
-			sp.PolicyRef = o.PolicyRef
-		case "policyRefs":
-			sp.PolicyRefs = &(o.PolicyRefs)
 		case "resolutionIdentities":
 			sp.ResolutionIdentities = &(o.ResolutionIdentities)
 		case "severity":
 			sp.Severity = &(o.Severity)
+		case "severityOverride":
+			sp.SeverityOverride = o.SeverityOverride
 		case "state":
 			sp.State = &(o.State)
 		case "status":
 			sp.Status = &(o.Status)
+		case "systemGeneratedSeverity":
+			sp.SystemGeneratedSeverity = &(o.SystemGeneratedSeverity)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -477,13 +481,13 @@ func (o *Finding) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseFinding to the object.
-func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseRiskFinding to the object.
+func (o *RiskFinding) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseFinding)
+	so := sparse.(*SparseRiskFinding)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -493,8 +497,8 @@ func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AnalyzerName != nil {
 		o.AnalyzerName = *so.AnalyzerName
 	}
-	if so.DefinitionName != nil {
-		o.DefinitionName = *so.DefinitionName
+	if so.AssetRef != nil {
+		o.AssetRef = so.AssetRef
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -514,12 +518,6 @@ func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
 	if so.LastResolutionComment != nil {
 		o.LastResolutionComment = *so.LastResolutionComment
 	}
-	if so.LastResolutionItems != nil {
-		o.LastResolutionItems = *so.LastResolutionItems
-	}
-	if so.LastResolutionTime != nil {
-		o.LastResolutionTime = *so.LastResolutionTime
-	}
 	if so.LastSeenTime != nil {
 		o.LastSeenTime = *so.LastSeenTime
 	}
@@ -529,23 +527,23 @@ func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
-	if so.PolicyRef != nil {
-		o.PolicyRef = so.PolicyRef
-	}
-	if so.PolicyRefs != nil {
-		o.PolicyRefs = *so.PolicyRefs
-	}
 	if so.ResolutionIdentities != nil {
 		o.ResolutionIdentities = *so.ResolutionIdentities
 	}
 	if so.Severity != nil {
 		o.Severity = *so.Severity
 	}
+	if so.SeverityOverride != nil {
+		o.SeverityOverride = so.SeverityOverride
+	}
 	if so.State != nil {
 		o.State = *so.State
 	}
 	if so.Status != nil {
 		o.Status = *so.Status
+	}
+	if so.SystemGeneratedSeverity != nil {
+		o.SystemGeneratedSeverity = *so.SystemGeneratedSeverity
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -556,26 +554,17 @@ func (o *Finding) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *Finding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *RiskFinding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.LastResolutionItems {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'LastResolutionItems' for 'Finding' (%s): %s", o.Identifier(), err)
+	if o.AssetRef != nil {
+		if err := o.AssetRef.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AssetRef' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.PolicyRef != nil {
-		if err := o.PolicyRef.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.PolicyRefs {
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %s", o.Identifier(), err)
+	if o.SeverityOverride != nil {
+		if err := o.SeverityOverride.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'SeverityOverride' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -583,63 +572,61 @@ func (o *Finding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *Finding) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *RiskFinding) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.LastResolutionItems {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'LastResolutionItems' for 'Finding' (%s): %w", o.Identifier(), err)
+	if o.AssetRef != nil {
+		if err := o.AssetRef.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AssetRef' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.PolicyRef != nil {
-		if err := o.PolicyRef.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.PolicyRefs {
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
+	if o.SeverityOverride != nil {
+		if err := o.SeverityOverride.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'SeverityOverride' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the Finding.
-func (o *Finding) DeepCopy() *Finding {
+// DeepCopy returns a deep copy if the RiskFinding.
+func (o *RiskFinding) DeepCopy() *RiskFinding {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Finding{}
+	out := &RiskFinding{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Finding.
-func (o *Finding) DeepCopyInto(out *Finding) {
+// DeepCopyInto copies the receiver into the given *RiskFinding.
+func (o *RiskFinding) DeepCopyInto(out *RiskFinding) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Finding: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy RiskFinding: %s", err))
 	}
 
-	*out = *target.(*Finding)
+	*out = *target.(*RiskFinding)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Finding) Validate() error {
+func (o *RiskFinding) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if o.AssetRef != nil {
+		if err := o.AssetRef.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "assetRef")
+		}
+	}
 
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -652,32 +639,8 @@ func (o *Finding) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	for i, sub := range o.LastResolutionItems {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "lastResolutionItems", i))
-		}
-	}
-
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
-	}
-
-	if o.PolicyRef != nil {
-		if err := o.PolicyRef.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "policyRef")
-		}
-	}
-
-	for i, sub := range o.PolicyRefs {
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policyRefs", i))
-		}
 	}
 
 	if err := elemental.ValidateRequiredString("severity", string(o.Severity)); err != nil {
@@ -688,11 +651,22 @@ func (o *Finding) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.SeverityOverride != nil {
+		if err := o.SeverityOverride.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "severityOverride")
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("status", string(o.Status)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
 	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Open", "Resolved", "Rejected", "Archived"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("systemGeneratedSeverity", string(o.SystemGeneratedSeverity), []string{"Low", "Medium", "High", "Critical"}, true); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -708,26 +682,26 @@ func (o *Finding) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Finding) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*RiskFinding) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := FindingAttributesMap[name]; ok {
+	if v, ok := RiskFindingAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return FindingLowerCaseAttributesMap[name]
+	return RiskFindingLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Finding) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*RiskFinding) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return FindingAttributesMap
+	return RiskFindingAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Finding) ValueForAttribute(name string) any {
+func (o *RiskFinding) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -736,8 +710,8 @@ func (o *Finding) ValueForAttribute(name string) any {
 		return o.AnalyzerGroup
 	case "analyzerName":
 		return o.AnalyzerName
-	case "definitionName":
-		return o.DefinitionName
+	case "assetRef":
+		return o.AssetRef
 	case "description":
 		return o.Description
 	case "firstSeenTime":
@@ -750,28 +724,24 @@ func (o *Finding) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "lastResolutionComment":
 		return o.LastResolutionComment
-	case "lastResolutionItems":
-		return o.LastResolutionItems
-	case "lastResolutionTime":
-		return o.LastResolutionTime
 	case "lastSeenTime":
 		return o.LastSeenTime
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
-	case "policyRef":
-		return o.PolicyRef
-	case "policyRefs":
-		return o.PolicyRefs
 	case "resolutionIdentities":
 		return o.ResolutionIdentities
 	case "severity":
 		return o.Severity
+	case "severityOverride":
+		return o.SeverityOverride
 	case "state":
 		return o.State
 	case "status":
 		return o.Status
+	case "systemGeneratedSeverity":
+		return o.SystemGeneratedSeverity
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -781,8 +751,8 @@ func (o *Finding) ValueForAttribute(name string) any {
 	return nil
 }
 
-// FindingAttributesMap represents the map of attribute for Finding.
-var FindingAttributesMap = map[string]elemental.AttributeSpecification{
+// RiskFindingAttributesMap represents the map of attribute for RiskFinding.
+var RiskFindingAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -818,15 +788,16 @@ var FindingAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"DefinitionName": {
+	"AssetRef": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "definitionname",
-		ConvertedName:  "DefinitionName",
-		Description:    `The name of the FindingDefinition this finding was instantiated from.`,
+		BSONFieldName:  "assetref",
+		ConvertedName:  "AssetRef",
+		Description:    `Reference to the asset this finding applies to.`,
 		Exposed:        true,
-		Name:           "definitionName",
+		Name:           "assetRef",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "assetref",
+		Type:           "ref",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -901,29 +872,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"LastResolutionItems": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "lastresolutionitems",
-		ConvertedName:  "LastResolutionItems",
-		Description:    `List of the item which helped last resolved this finding.`,
-		Exposed:        true,
-		Name:           "lastResolutionItems",
-		Stored:         true,
-		SubType:        "identityref",
-		Type:           "refList",
-	},
-	"LastResolutionTime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "lastresolutiontime",
-		ConvertedName:  "LastResolutionTime",
-		Description:    `Last time this finding was resolved.`,
-		Exposed:        true,
-		Name:           "lastResolutionTime",
-		Orderable:      true,
-		Stored:         true,
-		Type:           "time",
-	},
 	"LastSeenTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -966,28 +914,6 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"PolicyRef": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "policyref",
-		ConvertedName:  "PolicyRef",
-		Description:    `Reference to the threat definition that triggered this finding.`,
-		Exposed:        true,
-		Name:           "policyRef",
-		Stored:         true,
-		SubType:        "policyref",
-		Type:           "ref",
-	},
-	"PolicyRefs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "policyrefs",
-		ConvertedName:  "PolicyRefs",
-		Description:    `References to the threat definitions that triggered this finding.`,
-		Exposed:        true,
-		Name:           "policyRefs",
-		Stored:         true,
-		SubType:        "policyref",
-		Type:           "refList",
-	},
 	"ResolutionIdentities": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "resolutionidentities",
@@ -1003,12 +929,24 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "severity",
 		ConvertedName:  "Severity",
-		Description:    `The severity of the finding that will be created.`,
+		Description:    `The severity of the finding.`,
 		Exposed:        true,
 		Name:           "severity",
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"SeverityOverride": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "severityoverride",
+		ConvertedName:  "SeverityOverride",
+		Description: `User override of the system generated severity. When set, the severity
+attribute reflects the override.`,
+		Exposed: true,
+		Name:    "severityOverride",
+		Stored:  true,
+		SubType: "severityoverride",
+		Type:    "ref",
 	},
 	"State": {
 		AllowedChoices: []string{},
@@ -1032,10 +970,22 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"SystemGeneratedSeverity": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		Autogenerated:  true,
+		BSONFieldName:  "systemgeneratedseverity",
+		ConvertedName:  "SystemGeneratedSeverity",
+		Description: `The severity computed by the system when the finding was created. Not
+affected by user overrides.`,
+		Exposed: true,
+		Name:    "systemGeneratedSeverity",
+		Stored:  true,
+		Type:    "enum",
+	},
 }
 
-// FindingLowerCaseAttributesMap represents the map of attribute for Finding.
-var FindingLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// RiskFindingLowerCaseAttributesMap represents the map of attribute for RiskFinding.
+var RiskFindingLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1071,15 +1021,16 @@ var FindingLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
-	"definitionname": {
+	"assetref": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "definitionname",
-		ConvertedName:  "DefinitionName",
-		Description:    `The name of the FindingDefinition this finding was instantiated from.`,
+		BSONFieldName:  "assetref",
+		ConvertedName:  "AssetRef",
+		Description:    `Reference to the asset this finding applies to.`,
 		Exposed:        true,
-		Name:           "definitionName",
+		Name:           "assetRef",
 		Stored:         true,
-		Type:           "string",
+		SubType:        "assetref",
+		Type:           "ref",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1154,29 +1105,6 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"lastresolutionitems": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "lastresolutionitems",
-		ConvertedName:  "LastResolutionItems",
-		Description:    `List of the item which helped last resolved this finding.`,
-		Exposed:        true,
-		Name:           "lastResolutionItems",
-		Stored:         true,
-		SubType:        "identityref",
-		Type:           "refList",
-	},
-	"lastresolutiontime": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "lastresolutiontime",
-		ConvertedName:  "LastResolutionTime",
-		Description:    `Last time this finding was resolved.`,
-		Exposed:        true,
-		Name:           "lastResolutionTime",
-		Orderable:      true,
-		Stored:         true,
-		Type:           "time",
-	},
 	"lastseentime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1219,28 +1147,6 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
-	"policyref": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "policyref",
-		ConvertedName:  "PolicyRef",
-		Description:    `Reference to the threat definition that triggered this finding.`,
-		Exposed:        true,
-		Name:           "policyRef",
-		Stored:         true,
-		SubType:        "policyref",
-		Type:           "ref",
-	},
-	"policyrefs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "policyrefs",
-		ConvertedName:  "PolicyRefs",
-		Description:    `References to the threat definitions that triggered this finding.`,
-		Exposed:        true,
-		Name:           "policyRefs",
-		Stored:         true,
-		SubType:        "policyref",
-		Type:           "refList",
-	},
 	"resolutionidentities": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "resolutionidentities",
@@ -1256,12 +1162,24 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "severity",
 		ConvertedName:  "Severity",
-		Description:    `The severity of the finding that will be created.`,
+		Description:    `The severity of the finding.`,
 		Exposed:        true,
 		Name:           "severity",
 		Required:       true,
 		Stored:         true,
 		Type:           "enum",
+	},
+	"severityoverride": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "severityoverride",
+		ConvertedName:  "SeverityOverride",
+		Description: `User override of the system generated severity. When set, the severity
+attribute reflects the override.`,
+		Exposed: true,
+		Name:    "severityOverride",
+		Stored:  true,
+		SubType: "severityoverride",
+		Type:    "ref",
 	},
 	"state": {
 		AllowedChoices: []string{},
@@ -1285,37 +1203,49 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"systemgeneratedseverity": {
+		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
+		Autogenerated:  true,
+		BSONFieldName:  "systemgeneratedseverity",
+		ConvertedName:  "SystemGeneratedSeverity",
+		Description: `The severity computed by the system when the finding was created. Not
+affected by user overrides.`,
+		Exposed: true,
+		Name:    "systemGeneratedSeverity",
+		Stored:  true,
+		Type:    "enum",
+	},
 }
 
-// SparseFindingsList represents a list of SparseFindings
-type SparseFindingsList []*SparseFinding
+// SparseRiskFindingsList represents a list of SparseRiskFindings
+type SparseRiskFindingsList []*SparseRiskFinding
 
 // Identity returns the identity of the objects in the list.
-func (o SparseFindingsList) Identity() elemental.Identity {
+func (o SparseRiskFindingsList) Identity() elemental.Identity {
 
-	return FindingIdentity
+	return RiskFindingIdentity
 }
 
-// Copy returns a pointer to a copy the SparseFindingsList.
-func (o SparseFindingsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseRiskFindingsList.
+func (o SparseRiskFindingsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseFindingsList.
-func (o SparseFindingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseRiskFindingsList.
+func (o SparseRiskFindingsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseFinding))
+		out = append(out, obj.(*SparseRiskFinding))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseFindingsList) List() elemental.IdentifiablesList {
+func (o SparseRiskFindingsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1326,13 +1256,13 @@ func (o SparseFindingsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseFindingsList) DefaultOrder() []string {
+func (o SparseRiskFindingsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseFindingsList converted to FindingsList.
-func (o SparseFindingsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseRiskFindingsList converted to RiskFindingsList.
+func (o SparseRiskFindingsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1343,13 +1273,13 @@ func (o SparseFindingsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseFindingsList) Version() int {
+func (o SparseRiskFindingsList) Version() int {
 
 	return 1
 }
 
-// SparseFinding represents the sparse version of a finding.
-type SparseFinding struct {
+// SparseRiskFinding represents the sparse version of a riskfinding.
+type SparseRiskFinding struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
@@ -1359,8 +1289,8 @@ type SparseFinding struct {
 	// The analyzer name.
 	AnalyzerName *string `json:"analyzerName,omitempty" msgpack:"analyzerName,omitempty" bson:"analyzername,omitempty" mapstructure:"analyzerName,omitempty"`
 
-	// The name of the FindingDefinition this finding was instantiated from.
-	DefinitionName *string `json:"definitionName,omitempty" msgpack:"definitionName,omitempty" bson:"definitionname,omitempty" mapstructure:"definitionName,omitempty"`
+	// Reference to the asset this finding applies to.
+	AssetRef *AssetRef `json:"assetRef,omitempty" msgpack:"assetRef,omitempty" bson:"assetref,omitempty" mapstructure:"assetRef,omitempty"`
 
 	// The description of the finding.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
@@ -1381,12 +1311,6 @@ type SparseFinding struct {
 	// Comment about the last resolution.
 	LastResolutionComment *string `json:"lastResolutionComment,omitempty" msgpack:"lastResolutionComment,omitempty" bson:"lastresolutioncomment,omitempty" mapstructure:"lastResolutionComment,omitempty"`
 
-	// List of the item which helped last resolved this finding.
-	LastResolutionItems *[]*IdentityRef `json:"lastResolutionItems,omitempty" msgpack:"lastResolutionItems,omitempty" bson:"lastresolutionitems,omitempty" mapstructure:"lastResolutionItems,omitempty"`
-
-	// Last time this finding was resolved.
-	LastResolutionTime *time.Time `json:"lastResolutionTime,omitempty" msgpack:"lastResolutionTime,omitempty" bson:"lastresolutiontime,omitempty" mapstructure:"lastResolutionTime,omitempty"`
-
 	// Last time the finding was seen.
 	LastSeenTime *time.Time `json:"lastSeenTime,omitempty" msgpack:"lastSeenTime,omitempty" bson:"lastseentime,omitempty" mapstructure:"lastSeenTime,omitempty"`
 
@@ -1397,23 +1321,25 @@ type SparseFinding struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// Reference to the threat definition that triggered this finding.
-	PolicyRef *PolicyRef `json:"policyRef,omitempty" msgpack:"policyRef,omitempty" bson:"policyref,omitempty" mapstructure:"policyRef,omitempty"`
-
-	// References to the threat definitions that triggered this finding.
-	PolicyRefs *PolicyRefsList `json:"policyRefs,omitempty" msgpack:"policyRefs,omitempty" bson:"policyrefs,omitempty" mapstructure:"policyRefs,omitempty"`
-
 	// The identities that can resolve this finding.
 	ResolutionIdentities *[]string `json:"resolutionIdentities,omitempty" msgpack:"resolutionIdentities,omitempty" bson:"resolutionidentities,omitempty" mapstructure:"resolutionIdentities,omitempty"`
 
-	// The severity of the finding that will be created.
-	Severity *FindingSeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
+	// The severity of the finding.
+	Severity *RiskFindingSeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
+
+	// User override of the system generated severity. When set, the severity
+	// attribute reflects the override.
+	SeverityOverride *SeverityOverride `json:"severityOverride,omitempty" msgpack:"severityOverride,omitempty" bson:"severityoverride,omitempty" mapstructure:"severityOverride,omitempty"`
 
 	// The state of the finding.
 	State *map[string]any `json:"state,omitempty" msgpack:"state,omitempty" bson:"state,omitempty" mapstructure:"state,omitempty"`
 
 	// The status of the finding.
-	Status *FindingStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
+	Status *RiskFindingStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
+
+	// The severity computed by the system when the finding was created. Not
+	// affected by user overrides.
+	SystemGeneratedSeverity *RiskFindingSystemGeneratedSeverityValue `json:"systemGeneratedSeverity,omitempty" msgpack:"systemGeneratedSeverity,omitempty" bson:"systemgeneratedseverity,omitempty" mapstructure:"systemGeneratedSeverity,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1424,19 +1350,19 @@ type SparseFinding struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseFinding returns a new  SparseFinding.
-func NewSparseFinding() *SparseFinding {
-	return &SparseFinding{}
+// NewSparseRiskFinding returns a new  SparseRiskFinding.
+func NewSparseRiskFinding() *SparseRiskFinding {
+	return &SparseRiskFinding{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseFinding) Identity() elemental.Identity {
+func (o *SparseRiskFinding) Identity() elemental.Identity {
 
-	return FindingIdentity
+	return RiskFindingIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseFinding) Identifier() string {
+func (o *SparseRiskFinding) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1445,7 +1371,7 @@ func (o *SparseFinding) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseFinding) SetIdentifier(id string) {
+func (o *SparseRiskFinding) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1456,13 +1382,13 @@ func (o *SparseFinding) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseFinding) GetBSON() (any, error) {
+func (o *SparseRiskFinding) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseFinding{}
+	s := &mongoAttributesSparseRiskFinding{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -1473,8 +1399,8 @@ func (o *SparseFinding) GetBSON() (any, error) {
 	if o.AnalyzerName != nil {
 		s.AnalyzerName = o.AnalyzerName
 	}
-	if o.DefinitionName != nil {
-		s.DefinitionName = o.DefinitionName
+	if o.AssetRef != nil {
+		s.AssetRef = o.AssetRef
 	}
 	if o.Description != nil {
 		s.Description = o.Description
@@ -1494,12 +1420,6 @@ func (o *SparseFinding) GetBSON() (any, error) {
 	if o.LastResolutionComment != nil {
 		s.LastResolutionComment = o.LastResolutionComment
 	}
-	if o.LastResolutionItems != nil {
-		s.LastResolutionItems = o.LastResolutionItems
-	}
-	if o.LastResolutionTime != nil {
-		s.LastResolutionTime = o.LastResolutionTime
-	}
 	if o.LastSeenTime != nil {
 		s.LastSeenTime = o.LastSeenTime
 	}
@@ -1509,23 +1429,23 @@ func (o *SparseFinding) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
-	if o.PolicyRef != nil {
-		s.PolicyRef = o.PolicyRef
-	}
-	if o.PolicyRefs != nil {
-		s.PolicyRefs = o.PolicyRefs
-	}
 	if o.ResolutionIdentities != nil {
 		s.ResolutionIdentities = o.ResolutionIdentities
 	}
 	if o.Severity != nil {
 		s.Severity = o.Severity
 	}
+	if o.SeverityOverride != nil {
+		s.SeverityOverride = o.SeverityOverride
+	}
 	if o.State != nil {
 		s.State = o.State
 	}
 	if o.Status != nil {
 		s.Status = o.Status
+	}
+	if o.SystemGeneratedSeverity != nil {
+		s.SystemGeneratedSeverity = o.SystemGeneratedSeverity
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1539,13 +1459,13 @@ func (o *SparseFinding) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseFinding) SetBSON(raw bson.Raw) error {
+func (o *SparseRiskFinding) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseFinding{}
+	s := &mongoAttributesSparseRiskFinding{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -1558,8 +1478,8 @@ func (o *SparseFinding) SetBSON(raw bson.Raw) error {
 	if s.AnalyzerName != nil {
 		o.AnalyzerName = s.AnalyzerName
 	}
-	if s.DefinitionName != nil {
-		o.DefinitionName = s.DefinitionName
+	if s.AssetRef != nil {
+		o.AssetRef = s.AssetRef
 	}
 	if s.Description != nil {
 		o.Description = s.Description
@@ -1579,12 +1499,6 @@ func (o *SparseFinding) SetBSON(raw bson.Raw) error {
 	if s.LastResolutionComment != nil {
 		o.LastResolutionComment = s.LastResolutionComment
 	}
-	if s.LastResolutionItems != nil {
-		o.LastResolutionItems = s.LastResolutionItems
-	}
-	if s.LastResolutionTime != nil {
-		o.LastResolutionTime = s.LastResolutionTime
-	}
 	if s.LastSeenTime != nil {
 		o.LastSeenTime = s.LastSeenTime
 	}
@@ -1594,23 +1508,23 @@ func (o *SparseFinding) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
-	if s.PolicyRef != nil {
-		o.PolicyRef = s.PolicyRef
-	}
-	if s.PolicyRefs != nil {
-		o.PolicyRefs = s.PolicyRefs
-	}
 	if s.ResolutionIdentities != nil {
 		o.ResolutionIdentities = s.ResolutionIdentities
 	}
 	if s.Severity != nil {
 		o.Severity = s.Severity
 	}
+	if s.SeverityOverride != nil {
+		o.SeverityOverride = s.SeverityOverride
+	}
 	if s.State != nil {
 		o.State = s.State
 	}
 	if s.Status != nil {
 		o.Status = s.Status
+	}
+	if s.SystemGeneratedSeverity != nil {
+		o.SystemGeneratedSeverity = s.SystemGeneratedSeverity
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1623,15 +1537,15 @@ func (o *SparseFinding) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseFinding) Version() int {
+func (o *SparseRiskFinding) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseRiskFinding) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewFinding()
+	out := NewRiskFinding()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1641,8 +1555,8 @@ func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
 	if o.AnalyzerName != nil {
 		out.AnalyzerName = *o.AnalyzerName
 	}
-	if o.DefinitionName != nil {
-		out.DefinitionName = *o.DefinitionName
+	if o.AssetRef != nil {
+		out.AssetRef = o.AssetRef
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1662,12 +1576,6 @@ func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
 	if o.LastResolutionComment != nil {
 		out.LastResolutionComment = *o.LastResolutionComment
 	}
-	if o.LastResolutionItems != nil {
-		out.LastResolutionItems = *o.LastResolutionItems
-	}
-	if o.LastResolutionTime != nil {
-		out.LastResolutionTime = *o.LastResolutionTime
-	}
 	if o.LastSeenTime != nil {
 		out.LastSeenTime = *o.LastSeenTime
 	}
@@ -1677,23 +1585,23 @@ func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
-	if o.PolicyRef != nil {
-		out.PolicyRef = o.PolicyRef
-	}
-	if o.PolicyRefs != nil {
-		out.PolicyRefs = *o.PolicyRefs
-	}
 	if o.ResolutionIdentities != nil {
 		out.ResolutionIdentities = *o.ResolutionIdentities
 	}
 	if o.Severity != nil {
 		out.Severity = *o.Severity
 	}
+	if o.SeverityOverride != nil {
+		out.SeverityOverride = o.SeverityOverride
+	}
 	if o.State != nil {
 		out.State = *o.State
 	}
 	if o.Status != nil {
 		out.Status = *o.Status
+	}
+	if o.SystemGeneratedSeverity != nil {
+		out.SystemGeneratedSeverity = *o.SystemGeneratedSeverity
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1706,30 +1614,17 @@ func (o *SparseFinding) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseFinding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseRiskFinding) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.LastResolutionItems != nil {
-		for _, sub := range *o.LastResolutionItems {
-			if sub == nil {
-				continue
-			}
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'LastResolutionItems' for 'Finding' (%s): %w", o.Identifier(), err)
-			}
+	if o.AssetRef != nil {
+		if err := o.AssetRef.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AssetRef' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.PolicyRef != nil {
-		if err := o.PolicyRef.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.PolicyRefs != nil {
-		for _, sub := range *o.PolicyRefs {
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
-			}
+	if o.SeverityOverride != nil {
+		if err := o.SeverityOverride.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'SeverityOverride' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1737,30 +1632,17 @@ func (o *SparseFinding) EncryptAttributes(encrypter elemental.AttributeEncrypter
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseFinding) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseRiskFinding) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.LastResolutionItems != nil {
-		for _, sub := range *o.LastResolutionItems {
-			if sub == nil {
-				continue
-			}
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'LastResolutionItems' for 'Finding' (%s): %w", o.Identifier(), err)
-			}
+	if o.AssetRef != nil {
+		if err := o.AssetRef.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AssetRef' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	if o.PolicyRef != nil {
-		if err := o.PolicyRef.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'PolicyRef' for 'Finding' (%s): %w", o.Identifier(), err)
-		}
-	}
-
-	if o.PolicyRefs != nil {
-		for _, sub := range *o.PolicyRefs {
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'Finding' (%s): %w", o.Identifier(), err)
-			}
+	if o.SeverityOverride != nil {
+		if err := o.SeverityOverride.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'SeverityOverride' for 'RiskFinding' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1768,7 +1650,7 @@ func (o *SparseFinding) DecryptAttributes(encrypter elemental.AttributeEncrypter
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *SparseFinding) GetFriendlyName() (out string) {
+func (o *SparseRiskFinding) GetFriendlyName() (out string) {
 
 	if o.FriendlyName == nil {
 		return
@@ -1778,13 +1660,13 @@ func (o *SparseFinding) GetFriendlyName() (out string) {
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
-func (o *SparseFinding) SetFriendlyName(friendlyName string) {
+func (o *SparseRiskFinding) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = &friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseFinding) GetImportHash() (out string) {
+func (o *SparseRiskFinding) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1794,13 +1676,13 @@ func (o *SparseFinding) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseFinding) SetImportHash(importHash string) {
+func (o *SparseRiskFinding) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseFinding) GetImportLabel() (out string) {
+func (o *SparseRiskFinding) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1810,13 +1692,13 @@ func (o *SparseFinding) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseFinding) SetImportLabel(importLabel string) {
+func (o *SparseRiskFinding) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *SparseFinding) GetName() (out string) {
+func (o *SparseRiskFinding) GetName() (out string) {
 
 	if o.Name == nil {
 		return
@@ -1826,13 +1708,13 @@ func (o *SparseFinding) GetName() (out string) {
 }
 
 // SetName sets the property Name of the receiver using the address of the given value.
-func (o *SparseFinding) SetName(name string) {
+func (o *SparseRiskFinding) SetName(name string) {
 
 	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseFinding) GetNamespace() (out string) {
+func (o *SparseRiskFinding) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1842,82 +1724,78 @@ func (o *SparseFinding) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseFinding) SetNamespace(namespace string) {
+func (o *SparseRiskFinding) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
-// DeepCopy returns a deep copy if the SparseFinding.
-func (o *SparseFinding) DeepCopy() *SparseFinding {
+// DeepCopy returns a deep copy if the SparseRiskFinding.
+func (o *SparseRiskFinding) DeepCopy() *SparseRiskFinding {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseFinding{}
+	out := &SparseRiskFinding{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseFinding.
-func (o *SparseFinding) DeepCopyInto(out *SparseFinding) {
+// DeepCopyInto copies the receiver into the given *SparseRiskFinding.
+func (o *SparseRiskFinding) DeepCopyInto(out *SparseRiskFinding) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseFinding: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseRiskFinding: %s", err))
 	}
 
-	*out = *target.(*SparseFinding)
+	*out = *target.(*SparseRiskFinding)
 }
 
-type mongoAttributesFinding struct {
-	ID                    bson.ObjectId        `bson:"_id,omitempty"`
-	AnalyzerGroup         string               `bson:"analyzergroup,omitempty"`
-	AnalyzerName          string               `bson:"analyzername,omitempty"`
-	DefinitionName        string               `bson:"definitionname,omitempty"`
-	Description           string               `bson:"description"`
-	FirstSeenTime         time.Time            `bson:"firstseentime"`
-	FriendlyName          string               `bson:"friendlyname"`
-	ImportHash            string               `bson:"importhash,omitempty"`
-	ImportLabel           string               `bson:"importlabel,omitempty"`
-	LastResolutionComment string               `bson:"lastresolutioncomment,omitempty"`
-	LastResolutionItems   []*IdentityRef       `bson:"lastresolutionitems,omitempty"`
-	LastResolutionTime    time.Time            `bson:"lastresolutiontime,omitempty"`
-	LastSeenTime          time.Time            `bson:"lastseentime"`
-	Name                  string               `bson:"name"`
-	Namespace             string               `bson:"namespace,omitempty"`
-	PolicyRef             *PolicyRef           `bson:"policyref,omitempty"`
-	PolicyRefs            PolicyRefsList       `bson:"policyrefs,omitempty"`
-	ResolutionIdentities  []string             `bson:"resolutionidentities"`
-	Severity              FindingSeverityValue `bson:"severity"`
-	State                 map[string]any       `bson:"state,omitempty"`
-	Status                FindingStatusValue   `bson:"status"`
-	ZHash                 int                  `bson:"zhash"`
-	Zone                  int                  `bson:"zone"`
+type mongoAttributesRiskFinding struct {
+	ID                      bson.ObjectId                           `bson:"_id,omitempty"`
+	AnalyzerGroup           string                                  `bson:"analyzergroup,omitempty"`
+	AnalyzerName            string                                  `bson:"analyzername,omitempty"`
+	AssetRef                *AssetRef                               `bson:"assetref,omitempty"`
+	Description             string                                  `bson:"description"`
+	FirstSeenTime           time.Time                               `bson:"firstseentime"`
+	FriendlyName            string                                  `bson:"friendlyname"`
+	ImportHash              string                                  `bson:"importhash,omitempty"`
+	ImportLabel             string                                  `bson:"importlabel,omitempty"`
+	LastResolutionComment   string                                  `bson:"lastresolutioncomment,omitempty"`
+	LastSeenTime            time.Time                               `bson:"lastseentime"`
+	Name                    string                                  `bson:"name"`
+	Namespace               string                                  `bson:"namespace,omitempty"`
+	ResolutionIdentities    []string                                `bson:"resolutionidentities"`
+	Severity                RiskFindingSeverityValue                `bson:"severity"`
+	SeverityOverride        *SeverityOverride                       `bson:"severityoverride,omitempty"`
+	State                   map[string]any                          `bson:"state,omitempty"`
+	Status                  RiskFindingStatusValue                  `bson:"status"`
+	SystemGeneratedSeverity RiskFindingSystemGeneratedSeverityValue `bson:"systemgeneratedseverity,omitempty"`
+	ZHash                   int                                     `bson:"zhash"`
+	Zone                    int                                     `bson:"zone"`
 }
-type mongoAttributesSparseFinding struct {
-	ID                    bson.ObjectId         `bson:"_id,omitempty"`
-	AnalyzerGroup         *string               `bson:"analyzergroup,omitempty"`
-	AnalyzerName          *string               `bson:"analyzername,omitempty"`
-	DefinitionName        *string               `bson:"definitionname,omitempty"`
-	Description           *string               `bson:"description,omitempty"`
-	FirstSeenTime         *time.Time            `bson:"firstseentime,omitempty"`
-	FriendlyName          *string               `bson:"friendlyname,omitempty"`
-	ImportHash            *string               `bson:"importhash,omitempty"`
-	ImportLabel           *string               `bson:"importlabel,omitempty"`
-	LastResolutionComment *string               `bson:"lastresolutioncomment,omitempty"`
-	LastResolutionItems   *[]*IdentityRef       `bson:"lastresolutionitems,omitempty"`
-	LastResolutionTime    *time.Time            `bson:"lastresolutiontime,omitempty"`
-	LastSeenTime          *time.Time            `bson:"lastseentime,omitempty"`
-	Name                  *string               `bson:"name,omitempty"`
-	Namespace             *string               `bson:"namespace,omitempty"`
-	PolicyRef             *PolicyRef            `bson:"policyref,omitempty"`
-	PolicyRefs            *PolicyRefsList       `bson:"policyrefs,omitempty"`
-	ResolutionIdentities  *[]string             `bson:"resolutionidentities,omitempty"`
-	Severity              *FindingSeverityValue `bson:"severity,omitempty"`
-	State                 *map[string]any       `bson:"state,omitempty"`
-	Status                *FindingStatusValue   `bson:"status,omitempty"`
-	ZHash                 *int                  `bson:"zhash,omitempty"`
-	Zone                  *int                  `bson:"zone,omitempty"`
+type mongoAttributesSparseRiskFinding struct {
+	ID                      bson.ObjectId                            `bson:"_id,omitempty"`
+	AnalyzerGroup           *string                                  `bson:"analyzergroup,omitempty"`
+	AnalyzerName            *string                                  `bson:"analyzername,omitempty"`
+	AssetRef                *AssetRef                                `bson:"assetref,omitempty"`
+	Description             *string                                  `bson:"description,omitempty"`
+	FirstSeenTime           *time.Time                               `bson:"firstseentime,omitempty"`
+	FriendlyName            *string                                  `bson:"friendlyname,omitempty"`
+	ImportHash              *string                                  `bson:"importhash,omitempty"`
+	ImportLabel             *string                                  `bson:"importlabel,omitempty"`
+	LastResolutionComment   *string                                  `bson:"lastresolutioncomment,omitempty"`
+	LastSeenTime            *time.Time                               `bson:"lastseentime,omitempty"`
+	Name                    *string                                  `bson:"name,omitempty"`
+	Namespace               *string                                  `bson:"namespace,omitempty"`
+	ResolutionIdentities    *[]string                                `bson:"resolutionidentities,omitempty"`
+	Severity                *RiskFindingSeverityValue                `bson:"severity,omitempty"`
+	SeverityOverride        *SeverityOverride                        `bson:"severityoverride,omitempty"`
+	State                   *map[string]any                          `bson:"state,omitempty"`
+	Status                  *RiskFindingStatusValue                  `bson:"status,omitempty"`
+	SystemGeneratedSeverity *RiskFindingSystemGeneratedSeverityValue `bson:"systemgeneratedseverity,omitempty"`
+	ZHash                   *int                                     `bson:"zhash,omitempty"`
+	Zone                    *int                                     `bson:"zone,omitempty"`
 }

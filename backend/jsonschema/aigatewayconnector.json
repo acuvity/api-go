@@ -28,7 +28,7 @@
     },
     "appComponent": {
       "$friendlyName": "App Component",
-      "description": "The app component that this target represents.",
+      "description": "The app component that this target represents. On a WebhookIntegration connector nothing is proxied, so this is optional and this is the fallback policy target to evaluate against when the webhook payload does not identify one itself. If this is not set and the webhook does not identify a fallback app component or provider, then an error is triggered.",
       "title": "appComponent",
       "type": [
         "string",
@@ -132,7 +132,7 @@
     },
     "provider": {
       "$friendlyName": "Provider",
-      "description": "The provider this AI Gateway Connector accesses.",
+      "description": "The provider this AI Gateway Connector accesses. On a WebhookIntegration connector nothing is proxied, so this is optional and this is the fallback policy target to evaluate against when the webhook payload does not identify one itself. If this is not set and the webhook does not identify a fallback app component or provider, then an error is triggered.",
       "title": "provider",
       "type": [
         "string",
@@ -153,7 +153,7 @@
     },
     "route": {
       "$friendlyName": "Route",
-      "description": "The route component.",
+      "description": "The route component. On a WebhookIntegration connector it represents the base path the integration routes are served under, so the third-party product is pointed at the gateway URL plus this, and each path of the webhook extractor is appended to it.",
       "pattern": "(^(\\/[a-zA-Z0-9_-]+)+$)?",
       "title": "route",
       "type": [
@@ -164,10 +164,11 @@
     "type": {
       "$friendlyName": "Type",
       "$required": true,
-      "description": "The type of the AI Gateway Connector.",
+      "description": "The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream. WebhookIntegration accepts calls from a third-party product that wants us to inspect traffic it is handling itself, so it has no upstream.",
       "enum": [
         "MCP",
-        "LLM"
+        "LLM",
+        "WebhookIntegration"
       ],
       "title": "type"
     },
@@ -183,12 +184,27 @@
     },
     "upstreamURL": {
       "$friendlyName": "Upstream URL",
-      "description": "The optional upstream URL of the connector. By default, the first hostname of a provider (or an app component ingress definition) will be used to build the upstream URL.",
+      "description": "The optional upstream URL of the connector. By default, the first hostname of a provider (or an app component ingress definition) will be used to build the upstream URL. Not applicable to a WebhookIntegration connector, which has no upstream.",
       "title": "upstreamURL",
       "type": [
         "string",
         "null"
       ]
+    },
+    "webhookIntegration": {
+      "$friendlyName": "Webhook Integration",
+      "description": "The name of the webhook integration this connector serves. Required when the type is WebhookIntegration and not allowed otherwise.",
+      "title": "webhookIntegration",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "webhookIntegrationConfig": {
+      "$friendlyName": "Webhook Integration Config",
+      "$ref": "webhookintegrationconfig.json",
+      "description": "The webhook integration specific configuration. Only applicable when the type is WebhookIntegration. When it is not set, the defaults apply.",
+      "title": "webhookIntegrationConfig"
     }
   },
   "required": [

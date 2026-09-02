@@ -5,14 +5,14 @@
     "@importable",
     "@namelinkable"
   ],
-  "$friendlyName": "Finding",
-  "$friendlyNamePlural": "Findings",
-  "$modelName": "Finding",
+  "$friendlyName": "Risk Finding",
+  "$friendlyNamePlural": "Risk Findings",
+  "$modelName": "RiskFinding",
   "$modelPackage": "hanni",
-  "$modelResourceName": "findings",
-  "$modelRestName": "finding",
+  "$modelResourceName": "riskfindings",
+  "$modelRestName": "riskfinding",
   "additionalProperties": false,
-  "description": "Defines a finding instanciated from a finding definitions with the same name.",
+  "description": "Defines a risk finding instantiated from a risk definition that matched a discovered AI asset.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -42,14 +42,11 @@
         "null"
       ]
     },
-    "definitionName": {
-      "$friendlyName": "Definition Name",
-      "description": "The name of the FindingDefinition this finding was instantiated from.",
-      "title": "definitionName",
-      "type": [
-        "string",
-        "null"
-      ]
+    "assetRef": {
+      "$friendlyName": "Asset Reference",
+      "$ref": "assetref.json",
+      "description": "Reference to the asset this finding applies to.",
+      "title": "assetRef"
     },
     "description": {
       "$friendlyName": "Description",
@@ -105,24 +102,6 @@
         "null"
       ]
     },
-    "lastResolutionItems": {
-      "$friendlyName": "Last Resolution items",
-      "description": "List of the item which helped last resolved this finding.",
-      "items": {
-        "$ref": "identityref.json"
-      },
-      "title": "lastResolutionItems",
-      "type": "array"
-    },
-    "lastResolutionTime": {
-      "$friendlyName": "Last Resolution Time",
-      "description": "Last time this finding was resolved.",
-      "title": "lastResolutionTime",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "lastSeenTime": {
       "$friendlyName": "Last Seen Time",
       "description": "Last time the finding was seen.",
@@ -153,21 +132,6 @@
         "null"
       ]
     },
-    "policyRef": {
-      "$friendlyName": "Policy Reference",
-      "$ref": "policyref.json",
-      "description": "Reference to the threat definition that triggered this finding.",
-      "title": "policyRef"
-    },
-    "policyRefs": {
-      "$friendlyName": "Policy References",
-      "description": "References to the threat definitions that triggered this finding.",
-      "items": {
-        "$ref": "policyref.json"
-      },
-      "title": "policyRefs",
-      "type": "array"
-    },
     "resolutionIdentities": {
       "$friendlyName": "Identities",
       "description": "The identities that can resolve this finding.",
@@ -183,7 +147,7 @@
     "severity": {
       "$friendlyName": "Severity",
       "$required": true,
-      "description": "The severity of the finding that will be created.",
+      "description": "The severity of the finding.",
       "enum": [
         "Low",
         "Medium",
@@ -191,6 +155,12 @@
         "Critical"
       ],
       "title": "severity"
+    },
+    "severityOverride": {
+      "$friendlyName": "Severity Override",
+      "$ref": "severityoverride.json",
+      "description": "User override of the system generated severity. When set, the severity attribute reflects the override.",
+      "title": "severityOverride"
     },
     "state": {
       "$friendlyName": "State",
@@ -209,6 +179,17 @@
         "Archived"
       ],
       "title": "status"
+    },
+    "systemGeneratedSeverity": {
+      "$friendlyName": "System Generated Severity",
+      "description": "The severity computed by the system when the finding was created. Not affected by user overrides.",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ],
+      "title": "systemGeneratedSeverity"
     }
   },
   "required": [
@@ -216,6 +197,6 @@
     "severity",
     "status"
   ],
-  "title": "Finding",
+  "title": "RiskFinding",
   "type": "object"
 }

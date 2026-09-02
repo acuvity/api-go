@@ -2,14 +2,17 @@ package api
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"maps"
 	"net"
 	"net/http"
 	"net/mail"
 	"net/url"
 	"reflect"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -333,10 +336,11 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 
 			oppositeValues := valueOverlapPredicates[oppositeKeyOp]
 			for j, value := range criteria.Values {
-				if !reflect.TypeOf(value).Comparable() {
-					return makeErr(fmt.Sprintf("match/%d/values/%d", i, j), fmt.Sprintf("value must be a comparable type (string, number, or boolean), not %T", value))
+				key, err := overlapKey(criteria.Key, value)
+				if err != nil {
+					return makeErr(fmt.Sprintf("match/%d/values/%d", i, j), err.Error())
 				}
-				if _, ok := oppositeValues[value]; ok {
+				if _, ok := oppositeValues[key]; ok {
 					// Ensure consistent operator order in error message
 					op1, op2 := criteria.Operator, oppositeOperator
 					if criteria.Operator > oppositeOperator {
@@ -344,7 +348,7 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 					}
 					return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot have overlapping values between operators '%s' and '%s': '%v'", criteria.Key, op1, op2, value))
 				}
-				currentValues[value] = struct{}{}
+				currentValues[key] = struct{}{}
 			}
 		case PredicateOperatorEmpty, PredicateOperatorNotEmpty:
 			// Check opposite operators (Empty/NotEmpty)
@@ -353,6 +357,24 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 			if _, ok := seenPredicates[oppositeKeyOp]; ok {
 				return makeErr(fmt.Sprintf("match/%d", i), fmt.Sprintf("'%s' cannot combine opposite operators '%s' and '%s'", criteria.Key, criteria.Operator, oppositeOperator))
 			}
+		}
+	}
+
+	return nil
+}
+
+// ValidateRiskDefinition rejects match predicates using a key other than
+// Categories or RiskScore, the only keys the matcher supports.
+func ValidateRiskDefinition(riskDefinition *RiskDefinition) error {
+
+	for _, predicate := range riskDefinition.Match {
+		if predicate == nil {
+			continue
+		}
+		switch predicate.Key {
+		case PredicateKeyCategories, PredicateKeyRiskScore:
+		default:
+			return makeErr("match", fmt.Sprintf("predicate key '%s' is not supported in a risk definition", predicate.Key))
 		}
 	}
 
@@ -377,6 +399,33 @@ func ValidateProvider(provider *Provider) error {
 
 	if provider != nil && strings.HasPrefix(provider.Name, "appc:") {
 		return makeErr("name", "provider name must not start with reserved prefix 'appc:'")
+	}
+
+	for i, prefix := range provider.ModelPrefixes {
+
+		if prefix == "" {
+			return makeErr(fmt.Sprintf("modelPrefixes/%d", i), "model prefix must not be empty")
+		}
+
+		// A prefix is matched as a plain leading string, so a wildcard in one
+		// would never match anything. Patterns belong in models.
+		if strings.ContainsAny(prefix, "*?[{") {
+			return makeErr(
+				fmt.Sprintf("modelPrefixes/%d", i),
+				fmt.Sprintf("model prefix '%s' must not contain wildcards: use models for patterns", prefix),
+			)
+		}
+	}
+
+	for i, model := range provider.Models {
+
+		if model == "" {
+			return makeErr(fmt.Sprintf("models/%d", i), "model pattern must not be empty")
+		}
+
+		if _, err := glob.Compile(model); err != nil {
+			return makeErr(fmt.Sprintf("models/%d", i), fmt.Sprintf("invalid glob pattern: %s", err))
+		}
 	}
 
 	globs := make([]glob.Glob, 0, len(provider.Hosts))
@@ -463,6 +512,10 @@ func ValidateExtractor(extractor *Extractor) error {
 		return makeErr("Deanonymize", fmt.Sprintf("Anonymization must be VariableSize to enable Deanonymization. got: %s", extractor.Anonymization))
 	}
 
+	if extractor.InputStream && extractor.Type == ExtractorTypeOutput {
+		return makeErr("inputStream", "InputStream must not be set when Type is Output")
+	}
+
 	return nil
 }
 
@@ -536,6 +589,51 @@ func ValidateTrimmed(attribute string, value string) error {
 	return nil
 }
 
+// overlapKey returns a comparable stand-in for a predicate value, so overlap
+// detection works for keys whose values are objects. Tools are sorted first, so
+// two scopes naming the same tools in a different order collide.
+func overlapKey(key PredicateKeyValue, value any) (any, error) {
+
+	if value == nil || reflect.TypeOf(value).Comparable() {
+		return value, nil
+	}
+
+	switch key {
+
+	case PredicateKeyMCPScope:
+		if scope, ok := value.(map[string]any); ok {
+			if tools, ok := scope["tools"].([]any); ok {
+				scope = maps.Clone(scope)
+				scope["tools"] = slices.SortedFunc(slices.Values(tools), func(a, b any) int {
+					return strings.Compare(fmt.Sprint(a), fmt.Sprint(b))
+				})
+				value = scope
+			}
+		}
+		return fmt.Sprint(value), nil
+
+	default:
+		return nil, fmt.Errorf("value must be a comparable type (string, number, or boolean), not %T", value)
+	}
+}
+
+// DecodeMCPServerScopes decodes the generic values of an MCPScope predicate.
+// Shared with the transpiler so both read them the same way.
+func DecodeMCPServerScopes(values []any) ([]*MCPServerScope, error) {
+
+	data, err := json.Marshal(values)
+	if err != nil {
+		return nil, fmt.Errorf("unable to encode mcp scopes: %w", err)
+	}
+
+	out := []*MCPServerScope{}
+	if err := json.Unmarshal(data, &out); err != nil {
+		return nil, fmt.Errorf("unable to decode mcp scopes: %w", err)
+	}
+
+	return out, nil
+}
+
 // ValidatePredicate validates the given Predicate.
 func ValidatePredicate(p *Predicate) error {
 
@@ -543,6 +641,19 @@ func ValidatePredicate(p *Predicate) error {
 	v := p.Values
 
 	switch p.Key {
+	case PredicateKeyAccessControlRisk:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'AccessControlRisk' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'AccessControlRisk' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'AccessControlRisk' only supports float value. Found '%T'", t))
+		}
+
 	case PredicateKeyCategories:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
 			return makeErr("operator", "Key 'Categories' only supports operator 'Any' and 'NotAny'")
@@ -897,6 +1008,36 @@ func ValidatePredicate(p *Predicate) error {
 			}
 		}
 
+	case PredicateKeyMCPScope:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'MCPScope' only supports operators 'Any' and 'NotAny'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "Key 'MCPScope' must have at least one value")
+		}
+		scopes, err := DecodeMCPServerScopes(v)
+		if err != nil {
+			return makeErr("values", "Key 'MCPScope' only supports MCP server scopes as values")
+		}
+		for i, scope := range scopes {
+			if scope == nil {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPScope' requires a value on every entry")
+			}
+
+			// A null in the tools array unmarshals to nil, which Validate skips
+			// rather than rejects.
+			for j, tool := range scope.Tools {
+				if tool == nil {
+					return makeErr(fmt.Sprintf("values/%d/tools/%d", i, j), "Key 'MCPScope' requires a value on every tool")
+				}
+			}
+
+			if err := scope.Validate(); err != nil {
+				elemental.InjectAttributePath(err, fmt.Sprintf("values/%d", i))
+				return err
+			}
+		}
+
 	case PredicateKeyGateways:
 		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
 			return makeErr("operator", "Key 'Gateways' only supports operators 'Any' 'NotAny', 'Empty' and 'NotEmpty'")
@@ -1087,6 +1228,32 @@ func ValidatePredicate(p *Predicate) error {
 		case int, float64, uint64, int64:
 		default:
 			return makeErr("values/0", fmt.Sprintf("Key 'Relevance' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyComplianceRisk:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'ComplianceRisk' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'ComplianceRisk' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'ComplianceRisk' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyDataPolicyRisk:
+		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'DataPolicyRisk' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+		}
+		if len(p.Values) != 1 {
+			return makeErr("values", "Key 'DataPolicyRisk' only supports one single value")
+		}
+		switch t := p.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("Key 'DataPolicyRisk' only supports float value. Found '%T'", t))
 		}
 
 	case PredicateKeyRiskScore:
@@ -2114,8 +2281,12 @@ func ValidateDNSNames(attribute string, dnsNames []string) error {
 // ValidateAppGraphQuery validates the app graph query object.
 func ValidateAppGraphQuery(appGraphQuery *AppGraphQuery) error {
 
-	if appGraphQuery.AppGraphKind != AppGraphQueryAppGraphKindAll && len(appGraphQuery.WorkloadGroupSetHashes) > 0 {
-		return makeErr("workloadGroupSetHashes", "'WorkloadGroupSetHashes' cannot be set when 'AppGraphKind' is set.")
+	if appGraphQuery.Level == AppGraphQueryLevelFull && appGraphQuery.WorkloadGroupSetHash == "" && appGraphQuery.TraceID == "" {
+		return makeErr("workloadGroupSetHash", "'WorkloadGroupSetHash' is required when 'Level' is 'Full'.")
+	}
+
+	if appGraphQuery.Level == AppGraphQueryLevelAppInventory && appGraphQuery.WorkloadGroupSetHash != "" {
+		return makeErr("workloadGroupSetHash", "'WorkloadGroupSetHash' must not be set when 'Level' is 'AppInventory'.")
 	}
 
 	return nil
@@ -2342,6 +2513,34 @@ func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
 		return makeErr("excludedUserClaims", "'excludedUserClaims' can only be set when 'userClaims' is also set")
 	}
 
+	// A tool cannot be picked before its server: scopes only restrict servers
+	// the providers list already chose. An empty list reaches every provider, so
+	// there is nothing to check against.
+	providers := make(map[string]struct{}, len(egressPolicy.Providers))
+	for _, provider := range egressPolicy.Providers {
+		providers[provider] = struct{}{}
+	}
+
+	for i, scope := range egressPolicy.MCPScopes {
+
+		if scope == nil || scope.Name == "" {
+			return makeErr(fmt.Sprintf("MCPScopes/%d/name", i), "'MCPScopes' requires a server name on every entry")
+		}
+
+		if _, ok := providers[scope.Name]; len(providers) > 0 && !ok {
+			return makeErr(
+				fmt.Sprintf("MCPScopes/%d/name", i),
+				fmt.Sprintf("'MCPScopes' can only restrict a server listed in 'providers', and '%s' is not", scope.Name),
+			)
+		}
+
+		for j, tool := range scope.Tools {
+			if tool == nil || tool.Name == "" {
+				return makeErr(fmt.Sprintf("MCPScopes/%d/tools/%d/name", i, j), "'MCPScopes' requires a name on every tool")
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -2538,8 +2737,123 @@ func ValidateAIGatewayConnector(connector *AIGatewayConnector) error {
 		return makeErr("route", "route must not be set for MCP connectors")
 	}
 
-	if (connector.Provider == "") == (connector.AppComponent == "") {
-		return makeErr("appComponent", "one of provider or appComponent must be set")
+	if connector.Type == AIGatewayConnectorTypeWebhookIntegration {
+
+		if connector.WebhookIntegration == "" {
+			return makeErr("webhookIntegration", "webhookIntegration must be set for WebhookIntegration connectors")
+		}
+
+		// The route is the base path the integration's own routes hang off, so
+		// without it the integration has no URL.
+		if connector.Route == "" {
+			return makeErr("route", "route must be set for WebhookIntegration connectors")
+		}
+
+		// A WebhookIntegration connector is called by a third party rather than
+		// proxying to an upstream, so everything describing an upstream is
+		// meaningless on it and silently ignoring it would hide a mistake.
+		if connector.UpstreamURL != "" {
+			return makeErr("upstreamURL", "upstreamURL must not be set for WebhookIntegration connectors: they have no upstream")
+		}
+
+		if connector.ClientID != "" {
+			return makeErr("clientID", "clientID must not be set for WebhookIntegration connectors: they have no upstream")
+		}
+
+		if connector.ClientSecret != "" {
+			return makeErr("clientSecret", "clientSecret must not be set for WebhookIntegration connectors: they have no upstream")
+		}
+
+		if len(connector.ProviderTokenPools) > 0 {
+			return makeErr("providerTokenPools", "providerTokenPools must not be set for WebhookIntegration connectors: they have no upstream")
+		}
+
+		// Here provider and appComponent are the policy target to fall back to
+		// when the webhook payload does not identify one. Naming neither is a
+		// legitimate choice: it makes a payload we cannot place fail, and the
+		// configured fail close behavior decide, rather than have it silently
+		// attributed to a default.
+		if connector.Provider != "" && connector.AppComponent != "" {
+			return makeErr("appComponent", "only one of provider or appComponent can be set")
+		}
+
+	} else {
+
+		if connector.WebhookIntegration != "" {
+			return makeErr("webhookIntegration", fmt.Sprintf("webhookIntegration must not be set for %s connectors", connector.Type))
+		}
+
+		if connector.WebhookIntegrationConfig != nil {
+			return makeErr("webhookIntegrationConfig", fmt.Sprintf("webhookIntegrationConfig must not be set for %s connectors", connector.Type))
+		}
+
+		if (connector.Provider == "") == (connector.AppComponent == "") {
+			return makeErr("appComponent", "one of provider or appComponent must be set")
+		}
+	}
+
+	if connector.WebhookIntegrationConfig != nil {
+		if err := connector.WebhookIntegrationConfig.Validate(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ValidateWebhookIntegration validates the given WebhookIntegration.
+func ValidateWebhookIntegration(integration *WebhookIntegration) error {
+
+	if len(integration.Extractors) == 0 {
+		return makeErr("extractors", "a webhook integration must define at least one extractor")
+	}
+
+	names := map[string]int{}
+	routes := map[string]int{}
+
+	for i, extractor := range integration.Extractors {
+
+		if extractor == nil {
+			return makeErr(fmt.Sprintf("extractors/%d", i), "extractor must not be null")
+		}
+
+		if err := extractor.Validate(); err != nil {
+			return err
+		}
+
+		if j, ok := names[extractor.Name]; ok {
+			return makeErr(
+				fmt.Sprintf("extractors/%d/name", i),
+				fmt.Sprintf("name '%s' is already used by extractor %d", extractor.Name, j),
+			)
+		}
+		names[extractor.Name] = i
+
+		// Two extractors answering the same method and path means the one that
+		// runs depends on ordering, which for a guardrail is not a detail worth
+		// leaving to chance.
+		route := fmt.Sprintf("%s %s", extractor.Method, extractor.Path)
+		if j, ok := routes[route]; ok {
+			return makeErr(
+				fmt.Sprintf("extractors/%d/path", i),
+				fmt.Sprintf("method and path '%s' is already served by extractor %d", route, j),
+			)
+		}
+		routes[route] = i
+	}
+
+	return nil
+}
+
+// ValidateWebhookIntegrationConfig validates the given WebhookIntegrationConfig.
+func ValidateWebhookIntegrationConfig(config *WebhookIntegrationConfig) error {
+
+	if config == nil {
+		return nil
+	}
+
+	if config.RedactContentBypass && !config.RedactContent {
+		return makeErr("redactContentBypass", "redactContentBypass has no effect unless redactContent is also set")
 	}
 
 	return nil

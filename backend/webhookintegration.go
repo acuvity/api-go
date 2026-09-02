@@ -13,43 +13,43 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// DeploymentIdentity represents the Identity of the object.
-var DeploymentIdentity = elemental.Identity{
-	Name:     "deployment",
-	Category: "deployments",
+// WebhookIntegrationIdentity represents the Identity of the object.
+var WebhookIntegrationIdentity = elemental.Identity{
+	Name:     "webhookintegration",
+	Category: "webhookintegrations",
 	Package:  "lain",
 	Private:  false,
 }
 
-// DeploymentsList represents a list of Deployments
-type DeploymentsList []*Deployment
+// WebhookIntegrationsList represents a list of WebhookIntegrations
+type WebhookIntegrationsList []*WebhookIntegration
 
 // Identity returns the identity of the objects in the list.
-func (o DeploymentsList) Identity() elemental.Identity {
+func (o WebhookIntegrationsList) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return WebhookIntegrationIdentity
 }
 
-// Copy returns a pointer to a copy the DeploymentsList.
-func (o DeploymentsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the WebhookIntegrationsList.
+func (o WebhookIntegrationsList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the DeploymentsList.
-func (o DeploymentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the WebhookIntegrationsList.
+func (o WebhookIntegrationsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*Deployment))
+		out = append(out, obj.(*WebhookIntegration))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o DeploymentsList) List() elemental.IdentifiablesList {
+func (o WebhookIntegrationsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -60,42 +60,49 @@ func (o DeploymentsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o DeploymentsList) DefaultOrder() []string {
+func (o WebhookIntegrationsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the DeploymentsList converted to SparseDeploymentsList.
+// ToSparse returns the WebhookIntegrationsList converted to SparseWebhookIntegrationsList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o DeploymentsList) ToSparse(fields ...string) elemental.Identifiables {
+func (o WebhookIntegrationsList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseDeploymentsList, len(o))
+	out := make(SparseWebhookIntegrationsList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseDeployment)
+		out[i] = o[i].ToSparse(fields...).(*SparseWebhookIntegration)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o DeploymentsList) Version() int {
+func (o WebhookIntegrationsList) Version() int {
 
 	return 1
 }
 
-// Deployment represents the model of a deployment
-type Deployment struct {
+// WebhookIntegration represents the model of a webhookintegration
+type WebhookIntegration struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The description of the deployment.
-	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+	// The description of the webhook integration.
+	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// The routes of this integration. Each one registers a method and a path
+	// under the route of the connector the integration is attached to.
+	Extractors []*WebhookExtractor `json:"extractors" msgpack:"extractors" bson:"extractors" mapstructure:"extractors,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
+
+	// The icon of the webhook integration, base64 encoded.
+	Icon string `json:"icon,omitempty" msgpack:"icon,omitempty" bson:"icon,omitempty" mapstructure:"icon,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -103,6 +110,12 @@ type Deployment struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
+	// If set, this snippet of lua will be available in all webhook extractors of
+	// the integration, acting as an effective library. It must be a valid lua
+	// module. It will be available to all extractors by doing local plib =
+	// require('plib').
+	Lib string `json:"lib,omitempty" msgpack:"lib,omitempty" bson:"lib,omitempty" mapstructure:"lib,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
@@ -114,31 +127,11 @@ type Deployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
-	// The names of the public keys whose corresponding private key is available on
-	// this deployment's instances.
-	PublicKeys []string `json:"publicKeys" msgpack:"publicKeys" bson:"publickeys" mapstructure:"publicKeys,omitempty"`
-
-	// Public URLs of the deployment.
-	PublicURLs []string `json:"publicURLs" msgpack:"publicURLs" bson:"publicurls" mapstructure:"publicURLs,omitempty"`
-
-	// Set to true on update to issue a new credential.
-	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
-
-	// Set to value on update to associate a tag with the issued token.
-	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
-
-	// Set to value on update to set the validity for a token.
-	RenewTokenValidity string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
-
-	// The issued JWT, populated only in the response of an update where
-	// renewToken was set to true.
-	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
-
-	// The list of references to issued tokens.
-	TokenRefs []*TokenRef `json:"tokenRefs" msgpack:"tokenRefs" bson:"tokenrefs" mapstructure:"tokenRefs,omitempty"`
-
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+
+	// URL to the vendor's documentation for this integration point.
+	VendorURL string `json:"vendorURL,omitempty" msgpack:"vendorURL,omitempty" bson:"vendorurl,omitempty" mapstructure:"vendorURL,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
@@ -149,60 +142,59 @@ type Deployment struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewDeployment returns a new *Deployment
-func NewDeployment() *Deployment {
+// NewWebhookIntegration returns a new *WebhookIntegration
+func NewWebhookIntegration() *WebhookIntegration {
 
-	return &Deployment{
+	return &WebhookIntegration{
 		ModelVersion: 1,
 		Propagate:    true,
-		PublicKeys:   []string{},
-		PublicURLs:   []string{},
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *Deployment) Identity() elemental.Identity {
+func (o *WebhookIntegration) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return WebhookIntegrationIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *Deployment) Identifier() string {
+func (o *WebhookIntegration) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *Deployment) SetIdentifier(id string) {
+func (o *WebhookIntegration) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Deployment) GetBSON() (any, error) {
+func (o *WebhookIntegration) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesDeployment{}
+	s := &mongoAttributesWebhookIntegration{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.Extractors = o.Extractors
 	s.FriendlyName = o.FriendlyName
+	s.Icon = o.Icon
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Lib = o.Lib
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
-	s.PublicKeys = o.PublicKeys
-	s.PublicURLs = o.PublicURLs
-	s.TokenRefs = o.TokenRefs
 	s.UpdateTime = o.UpdateTime
+	s.VendorURL = o.VendorURL
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -211,13 +203,13 @@ func (o *Deployment) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *Deployment) SetBSON(raw bson.Raw) error {
+func (o *WebhookIntegration) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesDeployment{}
+	s := &mongoAttributesWebhookIntegration{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -225,16 +217,17 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.Extractors = s.Extractors
 	o.FriendlyName = s.FriendlyName
+	o.Icon = s.Icon
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Lib = s.Lib
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
-	o.PublicKeys = s.PublicKeys
-	o.PublicURLs = s.PublicURLs
-	o.TokenRefs = s.TokenRefs
 	o.UpdateTime = s.UpdateTime
+	o.VendorURL = s.VendorURL
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -242,160 +235,166 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *Deployment) Version() int {
+func (o *WebhookIntegration) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *Deployment) BleveType() string {
+func (o *WebhookIntegration) BleveType() string {
 
-	return "deployment"
+	return "webhookintegration"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *Deployment) DefaultOrder() []string {
+func (o *WebhookIntegration) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *Deployment) Doc() string {
+func (o *WebhookIntegration) Doc() string {
 
-	return `Deployment represents an AI Security Gateway Deployment.`
+	return `A webhook integration lets a third-party product that can call out to an HTTP
+endpoint have the traffic it handles inspected by Acuvity, with no code change
+in that product. It describes one vendor's webhook contract: the routes that
+vendor calls, and for each of them the lua script that turns its payload into
+something that can be scanned or policed, and the verdict back into the answer
+it expects.
+It is served by attaching it to an AI Gateway connector of type
+WebhookIntegration. The connector supplies the base path it is reachable
+under and the settings it runs with, so the same integration can be attached
+to several connectors.`
 }
 
-func (o *Deployment) String() string {
+func (o *WebhookIntegration) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *Deployment) GetCreateTime() time.Time {
+func (o *WebhookIntegration) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *Deployment) SetCreateTime(createTime time.Time) {
+func (o *WebhookIntegration) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *Deployment) GetFriendlyName() string {
+func (o *WebhookIntegration) GetFriendlyName() string {
 
 	return o.FriendlyName
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the given value.
-func (o *Deployment) SetFriendlyName(friendlyName string) {
+func (o *WebhookIntegration) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *Deployment) GetImportHash() string {
+func (o *WebhookIntegration) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *Deployment) SetImportHash(importHash string) {
+func (o *WebhookIntegration) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *Deployment) GetImportLabel() string {
+func (o *WebhookIntegration) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *Deployment) SetImportLabel(importLabel string) {
+func (o *WebhookIntegration) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *Deployment) GetName() string {
+func (o *WebhookIntegration) GetName() string {
 
 	return o.Name
 }
 
 // SetName sets the property Name of the receiver using the given value.
-func (o *Deployment) SetName(name string) {
+func (o *WebhookIntegration) SetName(name string) {
 
 	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *Deployment) GetNamespace() string {
+func (o *WebhookIntegration) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *Deployment) SetNamespace(namespace string) {
+func (o *WebhookIntegration) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *Deployment) GetPropagate() bool {
+func (o *WebhookIntegration) GetPropagate() bool {
 
 	return o.Propagate
 }
 
 // SetPropagate sets the property Propagate of the receiver using the given value.
-func (o *Deployment) SetPropagate(propagate bool) {
+func (o *WebhookIntegration) SetPropagate(propagate bool) {
 
 	o.Propagate = propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *Deployment) GetUpdateTime() time.Time {
+func (o *WebhookIntegration) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *Deployment) SetUpdateTime(updateTime time.Time) {
+func (o *WebhookIntegration) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *WebhookIntegration) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseDeployment{
-			ID:                 &o.ID,
-			CreateTime:         &o.CreateTime,
-			Description:        &o.Description,
-			FriendlyName:       &o.FriendlyName,
-			ImportHash:         &o.ImportHash,
-			ImportLabel:        &o.ImportLabel,
-			Name:               &o.Name,
-			Namespace:          &o.Namespace,
-			Propagate:          &o.Propagate,
-			PublicKeys:         &o.PublicKeys,
-			PublicURLs:         &o.PublicURLs,
-			RenewToken:         &o.RenewToken,
-			RenewTokenTag:      &o.RenewTokenTag,
-			RenewTokenValidity: &o.RenewTokenValidity,
-			Token:              &o.Token,
-			TokenRefs:          &o.TokenRefs,
-			UpdateTime:         &o.UpdateTime,
-			ZHash:              &o.ZHash,
-			Zone:               &o.Zone,
+		return &SparseWebhookIntegration{
+			ID:           &o.ID,
+			CreateTime:   &o.CreateTime,
+			Description:  &o.Description,
+			Extractors:   &o.Extractors,
+			FriendlyName: &o.FriendlyName,
+			Icon:         &o.Icon,
+			ImportHash:   &o.ImportHash,
+			ImportLabel:  &o.ImportLabel,
+			Lib:          &o.Lib,
+			Name:         &o.Name,
+			Namespace:    &o.Namespace,
+			Propagate:    &o.Propagate,
+			UpdateTime:   &o.UpdateTime,
+			VendorURL:    &o.VendorURL,
+			ZHash:        &o.ZHash,
+			Zone:         &o.Zone,
 		}
 	}
 
-	sp := &SparseDeployment{}
+	sp := &SparseWebhookIntegration{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -404,34 +403,28 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "extractors":
+			sp.Extractors = &(o.Extractors)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
+		case "icon":
+			sp.Icon = &(o.Icon)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "lib":
+			sp.Lib = &(o.Lib)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
-		case "publicKeys":
-			sp.PublicKeys = &(o.PublicKeys)
-		case "publicURLs":
-			sp.PublicURLs = &(o.PublicURLs)
-		case "renewToken":
-			sp.RenewToken = &(o.RenewToken)
-		case "renewTokenTag":
-			sp.RenewTokenTag = &(o.RenewTokenTag)
-		case "renewTokenValidity":
-			sp.RenewTokenValidity = &(o.RenewTokenValidity)
-		case "token":
-			sp.Token = &(o.Token)
-		case "tokenRefs":
-			sp.TokenRefs = &(o.TokenRefs)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "vendorURL":
+			sp.VendorURL = &(o.VendorURL)
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -442,13 +435,13 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseDeployment to the object.
-func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseWebhookIntegration to the object.
+func (o *WebhookIntegration) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseDeployment)
+	so := sparse.(*SparseWebhookIntegration)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -458,14 +451,23 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.Extractors != nil {
+		o.Extractors = *so.Extractors
+	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
+	}
+	if so.Icon != nil {
+		o.Icon = *so.Icon
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.Lib != nil {
+		o.Lib = *so.Lib
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -476,29 +478,11 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
-	if so.PublicKeys != nil {
-		o.PublicKeys = *so.PublicKeys
-	}
-	if so.PublicURLs != nil {
-		o.PublicURLs = *so.PublicURLs
-	}
-	if so.RenewToken != nil {
-		o.RenewToken = *so.RenewToken
-	}
-	if so.RenewTokenTag != nil {
-		o.RenewTokenTag = *so.RenewTokenTag
-	}
-	if so.RenewTokenValidity != nil {
-		o.RenewTokenValidity = *so.RenewTokenValidity
-	}
-	if so.Token != nil {
-		o.Token = *so.Token
-	}
-	if so.TokenRefs != nil {
-		o.TokenRefs = *so.TokenRefs
-	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
+	}
+	if so.VendorURL != nil {
+		o.VendorURL = *so.VendorURL
 	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
@@ -509,14 +493,14 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *WebhookIntegration) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.TokenRefs {
+	for _, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -524,51 +508,61 @@ func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *Deployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *WebhookIntegration) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.TokenRefs {
+	for _, sub := range o.Extractors {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the Deployment.
-func (o *Deployment) DeepCopy() *Deployment {
+// DeepCopy returns a deep copy if the WebhookIntegration.
+func (o *WebhookIntegration) DeepCopy() *WebhookIntegration {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &Deployment{}
+	out := &WebhookIntegration{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *Deployment.
-func (o *Deployment) DeepCopyInto(out *Deployment) {
+// DeepCopyInto copies the receiver into the given *WebhookIntegration.
+func (o *WebhookIntegration) DeepCopyInto(out *WebhookIntegration) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy Deployment: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy WebhookIntegration: %s", err))
 	}
 
-	*out = *target.(*Deployment)
+	*out = *target.(*WebhookIntegration)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *Deployment) Validate() error {
+func (o *WebhookIntegration) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for i, sub := range o.Extractors {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
+		}
+	}
 
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -581,25 +575,24 @@ func (o *Deployment) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateLua("lib", o.Lib); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
-	if err := ValidateURLs("publicURLs", o.PublicURLs); err != nil {
+	if err := ValidateURL("vendorURL", o.VendorURL); err != nil {
 		errors = errors.Append(err)
 	}
-	if err := ValidateWebSchemeURLs("publicURLs", o.PublicURLs); err != nil {
+	if err := ValidateWebSchemeURL("vendorURL", o.VendorURL); err != nil {
 		errors = errors.Append(err)
 	}
 
-	for i, sub := range o.TokenRefs {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenRefs", i))
-		}
+	// Custom object validation.
+	if err := ValidateWebhookIntegration(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -614,26 +607,26 @@ func (o *Deployment) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*Deployment) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*WebhookIntegration) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := DeploymentAttributesMap[name]; ok {
+	if v, ok := WebhookIntegrationAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return DeploymentLowerCaseAttributesMap[name]
+	return WebhookIntegrationLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*Deployment) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*WebhookIntegration) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return DeploymentAttributesMap
+	return WebhookIntegrationAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *Deployment) ValueForAttribute(name string) any {
+func (o *WebhookIntegration) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -642,34 +635,28 @@ func (o *Deployment) ValueForAttribute(name string) any {
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "extractors":
+		return o.Extractors
 	case "friendlyName":
 		return o.FriendlyName
+	case "icon":
+		return o.Icon
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "lib":
+		return o.Lib
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
-	case "publicKeys":
-		return o.PublicKeys
-	case "publicURLs":
-		return o.PublicURLs
-	case "renewToken":
-		return o.RenewToken
-	case "renewTokenTag":
-		return o.RenewTokenTag
-	case "renewTokenValidity":
-		return o.RenewTokenValidity
-	case "token":
-		return o.Token
-	case "tokenRefs":
-		return o.TokenRefs
 	case "updateTime":
 		return o.UpdateTime
+	case "vendorURL":
+		return o.VendorURL
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -679,8 +666,8 @@ func (o *Deployment) ValueForAttribute(name string) any {
 	return nil
 }
 
-// DeploymentAttributesMap represents the map of attribute for Deployment.
-var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
+// WebhookIntegrationAttributesMap represents the map of attribute for WebhookIntegration.
+var WebhookIntegrationAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -715,11 +702,23 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the deployment.`,
+		Description:    `The description of the webhook integration.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Extractors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
+		ConvertedName:  "Extractors",
+		Description: `The routes of this integration. Each one registers a method and a path
+under the route of the connector the integration is attached to.`,
+		Exposed: true,
+		Name:    "extractors",
+		Stored:  true,
+		SubType: "webhookextractor",
+		Type:    "refList",
 	},
 	"FriendlyName": {
 		AllowedChoices: []string{},
@@ -731,6 +730,16 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "friendlyName",
 		Required:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Icon": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "icon",
+		ConvertedName:  "Icon",
+		Description:    `The icon of the webhook integration, base64 encoded.`,
+		Exposed:        true,
+		Name:           "icon",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -759,6 +768,19 @@ same import operation.`,
 		Getter:  true,
 		Name:    "importLabel",
 		Setter:  true,
+		Stored:  true,
+		Type:    "string",
+	},
+	"Lib": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "lib",
+		ConvertedName:  "Lib",
+		Description: `If set, this snippet of lua will be available in all webhook extractors of
+the integration, acting as an effective library. It must be a valid lua
+module. It will be available to all extractors by doing local plib =
+require('plib').`,
+		Exposed: true,
+		Name:    "lib",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -805,81 +827,6 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"PublicKeys": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publickeys",
-		ConvertedName:  "PublicKeys",
-		Description: `The names of the public keys whose corresponding private key is available on
-this deployment's instances.`,
-		Exposed: true,
-		Name:    "publicKeys",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
-	"PublicURLs": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publicurls",
-		ConvertedName:  "PublicURLs",
-		Description:    `Public URLs of the deployment.`,
-		Exposed:        true,
-		Name:           "publicURLs",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
-	"RenewToken": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewToken",
-		Description:    `Set to true on update to issue a new credential.`,
-		Exposed:        true,
-		Name:           "renewToken",
-		Transient:      true,
-		Type:           "boolean",
-	},
-	"RenewTokenTag": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenTag",
-		Description:    `Set to value on update to associate a tag with the issued token.`,
-		Exposed:        true,
-		Name:           "renewTokenTag",
-		Transient:      true,
-		Type:           "string",
-	},
-	"RenewTokenValidity": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenValidity",
-		Description:    `Set to value on update to set the validity for a token.`,
-		Exposed:        true,
-		Name:           "renewTokenValidity",
-		Transient:      true,
-		Type:           "string",
-	},
-	"Token": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		ConvertedName:  "Token",
-		Description: `The issued JWT, populated only in the response of an update where
-renewToken was set to true.`,
-		Exposed:   true,
-		Name:      "token",
-		ReadOnly:  true,
-		Transient: true,
-		Type:      "string",
-	},
-	"TokenRefs": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "tokenrefs",
-		ConvertedName:  "TokenRefs",
-		Description:    `The list of references to issued tokens.`,
-		Exposed:        true,
-		Name:           "tokenRefs",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "tokenref",
-		Type:           "refList",
-	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -895,10 +842,20 @@ renewToken was set to true.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"VendorURL": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vendorurl",
+		ConvertedName:  "VendorURL",
+		Description:    `URL to the vendor's documentation for this integration point.`,
+		Exposed:        true,
+		Name:           "vendorURL",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
-// DeploymentLowerCaseAttributesMap represents the map of attribute for Deployment.
-var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// WebhookIntegrationLowerCaseAttributesMap represents the map of attribute for WebhookIntegration.
+var WebhookIntegrationLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -933,11 +890,23 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `The description of the deployment.`,
+		Description:    `The description of the webhook integration.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"extractors": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "extractors",
+		ConvertedName:  "Extractors",
+		Description: `The routes of this integration. Each one registers a method and a path
+under the route of the connector the integration is attached to.`,
+		Exposed: true,
+		Name:    "extractors",
+		Stored:  true,
+		SubType: "webhookextractor",
+		Type:    "refList",
 	},
 	"friendlyname": {
 		AllowedChoices: []string{},
@@ -949,6 +918,16 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "friendlyName",
 		Required:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"icon": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "icon",
+		ConvertedName:  "Icon",
+		Description:    `The icon of the webhook integration, base64 encoded.`,
+		Exposed:        true,
+		Name:           "icon",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -977,6 +956,19 @@ same import operation.`,
 		Getter:  true,
 		Name:    "importLabel",
 		Setter:  true,
+		Stored:  true,
+		Type:    "string",
+	},
+	"lib": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "lib",
+		ConvertedName:  "Lib",
+		Description: `If set, this snippet of lua will be available in all webhook extractors of
+the integration, acting as an effective library. It must be a valid lua
+module. It will be available to all extractors by doing local plib =
+require('plib').`,
+		Exposed: true,
+		Name:    "lib",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -1023,81 +1015,6 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"publickeys": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publickeys",
-		ConvertedName:  "PublicKeys",
-		Description: `The names of the public keys whose corresponding private key is available on
-this deployment's instances.`,
-		Exposed: true,
-		Name:    "publicKeys",
-		Stored:  true,
-		SubType: "string",
-		Type:    "list",
-	},
-	"publicurls": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "publicurls",
-		ConvertedName:  "PublicURLs",
-		Description:    `Public URLs of the deployment.`,
-		Exposed:        true,
-		Name:           "publicURLs",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
-	},
-	"renewtoken": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewToken",
-		Description:    `Set to true on update to issue a new credential.`,
-		Exposed:        true,
-		Name:           "renewToken",
-		Transient:      true,
-		Type:           "boolean",
-	},
-	"renewtokentag": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenTag",
-		Description:    `Set to value on update to associate a tag with the issued token.`,
-		Exposed:        true,
-		Name:           "renewTokenTag",
-		Transient:      true,
-		Type:           "string",
-	},
-	"renewtokenvalidity": {
-		AllowedChoices: []string{},
-		ConvertedName:  "RenewTokenValidity",
-		Description:    `Set to value on update to set the validity for a token.`,
-		Exposed:        true,
-		Name:           "renewTokenValidity",
-		Transient:      true,
-		Type:           "string",
-	},
-	"token": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		ConvertedName:  "Token",
-		Description: `The issued JWT, populated only in the response of an update where
-renewToken was set to true.`,
-		Exposed:   true,
-		Name:      "token",
-		ReadOnly:  true,
-		Transient: true,
-		Type:      "string",
-	},
-	"tokenrefs": {
-		AllowedChoices: []string{},
-		Autogenerated:  true,
-		BSONFieldName:  "tokenrefs",
-		ConvertedName:  "TokenRefs",
-		Description:    `The list of references to issued tokens.`,
-		Exposed:        true,
-		Name:           "tokenRefs",
-		ReadOnly:       true,
-		Stored:         true,
-		SubType:        "tokenref",
-		Type:           "refList",
-	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1113,37 +1030,47 @@ renewToken was set to true.`,
 		Stored:         true,
 		Type:           "time",
 	},
+	"vendorurl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "vendorurl",
+		ConvertedName:  "VendorURL",
+		Description:    `URL to the vendor's documentation for this integration point.`,
+		Exposed:        true,
+		Name:           "vendorURL",
+		Stored:         true,
+		Type:           "string",
+	},
 }
 
-// SparseDeploymentsList represents a list of SparseDeployments
-type SparseDeploymentsList []*SparseDeployment
+// SparseWebhookIntegrationsList represents a list of SparseWebhookIntegrations
+type SparseWebhookIntegrationsList []*SparseWebhookIntegration
 
 // Identity returns the identity of the objects in the list.
-func (o SparseDeploymentsList) Identity() elemental.Identity {
+func (o SparseWebhookIntegrationsList) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return WebhookIntegrationIdentity
 }
 
-// Copy returns a pointer to a copy the SparseDeploymentsList.
-func (o SparseDeploymentsList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseWebhookIntegrationsList.
+func (o SparseWebhookIntegrationsList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseDeploymentsList.
-func (o SparseDeploymentsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseWebhookIntegrationsList.
+func (o SparseWebhookIntegrationsList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseDeployment))
+		out = append(out, obj.(*SparseWebhookIntegration))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseDeploymentsList) List() elemental.IdentifiablesList {
+func (o SparseWebhookIntegrationsList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1154,13 +1081,13 @@ func (o SparseDeploymentsList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseDeploymentsList) DefaultOrder() []string {
+func (o SparseWebhookIntegrationsList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseDeploymentsList converted to DeploymentsList.
-func (o SparseDeploymentsList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseWebhookIntegrationsList converted to WebhookIntegrationsList.
+func (o SparseWebhookIntegrationsList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1171,24 +1098,31 @@ func (o SparseDeploymentsList) ToPlain() elemental.IdentifiablesList {
 }
 
 // Version returns the version of the content.
-func (o SparseDeploymentsList) Version() int {
+func (o SparseWebhookIntegrationsList) Version() int {
 
 	return 1
 }
 
-// SparseDeployment represents the sparse version of a deployment.
-type SparseDeployment struct {
+// SparseWebhookIntegration represents the sparse version of a webhookintegration.
+type SparseWebhookIntegration struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The description of the deployment.
+	// The description of the webhook integration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The routes of this integration. Each one registers a method and a path
+	// under the route of the connector the integration is attached to.
+	Extractors *[]*WebhookExtractor `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
+
+	// The icon of the webhook integration, base64 encoded.
+	Icon *string `json:"icon,omitempty" msgpack:"icon,omitempty" bson:"icon,omitempty" mapstructure:"icon,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -1196,6 +1130,12 @@ type SparseDeployment struct {
 	// The user-defined import label that allows the system to group resources from the
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
+
+	// If set, this snippet of lua will be available in all webhook extractors of
+	// the integration, acting as an effective library. It must be a valid lua
+	// module. It will be available to all extractors by doing local plib =
+	// require('plib').
+	Lib *string `json:"lib,omitempty" msgpack:"lib,omitempty" bson:"lib,omitempty" mapstructure:"lib,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
@@ -1207,31 +1147,11 @@ type SparseDeployment struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
-	// The names of the public keys whose corresponding private key is available on
-	// this deployment's instances.
-	PublicKeys *[]string `json:"publicKeys,omitempty" msgpack:"publicKeys,omitempty" bson:"publickeys,omitempty" mapstructure:"publicKeys,omitempty"`
-
-	// Public URLs of the deployment.
-	PublicURLs *[]string `json:"publicURLs,omitempty" msgpack:"publicURLs,omitempty" bson:"publicurls,omitempty" mapstructure:"publicURLs,omitempty"`
-
-	// Set to true on update to issue a new credential.
-	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
-
-	// Set to value on update to associate a tag with the issued token.
-	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
-
-	// Set to value on update to set the validity for a token.
-	RenewTokenValidity *string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
-
-	// The issued JWT, populated only in the response of an update where
-	// renewToken was set to true.
-	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
-
-	// The list of references to issued tokens.
-	TokenRefs *[]*TokenRef `json:"tokenRefs,omitempty" msgpack:"tokenRefs,omitempty" bson:"tokenrefs,omitempty" mapstructure:"tokenRefs,omitempty"`
-
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+
+	// URL to the vendor's documentation for this integration point.
+	VendorURL *string `json:"vendorURL,omitempty" msgpack:"vendorURL,omitempty" bson:"vendorurl,omitempty" mapstructure:"vendorURL,omitempty"`
 
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
@@ -1242,19 +1162,19 @@ type SparseDeployment struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseDeployment returns a new  SparseDeployment.
-func NewSparseDeployment() *SparseDeployment {
-	return &SparseDeployment{}
+// NewSparseWebhookIntegration returns a new  SparseWebhookIntegration.
+func NewSparseWebhookIntegration() *SparseWebhookIntegration {
+	return &SparseWebhookIntegration{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseDeployment) Identity() elemental.Identity {
+func (o *SparseWebhookIntegration) Identity() elemental.Identity {
 
-	return DeploymentIdentity
+	return WebhookIntegrationIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseDeployment) Identifier() string {
+func (o *SparseWebhookIntegration) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1263,7 +1183,7 @@ func (o *SparseDeployment) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseDeployment) SetIdentifier(id string) {
+func (o *SparseWebhookIntegration) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1274,13 +1194,13 @@ func (o *SparseDeployment) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseDeployment) GetBSON() (any, error) {
+func (o *SparseWebhookIntegration) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseDeployment{}
+	s := &mongoAttributesSparseWebhookIntegration{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -1291,14 +1211,23 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.Extractors != nil {
+		s.Extractors = o.Extractors
+	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
+	}
+	if o.Icon != nil {
+		s.Icon = o.Icon
 	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
+	}
+	if o.Lib != nil {
+		s.Lib = o.Lib
 	}
 	if o.Name != nil {
 		s.Name = o.Name
@@ -1309,17 +1238,11 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
-	if o.PublicKeys != nil {
-		s.PublicKeys = o.PublicKeys
-	}
-	if o.PublicURLs != nil {
-		s.PublicURLs = o.PublicURLs
-	}
-	if o.TokenRefs != nil {
-		s.TokenRefs = o.TokenRefs
-	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
+	}
+	if o.VendorURL != nil {
+		s.VendorURL = o.VendorURL
 	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
@@ -1333,13 +1256,13 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
+func (o *SparseWebhookIntegration) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseDeployment{}
+	s := &mongoAttributesSparseWebhookIntegration{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -1352,14 +1275,23 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.Extractors != nil {
+		o.Extractors = s.Extractors
+	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
+	}
+	if s.Icon != nil {
+		o.Icon = s.Icon
 	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
+	}
+	if s.Lib != nil {
+		o.Lib = s.Lib
 	}
 	if s.Name != nil {
 		o.Name = s.Name
@@ -1370,17 +1302,11 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
-	if s.PublicKeys != nil {
-		o.PublicKeys = s.PublicKeys
-	}
-	if s.PublicURLs != nil {
-		o.PublicURLs = s.PublicURLs
-	}
-	if s.TokenRefs != nil {
-		o.TokenRefs = s.TokenRefs
-	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
+	}
+	if s.VendorURL != nil {
+		o.VendorURL = s.VendorURL
 	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
@@ -1393,15 +1319,15 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseDeployment) Version() int {
+func (o *SparseWebhookIntegration) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseWebhookIntegration) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewDeployment()
+	out := NewWebhookIntegration()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1411,14 +1337,23 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
+	if o.Extractors != nil {
+		out.Extractors = *o.Extractors
+	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
+	}
+	if o.Icon != nil {
+		out.Icon = *o.Icon
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.Lib != nil {
+		out.Lib = *o.Lib
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -1429,29 +1364,11 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
-	if o.PublicKeys != nil {
-		out.PublicKeys = *o.PublicKeys
-	}
-	if o.PublicURLs != nil {
-		out.PublicURLs = *o.PublicURLs
-	}
-	if o.RenewToken != nil {
-		out.RenewToken = *o.RenewToken
-	}
-	if o.RenewTokenTag != nil {
-		out.RenewTokenTag = *o.RenewTokenTag
-	}
-	if o.RenewTokenValidity != nil {
-		out.RenewTokenValidity = *o.RenewTokenValidity
-	}
-	if o.Token != nil {
-		out.Token = *o.Token
-	}
-	if o.TokenRefs != nil {
-		out.TokenRefs = *o.TokenRefs
-	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
+	}
+	if o.VendorURL != nil {
+		out.VendorURL = *o.VendorURL
 	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
@@ -1464,15 +1381,15 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseWebhookIntegration) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.TokenRefs != nil {
-		for _, sub := range *o.TokenRefs {
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
 			if sub == nil {
 				continue
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1481,15 +1398,15 @@ func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncryp
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseWebhookIntegration) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	if o.TokenRefs != nil {
-		for _, sub := range *o.TokenRefs {
+	if o.Extractors != nil {
+		for _, sub := range *o.Extractors {
 			if sub == nil {
 				continue
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'Deployment' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1498,7 +1415,7 @@ func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncryp
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseDeployment) GetCreateTime() (out time.Time) {
+func (o *SparseWebhookIntegration) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1508,13 +1425,13 @@ func (o *SparseDeployment) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseDeployment) SetCreateTime(createTime time.Time) {
+func (o *SparseWebhookIntegration) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *SparseDeployment) GetFriendlyName() (out string) {
+func (o *SparseWebhookIntegration) GetFriendlyName() (out string) {
 
 	if o.FriendlyName == nil {
 		return
@@ -1524,13 +1441,13 @@ func (o *SparseDeployment) GetFriendlyName() (out string) {
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
-func (o *SparseDeployment) SetFriendlyName(friendlyName string) {
+func (o *SparseWebhookIntegration) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = &friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseDeployment) GetImportHash() (out string) {
+func (o *SparseWebhookIntegration) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1540,13 +1457,13 @@ func (o *SparseDeployment) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseDeployment) SetImportHash(importHash string) {
+func (o *SparseWebhookIntegration) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseDeployment) GetImportLabel() (out string) {
+func (o *SparseWebhookIntegration) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1556,13 +1473,13 @@ func (o *SparseDeployment) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseDeployment) SetImportLabel(importLabel string) {
+func (o *SparseWebhookIntegration) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *SparseDeployment) GetName() (out string) {
+func (o *SparseWebhookIntegration) GetName() (out string) {
 
 	if o.Name == nil {
 		return
@@ -1572,13 +1489,13 @@ func (o *SparseDeployment) GetName() (out string) {
 }
 
 // SetName sets the property Name of the receiver using the address of the given value.
-func (o *SparseDeployment) SetName(name string) {
+func (o *SparseWebhookIntegration) SetName(name string) {
 
 	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseDeployment) GetNamespace() (out string) {
+func (o *SparseWebhookIntegration) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1588,13 +1505,13 @@ func (o *SparseDeployment) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseDeployment) SetNamespace(namespace string) {
+func (o *SparseWebhookIntegration) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetPropagate returns the Propagate of the receiver.
-func (o *SparseDeployment) GetPropagate() (out bool) {
+func (o *SparseWebhookIntegration) GetPropagate() (out bool) {
 
 	if o.Propagate == nil {
 		return
@@ -1604,13 +1521,13 @@ func (o *SparseDeployment) GetPropagate() (out bool) {
 }
 
 // SetPropagate sets the property Propagate of the receiver using the address of the given value.
-func (o *SparseDeployment) SetPropagate(propagate bool) {
+func (o *SparseWebhookIntegration) SetPropagate(propagate bool) {
 
 	o.Propagate = &propagate
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseDeployment) GetUpdateTime() (out time.Time) {
+func (o *SparseWebhookIntegration) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1620,66 +1537,68 @@ func (o *SparseDeployment) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseDeployment) SetUpdateTime(updateTime time.Time) {
+func (o *SparseWebhookIntegration) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseDeployment.
-func (o *SparseDeployment) DeepCopy() *SparseDeployment {
+// DeepCopy returns a deep copy if the SparseWebhookIntegration.
+func (o *SparseWebhookIntegration) DeepCopy() *SparseWebhookIntegration {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseDeployment{}
+	out := &SparseWebhookIntegration{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseDeployment.
-func (o *SparseDeployment) DeepCopyInto(out *SparseDeployment) {
+// DeepCopyInto copies the receiver into the given *SparseWebhookIntegration.
+func (o *SparseWebhookIntegration) DeepCopyInto(out *SparseWebhookIntegration) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseDeployment: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseWebhookIntegration: %s", err))
 	}
 
-	*out = *target.(*SparseDeployment)
+	*out = *target.(*SparseWebhookIntegration)
 }
 
-type mongoAttributesDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   time.Time     `bson:"createtime"`
-	Description  string        `bson:"description,omitempty"`
-	FriendlyName string        `bson:"friendlyname"`
-	ImportHash   string        `bson:"importhash,omitempty"`
-	ImportLabel  string        `bson:"importlabel,omitempty"`
-	Name         string        `bson:"name"`
-	Namespace    string        `bson:"namespace,omitempty"`
-	Propagate    bool          `bson:"propagate"`
-	PublicKeys   []string      `bson:"publickeys"`
-	PublicURLs   []string      `bson:"publicurls"`
-	TokenRefs    []*TokenRef   `bson:"tokenrefs"`
-	UpdateTime   time.Time     `bson:"updatetime"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+type mongoAttributesWebhookIntegration struct {
+	ID           bson.ObjectId       `bson:"_id,omitempty"`
+	CreateTime   time.Time           `bson:"createtime"`
+	Description  string              `bson:"description"`
+	Extractors   []*WebhookExtractor `bson:"extractors"`
+	FriendlyName string              `bson:"friendlyname"`
+	Icon         string              `bson:"icon,omitempty"`
+	ImportHash   string              `bson:"importhash,omitempty"`
+	ImportLabel  string              `bson:"importlabel,omitempty"`
+	Lib          string              `bson:"lib,omitempty"`
+	Name         string              `bson:"name"`
+	Namespace    string              `bson:"namespace,omitempty"`
+	Propagate    bool                `bson:"propagate"`
+	UpdateTime   time.Time           `bson:"updatetime"`
+	VendorURL    string              `bson:"vendorurl,omitempty"`
+	ZHash        int                 `bson:"zhash"`
+	Zone         int                 `bson:"zone"`
 }
-type mongoAttributesSparseDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   *time.Time    `bson:"createtime,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	FriendlyName *string       `bson:"friendlyname,omitempty"`
-	ImportHash   *string       `bson:"importhash,omitempty"`
-	ImportLabel  *string       `bson:"importlabel,omitempty"`
-	Name         *string       `bson:"name,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	Propagate    *bool         `bson:"propagate,omitempty"`
-	PublicKeys   *[]string     `bson:"publickeys,omitempty"`
-	PublicURLs   *[]string     `bson:"publicurls,omitempty"`
-	TokenRefs    *[]*TokenRef  `bson:"tokenrefs,omitempty"`
-	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+type mongoAttributesSparseWebhookIntegration struct {
+	ID           bson.ObjectId        `bson:"_id,omitempty"`
+	CreateTime   *time.Time           `bson:"createtime,omitempty"`
+	Description  *string              `bson:"description,omitempty"`
+	Extractors   *[]*WebhookExtractor `bson:"extractors,omitempty"`
+	FriendlyName *string              `bson:"friendlyname,omitempty"`
+	Icon         *string              `bson:"icon,omitempty"`
+	ImportHash   *string              `bson:"importhash,omitempty"`
+	ImportLabel  *string              `bson:"importlabel,omitempty"`
+	Lib          *string              `bson:"lib,omitempty"`
+	Name         *string              `bson:"name,omitempty"`
+	Namespace    *string              `bson:"namespace,omitempty"`
+	Propagate    *bool                `bson:"propagate,omitempty"`
+	UpdateTime   *time.Time           `bson:"updatetime,omitempty"`
+	VendorURL    *string              `bson:"vendorurl,omitempty"`
+	ZHash        *int                 `bson:"zhash,omitempty"`
+	Zone         *int                 `bson:"zone,omitempty"`
 }

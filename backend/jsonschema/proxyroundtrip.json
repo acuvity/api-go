@@ -239,7 +239,7 @@
     },
     "offband": {
       "$friendlyName": "Offband",
-      "description": "If true, the policy asked for the analysis to run offband. That means that we extracted the data from the user request, verified access permissions, and then made the decision without waiting for the analyzers. The full analyzer set ran afterwards, and this log entry reflects that later evaluation, which can report a stricter outcome than the one the request actually received.",
+      "description": "If true, the analysis did not inform the decision recorded here: we extracted the data, verified access permissions, and then decided on the raw extraction without waiting for the analyzers. A policy causes this either by asking for offband analysis, or by pinning an empty inband analyzer set for this direction. The full analyzer set then ran behind the decision, and this log entry reflects that later evaluation, which can report a stricter outcome than the one the request actually received. A permissive round-trip on a streamed response is always deferred this way, whatever the policy asked for.",
       "title": "offband",
       "type": [
         "boolean",

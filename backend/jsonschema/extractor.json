@@ -143,6 +143,16 @@
         "null"
       ]
     },
+    "inputStream": {
+      "$defaultValue": false,
+      "$friendlyName": "Input Stream",
+      "description": "This property defines if the input should be handled as a stream of protocol messages using streamSplitter, instead of a single buffered body. It only applies to type Input; setting it while type is Output is a validation error.",
+      "title": "inputStream",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "libs": {
       "$friendlyName": "Libraries",
       "description": "References existing extractorlibs by name to make them importable in the extractor script.",

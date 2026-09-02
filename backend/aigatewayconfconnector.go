@@ -11,6 +11,20 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// AIGatewayConfConnectorTypeValue represents the possible values for attribute "type".
+type AIGatewayConfConnectorTypeValue string
+
+const (
+	// AIGatewayConfConnectorTypeLLM represents the value LLM.
+	AIGatewayConfConnectorTypeLLM AIGatewayConfConnectorTypeValue = "LLM"
+
+	// AIGatewayConfConnectorTypeMCP represents the value MCP.
+	AIGatewayConfConnectorTypeMCP AIGatewayConfConnectorTypeValue = "MCP"
+
+	// AIGatewayConfConnectorTypeWebhookIntegration represents the value WebhookIntegration.
+	AIGatewayConfConnectorTypeWebhookIntegration AIGatewayConfConnectorTypeValue = "WebhookIntegration"
+)
+
 // AIGatewayConfConnector represents the model of a aigatewayconfconnector
 type AIGatewayConfConnector struct {
 	// The normalized MCP server name exposed to clients.
@@ -46,8 +60,15 @@ type AIGatewayConfConnector struct {
 	// The route component.
 	Route string `json:"route,omitempty" msgpack:"route,omitempty" bson:"-" mapstructure:"route,omitempty"`
 
+	// The type of the connector.
+	Type AIGatewayConfConnectorTypeValue `json:"type" msgpack:"type" bson:"-" mapstructure:"type,omitempty"`
+
 	// The upstream URL of the backend.
 	UpstreamURL string `json:"upstreamURL,omitempty" msgpack:"upstreamURL,omitempty" bson:"-" mapstructure:"upstreamURL,omitempty"`
+
+	// The resolved and rendered webhook integration and its configuration this
+	// connector serves. Required when the type is WebhookIntegration.
+	WebhookIntegration *WebhookIntegrationConf `json:"webhookIntegration,omitempty" msgpack:"webhookIntegration,omitempty" bson:"-" mapstructure:"webhookIntegration,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -141,6 +162,12 @@ func (o *AIGatewayConfConnector) EncryptAttributes(encrypter elemental.Attribute
 		}
 	}
 
+	if o.WebhookIntegration != nil {
+		if err := o.WebhookIntegration.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'WebhookIntegration' for 'AIGatewayConfConnector' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -162,6 +189,12 @@ func (o *AIGatewayConfConnector) DecryptAttributes(encrypter elemental.Attribute
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ProviderTokens' for 'AIGatewayConfConnector' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.WebhookIntegration != nil {
+		if err := o.WebhookIntegration.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'WebhookIntegration' for 'AIGatewayConfConnector' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -220,11 +253,26 @@ func (o *AIGatewayConfConnector) Validate() error {
 		}
 	}
 
+	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"MCP", "LLM", "WebhookIntegration"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := ValidateURL("upstreamURL", o.UpstreamURL); err != nil {
 		errors = errors.Append(err)
 	}
 	if err := ValidateWebSchemeURL("upstreamURL", o.UpstreamURL); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.WebhookIntegration != nil {
+		if err := o.WebhookIntegration.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "webhookIntegration")
+		}
 	}
 
 	if len(requiredErrors) > 0 {
@@ -283,8 +331,12 @@ func (o *AIGatewayConfConnector) ValueForAttribute(name string) any {
 		return o.ProviderTokens
 	case "route":
 		return o.Route
+	case "type":
+		return o.Type
 	case "upstreamURL":
 		return o.UpstreamURL
+	case "webhookIntegration":
+		return o.WebhookIntegration
 	}
 
 	return nil
@@ -383,6 +435,15 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "route",
 		Type:           "string",
 	},
+	"Type": {
+		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		ConvertedName:  "Type",
+		Description:    `The type of the connector.`,
+		Exposed:        true,
+		Name:           "type",
+		Required:       true,
+		Type:           "enum",
+	},
 	"UpstreamURL": {
 		AllowedChoices: []string{},
 		ConvertedName:  "UpstreamURL",
@@ -390,6 +451,16 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		Exposed:        true,
 		Name:           "upstreamURL",
 		Type:           "string",
+	},
+	"WebhookIntegration": {
+		AllowedChoices: []string{},
+		ConvertedName:  "WebhookIntegration",
+		Description: `The resolved and rendered webhook integration and its configuration this
+connector serves. Required when the type is WebhookIntegration.`,
+		Exposed: true,
+		Name:    "webhookIntegration",
+		SubType: "webhookintegrationconf",
+		Type:    "ref",
 	},
 }
 
@@ -486,6 +557,15 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		Name:           "route",
 		Type:           "string",
 	},
+	"type": {
+		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		ConvertedName:  "Type",
+		Description:    `The type of the connector.`,
+		Exposed:        true,
+		Name:           "type",
+		Required:       true,
+		Type:           "enum",
+	},
 	"upstreamurl": {
 		AllowedChoices: []string{},
 		ConvertedName:  "UpstreamURL",
@@ -493,6 +573,16 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		Exposed:        true,
 		Name:           "upstreamURL",
 		Type:           "string",
+	},
+	"webhookintegration": {
+		AllowedChoices: []string{},
+		ConvertedName:  "WebhookIntegration",
+		Description: `The resolved and rendered webhook integration and its configuration this
+connector serves. Required when the type is WebhookIntegration.`,
+		Exposed: true,
+		Name:    "webhookIntegration",
+		SubType: "webhookintegrationconf",
+		Type:    "ref",
 	},
 }
 

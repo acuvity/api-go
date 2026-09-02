@@ -1,0 +1,59 @@
+{
+  "$extends": [],
+  "$friendlyName": "Asset Reference",
+  "$friendlyNamePlural": "Asset References",
+  "$modelName": "AssetRef",
+  "$modelPackage": "hanni",
+  "$modelResourceName": "assetrefs",
+  "$modelRestName": "assetref",
+  "additionalProperties": false,
+  "description": "A reference to any object a finding applies to.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$required": true,
+      "description": "The identifier of the referenced object.",
+      "title": "ID",
+      "type": "string"
+    },
+    "category": {
+      "$friendlyName": "Category",
+      "description": "The category of the referenced object, if it has one.",
+      "title": "category",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The display name of the referenced object, if it has one.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$required": true,
+      "description": "The namespace of the referenced object.",
+      "title": "namespace",
+      "type": "string"
+    },
+    "restName": {
+      "$friendlyName": "Identity REST name",
+      "$required": true,
+      "description": "The identity name of the referenced object.",
+      "title": "restName",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ID",
+    "namespace",
+    "restName"
+  ],
+  "title": "AssetRef",
+  "type": "object"
+}

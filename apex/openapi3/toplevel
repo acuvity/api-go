@@ -969,7 +969,7 @@
             "type": "string"
           },
           "offband": {
-            "description": "If true, the policy that produced this decision asked for the analysis to\nrun offband. The decision was therefore made without waiting for the\nanalyzers, so the extractions in this response carry no detections, and any\nredaction the analyzers would have found was not applied. The full analyzer\nset runs after this response is sent, so the stored roundtrip for this\nrequest can report a stricter outcome than the one reported here.",
+            "description": "If true, this decision was made without waiting for the analyzers: the\npolicy that produced it either asked for offband analysis, or pinned an\nempty inband analyzer set for this direction. The extractions in this\nresponse therefore carry no detections, and any redaction the analyzers\nwould have found was not applied. The full analyzer set runs after this\nresponse is sent, so the stored roundtrip for this request can report a\nstricter outcome than the one reported here.",
             "type": "boolean"
           },
           "permissive": {
@@ -1751,8 +1751,10 @@
             "type": "array"
           },
           "category": {
+            "default": "None",
             "description": "The category of the tool. This relays information about where the tool is being\nused. This can be empty if unknown or if this is a tool listing of MCP servers.",
             "enum": [
+              "None",
               "Client",
               "Server",
               "RemoteMCP"

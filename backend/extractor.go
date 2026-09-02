@@ -228,6 +228,11 @@ type Extractor struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// This property defines if the input should be handled as a stream of protocol
+	// messages using streamSplitter, instead of a single buffered body. It only
+	// applies to type Input; setting it while type is Output is a validation error.
+	InputStream bool `json:"inputStream" msgpack:"inputStream" bson:"inputstream" mapstructure:"inputStream,omitempty"`
+
 	// References existing extractorlibs by name to make them importable in the
 	// extractor script.
 	Libs []string `json:"libs" msgpack:"libs" bson:"libs" mapstructure:"libs,omitempty"`
@@ -290,6 +295,7 @@ func NewExtractor() *Extractor {
 		Behavior:            ExtractorBehaviorPopup,
 		Block:               false,
 		CancelBehavior:      ExtractorCancelBehaviorBlock,
+		InputStream:         false,
 		Libs:                []string{},
 		Propagate:           true,
 		StreamSplitter:      ExtractorStreamSplitterSSE,
@@ -340,6 +346,7 @@ func (o *Extractor) GetBSON() (any, error) {
 	s.Ignore = o.Ignore
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.InputStream = o.InputStream
 	s.Libs = o.Libs
 	s.Method = o.Method
 	s.Name = o.Name
@@ -385,6 +392,7 @@ func (o *Extractor) SetBSON(raw bson.Raw) error {
 	o.Ignore = s.Ignore
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.InputStream = s.InputStream
 	o.Libs = s.Libs
 	o.Method = s.Method
 	o.Name = s.Name
@@ -531,6 +539,7 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Ignore:              &o.Ignore,
 			ImportHash:          &o.ImportHash,
 			ImportLabel:         &o.ImportLabel,
+			InputStream:         &o.InputStream,
 			Libs:                &o.Libs,
 			Method:              &o.Method,
 			Name:                &o.Name,
@@ -578,6 +587,8 @@ func (o *Extractor) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "inputStream":
+			sp.InputStream = &(o.InputStream)
 		case "libs":
 			sp.Libs = &(o.Libs)
 		case "method":
@@ -659,6 +670,9 @@ func (o *Extractor) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.InputStream != nil {
+		o.InputStream = *so.InputStream
 	}
 	if so.Libs != nil {
 		o.Libs = *so.Libs
@@ -868,6 +882,8 @@ func (o *Extractor) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "inputStream":
+		return o.InputStream
 	case "libs":
 		return o.Libs
 	case "method":
@@ -1060,6 +1076,18 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
+	},
+	"InputStream": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "inputstream",
+		ConvertedName:  "InputStream",
+		Description: `This property defines if the input should be handled as a stream of protocol
+messages using streamSplitter, instead of a single buffered body. It only
+applies to type Input; setting it while type is Output is a validation error.`,
+		Exposed: true,
+		Name:    "inputStream",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Libs": {
 		AllowedChoices: []string{},
@@ -1380,6 +1408,18 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"inputstream": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "inputstream",
+		ConvertedName:  "InputStream",
+		Description: `This property defines if the input should be handled as a stream of protocol
+messages using streamSplitter, instead of a single buffered body. It only
+applies to type Input; setting it while type is Output is a validation error.`,
+		Exposed: true,
+		Name:    "inputStream",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"libs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "libs",
@@ -1649,6 +1689,11 @@ type SparseExtractor struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// This property defines if the input should be handled as a stream of protocol
+	// messages using streamSplitter, instead of a single buffered body. It only
+	// applies to type Input; setting it while type is Output is a validation error.
+	InputStream *bool `json:"inputStream,omitempty" msgpack:"inputStream,omitempty" bson:"inputstream,omitempty" mapstructure:"inputStream,omitempty"`
+
 	// References existing extractorlibs by name to make them importable in the
 	// extractor script.
 	Libs *[]string `json:"libs,omitempty" msgpack:"libs,omitempty" bson:"libs,omitempty" mapstructure:"libs,omitempty"`
@@ -1781,6 +1826,9 @@ func (o *SparseExtractor) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.InputStream != nil {
+		s.InputStream = o.InputStream
+	}
 	if o.Libs != nil {
 		s.Libs = o.Libs
 	}
@@ -1881,6 +1929,9 @@ func (o *SparseExtractor) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.InputStream != nil {
+		o.InputStream = s.InputStream
+	}
 	if s.Libs != nil {
 		o.Libs = s.Libs
 	}
@@ -1978,6 +2029,9 @@ func (o *SparseExtractor) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.InputStream != nil {
+		out.InputStream = *o.InputStream
 	}
 	if o.Libs != nil {
 		out.Libs = *o.Libs
@@ -2184,6 +2238,7 @@ type mongoAttributesExtractor struct {
 	Ignore              bool                              `bson:"ignore"`
 	ImportHash          string                            `bson:"importhash,omitempty"`
 	ImportLabel         string                            `bson:"importlabel,omitempty"`
+	InputStream         bool                              `bson:"inputstream"`
 	Libs                []string                          `bson:"libs"`
 	Method              ExtractorMethodValue              `bson:"method"`
 	Name                string                            `bson:"name"`
@@ -2214,6 +2269,7 @@ type mongoAttributesSparseExtractor struct {
 	Ignore              *bool                              `bson:"ignore,omitempty"`
 	ImportHash          *string                            `bson:"importhash,omitempty"`
 	ImportLabel         *string                            `bson:"importlabel,omitempty"`
+	InputStream         *bool                              `bson:"inputstream,omitempty"`
 	Libs                *[]string                          `bson:"libs,omitempty"`
 	Method              *ExtractorMethodValue              `bson:"method,omitempty"`
 	Name                *string                            `bson:"name,omitempty"`

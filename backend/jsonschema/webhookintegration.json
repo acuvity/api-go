@@ -1,21 +1,20 @@
 {
   "$extends": [
     "@sharded",
-    "@importable",
     "@identifiable",
     "@timed",
-    "@tokenrenewable",
-    "@auto-propagated",
-    "@namelinkable"
+    "@importable",
+    "@namelinkable",
+    "@auto-propagated"
   ],
-  "$friendlyName": "Deployment",
-  "$friendlyNamePlural": "Deployments",
-  "$modelName": "Deployment",
+  "$friendlyName": "Webhook Integration",
+  "$friendlyNamePlural": "Webhook Integrations",
+  "$modelName": "WebhookIntegration",
   "$modelPackage": "lain",
-  "$modelResourceName": "deployments",
-  "$modelRestName": "deployment",
+  "$modelResourceName": "webhookintegrations",
+  "$modelRestName": "webhookintegration",
   "additionalProperties": false,
-  "description": "Deployment represents an AI Security Gateway Deployment.",
+  "description": "A webhook integration lets a third-party product that can call out to an HTTP endpoint have the traffic it handles inspected by Acuvity, with no code change in that product. It describes one vendor's webhook contract: the routes that vendor calls, and for each of them the lua script that turns its payload into something that can be scanned or policed, and the verdict back into the answer it expects. It is served by attaching it to an AI Gateway connector of type WebhookIntegration. The connector supplies the base path it is reachable under and the settings it runs with, so the same integration can be attached to several connectors.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -39,12 +38,21 @@
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "The description of the deployment.",
+      "description": "The description of the webhook integration.",
       "title": "description",
       "type": [
         "string",
         "null"
       ]
+    },
+    "extractors": {
+      "$friendlyName": "Extractors",
+      "description": "The routes of this integration. Each one registers a method and a path under the route of the connector the integration is attached to.",
+      "items": {
+        "$ref": "webhookextractor.json"
+      },
+      "title": "extractors",
+      "type": "array"
     },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
@@ -52,6 +60,15 @@
       "description": "Friendly name of the object.",
       "title": "friendlyName",
       "type": "string"
+    },
+    "icon": {
+      "$friendlyName": "Icon",
+      "description": "The icon of the webhook integration, base64 encoded.",
+      "title": "icon",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "importHash": {
       "$creationOnly": true,
@@ -68,6 +85,15 @@
       "$friendlyName": "ImportLabel",
       "description": "The user-defined import label that allows the system to group resources from the same import operation.",
       "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lib": {
+      "$friendlyName": "Lib",
+      "description": "If set, this snippet of lua will be available in all webhook extractors of the integration, acting as an effective library. It must be a valid lua module. It will be available to all extractors by doing local plib = require('plib').",
+      "title": "lib",
       "type": [
         "string",
         "null"
@@ -104,77 +130,6 @@
         "null"
       ]
     },
-    "publicKeys": {
-      "$friendlyName": "Public Keys",
-      "description": "The names of the public keys whose corresponding private key is available on this deployment's instances.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "publicKeys",
-      "type": "array"
-    },
-    "publicURLs": {
-      "$friendlyName": "Public URLs",
-      "description": "Public URLs of the deployment.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "publicURLs",
-      "type": "array"
-    },
-    "renewToken": {
-      "$friendlyName": "Renew Token",
-      "description": "Set to true on update to issue a new credential.",
-      "title": "renewToken",
-      "type": [
-        "boolean",
-        "null"
-      ]
-    },
-    "renewTokenTag": {
-      "$friendlyName": "Renew Token Tag",
-      "description": "Set to value on update to associate a tag with the issued token.",
-      "title": "renewTokenTag",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "renewTokenValidity": {
-      "$friendlyName": "Renew Token Validity",
-      "description": "Set to value on update to set the validity for a token.",
-      "title": "renewTokenValidity",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "token": {
-      "$friendlyName": "Token",
-      "$readOnly": true,
-      "description": "The issued JWT, populated only in the response of an update where renewToken was set to true.",
-      "title": "token",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "tokenRefs": {
-      "$friendlyName": "Token References",
-      "$readOnly": true,
-      "description": "The list of references to issued tokens.",
-      "items": {
-        "$ref": "tokenref.json"
-      },
-      "title": "tokenRefs",
-      "type": "array"
-    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -184,11 +139,20 @@
         "string",
         "null"
       ]
+    },
+    "vendorURL": {
+      "$friendlyName": "Vendor URL",
+      "description": "URL to the vendor's documentation for this integration point.",
+      "title": "vendorURL",
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "required": [
     "friendlyName"
   ],
-  "title": "Deployment",
+  "title": "WebhookIntegration",
   "type": "object"
 }

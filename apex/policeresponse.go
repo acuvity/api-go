@@ -207,12 +207,13 @@ type PoliceResponse struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the policy that produced this decision asked for the analysis to
-	// run offband. The decision was therefore made without waiting for the
-	// analyzers, so the extractions in this response carry no detections, and any
-	// redaction the analyzers would have found was not applied. The full analyzer
-	// set runs after this response is sent, so the stored roundtrip for this
-	// request can report a stricter outcome than the one reported here.
+	// If true, this decision was made without waiting for the analyzers: the
+	// policy that produced it either asked for offband analysis, or pinned an
+	// empty inband analyzer set for this direction. The extractions in this
+	// response therefore carry no detections, and any redaction the analyzers
+	// would have found was not applied. The full analyzer set runs after this
+	// response is sent, so the stored roundtrip for this request can report a
+	// stricter outcome than the one reported here.
 	Offband bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
 
 	// If true, the policy that produced this decision is configured in permissive
@@ -1235,12 +1236,13 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the policy that produced this decision asked for the analysis to
-run offband. The decision was therefore made without waiting for the
-analyzers, so the extractions in this response carry no detections, and any
-redaction the analyzers would have found was not applied. The full analyzer
-set runs after this response is sent, so the stored roundtrip for this
-request can report a stricter outcome than the one reported here.`,
+		Description: `If true, this decision was made without waiting for the analyzers: the
+policy that produced it either asked for offband analysis, or pinned an
+empty inband analyzer set for this direction. The extractions in this
+response therefore carry no detections, and any redaction the analyzers
+would have found was not applied. The full analyzer set runs after this
+response is sent, so the stored roundtrip for this request can report a
+stricter outcome than the one reported here.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -1581,12 +1583,13 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "offband",
 		ConvertedName:  "Offband",
-		Description: `If true, the policy that produced this decision asked for the analysis to
-run offband. The decision was therefore made without waiting for the
-analyzers, so the extractions in this response carry no detections, and any
-redaction the analyzers would have found was not applied. The full analyzer
-set runs after this response is sent, so the stored roundtrip for this
-request can report a stricter outcome than the one reported here.`,
+		Description: `If true, this decision was made without waiting for the analyzers: the
+policy that produced it either asked for offband analysis, or pinned an
+empty inband analyzer set for this direction. The extractions in this
+response therefore carry no detections, and any redaction the analyzers
+would have found was not applied. The full analyzer set runs after this
+response is sent, so the stored roundtrip for this request can report a
+stricter outcome than the one reported here.`,
 		Exposed: true,
 		Name:    "offband",
 		Stored:  true,
@@ -1862,12 +1865,13 @@ type SparsePoliceResponse struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// If true, the policy that produced this decision asked for the analysis to
-	// run offband. The decision was therefore made without waiting for the
-	// analyzers, so the extractions in this response carry no detections, and any
-	// redaction the analyzers would have found was not applied. The full analyzer
-	// set runs after this response is sent, so the stored roundtrip for this
-	// request can report a stricter outcome than the one reported here.
+	// If true, this decision was made without waiting for the analyzers: the
+	// policy that produced it either asked for offband analysis, or pinned an
+	// empty inband analyzer set for this direction. The extractions in this
+	// response therefore carry no detections, and any redaction the analyzers
+	// would have found was not applied. The full analyzer set runs after this
+	// response is sent, so the stored roundtrip for this request can report a
+	// stricter outcome than the one reported here.
 	Offband *bool `json:"offband,omitempty" msgpack:"offband,omitempty" bson:"offband,omitempty" mapstructure:"offband,omitempty"`
 
 	// If true, the policy that produced this decision is configured in permissive
