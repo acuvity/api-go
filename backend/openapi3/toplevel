@@ -627,9 +627,20 @@
             "description": "The release train to follow when updating. Manual means it will not auto-update,\nessentially pinning to a version.",
             "enum": [
               "Manual",
-              "Unstable",
-              "Stable"
+              "SpecificVersion",
+              "Stable",
+              "StableMinusN",
+              "Unstable"
             ]
+          },
+          "releaseTrainOffset": {
+            "description": "When release train is set to stable - n, the number of stable releases to\nremain behind the current Stable release.",
+            "type": "integer"
+          },
+          "releaseTrainVersion": {
+            "description": "When release train is set to specific version, specifies the version to upgrade\nto. Does not downgrade newer versions.",
+            "example": "1.9.2",
+            "type": "string"
           },
           "scanDisabled": {
             "description": "If disabled, the agent will not scan for genAI applications and plugins.",

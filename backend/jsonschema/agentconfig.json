@@ -293,10 +293,31 @@
       "description": "The release train to follow when updating. Manual means it will not auto-update, essentially pinning to a version.",
       "enum": [
         "Manual",
-        "Unstable",
-        "Stable"
+        "SpecificVersion",
+        "Stable",
+        "StableMinusN",
+        "Unstable"
       ],
       "title": "releaseTrain"
+    },
+    "releaseTrainOffset": {
+      "$friendlyName": "Release Train Offset",
+      "description": "When release train is set to stable - n, the number of stable releases to remain behind the current Stable release.",
+      "title": "releaseTrainOffset",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "releaseTrainVersion": {
+      "$friendlyName": "Release Train Version",
+      "description": "When release train is set to specific version, specifies the version to upgrade to. Does not downgrade newer versions.",
+      "pattern": "(^[0-9.]+$)?",
+      "title": "releaseTrainVersion",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "scanDisabled": {
       "$friendlyName": "Scan Disabled",

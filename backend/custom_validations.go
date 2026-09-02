@@ -1885,6 +1885,17 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		}
 	}
 
+	switch agentConfig.ReleaseTrain {
+	case AgentConfigReleaseTrainStableMinusN:
+		if agentConfig.ReleaseTrainOffset < 1 || agentConfig.ReleaseTrainOffset > 5 {
+			return makeErr("releaseTrainOffset", "'ReleaseTrainOffset' should be in the range 1-5.")
+		}
+	case AgentConfigReleaseTrainSpecificVersion:
+		if agentConfig.ReleaseTrainVersion == "" || !validSemverRegex.MatchString(agentConfig.ReleaseTrainVersion) {
+			return makeErr("releaseTrainVersion", "'releaseTrainVersion' must be two to three numeric components")
+		}
+	}
+
 	for i, portRange := range agentConfig.DriverPortRanges {
 		if portRange.Start <= 0 || portRange.Start >= 65535 {
 			return makeErr("driverPortRanges", fmt.Sprintf("Invalid start port '%d' (position %d): must be within range of 0 and 65535", portRange.Start, i))
@@ -2222,6 +2233,9 @@ var (
 
 	// Allow a single label or multiple labels separated by dots; no trailing dot
 	validOnePlusLabelsDNSNameRegex = regexp.MustCompile(`^` + validHostnameLabel + `(?:\.` + validHostnameLabel + `)*$`)
+
+	// Allows basic semver with no tags.
+	validSemverRegex = regexp.MustCompile(`^\d+\.\d+(\.\d+)?$`)
 )
 
 // ValidatePolicyHostnames validates the given hostnames to be valid strings for egress policy usage.

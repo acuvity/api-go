@@ -31,8 +31,14 @@ const (
 	// AgentConfigReleaseTrainManual represents the value Manual.
 	AgentConfigReleaseTrainManual AgentConfigReleaseTrainValue = "Manual"
 
+	// AgentConfigReleaseTrainSpecificVersion represents the value SpecificVersion.
+	AgentConfigReleaseTrainSpecificVersion AgentConfigReleaseTrainValue = "SpecificVersion"
+
 	// AgentConfigReleaseTrainStable represents the value Stable.
 	AgentConfigReleaseTrainStable AgentConfigReleaseTrainValue = "Stable"
+
+	// AgentConfigReleaseTrainStableMinusN represents the value StableMinusN.
+	AgentConfigReleaseTrainStableMinusN AgentConfigReleaseTrainValue = "StableMinusN"
 
 	// AgentConfigReleaseTrainUnstable represents the value Unstable.
 	AgentConfigReleaseTrainUnstable AgentConfigReleaseTrainValue = "Unstable"
@@ -218,6 +224,14 @@ type AgentConfig struct {
 	// essentially pinning to a version.
 	ReleaseTrain AgentConfigReleaseTrainValue `json:"releaseTrain" msgpack:"releaseTrain" bson:"releasetrain" mapstructure:"releaseTrain,omitempty"`
 
+	// When release train is set to stable - n, the number of stable releases to
+	// remain behind the current Stable release.
+	ReleaseTrainOffset int `json:"releaseTrainOffset" msgpack:"releaseTrainOffset" bson:"releasetrainoffset" mapstructure:"releaseTrainOffset,omitempty"`
+
+	// When release train is set to specific version, specifies the version to upgrade
+	// to. Does not downgrade newer versions.
+	ReleaseTrainVersion string `json:"releaseTrainVersion" msgpack:"releaseTrainVersion" bson:"releasetrainversion" mapstructure:"releaseTrainVersion,omitempty"`
+
 	// If disabled, the agent will not scan for genAI applications and plugins.
 	ScanDisabled bool `json:"scanDisabled" msgpack:"scanDisabled" bson:"scandisabled" mapstructure:"scanDisabled,omitempty"`
 
@@ -375,6 +389,8 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.PingInterval = o.PingInterval
 	s.Priority = o.Priority
 	s.ReleaseTrain = o.ReleaseTrain
+	s.ReleaseTrainOffset = o.ReleaseTrainOffset
+	s.ReleaseTrainVersion = o.ReleaseTrainVersion
 	s.ScanDisabled = o.ScanDisabled
 	s.ScanInstalledApps = o.ScanInstalledApps
 	s.ScanInterval = o.ScanInterval
@@ -440,6 +456,8 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.PingInterval = s.PingInterval
 	o.Priority = s.Priority
 	o.ReleaseTrain = s.ReleaseTrain
+	o.ReleaseTrainOffset = s.ReleaseTrainOffset
+	o.ReleaseTrainVersion = s.ReleaseTrainVersion
 	o.ScanDisabled = s.ScanDisabled
 	o.ScanInstalledApps = s.ScanInstalledApps
 	o.ScanInterval = s.ScanInterval
@@ -588,6 +606,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PingInterval:                  &o.PingInterval,
 			Priority:                      &o.Priority,
 			ReleaseTrain:                  &o.ReleaseTrain,
+			ReleaseTrainOffset:            &o.ReleaseTrainOffset,
+			ReleaseTrainVersion:           &o.ReleaseTrainVersion,
 			ScanDisabled:                  &o.ScanDisabled,
 			ScanInstalledApps:             &o.ScanInstalledApps,
 			ScanInterval:                  &o.ScanInterval,
@@ -673,6 +693,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Priority = &(o.Priority)
 		case "releaseTrain":
 			sp.ReleaseTrain = &(o.ReleaseTrain)
+		case "releaseTrainOffset":
+			sp.ReleaseTrainOffset = &(o.ReleaseTrainOffset)
+		case "releaseTrainVersion":
+			sp.ReleaseTrainVersion = &(o.ReleaseTrainVersion)
 		case "scanDisabled":
 			sp.ScanDisabled = &(o.ScanDisabled)
 		case "scanInstalledApps":
@@ -813,6 +837,12 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ReleaseTrain != nil {
 		o.ReleaseTrain = *so.ReleaseTrain
+	}
+	if so.ReleaseTrainOffset != nil {
+		o.ReleaseTrainOffset = *so.ReleaseTrainOffset
+	}
+	if so.ReleaseTrainVersion != nil {
+		o.ReleaseTrainVersion = *so.ReleaseTrainVersion
 	}
 	if so.ScanDisabled != nil {
 		o.ScanDisabled = *so.ScanDisabled
@@ -1015,7 +1045,11 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("releaseTrain", string(o.ReleaseTrain), []string{"Manual", "Unstable", "Stable"}, false); err != nil {
+	if err := elemental.ValidateStringInList("releaseTrain", string(o.ReleaseTrain), []string{"Manual", "SpecificVersion", "Stable", "StableMinusN", "Unstable"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidatePattern("releaseTrainVersion", o.ReleaseTrainVersion, `^[0-9.]+$`, `must only contain numbers separated by '.'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1170,6 +1204,10 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.Priority
 	case "releaseTrain":
 		return o.ReleaseTrain
+	case "releaseTrainOffset":
+		return o.ReleaseTrainOffset
+	case "releaseTrainVersion":
+		return o.ReleaseTrainVersion
 	case "scanDisabled":
 		return o.ScanDisabled
 	case "scanInstalledApps":
@@ -1557,7 +1595,7 @@ Values can be negative.`,
 		Type:    "integer",
 	},
 	"ReleaseTrain": {
-		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
+		AllowedChoices: []string{"Manual", "SpecificVersion", "Stable", "StableMinusN", "Unstable"},
 		BSONFieldName:  "releasetrain",
 		ConvertedName:  "ReleaseTrain",
 		DefaultValue:   AgentConfigReleaseTrainStable,
@@ -1567,6 +1605,29 @@ essentially pinning to a version.`,
 		Name:    "releaseTrain",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"ReleaseTrainOffset": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "releasetrainoffset",
+		ConvertedName:  "ReleaseTrainOffset",
+		Description: `When release train is set to stable - n, the number of stable releases to
+remain behind the current Stable release.`,
+		Exposed: true,
+		Name:    "releaseTrainOffset",
+		Stored:  true,
+		Type:    "integer",
+	},
+	"ReleaseTrainVersion": {
+		AllowedChars:   `^[0-9.]+$`,
+		AllowedChoices: []string{},
+		BSONFieldName:  "releasetrainversion",
+		ConvertedName:  "ReleaseTrainVersion",
+		Description: `When release train is set to specific version, specifies the version to upgrade
+to. Does not downgrade newer versions.`,
+		Exposed: true,
+		Name:    "releaseTrainVersion",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ScanDisabled": {
 		AllowedChoices: []string{},
@@ -2114,7 +2175,7 @@ Values can be negative.`,
 		Type:    "integer",
 	},
 	"releasetrain": {
-		AllowedChoices: []string{"Manual", "Unstable", "Stable"},
+		AllowedChoices: []string{"Manual", "SpecificVersion", "Stable", "StableMinusN", "Unstable"},
 		BSONFieldName:  "releasetrain",
 		ConvertedName:  "ReleaseTrain",
 		DefaultValue:   AgentConfigReleaseTrainStable,
@@ -2124,6 +2185,29 @@ essentially pinning to a version.`,
 		Name:    "releaseTrain",
 		Stored:  true,
 		Type:    "enum",
+	},
+	"releasetrainoffset": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "releasetrainoffset",
+		ConvertedName:  "ReleaseTrainOffset",
+		Description: `When release train is set to stable - n, the number of stable releases to
+remain behind the current Stable release.`,
+		Exposed: true,
+		Name:    "releaseTrainOffset",
+		Stored:  true,
+		Type:    "integer",
+	},
+	"releasetrainversion": {
+		AllowedChars:   `^[0-9.]+$`,
+		AllowedChoices: []string{},
+		BSONFieldName:  "releasetrainversion",
+		ConvertedName:  "ReleaseTrainVersion",
+		Description: `When release train is set to specific version, specifies the version to upgrade
+to. Does not downgrade newer versions.`,
+		Exposed: true,
+		Name:    "releaseTrainVersion",
+		Stored:  true,
+		Type:    "string",
 	},
 	"scandisabled": {
 		AllowedChoices: []string{},
@@ -2498,6 +2582,14 @@ type SparseAgentConfig struct {
 	// essentially pinning to a version.
 	ReleaseTrain *AgentConfigReleaseTrainValue `json:"releaseTrain,omitempty" msgpack:"releaseTrain,omitempty" bson:"releasetrain,omitempty" mapstructure:"releaseTrain,omitempty"`
 
+	// When release train is set to stable - n, the number of stable releases to
+	// remain behind the current Stable release.
+	ReleaseTrainOffset *int `json:"releaseTrainOffset,omitempty" msgpack:"releaseTrainOffset,omitempty" bson:"releasetrainoffset,omitempty" mapstructure:"releaseTrainOffset,omitempty"`
+
+	// When release train is set to specific version, specifies the version to upgrade
+	// to. Does not downgrade newer versions.
+	ReleaseTrainVersion *string `json:"releaseTrainVersion,omitempty" msgpack:"releaseTrainVersion,omitempty" bson:"releasetrainversion,omitempty" mapstructure:"releaseTrainVersion,omitempty"`
+
 	// If disabled, the agent will not scan for genAI applications and plugins.
 	ScanDisabled *bool `json:"scanDisabled,omitempty" msgpack:"scanDisabled,omitempty" bson:"scandisabled,omitempty" mapstructure:"scanDisabled,omitempty"`
 
@@ -2700,6 +2792,12 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ReleaseTrain != nil {
 		s.ReleaseTrain = o.ReleaseTrain
 	}
+	if o.ReleaseTrainOffset != nil {
+		s.ReleaseTrainOffset = o.ReleaseTrainOffset
+	}
+	if o.ReleaseTrainVersion != nil {
+		s.ReleaseTrainVersion = o.ReleaseTrainVersion
+	}
 	if o.ScanDisabled != nil {
 		s.ScanDisabled = o.ScanDisabled
 	}
@@ -2860,6 +2958,12 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.ReleaseTrain != nil {
 		o.ReleaseTrain = s.ReleaseTrain
 	}
+	if s.ReleaseTrainOffset != nil {
+		o.ReleaseTrainOffset = s.ReleaseTrainOffset
+	}
+	if s.ReleaseTrainVersion != nil {
+		o.ReleaseTrainVersion = s.ReleaseTrainVersion
+	}
 	if s.ScanDisabled != nil {
 		o.ScanDisabled = s.ScanDisabled
 	}
@@ -3017,6 +3121,12 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ReleaseTrain != nil {
 		out.ReleaseTrain = *o.ReleaseTrain
+	}
+	if o.ReleaseTrainOffset != nil {
+		out.ReleaseTrainOffset = *o.ReleaseTrainOffset
+	}
+	if o.ReleaseTrainVersion != nil {
+		out.ReleaseTrainVersion = *o.ReleaseTrainVersion
 	}
 	if o.ScanDisabled != nil {
 		out.ScanDisabled = *o.ScanDisabled
@@ -3282,6 +3392,8 @@ type mongoAttributesAgentConfig struct {
 	PingInterval                  string                           `bson:"pinginterval"`
 	Priority                      int                              `bson:"priority"`
 	ReleaseTrain                  AgentConfigReleaseTrainValue     `bson:"releasetrain"`
+	ReleaseTrainOffset            int                              `bson:"releasetrainoffset"`
+	ReleaseTrainVersion           string                           `bson:"releasetrainversion"`
 	ScanDisabled                  bool                             `bson:"scandisabled"`
 	ScanInstalledApps             []*AgentDiscoveredApp            `bson:"scaninstalledapps"`
 	ScanInterval                  string                           `bson:"scaninterval"`
@@ -3332,6 +3444,8 @@ type mongoAttributesSparseAgentConfig struct {
 	PingInterval                  *string                           `bson:"pinginterval,omitempty"`
 	Priority                      *int                              `bson:"priority,omitempty"`
 	ReleaseTrain                  *AgentConfigReleaseTrainValue     `bson:"releasetrain,omitempty"`
+	ReleaseTrainOffset            *int                              `bson:"releasetrainoffset,omitempty"`
+	ReleaseTrainVersion           *string                           `bson:"releasetrainversion,omitempty"`
 	ScanDisabled                  *bool                             `bson:"scandisabled,omitempty"`
 	ScanInstalledApps             *[]*AgentDiscoveredApp            `bson:"scaninstalledapps,omitempty"`
 	ScanInterval                  *string                           `bson:"scaninterval,omitempty"`

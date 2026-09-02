@@ -1359,6 +1359,7 @@ Stores the configuration information for the acushield agent.
   "pauseEnabled": false,
   "pingInterval": "6h",
   "releaseTrain": "Stable",
+  "releaseTrainVersion": "1.9.2",
   "scanDisabled": false,
   "scanInterval": "10m",
   "scanReportInterval": "1h",
@@ -1642,7 +1643,7 @@ Values can be negative.
 
 ##### `releaseTrain`
 
-Type: `enum(Manual | Unstable | Stable)`
+Type: `enum(Manual | SpecificVersion | Stable | StableMinusN | Unstable)`
 
 The release train to follow when updating. Manual means it will not auto-update,
 essentially pinning to a version.
@@ -1652,6 +1653,20 @@ Default value:
 ```json
 "Stable"
 ```
+
+##### `releaseTrainOffset`
+
+Type: `integer`
+
+When release train is set to stable - n, the number of stable releases to
+remain behind the current Stable release.
+
+##### `releaseTrainVersion` [`format=^[0-9.]+$`]
+
+Type: `string`
+
+When release train is set to specific version, specifies the version to upgrade
+to. Does not downgrade newer versions.
 
 ##### `scanDisabled`
 
