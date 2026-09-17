@@ -5,7 +5,7 @@
   "$friendlyName": "AID Section Data Processor",
   "$friendlyNamePlural": "AID Section Data Processors",
   "$modelName": "AIDSectionDataProcessor",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsectiondataprocessors",
   "$modelRestName": "aidsectiondataprocessor",
   "additionalProperties": false,

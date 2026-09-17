@@ -31,7 +31,7 @@ const (
 var AIGatewayConnectorIdentity = elemental.Identity{
 	Name:     "aigatewayconnector",
 	Category: "aigatewayconnectors",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

@@ -10,7 +10,7 @@
   "$friendlyName": "AI Security Probe",
   "$friendlyNamePlural": "AI Security Probes",
   "$modelName": "AISecurityProbe",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "aisecurityprobes",
   "$modelRestName": "aisecurityprobe",
   "additionalProperties": false,

@@ -5,7 +5,7 @@
   "$friendlyName": "AID Section",
   "$friendlyNamePlural": "AID Sections",
   "$modelName": "AIDSection",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsections",
   "$modelRestName": "aidsection",
   "additionalProperties": false,

@@ -5,7 +5,7 @@
   "$friendlyName": "App Selector",
   "$friendlyNamePlural": "App Selectors",
   "$modelName": "AppSelector",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appselectors",
   "$modelRestName": "appselector",
   "additionalProperties": false,

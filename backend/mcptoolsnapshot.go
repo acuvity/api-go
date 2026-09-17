@@ -17,7 +17,7 @@ import (
 var MCPToolSnapshotIdentity = elemental.Identity{
 	Name:     "mcptoolsnapshot",
 	Category: "mcptoolsnapshots",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 
@@ -104,10 +104,6 @@ type MCPToolSnapshot struct {
 	// Whether the live tools list diverges from the baseline.
 	Drifted bool `json:"drifted" msgpack:"drifted" bson:"drifted" mapstructure:"drifted,omitempty"`
 
-	// The analyzer findings from running the drifted tool list through the analyzers.
-	// Populated only when the snapshot is in a drifted state.
-	Extraction *Extraction `json:"extraction" msgpack:"extraction" bson:"extraction" mapstructure:"extraction,omitempty"`
-
 	// When divergence was first observed. Set on entering drift, cleared on leaving
 	// it.
 	FirstDriftedAt time.Time `json:"firstDriftedAt" msgpack:"firstDriftedAt" bson:"firstdriftedat" mapstructure:"firstDriftedAt,omitempty"`
@@ -127,6 +123,10 @@ type MCPToolSnapshot struct {
 
 	// The raw tools list as fetched from upstream, sent by the gateway on create.
 	RawTools string `json:"rawTools" msgpack:"rawTools" bson:"-" mapstructure:"rawTools,omitempty"`
+
+	// Per-tool analyzer findings from running each drifted tool through the
+	// analyzers. Populated only when the snapshot is in a drifted state.
+	ToolExtractions []*MCPToolExtraction `json:"toolExtractions" msgpack:"toolExtractions" bson:"toolextractions" mapstructure:"toolExtractions,omitempty"`
 
 	// The tools list as last fetched from upstream.
 	Tools []*Tool `json:"tools" msgpack:"tools" bson:"tools" mapstructure:"tools,omitempty"`
@@ -187,12 +187,12 @@ func (o *MCPToolSnapshot) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Diagnostic = o.Diagnostic
 	s.Drifted = o.Drifted
-	s.Extraction = o.Extraction
 	s.FirstDriftedAt = o.FirstDriftedAt
 	s.GatewayName = o.GatewayName
 	s.LastFetchedAt = o.LastFetchedAt
 	s.McpServer = o.McpServer
 	s.Namespace = o.Namespace
+	s.ToolExtractions = o.ToolExtractions
 	s.Tools = o.Tools
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -220,12 +220,12 @@ func (o *MCPToolSnapshot) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Diagnostic = s.Diagnostic
 	o.Drifted = s.Drifted
-	o.Extraction = s.Extraction
 	o.FirstDriftedAt = s.FirstDriftedAt
 	o.GatewayName = s.GatewayName
 	o.LastFetchedAt = s.LastFetchedAt
 	o.McpServer = s.McpServer
 	o.Namespace = s.Namespace
+	o.ToolExtractions = s.ToolExtractions
 	o.Tools = s.Tools
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -307,23 +307,23 @@ func (o *MCPToolSnapshot) ToSparse(fields ...string) elemental.SparseIdentifiabl
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseMCPToolSnapshot{
-			ID:             &o.ID,
-			ConnectorHash:  &o.ConnectorHash,
-			ConnectorName:  &o.ConnectorName,
-			CreateTime:     &o.CreateTime,
-			Diagnostic:     &o.Diagnostic,
-			Drifted:        &o.Drifted,
-			Extraction:     o.Extraction,
-			FirstDriftedAt: &o.FirstDriftedAt,
-			GatewayName:    &o.GatewayName,
-			LastFetchedAt:  &o.LastFetchedAt,
-			McpServer:      &o.McpServer,
-			Namespace:      &o.Namespace,
-			RawTools:       &o.RawTools,
-			Tools:          &o.Tools,
-			UpdateTime:     &o.UpdateTime,
-			ZHash:          &o.ZHash,
-			Zone:           &o.Zone,
+			ID:              &o.ID,
+			ConnectorHash:   &o.ConnectorHash,
+			ConnectorName:   &o.ConnectorName,
+			CreateTime:      &o.CreateTime,
+			Diagnostic:      &o.Diagnostic,
+			Drifted:         &o.Drifted,
+			FirstDriftedAt:  &o.FirstDriftedAt,
+			GatewayName:     &o.GatewayName,
+			LastFetchedAt:   &o.LastFetchedAt,
+			McpServer:       &o.McpServer,
+			Namespace:       &o.Namespace,
+			RawTools:        &o.RawTools,
+			ToolExtractions: &o.ToolExtractions,
+			Tools:           &o.Tools,
+			UpdateTime:      &o.UpdateTime,
+			ZHash:           &o.ZHash,
+			Zone:            &o.Zone,
 		}
 	}
 
@@ -342,8 +342,6 @@ func (o *MCPToolSnapshot) ToSparse(fields ...string) elemental.SparseIdentifiabl
 			sp.Diagnostic = &(o.Diagnostic)
 		case "drifted":
 			sp.Drifted = &(o.Drifted)
-		case "extraction":
-			sp.Extraction = o.Extraction
 		case "firstDriftedAt":
 			sp.FirstDriftedAt = &(o.FirstDriftedAt)
 		case "gatewayName":
@@ -356,6 +354,8 @@ func (o *MCPToolSnapshot) ToSparse(fields ...string) elemental.SparseIdentifiabl
 			sp.Namespace = &(o.Namespace)
 		case "rawTools":
 			sp.RawTools = &(o.RawTools)
+		case "toolExtractions":
+			sp.ToolExtractions = &(o.ToolExtractions)
 		case "tools":
 			sp.Tools = &(o.Tools)
 		case "updateTime":
@@ -395,9 +395,6 @@ func (o *MCPToolSnapshot) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Drifted != nil {
 		o.Drifted = *so.Drifted
 	}
-	if so.Extraction != nil {
-		o.Extraction = so.Extraction
-	}
 	if so.FirstDriftedAt != nil {
 		o.FirstDriftedAt = *so.FirstDriftedAt
 	}
@@ -415,6 +412,9 @@ func (o *MCPToolSnapshot) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RawTools != nil {
 		o.RawTools = *so.RawTools
+	}
+	if so.ToolExtractions != nil {
+		o.ToolExtractions = *so.ToolExtractions
 	}
 	if so.Tools != nil {
 		o.Tools = *so.Tools
@@ -442,9 +442,12 @@ func (o *MCPToolSnapshot) EncryptAttributes(encrypter elemental.AttributeEncrypt
 		}
 	}
 
-	if o.Extraction != nil {
-		if err := o.Extraction.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Extraction' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+	for _, sub := range o.ToolExtractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolExtractions' for 'MCPToolSnapshot' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -472,9 +475,12 @@ func (o *MCPToolSnapshot) DecryptAttributes(encrypter elemental.AttributeEncrypt
 		}
 	}
 
-	if o.Extraction != nil {
-		if err := o.Extraction.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Extraction' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+	for _, sub := range o.ToolExtractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolExtractions' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -536,15 +542,18 @@ func (o *MCPToolSnapshot) Validate() error {
 		}
 	}
 
-	if o.Extraction != nil {
-		if err := o.Extraction.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "extraction")
-		}
-	}
-
 	if err := elemental.ValidateRequiredString("gatewayName", o.GatewayName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	for i, sub := range o.ToolExtractions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolExtractions", i))
+		}
 	}
 
 	for i, sub := range o.Tools {
@@ -603,8 +612,6 @@ func (o *MCPToolSnapshot) ValueForAttribute(name string) any {
 		return o.Diagnostic
 	case "drifted":
 		return o.Drifted
-	case "extraction":
-		return o.Extraction
 	case "firstDriftedAt":
 		return o.FirstDriftedAt
 	case "gatewayName":
@@ -617,6 +624,8 @@ func (o *MCPToolSnapshot) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "rawTools":
 		return o.RawTools
+	case "toolExtractions":
+		return o.ToolExtractions
 	case "tools":
 		return o.Tools
 	case "updateTime":
@@ -706,18 +715,6 @@ distinguish upstream drift from connector configuration changes.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"Extraction": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "extraction",
-		ConvertedName:  "Extraction",
-		Description: `The analyzer findings from running the drifted tool list through the analyzers.
-Populated only when the snapshot is in a drifted state.`,
-		Exposed: true,
-		Name:    "extraction",
-		Stored:  true,
-		SubType: "extraction",
-		Type:    "ref",
-	},
 	"FirstDriftedAt": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "firstdriftedat",
@@ -784,6 +781,18 @@ when resolving MCP attack findings.`,
 		Name:           "rawTools",
 		Transient:      true,
 		Type:           "string",
+	},
+	"ToolExtractions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolextractions",
+		ConvertedName:  "ToolExtractions",
+		Description: `Per-tool analyzer findings from running each drifted tool through the
+analyzers. Populated only when the snapshot is in a drifted state.`,
+		Exposed: true,
+		Name:    "toolExtractions",
+		Stored:  true,
+		SubType: "mcptoolextraction",
+		Type:    "refList",
 	},
 	"Tools": {
 		AllowedChoices: []string{},
@@ -889,18 +898,6 @@ distinguish upstream drift from connector configuration changes.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
-	"extraction": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "extraction",
-		ConvertedName:  "Extraction",
-		Description: `The analyzer findings from running the drifted tool list through the analyzers.
-Populated only when the snapshot is in a drifted state.`,
-		Exposed: true,
-		Name:    "extraction",
-		Stored:  true,
-		SubType: "extraction",
-		Type:    "ref",
-	},
 	"firstdriftedat": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "firstdriftedat",
@@ -967,6 +964,18 @@ when resolving MCP attack findings.`,
 		Name:           "rawTools",
 		Transient:      true,
 		Type:           "string",
+	},
+	"toolextractions": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolextractions",
+		ConvertedName:  "ToolExtractions",
+		Description: `Per-tool analyzer findings from running each drifted tool through the
+analyzers. Populated only when the snapshot is in a drifted state.`,
+		Exposed: true,
+		Name:    "toolExtractions",
+		Stored:  true,
+		SubType: "mcptoolextraction",
+		Type:    "refList",
 	},
 	"tools": {
 		AllowedChoices: []string{},
@@ -1078,10 +1087,6 @@ type SparseMCPToolSnapshot struct {
 	// Whether the live tools list diverges from the baseline.
 	Drifted *bool `json:"drifted,omitempty" msgpack:"drifted,omitempty" bson:"drifted,omitempty" mapstructure:"drifted,omitempty"`
 
-	// The analyzer findings from running the drifted tool list through the analyzers.
-	// Populated only when the snapshot is in a drifted state.
-	Extraction *Extraction `json:"extraction,omitempty" msgpack:"extraction,omitempty" bson:"extraction,omitempty" mapstructure:"extraction,omitempty"`
-
 	// When divergence was first observed. Set on entering drift, cleared on leaving
 	// it.
 	FirstDriftedAt *time.Time `json:"firstDriftedAt,omitempty" msgpack:"firstDriftedAt,omitempty" bson:"firstdriftedat,omitempty" mapstructure:"firstDriftedAt,omitempty"`
@@ -1101,6 +1106,10 @@ type SparseMCPToolSnapshot struct {
 
 	// The raw tools list as fetched from upstream, sent by the gateway on create.
 	RawTools *string `json:"rawTools,omitempty" msgpack:"rawTools,omitempty" bson:"-" mapstructure:"rawTools,omitempty"`
+
+	// Per-tool analyzer findings from running each drifted tool through the
+	// analyzers. Populated only when the snapshot is in a drifted state.
+	ToolExtractions *[]*MCPToolExtraction `json:"toolExtractions,omitempty" msgpack:"toolExtractions,omitempty" bson:"toolextractions,omitempty" mapstructure:"toolExtractions,omitempty"`
 
 	// The tools list as last fetched from upstream.
 	Tools *[]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"tools,omitempty" mapstructure:"tools,omitempty"`
@@ -1175,9 +1184,6 @@ func (o *SparseMCPToolSnapshot) GetBSON() (any, error) {
 	if o.Drifted != nil {
 		s.Drifted = o.Drifted
 	}
-	if o.Extraction != nil {
-		s.Extraction = o.Extraction
-	}
 	if o.FirstDriftedAt != nil {
 		s.FirstDriftedAt = o.FirstDriftedAt
 	}
@@ -1192,6 +1198,9 @@ func (o *SparseMCPToolSnapshot) GetBSON() (any, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.ToolExtractions != nil {
+		s.ToolExtractions = o.ToolExtractions
 	}
 	if o.Tools != nil {
 		s.Tools = o.Tools
@@ -1239,9 +1248,6 @@ func (o *SparseMCPToolSnapshot) SetBSON(raw bson.Raw) error {
 	if s.Drifted != nil {
 		o.Drifted = s.Drifted
 	}
-	if s.Extraction != nil {
-		o.Extraction = s.Extraction
-	}
 	if s.FirstDriftedAt != nil {
 		o.FirstDriftedAt = s.FirstDriftedAt
 	}
@@ -1256,6 +1262,9 @@ func (o *SparseMCPToolSnapshot) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.ToolExtractions != nil {
+		o.ToolExtractions = s.ToolExtractions
 	}
 	if s.Tools != nil {
 		o.Tools = s.Tools
@@ -1301,9 +1310,6 @@ func (o *SparseMCPToolSnapshot) ToPlain() elemental.PlainIdentifiable {
 	if o.Drifted != nil {
 		out.Drifted = *o.Drifted
 	}
-	if o.Extraction != nil {
-		out.Extraction = o.Extraction
-	}
 	if o.FirstDriftedAt != nil {
 		out.FirstDriftedAt = *o.FirstDriftedAt
 	}
@@ -1321,6 +1327,9 @@ func (o *SparseMCPToolSnapshot) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RawTools != nil {
 		out.RawTools = *o.RawTools
+	}
+	if o.ToolExtractions != nil {
+		out.ToolExtractions = *o.ToolExtractions
 	}
 	if o.Tools != nil {
 		out.Tools = *o.Tools
@@ -1352,9 +1361,14 @@ func (o *SparseMCPToolSnapshot) EncryptAttributes(encrypter elemental.AttributeE
 		}
 	}
 
-	if o.Extraction != nil {
-		if err := o.Extraction.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt ref attribute 'Extraction' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+	if o.ToolExtractions != nil {
+		for _, sub := range *o.ToolExtractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolExtractions' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+			}
 		}
 	}
 
@@ -1386,9 +1400,14 @@ func (o *SparseMCPToolSnapshot) DecryptAttributes(encrypter elemental.AttributeE
 		}
 	}
 
-	if o.Extraction != nil {
-		if err := o.Extraction.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt ref attribute 'Extraction' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+	if o.ToolExtractions != nil {
+		for _, sub := range *o.ToolExtractions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolExtractions' for 'MCPToolSnapshot' (%s): %w", o.Identifier(), err)
+			}
 		}
 	}
 
@@ -1479,38 +1498,38 @@ func (o *SparseMCPToolSnapshot) DeepCopyInto(out *SparseMCPToolSnapshot) {
 }
 
 type mongoAttributesMCPToolSnapshot struct {
-	ID             bson.ObjectId `bson:"_id,omitempty"`
-	ConnectorHash  string        `bson:"connectorhash,omitempty"`
-	ConnectorName  string        `bson:"connectorname"`
-	CreateTime     time.Time     `bson:"createtime"`
-	Diagnostic     []*Diagnostic `bson:"diagnostic"`
-	Drifted        bool          `bson:"drifted"`
-	Extraction     *Extraction   `bson:"extraction"`
-	FirstDriftedAt time.Time     `bson:"firstdriftedat"`
-	GatewayName    string        `bson:"gatewayname"`
-	LastFetchedAt  time.Time     `bson:"lastfetchedat"`
-	McpServer      string        `bson:"mcpserver,omitempty"`
-	Namespace      string        `bson:"namespace,omitempty"`
-	Tools          []*Tool       `bson:"tools"`
-	UpdateTime     time.Time     `bson:"updatetime"`
-	ZHash          int           `bson:"zhash"`
-	Zone           int           `bson:"zone"`
+	ID              bson.ObjectId        `bson:"_id,omitempty"`
+	ConnectorHash   string               `bson:"connectorhash,omitempty"`
+	ConnectorName   string               `bson:"connectorname"`
+	CreateTime      time.Time            `bson:"createtime"`
+	Diagnostic      []*Diagnostic        `bson:"diagnostic"`
+	Drifted         bool                 `bson:"drifted"`
+	FirstDriftedAt  time.Time            `bson:"firstdriftedat"`
+	GatewayName     string               `bson:"gatewayname"`
+	LastFetchedAt   time.Time            `bson:"lastfetchedat"`
+	McpServer       string               `bson:"mcpserver,omitempty"`
+	Namespace       string               `bson:"namespace,omitempty"`
+	ToolExtractions []*MCPToolExtraction `bson:"toolextractions"`
+	Tools           []*Tool              `bson:"tools"`
+	UpdateTime      time.Time            `bson:"updatetime"`
+	ZHash           int                  `bson:"zhash"`
+	Zone            int                  `bson:"zone"`
 }
 type mongoAttributesSparseMCPToolSnapshot struct {
-	ID             bson.ObjectId  `bson:"_id,omitempty"`
-	ConnectorHash  *string        `bson:"connectorhash,omitempty"`
-	ConnectorName  *string        `bson:"connectorname,omitempty"`
-	CreateTime     *time.Time     `bson:"createtime,omitempty"`
-	Diagnostic     *[]*Diagnostic `bson:"diagnostic,omitempty"`
-	Drifted        *bool          `bson:"drifted,omitempty"`
-	Extraction     *Extraction    `bson:"extraction,omitempty"`
-	FirstDriftedAt *time.Time     `bson:"firstdriftedat,omitempty"`
-	GatewayName    *string        `bson:"gatewayname,omitempty"`
-	LastFetchedAt  *time.Time     `bson:"lastfetchedat,omitempty"`
-	McpServer      *string        `bson:"mcpserver,omitempty"`
-	Namespace      *string        `bson:"namespace,omitempty"`
-	Tools          *[]*Tool       `bson:"tools,omitempty"`
-	UpdateTime     *time.Time     `bson:"updatetime,omitempty"`
-	ZHash          *int           `bson:"zhash,omitempty"`
-	Zone           *int           `bson:"zone,omitempty"`
+	ID              bson.ObjectId         `bson:"_id,omitempty"`
+	ConnectorHash   *string               `bson:"connectorhash,omitempty"`
+	ConnectorName   *string               `bson:"connectorname,omitempty"`
+	CreateTime      *time.Time            `bson:"createtime,omitempty"`
+	Diagnostic      *[]*Diagnostic        `bson:"diagnostic,omitempty"`
+	Drifted         *bool                 `bson:"drifted,omitempty"`
+	FirstDriftedAt  *time.Time            `bson:"firstdriftedat,omitempty"`
+	GatewayName     *string               `bson:"gatewayname,omitempty"`
+	LastFetchedAt   *time.Time            `bson:"lastfetchedat,omitempty"`
+	McpServer       *string               `bson:"mcpserver,omitempty"`
+	Namespace       *string               `bson:"namespace,omitempty"`
+	ToolExtractions *[]*MCPToolExtraction `bson:"toolextractions,omitempty"`
+	Tools           *[]*Tool              `bson:"tools,omitempty"`
+	UpdateTime      *time.Time            `bson:"updatetime,omitempty"`
+	ZHash           *int                  `bson:"zhash,omitempty"`
+	Zone            *int                  `bson:"zone,omitempty"`
 }

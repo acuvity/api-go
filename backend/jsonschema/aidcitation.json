@@ -3,7 +3,7 @@
   "$friendlyName": "AID Citation",
   "$friendlyNamePlural": "AID Citations",
   "$modelName": "AIDCitation",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidcitation",
   "$modelRestName": "aidcitation",
   "additionalProperties": false,

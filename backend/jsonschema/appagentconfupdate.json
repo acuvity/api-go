@@ -6,7 +6,7 @@
   "$friendlyName": "App Agent Conf Update",
   "$friendlyNamePlural": "App Agent Conf Updates",
   "$modelName": "AppAgentConfUpdate",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "appagentconfupdates",
   "$modelRestName": "appagentconfupdate",
   "additionalProperties": false,

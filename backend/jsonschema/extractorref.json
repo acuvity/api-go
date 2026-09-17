@@ -5,7 +5,7 @@
   "$friendlyName": "Extractor Reference",
   "$friendlyNamePlural": "Extractor References",
   "$modelName": "ExtractorRef",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "extractorrefs",
   "$modelRestName": "extractorref",
   "additionalProperties": false,

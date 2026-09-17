@@ -42,7 +42,7 @@ const (
 var AccessPolicyIdentity = elemental.Identity{
 	Name:     "accesspolicy",
 	Category: "accesspolicies",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

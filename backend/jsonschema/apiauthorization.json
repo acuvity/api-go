@@ -8,7 +8,7 @@
   "$friendlyName": "API Authorization",
   "$friendlyNamePlural": "API Authorizations",
   "$modelName": "APIAuthorization",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanko",
   "$modelResourceName": "apiauthorizations",
   "$modelRestName": "apiauthorization",
   "additionalProperties": false,
@@ -47,6 +47,15 @@
       "$friendlyName": "Disabled",
       "description": "When disabled, an API Authorization has no effect.",
       "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "hidden": {
+      "$friendlyName": "Hidden",
+      "description": "If true, this authorization will not be visible if retrieved as a propagated object.",
+      "title": "hidden",
       "type": [
         "boolean",
         "null"

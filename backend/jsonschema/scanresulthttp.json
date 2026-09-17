@@ -5,7 +5,7 @@
   "$friendlyName": "HTTP Scan Result",
   "$friendlyNamePlural": "HTTP Scan Results",
   "$modelName": "ScanResultHTTP",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scanresulthttp",
   "$modelRestName": "scanresulthttp",
   "additionalProperties": false,

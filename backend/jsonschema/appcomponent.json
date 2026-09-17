@@ -5,7 +5,7 @@
   "$friendlyName": "App Component",
   "$friendlyNamePlural": "App Components",
   "$modelName": "AppComponent",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appcomponents",
   "$modelRestName": "appcomponent",
   "additionalProperties": false,
@@ -112,6 +112,12 @@
       },
       "title": "tokenref",
       "type": "array"
+    },
+    "trafficControl": {
+      "$friendlyName": "Traffic Control",
+      "$ref": "trafficcontrol.json",
+      "description": "The traffic control configuration for this app component. Defines which host sets and IP sets are allowed or blocked for egress, and the default DNS policy.",
+      "title": "trafficControl"
     }
   },
   "required": [

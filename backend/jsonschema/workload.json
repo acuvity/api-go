@@ -6,7 +6,7 @@
   "$friendlyName": "Workload",
   "$friendlyNamePlural": "Workloads",
   "$modelName": "Workload",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "workloads",
   "$modelRestName": "workload",
   "additionalProperties": false,

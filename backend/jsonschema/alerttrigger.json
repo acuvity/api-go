@@ -21,7 +21,7 @@
       "$defaultValue": 1,
       "$friendlyName": "Occurrences",
       "$required": true,
-      "description": "The number of times an alert event is seen to cause a trigger.",
+      "description": "The number of times an alert event must be seen within the interval to cause a trigger.",
       "minimum": 1,
       "title": "occurrences",
       "type": "integer"

@@ -10,7 +10,7 @@
   "$friendlyName": "AI Gateway",
   "$friendlyNamePlural": "AI Gateways",
   "$modelName": "AIGateway",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "aigateways",
   "$modelRestName": "aigateway",
   "additionalProperties": false,

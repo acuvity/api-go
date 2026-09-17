@@ -5,7 +5,7 @@
   "$friendlyName": "Ingress Policy",
   "$friendlyNamePlural": "Ingress Policies",
   "$modelName": "IngressPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "ingresspolicies",
   "$modelRestName": "ingresspolicy",
   "additionalProperties": false,

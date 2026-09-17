@@ -34,7 +34,7 @@ const (
 var AISkillIdentity = elemental.Identity{
 	Name:     "aiskill",
 	Category: "aiskills",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

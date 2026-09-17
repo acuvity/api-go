@@ -3,7 +3,7 @@
   "$friendlyName": "AI Gateway Conf MCP Tool",
   "$friendlyNamePlural": "AI Gateway Conf MCP Tools",
   "$modelName": "AIGatewayConfMCPTool",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "aigatewayconfmcptools",
   "$modelRestName": "aigatewayconfmcptool",
   "additionalProperties": false,

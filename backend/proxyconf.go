@@ -16,7 +16,7 @@ import (
 var ProxyConfIdentity = elemental.Identity{
 	Name:     "proxyconf",
 	Category: "proxyconfs",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

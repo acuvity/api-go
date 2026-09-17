@@ -7,7 +7,7 @@
   "$friendlyName": "Page Data View",
   "$friendlyNamePlural": "Page Data Views",
   "$modelName": "PageDataView",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "pagedataviews",
   "$modelRestName": "pagedataview",
   "additionalProperties": false,

@@ -10,7 +10,7 @@
   "$friendlyName": "AI Gateway Connector",
   "$friendlyNamePlural": "AI Gateway Connectors",
   "$modelName": "AIGatewayConnector",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "aigatewayconnectors",
   "$modelRestName": "aigatewayconnector",
   "additionalProperties": false,

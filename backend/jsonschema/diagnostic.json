@@ -3,7 +3,7 @@
   "$friendlyName": "Diagnostic",
   "$friendlyNamePlural": "Diagnostics",
   "$modelName": "Diagnostic",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "diagnostics",
   "$modelRestName": "diagnostic",
   "additionalProperties": false,

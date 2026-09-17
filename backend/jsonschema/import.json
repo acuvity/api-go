@@ -3,7 +3,7 @@
   "$friendlyName": "Import",
   "$friendlyNamePlural": "Imports",
   "$modelName": "Import",
-  "$modelPackage": "lain",
+  "$modelPackage": "yorozu",
   "$modelResourceName": "import",
   "$modelRestName": "import",
   "additionalProperties": false,
@@ -267,6 +267,15 @@
       "title": "findingdefinitions",
       "type": "array"
     },
+    "hostSets": {
+      "$friendlyName": "Host Sets",
+      "description": "Host sets to import.",
+      "items": {
+        "$ref": "hostset.json"
+      },
+      "title": "hostSets",
+      "type": "array"
+    },
     "ignoredDomains": {
       "$friendlyName": "Ignored Domains",
       "description": "Ignored domains to import.",
@@ -274,6 +283,15 @@
         "$ref": "ignoreddomain.json"
       },
       "title": "ignoredDomains",
+      "type": "array"
+    },
+    "ipSets": {
+      "$friendlyName": "IP Sets",
+      "description": "IP sets to import.",
+      "items": {
+        "$ref": "ipset.json"
+      },
+      "title": "ipSets",
       "type": "array"
     },
     "label": {

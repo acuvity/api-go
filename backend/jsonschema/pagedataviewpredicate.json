@@ -1,9 +1,11 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@predicate"
+  ],
   "$friendlyName": "Page Data View Predicate",
   "$friendlyNamePlural": "Page Data View Predicates",
   "$modelName": "PageDataViewPredicate",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "pagedataviewpredicates",
   "$modelRestName": "pagedataviewpredicate",
   "additionalProperties": false,
@@ -19,10 +21,11 @@
     "operator": {
       "$friendlyName": "Operator",
       "$required": true,
-      "description": "The operator of the page data view predicate.",
+      "description": "The operator of the predicate.",
       "enum": [
         "All",
         "Any",
+        "Contains",
         "Empty",
         "Equals",
         "EqualsOrGreaterThan",

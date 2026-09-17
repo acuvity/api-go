@@ -17,7 +17,7 @@ import (
 var ProviderTeamIdentity = elemental.Identity{
 	Name:     "providerteam",
 	Category: "providerteams",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

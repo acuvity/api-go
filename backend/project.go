@@ -17,7 +17,7 @@ import (
 var ProjectIdentity = elemental.Identity{
 	Name:     "project",
 	Category: "projects",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 

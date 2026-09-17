@@ -10,7 +10,7 @@
   "$friendlyName": "Content Policy",
   "$friendlyNamePlural": "Content Policies",
   "$modelName": "ContentPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "contentpolicies",
   "$modelRestName": "contentpolicy",
   "additionalProperties": false,

@@ -17,7 +17,7 @@ import (
 var PublicKeyIdentity = elemental.Identity{
 	Name:     "publickey",
 	Category: "publickeys",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

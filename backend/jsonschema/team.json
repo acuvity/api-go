@@ -8,7 +8,7 @@
   "$friendlyName": "Team",
   "$friendlyNamePlural": "Teams",
   "$modelName": "Team",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanko",
   "$modelResourceName": "teams",
   "$modelRestName": "team",
   "additionalProperties": false,

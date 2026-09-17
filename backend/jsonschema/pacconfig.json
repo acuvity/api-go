@@ -8,7 +8,7 @@
   "$friendlyName": "PAC Config",
   "$friendlyNamePlural": "PAC Configs",
   "$modelName": "PACConfig",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "pacconfigs",
   "$modelRestName": "pacconfig",
   "additionalProperties": false,

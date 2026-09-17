@@ -16,7 +16,7 @@ import (
 var AppReportIdentity = elemental.Identity{
 	Name:     "appreport",
 	Category: "appreports",
-	Package:  "lain",
+	Package:  "colektor",
 	Private:  false,
 }
 

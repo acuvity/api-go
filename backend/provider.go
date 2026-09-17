@@ -50,7 +50,7 @@ const (
 var ProviderIdentity = elemental.Identity{
 	Name:     "provider",
 	Category: "providers",
-	Package:  "lain",
+	Package:  "tonya",
 	Private:  false,
 }
 
@@ -207,6 +207,11 @@ type Provider struct {
 	// The type of the provider.
 	ProviderType ProviderProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
+	// If true, the provider is omitted from proxy configurations until tenant
+	// hosts are configured with a Provider Hosts Override. The configured hosts
+	// are also applied to the provider's extractor references.
+	RequiresHostOverride bool `json:"requiresHostOverride" msgpack:"requiresHostOverride" bson:"requireshostoverride" mapstructure:"requiresHostOverride,omitempty"`
+
 	// The latest risk score of the provider.
 	RiskScore float64 `json:"riskScore" msgpack:"riskScore" bson:"riskscore" mapstructure:"riskScore,omitempty"`
 
@@ -310,6 +315,7 @@ func (o *Provider) GetBSON() (any, error) {
 	s.OfficialStatusURL = o.OfficialStatusURL
 	s.Propagate = o.Propagate
 	s.ProviderType = o.ProviderType
+	s.RequiresHostOverride = o.RequiresHostOverride
 	s.RiskScore = o.RiskScore
 	s.Status = o.Status
 	s.Tools = o.Tools
@@ -360,6 +366,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 	o.OfficialStatusURL = s.OfficialStatusURL
 	o.Propagate = s.Propagate
 	o.ProviderType = s.ProviderType
+	o.RequiresHostOverride = s.RequiresHostOverride
 	o.RiskScore = s.RiskScore
 	o.Status = s.Status
 	o.Tools = s.Tools
@@ -483,39 +490,40 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseProvider{
-			ID:                &o.ID,
-			MCPURL:            &o.MCPURL,
-			Category:          &o.Category,
-			CreateTime:        &o.CreateTime,
-			Description:       &o.Description,
-			ErrorTransformer:  o.ErrorTransformer,
-			ExcludedHosts:     &o.ExcludedHosts,
-			Experimental:      &o.Experimental,
-			Extractors:        &o.Extractors,
-			FriendlyName:      &o.FriendlyName,
-			Hosts:             &o.Hosts,
-			Icon:              &o.Icon,
-			ImportHash:        &o.ImportHash,
-			ImportLabel:       &o.ImportLabel,
-			Injectors:         &o.Injectors,
-			Lib:               &o.Lib,
-			Mappers:           &o.Mappers,
-			ModelPrefixes:     &o.ModelPrefixes,
-			Models:            &o.Models,
-			Name:              &o.Name,
-			Namespace:         &o.Namespace,
-			OfficialStatusURL: &o.OfficialStatusURL,
-			Propagate:         &o.Propagate,
-			ProviderType:      &o.ProviderType,
-			RiskScore:         &o.RiskScore,
-			Status:            &o.Status,
-			Tools:             &o.Tools,
-			TrustedCA:         &o.TrustedCA,
-			UpdateTime:        &o.UpdateTime,
-			UpstreamUnsecure:  &o.UpstreamUnsecure,
-			WebHost:           &o.WebHost,
-			ZHash:             &o.ZHash,
-			Zone:              &o.Zone,
+			ID:                   &o.ID,
+			MCPURL:               &o.MCPURL,
+			Category:             &o.Category,
+			CreateTime:           &o.CreateTime,
+			Description:          &o.Description,
+			ErrorTransformer:     o.ErrorTransformer,
+			ExcludedHosts:        &o.ExcludedHosts,
+			Experimental:         &o.Experimental,
+			Extractors:           &o.Extractors,
+			FriendlyName:         &o.FriendlyName,
+			Hosts:                &o.Hosts,
+			Icon:                 &o.Icon,
+			ImportHash:           &o.ImportHash,
+			ImportLabel:          &o.ImportLabel,
+			Injectors:            &o.Injectors,
+			Lib:                  &o.Lib,
+			Mappers:              &o.Mappers,
+			ModelPrefixes:        &o.ModelPrefixes,
+			Models:               &o.Models,
+			Name:                 &o.Name,
+			Namespace:            &o.Namespace,
+			OfficialStatusURL:    &o.OfficialStatusURL,
+			Propagate:            &o.Propagate,
+			ProviderType:         &o.ProviderType,
+			RequiresHostOverride: &o.RequiresHostOverride,
+			RiskScore:            &o.RiskScore,
+			Status:               &o.Status,
+			Tools:                &o.Tools,
+			TrustedCA:            &o.TrustedCA,
+			UpdateTime:           &o.UpdateTime,
+			UpstreamUnsecure:     &o.UpstreamUnsecure,
+			WebHost:              &o.WebHost,
+			ZHash:                &o.ZHash,
+			Zone:                 &o.Zone,
 		}
 	}
 
@@ -570,6 +578,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Propagate = &(o.Propagate)
 		case "providerType":
 			sp.ProviderType = &(o.ProviderType)
+		case "requiresHostOverride":
+			sp.RequiresHostOverride = &(o.RequiresHostOverride)
 		case "riskScore":
 			sp.RiskScore = &(o.RiskScore)
 		case "status":
@@ -672,6 +682,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ProviderType != nil {
 		o.ProviderType = *so.ProviderType
+	}
+	if so.RequiresHostOverride != nil {
+		o.RequiresHostOverride = *so.RequiresHostOverride
 	}
 	if so.RiskScore != nil {
 		o.RiskScore = *so.RiskScore
@@ -1042,6 +1055,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.Propagate
 	case "providerType":
 		return o.ProviderType
+	case "requiresHostOverride":
+		return o.RequiresHostOverride
 	case "riskScore":
 		return o.RiskScore
 	case "status":
@@ -1361,6 +1376,18 @@ the same model, in which case the most specific pattern wins.`,
 		Name:           "providerType",
 		Stored:         true,
 		Type:           "enum",
+	},
+	"RequiresHostOverride": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "requireshostoverride",
+		ConvertedName:  "RequiresHostOverride",
+		Description: `If true, the provider is omitted from proxy configurations until tenant
+hosts are configured with a Provider Hosts Override. The configured hosts
+are also applied to the provider's extractor references.`,
+		Exposed: true,
+		Name:    "requiresHostOverride",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"RiskScore": {
 		AllowedChoices: []string{},
@@ -1743,6 +1770,18 @@ the same model, in which case the most specific pattern wins.`,
 		Stored:         true,
 		Type:           "enum",
 	},
+	"requireshostoverride": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "requireshostoverride",
+		ConvertedName:  "RequiresHostOverride",
+		Description: `If true, the provider is omitted from proxy configurations until tenant
+hosts are configured with a Provider Hosts Override. The configured hosts
+are also applied to the provider's extractor references.`,
+		Exposed: true,
+		Name:    "requiresHostOverride",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"riskscore": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "riskscore",
@@ -1979,6 +2018,11 @@ type SparseProvider struct {
 	// The type of the provider.
 	ProviderType *ProviderProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
 
+	// If true, the provider is omitted from proxy configurations until tenant
+	// hosts are configured with a Provider Hosts Override. The configured hosts
+	// are also applied to the provider's extractor references.
+	RequiresHostOverride *bool `json:"requiresHostOverride,omitempty" msgpack:"requiresHostOverride,omitempty" bson:"requireshostoverride,omitempty" mapstructure:"requiresHostOverride,omitempty"`
+
 	// The latest risk score of the provider.
 	RiskScore *float64 `json:"riskScore,omitempty" msgpack:"riskScore,omitempty" bson:"riskscore,omitempty" mapstructure:"riskScore,omitempty"`
 
@@ -2125,6 +2169,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	if o.ProviderType != nil {
 		s.ProviderType = o.ProviderType
 	}
+	if o.RequiresHostOverride != nil {
+		s.RequiresHostOverride = o.RequiresHostOverride
+	}
 	if o.RiskScore != nil {
 		s.RiskScore = o.RiskScore
 	}
@@ -2240,6 +2287,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.ProviderType != nil {
 		o.ProviderType = s.ProviderType
 	}
+	if s.RequiresHostOverride != nil {
+		o.RequiresHostOverride = s.RequiresHostOverride
+	}
 	if s.RiskScore != nil {
 		o.RiskScore = s.RiskScore
 	}
@@ -2352,6 +2402,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ProviderType != nil {
 		out.ProviderType = *o.ProviderType
+	}
+	if o.RequiresHostOverride != nil {
+		out.RequiresHostOverride = *o.RequiresHostOverride
 	}
 	if o.RiskScore != nil {
 		out.RiskScore = *o.RiskScore
@@ -2639,72 +2692,74 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 }
 
 type mongoAttributesProvider struct {
-	ID                bson.ObjectId             `bson:"_id,omitempty"`
-	MCPURL            string                    `bson:"mcpurl,omitempty"`
-	Category          ProviderCategoryValue     `bson:"category"`
-	CreateTime        time.Time                 `bson:"createtime"`
-	Description       string                    `bson:"description"`
-	ErrorTransformer  *ErrorTransformer         `bson:"errortransformer,omitempty"`
-	ExcludedHosts     []string                  `bson:"excludedhosts"`
-	Experimental      bool                      `bson:"experimental"`
-	Extractors        []*ExtractorRef           `bson:"extractors"`
-	FriendlyName      string                    `bson:"friendlyname"`
-	Hosts             []*Host                   `bson:"hosts"`
-	Icon              string                    `bson:"icon,omitempty"`
-	ImportHash        string                    `bson:"importhash,omitempty"`
-	ImportLabel       string                    `bson:"importlabel,omitempty"`
-	Injectors         []*Injector               `bson:"injectors,omitempty"`
-	Lib               string                    `bson:"lib"`
-	Mappers           []*Mapper                 `bson:"mappers,omitempty"`
-	ModelPrefixes     []string                  `bson:"modelprefixes,omitempty"`
-	Models            []string                  `bson:"models,omitempty"`
-	Name              string                    `bson:"name"`
-	Namespace         string                    `bson:"namespace,omitempty"`
-	OfficialStatusURL string                    `bson:"officialstatusurl,omitempty"`
-	Propagate         bool                      `bson:"propagate"`
-	ProviderType      ProviderProviderTypeValue `bson:"providertype"`
-	RiskScore         float64                   `bson:"riskscore"`
-	Status            ProviderStatusValue       `bson:"status"`
-	Tools             []*Tool                   `bson:"tools,omitempty"`
-	TrustedCA         string                    `bson:"trustedca,omitempty"`
-	UpdateTime        time.Time                 `bson:"updatetime"`
-	UpstreamUnsecure  bool                      `bson:"upstreamunsecure"`
-	WebHost           string                    `bson:"webhost"`
-	ZHash             int                       `bson:"zhash"`
-	Zone              int                       `bson:"zone"`
+	ID                   bson.ObjectId             `bson:"_id,omitempty"`
+	MCPURL               string                    `bson:"mcpurl,omitempty"`
+	Category             ProviderCategoryValue     `bson:"category"`
+	CreateTime           time.Time                 `bson:"createtime"`
+	Description          string                    `bson:"description"`
+	ErrorTransformer     *ErrorTransformer         `bson:"errortransformer,omitempty"`
+	ExcludedHosts        []string                  `bson:"excludedhosts"`
+	Experimental         bool                      `bson:"experimental"`
+	Extractors           []*ExtractorRef           `bson:"extractors"`
+	FriendlyName         string                    `bson:"friendlyname"`
+	Hosts                []*Host                   `bson:"hosts"`
+	Icon                 string                    `bson:"icon,omitempty"`
+	ImportHash           string                    `bson:"importhash,omitempty"`
+	ImportLabel          string                    `bson:"importlabel,omitempty"`
+	Injectors            []*Injector               `bson:"injectors,omitempty"`
+	Lib                  string                    `bson:"lib"`
+	Mappers              []*Mapper                 `bson:"mappers,omitempty"`
+	ModelPrefixes        []string                  `bson:"modelprefixes,omitempty"`
+	Models               []string                  `bson:"models,omitempty"`
+	Name                 string                    `bson:"name"`
+	Namespace            string                    `bson:"namespace,omitempty"`
+	OfficialStatusURL    string                    `bson:"officialstatusurl,omitempty"`
+	Propagate            bool                      `bson:"propagate"`
+	ProviderType         ProviderProviderTypeValue `bson:"providertype"`
+	RequiresHostOverride bool                      `bson:"requireshostoverride"`
+	RiskScore            float64                   `bson:"riskscore"`
+	Status               ProviderStatusValue       `bson:"status"`
+	Tools                []*Tool                   `bson:"tools,omitempty"`
+	TrustedCA            string                    `bson:"trustedca,omitempty"`
+	UpdateTime           time.Time                 `bson:"updatetime"`
+	UpstreamUnsecure     bool                      `bson:"upstreamunsecure"`
+	WebHost              string                    `bson:"webhost"`
+	ZHash                int                       `bson:"zhash"`
+	Zone                 int                       `bson:"zone"`
 }
 type mongoAttributesSparseProvider struct {
-	ID                bson.ObjectId              `bson:"_id,omitempty"`
-	MCPURL            *string                    `bson:"mcpurl,omitempty"`
-	Category          *ProviderCategoryValue     `bson:"category,omitempty"`
-	CreateTime        *time.Time                 `bson:"createtime,omitempty"`
-	Description       *string                    `bson:"description,omitempty"`
-	ErrorTransformer  *ErrorTransformer          `bson:"errortransformer,omitempty"`
-	ExcludedHosts     *[]string                  `bson:"excludedhosts,omitempty"`
-	Experimental      *bool                      `bson:"experimental,omitempty"`
-	Extractors        *[]*ExtractorRef           `bson:"extractors,omitempty"`
-	FriendlyName      *string                    `bson:"friendlyname,omitempty"`
-	Hosts             *[]*Host                   `bson:"hosts,omitempty"`
-	Icon              *string                    `bson:"icon,omitempty"`
-	ImportHash        *string                    `bson:"importhash,omitempty"`
-	ImportLabel       *string                    `bson:"importlabel,omitempty"`
-	Injectors         *[]*Injector               `bson:"injectors,omitempty"`
-	Lib               *string                    `bson:"lib,omitempty"`
-	Mappers           *[]*Mapper                 `bson:"mappers,omitempty"`
-	ModelPrefixes     *[]string                  `bson:"modelprefixes,omitempty"`
-	Models            *[]string                  `bson:"models,omitempty"`
-	Name              *string                    `bson:"name,omitempty"`
-	Namespace         *string                    `bson:"namespace,omitempty"`
-	OfficialStatusURL *string                    `bson:"officialstatusurl,omitempty"`
-	Propagate         *bool                      `bson:"propagate,omitempty"`
-	ProviderType      *ProviderProviderTypeValue `bson:"providertype,omitempty"`
-	RiskScore         *float64                   `bson:"riskscore,omitempty"`
-	Status            *ProviderStatusValue       `bson:"status,omitempty"`
-	Tools             *[]*Tool                   `bson:"tools,omitempty"`
-	TrustedCA         *string                    `bson:"trustedca,omitempty"`
-	UpdateTime        *time.Time                 `bson:"updatetime,omitempty"`
-	UpstreamUnsecure  *bool                      `bson:"upstreamunsecure,omitempty"`
-	WebHost           *string                    `bson:"webhost,omitempty"`
-	ZHash             *int                       `bson:"zhash,omitempty"`
-	Zone              *int                       `bson:"zone,omitempty"`
+	ID                   bson.ObjectId              `bson:"_id,omitempty"`
+	MCPURL               *string                    `bson:"mcpurl,omitempty"`
+	Category             *ProviderCategoryValue     `bson:"category,omitempty"`
+	CreateTime           *time.Time                 `bson:"createtime,omitempty"`
+	Description          *string                    `bson:"description,omitempty"`
+	ErrorTransformer     *ErrorTransformer          `bson:"errortransformer,omitempty"`
+	ExcludedHosts        *[]string                  `bson:"excludedhosts,omitempty"`
+	Experimental         *bool                      `bson:"experimental,omitempty"`
+	Extractors           *[]*ExtractorRef           `bson:"extractors,omitempty"`
+	FriendlyName         *string                    `bson:"friendlyname,omitempty"`
+	Hosts                *[]*Host                   `bson:"hosts,omitempty"`
+	Icon                 *string                    `bson:"icon,omitempty"`
+	ImportHash           *string                    `bson:"importhash,omitempty"`
+	ImportLabel          *string                    `bson:"importlabel,omitempty"`
+	Injectors            *[]*Injector               `bson:"injectors,omitempty"`
+	Lib                  *string                    `bson:"lib,omitempty"`
+	Mappers              *[]*Mapper                 `bson:"mappers,omitempty"`
+	ModelPrefixes        *[]string                  `bson:"modelprefixes,omitempty"`
+	Models               *[]string                  `bson:"models,omitempty"`
+	Name                 *string                    `bson:"name,omitempty"`
+	Namespace            *string                    `bson:"namespace,omitempty"`
+	OfficialStatusURL    *string                    `bson:"officialstatusurl,omitempty"`
+	Propagate            *bool                      `bson:"propagate,omitempty"`
+	ProviderType         *ProviderProviderTypeValue `bson:"providertype,omitempty"`
+	RequiresHostOverride *bool                      `bson:"requireshostoverride,omitempty"`
+	RiskScore            *float64                   `bson:"riskscore,omitempty"`
+	Status               *ProviderStatusValue       `bson:"status,omitempty"`
+	Tools                *[]*Tool                   `bson:"tools,omitempty"`
+	TrustedCA            *string                    `bson:"trustedca,omitempty"`
+	UpdateTime           *time.Time                 `bson:"updatetime,omitempty"`
+	UpstreamUnsecure     *bool                      `bson:"upstreamunsecure,omitempty"`
+	WebHost              *string                    `bson:"webhost,omitempty"`
+	ZHash                *int                       `bson:"zhash,omitempty"`
+	Zone                 *int                       `bson:"zone,omitempty"`
 }

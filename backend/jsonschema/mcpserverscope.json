@@ -3,7 +3,7 @@
   "$friendlyName": "MCP Server Scope",
   "$friendlyNamePlural": "MCP Server Scopes",
   "$modelName": "MCPServerScope",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "mcpserverscopes",
   "$modelRestName": "mcpserverscope",
   "additionalProperties": false,

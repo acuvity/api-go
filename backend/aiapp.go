@@ -37,7 +37,7 @@ const (
 var AIAppIdentity = elemental.Identity{
 	Name:     "aiapp",
 	Category: "aiapps",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

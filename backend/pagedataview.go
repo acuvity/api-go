@@ -17,7 +17,7 @@ import (
 var PageDataViewIdentity = elemental.Identity{
 	Name:     "pagedataview",
 	Category: "pagedataviews",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

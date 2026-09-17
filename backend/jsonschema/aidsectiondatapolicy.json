@@ -5,7 +5,7 @@
   "$friendlyName": "AID Section Data Policy",
   "$friendlyNamePlural": "AID Section Data Policies",
   "$modelName": "AIDSectionDataPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsectiondatapolicies",
   "$modelRestName": "aidsectiondatapolicy",
   "additionalProperties": false,

@@ -58,7 +58,7 @@ const (
 var APIAuthorizationIdentity = elemental.Identity{
 	Name:     "apiauthorization",
 	Category: "apiauthorizations",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 
@@ -137,6 +137,10 @@ type APIAuthorization struct {
 
 	// When disabled, an API Authorization has no effect.
 	Disabled bool `json:"disabled" msgpack:"disabled" bson:"disabled" mapstructure:"disabled,omitempty"`
+
+	// If true, this authorization will not be visible if retrieved as a propagated
+	// object.
+	Hidden bool `json:"hidden" msgpack:"hidden" bson:"hidden" mapstructure:"hidden,omitempty"`
 
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
@@ -221,6 +225,7 @@ func (o *APIAuthorization) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
 	s.Disabled = o.Disabled
+	s.Hidden = o.Hidden
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
@@ -253,6 +258,7 @@ func (o *APIAuthorization) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
 	o.Disabled = s.Disabled
+	o.Hidden = s.Hidden
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
@@ -369,6 +375,7 @@ func (o *APIAuthorization) ToSparse(fields ...string) elemental.SparseIdentifiab
 			CreateTime:       &o.CreateTime,
 			Description:      &o.Description,
 			Disabled:         &o.Disabled,
+			Hidden:           &o.Hidden,
 			ImportHash:       &o.ImportHash,
 			ImportLabel:      &o.ImportLabel,
 			Name:             &o.Name,
@@ -394,6 +401,8 @@ func (o *APIAuthorization) ToSparse(fields ...string) elemental.SparseIdentifiab
 			sp.Description = &(o.Description)
 		case "disabled":
 			sp.Disabled = &(o.Disabled)
+		case "hidden":
+			sp.Hidden = &(o.Hidden)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -440,6 +449,9 @@ func (o *APIAuthorization) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Disabled != nil {
 		o.Disabled = *so.Disabled
+	}
+	if so.Hidden != nil {
+		o.Hidden = *so.Hidden
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -586,6 +598,8 @@ func (o *APIAuthorization) ValueForAttribute(name string) any {
 		return o.Description
 	case "disabled":
 		return o.Disabled
+	case "hidden":
+		return o.Hidden
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -664,6 +678,17 @@ var APIAuthorizationAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"Hidden": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hidden",
+		ConvertedName:  "Hidden",
+		Description: `If true, this authorization will not be visible if retrieved as a propagated
+object.`,
+		Exposed: true,
+		Name:    "hidden",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"ImportHash": {
 		AllowedChoices: []string{},
@@ -834,6 +859,17 @@ var APIAuthorizationLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Name:           "disabled",
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"hidden": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hidden",
+		ConvertedName:  "Hidden",
+		Description: `If true, this authorization will not be visible if retrieved as a propagated
+object.`,
+		Exposed: true,
+		Name:    "hidden",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"importhash": {
 		AllowedChoices: []string{},
@@ -1028,6 +1064,10 @@ type SparseAPIAuthorization struct {
 	// When disabled, an API Authorization has no effect.
 	Disabled *bool `json:"disabled,omitempty" msgpack:"disabled,omitempty" bson:"disabled,omitempty" mapstructure:"disabled,omitempty"`
 
+	// If true, this authorization will not be visible if retrieved as a propagated
+	// object.
+	Hidden *bool `json:"hidden,omitempty" msgpack:"hidden,omitempty" bson:"hidden,omitempty" mapstructure:"hidden,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -1118,6 +1158,9 @@ func (o *SparseAPIAuthorization) GetBSON() (any, error) {
 	if o.Disabled != nil {
 		s.Disabled = o.Disabled
 	}
+	if o.Hidden != nil {
+		s.Hidden = o.Hidden
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
@@ -1179,6 +1222,9 @@ func (o *SparseAPIAuthorization) SetBSON(raw bson.Raw) error {
 	if s.Disabled != nil {
 		o.Disabled = s.Disabled
 	}
+	if s.Hidden != nil {
+		o.Hidden = s.Hidden
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
@@ -1237,6 +1283,9 @@ func (o *SparseAPIAuthorization) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Disabled != nil {
 		out.Disabled = *o.Disabled
+	}
+	if o.Hidden != nil {
+		out.Hidden = *o.Hidden
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1396,6 +1445,7 @@ type mongoAttributesAPIAuthorization struct {
 	CreateTime       time.Time                 `bson:"createtime"`
 	Description      string                    `bson:"description"`
 	Disabled         bool                      `bson:"disabled"`
+	Hidden           bool                      `bson:"hidden"`
 	ImportHash       string                    `bson:"importhash,omitempty"`
 	ImportLabel      string                    `bson:"importlabel,omitempty"`
 	Name             string                    `bson:"name"`
@@ -1413,6 +1463,7 @@ type mongoAttributesSparseAPIAuthorization struct {
 	CreateTime       *time.Time                 `bson:"createtime,omitempty"`
 	Description      *string                    `bson:"description,omitempty"`
 	Disabled         *bool                      `bson:"disabled,omitempty"`
+	Hidden           *bool                      `bson:"hidden,omitempty"`
 	ImportHash       *string                    `bson:"importhash,omitempty"`
 	ImportLabel      *string                    `bson:"importlabel,omitempty"`
 	Name             *string                    `bson:"name,omitempty"`

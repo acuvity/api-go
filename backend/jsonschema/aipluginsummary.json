@@ -5,7 +5,7 @@
   "$friendlyName": "AI Plugin Summary",
   "$friendlyNamePlural": "AI Plugin Summaries",
   "$modelName": "AIPluginSummary",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aipluginsummaries",
   "$modelRestName": "aipluginsummary",
   "additionalProperties": false,

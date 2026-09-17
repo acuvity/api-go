@@ -10,7 +10,7 @@
   "$friendlyName": "PublicKey",
   "$friendlyNamePlural": "PublicKeys",
   "$modelName": "PublicKey",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "publickeys",
   "$modelRestName": "publickey",
   "additionalProperties": false,

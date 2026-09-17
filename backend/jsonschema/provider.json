@@ -10,7 +10,7 @@
   "$friendlyName": "Provider",
   "$friendlyNamePlural": "Providers",
   "$modelName": "Provider",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "providers",
   "$modelRestName": "provider",
   "additionalProperties": false,
@@ -241,6 +241,15 @@
         "MCPServer"
       ],
       "title": "providerType"
+    },
+    "requiresHostOverride": {
+      "$friendlyName": "Requires Host Override",
+      "description": "If true, the provider is omitted from proxy configurations until tenant hosts are configured with a Provider Hosts Override. The configured hosts are also applied to the provider's extractor references.",
+      "title": "requiresHostOverride",
+      "type": [
+        "boolean",
+        "null"
+      ]
     },
     "riskScore": {
       "$friendlyName": "Risk Score",

@@ -17,7 +17,7 @@ import (
 var ImportIdentity = elemental.Identity{
 	Name:     "import",
 	Category: "import",
-	Package:  "lain",
+	Package:  "yorozu",
 	Private:  false,
 }
 
@@ -175,8 +175,14 @@ type Import struct {
 	// Finding definitions to import.
 	Findingdefinitions FindingDefinitionsList `json:"findingdefinitions,omitempty" msgpack:"findingdefinitions,omitempty" bson:"findingdefinitions,omitempty" mapstructure:"findingdefinitions,omitempty"`
 
+	// Host sets to import.
+	HostSets HostSetsList `json:"hostSets,omitempty" msgpack:"hostSets,omitempty" bson:"hostsets,omitempty" mapstructure:"hostSets,omitempty"`
+
 	// Ignored domains to import.
 	IgnoredDomains IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
+
+	// IP sets to import.
+	IpSets IPSetsList `json:"ipSets,omitempty" msgpack:"ipSets,omitempty" bson:"ipsets,omitempty" mapstructure:"ipSets,omitempty"`
 
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
@@ -262,7 +268,9 @@ func NewImport() *Import {
 		ExtractorLibs:       ExtractorLibsList{},
 		Extractors:          ExtractorsList{},
 		Findingdefinitions:  FindingDefinitionsList{},
+		HostSets:            HostSetsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
+		IpSets:              IPSetsList{},
 		OrgSettings:         OrgSettingsList{},
 		Projects:            ProjectsList{},
 		ProviderTeams:       ProviderTeamsList{},
@@ -337,7 +345,9 @@ func (o *Import) GetBSON() (any, error) {
 	s.ExtractorLibs = o.ExtractorLibs
 	s.Extractors = o.Extractors
 	s.Findingdefinitions = o.Findingdefinitions
+	s.HostSets = o.HostSets
 	s.IgnoredDomains = o.IgnoredDomains
+	s.IpSets = o.IpSets
 	s.Label = o.Label
 	s.OrgSettings = o.OrgSettings
 	s.Projects = o.Projects
@@ -400,7 +410,9 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.ExtractorLibs = s.ExtractorLibs
 	o.Extractors = s.Extractors
 	o.Findingdefinitions = s.Findingdefinitions
+	o.HostSets = s.HostSets
 	o.IgnoredDomains = s.IgnoredDomains
+	o.IpSets = s.IpSets
 	o.Label = s.Label
 	o.OrgSettings = s.OrgSettings
 	o.Projects = s.Projects
@@ -486,7 +498,9 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
 			Findingdefinitions:  &o.Findingdefinitions,
+			HostSets:            &o.HostSets,
 			IgnoredDomains:      &o.IgnoredDomains,
+			IpSets:              &o.IpSets,
 			Label:               &o.Label,
 			OrgSettings:         &o.OrgSettings,
 			Projects:            &o.Projects,
@@ -568,8 +582,12 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Extractors = &(o.Extractors)
 		case "findingdefinitions":
 			sp.Findingdefinitions = &(o.Findingdefinitions)
+		case "hostSets":
+			sp.HostSets = &(o.HostSets)
 		case "ignoredDomains":
 			sp.IgnoredDomains = &(o.IgnoredDomains)
+		case "ipSets":
+			sp.IpSets = &(o.IpSets)
 		case "label":
 			sp.Label = &(o.Label)
 		case "orgSettings":
@@ -703,8 +721,14 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Findingdefinitions != nil {
 		o.Findingdefinitions = *so.Findingdefinitions
 	}
+	if so.HostSets != nil {
+		o.HostSets = *so.HostSets
+	}
 	if so.IgnoredDomains != nil {
 		o.IgnoredDomains = *so.IgnoredDomains
+	}
+	if so.IpSets != nil {
+		o.IpSets = *so.IpSets
 	}
 	if so.Label != nil {
 		o.Label = *so.Label
@@ -990,12 +1014,30 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.HostSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'HostSets' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.IgnoredDomains {
 		if sub == nil {
 			continue
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.IpSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1365,12 +1407,30 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.HostSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'HostSets' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.IgnoredDomains {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.IpSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1795,6 +1855,16 @@ func (o *Import) Validate() error {
 		}
 	}
 
+	for i, sub := range o.HostSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "hostSets", i))
+		}
+	}
+
 	for i, sub := range o.IgnoredDomains {
 		if sub == nil {
 			continue
@@ -1802,6 +1872,16 @@ func (o *Import) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ignoredDomains", i))
+		}
+	}
+
+	for i, sub := range o.IpSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ipSets", i))
 		}
 	}
 
@@ -2043,8 +2123,12 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Extractors
 	case "findingdefinitions":
 		return o.Findingdefinitions
+	case "hostSets":
+		return o.HostSets
 	case "ignoredDomains":
 		return o.IgnoredDomains
+	case "ipSets":
+		return o.IpSets
 	case "label":
 		return o.Label
 	case "orgSettings":
@@ -2412,6 +2496,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "findingdefinition",
 		Type:           "refList",
 	},
+	"HostSets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostsets",
+		ConvertedName:  "HostSets",
+		Description:    `Host sets to import.`,
+		Exposed:        true,
+		Name:           "hostSets",
+		Stored:         true,
+		SubType:        "hostset",
+		Type:           "refList",
+	},
 	"IgnoredDomains": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ignoreddomains",
@@ -2421,6 +2516,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ignoredDomains",
 		Stored:         true,
 		SubType:        "ignoreddomain",
+		Type:           "refList",
+	},
+	"IpSets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ipsets",
+		ConvertedName:  "IpSets",
+		Description:    `IP sets to import.`,
+		Exposed:        true,
+		Name:           "ipSets",
+		Stored:         true,
+		SubType:        "ipset",
 		Type:           "refList",
 	},
 	"Label": {
@@ -2923,6 +3029,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "findingdefinition",
 		Type:           "refList",
 	},
+	"hostsets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "hostsets",
+		ConvertedName:  "HostSets",
+		Description:    `Host sets to import.`,
+		Exposed:        true,
+		Name:           "hostSets",
+		Stored:         true,
+		SubType:        "hostset",
+		Type:           "refList",
+	},
 	"ignoreddomains": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ignoreddomains",
@@ -2932,6 +3049,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ignoredDomains",
 		Stored:         true,
 		SubType:        "ignoreddomain",
+		Type:           "refList",
+	},
+	"ipsets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ipsets",
+		ConvertedName:  "IpSets",
+		Description:    `IP sets to import.`,
+		Exposed:        true,
+		Name:           "ipSets",
+		Stored:         true,
+		SubType:        "ipset",
 		Type:           "refList",
 	},
 	"label": {
@@ -3255,8 +3383,14 @@ type SparseImport struct {
 	// Finding definitions to import.
 	Findingdefinitions *FindingDefinitionsList `json:"findingdefinitions,omitempty" msgpack:"findingdefinitions,omitempty" bson:"findingdefinitions,omitempty" mapstructure:"findingdefinitions,omitempty"`
 
+	// Host sets to import.
+	HostSets *HostSetsList `json:"hostSets,omitempty" msgpack:"hostSets,omitempty" bson:"hostsets,omitempty" mapstructure:"hostSets,omitempty"`
+
 	// Ignored domains to import.
 	IgnoredDomains *IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
+
+	// IP sets to import.
+	IpSets *IPSetsList `json:"ipSets,omitempty" msgpack:"ipSets,omitempty" bson:"ipsets,omitempty" mapstructure:"ipSets,omitempty"`
 
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
@@ -3429,8 +3563,14 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.Findingdefinitions != nil {
 		s.Findingdefinitions = o.Findingdefinitions
 	}
+	if o.HostSets != nil {
+		s.HostSets = o.HostSets
+	}
 	if o.IgnoredDomains != nil {
 		s.IgnoredDomains = o.IgnoredDomains
+	}
+	if o.IpSets != nil {
+		s.IpSets = o.IpSets
 	}
 	if o.Label != nil {
 		s.Label = o.Label
@@ -3584,8 +3724,14 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.Findingdefinitions != nil {
 		o.Findingdefinitions = s.Findingdefinitions
 	}
+	if s.HostSets != nil {
+		o.HostSets = s.HostSets
+	}
 	if s.IgnoredDomains != nil {
 		o.IgnoredDomains = s.IgnoredDomains
+	}
+	if s.IpSets != nil {
+		o.IpSets = s.IpSets
 	}
 	if s.Label != nil {
 		o.Label = s.Label
@@ -3736,8 +3882,14 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.Findingdefinitions != nil {
 		out.Findingdefinitions = *o.Findingdefinitions
 	}
+	if o.HostSets != nil {
+		out.HostSets = *o.HostSets
+	}
 	if o.IgnoredDomains != nil {
 		out.IgnoredDomains = *o.IgnoredDomains
+	}
+	if o.IpSets != nil {
+		out.IpSets = *o.IpSets
 	}
 	if o.Label != nil {
 		out.Label = *o.Label
@@ -4077,6 +4229,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.HostSets != nil {
+		for _, sub := range *o.HostSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'HostSets' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.IgnoredDomains != nil {
 		for _, sub := range *o.IgnoredDomains {
 			if sub == nil {
@@ -4084,6 +4247,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.IpSets != nil {
+		for _, sub := range *o.IpSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4534,6 +4708,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.HostSets != nil {
+		for _, sub := range *o.HostSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'HostSets' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.IgnoredDomains != nil {
 		for _, sub := range *o.IgnoredDomains {
 			if sub == nil {
@@ -4541,6 +4726,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.IpSets != nil {
+		for _, sub := range *o.IpSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4757,7 +4953,9 @@ type mongoAttributesImport struct {
 	ExtractorLibs       ExtractorLibsList       `bson:"extractorlibs,omitempty"`
 	Extractors          ExtractorsList          `bson:"extractors,omitempty"`
 	Findingdefinitions  FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	HostSets            HostSetsList            `bson:"hostsets,omitempty"`
 	IgnoredDomains      IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	IpSets              IPSetsList              `bson:"ipsets,omitempty"`
 	Label               string                  `bson:"label"`
 	OrgSettings         OrgSettingsList         `bson:"orgsettings,omitempty"`
 	Projects            ProjectsList            `bson:"projects,omitempty"`
@@ -4805,7 +5003,9 @@ type mongoAttributesSparseImport struct {
 	ExtractorLibs       *ExtractorLibsList       `bson:"extractorlibs,omitempty"`
 	Extractors          *ExtractorsList          `bson:"extractors,omitempty"`
 	Findingdefinitions  *FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	HostSets            *HostSetsList            `bson:"hostsets,omitempty"`
 	IgnoredDomains      *IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	IpSets              *IPSetsList              `bson:"ipsets,omitempty"`
 	Label               *string                  `bson:"label,omitempty"`
 	OrgSettings         *OrgSettingsList         `bson:"orgsettings,omitempty"`
 	Projects            *ProjectsList            `bson:"projects,omitempty"`

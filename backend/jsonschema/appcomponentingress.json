@@ -6,7 +6,7 @@
   "$friendlyName": "App Component Ingress",
   "$friendlyNamePlural": "App Component Ingress",
   "$modelName": "AppComponentIngress",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appcomponentingresses",
   "$modelRestName": "appcomponentingress",
   "additionalProperties": false,

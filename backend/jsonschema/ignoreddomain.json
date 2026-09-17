@@ -9,7 +9,7 @@
   "$friendlyName": "Ignored Domain",
   "$friendlyNamePlural": "Ignored Domains",
   "$modelName": "IgnoredDomain",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "ignoreddomains",
   "$modelRestName": "ignoreddomain",
   "additionalProperties": false,

@@ -5,7 +5,7 @@
   "$friendlyName": "Watched Org",
   "$friendlyNamePlural": "Watched Orgs",
   "$modelName": "WatchedOrg",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "watchedorgs",
   "$modelRestName": "watchedorg",
   "additionalProperties": false,

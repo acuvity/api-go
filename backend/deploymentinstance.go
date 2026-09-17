@@ -31,7 +31,7 @@ const (
 var DeploymentInstanceIdentity = elemental.Identity{
 	Name:     "deploymentinstance",
 	Category: "deploymentinstances",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

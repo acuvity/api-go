@@ -11,7 +11,7 @@
   "$friendlyName": "Extractor",
   "$friendlyNamePlural": "Extractors",
   "$modelName": "Extractor",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "extractors",
   "$modelRestName": "extractor",
   "additionalProperties": false,

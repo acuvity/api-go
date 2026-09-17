@@ -246,6 +246,44 @@ func ValidatePoliceRequest(o *PoliceRequest) error {
 	return nil
 }
 
+// toolLabels is the fixed set of tool classification labels that Acuvity assigns to
+// a tool, independent of any hints a server itself may claim through MCP protocol
+// annotations (see MCPToolAnnotations).
+var toolLabels = map[string]struct{}{
+	"AccessSecrets":            {},
+	"AdminIdentity":            {},
+	"CommunicateExternal":      {},
+	"CrossSystemOrchestration": {},
+	"Discovery":                {},
+	"ExecuteCode":              {},
+	"FinancialLegal":           {},
+	"NetworkOpenWorld":         {},
+	"ReadInternal":             {},
+	"ReadPublic":               {},
+	"ReadSensitive":            {},
+	"WriteAdditive":            {},
+	"WriteDestructive":         {},
+	"WriteMutating":            {},
+}
+
+// ValidateToolLabels validates that each label is one of the known tool
+// classification labels, with no duplicates.
+func ValidateToolLabels(attribute string, labels []string) error {
+
+	seen := make(map[string]struct{}, len(labels))
+	for i, l := range labels {
+		if _, ok := toolLabels[l]; !ok {
+			return makeErr(fmt.Sprintf("%s/%d", attribute, i), fmt.Sprintf("'%s' is not a known tool label", l))
+		}
+		if _, ok := seen[l]; ok {
+			return makeErr(fmt.Sprintf("%s/%d", attribute, i), fmt.Sprintf("duplicate label '%s'", l))
+		}
+		seen[l] = struct{}{}
+	}
+
+	return nil
+}
+
 func makeErr(attribute string, message string) elemental.Error {
 
 	err := elemental.NewError(

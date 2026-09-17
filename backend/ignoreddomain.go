@@ -17,7 +17,7 @@ import (
 var IgnoredDomainIdentity = elemental.Identity{
 	Name:     "ignoreddomain",
 	Category: "ignoreddomains",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

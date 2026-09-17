@@ -3,7 +3,7 @@
   "$friendlyName": "Driver Port Range",
   "$friendlyNamePlural": "Driver Port Ranges",
   "$modelName": "DriverPortRange",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "driverportranges",
   "$modelRestName": "driverportrange",
   "additionalProperties": false,

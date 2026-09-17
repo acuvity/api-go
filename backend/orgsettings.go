@@ -17,7 +17,7 @@ import (
 var OrgSettingsIdentity = elemental.Identity{
 	Name:     "orgsettings",
 	Category: "orgsettings",
-	Package:  "lain",
+	Package:  "yorozu",
 	Private:  false,
 }
 

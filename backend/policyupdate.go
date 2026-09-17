@@ -16,7 +16,7 @@ import (
 var PolicyUpdateIdentity = elemental.Identity{
 	Name:     "policyupdate",
 	Category: "policyupdates",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

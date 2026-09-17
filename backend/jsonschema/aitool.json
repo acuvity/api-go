@@ -9,7 +9,7 @@
   "$friendlyName": "AI Tool",
   "$friendlyNamePlural": "AI Tools",
   "$modelName": "AITool",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aitools",
   "$modelRestName": "aitool",
   "additionalProperties": false,

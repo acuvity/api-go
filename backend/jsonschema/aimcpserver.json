@@ -9,7 +9,7 @@
   "$friendlyName": "AI MCP Server",
   "$friendlyNamePlural": "AI MCP Servers",
   "$modelName": "AIMCPServer",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aimcpservers",
   "$modelRestName": "aimcpserver",
   "additionalProperties": false,

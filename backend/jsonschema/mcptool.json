@@ -3,7 +3,7 @@
   "$friendlyName": "MCP Tool",
   "$friendlyNamePlural": "MCP Tools",
   "$modelName": "MCPTool",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcptools",
   "$modelRestName": "mcptool",
   "additionalProperties": false,

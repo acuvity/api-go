@@ -16,7 +16,7 @@ import (
 var ErrorTransformerIdentity = elemental.Identity{
 	Name:     "errortransformer",
 	Category: "errortransformers",
-	Package:  "lain",
+	Package:  "tonya",
 	Private:  false,
 }
 

@@ -28,7 +28,7 @@ const (
 var AIDomainIdentity = elemental.Identity{
 	Name:     "aidomain",
 	Category: "aidomains",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

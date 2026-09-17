@@ -78,11 +78,14 @@ var (
 		"gitbooktoken":    GitbookTokenIdentity,
 		"hint":            HintIdentity,
 
+		"hostset":          HostSetIdentity,
 		"identitymodifier": IdentityModifierIdentity,
 
 		"ignoreddomain": IgnoredDomainIdentity,
 		"import":        ImportIdentity,
 		"ingesttrace":   IngestTraceIdentity,
+
+		"ipset": IPSetIdentity,
 
 		"labelvalue": LabelValueIdentity,
 		"landing":    LandingIdentity,
@@ -249,11 +252,14 @@ var (
 		"gitbooktokens":    GitbookTokenIdentity,
 		"hints":            HintIdentity,
 
+		"hostsets":         HostSetIdentity,
 		"identitymodifier": IdentityModifierIdentity,
 
 		"ignoreddomains": IgnoredDomainIdentity,
 		"import":         ImportIdentity,
 		"ingesttraces":   IngestTraceIdentity,
+
+		"ipsets": IPSetIdentity,
 
 		"labelvalues": LabelValueIdentity,
 		"landings":    LandingIdentity,
@@ -620,6 +626,13 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "key"},
 		},
+		"hostset": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"identitymodifier": nil,
 		"ignoreddomain": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -632,6 +645,13 @@ var (
 		"ingesttrace": {
 			{"namespace"},
 			{"namespace", "ID"},
+		},
+		"ipset": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
 		},
 		"labelvalue": {
 			{"namespace"},
@@ -1095,6 +1115,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewGitbookToken()
 	case HintIdentity:
 		return NewHint()
+	case HostSetIdentity:
+		return NewHostSet()
 	case IdentityModifierIdentity:
 		return NewIdentityModifier()
 	case IgnoredDomainIdentity:
@@ -1103,6 +1125,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewImport()
 	case IngestTraceIdentity:
 		return NewIngestTrace()
+	case IPSetIdentity:
+		return NewIPSet()
 	case LabelValueIdentity:
 		return NewLabelValue()
 	case LandingIdentity:
@@ -1350,6 +1374,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseGitbookToken()
 	case HintIdentity:
 		return NewSparseHint()
+	case HostSetIdentity:
+		return NewSparseHostSet()
 	case IdentityModifierIdentity:
 		return NewSparseIdentityModifier()
 	case IgnoredDomainIdentity:
@@ -1358,6 +1384,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseImport()
 	case IngestTraceIdentity:
 		return NewSparseIngestTrace()
+	case IPSetIdentity:
+		return NewSparseIPSet()
 	case LabelValueIdentity:
 		return NewSparseLabelValue()
 	case LandingIdentity:
@@ -1613,6 +1641,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &GitbookTokensList{}
 	case HintIdentity:
 		return &HintsList{}
+	case HostSetIdentity:
+		return &HostSetsList{}
 	case IdentityModifierIdentity:
 		return &IdentityModifiersList{}
 	case IgnoredDomainIdentity:
@@ -1621,6 +1651,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ImportsList{}
 	case IngestTraceIdentity:
 		return &IngestTracesList{}
+	case IPSetIdentity:
+		return &IPSetsList{}
 	case LabelValueIdentity:
 		return &LabelValuesList{}
 	case LandingIdentity:
@@ -1866,6 +1898,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseGitbookTokensList{}
 	case HintIdentity:
 		return &SparseHintsList{}
+	case HostSetIdentity:
+		return &SparseHostSetsList{}
 	case IdentityModifierIdentity:
 		return &SparseIdentityModifiersList{}
 	case IgnoredDomainIdentity:
@@ -1874,6 +1908,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseImportsList{}
 	case IngestTraceIdentity:
 		return &SparseIngestTracesList{}
+	case IPSetIdentity:
+		return &SparseIPSetsList{}
 	case LabelValueIdentity:
 		return &SparseLabelValuesList{}
 	case LandingIdentity:
@@ -2185,6 +2221,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMCPServerScope()
 	case "mcptoolannotations", "MCPToolAnnotations":
 		return NewMCPToolAnnotations()
+	case "mcptoolargumentscope", "MCPToolArgumentScope":
+		return NewMCPToolArgumentScope()
+	case "mcptoolextraction", "MCPToolExtraction":
+		return NewMCPToolExtraction()
 	case "mcptoolscope", "MCPToolScope":
 		return NewMCPToolScope()
 	case "modality", "Modality":
@@ -2243,6 +2283,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewToolResult()
 	case "tooluse", "ToolUse":
 		return NewToolUse()
+	case "trafficcontrol", "TrafficControl":
+		return NewTrafficControl()
 	case "tunnelproxyauth", "TunnelProxyAuth":
 		return NewTunnelProxyAuth()
 	case "tunnelproxyauthbasic", "TunnelProxyAuthBasic":
@@ -2318,10 +2360,12 @@ func AllIdentities() []elemental.Identity {
 		GatewayInstanceIdentity,
 		GitbookTokenIdentity,
 		HintIdentity,
+		HostSetIdentity,
 		IdentityModifierIdentity,
 		IgnoredDomainIdentity,
 		ImportIdentity,
 		IngestTraceIdentity,
+		IPSetIdentity,
 		LabelValueIdentity,
 		LandingIdentity,
 		LatencyIdentity,
@@ -2495,6 +2539,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case HintIdentity:
 		return []string{}
+	case HostSetIdentity:
+		return []string{}
 	case IdentityModifierIdentity:
 		return []string{}
 	case IgnoredDomainIdentity:
@@ -2502,6 +2548,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case ImportIdentity:
 		return []string{}
 	case IngestTraceIdentity:
+		return []string{}
+	case IPSetIdentity:
 		return []string{}
 	case LabelValueIdentity:
 		return []string{}

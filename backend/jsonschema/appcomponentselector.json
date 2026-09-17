@@ -5,7 +5,7 @@
   "$friendlyName": "App Component Selector",
   "$friendlyNamePlural": "App Component Selectors",
   "$modelName": "AppComponentSelector",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appcomponentselectors",
   "$modelRestName": "appcomponentselector",
   "additionalProperties": false,

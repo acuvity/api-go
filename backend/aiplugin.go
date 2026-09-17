@@ -42,7 +42,7 @@ const (
 var AIPluginIdentity = elemental.Identity{
 	Name:     "aiplugin",
 	Category: "aiplugins",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

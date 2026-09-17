@@ -10,7 +10,7 @@
   "$friendlyName": "Custom Data Type",
   "$friendlyNamePlural": "Custom Data Types",
   "$modelName": "CustomDataType",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "customdatatypes",
   "$modelRestName": "customdatatype",
   "additionalProperties": false,

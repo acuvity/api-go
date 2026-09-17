@@ -3,7 +3,7 @@
   "$friendlyName": "Workload Status",
   "$friendlyNamePlural": "Workload Status",
   "$modelName": "WorkloadStatus",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "workloadstatuses",
   "$modelRestName": "workloadstatus",
   "additionalProperties": false,

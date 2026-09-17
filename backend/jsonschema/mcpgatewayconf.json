@@ -5,7 +5,7 @@
   "$friendlyName": "MCP Gateway Conf",
   "$friendlyNamePlural": "MCP Gateway Confs",
   "$modelName": "MCPGatewayConf",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcpgatewayconfs",
   "$modelRestName": "mcpgatewayconf",
   "additionalProperties": false,

@@ -17,7 +17,7 @@ import (
 var GatewayIdentity = elemental.Identity{
 	Name:     "gateway",
 	Category: "gateways",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

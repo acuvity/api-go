@@ -261,6 +261,13 @@ type ProxyRoundtrip struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The ID of the internal trace that served this request reported to monitoring.
+	// Do not confuse it with the traceID of the trace
+	// attribute, which reports the application's own trace when the app has
+	// tracing turned on. Empty when the processing apex ran without a trace
+	// collector.
+	InternalTraceID string `json:"internalTraceID,omitempty" msgpack:"internalTraceID,omitempty" bson:"internaltraceid,omitempty" mapstructure:"internalTraceID,omitempty"`
+
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
@@ -411,6 +418,7 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Hash = o.Hash
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.InternalTraceID = o.InternalTraceID
 	s.Latency = o.Latency
 	s.McpMessage = o.McpMessage
 	s.Model = o.Model
@@ -468,6 +476,7 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Hash = s.Hash
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.InternalTraceID = s.InternalTraceID
 	o.Latency = s.Latency
 	o.McpMessage = s.McpMessage
 	o.Model = s.Model
@@ -584,6 +593,7 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Hash:                      &o.Hash,
 			ImportHash:                &o.ImportHash,
 			ImportLabel:               &o.ImportLabel,
+			InternalTraceID:           &o.InternalTraceID,
 			Latency:                   o.Latency,
 			McpMessage:                o.McpMessage,
 			Model:                     &o.Model,
@@ -652,6 +662,8 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "internalTraceID":
+			sp.InternalTraceID = &(o.InternalTraceID)
 		case "latency":
 			sp.Latency = o.Latency
 		case "mcpMessage":
@@ -767,6 +779,9 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.InternalTraceID != nil {
+		o.InternalTraceID = *so.InternalTraceID
 	}
 	if so.Latency != nil {
 		o.Latency = so.Latency
@@ -1276,6 +1291,8 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "internalTraceID":
+		return o.InternalTraceID
 	case "latency":
 		return o.Latency
 	case "mcpMessage":
@@ -1574,6 +1591,20 @@ same import operation.`,
 		Getter:  true,
 		Name:    "importLabel",
 		Setter:  true,
+		Stored:  true,
+		Type:    "string",
+	},
+	"InternalTraceID": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "internaltraceid",
+		ConvertedName:  "InternalTraceID",
+		Description: `The ID of the internal trace that served this request reported to monitoring.
+Do not confuse it with the traceID of the trace
+attribute, which reports the application's own trace when the app has
+tracing turned on. Empty when the processing apex ran without a trace
+collector.`,
+		Exposed: true,
+		Name:    "internalTraceID",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -2074,6 +2105,20 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"internaltraceid": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "internaltraceid",
+		ConvertedName:  "InternalTraceID",
+		Description: `The ID of the internal trace that served this request reported to monitoring.
+Do not confuse it with the traceID of the trace
+attribute, which reports the application's own trace when the app has
+tracing turned on. Empty when the processing apex ran without a trace
+collector.`,
+		Exposed: true,
+		Name:    "internalTraceID",
+		Stored:  true,
+		Type:    "string",
+	},
 	"latency": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "latency",
@@ -2466,6 +2511,13 @@ type SparseProxyRoundtrip struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The ID of the internal trace that served this request reported to monitoring.
+	// Do not confuse it with the traceID of the trace
+	// attribute, which reports the application's own trace when the app has
+	// tracing turned on. Empty when the processing apex ran without a trace
+	// collector.
+	InternalTraceID *string `json:"internalTraceID,omitempty" msgpack:"internalTraceID,omitempty" bson:"internaltraceid,omitempty" mapstructure:"internalTraceID,omitempty"`
+
 	// Information about latency of various stage of request and response.
 	Latency *Latency `json:"latency,omitempty" msgpack:"latency,omitempty" bson:"latency,omitempty" mapstructure:"latency,omitempty"`
 
@@ -2655,6 +2707,9 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.InternalTraceID != nil {
+		s.InternalTraceID = o.InternalTraceID
+	}
 	if o.Latency != nil {
 		s.Latency = o.Latency
 	}
@@ -2791,6 +2846,9 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.InternalTraceID != nil {
+		o.InternalTraceID = s.InternalTraceID
+	}
 	if s.Latency != nil {
 		o.Latency = s.Latency
 	}
@@ -2924,6 +2982,9 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.InternalTraceID != nil {
+		out.InternalTraceID = *o.InternalTraceID
 	}
 	if o.Latency != nil {
 		out.Latency = o.Latency
@@ -3303,6 +3364,7 @@ type mongoAttributesProxyRoundtrip struct {
 	Hash                      string                           `bson:"hash"`
 	ImportHash                string                           `bson:"importhash,omitempty"`
 	ImportLabel               string                           `bson:"importlabel,omitempty"`
+	InternalTraceID           string                           `bson:"internaltraceid,omitempty"`
 	Latency                   *Latency                         `bson:"latency,omitempty"`
 	McpMessage                *MCPMessage                      `bson:"mcpmessage,omitempty"`
 	Model                     string                           `bson:"model,omitempty"`
@@ -3345,6 +3407,7 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Hash                      *string                           `bson:"hash,omitempty"`
 	ImportHash                *string                           `bson:"importhash,omitempty"`
 	ImportLabel               *string                           `bson:"importlabel,omitempty"`
+	InternalTraceID           *string                           `bson:"internaltraceid,omitempty"`
 	Latency                   *Latency                          `bson:"latency,omitempty"`
 	McpMessage                *MCPMessage                       `bson:"mcpmessage,omitempty"`
 	Model                     *string                           `bson:"model,omitempty"`

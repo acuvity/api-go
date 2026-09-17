@@ -1766,6 +1766,17 @@
             "example": "Get the current weather in a given location",
             "type": "string"
           },
+          "labels": {
+            "description": "The set of classification labels assigned to this tool e.g. data\nsensitivity, destructiveness of its actions. This is distinct from the tool's\nself-reported MCP protocol annotations. A tool can carry zero or more labels.",
+            "example": [
+              "ReadSensitive",
+              "WriteDestructive"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the tool.",
             "example": "get_weather",
@@ -1791,6 +1802,10 @@
             "description": "The name of the argument.",
             "example": "url",
             "type": "string"
+          },
+          "parameterCheckSupported": {
+            "description": "Whether a policy parameter check may be configured for this argument.\nArguments like identifiers (e.g. object_id, user_id) are typically not\nsupported, since constraining their value has no meaningful policy use.",
+            "type": "boolean"
           },
           "required": {
             "description": "Whether this argument is required by the tool.",

@@ -11,7 +11,7 @@
   "$friendlyName": "Deployment",
   "$friendlyNamePlural": "Deployments",
   "$modelName": "Deployment",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "deployments",
   "$modelRestName": "deployment",
   "additionalProperties": false,

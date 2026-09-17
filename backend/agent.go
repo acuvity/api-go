@@ -34,7 +34,7 @@ const (
 var AgentIdentity = elemental.Identity{
 	Name:     "agent",
 	Category: "agents",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

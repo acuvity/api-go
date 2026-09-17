@@ -3,7 +3,7 @@
   "$friendlyName": "Roundtrip Error",
   "$friendlyNamePlural": "Roundtrip Errors",
   "$modelName": "RoundtripError",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "roundtriperrors",
   "$modelRestName": "roundtriperror",
   "additionalProperties": false,

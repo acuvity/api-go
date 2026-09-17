@@ -3,7 +3,7 @@
   "$friendlyName": "IDE AI Plugin",
   "$friendlyNamePlural": "IDE AI Plugins",
   "$modelName": "AIPluginIDE",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aipluginide",
   "$modelRestName": "aipluginide",
   "additionalProperties": false,

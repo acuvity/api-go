@@ -8,7 +8,7 @@
   "$friendlyName": "Agent Configuration",
   "$friendlyNamePlural": "Agent Configurations",
   "$modelName": "AgentConfig",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "agentconfigs",
   "$modelRestName": "agentconfig",
   "additionalProperties": false,

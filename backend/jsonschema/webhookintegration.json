@@ -10,7 +10,7 @@
   "$friendlyName": "Webhook Integration",
   "$friendlyNamePlural": "Webhook Integrations",
   "$modelName": "WebhookIntegration",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "webhookintegrations",
   "$modelRestName": "webhookintegration",
   "additionalProperties": false,

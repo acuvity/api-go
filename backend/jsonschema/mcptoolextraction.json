@@ -1,0 +1,31 @@
+{
+  "$extends": [],
+  "$friendlyName": "MCP Tool Extraction",
+  "$friendlyNamePlural": "MCP Tool Extractions",
+  "$modelName": "MCPToolExtraction",
+  "$modelPackage": "torii",
+  "$modelResourceName": "mcptoolextractions",
+  "$modelRestName": "mcptoolextraction",
+  "additionalProperties": false,
+  "description": "Holds the analyzer findings for a single MCP tool in a drifted snapshot.",
+  "properties": {
+    "extraction": {
+      "$friendlyName": "Extraction",
+      "$ref": "extraction.json",
+      "description": "The analyzer findings for the tool.",
+      "title": "extraction"
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the tool this extraction corresponds to.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "MCPToolExtraction",
+  "type": "object"
+}

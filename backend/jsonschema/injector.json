@@ -6,7 +6,7 @@
   "$friendlyName": "Injector",
   "$friendlyNamePlural": "Injectors",
   "$modelName": "Injector",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "injectors",
   "$modelRestName": "injector",
   "additionalProperties": false,

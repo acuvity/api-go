@@ -3,7 +3,7 @@
   "$friendlyName": "Kubernetes Workload Group Selector",
   "$friendlyNamePlural": "Kubernetes Workload Group Selectors",
   "$modelName": "KubernetesWorkloadGroupSelector",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "kubernetesworkloadgroupselectors",
   "$modelRestName": "kubernetesworkloadgroupselector",
   "additionalProperties": false,

@@ -51,6 +51,18 @@
         "null"
       ]
     },
+    "labels": {
+      "$friendlyName": "Labels",
+      "description": "The set of classification labels assigned to this tool e.g. data sensitivity, destructiveness of its actions. This is distinct from the tool's self-reported MCP protocol annotations. A tool can carry zero or more labels.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "labels",
+      "type": "array"
+    },
     "name": {
       "$friendlyName": "Name",
       "description": "The name of the tool.",

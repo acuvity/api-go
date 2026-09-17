@@ -9,7 +9,7 @@
   "$friendlyName": "AI Plugin",
   "$friendlyNamePlural": "AI Plugins",
   "$modelName": "AIPlugin",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aiplugins",
   "$modelRestName": "aiplugin",
   "additionalProperties": false,

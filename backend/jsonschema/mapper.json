@@ -6,7 +6,7 @@
   "$friendlyName": "Mapper",
   "$friendlyNamePlural": "Mappers",
   "$modelName": "Mapper",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "mappers",
   "$modelRestName": "mapper",
   "additionalProperties": false,

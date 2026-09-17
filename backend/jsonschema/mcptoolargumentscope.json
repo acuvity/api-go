@@ -1,0 +1,53 @@
+{
+  "$extends": [
+    "@predicate"
+  ],
+  "$friendlyName": "MCP Tool Argument Scope",
+  "$friendlyNamePlural": "MCP Tool Argument Scopes",
+  "$modelName": "MCPToolArgumentScope",
+  "$modelPackage": "kikaku",
+  "$modelResourceName": "mcptoolargumentscopes",
+  "$modelRestName": "mcptoolargumentscope",
+  "additionalProperties": false,
+  "description": "Represents a condition on one argument of an MCP tool call.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the argument, as declared at the root of the tool input schema. Nested arguments are not supported.",
+      "title": "name",
+      "type": "string"
+    },
+    "operator": {
+      "$friendlyName": "Operator",
+      "$required": true,
+      "description": "The operator of the predicate.",
+      "enum": [
+        "All",
+        "Any",
+        "Contains",
+        "Empty",
+        "Equals",
+        "EqualsOrGreaterThan",
+        "EqualsOrLesserThan",
+        "Like",
+        "NotAny",
+        "NotEmpty",
+        "NotEquals"
+      ],
+      "title": "operator"
+    },
+    "values": {
+      "$friendlyName": "Values",
+      "description": "The values of the predicate.",
+      "title": "values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "name",
+    "operator"
+  ],
+  "title": "MCPToolArgumentScope",
+  "type": "object"
+}

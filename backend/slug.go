@@ -16,7 +16,7 @@ import (
 var SlugIdentity = elemental.Identity{
 	Name:     "slug",
 	Category: "slugs",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

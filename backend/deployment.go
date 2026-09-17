@@ -17,7 +17,7 @@ import (
 var DeploymentIdentity = elemental.Identity{
 	Name:     "deployment",
 	Category: "deployments",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

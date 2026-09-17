@@ -3,7 +3,7 @@
   "$friendlyName": "Analyzer Model",
   "$friendlyNamePlural": "Analyzer Models",
   "$modelName": "AnalyzerModel",
-  "$modelPackage": "lain",
+  "$modelPackage": "proxy",
   "$modelResourceName": "analyzermodels",
   "$modelRestName": "analyzermodel",
   "additionalProperties": false,

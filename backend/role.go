@@ -16,7 +16,7 @@ import (
 var RoleIdentity = elemental.Identity{
 	Name:     "role",
 	Category: "roles",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 

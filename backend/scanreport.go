@@ -17,7 +17,7 @@ import (
 var ScanReportIdentity = elemental.Identity{
 	Name:     "scanreport",
 	Category: "scanreports",
-	Package:  "lain",
+	Package:  "kikaku",
 	Private:  false,
 }
 

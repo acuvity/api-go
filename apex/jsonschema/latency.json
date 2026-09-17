@@ -3,7 +3,7 @@
   "$friendlyName": "Latency",
   "$friendlyNamePlural": "Latencies",
   "$modelName": "Latency",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "latencies",
   "$modelRestName": "latency",
   "additionalProperties": false,

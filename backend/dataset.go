@@ -31,7 +31,7 @@ const (
 var DataSetIdentity = elemental.Identity{
 	Name:     "dataset",
 	Category: "datasets",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

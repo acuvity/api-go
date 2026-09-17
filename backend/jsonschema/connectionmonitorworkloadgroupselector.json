@@ -3,7 +3,7 @@
   "$friendlyName": "Connection Monitor Workload Group Selector",
   "$friendlyNamePlural": "Connection Monitor Workload Group Selectors",
   "$modelName": "ConnectionMonitorWorkloadGroupSelector",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "connectionmonitorworkloadgroupselectors",
   "$modelRestName": "connectionmonitorworkloadgroupselector",
   "additionalProperties": false,

@@ -9,7 +9,7 @@
   "$friendlyName": "Organization Settings",
   "$friendlyNamePlural": "Organization Settings",
   "$modelName": "OrgSettings",
-  "$modelPackage": "lain",
+  "$modelPackage": "yorozu",
   "$modelResourceName": "orgsettings",
   "$modelRestName": "orgsettings",
   "additionalProperties": false,

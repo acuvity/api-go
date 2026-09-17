@@ -31,7 +31,7 @@ const (
 var WebExtensionIdentity = elemental.Identity{
 	Name:     "webextension",
 	Category: "webextensions",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

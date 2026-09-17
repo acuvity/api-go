@@ -8,7 +8,7 @@
   "$friendlyName": "DNS Report",
   "$friendlyNamePlural": "DNS Reports",
   "$modelName": "DNSReport",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "dnsreports",
   "$modelRestName": "dnsreport",
   "additionalProperties": false,

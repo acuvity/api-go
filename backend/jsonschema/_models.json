@@ -330,6 +330,9 @@
     "host": {
       "$ref": "host.json"
     },
+    "hostset": {
+      "$ref": "hostset.json"
+    },
     "identitymodifier": {
       "$ref": "identitymodifier.json"
     },
@@ -350,6 +353,9 @@
     },
     "injector": {
       "$ref": "injector.json"
+    },
+    "ipset": {
+      "$ref": "ipset.json"
     },
     "kubernetesworkloadgroupselector": {
       "$ref": "kubernetesworkloadgroupselector.json"
@@ -410,6 +416,12 @@
     },
     "mcptoolannotations": {
       "$ref": "mcptoolannotations.json"
+    },
+    "mcptoolargumentscope": {
+      "$ref": "mcptoolargumentscope.json"
+    },
+    "mcptoolextraction": {
+      "$ref": "mcptoolextraction.json"
     },
     "mcptoolscope": {
       "$ref": "mcptoolscope.json"
@@ -668,6 +680,9 @@
     },
     "tracetagvalues": {
       "$ref": "tracetagvalues.json"
+    },
+    "trafficcontrol": {
+      "$ref": "trafficcontrol.json"
     },
     "tunnelproxyauth": {
       "$ref": "tunnelproxyauth.json"

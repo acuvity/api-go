@@ -87,7 +87,8 @@ type AlertTrigger struct {
 	// What time window to look for an alert event.
 	Interval string `json:"interval" msgpack:"interval" bson:"interval" mapstructure:"interval,omitempty"`
 
-	// The number of times an alert event is seen to cause a trigger.
+	// The number of times an alert event must be seen within the interval to cause a
+	// trigger.
 	Occurrences int `json:"occurrences" msgpack:"occurrences" bson:"occurrences" mapstructure:"occurrences,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -346,13 +347,14 @@ var AlertTriggerAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "occurrences",
 		ConvertedName:  "Occurrences",
 		DefaultValue:   1,
-		Description:    `The number of times an alert event is seen to cause a trigger.`,
-		Exposed:        true,
-		MinValue:       1,
-		Name:           "occurrences",
-		Required:       true,
-		Stored:         true,
-		Type:           "integer",
+		Description: `The number of times an alert event must be seen within the interval to cause a
+trigger.`,
+		Exposed:  true,
+		MinValue: 1,
+		Name:     "occurrences",
+		Required: true,
+		Stored:   true,
+		Type:     "integer",
 	},
 }
 
@@ -375,13 +377,14 @@ var AlertTriggerLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		BSONFieldName:  "occurrences",
 		ConvertedName:  "Occurrences",
 		DefaultValue:   1,
-		Description:    `The number of times an alert event is seen to cause a trigger.`,
-		Exposed:        true,
-		MinValue:       1,
-		Name:           "occurrences",
-		Required:       true,
-		Stored:         true,
-		Type:           "integer",
+		Description: `The number of times an alert event must be seen within the interval to cause a
+trigger.`,
+		Exposed:  true,
+		MinValue: 1,
+		Name:     "occurrences",
+		Required: true,
+		Stored:   true,
+		Type:     "integer",
 	},
 }
 
@@ -451,7 +454,8 @@ type SparseAlertTrigger struct {
 	// What time window to look for an alert event.
 	Interval *string `json:"interval,omitempty" msgpack:"interval,omitempty" bson:"interval,omitempty" mapstructure:"interval,omitempty"`
 
-	// The number of times an alert event is seen to cause a trigger.
+	// The number of times an alert event must be seen within the interval to cause a
+	// trigger.
 	Occurrences *int `json:"occurrences,omitempty" msgpack:"occurrences,omitempty" bson:"occurrences,omitempty" mapstructure:"occurrences,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`

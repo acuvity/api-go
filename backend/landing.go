@@ -30,7 +30,7 @@ const (
 var LandingIdentity = elemental.Identity{
 	Name:     "landing",
 	Category: "landings",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

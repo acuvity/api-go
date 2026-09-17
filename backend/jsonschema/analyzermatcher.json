@@ -3,7 +3,7 @@
   "$friendlyName": "Matcher",
   "$friendlyNamePlural": "Matchers",
   "$modelName": "Matcher",
-  "$modelPackage": "lain",
+  "$modelPackage": "proxy",
   "$modelResourceName": "analyzermatchers",
   "$modelRestName": "analyzermatcher",
   "additionalProperties": false,

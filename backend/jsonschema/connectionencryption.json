@@ -3,7 +3,7 @@
   "$friendlyName": "Connection Encryption",
   "$friendlyNamePlural": "Connection Encryptions",
   "$modelName": "ConnectionEncryption",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "connectionencryptions",
   "$modelRestName": "connectionencryption",
   "additionalProperties": false,

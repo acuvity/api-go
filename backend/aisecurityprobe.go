@@ -28,7 +28,7 @@ const (
 var AISecurityProbeIdentity = elemental.Identity{
 	Name:     "aisecurityprobe",
 	Category: "aisecurityprobes",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

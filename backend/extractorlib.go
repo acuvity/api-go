@@ -17,7 +17,7 @@ import (
 var ExtractorLibIdentity = elemental.Identity{
 	Name:     "extractorlib",
 	Category: "extractorlibs",
-	Package:  "lain",
+	Package:  "tonya",
 	Private:  false,
 }
 

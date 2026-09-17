@@ -2660,6 +2660,10 @@ Represents a tool that can enhance a genAI model's capabilities.
 {
   "category": "Client",
   "description": "Get the current weather in a given location",
+  "labels": [
+    "ReadSensitive",
+    "WriteDestructive"
+  ],
   "name": "get_weather",
   "type": "computer_20250124"
 }
@@ -2704,6 +2708,14 @@ Type: `string`
 
 The description of the tool.
 
+##### `labels`
+
+Type: `[]string`
+
+The set of classification labels assigned to this tool e.g. data
+sensitivity, destructiveness of its actions. This is distinct from the tool's
+self-reported MCP protocol annotations. A tool can carry zero or more labels.
+
 ##### `name`
 
 Type: `string`
@@ -2726,6 +2738,7 @@ Represents a tool input argument.
 {
   "description": "URL to fetch.",
   "name": "url",
+  "parameterCheckSupported": false,
   "required": false,
   "type": "string"
 }
@@ -2744,6 +2757,14 @@ The description of the argument.
 Type: `string`
 
 The name of the argument.
+
+##### `parameterCheckSupported`
+
+Type: `boolean`
+
+Whether a policy parameter check may be configured for this argument.
+Arguments like identifiers (e.g. object_id, user_id) are typically not
+supported, since constraining their value has no meaningful policy use.
 
 ##### `required`
 

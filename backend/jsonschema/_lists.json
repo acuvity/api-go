@@ -660,6 +660,12 @@
       },
       "type": "array"
     },
+    "hostsets": {
+      "items": {
+        "$ref": "hostset.json"
+      },
+      "type": "array"
+    },
     "identitymodifier": {
       "items": {
         "$ref": "identitymodifier.json"
@@ -699,6 +705,12 @@
     "injectors": {
       "items": {
         "$ref": "injector.json"
+      },
+      "type": "array"
+    },
+    "ipsets": {
+      "items": {
+        "$ref": "ipset.json"
       },
       "type": "array"
     },
@@ -807,6 +819,18 @@
     "mcptoolannotations": {
       "items": {
         "$ref": "mcptoolannotations.json"
+      },
+      "type": "array"
+    },
+    "mcptoolargumentscopes": {
+      "items": {
+        "$ref": "mcptoolargumentscope.json"
+      },
+      "type": "array"
+    },
+    "mcptoolextractions": {
+      "items": {
+        "$ref": "mcptoolextraction.json"
       },
       "type": "array"
     },
@@ -1329,6 +1353,12 @@
     "tracetagvalues": {
       "items": {
         "$ref": "tracetagvalues.json"
+      },
+      "type": "array"
+    },
+    "trafficcontrols": {
+      "items": {
+        "$ref": "trafficcontrol.json"
       },
       "type": "array"
     },

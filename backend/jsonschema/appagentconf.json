@@ -5,7 +5,7 @@
   "$friendlyName": "AppAgentConf",
   "$friendlyNamePlural": "AppAgentConfs",
   "$modelName": "AppAgentConf",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "appagentconfs",
   "$modelRestName": "appagentconf",
   "additionalProperties": false,

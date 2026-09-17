@@ -9,7 +9,7 @@
   "$friendlyName": "AI Domain",
   "$friendlyNamePlural": "AI Domains",
   "$modelName": "AIDomain",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidomains",
   "$modelRestName": "aidomain",
   "additionalProperties": false,

@@ -5,7 +5,7 @@
   "$friendlyName": "AI Tool Summary",
   "$friendlyNamePlural": "AI Tool Summaries",
   "$modelName": "AIToolSummary",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aitoolsummaries",
   "$modelRestName": "aitoolsummary",
   "additionalProperties": false,

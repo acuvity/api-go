@@ -8,7 +8,7 @@
   "$friendlyName": "App Agent",
   "$friendlyNamePlural": "App Agents",
   "$modelName": "AppAgent",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "appagents",
   "$modelRestName": "appagent",
   "additionalProperties": false,

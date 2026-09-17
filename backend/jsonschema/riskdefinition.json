@@ -10,7 +10,7 @@
   "$friendlyName": "Risk Definition",
   "$friendlyNamePlural": "Risk Definitions",
   "$modelName": "RiskDefinition",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "riskdefinitions",
   "$modelRestName": "riskdefinition",
   "additionalProperties": false,

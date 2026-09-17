@@ -34,7 +34,7 @@ const (
 var AppTokenIdentity = elemental.Identity{
 	Name:     "apptoken",
 	Category: "apptokens",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 

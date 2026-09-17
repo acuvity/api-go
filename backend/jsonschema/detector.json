@@ -5,7 +5,7 @@
   "$friendlyName": "Detector",
   "$friendlyNamePlural": "Detectors",
   "$modelName": "Detector",
-  "$modelPackage": "lain",
+  "$modelPackage": "proxy",
   "$modelResourceName": "detectors",
   "$modelRestName": "detector",
   "additionalProperties": false,

@@ -3,7 +3,7 @@
   "$friendlyName": "Error Transformer",
   "$friendlyNamePlural": "Error Transformers",
   "$modelName": "ErrorTransformer",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "errortransformers",
   "$modelRestName": "errortransformer",
   "additionalProperties": false,

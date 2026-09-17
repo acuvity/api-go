@@ -3,7 +3,7 @@
   "$friendlyName": "Validate",
   "$friendlyNamePlural": "Validates",
   "$modelName": "Validate",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "validate",
   "$modelRestName": "validate",
   "additionalProperties": false,

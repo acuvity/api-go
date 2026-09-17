@@ -5,7 +5,7 @@
   "$friendlyName": "AI MCP Server Summary",
   "$friendlyNamePlural": "AI MCP Server Summaries",
   "$modelName": "AIMCPServerSummary",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aimcpserversummaries",
   "$modelRestName": "aimcpserversummary",
   "additionalProperties": false,

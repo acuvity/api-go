@@ -3,7 +3,7 @@
   "$friendlyName": "Token Reference",
   "$friendlyNamePlural": "Token References",
   "$modelName": "TokenRef",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "tokenrefs",
   "$modelRestName": "tokenref",
   "additionalProperties": false,

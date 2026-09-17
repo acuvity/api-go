@@ -21,6 +21,9 @@ const (
 	// PageDataViewPredicateOperatorAny represents the value Any.
 	PageDataViewPredicateOperatorAny PageDataViewPredicateOperatorValue = "Any"
 
+	// PageDataViewPredicateOperatorContains represents the value Contains.
+	PageDataViewPredicateOperatorContains PageDataViewPredicateOperatorValue = "Contains"
+
 	// PageDataViewPredicateOperatorEmpty represents the value Empty.
 	PageDataViewPredicateOperatorEmpty PageDataViewPredicateOperatorValue = "Empty"
 
@@ -51,7 +54,7 @@ type PageDataViewPredicate struct {
 	// The key of the page data view predicate.
 	Key string `json:"key" msgpack:"key" bson:"key" mapstructure:"key,omitempty"`
 
-	// The operator of the page data view predicate.
+	// The operator of the predicate.
 	Operator PageDataViewPredicateOperatorValue `json:"operator" msgpack:"operator" bson:"operator" mapstructure:"operator,omitempty"`
 
 	// The values of the predicate.
@@ -187,7 +190,7 @@ func (o *PageDataViewPredicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
+	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -250,10 +253,10 @@ var PageDataViewPredicateAttributesMap = map[string]elemental.AttributeSpecifica
 		Type:           "string",
 	},
 	"Operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
-		Description:    `The operator of the page data view predicate.`,
+		Description:    `The operator of the predicate.`,
 		Exposed:        true,
 		Name:           "operator",
 		Required:       true,
@@ -287,10 +290,10 @@ var PageDataViewPredicateLowerCaseAttributesMap = map[string]elemental.Attribute
 		Type:           "string",
 	},
 	"operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
-		Description:    `The operator of the page data view predicate.`,
+		Description:    `The operator of the predicate.`,
 		Exposed:        true,
 		Name:           "operator",
 		Required:       true,

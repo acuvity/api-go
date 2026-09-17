@@ -8,7 +8,7 @@
   "$friendlyName": "App",
   "$friendlyNamePlural": "Apps",
   "$modelName": "App",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "apps",
   "$modelRestName": "app",
   "additionalProperties": false,

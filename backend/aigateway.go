@@ -17,7 +17,7 @@ import (
 var AIGatewayIdentity = elemental.Identity{
 	Name:     "aigateway",
 	Category: "aigateways",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

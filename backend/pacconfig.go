@@ -17,7 +17,7 @@ import (
 var PACConfigIdentity = elemental.Identity{
 	Name:     "pacconfig",
 	Category: "pacconfigs",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

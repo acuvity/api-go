@@ -34,7 +34,7 @@ const (
 var FeedbackIdentity = elemental.Identity{
 	Name:     "feedback",
 	Category: "feedbacks",
-	Package:  "lain",
+	Package:  "yorozu",
 	Private:  false,
 }
 

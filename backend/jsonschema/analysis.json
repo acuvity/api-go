@@ -3,7 +3,7 @@
   "$friendlyName": "Analysis",
   "$friendlyNamePlural": "Analysis",
   "$modelName": "Analysis",
-  "$modelPackage": "lain",
+  "$modelPackage": "proxy",
   "$modelResourceName": "analysis",
   "$modelRestName": "analysis",
   "additionalProperties": false,

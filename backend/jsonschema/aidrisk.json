@@ -5,7 +5,7 @@
   "$friendlyName": "AID Risk",
   "$friendlyNamePlural": "AID Risks",
   "$modelName": "AIDRisk",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidrisk",
   "$modelRestName": "aidrisk",
   "additionalProperties": false,

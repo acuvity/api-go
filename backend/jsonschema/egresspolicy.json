@@ -6,7 +6,7 @@
   "$friendlyName": "Egress Policy",
   "$friendlyNamePlural": "Egress Policies",
   "$modelName": "EgressPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "egresspolicies",
   "$modelRestName": "egresspolicy",
   "additionalProperties": false,

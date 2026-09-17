@@ -6,7 +6,7 @@
   "$friendlyName": "App Component Egress",
   "$friendlyNamePlural": "App Component Egress",
   "$modelName": "AppComponentEgress",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appcomponentegresses",
   "$modelRestName": "appcomponentegress",
   "additionalProperties": false,

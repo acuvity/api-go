@@ -16,7 +16,7 @@ import (
 var MCPToolIdentity = elemental.Identity{
 	Name:     "mcptool",
 	Category: "mcptools",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

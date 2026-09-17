@@ -25,6 +25,15 @@
       "title": "name",
       "type": "string"
     },
+    "parameterCheckSupported": {
+      "$friendlyName": "Parameter Check Supported",
+      "description": "Whether a policy parameter check may be configured for this argument. Arguments like identifiers (e.g. object_id, user_id) are typically not supported, since constraining their value has no meaningful policy use.",
+      "title": "parameterCheckSupported",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "required": {
       "$friendlyName": "Required",
       "description": "Whether this argument is required by the tool.",

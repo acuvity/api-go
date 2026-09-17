@@ -8,7 +8,7 @@
   "$friendlyName": "Feedback",
   "$friendlyNamePlural": "Feedbacks",
   "$modelName": "Feedback",
-  "$modelPackage": "lain",
+  "$modelPackage": "yorozu",
   "$modelResourceName": "feedbacks",
   "$modelRestName": "feedback",
   "additionalProperties": false,

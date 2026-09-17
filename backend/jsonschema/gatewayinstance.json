@@ -7,7 +7,7 @@
   "$friendlyName": "Gateway Instance",
   "$friendlyNamePlural": "Gateway Instances",
   "$modelName": "GatewayInstance",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "gatewayinstances",
   "$modelRestName": "gatewayinstance",
   "additionalProperties": false,

@@ -36,7 +36,7 @@ const (
 var AppComponentIdentity = elemental.Identity{
 	Name:     "appcomponent",
 	Category: "appcomponents",
-	Package:  "lain",
+	Package:  "kikaku",
 	Private:  false,
 }
 
@@ -147,6 +147,10 @@ type AppComponent struct {
 	// The list of tokens issued for this component.
 	Tokenref []*TokenRef `json:"tokenref,omitempty" msgpack:"tokenref,omitempty" bson:"tokenref,omitempty" mapstructure:"tokenref,omitempty"`
 
+	// The traffic control configuration for this app component. Defines which host
+	// sets and IP sets are allowed or blocked for egress, and the default DNS policy.
+	TrafficControl *TrafficControl `json:"trafficControl,omitempty" msgpack:"trafficControl,omitempty" bson:"trafficcontrol,omitempty" mapstructure:"trafficControl,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -154,11 +158,12 @@ type AppComponent struct {
 func NewAppComponent() *AppComponent {
 
 	return &AppComponent{
-		ModelVersion: 1,
-		Egress:       NewAppComponentEgress(),
-		Ingress:      NewAppComponentIngress(),
-		Kind:         AppComponentKindOther,
-		Provider:     NewAppComponentProvider(),
+		ModelVersion:   1,
+		Egress:         NewAppComponentEgress(),
+		Ingress:        NewAppComponentIngress(),
+		Kind:           AppComponentKindOther,
+		Provider:       NewAppComponentProvider(),
+		TrafficControl: NewTrafficControl(),
 	}
 }
 
@@ -197,6 +202,7 @@ func (o *AppComponent) GetBSON() (any, error) {
 	s.Provider = o.Provider
 	s.Selector = o.Selector
 	s.Tokenref = o.Tokenref
+	s.TrafficControl = o.TrafficControl
 
 	return s, nil
 }
@@ -222,6 +228,7 @@ func (o *AppComponent) SetBSON(raw bson.Raw) error {
 	o.Provider = s.Provider
 	o.Selector = s.Selector
 	o.Tokenref = s.Tokenref
+	o.TrafficControl = s.TrafficControl
 
 	return nil
 }
@@ -274,6 +281,7 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Selector:           &o.Selector,
 			Token:              &o.Token,
 			Tokenref:           &o.Tokenref,
+			TrafficControl:     o.TrafficControl,
 		}
 	}
 
@@ -304,6 +312,8 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Token = &(o.Token)
 		case "tokenref":
 			sp.Tokenref = &(o.Tokenref)
+		case "trafficControl":
+			sp.TrafficControl = o.TrafficControl
 		}
 	}
 
@@ -353,6 +363,9 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Tokenref != nil {
 		o.Tokenref = *so.Tokenref
 	}
+	if so.TrafficControl != nil {
+		o.TrafficControl = so.TrafficControl
+	}
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
@@ -386,6 +399,12 @@ func (o *AppComponent) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.TrafficControl != nil {
+		if err := o.TrafficControl.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrafficControl' for 'AppComponent' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -423,6 +442,12 @@ func (o *AppComponent) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.TrafficControl != nil {
+		if err := o.TrafficControl.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrafficControl' for 'AppComponent' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -509,6 +534,13 @@ func (o *AppComponent) Validate() error {
 		}
 	}
 
+	if o.TrafficControl != nil {
+		if err := o.TrafficControl.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "trafficControl")
+		}
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -567,6 +599,8 @@ func (o *AppComponent) ValueForAttribute(name string) any {
 		return o.Token
 	case "tokenref":
 		return o.Tokenref
+	case "trafficControl":
+		return o.TrafficControl
 	}
 
 	return nil
@@ -710,6 +744,18 @@ caller's claim match the parents app.subject.`,
 		SubType:        "tokenref",
 		Type:           "refList",
 	},
+	"TrafficControl": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trafficcontrol",
+		ConvertedName:  "TrafficControl",
+		Description: `The traffic control configuration for this app component. Defines which host
+sets and IP sets are allowed or blocked for egress, and the default DNS policy.`,
+		Exposed: true,
+		Name:    "trafficControl",
+		Stored:  true,
+		SubType: "trafficcontrol",
+		Type:    "ref",
+	},
 }
 
 // AppComponentLowerCaseAttributesMap represents the map of attribute for AppComponent.
@@ -850,6 +896,18 @@ caller's claim match the parents app.subject.`,
 		SubType:        "tokenref",
 		Type:           "refList",
 	},
+	"trafficcontrol": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trafficcontrol",
+		ConvertedName:  "TrafficControl",
+		Description: `The traffic control configuration for this app component. Defines which host
+sets and IP sets are allowed or blocked for egress, and the default DNS policy.`,
+		Exposed: true,
+		Name:    "trafficControl",
+		Stored:  true,
+		SubType: "trafficcontrol",
+		Type:    "ref",
+	},
 }
 
 // SparseAppComponentsList represents a list of SparseAppComponents
@@ -958,6 +1016,10 @@ type SparseAppComponent struct {
 	// The list of tokens issued for this component.
 	Tokenref *[]*TokenRef `json:"tokenref,omitempty" msgpack:"tokenref,omitempty" bson:"tokenref,omitempty" mapstructure:"tokenref,omitempty"`
 
+	// The traffic control configuration for this app component. Defines which host
+	// sets and IP sets are allowed or blocked for egress, and the default DNS policy.
+	TrafficControl *TrafficControl `json:"trafficControl,omitempty" msgpack:"trafficControl,omitempty" bson:"trafficcontrol,omitempty" mapstructure:"trafficControl,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -1017,6 +1079,9 @@ func (o *SparseAppComponent) GetBSON() (any, error) {
 	if o.Tokenref != nil {
 		s.Tokenref = o.Tokenref
 	}
+	if o.TrafficControl != nil {
+		s.TrafficControl = o.TrafficControl
+	}
 
 	return s, nil
 }
@@ -1057,6 +1122,9 @@ func (o *SparseAppComponent) SetBSON(raw bson.Raw) error {
 	}
 	if s.Tokenref != nil {
 		o.Tokenref = s.Tokenref
+	}
+	if s.TrafficControl != nil {
+		o.TrafficControl = s.TrafficControl
 	}
 
 	return nil
@@ -1108,6 +1176,9 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	if o.Tokenref != nil {
 		out.Tokenref = *o.Tokenref
 	}
+	if o.TrafficControl != nil {
+		out.TrafficControl = o.TrafficControl
+	}
 
 	return out
 }
@@ -1145,6 +1216,12 @@ func (o *SparseAppComponent) EncryptAttributes(encrypter elemental.AttributeEncr
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Tokenref' for 'AppComponent' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.TrafficControl != nil {
+		if err := o.TrafficControl.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'TrafficControl' for 'AppComponent' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1187,6 +1264,12 @@ func (o *SparseAppComponent) DecryptAttributes(encrypter elemental.AttributeEncr
 		}
 	}
 
+	if o.TrafficControl != nil {
+		if err := o.TrafficControl.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'TrafficControl' for 'AppComponent' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -1215,22 +1298,24 @@ func (o *SparseAppComponent) DeepCopyInto(out *SparseAppComponent) {
 }
 
 type mongoAttributesAppComponent struct {
-	Description string                `bson:"description"`
-	Egress      *AppComponentEgress   `bson:"egress"`
-	Ingress     *AppComponentIngress  `bson:"ingress"`
-	Kind        AppComponentKindValue `bson:"kind"`
-	Name        string                `bson:"name"`
-	Provider    *AppComponentProvider `bson:"provider"`
-	Selector    AppComponentSelector  `bson:"selector"`
-	Tokenref    []*TokenRef           `bson:"tokenref,omitempty"`
+	Description    string                `bson:"description"`
+	Egress         *AppComponentEgress   `bson:"egress"`
+	Ingress        *AppComponentIngress  `bson:"ingress"`
+	Kind           AppComponentKindValue `bson:"kind"`
+	Name           string                `bson:"name"`
+	Provider       *AppComponentProvider `bson:"provider"`
+	Selector       AppComponentSelector  `bson:"selector"`
+	Tokenref       []*TokenRef           `bson:"tokenref,omitempty"`
+	TrafficControl *TrafficControl       `bson:"trafficcontrol,omitempty"`
 }
 type mongoAttributesSparseAppComponent struct {
-	Description *string                `bson:"description,omitempty"`
-	Egress      *AppComponentEgress    `bson:"egress,omitempty"`
-	Ingress     *AppComponentIngress   `bson:"ingress,omitempty"`
-	Kind        *AppComponentKindValue `bson:"kind,omitempty"`
-	Name        *string                `bson:"name,omitempty"`
-	Provider    *AppComponentProvider  `bson:"provider,omitempty"`
-	Selector    *AppComponentSelector  `bson:"selector,omitempty"`
-	Tokenref    *[]*TokenRef           `bson:"tokenref,omitempty"`
+	Description    *string                `bson:"description,omitempty"`
+	Egress         *AppComponentEgress    `bson:"egress,omitempty"`
+	Ingress        *AppComponentIngress   `bson:"ingress,omitempty"`
+	Kind           *AppComponentKindValue `bson:"kind,omitempty"`
+	Name           *string                `bson:"name,omitempty"`
+	Provider       *AppComponentProvider  `bson:"provider,omitempty"`
+	Selector       *AppComponentSelector  `bson:"selector,omitempty"`
+	Tokenref       *[]*TokenRef           `bson:"tokenref,omitempty"`
+	TrafficControl *TrafficControl        `bson:"trafficcontrol,omitempty"`
 }

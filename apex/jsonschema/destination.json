@@ -6,7 +6,7 @@
   "$friendlyName": "Destination",
   "$friendlyNamePlural": "Destinations",
   "$modelName": "Destination",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "destinations",
   "$modelRestName": "destination",
   "additionalProperties": false,

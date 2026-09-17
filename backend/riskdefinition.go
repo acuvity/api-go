@@ -34,7 +34,7 @@ const (
 var RiskDefinitionIdentity = elemental.Identity{
 	Name:     "riskdefinition",
 	Category: "riskdefinitions",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

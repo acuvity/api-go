@@ -31,7 +31,7 @@ const (
 var AppIdentity = elemental.Identity{
 	Name:     "app",
 	Category: "apps",
-	Package:  "lain",
+	Package:  "kikaku",
 	Private:  false,
 }
 

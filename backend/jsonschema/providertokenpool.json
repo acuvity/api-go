@@ -10,7 +10,7 @@
   "$friendlyName": "Provider Token Pool",
   "$friendlyNamePlural": "Provider Token Pools",
   "$modelName": "ProviderTokenPool",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "providertokenpools",
   "$modelRestName": "providertokenpool",
   "additionalProperties": false,

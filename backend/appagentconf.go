@@ -16,7 +16,7 @@ import (
 var AppAgentConfIdentity = elemental.Identity{
 	Name:     "appagentconf",
 	Category: "appagentconfs",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

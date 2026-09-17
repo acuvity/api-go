@@ -91,6 +91,12 @@ type WebhookExtractor struct {
 	// The lua code that runs this route. It has the same globals as a provider
 	// extractor script, so the incoming call is read through `input`.
 	//
+	// Unlike a provider extractor, each of the functions below runs in its own
+	// fresh sandbox. Nothing a script leaves in a global or a local survives from
+	// one to the next. What does carry over is the call itself, because `input`
+	// reads the same request in all of them, and whatever the script chooses to
+	// return as `state`.
+	//
 	// It must contain a top level function called `webhook_input()` taking no
 	// parameters. It returns nil or an empty table when there is nothing to
 	// inspect, in which case no scan or police pass runs. Otherwise it returns a
@@ -115,12 +121,19 @@ type WebhookExtractor struct {
 	// - `analyzers` and `redactions`: only honored when mode is Scan, where no
 	//   policy runs to decide them. The script owns them because both follow from
 	//   what this payload carries and from what the vendor accepts back.
+	// - `state`: anything at all, handed back to `webhook_output()` and
+	//   `webhook_error()` as the same kind of value it was returned as, so a table
+	//   comes back a table. It is never read or validated. This is how a script
+	//   maps a verdict back onto the exact place it came from in the vendor's
+	//   payload, without the bookkeeping that produced it having to be derived
+	//   twice.
 	//
 	// It must also contain a top level function called `webhook_output()`, which
-	// builds the answer this route sends back. It runs in the same lua state, so
-	// whatever `webhook_input()` kept in a local is still available to it,
-	// which is how a script maps a verdict back onto the exact place it came from
-	// in the vendor's payload. It takes one table parameter containing:
+	// builds the answer this route sends back. It takes the result as its first
+	// parameter and the `state` returned by `webhook_input()` as its second. That
+	// `state` is nil when `webhook_input()` returned none, which is also the case
+	// when it reported nothing to inspect and the action is therefore
+	// `NotApplicable`. The result is a table containing:
 	//
 	// - `action`: the decision.
 	// - `permissive`: true when the decision must not be enforced.
@@ -147,18 +160,25 @@ type WebhookExtractor struct {
 	// configuration says instead of to what this deployment decided. What to
 	// answer when we cannot answer is part of an integration's contract, not
 	// something to be inferred, which is why it is required rather than optional.
-	// It takes one table parameter describing the failure:
+	// Like `webhook_output()` it takes the `state` returned by `webhook_input()`
+	// as its second parameter, which is nil when the failure happened before the
+	// script could produce one. Its first parameter is a table describing the
+	// failure:
 	//
 	// - `stage`: where it happened. `Target` when no policy target could be
 	//   determined, otherwise the round-trip error stages (`Extraction`,
 	//   `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.
 	// - `message`: the error.
-	// - `failClose`: what the deployment configured, so a script may answer the
-	//   vendor's equivalent of 'reject' or of 'no objection' accordingly.
+	// - `failClose`: whether this failure is to be treated as a rejection, so a
+	//   script may answer the vendor's equivalent of 'reject' or of 'no
+	//   objection' accordingly. When a stage of the pass failed, this is what the
+	//   access policy that was evaluated configured, which is also what the
+	//   logged round-trip records. For a failure that never reached a policy, and
+	//   on a Scan route, it is what the connector configured.
 	//
 	// It returns the same table `webhook_output()` does. The engine only answers
-	// a failure on its own, generically and according to the configured fail
-	// close behavior, when the script could not be run at all.
+	// a failure on its own, generically and according to the fail close behavior
+	// the connector configured, when the script could not be run at all.
 	Script string `json:"script" msgpack:"script" bson:"script" mapstructure:"script,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -499,6 +519,12 @@ It identifies the route in logs and errors.`,
 		Description: `The lua code that runs this route. It has the same globals as a provider
 extractor script, so the incoming call is read through ` + "`" + `input` + "`" + `.
 
+Unlike a provider extractor, each of the functions below runs in its own
+fresh sandbox. Nothing a script leaves in a global or a local survives from
+one to the next. What does carry over is the call itself, because ` + "`" + `input` + "`" + `
+reads the same request in all of them, and whatever the script chooses to
+return as ` + "`" + `state` + "`" + `.
+
 It must contain a top level function called ` + "`" + `webhook_input()` + "`" + ` taking no
 parameters. It returns nil or an empty table when there is nothing to
 inspect, in which case no scan or police pass runs. Otherwise it returns a
@@ -523,12 +549,19 @@ table containing:
 - ` + "`" + `analyzers` + "`" + ` and ` + "`" + `redactions` + "`" + `: only honored when mode is Scan, where no
   policy runs to decide them. The script owns them because both follow from
   what this payload carries and from what the vendor accepts back.
+- ` + "`" + `state` + "`" + `: anything at all, handed back to ` + "`" + `webhook_output()` + "`" + ` and
+  ` + "`" + `webhook_error()` + "`" + ` as the same kind of value it was returned as, so a table
+  comes back a table. It is never read or validated. This is how a script
+  maps a verdict back onto the exact place it came from in the vendor's
+  payload, without the bookkeeping that produced it having to be derived
+  twice.
 
 It must also contain a top level function called ` + "`" + `webhook_output()` + "`" + `, which
-builds the answer this route sends back. It runs in the same lua state, so
-whatever ` + "`" + `webhook_input()` + "`" + ` kept in a local is still available to it,
-which is how a script maps a verdict back onto the exact place it came from
-in the vendor's payload. It takes one table parameter containing:
+builds the answer this route sends back. It takes the result as its first
+parameter and the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second. That
+` + "`" + `state` + "`" + ` is nil when ` + "`" + `webhook_input()` + "`" + ` returned none, which is also the case
+when it reported nothing to inspect and the action is therefore
+` + "`" + `NotApplicable` + "`" + `. The result is a table containing:
 
 - ` + "`" + `action` + "`" + `: the decision.
 - ` + "`" + `permissive` + "`" + `: true when the decision must not be enforced.
@@ -555,18 +588,25 @@ HTTP error as a verdict, and will fall back to whatever its own
 configuration says instead of to what this deployment decided. What to
 answer when we cannot answer is part of an integration's contract, not
 something to be inferred, which is why it is required rather than optional.
-It takes one table parameter describing the failure:
+Like ` + "`" + `webhook_output()` + "`" + ` it takes the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + `
+as its second parameter, which is nil when the failure happened before the
+script could produce one. Its first parameter is a table describing the
+failure:
 
 - ` + "`" + `stage` + "`" + `: where it happened. ` + "`" + `Target` + "`" + ` when no policy target could be
   determined, otherwise the round-trip error stages (` + "`" + `Extraction` + "`" + `,
   ` + "`" + `Analysis` + "`" + `, ` + "`" + `AccessPolicy` + "`" + `, ` + "`" + `ContentPolicy` + "`" + `, ` + "`" + `Redaction` + "`" + `) or ` + "`" + `Timeout` + "`" + `.
 - ` + "`" + `message` + "`" + `: the error.
-- ` + "`" + `failClose` + "`" + `: what the deployment configured, so a script may answer the
-  vendor's equivalent of 'reject' or of 'no objection' accordingly.
+- ` + "`" + `failClose` + "`" + `: whether this failure is to be treated as a rejection, so a
+  script may answer the vendor's equivalent of 'reject' or of 'no
+  objection' accordingly. When a stage of the pass failed, this is what the
+  access policy that was evaluated configured, which is also what the
+  logged round-trip records. For a failure that never reached a policy, and
+  on a Scan route, it is what the connector configured.
 
 It returns the same table ` + "`" + `webhook_output()` + "`" + ` does. The engine only answers
-a failure on its own, generically and according to the configured fail
-close behavior, when the script could not be run at all.`,
+a failure on its own, generically and according to the fail close behavior
+the connector configured, when the script could not be run at all.`,
 		Exposed:  true,
 		Name:     "script",
 		Required: true,
@@ -669,6 +709,12 @@ It identifies the route in logs and errors.`,
 		Description: `The lua code that runs this route. It has the same globals as a provider
 extractor script, so the incoming call is read through ` + "`" + `input` + "`" + `.
 
+Unlike a provider extractor, each of the functions below runs in its own
+fresh sandbox. Nothing a script leaves in a global or a local survives from
+one to the next. What does carry over is the call itself, because ` + "`" + `input` + "`" + `
+reads the same request in all of them, and whatever the script chooses to
+return as ` + "`" + `state` + "`" + `.
+
 It must contain a top level function called ` + "`" + `webhook_input()` + "`" + ` taking no
 parameters. It returns nil or an empty table when there is nothing to
 inspect, in which case no scan or police pass runs. Otherwise it returns a
@@ -693,12 +739,19 @@ table containing:
 - ` + "`" + `analyzers` + "`" + ` and ` + "`" + `redactions` + "`" + `: only honored when mode is Scan, where no
   policy runs to decide them. The script owns them because both follow from
   what this payload carries and from what the vendor accepts back.
+- ` + "`" + `state` + "`" + `: anything at all, handed back to ` + "`" + `webhook_output()` + "`" + ` and
+  ` + "`" + `webhook_error()` + "`" + ` as the same kind of value it was returned as, so a table
+  comes back a table. It is never read or validated. This is how a script
+  maps a verdict back onto the exact place it came from in the vendor's
+  payload, without the bookkeeping that produced it having to be derived
+  twice.
 
 It must also contain a top level function called ` + "`" + `webhook_output()` + "`" + `, which
-builds the answer this route sends back. It runs in the same lua state, so
-whatever ` + "`" + `webhook_input()` + "`" + ` kept in a local is still available to it,
-which is how a script maps a verdict back onto the exact place it came from
-in the vendor's payload. It takes one table parameter containing:
+builds the answer this route sends back. It takes the result as its first
+parameter and the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second. That
+` + "`" + `state` + "`" + ` is nil when ` + "`" + `webhook_input()` + "`" + ` returned none, which is also the case
+when it reported nothing to inspect and the action is therefore
+` + "`" + `NotApplicable` + "`" + `. The result is a table containing:
 
 - ` + "`" + `action` + "`" + `: the decision.
 - ` + "`" + `permissive` + "`" + `: true when the decision must not be enforced.
@@ -725,18 +778,25 @@ HTTP error as a verdict, and will fall back to whatever its own
 configuration says instead of to what this deployment decided. What to
 answer when we cannot answer is part of an integration's contract, not
 something to be inferred, which is why it is required rather than optional.
-It takes one table parameter describing the failure:
+Like ` + "`" + `webhook_output()` + "`" + ` it takes the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + `
+as its second parameter, which is nil when the failure happened before the
+script could produce one. Its first parameter is a table describing the
+failure:
 
 - ` + "`" + `stage` + "`" + `: where it happened. ` + "`" + `Target` + "`" + ` when no policy target could be
   determined, otherwise the round-trip error stages (` + "`" + `Extraction` + "`" + `,
   ` + "`" + `Analysis` + "`" + `, ` + "`" + `AccessPolicy` + "`" + `, ` + "`" + `ContentPolicy` + "`" + `, ` + "`" + `Redaction` + "`" + `) or ` + "`" + `Timeout` + "`" + `.
 - ` + "`" + `message` + "`" + `: the error.
-- ` + "`" + `failClose` + "`" + `: what the deployment configured, so a script may answer the
-  vendor's equivalent of 'reject' or of 'no objection' accordingly.
+- ` + "`" + `failClose` + "`" + `: whether this failure is to be treated as a rejection, so a
+  script may answer the vendor's equivalent of 'reject' or of 'no
+  objection' accordingly. When a stage of the pass failed, this is what the
+  access policy that was evaluated configured, which is also what the
+  logged round-trip records. For a failure that never reached a policy, and
+  on a Scan route, it is what the connector configured.
 
 It returns the same table ` + "`" + `webhook_output()` + "`" + ` does. The engine only answers
-a failure on its own, generically and according to the configured fail
-close behavior, when the script could not be run at all.`,
+a failure on its own, generically and according to the fail close behavior
+the connector configured, when the script could not be run at all.`,
 		Exposed:  true,
 		Name:     "script",
 		Required: true,

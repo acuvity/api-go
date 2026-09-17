@@ -13,6 +13,11 @@ import (
 
 // MCPToolScope represents the model of a mcptoolscope
 type MCPToolScope struct {
+	// The conditions the arguments of the call must satisfy. Every condition
+	// must match. If empty, the scope applies whatever the call passes. Only
+	// valid on a policy whose action is Allow.
+	Arguments []*MCPToolArgumentScope `json:"arguments" msgpack:"arguments" bson:"arguments" mapstructure:"arguments,omitempty"`
+
 	// The name of the tool, as advertised by the MCP server.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -48,6 +53,7 @@ func (o *MCPToolScope) GetBSON() (any, error) {
 
 	s := &mongoAttributesMCPToolScope{}
 
+	s.Arguments = o.Arguments
 	s.Name = o.Name
 
 	return s, nil
@@ -66,6 +72,7 @@ func (o *MCPToolScope) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.Arguments = s.Arguments
 	o.Name = s.Name
 
 	return nil
@@ -92,11 +99,29 @@ func (o *MCPToolScope) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *MCPToolScope) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Arguments' for 'MCPToolScope' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *MCPToolScope) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Arguments' for 'MCPToolScope' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -133,8 +158,23 @@ func (o *MCPToolScope) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	for i, sub := range o.Arguments {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "arguments", i))
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateMCPToolScope(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -171,6 +211,8 @@ func (*MCPToolScope) AttributeSpecifications() map[string]elemental.AttributeSpe
 func (o *MCPToolScope) ValueForAttribute(name string) any {
 
 	switch name {
+	case "arguments":
+		return o.Arguments
 	case "name":
 		return o.Name
 	}
@@ -180,6 +222,19 @@ func (o *MCPToolScope) ValueForAttribute(name string) any {
 
 // MCPToolScopeAttributesMap represents the map of attribute for MCPToolScope.
 var MCPToolScopeAttributesMap = map[string]elemental.AttributeSpecification{
+	"Arguments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "arguments",
+		ConvertedName:  "Arguments",
+		Description: `The conditions the arguments of the call must satisfy. Every condition
+must match. If empty, the scope applies whatever the call passes. Only
+valid on a policy whose action is Allow.`,
+		Exposed: true,
+		Name:    "arguments",
+		Stored:  true,
+		SubType: "mcptoolargumentscope",
+		Type:    "refList",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -195,6 +250,19 @@ var MCPToolScopeAttributesMap = map[string]elemental.AttributeSpecification{
 
 // MCPToolScopeLowerCaseAttributesMap represents the map of attribute for MCPToolScope.
 var MCPToolScopeLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"arguments": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "arguments",
+		ConvertedName:  "Arguments",
+		Description: `The conditions the arguments of the call must satisfy. Every condition
+must match. If empty, the scope applies whatever the call passes. Only
+valid on a policy whose action is Allow.`,
+		Exposed: true,
+		Name:    "arguments",
+		Stored:  true,
+		SubType: "mcptoolargumentscope",
+		Type:    "refList",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -209,5 +277,6 @@ var MCPToolScopeLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 }
 
 type mongoAttributesMCPToolScope struct {
-	Name string `bson:"name"`
+	Arguments []*MCPToolArgumentScope `bson:"arguments"`
+	Name      string                  `bson:"name"`
 }

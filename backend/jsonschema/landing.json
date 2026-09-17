@@ -3,7 +3,7 @@
   "$friendlyName": "Landing",
   "$friendlyNamePlural": "Landings",
   "$modelName": "Landing",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "landings",
   "$modelRestName": "landing",
   "additionalProperties": false,

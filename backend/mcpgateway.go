@@ -28,7 +28,7 @@ const (
 var MCPGatewayIdentity = elemental.Identity{
 	Name:     "mcpgateway",
 	Category: "mcpgateways",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

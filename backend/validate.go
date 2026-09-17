@@ -16,7 +16,7 @@ import (
 var ValidateIdentity = elemental.Identity{
 	Name:     "validate",
 	Category: "validate",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

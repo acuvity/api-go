@@ -1,9 +1,11 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@predicate"
+  ],
   "$friendlyName": "Predicate",
   "$friendlyNamePlural": "Predicates",
   "$modelName": "Predicate",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "predicate",
   "$modelRestName": "predicate",
   "additionalProperties": false,
@@ -68,10 +70,12 @@
       "enum": [
         "All",
         "Any",
+        "Contains",
         "Empty",
         "Equals",
         "EqualsOrGreaterThan",
         "EqualsOrLesserThan",
+        "Like",
         "NotAny",
         "NotEmpty",
         "NotEquals"

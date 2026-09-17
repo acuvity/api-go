@@ -9,7 +9,7 @@
   "$friendlyName": "OrgStorage",
   "$friendlyNamePlural": "OrgStorages",
   "$modelName": "OrgStorage",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "orgstorages",
   "$modelRestName": "orgstorage",
   "additionalProperties": false,

@@ -16,7 +16,7 @@ import (
 var AnalyzerIdentity = elemental.Identity{
 	Name:     "analyzer",
 	Category: "analyzers",
-	Package:  "proxy",
+	Package:  "yorozu",
 	Private:  false,
 }
 

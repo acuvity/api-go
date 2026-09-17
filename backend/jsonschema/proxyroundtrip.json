@@ -206,6 +206,15 @@
         "null"
       ]
     },
+    "internalTraceID": {
+      "$friendlyName": "Internal Trace ID",
+      "description": "The ID of the internal trace that served this request reported to monitoring. Do not confuse it with the traceID of the trace attribute, which reports the application's own trace when the app has tracing turned on. Empty when the processing apex ran without a trace collector.",
+      "title": "internalTraceID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "latency": {
       "$friendlyName": "Latency",
       "$ref": "latency.json",

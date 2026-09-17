@@ -42,7 +42,7 @@ const (
 var ContentPolicyIdentity = elemental.Identity{
 	Name:     "contentpolicy",
 	Category: "contentpolicies",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

@@ -17,7 +17,7 @@ import (
 var ProviderTokenPoolIdentity = elemental.Identity{
 	Name:     "providertokenpool",
 	Category: "providertokenpools",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

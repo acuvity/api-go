@@ -8,7 +8,7 @@
   "$friendlyName": "WebExtension",
   "$friendlyNamePlural": "WebExtensions",
   "$modelName": "WebExtension",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "webextensions",
   "$modelRestName": "webextension",
   "additionalProperties": false,

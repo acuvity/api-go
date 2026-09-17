@@ -28,7 +28,7 @@ const (
 var ProviderHostsOverrideIdentity = elemental.Identity{
 	Name:     "providerhostsoverride",
 	Category: "providerhostsoverrides",
-	Package:  "lain",
+	Package:  "tonya",
 	Private:  false,
 }
 

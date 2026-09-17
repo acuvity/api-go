@@ -5,7 +5,7 @@
   "$friendlyName": "TLS Scan Result",
   "$friendlyNamePlural": "TLS Scan Results",
   "$modelName": "ScanResultTLS",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scanresultls",
   "$modelRestName": "scanresulttls",
   "additionalProperties": false,

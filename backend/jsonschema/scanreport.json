@@ -7,7 +7,7 @@
   "$friendlyName": "Scan Report",
   "$friendlyNamePlural": "Scan Reports",
   "$modelName": "ScanReport",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scanreports",
   "$modelRestName": "scanreport",
   "additionalProperties": false,

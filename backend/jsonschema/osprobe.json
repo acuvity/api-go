@@ -9,7 +9,7 @@
   "$friendlyName": "OS Probe",
   "$friendlyNamePlural": "OS Probes",
   "$modelName": "OSProbe",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "osprobes",
   "$modelRestName": "osprobe",
   "additionalProperties": false,

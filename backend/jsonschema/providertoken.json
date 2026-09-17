@@ -9,7 +9,7 @@
   "$friendlyName": "Provider Token",
   "$friendlyNamePlural": "Provider Tokens",
   "$modelName": "ProviderToken",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "providertokens",
   "$modelRestName": "providertoken",
   "additionalProperties": false,

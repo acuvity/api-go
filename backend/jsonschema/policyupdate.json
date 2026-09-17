@@ -6,7 +6,7 @@
   "$friendlyName": "Policy Update",
   "$friendlyNamePlural": "Policy Updates",
   "$modelName": "PolicyUpdate",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "policyupdates",
   "$modelRestName": "policyupdate",
   "additionalProperties": false,

@@ -158,6 +158,9 @@ const (
 	// PredicateOperatorAny represents the value Any.
 	PredicateOperatorAny PredicateOperatorValue = "Any"
 
+	// PredicateOperatorContains represents the value Contains.
+	PredicateOperatorContains PredicateOperatorValue = "Contains"
+
 	// PredicateOperatorEmpty represents the value Empty.
 	PredicateOperatorEmpty PredicateOperatorValue = "Empty"
 
@@ -169,6 +172,9 @@ const (
 
 	// PredicateOperatorEqualsOrLesserThan represents the value EqualsOrLesserThan.
 	PredicateOperatorEqualsOrLesserThan PredicateOperatorValue = "EqualsOrLesserThan"
+
+	// PredicateOperatorLike represents the value Like.
+	PredicateOperatorLike PredicateOperatorValue = "Like"
 
 	// PredicateOperatorNotAny represents the value NotAny.
 	PredicateOperatorNotAny PredicateOperatorValue = "NotAny"
@@ -331,7 +337,7 @@ func (o *Predicate) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
+	if err := elemental.ValidateStringInList("operator", string(o.Operator), []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -401,7 +407,7 @@ var PredicateAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "enum",
 	},
 	"Operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
 		Description:    `The operator of the predicate.`,
@@ -449,7 +455,7 @@ var PredicateLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Type:           "enum",
 	},
 	"operator": {
-		AllowedChoices: []string{"All", "Any", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "NotAny", "NotEmpty", "NotEquals"},
+		AllowedChoices: []string{"All", "Any", "Contains", "Empty", "Equals", "EqualsOrGreaterThan", "EqualsOrLesserThan", "Like", "NotAny", "NotEmpty", "NotEquals"},
 		BSONFieldName:  "operator",
 		ConvertedName:  "Operator",
 		Description:    `The operator of the predicate.`,

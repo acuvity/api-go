@@ -40,7 +40,7 @@ const (
 var OSProbeIdentity = elemental.Identity{
 	Name:     "osprobe",
 	Category: "osprobes",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

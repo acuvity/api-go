@@ -142,6 +142,44 @@ func ValidateEmails(attribute string, emails []string) error {
 	return nil
 }
 
+// toolLabels is the fixed set of tool classification labels that are assigned to
+// a tool, independent of any hints a server itself may claim through MCP protocol
+// annotations (see MCPToolAnnotations).
+var toolLabels = map[string]struct{}{
+	"AccessSecrets":            {},
+	"AdminIdentity":            {},
+	"CommunicateExternal":      {},
+	"CrossSystemOrchestration": {},
+	"Discovery":                {},
+	"ExecuteCode":              {},
+	"FinancialLegal":           {},
+	"NetworkOpenWorld":         {},
+	"ReadInternal":             {},
+	"ReadPublic":               {},
+	"ReadSensitive":            {},
+	"WriteAdditive":            {},
+	"WriteDestructive":         {},
+	"WriteMutating":            {},
+}
+
+// ValidateToolLabels validates that each label is one of the known tool
+// classification labels, with no duplicates.
+func ValidateToolLabels(attribute string, labels []string) error {
+
+	seen := make(map[string]struct{}, len(labels))
+	for i, l := range labels {
+		if _, ok := toolLabels[l]; !ok {
+			return makeErr(fmt.Sprintf("%s/%d", attribute, i), fmt.Sprintf("'%s' is not a known tool label", l))
+		}
+		if _, ok := seen[l]; ok {
+			return makeErr(fmt.Sprintf("%s/%d", attribute, i), fmt.Sprintf("duplicate label '%s'", l))
+		}
+		seen[l] = struct{}{}
+	}
+
+	return nil
+}
+
 // ValidateClientTokenValidity validates the client token is a correct duration and does not exceed 1y.
 func ValidateClientTokenValidity(attribute string, duration string) error {
 
@@ -214,6 +252,9 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 		for j, predicate := range moderation.Predicates {
 			if predicate.Key == PredicateKeyMCPAttacks {
 				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), "'MCPAttacks' can only be used in threat definitions")
+			}
+			if predicate.Key == PredicateKeyTools && contentPolicy.Type == ContentPolicyTypeResponse {
+				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), "'Tools' can only be used with policy type 'Request' or 'Both', not 'Response'")
 			}
 		}
 
@@ -314,6 +355,24 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 			return makeErr(fmt.Sprintf("match/%d/key", i), "'MCPAttacks' can only be used in threat definitions")
 		}
 
+		if criteria.Key == PredicateKeyMCPScope && accessPolicy.Action != AccessPolicyActionAllow {
+			scopes, err := DecodeMCPServerScopes(criteria.Values)
+			if err != nil {
+				return makeErr(fmt.Sprintf("match/%d/values", i), "Key 'MCPScope' only supports MCP server scopes as values")
+			}
+			for j, scope := range scopes {
+				for k, tool := range scope.Tools {
+					if tool == nil || len(tool.Arguments) == 0 {
+						continue
+					}
+					return makeErr(
+						fmt.Sprintf("match/%d/values/%d/tools/%d/arguments", i, j, k),
+						fmt.Sprintf("you cannot condition tool arguments if the access decision is '%s'", accessPolicy.Action),
+					)
+				}
+			}
+		}
+
 		keyop := [2]string{string(criteria.Key), string(criteria.Operator)}
 		if _, ok := seenPredicates[keyop]; !ok {
 			seenPredicates[keyop] = struct{}{}
@@ -399,6 +458,10 @@ func ValidateProvider(provider *Provider) error {
 
 	if provider != nil && strings.HasPrefix(provider.Name, "appc:") {
 		return makeErr("name", "provider name must not start with reserved prefix 'appc:'")
+	}
+
+	if provider.RequiresHostOverride && len(provider.Hosts) != 0 {
+		return makeErr("hosts", "providers requiring a host override must not define catalog hosts")
 	}
 
 	for i, prefix := range provider.ModelPrefixes {
@@ -590,8 +653,9 @@ func ValidateTrimmed(attribute string, value string) error {
 }
 
 // overlapKey returns a comparable stand-in for a predicate value, so overlap
-// detection works for keys whose values are objects. Tools are sorted first, so
-// two scopes naming the same tools in a different order collide.
+// detection works for keys whose values are objects. Tools and their arguments
+// are sorted first, so two scopes naming the same ones in a different order
+// collide.
 func overlapKey(key PredicateKeyValue, value any) (any, error) {
 
 	if value == nil || reflect.TypeOf(value).Comparable() {
@@ -603,10 +667,25 @@ func overlapKey(key PredicateKeyValue, value any) (any, error) {
 	case PredicateKeyMCPScope:
 		if scope, ok := value.(map[string]any); ok {
 			if tools, ok := scope["tools"].([]any); ok {
+
+				byPrint := func(a, b any) int { return strings.Compare(fmt.Sprint(a), fmt.Sprint(b)) }
+
+				sorted := make([]any, 0, len(tools))
+				for _, tool := range tools {
+					t, ok := tool.(map[string]any)
+					if !ok {
+						sorted = append(sorted, tool)
+						continue
+					}
+					if arguments, ok := t["arguments"].([]any); ok {
+						t = maps.Clone(t)
+						t["arguments"] = slices.SortedFunc(slices.Values(arguments), byPrint)
+					}
+					sorted = append(sorted, t)
+				}
+
 				scope = maps.Clone(scope)
-				scope["tools"] = slices.SortedFunc(slices.Values(tools), func(a, b any) int {
-					return strings.Compare(fmt.Sprint(a), fmt.Sprint(b))
-				})
+				scope["tools"] = slices.SortedFunc(slices.Values(sorted), byPrint)
 				value = scope
 			}
 		}
@@ -632,6 +711,81 @@ func DecodeMCPServerScopes(values []any) ([]*MCPServerScope, error) {
 	}
 
 	return out, nil
+}
+
+// ValidateMCPServerScope validates the tools a scope names.
+func ValidateMCPServerScope(scope *MCPServerScope) error {
+
+	for i, tool := range scope.Tools {
+
+		// A null in the tools array unmarshals to nil, which Validate skips
+		// rather than rejects.
+		if tool == nil {
+			return makeErr(fmt.Sprintf("tools/%d", i), "requires a value on every tool")
+		}
+	}
+
+	return nil
+}
+
+// ValidateMCPToolScope validates the conditions a scope puts on the arguments of
+// one tool.
+func ValidateMCPToolScope(tool *MCPToolScope) error {
+
+	seen := make(map[[2]string]struct{}, len(tool.Arguments))
+
+	for i, argument := range tool.Arguments {
+
+		// A null in the arguments array unmarshals to nil, which Validate skips
+		// rather than rejects.
+		if argument == nil {
+			return makeErr(fmt.Sprintf("arguments/%d", i), "requires a value on every argument")
+		}
+
+		// The same argument may carry several conditions, the way a range is two
+		// of them, but not the same condition twice.
+		nameop := [2]string{argument.Name, string(argument.Operator)}
+		if _, ok := seen[nameop]; ok {
+			return makeErr(fmt.Sprintf("arguments/%d", i), fmt.Sprintf("'%s' already has a '%s' condition", argument.Name, argument.Operator))
+		}
+		seen[nameop] = struct{}{}
+	}
+
+	return nil
+}
+
+// ValidateMCPToolArgumentScope validates one condition on a tool argument.
+func ValidateMCPToolArgumentScope(argument *MCPToolArgumentScope) error {
+
+	if len(argument.Values) != 1 {
+		return makeErr("values", "an argument condition only supports one single value")
+	}
+
+	switch argument.Operator {
+
+	case MCPToolArgumentScopeOperatorContains:
+		value, ok := argument.Values[0].(string)
+		if !ok {
+			return makeErr("values/0", fmt.Sprintf("operator 'Contains' only supports a string value. Found '%T'", argument.Values[0]))
+		}
+		// Rego reads the empty string as a substring of everything, so the
+		// condition would hold for every call.
+		if value == "" {
+			return makeErr("values/0", "operator 'Contains' does not support an empty value")
+		}
+
+	case MCPToolArgumentScopeOperatorEqualsOrGreaterThan, MCPToolArgumentScopeOperatorEqualsOrLesserThan:
+		switch t := argument.Values[0].(type) {
+		case int, float64, uint64, int64:
+		default:
+			return makeErr("values/0", fmt.Sprintf("operator '%s' only supports a number value. Found '%T'", argument.Operator, t))
+		}
+
+	default:
+		return makeErr("operator", "an argument condition only supports operators 'Contains', 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
+	}
+
+	return nil
 }
 
 // ValidatePredicate validates the given Predicate.
@@ -1024,12 +1178,8 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr(fmt.Sprintf("values/%d", i), "Key 'MCPScope' requires a value on every entry")
 			}
 
-			// A null in the tools array unmarshals to nil, which Validate skips
-			// rather than rejects.
-			for j, tool := range scope.Tools {
-				if tool == nil {
-					return makeErr(fmt.Sprintf("values/%d/tools/%d", i, j), "Key 'MCPScope' requires a value on every tool")
-				}
+			if o == PredicateOperatorNotAny && len(scope.Tools) > 0 {
+				return makeErr(fmt.Sprintf("values/%d/tools", i), "Key 'MCPScope' can only name a server when the operator is 'NotAny'")
 			}
 
 			if err := scope.Validate(); err != nil {
@@ -1692,6 +1842,27 @@ func ValidateSink(sink *Sink) error {
 	return nil
 }
 
+// ValidateTrafficControl validates the traffic control object.
+func ValidateTrafficControl(tc *TrafficControl) error {
+
+	if tc == nil {
+		return nil
+	}
+
+	allowed := make(map[string]struct{}, len(tc.AllowedHostSets))
+	for _, name := range tc.AllowedHostSets {
+		allowed[name] = struct{}{}
+	}
+
+	for i, name := range tc.BlockedHostSets {
+		if _, ok := allowed[name]; ok {
+			return makeErr(fmt.Sprintf("blockedHostSets/%d", i), fmt.Sprintf("Host set '%s' cannot appear in both allowedHostSets and blockedHostSets", name))
+		}
+	}
+
+	return nil
+}
+
 // ValidateApp validates the app object
 func ValidateApp(app *App) error {
 
@@ -1734,6 +1905,20 @@ func ValidateApp(app *App) error {
 		if component.Selector.Type == AppComponentSelectorTypeKubernetes {
 			if app.Selector.Kubernetes.KubernetesNamespace != component.Selector.Kubernetes.KubernetesNamespace {
 				return makeErr(fmt.Sprintf("components/%d/selector", i), "Kubernetes component selectors must carry the same Kubernetes namespace as the Kubernetes app selector")
+			}
+		}
+
+		// traffic control is only supported for Kubernetes components
+		tc := component.TrafficControl
+		if tc != nil && component.Selector.Type != AppComponentSelectorTypeKubernetes {
+			return makeErr(fmt.Sprintf("components/%d/trafficControl", i), fmt.Sprintf("component '%s' can only have traffic control configured when its selector type is 'Kubernetes'", component.Name))
+		}
+
+		// validate traffic control cross-field constraints
+		if tc != nil {
+			if err := ValidateTrafficControl(tc); err != nil {
+				elemental.InjectAttributePath(err, fmt.Sprintf("components/%d/trafficControl", i))
+				return err
 			}
 		}
 	}
@@ -2236,6 +2421,13 @@ var (
 
 	// Allows basic semver with no tags.
 	validSemverRegex = regexp.MustCompile(`^\d+\.\d+(\.\d+)?$`)
+
+	// ACL domain: optional *. or **. prefix, then at least two DNS labels (rejects *.com, **.com)
+	validACLHostRegex = regexp.MustCompile(
+		`^(?:(?:\*\*|\*)\.)` + // optional wildcard prefix (*. or **.)
+			`(?:` + validHostnameLabel + `\.)+` + // at least one intermediate label with dot
+			validHostnameLabel + `\.?$`, // final label, optional trailing dot
+	)
 )
 
 // ValidatePolicyHostnames validates the given hostnames to be valid strings for egress policy usage.
@@ -2252,6 +2444,36 @@ func ValidatePolicyHostnames(attribute string, hostnames []string) error {
 
 		if !validPolicyHostnameRegex.MatchString(hostname) {
 			return makeErr(attribute, fmt.Sprintf("Hostname at index %d is an invalid policy hostname: it can have an optional leading wildcard (*.|**.), and must consist of at least one label.", i))
+		}
+	}
+
+	return nil
+}
+
+// ValidateACLHosts validates domain entries for host sets and app component traffic controls.
+// Accepts exact FQDNs, *.sub.tld, and **.sub.tld.
+// Rejects mid-label wildcards (api.*.example.com) and overly broad wildcards (*.com, **.com).
+func ValidateACLHosts(attribute string, hosts []string) error {
+
+	if len(hosts) == 0 {
+		return nil
+	}
+
+	for i, domain := range hosts {
+		if domain == "" {
+			return makeErr(attribute, fmt.Sprintf("Host at index %d is empty", i))
+		}
+
+		if strings.HasPrefix(domain, "*.") || strings.HasPrefix(domain, "**.") {
+			if !validACLHostRegex.MatchString(domain) {
+				return makeErr(attribute, fmt.Sprintf("Host at index %d: wildcard hosts require at least two labels after the wildcard prefix", i))
+			}
+			continue
+		}
+
+		// Exact FQDN
+		if !validOnePlusLabelsDNSNameRegex.MatchString(domain) {
+			return makeErr(attribute, fmt.Sprintf("Host at index %d: invalid FQDN", i))
 		}
 	}
 
@@ -2549,8 +2771,14 @@ func ValidateEgressPolicy(egressPolicy *EgressPolicy) error {
 		}
 
 		for j, tool := range scope.Tools {
-			if tool == nil || tool.Name == "" {
-				return makeErr(fmt.Sprintf("MCPScopes/%d/tools/%d/name", i, j), "'MCPScopes' requires a name on every tool")
+
+			// A null tool is reported by ValidateMCPServerScope.
+			if tool == nil {
+				continue
+			}
+
+			if egressPolicy.Action != EgressPolicyActionAllow && len(tool.Arguments) > 0 {
+				return makeErr(fmt.Sprintf("MCPScopes/%d/tools/%d/arguments", i, j), fmt.Sprintf("you cannot condition tool arguments if the access decision is '%s'", egressPolicy.Action))
 			}
 		}
 	}
@@ -2579,28 +2807,30 @@ func ValidateOrgSetting(o *OrgSettings) error {
 	return nil
 }
 
-// validateToolMisalignmentExploit - validate that Tool misalignement exploit is paired
-// with some tool use names.
+// ValidateToolMisalignmentExploit - validate that Tool misalignment exploit is paired
+// with a tool use scope, either some tool use names or every tool use of the
+// payload.
 func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int) error {
 
 	const exploitValueIntentToolMismatch = "intent_tool_mismatch"
 
-	allowed := map[PredicateOperatorValue]struct{}{
+	exploitOperators := map[PredicateOperatorValue]struct{}{
 		PredicateOperatorAny:    {},
 		PredicateOperatorEquals: {},
 	}
 
 	hasIntentToolMismatch := false
-	hasToolUsesWithNames := false
+	hasToolUsesScope := false
 	exploitIndex := -1
 
 	for i, p := range moderation.Predicates {
-		if _, ok := allowed[p.Operator]; !ok {
-			continue
-		}
 
 		switch p.Key {
+
 		case "Exploits":
+			if _, ok := exploitOperators[p.Operator]; !ok {
+				continue
+			}
 			for _, v := range p.Values {
 				if v == exploitValueIntentToolMismatch {
 					hasIntentToolMismatch = true
@@ -2610,23 +2840,29 @@ func ValidateToolMisalignmentExploit(moderation *Moderation, moderationIndex int
 			}
 
 		case "ToolUses":
-			if len(p.Values) > 0 {
-				hasToolUsesWithNames = true
+			switch p.Operator {
+			case PredicateOperatorAny, PredicateOperatorEquals:
+				if len(p.Values) > 0 {
+					hasToolUsesScope = true
+				}
+			case PredicateOperatorNotEmpty:
+				hasToolUsesScope = true
 			}
 		}
 
-		if hasIntentToolMismatch && hasToolUsesWithNames {
+		if hasIntentToolMismatch && hasToolUsesScope {
 			return nil
 		}
 	}
 
-	if hasIntentToolMismatch && !hasToolUsesWithNames {
+	if hasIntentToolMismatch && !hasToolUsesScope {
 		return makeErr(
 			fmt.Sprintf("moderations/%d/predicates/%d", moderationIndex, exploitIndex),
 			fmt.Sprintf(
-				"Tool misalignment exploit need to be paired with Tool Use with '%s' or '%s' operator",
+				"Tool misalignment exploit need to be paired with Tool Use with '%s', '%s' or '%s' operator",
 				PredicateOperatorAny,
 				PredicateOperatorEquals,
+				PredicateOperatorNotEmpty,
 			),
 		)
 	}

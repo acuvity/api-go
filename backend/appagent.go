@@ -31,7 +31,7 @@ const (
 var AppAgentIdentity = elemental.Identity{
 	Name:     "appagent",
 	Category: "appagents",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

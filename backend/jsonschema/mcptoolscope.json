@@ -3,12 +3,21 @@
   "$friendlyName": "MCP Tool Scope",
   "$friendlyNamePlural": "MCP Tool Scopes",
   "$modelName": "MCPToolScope",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "mcptoolscopes",
   "$modelRestName": "mcptoolscope",
   "additionalProperties": false,
   "description": "Represents a tool on an MCP server.",
   "properties": {
+    "arguments": {
+      "$friendlyName": "Arguments",
+      "description": "The conditions the arguments of the call must satisfy. Every condition must match. If empty, the scope applies whatever the call passes. Only valid on a policy whose action is Allow.",
+      "items": {
+        "$ref": "mcptoolargumentscope.json"
+      },
+      "title": "arguments",
+      "type": "array"
+    },
     "name": {
       "$friendlyName": "Name",
       "$required": true,

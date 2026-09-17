@@ -8,7 +8,7 @@
   "$friendlyName": "Provider Team",
   "$friendlyNamePlural": "Provider Teams",
   "$modelName": "ProviderTeam",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "providerteams",
   "$modelRestName": "providerteam",
   "additionalProperties": false,

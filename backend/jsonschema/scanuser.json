@@ -3,7 +3,7 @@
   "$friendlyName": "Scan User",
   "$friendlyNamePlural": "Scan Users",
   "$modelName": "ScanUser",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scanusers",
   "$modelRestName": "scanuser",
   "additionalProperties": false,

@@ -11,7 +11,7 @@
   "$friendlyName": "Access Policy",
   "$friendlyNamePlural": "Access Policies",
   "$modelName": "AccessPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "accesspolicies",
   "$modelRestName": "accesspolicy",
   "additionalProperties": false,

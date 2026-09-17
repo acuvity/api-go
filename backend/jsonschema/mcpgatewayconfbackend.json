@@ -3,7 +3,7 @@
   "$friendlyName": "MCP Gateway Conf Backend",
   "$friendlyNamePlural": "MCP Gateway Conf Backends",
   "$modelName": "MCPGatewayConfBackend",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcpgatewayconfbackends",
   "$modelRestName": "mcpgatewayconfbackend",
   "additionalProperties": false,

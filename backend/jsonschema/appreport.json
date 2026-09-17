@@ -7,7 +7,7 @@
   "$friendlyName": "App Report",
   "$friendlyNamePlural": "App Reports",
   "$modelName": "AppReport",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "appreports",
   "$modelRestName": "appreport",
   "additionalProperties": false,

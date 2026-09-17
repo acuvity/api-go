@@ -48,7 +48,7 @@ const (
 var ThreatDefinitionIdentity = elemental.Identity{
 	Name:     "threatdefinition",
 	Category: "threatdefinitions",
-	Package:  "lain",
+	Package:  "okite",
 	Private:  false,
 }
 

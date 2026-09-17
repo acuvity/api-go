@@ -9,7 +9,7 @@
   "$friendlyName": "Provider Hosts Override",
   "$friendlyNamePlural": "Provider Hosts Overrides",
   "$modelName": "ProviderHostsOverride",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "providerhostsoverrides",
   "$modelRestName": "providerhostsoverride",
   "additionalProperties": false,

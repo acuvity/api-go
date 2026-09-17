@@ -17,7 +17,7 @@ import (
 var MCPGatewayClientIdentity = elemental.Identity{
 	Name:     "mcpgatewayclient",
 	Category: "clients",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

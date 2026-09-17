@@ -3,7 +3,7 @@
   "$friendlyName": "TLS Certificate Information",
   "$friendlyNamePlural": "TLS Certificate Informations",
   "$modelName": "TLSCertInfo",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "tlscertinfos",
   "$modelRestName": "tlscertinfo",
   "additionalProperties": false,

@@ -5,7 +5,7 @@
   "$friendlyName": "AI Gateway Conf",
   "$friendlyNamePlural": "AI Gateway Confs",
   "$modelName": "AIGatewayConf",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "aigatewayconfs",
   "$modelRestName": "aigatewayconf",
   "additionalProperties": false,

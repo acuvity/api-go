@@ -45,7 +45,7 @@ const (
 var UserTokenIdentity = elemental.Identity{
 	Name:     "usertoken",
 	Category: "usertokens",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 

@@ -9,7 +9,7 @@
   "$friendlyName": "AI Application",
   "$friendlyNamePlural": "AI Applications",
   "$modelName": "AIApp",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aiapps",
   "$modelRestName": "aiapp",
   "additionalProperties": false,

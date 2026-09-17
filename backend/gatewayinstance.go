@@ -31,7 +31,7 @@ const (
 var GatewayInstanceIdentity = elemental.Identity{
 	Name:     "gatewayinstance",
 	Category: "gatewayinstances",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

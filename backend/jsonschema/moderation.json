@@ -3,7 +3,7 @@
   "$friendlyName": "Moderation",
   "$friendlyNamePlural": "Moderations",
   "$modelName": "Moderation",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "moderations",
   "$modelRestName": "moderation",
   "additionalProperties": false,

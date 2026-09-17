@@ -17,7 +17,7 @@ import (
 var OrgStorageIdentity = elemental.Identity{
 	Name:     "orgstorage",
 	Category: "orgstorages",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

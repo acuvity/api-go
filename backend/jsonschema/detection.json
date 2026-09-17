@@ -5,7 +5,7 @@
   "$friendlyName": "Detection",
   "$friendlyNamePlural": "Detections",
   "$modelName": "Detection",
-  "$modelPackage": "lain",
+  "$modelPackage": "proxy",
   "$modelResourceName": "detections",
   "$modelRestName": "detection",
   "additionalProperties": false,

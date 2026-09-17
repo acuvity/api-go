@@ -115,7 +115,7 @@ const (
 var ExtractorIdentity = elemental.Identity{
 	Name:     "extractor",
 	Category: "extractors",
-	Package:  "lain",
+	Package:  "tonya",
 	Private:  false,
 }
 

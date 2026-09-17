@@ -3,7 +3,7 @@
   "$friendlyName": "Scan Domain",
   "$friendlyNamePlural": "Scan Domains",
   "$modelName": "ScanDomain",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scandomain",
   "$modelRestName": "scandomain",
   "additionalProperties": false,

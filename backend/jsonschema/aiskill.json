@@ -9,7 +9,7 @@
   "$friendlyName": "AI Skill",
   "$friendlyNamePlural": "AI Skills",
   "$modelName": "AISkill",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aiskills",
   "$modelRestName": "aiskill",
   "additionalProperties": false,

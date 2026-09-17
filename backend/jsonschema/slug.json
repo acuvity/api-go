@@ -3,7 +3,7 @@
   "$friendlyName": "Slug",
   "$friendlyNamePlural": "Slugs",
   "$modelName": "Slug",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "slugs",
   "$modelRestName": "slug",
   "additionalProperties": false,

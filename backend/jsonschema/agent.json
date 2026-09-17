@@ -8,7 +8,7 @@
   "$friendlyName": "Agent",
   "$friendlyNamePlural": "Agents",
   "$modelName": "Agent",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "agents",
   "$modelRestName": "agent",
   "additionalProperties": false,

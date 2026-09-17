@@ -5,7 +5,7 @@
   "$friendlyName": "AI Skill Summary",
   "$friendlyNamePlural": "AI Skill Summaries",
   "$modelName": "AISkillSummary",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aiskillsummaries",
   "$modelRestName": "aiskillsummary",
   "additionalProperties": false,

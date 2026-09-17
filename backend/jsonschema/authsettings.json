@@ -3,7 +3,7 @@
   "$friendlyName": "Authentication Settings",
   "$friendlyNamePlural": "Authentication Settings",
   "$modelName": "AuthSettings",
-  "$modelPackage": "lain",
+  "$modelPackage": "shiori",
   "$modelResourceName": "authsettings",
   "$modelRestName": "authsettings",
   "additionalProperties": false,

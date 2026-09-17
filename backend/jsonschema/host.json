@@ -3,7 +3,7 @@
   "$friendlyName": "Host",
   "$friendlyNamePlural": "Hosts",
   "$modelName": "Host",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "hosts",
   "$modelRestName": "host",
   "additionalProperties": false,

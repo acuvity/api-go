@@ -5,7 +5,7 @@
   "$friendlyName": "Webhook Integration Config",
   "$friendlyNamePlural": "Webhook Integration Configs",
   "$modelName": "WebhookIntegrationConfig",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "webhookintegrationconfigs",
   "$modelRestName": "webhookintegrationconfig",
   "additionalProperties": false,

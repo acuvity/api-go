@@ -10,7 +10,7 @@
   "$friendlyName": "Threat Definition",
   "$friendlyNamePlural": "Threat Definitions",
   "$modelName": "ThreatDefinition",
-  "$modelPackage": "lain",
+  "$modelPackage": "okite",
   "$modelResourceName": "threatdefinitions",
   "$modelRestName": "threatdefinition",
   "additionalProperties": false,

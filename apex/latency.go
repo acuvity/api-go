@@ -16,7 +16,7 @@ import (
 var LatencyIdentity = elemental.Identity{
 	Name:     "latency",
 	Category: "latencies",
-	Package:  "lain",
+	Package:  "colektor",
 	Private:  false,
 }
 

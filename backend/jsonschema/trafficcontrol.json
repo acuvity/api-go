@@ -1,0 +1,62 @@
+{
+  "$extends": [],
+  "$friendlyName": "Traffic Control",
+  "$friendlyNamePlural": "Traffic Controls",
+  "$modelName": "TrafficControl",
+  "$modelPackage": "kikaku",
+  "$modelResourceName": "trafficcontrols",
+  "$modelRestName": "trafficcontrol",
+  "additionalProperties": false,
+  "description": "Defines traffic filtering for an app component. When any field is set, a default deny is in effect unless overridden by defaultDNSPolicy.",
+  "properties": {
+    "allowedHostSets": {
+      "$friendlyName": "Allowed Host Sets",
+      "description": "The list of host sets whose domains are allowed.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "allowedHostSets",
+      "type": "array"
+    },
+    "blockedHostSets": {
+      "$friendlyName": "Blocked Host Sets",
+      "description": "The list of host sets whose domains are explicitly blocked.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "blockedHostSets",
+      "type": "array"
+    },
+    "blockedIPSets": {
+      "$friendlyName": "Blocked IP Sets",
+      "description": "The list of IP set names whose CIDR blocks are explicitly blocked.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "blockedIPSets",
+      "type": "array"
+    },
+    "defaultDNSPolicy": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Default DNS Policy",
+      "description": "The default policy applied to DNS traffic not matched by any Host set.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "defaultDNSPolicy"
+    }
+  },
+  "required": [],
+  "title": "TrafficControl",
+  "type": "object"
+}

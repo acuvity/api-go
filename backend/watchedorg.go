@@ -16,7 +16,7 @@ import (
 var WatchedOrgIdentity = elemental.Identity{
 	Name:     "watchedorg",
 	Category: "watchedorgs",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

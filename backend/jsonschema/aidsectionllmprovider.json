@@ -5,7 +5,7 @@
   "$friendlyName": "AID Section LLM Provider",
   "$friendlyNamePlural": "AID Section LLM Providers",
   "$modelName": "AIDSectionLLMProvider",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsectionllmprovider",
   "$modelRestName": "aidsectionllmprovider",
   "additionalProperties": false,

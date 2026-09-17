@@ -9,7 +9,7 @@
   "$friendlyName": "Gateway",
   "$friendlyNamePlural": "Gateways",
   "$modelName": "Gateway",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "gateways",
   "$modelRestName": "gateway",
   "additionalProperties": false,

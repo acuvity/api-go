@@ -17,7 +17,7 @@ import (
 var AIToolIdentity = elemental.Identity{
 	Name:     "aitool",
 	Category: "aitools",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

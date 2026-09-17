@@ -3,7 +3,7 @@
   "$friendlyName": "AI Web Extension",
   "$friendlyNamePlural": "AI Web Extensions",
   "$modelName": "AIPluginWebExt",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aipluginwebext",
   "$modelRestName": "aipluginwebext",
   "additionalProperties": false,

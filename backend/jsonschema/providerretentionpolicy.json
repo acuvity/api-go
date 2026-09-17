@@ -3,7 +3,7 @@
   "$friendlyName": "Provider Data Retention policy",
   "$friendlyNamePlural": "Provider Data Retention policies",
   "$modelName": "ProviderRetentionPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "providerretentionpolicies",
   "$modelRestName": "providerretentionpolicy",
   "additionalProperties": false,

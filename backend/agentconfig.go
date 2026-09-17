@@ -48,7 +48,7 @@ const (
 var AgentConfigIdentity = elemental.Identity{
 	Name:     "agentconfig",
 	Category: "agentconfigs",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

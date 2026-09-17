@@ -19,6 +19,11 @@ type ToolArgument struct {
 	// The name of the argument.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
+	// Whether a policy parameter check may be configured for this argument.
+	// Arguments like identifiers (e.g. object_id, user_id) are typically not
+	// supported, since constraining their value has no meaningful policy use.
+	ParameterCheckSupported bool `json:"parameterCheckSupported" msgpack:"parameterCheckSupported" bson:"parameterchecksupported" mapstructure:"parameterCheckSupported,omitempty"`
+
 	// Whether this argument is required by the tool.
 	Required bool `json:"required" msgpack:"required" bson:"required" mapstructure:"required,omitempty"`
 
@@ -64,6 +69,7 @@ func (o *ToolArgument) GetBSON() (any, error) {
 
 	s.Description = o.Description
 	s.Name = o.Name
+	s.ParameterCheckSupported = o.ParameterCheckSupported
 	s.Required = o.Required
 	s.Schema = o.Schema
 	s.Type = o.Type
@@ -86,6 +92,7 @@ func (o *ToolArgument) SetBSON(raw bson.Raw) error {
 
 	o.Description = s.Description
 	o.Name = s.Name
+	o.ParameterCheckSupported = s.ParameterCheckSupported
 	o.Required = s.Required
 	o.Schema = s.Schema
 	o.Type = s.Type
@@ -197,6 +204,8 @@ func (o *ToolArgument) ValueForAttribute(name string) any {
 		return o.Description
 	case "name":
 		return o.Name
+	case "parameterCheckSupported":
+		return o.ParameterCheckSupported
 	case "required":
 		return o.Required
 	case "schema":
@@ -230,6 +239,18 @@ var ToolArgumentAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"ParameterCheckSupported": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "parameterchecksupported",
+		ConvertedName:  "ParameterCheckSupported",
+		Description: `Whether a policy parameter check may be configured for this argument.
+Arguments like identifiers (e.g. object_id, user_id) are typically not
+supported, since constraining their value has no meaningful policy use.`,
+		Exposed: true,
+		Name:    "parameterCheckSupported",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Required": {
 		AllowedChoices: []string{},
@@ -288,6 +309,18 @@ var ToolArgumentLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
+	"parameterchecksupported": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "parameterchecksupported",
+		ConvertedName:  "ParameterCheckSupported",
+		Description: `Whether a policy parameter check may be configured for this argument.
+Arguments like identifiers (e.g. object_id, user_id) are typically not
+supported, since constraining their value has no meaningful policy use.`,
+		Exposed: true,
+		Name:    "parameterCheckSupported",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"required": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "required",
@@ -323,9 +356,10 @@ attributes.`,
 }
 
 type mongoAttributesToolArgument struct {
-	Description string         `bson:"description,omitempty"`
-	Name        string         `bson:"name"`
-	Required    bool           `bson:"required"`
-	Schema      map[string]any `bson:"schema,omitempty"`
-	Type        string         `bson:"type,omitempty"`
+	Description             string         `bson:"description,omitempty"`
+	Name                    string         `bson:"name"`
+	ParameterCheckSupported bool           `bson:"parameterchecksupported"`
+	Required                bool           `bson:"required"`
+	Schema                  map[string]any `bson:"schema,omitempty"`
+	Type                    string         `bson:"type,omitempty"`
 }

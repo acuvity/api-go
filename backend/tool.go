@@ -46,6 +46,11 @@ type Tool struct {
 	// The description of the tool.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// The set of classification labels assigned to this tool e.g. data
+	// sensitivity, destructiveness of its actions. This is distinct from the tool's
+	// self-reported MCP protocol annotations. A tool can carry zero or more labels.
+	Labels []string `json:"labels,omitempty" msgpack:"labels,omitempty" bson:"labels,omitempty" mapstructure:"labels,omitempty"`
+
 	// The name of the tool.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -61,6 +66,7 @@ func NewTool() *Tool {
 	return &Tool{
 		ModelVersion: 1,
 		Category:     ToolCategoryNone,
+		Labels:       []string{},
 	}
 }
 func (o *Tool) Identity() elemental.Identity {
@@ -90,6 +96,7 @@ func (o *Tool) GetBSON() (any, error) {
 	s.Arguments = o.Arguments
 	s.Category = o.Category
 	s.Description = o.Description
+	s.Labels = o.Labels
 	s.Name = o.Name
 	s.Type = o.Type
 
@@ -114,6 +121,7 @@ func (o *Tool) SetBSON(raw bson.Raw) error {
 	o.Arguments = s.Arguments
 	o.Category = s.Category
 	o.Description = s.Description
+	o.Labels = s.Labels
 	o.Name = s.Name
 	o.Type = s.Type
 
@@ -252,6 +260,10 @@ func (o *Tool) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateToolLabels("labels", o.Labels); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -296,6 +308,8 @@ func (o *Tool) ValueForAttribute(name string) any {
 		return o.Category
 	case "description":
 		return o.Description
+	case "labels":
+		return o.Labels
 	case "name":
 		return o.Name
 	case "type":
@@ -361,6 +375,19 @@ used. This can be empty if unknown or if this is a tool listing of MCP servers.`
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Labels": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "labels",
+		ConvertedName:  "Labels",
+		Description: `The set of classification labels assigned to this tool e.g. data
+sensitivity, destructiveness of its actions. This is distinct from the tool's
+self-reported MCP protocol annotations. A tool can carry zero or more labels.`,
+		Exposed: true,
+		Name:    "labels",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -441,6 +468,19 @@ used. This can be empty if unknown or if this is a tool listing of MCP servers.`
 		Stored:         true,
 		Type:           "string",
 	},
+	"labels": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "labels",
+		ConvertedName:  "Labels",
+		Description: `The set of classification labels assigned to this tool e.g. data
+sensitivity, destructiveness of its actions. This is distinct from the tool's
+self-reported MCP protocol annotations. A tool can carry zero or more labels.`,
+		Exposed: true,
+		Name:    "labels",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -469,6 +509,7 @@ type mongoAttributesTool struct {
 	Arguments      []*ToolArgument     `bson:"arguments,omitempty"`
 	Category       ToolCategoryValue   `bson:"category,omitempty"`
 	Description    string              `bson:"description,omitempty"`
+	Labels         []string            `bson:"labels,omitempty"`
 	Name           string              `bson:"name,omitempty"`
 	Type           string              `bson:"type,omitempty"`
 }

@@ -5,7 +5,7 @@
   "$friendlyName": "AID Summary",
   "$friendlyNamePlural": "AID Summaries",
   "$modelName": "AIDSummary",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsummaries",
   "$modelRestName": "aidsummary",
   "additionalProperties": false,

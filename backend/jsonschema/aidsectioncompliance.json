@@ -5,7 +5,7 @@
   "$friendlyName": "AID Section Compliance",
   "$friendlyNamePlural": "AID Section Compliances",
   "$modelName": "AIDSectionCompliance",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "aidsectioncompliances",
   "$modelRestName": "aidsectioncompliance",
   "additionalProperties": false,

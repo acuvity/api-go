@@ -5,7 +5,7 @@
   "$friendlyName": "ProxyConf",
   "$friendlyNamePlural": "ProxyConfs",
   "$modelName": "ProxyConf",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "proxyconfs",
   "$modelRestName": "proxyconf",
   "additionalProperties": false,

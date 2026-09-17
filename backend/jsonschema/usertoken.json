@@ -8,7 +8,7 @@
   "$friendlyName": "User Token",
   "$friendlyNamePlural": "User Tokens",
   "$modelName": "UserToken",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanko",
   "$modelResourceName": "usertokens",
   "$modelRestName": "usertoken",
   "additionalProperties": false,

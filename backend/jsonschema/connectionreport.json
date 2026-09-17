@@ -8,7 +8,7 @@
   "$friendlyName": "Connection Report",
   "$friendlyNamePlural": "Connection Reports",
   "$modelName": "ConnectionReport",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "connectionreports",
   "$modelRestName": "connectionreport",
   "additionalProperties": false,

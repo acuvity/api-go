@@ -17,7 +17,7 @@ import (
 var TeamIdentity = elemental.Identity{
 	Name:     "team",
 	Category: "teams",
-	Package:  "lain",
+	Package:  "hanko",
 	Private:  false,
 }
 

@@ -5,7 +5,7 @@
   "$friendlyName": "Advanced Scan Result",
   "$friendlyNamePlural": "Advanced Scan Results",
   "$modelName": "ScanResultAdvanced",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "scanresultadvanced",
   "$modelRestName": "scanresultadvanced",
   "additionalProperties": false,

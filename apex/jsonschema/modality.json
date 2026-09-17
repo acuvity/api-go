@@ -3,7 +3,7 @@
   "$friendlyName": "Modality",
   "$friendlyNamePlural": "Modalities",
   "$modelName": "Modality",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "modalities",
   "$modelRestName": "modality",
   "additionalProperties": false,

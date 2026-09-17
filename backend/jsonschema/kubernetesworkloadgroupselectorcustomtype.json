@@ -3,7 +3,7 @@
   "$friendlyName": "Kubernetes Workload Group Selector Custom Type",
   "$friendlyNamePlural": "Kubernetes Workload Group Selector Custom Types",
   "$modelName": "KubernetesWorkloadGroupSelectorCustomType",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "kubernetesworkloadgroupselectorcustomtypes",
   "$modelRestName": "kubernetesworkloadgroupselectorcustomtype",
   "additionalProperties": false,

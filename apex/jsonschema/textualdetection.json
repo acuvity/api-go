@@ -3,7 +3,7 @@
   "$friendlyName": "Textual Detection",
   "$friendlyNamePlural": "Textual Detections",
   "$modelName": "TextualDetection",
-  "$modelPackage": "lain",
+  "$modelPackage": "colektor",
   "$modelResourceName": "textualdetections",
   "$modelRestName": "textualdetection",
   "additionalProperties": false,

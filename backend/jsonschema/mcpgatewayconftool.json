@@ -3,7 +3,7 @@
   "$friendlyName": "MCP Gateway Conf Tool",
   "$friendlyNamePlural": "MCP Gateway Conf Tools",
   "$modelName": "MCPGatewayConfTool",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcpgatewayconftools",
   "$modelRestName": "mcpgatewayconftool",
   "additionalProperties": false,

@@ -9,7 +9,7 @@
   "$friendlyName": "MCP Gateway",
   "$friendlyNamePlural": "MCP Gateways",
   "$modelName": "MCPGateway",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcpgateways",
   "$modelRestName": "mcpgateway",
   "additionalProperties": false,

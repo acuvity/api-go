@@ -17,7 +17,7 @@ import (
 var AIMCPServerIdentity = elemental.Identity{
 	Name:     "aimcpserver",
 	Category: "aimcpservers",
-	Package:  "lain",
+	Package:  "zukan",
 	Private:  false,
 }
 

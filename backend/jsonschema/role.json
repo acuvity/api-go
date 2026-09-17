@@ -5,7 +5,7 @@
   "$friendlyName": "Role",
   "$friendlyNamePlural": "Roles",
   "$modelName": "Role",
-  "$modelPackage": "lain",
+  "$modelPackage": "hanko",
   "$modelResourceName": "roles",
   "$modelRestName": "role",
   "additionalProperties": false,

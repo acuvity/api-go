@@ -17,7 +17,7 @@ import (
 var WebhookIntegrationIdentity = elemental.Identity{
 	Name:     "webhookintegration",
 	Category: "webhookintegrations",
-	Package:  "lain",
+	Package:  "torii",
 	Private:  false,
 }
 

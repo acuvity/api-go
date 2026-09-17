@@ -7,7 +7,7 @@
   "$friendlyName": "Deployment Instance",
   "$friendlyNamePlural": "Deployment Instances",
   "$modelName": "DeploymentInstance",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "deploymentinstances",
   "$modelRestName": "deploymentinstance",
   "additionalProperties": false,

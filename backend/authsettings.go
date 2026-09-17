@@ -30,7 +30,7 @@ const (
 var AuthSettingsIdentity = elemental.Identity{
 	Name:     "authsettings",
 	Category: "authsettings",
-	Package:  "lain",
+	Package:  "shiori",
 	Private:  false,
 }
 

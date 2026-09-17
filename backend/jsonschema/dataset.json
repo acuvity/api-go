@@ -10,7 +10,7 @@
   "$friendlyName": "DataSet",
   "$friendlyNamePlural": "DataSets",
   "$modelName": "DataSet",
-  "$modelPackage": "lain",
+  "$modelPackage": "zukan",
   "$modelResourceName": "datasets",
   "$modelRestName": "dataset",
   "additionalProperties": false,

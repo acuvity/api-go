@@ -2977,7 +2977,7 @@
           },
           "occurrences": {
             "default": 1,
-            "description": "The number of times an alert event is seen to cause a trigger.",
+            "description": "The number of times an alert event must be seen within the interval to cause a\ntrigger.",
             "type": "integer"
           }
         },
@@ -3223,6 +3223,10 @@
           },
           "disabled": {
             "description": "When disabled, an API Authorization has no effect.",
+            "type": "boolean"
+          },
+          "hidden": {
+            "description": "If true, this authorization will not be visible if retrieved as a propagated\nobject.",
             "type": "boolean"
           },
           "importHash": {
@@ -3616,6 +3620,9 @@
             },
             "readOnly": true,
             "type": "array"
+          },
+          "trafficControl": {
+            "$ref": "#/components/schemas/trafficcontrol"
           }
         },
         "required": [
@@ -6949,6 +6956,73 @@
         ],
         "type": "object"
       },
+      "hostset": {
+        "description": "Host set defines a named collection of hosts that\ncan be referenced by app component traffic controls to allow or block specific\ndomains.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the host set.",
+            "example": "Allowed hosts for OpenAI API endpoints.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "hosts": {
+            "description": "The list of hosts in this set.",
+            "example": [
+              "api.openai.com",
+              "*.anthropic.com",
+              "**.googleapis.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "hosts"
+        ],
+        "type": "object"
+      },
       "identitymodifier": {
         "description": "Information about a remote endpoint to call to eventually modify the identity\nclaims about to be issued when using the parent source.",
         "properties": {
@@ -7267,10 +7341,24 @@
             },
             "type": "array"
           },
+          "hostSets": {
+            "description": "Host sets to import.",
+            "items": {
+              "$ref": "#/components/schemas/hostset"
+            },
+            "type": "array"
+          },
           "ignoredDomains": {
             "description": "Ignored domains to import.",
             "items": {
               "$ref": "#/components/schemas/ignoreddomain"
+            },
+            "type": "array"
+          },
+          "ipSets": {
+            "description": "IP sets to import.",
+            "items": {
+              "$ref": "#/components/schemas/ipset"
             },
             "type": "array"
           },
@@ -7573,6 +7661,72 @@
         "required": [
           "method",
           "path"
+        ],
+        "type": "object"
+      },
+      "ipset": {
+        "description": "IP Set defines a named collection of IP CIDR blocks that can be referenced by\ntraffic controls to restrict destination IP addresses.",
+        "properties": {
+          "CIDRs": {
+            "description": "The list of IP CIDR blocks contained in this IP set.",
+            "example": [
+              "104.18.0.0/16",
+              "13.107.0.0/18"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the IP set.",
+            "example": "IP ranges for OpenAI API endpoints.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "CIDRs",
+          "friendlyName"
         ],
         "type": "object"
       },
@@ -8400,9 +8554,70 @@
         },
         "type": "object"
       },
+      "mcptoolargumentscope": {
+        "description": "Represents a condition on one argument of an MCP tool call.",
+        "properties": {
+          "name": {
+            "description": "The name of the argument, as declared at the root of the tool input\nschema. Nested arguments are not supported.",
+            "example": "limit",
+            "type": "string"
+          },
+          "operator": {
+            "description": "The operator of the predicate.",
+            "enum": [
+              "All",
+              "Any",
+              "Contains",
+              "Empty",
+              "Equals",
+              "EqualsOrGreaterThan",
+              "EqualsOrLesserThan",
+              "Like",
+              "NotAny",
+              "NotEmpty",
+              "NotEquals"
+            ],
+            "example": "Equals"
+          },
+          "values": {
+            "description": "The values of the predicate.",
+            "example": "xxx-xxx-xxx-xxx",
+            "items": {
+              "type": "any"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "name",
+          "operator"
+        ],
+        "type": "object"
+      },
+      "mcptoolextraction": {
+        "description": "Holds the analyzer findings for a single MCP tool in a drifted snapshot.",
+        "properties": {
+          "extraction": {
+            "$ref": "#/components/schemas/extraction"
+          },
+          "name": {
+            "description": "The name of the tool this extraction corresponds to.",
+            "example": "Walmart_GetProductDetails",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "mcptoolscope": {
         "description": "Represents a tool on an MCP server.",
         "properties": {
+          "arguments": {
+            "description": "The conditions the arguments of the call must satisfy. Every condition\nmust match. If empty, the scope applies whatever the call passes. Only\nvalid on a policy whose action is Allow.",
+            "items": {
+              "$ref": "#/components/schemas/mcptoolargumentscope"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the tool, as advertised by the MCP server.",
             "example": "read_repository",
@@ -8449,9 +8664,6 @@
             "description": "Whether the live tools list diverges from the baseline.",
             "type": "boolean"
           },
-          "extraction": {
-            "$ref": "#/components/schemas/extraction"
-          },
           "firstDriftedAt": {
             "description": "When divergence was first observed. Set on entering drift, cleared on leaving\nit.",
             "format": "date-time",
@@ -8480,6 +8692,13 @@
           "rawTools": {
             "description": "The raw tools list as fetched from upstream, sent by the gateway on create.",
             "type": "string"
+          },
+          "toolExtractions": {
+            "description": "Per-tool analyzer findings from running each drifted tool through the\nanalyzers. Populated only when the snapshot is in a drifted state.",
+            "items": {
+              "$ref": "#/components/schemas/mcptoolextraction"
+            },
+            "type": "array"
           },
           "tools": {
             "description": "The tools list as last fetched from upstream.",
@@ -8889,6 +9108,11 @@
               "MicrosoftUPN"
             ]
           },
+          "subClaim": {
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "example": "sub",
+            "type": "string"
+          },
           "subjectKeyIDs": {
             "description": "Value of the CAs X.509 SubjectKeyIDs in the chain.",
             "items": {
@@ -9086,6 +9310,11 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "subClaim": {
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "example": "sub",
+            "type": "string"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -9560,10 +9789,11 @@
             "type": "string"
           },
           "operator": {
-            "description": "The operator of the page data view predicate.",
+            "description": "The operator of the predicate.",
             "enum": [
               "All",
               "Any",
+              "Contains",
               "Empty",
               "Equals",
               "EqualsOrGreaterThan",
@@ -9577,9 +9807,7 @@
           },
           "values": {
             "description": "The values of the predicate.",
-            "example": [
-              "chatgpt"
-            ],
+            "example": "xxx-xxx-xxx-xxx",
             "items": {
               "type": "any"
             },
@@ -9729,10 +9957,12 @@
             "enum": [
               "All",
               "Any",
+              "Contains",
               "Empty",
               "Equals",
               "EqualsOrGreaterThan",
               "EqualsOrLesserThan",
+              "Like",
               "NotAny",
               "NotEmpty",
               "NotEquals"
@@ -10147,6 +10377,10 @@
               "LLM",
               "MCPServer"
             ]
+          },
+          "requiresHostOverride": {
+            "description": "If true, the provider is omitted from proxy configurations until tenant\nhosts are configured with a Provider Hosts Override. The configured hosts\nare also applied to the provider's extractor references.",
+            "type": "boolean"
           },
           "riskScore": {
             "description": "The latest risk score of the provider.",
@@ -10832,6 +11066,11 @@
           },
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "internalTraceID": {
+            "description": "The ID of the internal trace that served this request reported to monitoring.\nDo not confuse it with the traceID of the trace\nattribute, which reports the application's own trace when the app has\ntracing turned on. Empty when the processing apex ran without a trace\ncollector.",
+            "example": "2bbb81eb97981c0eaf9a1e34cf5b8d72",
             "type": "string"
           },
           "latency": {
@@ -11628,6 +11867,11 @@
           "skipResponseSignatureCheck": {
             "description": "If true, the issue request won't check the ResponseSignatureValidated.",
             "type": "boolean"
+          },
+          "subClaim": {
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "example": "sub",
+            "type": "string"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -12673,6 +12917,17 @@
             "example": "Get the current weather in a given location",
             "type": "string"
           },
+          "labels": {
+            "description": "The set of classification labels assigned to this tool e.g. data\nsensitivity, destructiveness of its actions. This is distinct from the tool's\nself-reported MCP protocol annotations. A tool can carry zero or more labels.",
+            "example": [
+              "ReadSensitive",
+              "WriteDestructive"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the tool.",
             "example": "get_weather",
@@ -12698,6 +12953,10 @@
             "description": "The name of the argument.",
             "example": "url",
             "type": "string"
+          },
+          "parameterCheckSupported": {
+            "description": "Whether a policy parameter check may be configured for this argument.\nArguments like identifiers (e.g. object_id, user_id) are typically not\nsupported, since constraining their value has no meaningful policy use.",
+            "type": "boolean"
           },
           "required": {
             "description": "Whether this argument is required by the tool.",
@@ -13126,6 +13385,51 @@
         "required": [
           "tagKey"
         ],
+        "type": "object"
+      },
+      "trafficcontrol": {
+        "description": "Defines traffic filtering for an app component. When any field\nis set, a default deny is in effect unless overridden by defaultDNSPolicy.",
+        "properties": {
+          "allowedHostSets": {
+            "description": "The list of host sets whose domains are allowed.",
+            "example": [
+              "openai-domains",
+              "anthropic-domains"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "blockedHostSets": {
+            "description": "The list of host sets whose domains are explicitly blocked.",
+            "example": [
+              "blocked-domains"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "blockedIPSets": {
+            "description": "The list of IP set names whose CIDR blocks are explicitly blocked.",
+            "example": [
+              "blocked-ranges"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "defaultDNSPolicy": {
+            "default": "Allow",
+            "description": "The default policy applied to DNS traffic not matched by any Host set.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          }
+        },
         "type": "object"
       },
       "tunnelproxyauth": {
@@ -13578,8 +13882,8 @@
             "type": "string"
           },
           "script": {
-            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It runs in the same lua state, so\nwhatever `webhook_input()` kept in a local is still available to it,\nwhich is how a script maps a verdict back onto the exact place it came from\nin the vendor's payload. It takes one table parameter containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nIt takes one table parameter describing the failure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: what the deployment configured, so a script may answer the\n  vendor's equivalent of 'reject' or of 'no objection' accordingly.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the configured fail\nclose behavior, when the script could not be run at all.",
-            "example": "function webhook_input()\n  local body = json.decode(input.body())\n  return {\n    type = \"input\",\n    model = body.model,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n  }\nend\n\nfunction webhook_output(result)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
+            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nUnlike a provider extractor, each of the functions below runs in its own\nfresh sandbox. Nothing a script leaves in a global or a local survives from\none to the next. What does carry over is the call itself, because `input`\nreads the same request in all of them, and whatever the script chooses to\nreturn as `state`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n- `state`: anything at all, handed back to `webhook_output()` and\n  `webhook_error()` as the same kind of value it was returned as, so a table\n  comes back a table. It is never read or validated. This is how a script\n  maps a verdict back onto the exact place it came from in the vendor's\n  payload, without the bookkeeping that produced it having to be derived\n  twice.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It takes the result as its first\nparameter and the `state` returned by `webhook_input()` as its second. That\n`state` is nil when `webhook_input()` returned none, which is also the case\nwhen it reported nothing to inspect and the action is therefore\n`NotApplicable`. The result is a table containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nLike `webhook_output()` it takes the `state` returned by `webhook_input()`\nas its second parameter, which is nil when the failure happened before the\nscript could produce one. Its first parameter is a table describing the\nfailure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: whether this failure is to be treated as a rejection, so a\n  script may answer the vendor's equivalent of 'reject' or of 'no\n  objection' accordingly. When a stage of the pass failed, this is what the\n  access policy that was evaluated configured, which is also what the\n  logged round-trip records. For a failure that never reached a policy, and\n  on a Scan route, it is what the connector configured.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the fail close behavior\nthe connector configured, when the script could not be run at all.",
+            "example": "function webhook_input()\n  local body = json.decode(input.body())\n  return {\n    type = \"input\",\n    model = body.model,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n    state = {sent = body.texts[1]},\n  }\nend\n\nfunction webhook_output(result, state)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  local redacted = result.redactions[\"t0\"]\n  if state and redacted and redacted ~= state.sent then\n    return {body = json.encode({action = \"GUARDRAIL_INTERVENED\", texts = {redacted}})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err, state)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
             "type": "string"
           }
         },
@@ -19205,6 +19509,160 @@
         ]
       }
     },
+    "/hostsets": {
+      "get": {
+        "description": "List all host sets.",
+        "operationId": "get-all-HostSets",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/hostset"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new host set.",
+        "operationId": "create-HostSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/hostset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/hostset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/hostsets/{id}": {
+      "delete": {
+        "description": "Deletes the host set with the given ID.",
+        "operationId": "delete-HostSet",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/hostset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the host set with the given ID.",
+        "operationId": "get-HostSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/hostset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the host set with the given ID.",
+        "operationId": "update-HostSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/hostset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/hostset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/ignoreddomains": {
       "get": {
         "description": "List all ignored domains.",
@@ -19392,6 +19850,160 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ingesttrace"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/ipsets": {
+      "get": {
+        "description": "List all IP sets.",
+        "operationId": "get-all-IPSets",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ipset"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new IP set.",
+        "operationId": "create-IPSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ipset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ipset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/ipsets/{id}": {
+      "delete": {
+        "description": "Deletes the IP set with the given ID.",
+        "operationId": "delete-IPSet",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ipset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the IP set with the given ID.",
+        "operationId": "get-IPSet",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ipset"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the IP set with the given ID.",
+        "operationId": "update-IPSet",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ipset"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ipset"
                 }
               }
             },

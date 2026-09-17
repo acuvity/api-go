@@ -7,7 +7,7 @@
   "$friendlyName": "MCP Tool Snapshot",
   "$friendlyNamePlural": "MCP Tool Snapshots",
   "$modelName": "MCPToolSnapshot",
-  "$modelPackage": "lain",
+  "$modelPackage": "torii",
   "$modelResourceName": "mcptoolsnapshots",
   "$modelRestName": "mcptoolsnapshot",
   "additionalProperties": false,
@@ -68,12 +68,6 @@
         "null"
       ]
     },
-    "extraction": {
-      "$friendlyName": "Extraction",
-      "$ref": "extraction.json",
-      "description": "The analyzer findings from running the drifted tool list through the analyzers. Populated only when the snapshot is in a drifted state.",
-      "title": "extraction"
-    },
     "firstDriftedAt": {
       "$friendlyName": "First Drifted At",
       "description": "When divergence was first observed. Set on entering drift, cleared on leaving it.",
@@ -126,6 +120,15 @@
         "string",
         "null"
       ]
+    },
+    "toolExtractions": {
+      "$friendlyName": "Tool Extractions",
+      "description": "Per-tool analyzer findings from running each drifted tool through the analyzers. Populated only when the snapshot is in a drifted state.",
+      "items": {
+        "$ref": "mcptoolextraction.json"
+      },
+      "title": "toolExtractions",
+      "type": "array"
     },
     "tools": {
       "$friendlyName": "Tools",

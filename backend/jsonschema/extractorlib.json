@@ -9,7 +9,7 @@
   "$friendlyName": "Extractor Lib",
   "$friendlyNamePlural": "Extractor Libs",
   "$modelName": "ExtractorLib",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "extractorlibs",
   "$modelRestName": "extractorlib",
   "additionalProperties": false,

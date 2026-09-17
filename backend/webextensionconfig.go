@@ -17,7 +17,7 @@ import (
 var WebExtensionConfigIdentity = elemental.Identity{
 	Name:     "webextensionconfig",
 	Category: "webextensionconfigs",
-	Package:  "lain",
+	Package:  "haisou",
 	Private:  false,
 }
 

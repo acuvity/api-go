@@ -3,7 +3,7 @@
   "$friendlyName": "Connection Monitor Selector",
   "$friendlyNamePlural": "Connection Monitor Selectors",
   "$modelName": "ConnectionMonitorSelector",
-  "$modelPackage": "lain",
+  "$modelPackage": "haisou",
   "$modelResourceName": "connectionmonitorselectors",
   "$modelRestName": "connectionmonitorselector",
   "additionalProperties": false,

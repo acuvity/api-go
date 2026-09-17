@@ -5,7 +5,7 @@
   "$friendlyName": "App Component Provider",
   "$friendlyNamePlural": "App Component Providers",
   "$modelName": "AppComponentProvider",
-  "$modelPackage": "lain",
+  "$modelPackage": "kikaku",
   "$modelResourceName": "appcomponentproviders",
   "$modelRestName": "appcomponentprovider",
   "additionalProperties": false,

@@ -3,7 +3,7 @@
   "$friendlyName": "Provider use of user data based on the subscription type.",
   "$friendlyNamePlural": "Provider use of user data based on the subscription type.s",
   "$modelName": "ProviderTrainingPolicy",
-  "$modelPackage": "lain",
+  "$modelPackage": "tonya",
   "$modelResourceName": "providertrainingpolicies",
   "$modelRestName": "providertrainingpolicy",
   "additionalProperties": false,
