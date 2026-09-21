@@ -126,6 +126,12 @@ type AgentConfig struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The list of agent enforcement policies to apply locally.
+	AgentEnforcementPolicies []string `json:"agentEnforcementPolicies" msgpack:"agentEnforcementPolicies" bson:"agentenforcementpolicies" mapstructure:"agentEnforcementPolicies,omitempty"`
+
+	// The computed rego agent enforcement policy.
+	AgentEnforcementPolicyComputed string `json:"agentEnforcementPolicyComputed,omitempty" msgpack:"agentEnforcementPolicyComputed,omitempty" bson:"-" mapstructure:"agentEnforcementPolicyComputed,omitempty"`
+
 	// If true, upgrades will only take place with user confirmation.
 	AttendedUpgrades bool `json:"attendedUpgrades" msgpack:"attendedUpgrades" bson:"attendedupgrades" mapstructure:"attendedUpgrades,omitempty"`
 
@@ -310,6 +316,7 @@ func NewAgentConfig() *AgentConfig {
 	return &AgentConfig{
 		ModelVersion:                1,
 		DNSMonitorPolicy:            AgentConfigDNSMonitorPolicyWarn,
+		AgentEnforcementPolicies:    []string{},
 		ConfigRefreshInterval:       "1h",
 		DiagnosticUploadDeadline:    "4h",
 		DomainReportInterval:        "10m",
@@ -362,6 +369,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.AgentEnforcementPolicies = o.AgentEnforcementPolicies
 	s.AttendedUpgrades = o.AttendedUpgrades
 	s.BlockTrafficOnFailure = o.BlockTrafficOnFailure
 	s.ConfigRefreshInterval = o.ConfigRefreshInterval
@@ -429,6 +437,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DNSMonitorDisabled = s.DNSMonitorDisabled
 	o.DNSMonitorPolicy = s.DNSMonitorPolicy
 	o.ID = s.ID.Hex()
+	o.AgentEnforcementPolicies = s.AgentEnforcementPolicies
 	o.AttendedUpgrades = s.AttendedUpgrades
 	o.BlockTrafficOnFailure = s.BlockTrafficOnFailure
 	o.ConfigRefreshInterval = s.ConfigRefreshInterval
@@ -576,57 +585,59 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAgentConfig{
-			DNSMonitorDisabled:            &o.DNSMonitorDisabled,
-			DNSMonitorPolicy:              &o.DNSMonitorPolicy,
-			ID:                            &o.ID,
-			AttendedUpgrades:              &o.AttendedUpgrades,
-			BlockTrafficOnFailure:         &o.BlockTrafficOnFailure,
-			ConfigRefreshInterval:         &o.ConfigRefreshInterval,
-			CreateTime:                    &o.CreateTime,
-			Description:                   &o.Description,
-			DiagnosticUploadDeadline:      &o.DiagnosticUploadDeadline,
-			DiagnosticUploadDisabled:      &o.DiagnosticUploadDisabled,
-			DomainDiscoveryDisabled:       &o.DomainDiscoveryDisabled,
-			DomainReportInterval:          &o.DomainReportInterval,
-			DriverEnabled:                 &o.DriverEnabled,
-			DriverExcludeAddressTimeout:   &o.DriverExcludeAddressTimeout,
-			DriverExcludedProcesses:       &o.DriverExcludedProcesses,
-			DriverPortRanges:              &o.DriverPortRanges,
-			DriverQUICBlockDisabled:       &o.DriverQUICBlockDisabled,
-			EmergencyPauseEnabled:         &o.EmergencyPauseEnabled,
-			ImportHash:                    &o.ImportHash,
-			ImportLabel:                   &o.ImportLabel,
-			ListeningPort:                 &o.ListeningPort,
-			ManagedCADisabled:             &o.ManagedCADisabled,
-			MetricsEnabled:                &o.MetricsEnabled,
-			Name:                          &o.Name,
-			Namespace:                     &o.Namespace,
-			PacName:                       &o.PacName,
-			PauseEnabled:                  &o.PauseEnabled,
-			PingInterval:                  &o.PingInterval,
-			Priority:                      &o.Priority,
-			ReleaseTrain:                  &o.ReleaseTrain,
-			ReleaseTrainOffset:            &o.ReleaseTrainOffset,
-			ReleaseTrainVersion:           &o.ReleaseTrainVersion,
-			ScanDisabled:                  &o.ScanDisabled,
-			ScanInstalledApps:             &o.ScanInstalledApps,
-			ScanInterval:                  &o.ScanInterval,
-			ScanReportInterval:            &o.ScanReportInterval,
-			ScanRunningProcesses:          &o.ScanRunningProcesses,
-			ScanThrottle:                  &o.ScanThrottle,
-			Subject:                       &o.Subject,
-			SystemProxyManagementDisabled: &o.SystemProxyManagementDisabled,
-			SystrayGUIHide:                &o.SystrayGUIHide,
-			TokenTTLFetchInterval:         &o.TokenTTLFetchInterval,
-			TokenValidity:                 &o.TokenValidity,
-			TunnelEnabled:                 &o.TunnelEnabled,
-			TunnelProxyAuth:               o.TunnelProxyAuth,
-			TunnelProxyHeaders:            &o.TunnelProxyHeaders,
-			TunnelProxyURL:                &o.TunnelProxyURL,
-			UpdateTime:                    &o.UpdateTime,
-			UseDynamicPort:                &o.UseDynamicPort,
-			ZHash:                         &o.ZHash,
-			Zone:                          &o.Zone,
+			DNSMonitorDisabled:             &o.DNSMonitorDisabled,
+			DNSMonitorPolicy:               &o.DNSMonitorPolicy,
+			ID:                             &o.ID,
+			AgentEnforcementPolicies:       &o.AgentEnforcementPolicies,
+			AgentEnforcementPolicyComputed: &o.AgentEnforcementPolicyComputed,
+			AttendedUpgrades:               &o.AttendedUpgrades,
+			BlockTrafficOnFailure:          &o.BlockTrafficOnFailure,
+			ConfigRefreshInterval:          &o.ConfigRefreshInterval,
+			CreateTime:                     &o.CreateTime,
+			Description:                    &o.Description,
+			DiagnosticUploadDeadline:       &o.DiagnosticUploadDeadline,
+			DiagnosticUploadDisabled:       &o.DiagnosticUploadDisabled,
+			DomainDiscoveryDisabled:        &o.DomainDiscoveryDisabled,
+			DomainReportInterval:           &o.DomainReportInterval,
+			DriverEnabled:                  &o.DriverEnabled,
+			DriverExcludeAddressTimeout:    &o.DriverExcludeAddressTimeout,
+			DriverExcludedProcesses:        &o.DriverExcludedProcesses,
+			DriverPortRanges:               &o.DriverPortRanges,
+			DriverQUICBlockDisabled:        &o.DriverQUICBlockDisabled,
+			EmergencyPauseEnabled:          &o.EmergencyPauseEnabled,
+			ImportHash:                     &o.ImportHash,
+			ImportLabel:                    &o.ImportLabel,
+			ListeningPort:                  &o.ListeningPort,
+			ManagedCADisabled:              &o.ManagedCADisabled,
+			MetricsEnabled:                 &o.MetricsEnabled,
+			Name:                           &o.Name,
+			Namespace:                      &o.Namespace,
+			PacName:                        &o.PacName,
+			PauseEnabled:                   &o.PauseEnabled,
+			PingInterval:                   &o.PingInterval,
+			Priority:                       &o.Priority,
+			ReleaseTrain:                   &o.ReleaseTrain,
+			ReleaseTrainOffset:             &o.ReleaseTrainOffset,
+			ReleaseTrainVersion:            &o.ReleaseTrainVersion,
+			ScanDisabled:                   &o.ScanDisabled,
+			ScanInstalledApps:              &o.ScanInstalledApps,
+			ScanInterval:                   &o.ScanInterval,
+			ScanReportInterval:             &o.ScanReportInterval,
+			ScanRunningProcesses:           &o.ScanRunningProcesses,
+			ScanThrottle:                   &o.ScanThrottle,
+			Subject:                        &o.Subject,
+			SystemProxyManagementDisabled:  &o.SystemProxyManagementDisabled,
+			SystrayGUIHide:                 &o.SystrayGUIHide,
+			TokenTTLFetchInterval:          &o.TokenTTLFetchInterval,
+			TokenValidity:                  &o.TokenValidity,
+			TunnelEnabled:                  &o.TunnelEnabled,
+			TunnelProxyAuth:                o.TunnelProxyAuth,
+			TunnelProxyHeaders:             &o.TunnelProxyHeaders,
+			TunnelProxyURL:                 &o.TunnelProxyURL,
+			UpdateTime:                     &o.UpdateTime,
+			UseDynamicPort:                 &o.UseDynamicPort,
+			ZHash:                          &o.ZHash,
+			Zone:                           &o.Zone,
 		}
 	}
 
@@ -639,6 +650,10 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DNSMonitorPolicy = &(o.DNSMonitorPolicy)
 		case "ID":
 			sp.ID = &(o.ID)
+		case "agentEnforcementPolicies":
+			sp.AgentEnforcementPolicies = &(o.AgentEnforcementPolicies)
+		case "agentEnforcementPolicyComputed":
+			sp.AgentEnforcementPolicyComputed = &(o.AgentEnforcementPolicyComputed)
 		case "attendedUpgrades":
 			sp.AttendedUpgrades = &(o.AttendedUpgrades)
 		case "blockTrafficOnFailure":
@@ -756,6 +771,12 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.AgentEnforcementPolicies != nil {
+		o.AgentEnforcementPolicies = *so.AgentEnforcementPolicies
+	}
+	if so.AgentEnforcementPolicyComputed != nil {
+		o.AgentEnforcementPolicyComputed = *so.AgentEnforcementPolicyComputed
 	}
 	if so.AttendedUpgrades != nil {
 		o.AttendedUpgrades = *so.AttendedUpgrades
@@ -1150,6 +1171,10 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DNSMonitorPolicy
 	case "ID":
 		return o.ID
+	case "agentEnforcementPolicies":
+		return o.AgentEnforcementPolicies
+	case "agentEnforcementPolicyComputed":
+		return o.AgentEnforcementPolicyComputed
 	case "attendedUpgrades":
 		return o.AttendedUpgrades
 	case "blockTrafficOnFailure":
@@ -1288,6 +1313,28 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Orderable:      true,
 		ReadOnly:       true,
 		Stored:         true,
+		Type:           "string",
+	},
+	"AgentEnforcementPolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "agentenforcementpolicies",
+		ConvertedName:  "AgentEnforcementPolicies",
+		Description:    `The list of agent enforcement policies to apply locally.`,
+		Exposed:        true,
+		Name:           "agentEnforcementPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"AgentEnforcementPolicyComputed": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "AgentEnforcementPolicyComputed",
+		Description:    `The computed rego agent enforcement policy.`,
+		Exposed:        true,
+		Name:           "agentEnforcementPolicyComputed",
+		ReadOnly:       true,
+		Transient:      true,
 		Type:           "string",
 	},
 	"AttendedUpgrades": {
@@ -1868,6 +1915,28 @@ stop the agent with an error, while Warn will post a log and continue on.`,
 		Orderable:      true,
 		ReadOnly:       true,
 		Stored:         true,
+		Type:           "string",
+	},
+	"agentenforcementpolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "agentenforcementpolicies",
+		ConvertedName:  "AgentEnforcementPolicies",
+		Description:    `The list of agent enforcement policies to apply locally.`,
+		Exposed:        true,
+		Name:           "agentEnforcementPolicies",
+		Stored:         true,
+		SubType:        "string",
+		Type:           "list",
+	},
+	"agentenforcementpolicycomputed": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "AgentEnforcementPolicyComputed",
+		Description:    `The computed rego agent enforcement policy.`,
+		Exposed:        true,
+		Name:           "agentEnforcementPolicyComputed",
+		ReadOnly:       true,
+		Transient:      true,
 		Type:           "string",
 	},
 	"attendedupgrades": {
@@ -2484,6 +2553,12 @@ type SparseAgentConfig struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The list of agent enforcement policies to apply locally.
+	AgentEnforcementPolicies *[]string `json:"agentEnforcementPolicies,omitempty" msgpack:"agentEnforcementPolicies,omitempty" bson:"agentenforcementpolicies,omitempty" mapstructure:"agentEnforcementPolicies,omitempty"`
+
+	// The computed rego agent enforcement policy.
+	AgentEnforcementPolicyComputed *string `json:"agentEnforcementPolicyComputed,omitempty" msgpack:"agentEnforcementPolicyComputed,omitempty" bson:"-" mapstructure:"agentEnforcementPolicyComputed,omitempty"`
+
 	// If true, upgrades will only take place with user confirmation.
 	AttendedUpgrades *bool `json:"attendedUpgrades,omitempty" msgpack:"attendedUpgrades,omitempty" bson:"attendedupgrades,omitempty" mapstructure:"attendedUpgrades,omitempty"`
 
@@ -2711,6 +2786,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.AgentEnforcementPolicies != nil {
+		s.AgentEnforcementPolicies = o.AgentEnforcementPolicies
+	}
 	if o.AttendedUpgrades != nil {
 		s.AttendedUpgrades = o.AttendedUpgrades
 	}
@@ -2877,6 +2955,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.AgentEnforcementPolicies != nil {
+		o.AgentEnforcementPolicies = s.AgentEnforcementPolicies
+	}
 	if s.AttendedUpgrades != nil {
 		o.AttendedUpgrades = s.AttendedUpgrades
 	}
@@ -3040,6 +3121,12 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.AgentEnforcementPolicies != nil {
+		out.AgentEnforcementPolicies = *o.AgentEnforcementPolicies
+	}
+	if o.AgentEnforcementPolicyComputed != nil {
+		out.AgentEnforcementPolicyComputed = *o.AgentEnforcementPolicyComputed
 	}
 	if o.AttendedUpgrades != nil {
 		out.AttendedUpgrades = *o.AttendedUpgrades
@@ -3365,6 +3452,7 @@ type mongoAttributesAgentConfig struct {
 	DNSMonitorDisabled            bool                             `bson:"dnsmonitordisabled"`
 	DNSMonitorPolicy              AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy"`
 	ID                            bson.ObjectId                    `bson:"_id,omitempty"`
+	AgentEnforcementPolicies      []string                         `bson:"agentenforcementpolicies"`
 	AttendedUpgrades              bool                             `bson:"attendedupgrades"`
 	BlockTrafficOnFailure         bool                             `bson:"blocktrafficonfailure"`
 	ConfigRefreshInterval         string                           `bson:"configrefreshinterval"`
@@ -3417,6 +3505,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DNSMonitorDisabled            *bool                             `bson:"dnsmonitordisabled,omitempty"`
 	DNSMonitorPolicy              *AgentConfigDNSMonitorPolicyValue `bson:"dnsmonitorpolicy,omitempty"`
 	ID                            bson.ObjectId                     `bson:"_id,omitempty"`
+	AgentEnforcementPolicies      *[]string                         `bson:"agentenforcementpolicies,omitempty"`
 	AttendedUpgrades              *bool                             `bson:"attendedupgrades,omitempty"`
 	BlockTrafficOnFailure         *bool                             `bson:"blocktrafficonfailure,omitempty"`
 	ConfigRefreshInterval         *string                           `bson:"configrefreshinterval,omitempty"`

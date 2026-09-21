@@ -168,6 +168,15 @@
       "title": "agentDiscoveries",
       "type": "array"
     },
+    "agentEnforcementPolicies": {
+      "$friendlyName": "Agent Enforcement Policies",
+      "description": "Agent enforcement policies to import.",
+      "items": {
+        "$ref": "agentenforcementpolicy.json"
+      },
+      "title": "agentEnforcementPolicies",
+      "type": "array"
+    },
     "alertDefinitions": {
       "$friendlyName": "Alert Definitions",
       "description": "Alert definitions to import.",

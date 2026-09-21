@@ -2095,6 +2095,95 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		}
 	}
 
+	matches := make(map[string]struct{}, len(agentConfig.AgentEnforcementPolicies))
+	for i, aepol := range agentConfig.AgentEnforcementPolicies {
+		if _, ok := matches[aepol]; !ok {
+			matches[aepol] = struct{}{}
+			continue
+		}
+		return makeErr(fmt.Sprintf("agentEnforcementPolicies/%d", i), fmt.Sprintf("you cannot have duplicate agent enforcement policies applied ('%s')", aepol))
+	}
+
+	return nil
+}
+
+// ValidateAgentEnforcementPolicy validates the given agent enforcement policy.
+func ValidateAgentEnforcementPolicy(p *AgentEnforcementPolicy) error {
+
+	if p.Message != "" {
+		if strings.Contains(p.Message, `"`) || strings.Contains(p.Message, `\`) {
+			return makeErr("message", "'Message' must not contain a quote or backslash")
+		}
+	}
+
+	return nil
+}
+
+// ValidateAgentEnforcementPolicyPredicate validates the given agent enforcement predicate.
+func ValidateAgentEnforcementPolicyPredicate(p *AgentEnforcementPolicyPredicate) error {
+
+	o := p.Operator
+	v := p.Values
+
+	switch p.Key {
+	case AgentEnforcementPolicyPredicateKeyAIDomain:
+		if o != AgentEnforcementPolicyPredicateOperatorAny && o != AgentEnforcementPolicyPredicateOperatorNotAny &&
+			o != AgentEnforcementPolicyPredicateOperatorEquals && o != AgentEnforcementPolicyPredicateOperatorNotEquals &&
+			o != AgentEnforcementPolicyPredicateOperatorContains {
+			return makeErr("operator", fmt.Sprintf("Key '%s' only supports operator 'Any', 'NotAny', 'Equals', 'NotEquals' and 'Contains'", p.Key))
+		}
+		if len(v) < 1 {
+			return makeErr("values", fmt.Sprintf("Key '%s' must have at least one value", p.Key))
+		}
+		if len(v) > 1 && (o == AgentEnforcementPolicyPredicateOperatorEquals || o == AgentEnforcementPolicyPredicateOperatorNotEquals) {
+			return makeErr("values", fmt.Sprintf("Key '%s' must have only one value", p.Key))
+		}
+		m := make(map[string]struct{}, len(v))
+		for i, vv := range v {
+			strVal, ok := vv.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' only supports string value", p.Key))
+			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have a value that contains a quote", p.Key))
+			}
+			if err := ValidateDomain(fmt.Sprintf("values/%d", i), strVal); err != nil {
+				return err
+			}
+			if _, ok := m[strVal]; ok {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have duplicate values", p.Key))
+			}
+			m[strVal] = struct{}{}
+		}
+
+	case AgentEnforcementPolicyPredicateKeyCommandLine, AgentEnforcementPolicyPredicateKeyProcessName:
+		if o != AgentEnforcementPolicyPredicateOperatorAny && o != AgentEnforcementPolicyPredicateOperatorNotAny &&
+			o != AgentEnforcementPolicyPredicateOperatorEquals && o != AgentEnforcementPolicyPredicateOperatorNotEquals &&
+			o != AgentEnforcementPolicyPredicateOperatorContains {
+			return makeErr("operator", fmt.Sprintf("Key '%s' only supports operator 'Any', 'NotAny', 'Equals', 'NotEquals' and 'Contains'", p.Key))
+		}
+		if len(v) < 1 {
+			return makeErr("values", fmt.Sprintf("Key '%s' must have at least one value", p.Key))
+		}
+		if len(v) > 1 && (o == AgentEnforcementPolicyPredicateOperatorEquals || o == AgentEnforcementPolicyPredicateOperatorNotEquals) {
+			return makeErr("values", fmt.Sprintf("Key '%s' must have only one value", p.Key))
+		}
+		m := make(map[string]struct{}, len(v))
+		for i, vv := range v {
+			strVal, ok := vv.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' only supports string value", p.Key))
+			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have a value that contains a quote", p.Key))
+			}
+			if _, ok := m[strVal]; ok {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have duplicate values", p.Key))
+			}
+			m[strVal] = struct{}{}
+		}
+	}
+
 	return nil
 }
 

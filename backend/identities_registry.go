@@ -14,8 +14,10 @@ var (
 		"agent":       AgentIdentity,
 		"agentconfig": AgentConfigIdentity,
 
-		"agentdiscovery": AgentDiscoveryIdentity,
-		"aiapp":          AIAppIdentity,
+		"agentdiscovery":         AgentDiscoveryIdentity,
+		"agentenforcementpolicy": AgentEnforcementPolicyIdentity,
+
+		"aiapp": AIAppIdentity,
 
 		"aidomain": AIDomainIdentity,
 
@@ -188,8 +190,10 @@ var (
 		"agents":       AgentIdentity,
 		"agentconfigs": AgentConfigIdentity,
 
-		"agentdiscoveries": AgentDiscoveryIdentity,
-		"aiapps":           AIAppIdentity,
+		"agentdiscoveries":         AgentDiscoveryIdentity,
+		"agentenforcementpolicies": AgentEnforcementPolicyIdentity,
+
+		"aiapps": AIAppIdentity,
 
 		"aidomains": AIDomainIdentity,
 
@@ -383,6 +387,13 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
+		},
+		"agentenforcementpolicy": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
 		},
 		"aiapp": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -1031,6 +1042,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewAgentDiscovery()
+	case AgentEnforcementPolicyIdentity:
+		return NewAgentEnforcementPolicy()
 	case AIAppIdentity:
 		return NewAIApp()
 	case AIDomainIdentity:
@@ -1290,6 +1303,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewSparseAgentDiscovery()
+	case AgentEnforcementPolicyIdentity:
+		return NewSparseAgentEnforcementPolicy()
 	case AIAppIdentity:
 		return NewSparseAIApp()
 	case AIDomainIdentity:
@@ -1557,6 +1572,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &AgentDiscoveriesList{}
+	case AgentEnforcementPolicyIdentity:
+		return &AgentEnforcementPoliciesList{}
 	case AIAppIdentity:
 		return &AIAppsList{}
 	case AIDomainIdentity:
@@ -1814,6 +1831,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &SparseAgentDiscoveriesList{}
+	case AgentEnforcementPolicyIdentity:
+		return &SparseAgentEnforcementPoliciesList{}
 	case AIAppIdentity:
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
@@ -2081,6 +2100,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAgentDiscoveredMCP()
 	case "agentdiscoveredskill", "AgentDiscoveredSkill":
 		return NewAgentDiscoveredSkill()
+	case "agentenforcementpolicypredicate", "AgentEnforcementPolicyPredicate":
+		return NewAgentEnforcementPolicyPredicate()
 	case "aidcitation", "AIDCitation":
 		return NewAIDCitation()
 	case "aidrisk", "AIDRisk":
@@ -2318,6 +2339,7 @@ func AllIdentities() []elemental.Identity {
 		AgentIdentity,
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
+		AgentEnforcementPolicyIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
 		AIGatewayIdentity,
@@ -2454,6 +2476,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AgentConfigIdentity:
 		return []string{}
 	case AgentDiscoveryIdentity:
+		return []string{}
+	case AgentEnforcementPolicyIdentity:
 		return []string{}
 	case AIAppIdentity:
 		return []string{}

@@ -1,0 +1,57 @@
+{
+  "$extends": [
+    "@predicate"
+  ],
+  "$friendlyName": "Agent Enforcement Policy Predicate",
+  "$friendlyNamePlural": "Agent Enforcement Policy Predicates",
+  "$modelName": "AgentEnforcementPolicyPredicate",
+  "$modelPackage": "okite",
+  "$modelResourceName": "agentenforcementpolicypredicates",
+  "$modelRestName": "agentenforcementpolicypredicate",
+  "additionalProperties": false,
+  "description": "Represents an agent enforcement policy predicate.",
+  "properties": {
+    "key": {
+      "$friendlyName": "Key",
+      "$required": true,
+      "description": "The key of the predicate.",
+      "enum": [
+        "AIDomain",
+        "CommandLine",
+        "ProcessName"
+      ],
+      "title": "key"
+    },
+    "operator": {
+      "$friendlyName": "Operator",
+      "$required": true,
+      "description": "The operator of the predicate.",
+      "enum": [
+        "All",
+        "Any",
+        "Contains",
+        "Empty",
+        "Equals",
+        "EqualsOrGreaterThan",
+        "EqualsOrLesserThan",
+        "Like",
+        "NotAny",
+        "NotEmpty",
+        "NotEquals"
+      ],
+      "title": "operator"
+    },
+    "values": {
+      "$friendlyName": "Values",
+      "description": "The values of the predicate.",
+      "title": "values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "key",
+    "operator"
+  ],
+  "title": "AgentEnforcementPolicyPredicate",
+  "type": "object"
+}

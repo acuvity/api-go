@@ -66,6 +66,18 @@
       },
       "type": "array"
     },
+    "agentenforcementpolicies": {
+      "items": {
+        "$ref": "agentenforcementpolicy.json"
+      },
+      "type": "array"
+    },
+    "agentenforcementpolicypredicates": {
+      "items": {
+        "$ref": "agentenforcementpolicypredicate.json"
+      },
+      "type": "array"
+    },
     "agents": {
       "items": {
         "$ref": "agent.json"

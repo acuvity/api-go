@@ -36,6 +36,12 @@
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
     },
+    "agentenforcementpolicy": {
+      "$ref": "agentenforcementpolicy.json"
+    },
+    "agentenforcementpolicypredicate": {
+      "$ref": "agentenforcementpolicypredicate.json"
+    },
     "aiapp": {
       "$ref": "aiapp.json"
     },

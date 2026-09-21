@@ -492,6 +492,18 @@
             "readOnly": true,
             "type": "string"
           },
+          "agentEnforcementPolicies": {
+            "description": "The list of agent enforcement policies to apply locally.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "agentEnforcementPolicyComputed": {
+            "description": "The computed rego agent enforcement policy.",
+            "readOnly": true,
+            "type": "string"
+          },
           "attendedUpgrades": {
             "description": "If true, upgrades will only take place with user confirmation.",
             "type": "boolean"
@@ -913,6 +925,140 @@
         },
         "required": [
           "principal"
+        ],
+        "type": "object"
+      },
+      "agentenforcementpolicy": {
+        "description": "Agent Enforcement Policies define the local action an agent takes\nwhen a discovered AI entity (or a named AI assistant with command-line\nconditions) matches the policy's criteria. Each policy carries criteria, an\naction, a message shown to the user, and an apply-to selecting whose agents\nreceive it.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "action": {
+            "default": "Notify",
+            "description": "The action the agent takes when the criteria match.",
+            "enum": [
+              "BlockConnection",
+              "KillProcess",
+              "Notify"
+            ]
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "criteria": {
+            "description": "The match criteria identifying the AI entities the policy targets, or a\nnamed AI assistant with command-line conditions.",
+            "example": "[\n  {\n    \"key\": \"AIDomain\",\n    \"operator\": \"Any\",\n    \"values\": [\"chat.openai.com\", \"claude.ai\"]\n  },\n  {\n    \"key\": \"ProcessName\",\n    \"operator\": \"Any\",\n    \"values\": [\"claude\"]\n  },\n  {\n    \"key\": \"CommandLine\",\n    \"operator\": \"Contains\",\n    \"values\": [\"--dangerously-skip-permissions\"]\n  }\n]",
+            "items": {
+              "$ref": "#/components/schemas/agentenforcementpolicypredicate"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "Description of the agent enforcement policy.",
+            "type": "string"
+          },
+          "disabled": {
+            "description": "If true, the policy is disabled.",
+            "type": "boolean"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "message": {
+            "description": "The message shown to the user on the endpoint when the policy matches.",
+            "example": "This AI tool is not permitted by corporate policy.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "severity": {
+            "default": "Low",
+            "description": "The lowest severity level this policy will apply to.",
+            "enum": [
+              "Low",
+              "Medium",
+              "High",
+              "Critical"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "severity"
+        ],
+        "type": "object"
+      },
+      "agentenforcementpolicypredicate": {
+        "description": "Represents an agent enforcement policy predicate.",
+        "properties": {
+          "key": {
+            "description": "The key of the predicate.",
+            "enum": [
+              "AIDomain",
+              "CommandLine",
+              "ProcessName"
+            ],
+            "example": "AIDomain"
+          },
+          "operator": {
+            "description": "The operator of the predicate.",
+            "enum": [
+              "All",
+              "Any",
+              "Contains",
+              "Empty",
+              "Equals",
+              "EqualsOrGreaterThan",
+              "EqualsOrLesserThan",
+              "Like",
+              "NotAny",
+              "NotEmpty",
+              "NotEquals"
+            ],
+            "example": "Equals"
+          },
+          "values": {
+            "description": "The values of the predicate.",
+            "example": "xxx-xxx-xxx-xxx",
+            "items": {
+              "type": "any"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "operator"
         ],
         "type": "object"
       },
@@ -7261,6 +7407,13 @@
             "description": "Agent Discovery to import.",
             "items": {
               "$ref": "#/components/schemas/agentdiscovery"
+            },
+            "type": "array"
+          },
+          "agentEnforcementPolicies": {
+            "description": "Agent enforcement policies to import.",
+            "items": {
+              "$ref": "#/components/schemas/agentenforcementpolicy"
             },
             "type": "array"
           },
@@ -14695,6 +14848,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/agentdiscovery"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/agentenforcementpolicies": {
+      "get": {
+        "description": "List all available agent enforcement policies.",
+        "operationId": "get-all-AgentEnforcementPolicies",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/agentenforcementpolicy"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new agent enforcement policy.",
+        "operationId": "create-AgentEnforcementPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentenforcementpolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentenforcementpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/agentenforcementpolicies/{id}": {
+      "delete": {
+        "description": "Deletes the agent enforcement policy with the given ID.",
+        "operationId": "delete-AgentEnforcementPolicy",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentenforcementpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the agent enforcement policy with the given ID.",
+        "operationId": "get-AgentEnforcementPolicy",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentenforcementpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the agent enforcement policy with the given ID.",
+        "operationId": "update-AgentEnforcementPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/agentenforcementpolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/agentenforcementpolicy"
                 }
               }
             },
