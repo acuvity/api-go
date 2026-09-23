@@ -32,6 +32,9 @@ const (
 
 	// AppGraphQueryLevelFull represents the value Full.
 	AppGraphQueryLevelFull AppGraphQueryLevelValue = "Full"
+
+	// AppGraphQueryLevelSkeleton represents the value Skeleton.
+	AppGraphQueryLevelSkeleton AppGraphQueryLevelValue = "Skeleton"
 )
 
 // AppGraphQueryIdentity represents the Identity of the object.
@@ -488,7 +491,7 @@ func (o *AppGraphQuery) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("level", string(o.Level), []string{"Full", "AppInventory"}, false); err != nil {
+	if err := elemental.ValidateStringInList("level", string(o.Level), []string{"Full", "Skeleton", "AppInventory"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -640,7 +643,7 @@ ID based application graph generation.`,
 		Type:    "boolean",
 	},
 	"Level": {
-		AllowedChoices: []string{"Full", "AppInventory"},
+		AllowedChoices: []string{"Full", "Skeleton", "AppInventory"},
 		ConvertedName:  "Level",
 		DefaultValue:   AppGraphQueryLevelFull,
 		Description:    `Determines how much data to return.`,
@@ -791,7 +794,7 @@ ID based application graph generation.`,
 		Type:    "boolean",
 	},
 	"level": {
-		AllowedChoices: []string{"Full", "AppInventory"},
+		AllowedChoices: []string{"Full", "Skeleton", "AppInventory"},
 		ConvertedName:  "Level",
 		DefaultValue:   AppGraphQueryLevelFull,
 		Description:    `Determines how much data to return.`,

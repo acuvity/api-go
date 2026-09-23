@@ -568,6 +568,79 @@ func ValidateProviderTeamName(attribute string, name string) error {
 	return nil
 }
 
+// ValidateProviderTeam validates the entire provider team object.
+func ValidateProviderTeam(providerTeam *ProviderTeam) error {
+
+	// Indexed alongside providerTeam.Subject, so a condition and its claim set
+	// are always found under the same index.
+	subjects := make([]map[string]struct{}, len(providerTeam.Subject))
+	for i, tags := range providerTeam.Subject {
+		subjects[i] = tagSet(tags)
+	}
+
+	// An excluded condition that holds a subset of the claims of a member
+	// condition takes back everyone that condition matched, leaving it dead. The
+	// useful direction is the opposite one: an excluded condition *more* specific
+	// than the member condition it narrows, carving a few users out of it.
+	for i, excluded := range providerTeam.ExcludedSubject {
+
+		excludedSet := tagSet(excluded)
+		if len(excludedSet) == 0 {
+			continue
+		}
+
+		for j, subject := range subjects {
+
+			if len(subject) < len(excludedSet) {
+				continue
+			}
+
+			negated := true
+			for tag := range excludedSet {
+				if _, ok := subject[tag]; !ok {
+					negated = false
+					break
+				}
+			}
+			if !negated {
+				continue
+			}
+
+			if len(subject) == len(excludedSet) {
+				return makeErr(
+					fmt.Sprintf("excludedSubject/%d", i),
+					fmt.Sprintf("condition %s is set both as a member and as an excluded member, so it can never match anyone", formatTagCondition(providerTeam.Subject[j])),
+				)
+			}
+
+			return makeErr(
+				fmt.Sprintf("excludedSubject/%d", i),
+				fmt.Sprintf("excluded condition %s takes back everyone matched by member condition %s; it must be more specific", formatTagCondition(excluded), formatTagCondition(providerTeam.Subject[j])),
+			)
+		}
+	}
+
+	return nil
+}
+
+// tagSet returns the distinct tags of one condition of a tag expression.
+func tagSet(tags []string) map[string]struct{} {
+
+	set := make(map[string]struct{}, len(tags))
+	for _, tag := range tags {
+		set[tag] = struct{}{}
+	}
+
+	return set
+}
+
+// formatTagCondition renders one condition of a tag expression the way the
+// error messages quote it: 'a=1' and 'b=2'.
+func formatTagCondition(tags []string) string {
+
+	return "'" + strings.Join(tags, "' and '") + "'"
+}
+
 // ValidateExtractor validates the given Extractor.
 func ValidateExtractor(extractor *Extractor) error {
 
@@ -2606,8 +2679,8 @@ func ValidateDNSNames(attribute string, dnsNames []string) error {
 // ValidateAppGraphQuery validates the app graph query object.
 func ValidateAppGraphQuery(appGraphQuery *AppGraphQuery) error {
 
-	if appGraphQuery.Level == AppGraphQueryLevelFull && appGraphQuery.WorkloadGroupSetHash == "" && appGraphQuery.TraceID == "" {
-		return makeErr("workloadGroupSetHash", "'WorkloadGroupSetHash' is required when 'Level' is 'Full'.")
+	if (appGraphQuery.Level == AppGraphQueryLevelFull || appGraphQuery.Level == AppGraphQueryLevelSkeleton) && appGraphQuery.WorkloadGroupSetHash == "" && appGraphQuery.TraceID == "" {
+		return makeErr("workloadGroupSetHash", "'WorkloadGroupSetHash' is required when 'Level' is 'Full' or 'Skeleton'.")
 	}
 
 	if appGraphQuery.Level == AppGraphQueryLevelAppInventory && appGraphQuery.WorkloadGroupSetHash != "" {

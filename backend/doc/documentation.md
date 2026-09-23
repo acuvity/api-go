@@ -6894,7 +6894,7 @@ ID based application graph generation.
 
 ##### `level`
 
-Type: `enum(Full | AppInventory)`
+Type: `enum(Full | Skeleton | AppInventory)`
 
 Determines how much data to return.
 

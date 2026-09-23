@@ -4386,6 +4386,7 @@
             "description": "Determines how much data to return.",
             "enum": [
               "Full",
+              "Skeleton",
               "AppInventory"
             ]
           },
