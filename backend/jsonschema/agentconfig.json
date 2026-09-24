@@ -346,7 +346,7 @@
     "releaseTrainVersion": {
       "$friendlyName": "Release Train Version",
       "description": "When release train is set to specific version, specifies the version to upgrade to. Does not downgrade newer versions.",
-      "pattern": "(^[0-9.]+$)?",
+      "pattern": "(^[a-z0-9-.]+$)?",
       "title": "releaseTrainVersion",
       "type": [
         "string",

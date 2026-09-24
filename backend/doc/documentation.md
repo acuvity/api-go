@@ -1722,7 +1722,7 @@ Type: `integer`
 When release train is set to stable - n, the number of stable releases to
 remain behind the current Stable release.
 
-##### `releaseTrainVersion` [`format=^[0-9.]+$`]
+##### `releaseTrainVersion` [`format=^[a-z0-9-.]+$`]
 
 Type: `string`
 

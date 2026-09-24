@@ -1103,7 +1103,7 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("releaseTrainVersion", o.ReleaseTrainVersion, `^[0-9.]+$`, `must only contain numbers separated by '.'.`, false); err != nil {
+	if err := elemental.ValidatePattern("releaseTrainVersion", o.ReleaseTrainVersion, `^[a-z0-9-.]+$`, `must only contain alphanumeric characters, '-', or '.'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1711,7 +1711,7 @@ remain behind the current Stable release.`,
 		Type:    "integer",
 	},
 	"ReleaseTrainVersion": {
-		AllowedChars:   `^[0-9.]+$`,
+		AllowedChars:   `^[a-z0-9-.]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "releasetrainversion",
 		ConvertedName:  "ReleaseTrainVersion",
@@ -2324,7 +2324,7 @@ remain behind the current Stable release.`,
 		Type:    "integer",
 	},
 	"releasetrainversion": {
-		AllowedChars:   `^[0-9.]+$`,
+		AllowedChars:   `^[a-z0-9-.]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "releasetrainversion",
 		ConvertedName:  "ReleaseTrainVersion",

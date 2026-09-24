@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gobwas/glob"
 	"github.com/robfig/cron/v3"
@@ -2149,8 +2150,12 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 			return makeErr("releaseTrainOffset", "'ReleaseTrainOffset' should be in the range 1-5.")
 		}
 	case AgentConfigReleaseTrainSpecificVersion:
-		if agentConfig.ReleaseTrainVersion == "" || !validSemverRegex.MatchString(agentConfig.ReleaseTrainVersion) {
-			return makeErr("releaseTrainVersion", "'releaseTrainVersion' must be two to three numeric components")
+		if agentConfig.ReleaseTrainVersion == "" {
+			return makeErr("releaseTrainVersion", "'releaseTrainVersion' must not be empty if specific version is selected")
+		}
+
+		if _, err := semver.NewVersion(agentConfig.ReleaseTrainVersion); err != nil {
+			return makeErr("releaseTrainVersion", "'releaseTrainVersion' must be a valid semantic version")
 		}
 	}
 
@@ -2580,9 +2585,6 @@ var (
 
 	// Allow a single label or multiple labels separated by dots; no trailing dot
 	validOnePlusLabelsDNSNameRegex = regexp.MustCompile(`^` + validHostnameLabel + `(?:\.` + validHostnameLabel + `)*$`)
-
-	// Allows basic semver with no tags.
-	validSemverRegex = regexp.MustCompile(`^\d+\.\d+(\.\d+)?$`)
 
 	// ACL domain: optional *. or **. prefix, then at least two DNS labels (rejects *.com, **.com)
 	validACLHostRegex = regexp.MustCompile(
