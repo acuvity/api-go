@@ -597,6 +597,16 @@
             "description": "The port used by the agent to proxy the traffic.",
             "type": "string"
           },
+          "logLevel": {
+            "default": "Info",
+            "description": "The level in which an event will be logged.",
+            "enum": [
+              "Info",
+              "Warn",
+              "Error",
+              "Debug"
+            ]
+          },
           "managedCADisabled": {
             "description": "If disabled, the agent will rely on the CA already installed and trusted on the\nsystem.",
             "type": "boolean"

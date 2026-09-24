@@ -24,6 +24,23 @@ const (
 	AgentConfigDNSMonitorPolicyWarn AgentConfigDNSMonitorPolicyValue = "Warn"
 )
 
+// AgentConfigLogLevelValue represents the possible values for attribute "logLevel".
+type AgentConfigLogLevelValue string
+
+const (
+	// AgentConfigLogLevelDebug represents the value Debug.
+	AgentConfigLogLevelDebug AgentConfigLogLevelValue = "Debug"
+
+	// AgentConfigLogLevelError represents the value Error.
+	AgentConfigLogLevelError AgentConfigLogLevelValue = "Error"
+
+	// AgentConfigLogLevelInfo represents the value Info.
+	AgentConfigLogLevelInfo AgentConfigLogLevelValue = "Info"
+
+	// AgentConfigLogLevelWarn represents the value Warn.
+	AgentConfigLogLevelWarn AgentConfigLogLevelValue = "Warn"
+)
+
 // AgentConfigReleaseTrainValue represents the possible values for attribute "releaseTrain".
 type AgentConfigReleaseTrainValue string
 
@@ -197,6 +214,9 @@ type AgentConfig struct {
 	// The port used by the agent to proxy the traffic.
 	ListeningPort string `json:"listeningPort" msgpack:"listeningPort" bson:"listeningport" mapstructure:"listeningPort,omitempty"`
 
+	// The level in which an event will be logged.
+	LogLevel AgentConfigLogLevelValue `json:"logLevel" msgpack:"logLevel" bson:"loglevel" mapstructure:"logLevel,omitempty"`
+
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
 	ManagedCADisabled bool `json:"managedCADisabled" msgpack:"managedCADisabled" bson:"managedcadisabled" mapstructure:"managedCADisabled,omitempty"`
@@ -323,6 +343,7 @@ func NewAgentConfig() *AgentConfig {
 		DriverExcludeAddressTimeout: "1h",
 		DriverExcludedProcesses:     []string{},
 		ListeningPort:               "8081",
+		LogLevel:                    AgentConfigLogLevelInfo,
 		PingInterval:                "6h",
 		ReleaseTrain:                AgentConfigReleaseTrainStable,
 		ScanInterval:                "5m",
@@ -388,6 +409,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.ListeningPort = o.ListeningPort
+	s.LogLevel = o.LogLevel
 	s.ManagedCADisabled = o.ManagedCADisabled
 	s.MetricsEnabled = o.MetricsEnabled
 	s.Name = o.Name
@@ -456,6 +478,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.ListeningPort = s.ListeningPort
+	o.LogLevel = s.LogLevel
 	o.ManagedCADisabled = s.ManagedCADisabled
 	o.MetricsEnabled = s.MetricsEnabled
 	o.Name = s.Name
@@ -608,6 +631,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportHash:                     &o.ImportHash,
 			ImportLabel:                    &o.ImportLabel,
 			ListeningPort:                  &o.ListeningPort,
+			LogLevel:                       &o.LogLevel,
 			ManagedCADisabled:              &o.ManagedCADisabled,
 			MetricsEnabled:                 &o.MetricsEnabled,
 			Name:                           &o.Name,
@@ -690,6 +714,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportLabel = &(o.ImportLabel)
 		case "listeningPort":
 			sp.ListeningPort = &(o.ListeningPort)
+		case "logLevel":
+			sp.LogLevel = &(o.LogLevel)
 		case "managedCADisabled":
 			sp.ManagedCADisabled = &(o.ManagedCADisabled)
 		case "metricsEnabled":
@@ -831,6 +857,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ListeningPort != nil {
 		o.ListeningPort = *so.ListeningPort
+	}
+	if so.LogLevel != nil {
+		o.LogLevel = *so.LogLevel
 	}
 	if so.ManagedCADisabled != nil {
 		o.ManagedCADisabled = *so.ManagedCADisabled
@@ -1050,6 +1079,10 @@ func (o *AgentConfig) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateStringInList("logLevel", string(o.LogLevel), []string{"Info", "Warn", "Error", "Debug"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -1211,6 +1244,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.ImportLabel
 	case "listeningPort":
 		return o.ListeningPort
+	case "logLevel":
+		return o.LogLevel
 	case "managedCADisabled":
 		return o.ManagedCADisabled
 	case "metricsEnabled":
@@ -1547,6 +1582,17 @@ same import operation.`,
 		Required:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"LogLevel": {
+		AllowedChoices: []string{"Info", "Warn", "Error", "Debug"},
+		BSONFieldName:  "loglevel",
+		ConvertedName:  "LogLevel",
+		DefaultValue:   AgentConfigLogLevelInfo,
+		Description:    `The level in which an event will be logged.`,
+		Exposed:        true,
+		Name:           "logLevel",
+		Stored:         true,
+		Type:           "enum",
 	},
 	"ManagedCADisabled": {
 		AllowedChoices: []string{},
@@ -2150,6 +2196,17 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"loglevel": {
+		AllowedChoices: []string{"Info", "Warn", "Error", "Debug"},
+		BSONFieldName:  "loglevel",
+		ConvertedName:  "LogLevel",
+		DefaultValue:   AgentConfigLogLevelInfo,
+		Description:    `The level in which an event will be logged.`,
+		Exposed:        true,
+		Name:           "logLevel",
+		Stored:         true,
+		Type:           "enum",
+	},
 	"managedcadisabled": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "managedcadisabled",
@@ -2624,6 +2681,9 @@ type SparseAgentConfig struct {
 	// The port used by the agent to proxy the traffic.
 	ListeningPort *string `json:"listeningPort,omitempty" msgpack:"listeningPort,omitempty" bson:"listeningport,omitempty" mapstructure:"listeningPort,omitempty"`
 
+	// The level in which an event will be logged.
+	LogLevel *AgentConfigLogLevelValue `json:"logLevel,omitempty" msgpack:"logLevel,omitempty" bson:"loglevel,omitempty" mapstructure:"logLevel,omitempty"`
+
 	// If disabled, the agent will rely on the CA already installed and trusted on the
 	// system.
 	ManagedCADisabled *bool `json:"managedCADisabled,omitempty" msgpack:"managedCADisabled,omitempty" bson:"managedcadisabled,omitempty" mapstructure:"managedCADisabled,omitempty"`
@@ -2843,6 +2903,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.ListeningPort != nil {
 		s.ListeningPort = o.ListeningPort
 	}
+	if o.LogLevel != nil {
+		s.LogLevel = o.LogLevel
+	}
 	if o.ManagedCADisabled != nil {
 		s.ManagedCADisabled = o.ManagedCADisabled
 	}
@@ -3011,6 +3074,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.ListeningPort != nil {
 		o.ListeningPort = s.ListeningPort
+	}
+	if s.LogLevel != nil {
+		o.LogLevel = s.LogLevel
 	}
 	if s.ManagedCADisabled != nil {
 		o.ManagedCADisabled = s.ManagedCADisabled
@@ -3181,6 +3247,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ListeningPort != nil {
 		out.ListeningPort = *o.ListeningPort
+	}
+	if o.LogLevel != nil {
+		out.LogLevel = *o.LogLevel
 	}
 	if o.ManagedCADisabled != nil {
 		out.ManagedCADisabled = *o.ManagedCADisabled
@@ -3471,6 +3540,7 @@ type mongoAttributesAgentConfig struct {
 	ImportHash                    string                           `bson:"importhash,omitempty"`
 	ImportLabel                   string                           `bson:"importlabel,omitempty"`
 	ListeningPort                 string                           `bson:"listeningport"`
+	LogLevel                      AgentConfigLogLevelValue         `bson:"loglevel"`
 	ManagedCADisabled             bool                             `bson:"managedcadisabled"`
 	MetricsEnabled                bool                             `bson:"metricsenabled"`
 	Name                          string                           `bson:"name"`
@@ -3524,6 +3594,7 @@ type mongoAttributesSparseAgentConfig struct {
 	ImportHash                    *string                           `bson:"importhash,omitempty"`
 	ImportLabel                   *string                           `bson:"importlabel,omitempty"`
 	ListeningPort                 *string                           `bson:"listeningport,omitempty"`
+	LogLevel                      *AgentConfigLogLevelValue         `bson:"loglevel,omitempty"`
 	ManagedCADisabled             *bool                             `bson:"managedcadisabled,omitempty"`
 	MetricsEnabled                *bool                             `bson:"metricsenabled,omitempty"`
 	Name                          *string                           `bson:"name,omitempty"`

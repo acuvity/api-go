@@ -1388,6 +1388,7 @@ Stores the configuration information for the acushield agent.
   "driverQUICBlockDisabled": false,
   "emergencyPauseEnabled": false,
   "listeningPort": "8081",
+  "logLevel": "Info",
   "managedCADisabled": false,
   "metricsEnabled": false,
   "name": "default",
@@ -1628,6 +1629,18 @@ Default value:
 
 ```json
 "8081"
+```
+
+##### `logLevel`
+
+Type: `enum(Info | Warn | Error | Debug)`
+
+The level in which an event will be logged.
+
+Default value:
+
+```json
+"Info"
 ```
 
 ##### `managedCADisabled`

@@ -236,6 +236,18 @@
       "title": "listeningPort",
       "type": "string"
     },
+    "logLevel": {
+      "$defaultValue": "Info",
+      "$friendlyName": "Log Level",
+      "description": "The level in which an event will be logged.",
+      "enum": [
+        "Info",
+        "Warn",
+        "Error",
+        "Debug"
+      ],
+      "title": "logLevel"
+    },
     "managedCADisabled": {
       "$friendlyName": "Managed CA Disabled",
       "description": "If disabled, the agent will rely on the CA already installed and trusted on the system.",
