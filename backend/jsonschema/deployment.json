@@ -73,6 +73,15 @@
         "null"
       ]
     },
+    "k8sNamespaceMappings": {
+      "$friendlyName": "K8s Namespace Mappings",
+      "description": "Maps Kubernetes namespaces to projects for discovery and enforcement.",
+      "items": {
+        "$ref": "k8snamespacemapping.json"
+      },
+      "title": "k8sNamespaceMappings",
+      "type": "array"
+    },
     "name": {
       "$creationOnly": true,
       "$friendlyName": "Name",

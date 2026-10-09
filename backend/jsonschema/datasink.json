@@ -1,0 +1,190 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@namelinkable"
+  ],
+  "$friendlyName": "Data Sink",
+  "$friendlyNamePlural": "Data Sinks",
+  "$modelName": "DataSink",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinks",
+  "$modelRestName": "datasink",
+  "additionalProperties": false,
+  "description": "Represents a scheduled export of an organization's data to a destination it owns. A Data Sink is created in an organization namespace and selects the datasets to export; an organization can have several. Creating a Data Sink exports from then on: export earlier data with a backfill. Only administrators can configure Data Sinks.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "accessLogs": {
+      "$friendlyName": "Access Logs",
+      "$ref": "datasinkaccesslogs.json",
+      "description": "Selects the access logs dataset: roundtrips of the organization's employees. Present means selected.",
+      "title": "accessLogs"
+    },
+    "agenticLogs": {
+      "$friendlyName": "Agentic Logs",
+      "$ref": "datasinkagenticlogs.json",
+      "description": "Selects the agentic logs dataset: roundtrips of the organization's projects (applications and their agents). Present means selected.",
+      "title": "agenticLogs"
+    },
+    "cadence": {
+      "$defaultValue": "Hourly",
+      "$friendlyName": "Cadence",
+      "$required": true,
+      "description": "How often new data is exported.",
+      "enum": [
+        "Hourly",
+        "Daily"
+      ],
+      "title": "cadence"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the data sink.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "notifications": {
+      "$friendlyName": "Notifications",
+      "$readOnly": true,
+      "$ref": "datasinknotifications.json",
+      "description": "The default alert resources created with the data sink: an alert definition for a failing export (Warning), one for the Error state (Critical), and a default notification sink when one can be configured. Server owned. Edit the alert definitions and notification sinks to change recipients, destinations, messages or cooldowns.",
+      "title": "notifications"
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "$readOnly": true,
+      "description": "Increments on each change of an export setting: cadence, dataset selection and filters, destination type and settings, including credentials.",
+      "title": "revision",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "s3": {
+      "$friendlyName": "S3",
+      "$ref": "datasinks3.json",
+      "description": "The configuration of the Amazon S3 destination.",
+      "title": "s3"
+    },
+    "state": {
+      "$defaultValue": "Active",
+      "$friendlyName": "State",
+      "description": "The state of the data sink. Set Active or Paused. The system sets Error when exports keep failing; set Active again once the cause is fixed.",
+      "enum": [
+        "Active",
+        "Paused",
+        "Error"
+      ],
+      "title": "state"
+    },
+    "stateReason": {
+      "$friendlyName": "State Reason",
+      "$readOnly": true,
+      "description": "Why the data sink is in its current state, when the system set it.",
+      "title": "stateReason",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$defaultValue": "S3",
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The type of destination.",
+      "enum": [
+        "S3"
+      ],
+      "title": "type"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "cadence",
+    "friendlyName",
+    "type"
+  ],
+  "title": "DataSink",
+  "type": "object"
+}

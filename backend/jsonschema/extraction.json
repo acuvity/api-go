@@ -1,5 +1,6 @@
 {
   "$extends": [
+    "@annotatable",
     "@extractioncore",
     "@extractionrequestmetadata"
   ],
@@ -26,7 +27,7 @@
       "additionalProperties": {
         "type": "string"
       },
-      "description": "Annotations attached to the extraction.",
+      "description": "Annotations carried alongside the content, like the conversation ID. They are set during extraction, passed to the analysis and kept on what it produces.",
       "title": "annotations",
       "type": "object"
     },
@@ -95,6 +96,15 @@
       },
       "title": "exploits",
       "type": "object"
+    },
+    "genericdetections": {
+      "$friendlyName": "Generic Detections",
+      "description": "The generic detections found while applying policies.",
+      "items": {
+        "$ref": "genericdetection.json"
+      },
+      "title": "genericdetections",
+      "type": "array"
     },
     "hash": {
       "$friendlyName": "Hash",

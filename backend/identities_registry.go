@@ -19,7 +19,9 @@ var (
 
 		"aiapp": AIAppIdentity,
 
-		"aidomain": AIDomainIdentity,
+		"aidomain":        AIDomainIdentity,
+		"aidomainlookup":  AIDomainLookupIdentity,
+		"aidomainrequest": AIDomainRequestIdentity,
 
 		"aigateway":       AIGatewayIdentity,
 		"aigatewayclient": AIGatewayClientIdentity,
@@ -35,10 +37,12 @@ var (
 
 		"aitool": AIToolIdentity,
 
-		"alert":           AlertIdentity,
-		"alertdefinition": AlertDefinitionIdentity,
+		"alert":              AlertIdentity,
+		"alertdatasinkevent": AlertDataSinkEventIdentity,
+		"alertdefinition":    AlertDefinitionIdentity,
 
 		"alerttrigger": AlertTriggerIdentity,
+		"analysis":     AnalysisIdentity,
 
 		"analyzer": AnalyzerIdentity,
 
@@ -57,9 +61,19 @@ var (
 
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicy":      ContentPolicyIdentity,
-		"customdatatype":     CustomDataTypeIdentity,
-		"dataset":            DataSetIdentity,
+		"contentpolicy":       ContentPolicyIdentity,
+		"customdatatype":      CustomDataTypeIdentity,
+		"dataset":             DataSetIdentity,
+		"datasink":            DataSinkIdentity,
+		"datasinkaccesslogs":  DataSinkAccessLogsIdentity,
+		"datasinkagenticlogs": DataSinkAgenticLogsIdentity,
+		"datasinkbackfill":    DataSinkBackfillIdentity,
+		"datasinkcheck":       DataSinkCheckIdentity,
+
+		"datasinknotifications": DataSinkNotificationsIdentity,
+
+		"datasinkrun":        DataSinkRunIdentity,
+		"datasinks3":         DataSinkS3Identity,
 		"deployment":         DeploymentIdentity,
 		"deploymentinstance": DeploymentInstanceIdentity,
 
@@ -77,8 +91,9 @@ var (
 
 		"gateway":         GatewayIdentity,
 		"gatewayinstance": GatewayInstanceIdentity,
-		"gitbooktoken":    GitbookTokenIdentity,
-		"hint":            HintIdentity,
+
+		"gitbooktoken": GitbookTokenIdentity,
+		"hint":         HintIdentity,
 
 		"hostset":          HostSetIdentity,
 		"identitymodifier": IdentityModifierIdentity,
@@ -117,15 +132,18 @@ var (
 		"pacconfig":    PACConfigIdentity,
 		"pagedataview": PageDataViewIdentity,
 
-		"policyref":    PolicyRefIdentity,
+		"policyref":        PolicyRefIdentity,
+		"policysimulation": PolicySimulationIdentity,
+
 		"policyupdate": PolicyUpdateIdentity,
 
-		"principal":             PrincipalIdentity,
-		"principalapp":          PrincipalAppIdentity,
-		"principalexternal":     PrincipalExternalIdentity,
-		"principaluser":         PrincipalUserIdentity,
-		"project":               ProjectIdentity,
-		"provider":              ProviderIdentity,
+		"principal":         PrincipalIdentity,
+		"principalapp":      PrincipalAppIdentity,
+		"principalexternal": PrincipalExternalIdentity,
+		"principaluser":     PrincipalUserIdentity,
+		"project":           ProjectIdentity,
+		"provider":          ProviderIdentity,
+
 		"providerhostsoverride": ProviderHostsOverrideIdentity,
 
 		"providerteam":      ProviderTeamIdentity,
@@ -162,7 +180,8 @@ var (
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
 		"slug":          SlugIdentity,
-		"team":          TeamIdentity,
+
+		"team": TeamIdentity,
 
 		"threatdefinition": ThreatDefinitionIdentity,
 
@@ -195,7 +214,9 @@ var (
 
 		"aiapps": AIAppIdentity,
 
-		"aidomains": AIDomainIdentity,
+		"aidomains":        AIDomainIdentity,
+		"aidomainlookups":  AIDomainLookupIdentity,
+		"aidomainrequests": AIDomainRequestIdentity,
 
 		"aigateways":       AIGatewayIdentity,
 		"aigatewayclients": AIGatewayClientIdentity,
@@ -211,10 +232,12 @@ var (
 
 		"aitools": AIToolIdentity,
 
-		"alerts":           AlertIdentity,
-		"alertdefinitions": AlertDefinitionIdentity,
+		"alerts":              AlertIdentity,
+		"alertdatasinkevents": AlertDataSinkEventIdentity,
+		"alertdefinitions":    AlertDefinitionIdentity,
 
 		"alerttriggers": AlertTriggerIdentity,
+		"analyses":      AnalysisIdentity,
 
 		"analyzers": AnalyzerIdentity,
 
@@ -236,6 +259,16 @@ var (
 		"contentpolicies":     ContentPolicyIdentity,
 		"customdatatypes":     CustomDataTypeIdentity,
 		"datasets":            DataSetIdentity,
+		"datasinks":           DataSinkIdentity,
+		"datasinkaccesslogs":  DataSinkAccessLogsIdentity,
+		"datasinkagenticlogs": DataSinkAgenticLogsIdentity,
+		"datasinkbackfills":   DataSinkBackfillIdentity,
+		"datasinkchecks":      DataSinkCheckIdentity,
+
+		"datasinknotifications": DataSinkNotificationsIdentity,
+
+		"datasinkruns":        DataSinkRunIdentity,
+		"datasinks3":          DataSinkS3Identity,
 		"deployments":         DeploymentIdentity,
 		"deploymentinstances": DeploymentInstanceIdentity,
 
@@ -253,8 +286,9 @@ var (
 
 		"gateways":         GatewayIdentity,
 		"gatewayinstances": GatewayInstanceIdentity,
-		"gitbooktokens":    GitbookTokenIdentity,
-		"hints":            HintIdentity,
+
+		"gitbooktokens": GitbookTokenIdentity,
+		"hints":         HintIdentity,
 
 		"hostsets":         HostSetIdentity,
 		"identitymodifier": IdentityModifierIdentity,
@@ -293,15 +327,18 @@ var (
 		"pacconfigs":    PACConfigIdentity,
 		"pagedataviews": PageDataViewIdentity,
 
-		"policyrefs":    PolicyRefIdentity,
+		"policyrefs":        PolicyRefIdentity,
+		"policysimulations": PolicySimulationIdentity,
+
 		"policyupdates": PolicyUpdateIdentity,
 
-		"principals":             PrincipalIdentity,
-		"principalapps":          PrincipalAppIdentity,
-		"principalexternals":     PrincipalExternalIdentity,
-		"principalusers":         PrincipalUserIdentity,
-		"projects":               ProjectIdentity,
-		"providers":              ProviderIdentity,
+		"principals":         PrincipalIdentity,
+		"principalapps":      PrincipalAppIdentity,
+		"principalexternals": PrincipalExternalIdentity,
+		"principalusers":     PrincipalUserIdentity,
+		"projects":           ProjectIdentity,
+		"providers":          ProviderIdentity,
+
 		"providerhostsoverrides": ProviderHostsOverrideIdentity,
 
 		"providerteams":      ProviderTeamIdentity,
@@ -338,7 +375,8 @@ var (
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
 		"slugs":         SlugIdentity,
-		"teams":         TeamIdentity,
+
+		"teams": TeamIdentity,
 
 		"threatdefinitions": ThreatDefinitionIdentity,
 
@@ -411,6 +449,13 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "providerName"},
 		},
+		"aidomainlookup": nil,
+		"aidomainrequest": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "domain"},
+		},
 		"aigateway": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -481,6 +526,7 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "alertDefinitionName"},
 		},
+		"alertdatasinkevent": nil,
 		"alertdefinition": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -489,6 +535,7 @@ var (
 			{"namespace", "name"},
 		},
 		"alerttrigger": nil,
+		"analysis":     nil,
 		"analyzer": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -559,6 +606,35 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"datasink": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"datasinkaccesslogs":  nil,
+		"datasinkagenticlogs": nil,
+		"datasinkbackfill": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"dataSinkID", "status"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "dataSinkID"},
+		},
+		"datasinkcheck":         nil,
+		"datasinknotifications": nil,
+		"datasinkrun": {
+			{":shard", ":unique", "zone", "zHash"},
+			{":unique", "runID"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "backfillID", "dataset"},
+			{"namespace", "dataSinkID"},
+			{"namespace", "dataSinkID", "startTime"},
+			{"status", "createTime"},
+		},
+		"datasinks3": nil,
 		"deployment": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -777,7 +853,8 @@ var (
 			{"namespace", "name"},
 			{"namespace", "pageID"},
 		},
-		"policyref": nil,
+		"policyref":        nil,
+		"policysimulation": nil,
 		"policyupdate": {
 			{"namespace"},
 			{"namespace", "ID"},
@@ -881,7 +958,9 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 			{"namespace", "severity"},
+			{"namespace", "severityWeight"},
 			{"namespace", "status"},
+			{"namespace", "statusWeight"},
 		},
 		"role": {
 			{"namespace"},
@@ -1048,6 +1127,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAIApp()
 	case AIDomainIdentity:
 		return NewAIDomain()
+	case AIDomainLookupIdentity:
+		return NewAIDomainLookup()
+	case AIDomainRequestIdentity:
+		return NewAIDomainRequest()
 	case AIGatewayIdentity:
 		return NewAIGateway()
 	case AIGatewayClientIdentity:
@@ -1068,10 +1151,14 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAITool()
 	case AlertIdentity:
 		return NewAlert()
+	case AlertDataSinkEventIdentity:
+		return NewAlertDataSinkEvent()
 	case AlertDefinitionIdentity:
 		return NewAlertDefinition()
 	case AlertTriggerIdentity:
 		return NewAlertTrigger()
+	case AnalysisIdentity:
+		return NewAnalysis()
 	case AnalyzerIdentity:
 		return NewAnalyzer()
 	case APIAuthorizationIdentity:
@@ -1100,6 +1187,22 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewCustomDataType()
 	case DataSetIdentity:
 		return NewDataSet()
+	case DataSinkIdentity:
+		return NewDataSink()
+	case DataSinkAccessLogsIdentity:
+		return NewDataSinkAccessLogs()
+	case DataSinkAgenticLogsIdentity:
+		return NewDataSinkAgenticLogs()
+	case DataSinkBackfillIdentity:
+		return NewDataSinkBackfill()
+	case DataSinkCheckIdentity:
+		return NewDataSinkCheck()
+	case DataSinkNotificationsIdentity:
+		return NewDataSinkNotifications()
+	case DataSinkRunIdentity:
+		return NewDataSinkRun()
+	case DataSinkS3Identity:
+		return NewDataSinkS3()
 	case DeploymentIdentity:
 		return NewDeployment()
 	case DeploymentInstanceIdentity:
@@ -1184,6 +1287,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewPageDataView()
 	case PolicyRefIdentity:
 		return NewPolicyRef()
+	case PolicySimulationIdentity:
+		return NewPolicySimulation()
 	case PolicyUpdateIdentity:
 		return NewPolicyUpdate()
 	case PrincipalIdentity:
@@ -1309,6 +1414,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAIApp()
 	case AIDomainIdentity:
 		return NewSparseAIDomain()
+	case AIDomainLookupIdentity:
+		return NewSparseAIDomainLookup()
+	case AIDomainRequestIdentity:
+		return NewSparseAIDomainRequest()
 	case AIGatewayIdentity:
 		return NewSparseAIGateway()
 	case AIGatewayClientIdentity:
@@ -1329,10 +1438,14 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAITool()
 	case AlertIdentity:
 		return NewSparseAlert()
+	case AlertDataSinkEventIdentity:
+		return NewSparseAlertDataSinkEvent()
 	case AlertDefinitionIdentity:
 		return NewSparseAlertDefinition()
 	case AlertTriggerIdentity:
 		return NewSparseAlertTrigger()
+	case AnalysisIdentity:
+		return NewSparseAnalysis()
 	case AnalyzerIdentity:
 		return NewSparseAnalyzer()
 	case APIAuthorizationIdentity:
@@ -1361,6 +1474,22 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseCustomDataType()
 	case DataSetIdentity:
 		return NewSparseDataSet()
+	case DataSinkIdentity:
+		return NewSparseDataSink()
+	case DataSinkAccessLogsIdentity:
+		return NewSparseDataSinkAccessLogs()
+	case DataSinkAgenticLogsIdentity:
+		return NewSparseDataSinkAgenticLogs()
+	case DataSinkBackfillIdentity:
+		return NewSparseDataSinkBackfill()
+	case DataSinkCheckIdentity:
+		return NewSparseDataSinkCheck()
+	case DataSinkNotificationsIdentity:
+		return NewSparseDataSinkNotifications()
+	case DataSinkRunIdentity:
+		return NewSparseDataSinkRun()
+	case DataSinkS3Identity:
+		return NewSparseDataSinkS3()
 	case DeploymentIdentity:
 		return NewSparseDeployment()
 	case DeploymentInstanceIdentity:
@@ -1445,6 +1574,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparsePageDataView()
 	case PolicyRefIdentity:
 		return NewSparsePolicyRef()
+	case PolicySimulationIdentity:
+		return NewSparsePolicySimulation()
 	case PolicyUpdateIdentity:
 		return NewSparsePolicyUpdate()
 	case PrincipalIdentity:
@@ -1578,6 +1709,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIAppsList{}
 	case AIDomainIdentity:
 		return &AIDomainsList{}
+	case AIDomainLookupIdentity:
+		return &AIDomainLookupsList{}
+	case AIDomainRequestIdentity:
+		return &AIDomainRequestsList{}
 	case AIGatewayIdentity:
 		return &AIGatewaysList{}
 	case AIGatewayClientIdentity:
@@ -1598,10 +1733,14 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AIToolsList{}
 	case AlertIdentity:
 		return &AlertsList{}
+	case AlertDataSinkEventIdentity:
+		return &AlertDataSinkEventsList{}
 	case AlertDefinitionIdentity:
 		return &AlertDefinitionsList{}
 	case AlertTriggerIdentity:
 		return &AlertTriggersList{}
+	case AnalysisIdentity:
+		return &AnalysisList{}
 	case AnalyzerIdentity:
 		return &AnalyzersList{}
 	case APIAuthorizationIdentity:
@@ -1630,6 +1769,22 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &CustomDataTypesList{}
 	case DataSetIdentity:
 		return &DataSetsList{}
+	case DataSinkIdentity:
+		return &DataSinksList{}
+	case DataSinkAccessLogsIdentity:
+		return &DataSinkAccessLogsList{}
+	case DataSinkAgenticLogsIdentity:
+		return &DataSinkAgenticLogsList{}
+	case DataSinkBackfillIdentity:
+		return &DataSinkBackfillsList{}
+	case DataSinkCheckIdentity:
+		return &DataSinkChecksList{}
+	case DataSinkNotificationsIdentity:
+		return &DataSinkNotificationsList{}
+	case DataSinkRunIdentity:
+		return &DataSinkRunsList{}
+	case DataSinkS3Identity:
+		return &DataSinkS3sList{}
 	case DeploymentIdentity:
 		return &DeploymentsList{}
 	case DeploymentInstanceIdentity:
@@ -1714,6 +1869,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &PageDataViewsList{}
 	case PolicyRefIdentity:
 		return &PolicyRefsList{}
+	case PolicySimulationIdentity:
+		return &PolicySimulationsList{}
 	case PolicyUpdateIdentity:
 		return &PolicyUpdatesList{}
 	case PrincipalIdentity:
@@ -1837,6 +1994,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
 		return &SparseAIDomainsList{}
+	case AIDomainLookupIdentity:
+		return &SparseAIDomainLookupsList{}
+	case AIDomainRequestIdentity:
+		return &SparseAIDomainRequestsList{}
 	case AIGatewayIdentity:
 		return &SparseAIGatewaysList{}
 	case AIGatewayClientIdentity:
@@ -1857,10 +2018,14 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAIToolsList{}
 	case AlertIdentity:
 		return &SparseAlertsList{}
+	case AlertDataSinkEventIdentity:
+		return &SparseAlertDataSinkEventsList{}
 	case AlertDefinitionIdentity:
 		return &SparseAlertDefinitionsList{}
 	case AlertTriggerIdentity:
 		return &SparseAlertTriggersList{}
+	case AnalysisIdentity:
+		return &SparseAnalysisList{}
 	case AnalyzerIdentity:
 		return &SparseAnalyzersList{}
 	case APIAuthorizationIdentity:
@@ -1889,6 +2054,22 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseCustomDataTypesList{}
 	case DataSetIdentity:
 		return &SparseDataSetsList{}
+	case DataSinkIdentity:
+		return &SparseDataSinksList{}
+	case DataSinkAccessLogsIdentity:
+		return &SparseDataSinkAccessLogsList{}
+	case DataSinkAgenticLogsIdentity:
+		return &SparseDataSinkAgenticLogsList{}
+	case DataSinkBackfillIdentity:
+		return &SparseDataSinkBackfillsList{}
+	case DataSinkCheckIdentity:
+		return &SparseDataSinkChecksList{}
+	case DataSinkNotificationsIdentity:
+		return &SparseDataSinkNotificationsList{}
+	case DataSinkRunIdentity:
+		return &SparseDataSinkRunsList{}
+	case DataSinkS3Identity:
+		return &SparseDataSinkS3sList{}
 	case DeploymentIdentity:
 		return &SparseDeploymentsList{}
 	case DeploymentInstanceIdentity:
@@ -1973,6 +2154,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparsePageDataViewsList{}
 	case PolicyRefIdentity:
 		return &SparsePolicyRefsList{}
+	case PolicySimulationIdentity:
+		return &SparsePolicySimulationsList{}
 	case PolicyUpdateIdentity:
 		return &SparsePolicyUpdatesList{}
 	case PrincipalIdentity:
@@ -2142,8 +2325,10 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAIToolSummary()
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
-	case "analysis", "Analysis":
-		return NewAnalysis()
+	case "analysisgraph", "AnalysisGraph":
+		return NewAnalysisGraph()
+	case "analysisresult", "AnalysisResult":
+		return NewAnalysisResult()
 	case "analyzermatcher", "Matcher":
 		return NewMatcher()
 	case "analyzermodel", "AnalyzerModel":
@@ -2212,6 +2397,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewExtractionSummary()
 	case "extractorref", "ExtractorRef":
 		return NewExtractorRef()
+	case "genericdetection", "GenericDetection":
+		return NewGenericDetection()
 	case "host", "Host":
 		return NewHost()
 	case "identityref", "IdentityRef":
@@ -2220,6 +2407,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewIngressPolicy()
 	case "injector", "Injector":
 		return NewInjector()
+	case "k8snamespacemapping", "K8sNamespaceMapping":
+		return NewK8sNamespaceMapping()
 	case "kubernetesworkloadgroupselector", "KubernetesWorkloadGroupSelector":
 		return NewKubernetesWorkloadGroupSelector()
 	case "kubernetesworkloadgroupselectorcustomtype", "KubernetesWorkloadGroupSelectorCustomType":
@@ -2264,12 +2453,20 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewOTLPReceiver()
 	case "pagedataviewpredicate", "PageDataViewPredicate":
 		return NewPageDataViewPredicate()
+	case "policysimulationoutput", "PolicySimulationOutput":
+		return NewPolicySimulationOutput()
+	case "policysimulationtool", "PolicySimulationTool":
+		return NewPolicySimulationTool()
 	case "predicate", "Predicate":
 		return NewPredicate()
+	case "providercapabilities", "ProviderCapabilities":
+		return NewProviderCapabilities()
 	case "providerretentionpolicy", "ProviderRetentionPolicy":
 		return NewProviderRetentionPolicy()
 	case "providertrainingpolicy", "ProviderTrainingPolicy":
 		return NewProviderTrainingPolicy()
+	case "regobaselibs", "RegoBaseLibs":
+		return NewRegoBaseLibs()
 	case "roundtriperror", "RoundtripError":
 		return NewRoundtripError()
 	case "scandomain", "ScanDomain":
@@ -2286,6 +2483,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewScanUser()
 	case "severityoverride", "SeverityOverride":
 		return NewSeverityOverride()
+	case "snippet", "Snippet":
+		return NewSnippet()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
 	case "tlscertinfo", "TLSCertInfo":
@@ -2342,6 +2541,8 @@ func AllIdentities() []elemental.Identity {
 		AgentEnforcementPolicyIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
+		AIDomainLookupIdentity,
+		AIDomainRequestIdentity,
 		AIGatewayIdentity,
 		AIGatewayClientIdentity,
 		AIGatewayConfIdentity,
@@ -2352,8 +2553,10 @@ func AllIdentities() []elemental.Identity {
 		AISkillIdentity,
 		AIToolIdentity,
 		AlertIdentity,
+		AlertDataSinkEventIdentity,
 		AlertDefinitionIdentity,
 		AlertTriggerIdentity,
+		AnalysisIdentity,
 		AnalyzerIdentity,
 		APIAuthorizationIdentity,
 		AppIdentity,
@@ -2368,6 +2571,14 @@ func AllIdentities() []elemental.Identity {
 		ContentPolicyIdentity,
 		CustomDataTypeIdentity,
 		DataSetIdentity,
+		DataSinkIdentity,
+		DataSinkAccessLogsIdentity,
+		DataSinkAgenticLogsIdentity,
+		DataSinkBackfillIdentity,
+		DataSinkCheckIdentity,
+		DataSinkNotificationsIdentity,
+		DataSinkRunIdentity,
+		DataSinkS3Identity,
 		DeploymentIdentity,
 		DeploymentInstanceIdentity,
 		DigestReportIdentity,
@@ -2410,6 +2621,7 @@ func AllIdentities() []elemental.Identity {
 		PACConfigIdentity,
 		PageDataViewIdentity,
 		PolicyRefIdentity,
+		PolicySimulationIdentity,
 		PolicyUpdateIdentity,
 		PrincipalIdentity,
 		PrincipalAppIdentity,
@@ -2483,6 +2695,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AIDomainIdentity:
 		return []string{}
+	case AIDomainLookupIdentity:
+		return []string{}
+	case AIDomainRequestIdentity:
+		return []string{}
 	case AIGatewayIdentity:
 		return []string{}
 	case AIGatewayClientIdentity:
@@ -2503,9 +2719,13 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AlertIdentity:
 		return []string{}
+	case AlertDataSinkEventIdentity:
+		return []string{}
 	case AlertDefinitionIdentity:
 		return []string{}
 	case AlertTriggerIdentity:
+		return []string{}
+	case AnalysisIdentity:
 		return []string{}
 	case AnalyzerIdentity:
 		return []string{}
@@ -2534,6 +2754,22 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case CustomDataTypeIdentity:
 		return []string{}
 	case DataSetIdentity:
+		return []string{}
+	case DataSinkIdentity:
+		return []string{}
+	case DataSinkAccessLogsIdentity:
+		return []string{}
+	case DataSinkAgenticLogsIdentity:
+		return []string{}
+	case DataSinkBackfillIdentity:
+		return []string{}
+	case DataSinkCheckIdentity:
+		return []string{}
+	case DataSinkNotificationsIdentity:
+		return []string{}
+	case DataSinkRunIdentity:
+		return []string{}
+	case DataSinkS3Identity:
 		return []string{}
 	case DeploymentIdentity:
 		return []string{}
@@ -2618,6 +2854,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case PageDataViewIdentity:
 		return []string{}
 	case PolicyRefIdentity:
+		return []string{}
+	case PolicySimulationIdentity:
 		return []string{}
 	case PolicyUpdateIdentity:
 		return []string{}

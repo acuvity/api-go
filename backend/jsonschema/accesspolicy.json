@@ -4,6 +4,7 @@
     "@identifiable",
     "@importable",
     "@timed",
+    "@namelinkable",
     "@failclose",
     "@accesspolicyaction",
     "@policytransportmode"
@@ -105,6 +106,13 @@
         "null"
       ]
     },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
     "importHash": {
       "$creationOnly": true,
       "$friendlyName": "ImportHash",
@@ -144,12 +152,15 @@
       ]
     },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "The name of the access policy.",
-      "pattern": "^[a-zA-Z0-9-_/@. ]+$",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -247,7 +258,7 @@
     }
   },
   "required": [
-    "name",
+    "friendlyName",
     "transportMode"
   ],
   "title": "AccessPolicy",

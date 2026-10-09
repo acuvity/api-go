@@ -36,8 +36,9 @@ type AIGatewayConfConnector struct {
 	// Upstream OAuth client ID.
 	ClientID string `json:"clientID,omitempty" msgpack:"clientID,omitempty" bson:"-" mapstructure:"clientID,omitempty"`
 
-	// Upstream OAuth client secret.
-	ClientSecret string `json:"clientSecret,omitempty" msgpack:"clientSecret,omitempty" bson:"-" mapstructure:"clientSecret,omitempty"`
+	// Upstream OAuth client secret, encrypted using the key referenced by
+	// publicKeyName.
+	EncryptedClientSecret string `json:"encryptedClientSecret,omitempty" msgpack:"encryptedClientSecret,omitempty" bson:"-" mapstructure:"encryptedClientSecret,omitempty"`
 
 	// The name of the connector.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"-" mapstructure:"name,omitempty"`
@@ -56,6 +57,9 @@ type AIGatewayConfConnector struct {
 
 	// The rendered provider token pools attached to this gateway.
 	ProviderTokens []*AIGatewayConfTokenPool `json:"providerTokens,omitempty" msgpack:"providerTokens,omitempty" bson:"-" mapstructure:"providerTokens,omitempty"`
+
+	// The name of the public key used to encrypt encryptedClientSecret.
+	PublicKeyName string `json:"publicKeyName,omitempty" msgpack:"publicKeyName,omitempty" bson:"-" mapstructure:"publicKeyName,omitempty"`
 
 	// The route component.
 	Route string `json:"route,omitempty" msgpack:"route,omitempty" bson:"-" mapstructure:"route,omitempty"`
@@ -315,8 +319,8 @@ func (o *AIGatewayConfConnector) ValueForAttribute(name string) any {
 		return o.MCPTools
 	case "clientID":
 		return o.ClientID
-	case "clientSecret":
-		return o.ClientSecret
+	case "encryptedClientSecret":
+		return o.EncryptedClientSecret
 	case "name":
 		return o.Name
 	case "namespace":
@@ -329,6 +333,8 @@ func (o *AIGatewayConfConnector) ValueForAttribute(name string) any {
 		return o.Provider
 	case "providerTokens":
 		return o.ProviderTokens
+	case "publicKeyName":
+		return o.PublicKeyName
 	case "route":
 		return o.Route
 	case "type":
@@ -369,13 +375,14 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "clientID",
 		Type:           "string",
 	},
-	"ClientSecret": {
+	"EncryptedClientSecret": {
 		AllowedChoices: []string{},
-		ConvertedName:  "ClientSecret",
-		Description:    `Upstream OAuth client secret.`,
-		Exposed:        true,
-		Name:           "clientSecret",
-		Type:           "string",
+		ConvertedName:  "EncryptedClientSecret",
+		Description: `Upstream OAuth client secret, encrypted using the key referenced by
+publicKeyName.`,
+		Exposed: true,
+		Name:    "encryptedClientSecret",
+		Type:    "string",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -426,6 +433,14 @@ var AIGatewayConfConnectorAttributesMap = map[string]elemental.AttributeSpecific
 		Name:           "providerTokens",
 		SubType:        "aigatewayconftokenpool",
 		Type:           "refList",
+	},
+	"PublicKeyName": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt encryptedClientSecret.`,
+		Exposed:        true,
+		Name:           "publicKeyName",
+		Type:           "string",
 	},
 	"Route": {
 		AllowedChoices: []string{},
@@ -491,13 +506,14 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		Name:           "clientID",
 		Type:           "string",
 	},
-	"clientsecret": {
+	"encryptedclientsecret": {
 		AllowedChoices: []string{},
-		ConvertedName:  "ClientSecret",
-		Description:    `Upstream OAuth client secret.`,
-		Exposed:        true,
-		Name:           "clientSecret",
-		Type:           "string",
+		ConvertedName:  "EncryptedClientSecret",
+		Description: `Upstream OAuth client secret, encrypted using the key referenced by
+publicKeyName.`,
+		Exposed: true,
+		Name:    "encryptedClientSecret",
+		Type:    "string",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -548,6 +564,14 @@ var AIGatewayConfConnectorLowerCaseAttributesMap = map[string]elemental.Attribut
 		Name:           "providerTokens",
 		SubType:        "aigatewayconftokenpool",
 		Type:           "refList",
+	},
+	"publickeyname": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PublicKeyName",
+		Description:    `The name of the public key used to encrypt encryptedClientSecret.`,
+		Exposed:        true,
+		Name:           "publicKeyName",
+		Type:           "string",
 	},
 	"route": {
 		AllowedChoices: []string{},

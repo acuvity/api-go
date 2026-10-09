@@ -236,7 +236,8 @@ type AgentConfig struct {
 	// If enabled, the agent will have the ability to pause enforcement.
 	PauseEnabled bool `json:"pauseEnabled" msgpack:"pauseEnabled" bson:"pauseenabled" mapstructure:"pauseEnabled,omitempty"`
 
-	// The ping interval at which acushield should check in with the backend.
+	// How often the agent sends a heartbeat with its status and running configuration
+	// (i.e: 30m, 6h). Cannot be lower than 5m.
 	PingInterval string `json:"pingInterval" msgpack:"pingInterval" bson:"pinginterval" mapstructure:"pingInterval,omitempty"`
 
 	// Set the priority for this agent configuration. When multiple agent
@@ -1667,11 +1668,12 @@ system.`,
 		BSONFieldName:  "pinginterval",
 		ConvertedName:  "PingInterval",
 		DefaultValue:   "6h",
-		Description:    `The ping interval at which acushield should check in with the backend.`,
-		Exposed:        true,
-		Name:           "pingInterval",
-		Stored:         true,
-		Type:           "string",
+		Description: `How often the agent sends a heartbeat with its status and running configuration
+(i.e: 30m, 6h). Cannot be lower than 5m.`,
+		Exposed: true,
+		Name:    "pingInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Priority": {
 		AllowedChoices: []string{},
@@ -2280,11 +2282,12 @@ system.`,
 		BSONFieldName:  "pinginterval",
 		ConvertedName:  "PingInterval",
 		DefaultValue:   "6h",
-		Description:    `The ping interval at which acushield should check in with the backend.`,
-		Exposed:        true,
-		Name:           "pingInterval",
-		Stored:         true,
-		Type:           "string",
+		Description: `How often the agent sends a heartbeat with its status and running configuration
+(i.e: 30m, 6h). Cannot be lower than 5m.`,
+		Exposed: true,
+		Name:    "pingInterval",
+		Stored:  true,
+		Type:    "string",
 	},
 	"priority": {
 		AllowedChoices: []string{},
@@ -2703,7 +2706,8 @@ type SparseAgentConfig struct {
 	// If enabled, the agent will have the ability to pause enforcement.
 	PauseEnabled *bool `json:"pauseEnabled,omitempty" msgpack:"pauseEnabled,omitempty" bson:"pauseenabled,omitempty" mapstructure:"pauseEnabled,omitempty"`
 
-	// The ping interval at which acushield should check in with the backend.
+	// How often the agent sends a heartbeat with its status and running configuration
+	// (i.e: 30m, 6h). Cannot be lower than 5m.
 	PingInterval *string `json:"pingInterval,omitempty" msgpack:"pingInterval,omitempty" bson:"pinginterval,omitempty" mapstructure:"pingInterval,omitempty"`
 
 	// Set the priority for this agent configuration. When multiple agent

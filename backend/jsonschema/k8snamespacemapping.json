@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "K8s Namespace Mapping",
+  "$friendlyNamePlural": "K8s Namespace Mappings",
+  "$modelName": "K8sNamespaceMapping",
+  "$modelPackage": "torii",
+  "$modelResourceName": "k8snamespacemappings",
+  "$modelRestName": "k8snamespacemapping",
+  "additionalProperties": false,
+  "description": "Maps a Kubernetes namespace to a project.",
+  "properties": {
+    "k8sNamespace": {
+      "$friendlyName": "Kubernetes Namespace",
+      "$required": true,
+      "description": "The Kubernetes namespace to match. Use * as a catch-all namespaces not explicitly mapped.",
+      "title": "k8sNamespace",
+      "type": "string"
+    },
+    "project": {
+      "$friendlyName": "Project",
+      "$required": true,
+      "description": "The target project to be used for this Kubernetes namespace workloads discovery and enforcement.",
+      "pattern": "^[a-zA-Z0-9-]+$",
+      "title": "project",
+      "type": "string"
+    }
+  },
+  "required": [
+    "k8sNamespace",
+    "project"
+  ],
+  "title": "K8sNamespaceMapping",
+  "type": "object"
+}

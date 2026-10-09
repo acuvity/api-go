@@ -304,8 +304,8 @@
     },
     "pingInterval": {
       "$defaultValue": "6h",
-      "$friendlyName": "Ping Interval",
-      "description": "The ping interval at which acushield should check in with the backend.",
+      "$friendlyName": "Heartbeat Interval",
+      "description": "How often the agent sends a heartbeat with its status and running configuration (i.e: 30m, 6h). Cannot be lower than 5m.",
       "title": "pingInterval",
       "type": [
         "string",

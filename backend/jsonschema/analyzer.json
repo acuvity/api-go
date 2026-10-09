@@ -5,7 +5,7 @@
   "$friendlyName": "Analyzer",
   "$friendlyNamePlural": "Analyzers",
   "$modelName": "Analyzer",
-  "$modelPackage": "yorozu",
+  "$modelPackage": "kiroshi",
   "$modelResourceName": "analyzers",
   "$modelRestName": "analyzer",
   "additionalProperties": false,

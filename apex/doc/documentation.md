@@ -286,7 +286,8 @@ List of alerts that got raised during the policy resolution.
 
 Type: `map[string]string`
 
-Annotations attached to the log.
+Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.
 
 ##### `client`
 
@@ -880,7 +881,8 @@ List of alerts that got raised during the policy resolution.
 
 Type: `map[string]string`
 
-Annotations attached to the log.
+Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.
 
 ##### `client`
 
@@ -1471,7 +1473,8 @@ scores:
 
 Type: `map[string]string`
 
-Annotations attached to the extraction.
+Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.
 
 ##### `categories`
 
@@ -1533,6 +1536,12 @@ scores:
   - confidence: 'low', 0 < score <0.33
   - confidence: 'medium', 0.33 <= score < 0.66
   - confidence: 'high', 0.66 <= score <= 1.
+
+##### `genericdetections`
+
+Type: [`[]genericdetection`](#genericdetection)
+
+The generic detections found while applying policies.
 
 ##### `hash`
 
@@ -1932,6 +1941,50 @@ The modalities of data detected in the data.
 Type: `map[string]extractioninformation`
 
 The topic of the classification.
+
+### GenericDetection
+
+Represent a generic detection.
+
+#### Attributes
+
+##### `end`
+
+Type: `integer`
+
+The end position of the positional generic detection.
+
+##### `group`
+
+Type: `string`
+
+The group of the generic detection.
+
+##### `name`
+
+Type: `string`
+
+The name of the generic detection.
+
+##### `score`
+
+Type: `float`
+
+The normalized score of the generic detection against its confidence level
+thresholds.
+Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.
+
+##### `snippet`
+
+Type: [`snippet`](#snippet)
+
+the snippet of the generic detection.
+
+##### `start`
+
+Type: `integer`
+
+The start position of the poisitional generic detection.
 
 ### Latency
 
@@ -2580,6 +2633,30 @@ The source of the failure. PlatformError covers apex-side stages
 (Extraction, Analysis, ContentPolicy, AccessPolicy). UpstreamError
 covers anything attributable to the upstream provider (transport
 failures or non-2xx HTTP responses).
+
+### Snippet
+
+Represents an excerpt of content returned alongside a detection.
+
+#### Attributes
+
+##### `data`
+
+Type: `string`
+
+The contextual excerpt of the content around the detection.
+
+##### `end`
+
+Type: `integer`
+
+The end position of the detection inside the snippet data.
+
+##### `start`
+
+Type: `integer`
+
+The start position of the detection inside the snippet data.
 
 ### TextualDetection
 

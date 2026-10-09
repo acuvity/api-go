@@ -1,0 +1,79 @@
+{
+  "$extends": [],
+  "$friendlyName": "Analysis Graph",
+  "$friendlyNamePlural": "Analysis Graphs",
+  "$modelName": "AnalysisGraph",
+  "$modelPackage": "proxy",
+  "$modelResourceName": "analysisgraphs",
+  "$modelRestName": "analysisgraph",
+  "additionalProperties": false,
+  "description": "What one analyzer of the pipeline graph did, and what it chained to.",
+  "properties": {
+    "analyses": {
+      "$friendlyName": "Analyses",
+      "description": "The list of analysis chained to this analyzer analysis.",
+      "items": {
+        "$ref": "analysisgraph.json"
+      },
+      "title": "analyses",
+      "type": "array"
+    },
+    "analyzerID": {
+      "$friendlyName": "Analyzer",
+      "description": "The ID of the analyzer.",
+      "title": "analyzerID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "coverageRatio": {
+      "$friendlyName": "Coverage Ratio",
+      "description": "The percentage of text analyzed.",
+      "title": "coverageRatio",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "detections": {
+      "$friendlyName": "Detections",
+      "description": "The list of detections the analyzer returned.",
+      "items": {
+        "$ref": "detection.json"
+      },
+      "title": "detections",
+      "type": "array"
+    },
+    "duration": {
+      "$friendlyName": "Duration",
+      "description": "The time taken by the analyzer.",
+      "title": "duration",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "matchingDetections": {
+      "$friendlyName": "Matching Detections",
+      "description": "A list of detections that matches the detection matchers criteria set on analyzers, triggering their execution.",
+      "items": {
+        "$ref": "detection.json"
+      },
+      "title": "matchingDetections",
+      "type": "array"
+    },
+    "skippedReason": {
+      "$friendlyName": "Skipped Reason",
+      "description": "The reason the analyzer was skipped.",
+      "title": "skippedReason",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AnalysisGraph",
+  "type": "object"
+}

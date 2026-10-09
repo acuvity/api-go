@@ -77,7 +77,8 @@ type Extraction struct {
 	//   - confidence: 'high', 0.66 <= score <= 1.
 	PIIs map[string]float64 `json:"PIIs,omitempty" msgpack:"PIIs,omitempty" bson:"piis,omitempty" mapstructure:"PIIs,omitempty"`
 
-	// Annotations attached to the extraction.
+	// Annotations carried alongside the content, like the conversation ID. They are
+	// set during extraction, passed to the analysis and kept on what it produces.
 	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// The categories are remapping of the modalities in a more human friendly way.
@@ -119,6 +120,9 @@ type Extraction struct {
 	//   - confidence: 'medium', 0.33 <= score < 0.66
 	//   - confidence: 'high', 0.66 <= score <= 1.
 	Exploits map[string]float64 `json:"exploits,omitempty" msgpack:"exploits,omitempty" bson:"exploits,omitempty" mapstructure:"exploits,omitempty"`
+
+	// The generic detections found while applying policies.
+	Genericdetections []*GenericDetection `json:"genericdetections,omitempty" msgpack:"genericdetections,omitempty" bson:"genericdetections,omitempty" mapstructure:"genericdetections,omitempty"`
 
 	// The hash of the extraction.
 	Hash string `json:"hash,omitempty" msgpack:"hash,omitempty" bson:"hash,omitempty" mapstructure:"hash,omitempty"`
@@ -349,6 +353,7 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.DataSets = o.DataSets
 	s.Detections = o.Detections
 	s.Exploits = o.Exploits
+	s.Genericdetections = o.Genericdetections
 	s.Hash = o.Hash
 	s.Intent = o.Intent
 	s.Internal = o.Internal
@@ -392,6 +397,7 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.DataSets = s.DataSets
 	o.Detections = s.Detections
 	o.Exploits = s.Exploits
+	o.Genericdetections = s.Genericdetections
 	o.Hash = s.Hash
 	o.Intent = s.Intent
 	o.Internal = s.Internal
@@ -449,6 +455,15 @@ func (o *Extraction) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 		}
 	}
 
+	for _, sub := range o.Genericdetections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Genericdetections' for 'Extraction' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Modalities {
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Modalities' for 'Extraction' (%s): %s", o.Identifier(), err)
@@ -485,6 +500,15 @@ func (o *Extraction) DecryptAttributes(encrypter elemental.AttributeEncrypter) (
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Detections' for 'Extraction' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Genericdetections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Genericdetections' for 'Extraction' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -555,6 +579,16 @@ func (o *Extraction) Validate() error {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "detections", i))
+		}
+	}
+
+	for i, sub := range o.Genericdetections {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "genericdetections", i))
 		}
 	}
 
@@ -639,6 +673,8 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.Detections
 	case "exploits":
 		return o.Exploits
+	case "genericdetections":
+		return o.Genericdetections
 	case "hash":
 		return o.Hash
 	case "intent":
@@ -712,12 +748,13 @@ scores:
 		AllowedChoices: []string{},
 		BSONFieldName:  "annotations",
 		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
 	},
 	"Categories": {
 		AllowedChoices: []string{},
@@ -812,6 +849,17 @@ scores:
 		Stored:  true,
 		SubType: "map[string]float64",
 		Type:    "external",
+	},
+	"Genericdetections": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "genericdetections",
+		ConvertedName:  "Genericdetections",
+		Description:    `The generic detections found while applying policies.`,
+		Exposed:        true,
+		Name:           "genericdetections",
+		Stored:         true,
+		SubType:        "genericdetection",
+		Type:           "refList",
 	},
 	"Hash": {
 		AllowedChoices: []string{},
@@ -1160,12 +1208,13 @@ scores:
 		AllowedChoices: []string{},
 		BSONFieldName:  "annotations",
 		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the extraction.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
 	},
 	"categories": {
 		AllowedChoices: []string{},
@@ -1260,6 +1309,17 @@ scores:
 		Stored:  true,
 		SubType: "map[string]float64",
 		Type:    "external",
+	},
+	"genericdetections": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "genericdetections",
+		ConvertedName:  "Genericdetections",
+		Description:    `The generic detections found while applying policies.`,
+		Exposed:        true,
+		Name:           "genericdetections",
+		Stored:         true,
+		SubType:        "genericdetection",
+		Type:           "refList",
 	},
 	"hash": {
 		AllowedChoices: []string{},
@@ -1577,30 +1637,31 @@ scores:
 }
 
 type mongoAttributesExtraction struct {
-	PIIs            map[string]float64            `bson:"piis,omitempty"`
-	Annotations     map[string]string             `bson:"annotations,omitempty"`
-	Categories      []Modality                    `bson:"categories,omitempty"`
-	Confidentiality float64                       `bson:"confidentiality,omitempty"`
-	CustomDataTypes map[string]float64            `bson:"customdatatypes,omitempty"`
-	Data            string                        `bson:"data"`
-	DataSets        map[string]map[string]float64 `bson:"datasets,omitempty"`
-	Detections      []*TextualDetection           `bson:"detections,omitempty"`
-	Exploits        map[string]float64            `bson:"exploits,omitempty"`
-	Hash            string                        `bson:"hash,omitempty"`
-	Intent          map[string]float64            `bson:"intent,omitempty"`
-	Internal        bool                          `bson:"internal,omitempty"`
-	IsFile          bool                          `bson:"isfile,omitempty"`
-	IsStored        bool                          `bson:"isstored,omitempty"`
-	Keywords        map[string]float64            `bson:"keywords,omitempty"`
-	Kind            ExtractionKindValue           `bson:"kind"`
-	Label           string                        `bson:"label,omitempty"`
-	Languages       map[string]float64            `bson:"languages,omitempty"`
-	Malcontents     map[string]float64            `bson:"malcontents,omitempty"`
-	Modalities      []Modality                    `bson:"modalities,omitempty"`
-	Relevance       float64                       `bson:"relevance,omitempty"`
-	Role            ExtractionRoleValue           `bson:"role"`
-	Secrets         map[string]float64            `bson:"secrets,omitempty"`
-	ToolResults     []ToolResult                  `bson:"toolresults,omitempty"`
-	ToolUses        []ToolUse                     `bson:"tooluses,omitempty"`
-	Topics          map[string]float64            `bson:"topics,omitempty"`
+	PIIs              map[string]float64            `bson:"piis,omitempty"`
+	Annotations       map[string]string             `bson:"annotations,omitempty"`
+	Categories        []Modality                    `bson:"categories,omitempty"`
+	Confidentiality   float64                       `bson:"confidentiality,omitempty"`
+	CustomDataTypes   map[string]float64            `bson:"customdatatypes,omitempty"`
+	Data              string                        `bson:"data"`
+	DataSets          map[string]map[string]float64 `bson:"datasets,omitempty"`
+	Detections        []*TextualDetection           `bson:"detections,omitempty"`
+	Exploits          map[string]float64            `bson:"exploits,omitempty"`
+	Genericdetections []*GenericDetection           `bson:"genericdetections,omitempty"`
+	Hash              string                        `bson:"hash,omitempty"`
+	Intent            map[string]float64            `bson:"intent,omitempty"`
+	Internal          bool                          `bson:"internal,omitempty"`
+	IsFile            bool                          `bson:"isfile,omitempty"`
+	IsStored          bool                          `bson:"isstored,omitempty"`
+	Keywords          map[string]float64            `bson:"keywords,omitempty"`
+	Kind              ExtractionKindValue           `bson:"kind"`
+	Label             string                        `bson:"label,omitempty"`
+	Languages         map[string]float64            `bson:"languages,omitempty"`
+	Malcontents       map[string]float64            `bson:"malcontents,omitempty"`
+	Modalities        []Modality                    `bson:"modalities,omitempty"`
+	Relevance         float64                       `bson:"relevance,omitempty"`
+	Role              ExtractionRoleValue           `bson:"role"`
+	Secrets           map[string]float64            `bson:"secrets,omitempty"`
+	ToolResults       []ToolResult                  `bson:"toolresults,omitempty"`
+	ToolUses          []ToolUse                     `bson:"tooluses,omitempty"`
+	Topics            map[string]float64            `bson:"topics,omitempty"`
 }

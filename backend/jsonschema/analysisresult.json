@@ -1,0 +1,160 @@
+{
+  "$extends": [
+    "@deprecatedanalysis"
+  ],
+  "$friendlyName": "Analysis Result",
+  "$friendlyNamePlural": "Analysis Results",
+  "$modelName": "AnalysisResult",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "analysisresults",
+  "$modelRestName": "analysisresult",
+  "additionalProperties": false,
+  "description": "What the analysis pipelines found in the submitted content.",
+  "properties": {
+    "analysis": {
+      "$friendlyName": "Analysis",
+      "$ref": "analysisgraph.json",
+      "description": "The detailed graph of what each analyzer did.",
+      "title": "analysis"
+    },
+    "categories": {
+      "$friendlyName": "Categories",
+      "description": "The categories the content falls into.",
+      "items": {
+        "$ref": "modality.json"
+      },
+      "title": "categories",
+      "type": "array"
+    },
+    "confidentiality": {
+      "$friendlyName": "Confidentiality",
+      "description": "How confidential the content is, between 0 and 1.",
+      "title": "confidentiality",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "content": {
+      "$friendlyName": "Content",
+      "description": "DEPRECATED The content as the pipelines returned it, when they rewrote it. Nothing reads it.",
+      "title": "content",
+      "type": "string"
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "additionalProperties": true,
+      "description": "Where each custom data type was found.",
+      "title": "customDataTypes",
+      "type": "object"
+    },
+    "detections": {
+      "$friendlyName": "Generic Detections",
+      "description": "What the pipelines detected, in the generic shape that is replacing the per kind maps above.",
+      "items": {
+        "$ref": "genericdetection.json"
+      },
+      "title": "detections",
+      "type": "array"
+    },
+    "exploits": {
+      "$friendlyName": "Exploits",
+      "description": "The exploits detected, and how strongly.",
+      "items": {
+        "type": "float"
+      },
+      "title": "exploits",
+      "type": "object"
+    },
+    "intent": {
+      "$friendlyName": "Intent",
+      "description": "DEPRECATED The intents detected, and how strongly. The pipelines no longer populate it.",
+      "items": {
+        "type": "float"
+      },
+      "title": "intent",
+      "type": "object"
+    },
+    "keywords": {
+      "$friendlyName": "Keywords",
+      "additionalProperties": true,
+      "description": "Where each requested keyword was found.",
+      "title": "keywords",
+      "type": "object"
+    },
+    "languages": {
+      "$friendlyName": "Languages",
+      "description": "The languages detected, and how strongly.",
+      "items": {
+        "type": "float"
+      },
+      "title": "languages",
+      "type": "object"
+    },
+    "malcontents": {
+      "$friendlyName": "Malcontents",
+      "description": "The malicious content detected, and how strongly.",
+      "items": {
+        "type": "float"
+      },
+      "title": "malcontents",
+      "type": "object"
+    },
+    "metadata": {
+      "$friendlyName": "Metadata",
+      "description": "What the pipelines could tell about the content itself.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "metadata",
+      "type": "object"
+    },
+    "modalities": {
+      "$friendlyName": "Modalities",
+      "description": "The modalities found in the content.",
+      "items": {
+        "$ref": "modality.json"
+      },
+      "title": "modalities",
+      "type": "array"
+    },
+    "piis": {
+      "$friendlyName": "PIIs",
+      "additionalProperties": true,
+      "description": "Where each piece of personally identifiable information was found.",
+      "title": "piis",
+      "type": "object"
+    },
+    "relevance": {
+      "$friendlyName": "Relevance",
+      "description": "DEPRECATED How relevant the content is, between 0 and 1. The pipelines no longer populate it.",
+      "title": "relevance",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "secrets": {
+      "$friendlyName": "Secrets",
+      "additionalProperties": true,
+      "description": "Where each secret was found.",
+      "title": "secrets",
+      "type": "object"
+    },
+    "topics": {
+      "$friendlyName": "Topics",
+      "description": "The topics detected, and how strongly.",
+      "items": {
+        "type": "float"
+      },
+      "title": "topics",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "AnalysisResult",
+  "type": "object"
+}

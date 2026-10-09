@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Snippet",
+  "$friendlyNamePlural": "Snippets",
+  "$modelName": "Snippet",
+  "$modelPackage": "lain",
+  "$modelResourceName": "snippets",
+  "$modelRestName": "snippet",
+  "additionalProperties": false,
+  "description": "Represents an excerpt of content returned alongside a detection.",
+  "properties": {
+    "data": {
+      "$friendlyName": "Data",
+      "description": "The contextual excerpt of the content around the detection.",
+      "title": "data",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end position of the detection inside the snippet data.",
+      "title": "end",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start position of the detection inside the snippet data.",
+      "title": "start",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "Snippet",
+  "type": "object"
+}

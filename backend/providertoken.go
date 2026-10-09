@@ -443,6 +443,10 @@ func (o *ProviderToken) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("token", o.Token); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -608,9 +612,7 @@ var ProviderTokenAttributesMap = map[string]elemental.AttributeSpecification{
 		Exposed:        true,
 		Name:           "token",
 		Required:       true,
-		Secret:         true,
 		Stored:         true,
-		Transient:      true,
 		Type:           "string",
 	},
 	"UpdateTime": {
@@ -734,9 +736,7 @@ var ProviderTokenLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		Exposed:        true,
 		Name:           "token",
 		Required:       true,
-		Secret:         true,
 		Stored:         true,
-		Transient:      true,
 		Type:           "string",
 	},
 	"updatetime": {

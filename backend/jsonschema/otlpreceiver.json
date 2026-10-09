@@ -17,6 +17,7 @@
       "type": "string"
     },
     "protocol": {
+      "$defaultValue": "HTTP",
       "$friendlyName": "Protocol",
       "$required": true,
       "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this depends on the OTLP receiver being used.",

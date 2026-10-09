@@ -151,7 +151,8 @@ type PoliceResponse struct {
 	// List of alerts that got raised during the policy resolution.
 	Alerts []*AlertEvent `json:"alerts,omitempty" msgpack:"alerts,omitempty" bson:"alerts,omitempty" mapstructure:"alerts,omitempty"`
 
-	// Annotations attached to the log.
+	// Annotations carried alongside the content, like the conversation ID. They are
+	// set during extraction, passed to the analysis and kept on what it produces.
 	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// The client used to send the request.
@@ -1078,12 +1079,13 @@ var PoliceResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "annotations",
 		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the log.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
 	},
 	"Client": {
 		AllowedChoices: []string{},
@@ -1425,12 +1427,13 @@ var PoliceResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		AllowedChoices: []string{},
 		BSONFieldName:  "annotations",
 		ConvertedName:  "Annotations",
-		Description:    `Annotations attached to the log.`,
-		Exposed:        true,
-		Name:           "annotations",
-		Stored:         true,
-		SubType:        "map[string]string",
-		Type:           "external",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
 	},
 	"client": {
 		AllowedChoices: []string{},
@@ -1809,7 +1812,8 @@ type SparsePoliceResponse struct {
 	// List of alerts that got raised during the policy resolution.
 	Alerts *[]*AlertEvent `json:"alerts,omitempty" msgpack:"alerts,omitempty" bson:"alerts,omitempty" mapstructure:"alerts,omitempty"`
 
-	// Annotations attached to the log.
+	// Annotations carried alongside the content, like the conversation ID. They are
+	// set during extraction, passed to the analysis and kept on what it produces.
 	Annotations *map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
 	// The client used to send the request.

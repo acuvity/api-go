@@ -19,6 +19,9 @@ type AssetRef struct {
 	// The category of the referenced object, if it has one.
 	Category string `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
 
+	// The domain of the referenced object, if it is an AI domain.
+	Domain string `json:"domain,omitempty" msgpack:"domain,omitempty" bson:"domain,omitempty" mapstructure:"domain,omitempty"`
+
 	// The display name of the referenced object, if it has one.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -62,6 +65,7 @@ func (o *AssetRef) GetBSON() (any, error) {
 
 	s.ID = o.ID
 	s.Category = o.Category
+	s.Domain = o.Domain
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.RestName = o.RestName
@@ -84,6 +88,7 @@ func (o *AssetRef) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID
 	o.Category = s.Category
+	o.Domain = s.Domain
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.RestName = s.RestName
@@ -203,6 +208,8 @@ func (o *AssetRef) ValueForAttribute(name string) any {
 		return o.ID
 	case "category":
 		return o.Category
+	case "domain":
+		return o.Domain
 	case "name":
 		return o.Name
 	case "namespace":
@@ -234,6 +241,16 @@ var AssetRefAttributesMap = map[string]elemental.AttributeSpecification{
 		Description:    `The category of the referenced object, if it has one.`,
 		Exposed:        true,
 		Name:           "category",
+		Stored:         true,
+		Type:           "string",
+	},
+	"Domain": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domain",
+		ConvertedName:  "Domain",
+		Description:    `The domain of the referenced object, if it is an AI domain.`,
+		Exposed:        true,
+		Name:           "domain",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -294,6 +311,16 @@ var AssetRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
+	"domain": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "domain",
+		ConvertedName:  "Domain",
+		Description:    `The domain of the referenced object, if it is an AI domain.`,
+		Exposed:        true,
+		Name:           "domain",
+		Stored:         true,
+		Type:           "string",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -331,6 +358,7 @@ var AssetRefLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 type mongoAttributesAssetRef struct {
 	ID        string `bson:"id"`
 	Category  string `bson:"category,omitempty"`
+	Domain    string `bson:"domain,omitempty"`
 	Name      string `bson:"name,omitempty"`
 	Namespace string `bson:"namespace"`
 	RestName  string `bson:"restname"`

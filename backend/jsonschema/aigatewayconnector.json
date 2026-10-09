@@ -72,6 +72,16 @@
         "null"
       ]
     },
+    "encryptedClientSecret": {
+      "$friendlyName": "Encrypted Client Secret",
+      "$readOnly": true,
+      "description": "clientSecret, encrypted using the public key named by publicKeyName. Populated only in the response of a retrieve or retrieve-many that names a publicKeyName parameter; clientSecret itself is never exposed.",
+      "title": "encryptedClientSecret",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
       "$required": true,
@@ -150,6 +160,16 @@
       },
       "title": "providerTokenPools",
       "type": "array"
+    },
+    "publicKeyName": {
+      "$friendlyName": "Public Key Name",
+      "$readOnly": true,
+      "description": "The name of the public key used to produce encryptedClientSecret, echoed back alongside it so the caller knows which of its private keys to decrypt with.",
+      "title": "publicKeyName",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "route": {
       "$friendlyName": "Route",

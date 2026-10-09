@@ -1,0 +1,53 @@
+{
+  "$extends": [],
+  "$friendlyName": "Data Sink Notifications",
+  "$friendlyNamePlural": "Data Sink Notifications",
+  "$modelName": "DataSinkNotifications",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinknotifications",
+  "$modelRestName": "datasinknotifications",
+  "additionalProperties": false,
+  "description": "The default alert resources of a data sink, created with it. They are ordinary alert definitions and notification sinks in the data sink namespace: edit them to change recipients, messages or cooldowns; the system never overwrites them.",
+  "properties": {
+    "errorAlertDefinition": {
+      "$friendlyName": "Error Alert Definition",
+      "description": "The name of the alert definition raised (Critical) when the data sink goes to Error.",
+      "title": "errorAlertDefinition",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "failingAlertDefinition": {
+      "$friendlyName": "Failing Alert Definition",
+      "description": "The name of the alert definition raised (Warning) when a run of the data sink keeps failing.",
+      "title": "failingAlertDefinition",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sink": {
+      "$friendlyName": "Sink",
+      "description": "The name of the default notification sink created with the data sink. Empty when no default notification sink was created.",
+      "title": "sink",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "$defaultValue": "NeedsRecipient",
+      "$friendlyName": "Status",
+      "description": "Configured: a default notification sink was created for the alert definitions. NeedsRecipient: the alert definitions were created without a notification sink; configure a recipient or destination and add a sink to them to be notified.",
+      "enum": [
+        "Configured",
+        "NeedsRecipient"
+      ],
+      "title": "status"
+    }
+  },
+  "required": [],
+  "title": "DataSinkNotifications",
+  "type": "object"
+}

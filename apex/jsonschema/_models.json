@@ -30,6 +30,9 @@
     "extractionsummary": {
       "$ref": "extractionsummary.json"
     },
+    "genericdetection": {
+      "$ref": "genericdetection.json"
+    },
     "latency": {
       "$ref": "latency.json"
     },
@@ -86,6 +89,9 @@
     },
     "scanresponse": {
       "$ref": "scanresponse.json"
+    },
+    "snippet": {
+      "$ref": "snippet.json"
     },
     "textualdetection": {
       "$ref": "textualdetection.json"

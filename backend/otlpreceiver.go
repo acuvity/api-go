@@ -39,6 +39,7 @@ func NewOTLPReceiver() *OTLPReceiver {
 
 	return &OTLPReceiver{
 		ModelVersion: 1,
+		Protocol:     OTLPReceiverProtocolHTTP,
 	}
 }
 func (o *OTLPReceiver) Identity() elemental.Identity {
@@ -226,6 +227,7 @@ var OTLPReceiverAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{"GRPC", "HTTP"},
 		BSONFieldName:  "protocol",
 		ConvertedName:  "Protocol",
+		DefaultValue:   OTLPReceiverProtocolHTTP,
 		Description: `Specifies the OTLP transport protocol to be used for trace data. Note that this
 depends on the OTLP receiver being used.`,
 		Exposed:  true,
@@ -253,6 +255,7 @@ var OTLPReceiverLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		AllowedChoices: []string{"GRPC", "HTTP"},
 		BSONFieldName:  "protocol",
 		ConvertedName:  "Protocol",
+		DefaultValue:   OTLPReceiverProtocolHTTP,
 		Description: `Specifies the OTLP transport protocol to be used for trace data. Note that this
 depends on the OTLP receiver being used.`,
 		Exposed:  true,

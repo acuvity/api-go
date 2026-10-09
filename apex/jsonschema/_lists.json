@@ -60,6 +60,12 @@
       },
       "type": "array"
     },
+    "genericdetections": {
+      "items": {
+        "$ref": "genericdetection.json"
+      },
+      "type": "array"
+    },
     "latencies": {
       "items": {
         "$ref": "latency.json"
@@ -171,6 +177,12 @@
     "scanresponses": {
       "items": {
         "$ref": "scanresponse.json"
+      },
+      "type": "array"
+    },
+    "snippets": {
+      "items": {
+        "$ref": "snippet.json"
       },
       "type": "array"
     },

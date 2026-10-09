@@ -1,0 +1,106 @@
+{
+  "$extends": [],
+  "$friendlyName": "Alert Data Sink Event",
+  "$friendlyNamePlural": "Alert Data Sink Events",
+  "$modelName": "AlertDataSinkEvent",
+  "$modelPackage": "avi",
+  "$modelResourceName": "alertdatasinkevents",
+  "$modelRestName": "alertdatasinkevent",
+  "additionalProperties": false,
+  "description": "A data sink event of an alert: a run of the data sink keeps failing, or the data sink went to Error. It names the data sink and the run, never a user, a destination or a credential.",
+  "properties": {
+    "attempts": {
+      "$friendlyName": "Attempts",
+      "description": "Failed attempts of the run at the event.",
+      "title": "attempts",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "backfillID": {
+      "$friendlyName": "Backfill ID",
+      "description": "The backfill of the run, for a Backfill run.",
+      "title": "backfillID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSinkID": {
+      "$friendlyName": "Data Sink ID",
+      "description": "The ID of the data sink.",
+      "title": "dataSinkID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSinkName": {
+      "$friendlyName": "Data Sink Name",
+      "description": "The name of the data sink.",
+      "title": "dataSinkName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataset": {
+      "$friendlyName": "Dataset",
+      "description": "The dataset of the run, using the same values as DataSinkRun.dataset.",
+      "enum": [
+        "AccessLogs",
+        "AgenticLogs"
+      ],
+      "title": "dataset"
+    },
+    "kind": {
+      "$friendlyName": "Kind",
+      "description": "The kind of the run, using the same values as DataSinkRun.kind.",
+      "enum": [
+        "Scheduled",
+        "Backfill"
+      ],
+      "title": "kind"
+    },
+    "reason": {
+      "$friendlyName": "Reason",
+      "description": "The sanitized error of the run.",
+      "title": "reason",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "runID": {
+      "$friendlyName": "Run ID",
+      "description": "The ID of the DataSinkRun.",
+      "title": "runID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "timestamp": {
+      "$friendlyName": "Timestamp",
+      "description": "When the event happened.",
+      "title": "timestamp",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "transition": {
+      "$friendlyName": "Transition",
+      "description": "Failing (a run keeps failing) or Error (the data sink went to Error).",
+      "enum": [
+        "Failing",
+        "Error"
+      ],
+      "title": "transition"
+    }
+  },
+  "required": [],
+  "title": "AlertDataSinkEvent",
+  "type": "object"
+}

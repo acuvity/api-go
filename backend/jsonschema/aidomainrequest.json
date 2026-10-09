@@ -1,0 +1,70 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "AI Domain Request",
+  "$friendlyNamePlural": "AI Domain Requests",
+  "$modelName": "AIDomainRequest",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "aidomainrequests",
+  "$modelRestName": "aidomainrequest",
+  "additionalProperties": false,
+  "description": "A request for a risk report on a domain the AI domain catalog does not have. A namespace holds one request per domain.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "domain": {
+      "$creationOnly": true,
+      "$friendlyName": "Domain",
+      "$required": true,
+      "description": "The domain a risk report is requested for, as returned by aidomainlookup. It is stored as given, in lower case.",
+      "title": "domain",
+      "type": "string"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "domain"
+  ],
+  "title": "AIDomainRequest",
+  "type": "object"
+}

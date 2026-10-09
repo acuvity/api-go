@@ -1,0 +1,56 @@
+{
+  "$extends": [],
+  "$friendlyName": "Policy Simulation Tool",
+  "$friendlyNamePlural": "Policy Simulation Tools",
+  "$modelName": "PolicySimulationTool",
+  "$modelPackage": "okite",
+  "$modelResourceName": "policysimulationtools",
+  "$modelRestName": "policysimulationtool",
+  "additionalProperties": false,
+  "description": "The result of a policy simulation for one tool of an MCP server.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the tool.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "The policies that allowed or denied the tool.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
+    },
+    "reason": {
+      "$defaultValue": "NotEvaluated",
+      "$friendlyName": "Reason",
+      "description": "Why the tool is visible or hidden. NotEvaluated means the reason was not computed.",
+      "enum": [
+        "NotEvaluated",
+        "Allowed",
+        "DeniedByPolicy",
+        "NoAllowPolicy",
+        "ServerDenied"
+      ],
+      "title": "reason"
+    },
+    "visible": {
+      "$friendlyName": "Visible",
+      "description": "Whether the tool is returned in the tools/list response.",
+      "title": "visible",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "PolicySimulationTool",
+  "type": "object"
+}

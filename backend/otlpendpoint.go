@@ -54,6 +54,7 @@ func NewOTLPEndpoint() *OTLPEndpoint {
 	return &OTLPEndpoint{
 		ModelVersion: 1,
 		Headers:      map[string]string{},
+		Protocol:     OTLPEndpointProtocolHTTPProtobuf,
 		Timeout:      10000,
 	}
 }
@@ -281,6 +282,7 @@ ends with v1/traces when using OTLP/HTTP.`,
 		AllowedChoices: []string{"GRPC", "HTTPProtobuf", "HTTPJSON"},
 		BSONFieldName:  "protocol",
 		ConvertedName:  "Protocol",
+		DefaultValue:   OTLPEndpointProtocolHTTPProtobuf,
 		Description: `Specifies the OTLP transport protocol to be used for trace data. Note that this
 depends on the OTLP receiver being used.`,
 		Exposed:  true,
@@ -344,6 +346,7 @@ ends with v1/traces when using OTLP/HTTP.`,
 		AllowedChoices: []string{"GRPC", "HTTPProtobuf", "HTTPJSON"},
 		BSONFieldName:  "protocol",
 		ConvertedName:  "Protocol",
+		DefaultValue:   OTLPEndpointProtocolHTTPProtobuf,
 		Description: `Specifies the OTLP transport protocol to be used for trace data. Note that this
 depends on the OTLP receiver being used.`,
 		Exposed:  true,

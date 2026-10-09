@@ -36,10 +36,10 @@
         "null"
       ]
     },
-    "clientSecret": {
-      "$friendlyName": "Client Secret",
-      "description": "Upstream OAuth client secret.",
-      "title": "clientSecret",
+    "encryptedClientSecret": {
+      "$friendlyName": "Encrypted Client Secret",
+      "description": "Upstream OAuth client secret, encrypted using the key referenced by publicKeyName.",
+      "title": "encryptedClientSecret",
       "type": [
         "string",
         "null"
@@ -101,6 +101,15 @@
       },
       "title": "providerTokens",
       "type": "array"
+    },
+    "publicKeyName": {
+      "$friendlyName": "Public Key Name",
+      "description": "The name of the public key used to encrypt encryptedClientSecret.",
+      "title": "publicKeyName",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "route": {
       "$friendlyName": "Route",

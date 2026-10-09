@@ -5,7 +5,8 @@
     "@timed",
     "@importable",
     "@auto-propagated",
-    "@providerbase"
+    "@providerbase",
+    "@namelinkable"
   ],
   "$friendlyName": "Provider",
   "$friendlyNamePlural": "Providers",
@@ -34,6 +35,12 @@
         "string",
         "null"
       ]
+    },
+    "capabilities": {
+      "$friendlyName": "Capabilities",
+      "$ref": "providercapabilities.json",
+      "description": "Detection capabilities supported by the provider.",
+      "title": "capabilities"
     },
     "category": {
       "$friendlyName": "Category",
@@ -103,7 +110,7 @@
     "friendlyName": {
       "$friendlyName": "Friendly Name",
       "$required": true,
-      "description": "Friendly Name of the provider.",
+      "description": "Friendly name of the object.",
       "title": "friendlyName",
       "type": "string"
     },
@@ -197,11 +204,15 @@
       "type": "array"
     },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
-      "$required": true,
-      "description": "Name of the provider.",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
       "title": "name",
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "namespace": {
       "$friendlyName": "Namespace",
@@ -321,7 +332,6 @@
   "required": [
     "category",
     "friendlyName",
-    "name",
     "status"
   ],
   "title": "Provider",

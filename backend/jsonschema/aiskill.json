@@ -113,6 +113,18 @@
         "null"
       ]
     },
+    "locations": {
+      "$friendlyName": "Locations",
+      "description": "The provenance classes (bundled, system, user or workspace) this skill was discovered at, merged across submissions and used as a trust signal.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "locations",
+      "type": "array"
+    },
     "name": {
       "$friendlyName": "Name",
       "$required": true,

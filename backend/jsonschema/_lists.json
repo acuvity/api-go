@@ -96,6 +96,18 @@
       },
       "type": "array"
     },
+    "aidomainlookups": {
+      "items": {
+        "$ref": "aidomainlookup.json"
+      },
+      "type": "array"
+    },
+    "aidomainrequests": {
+      "items": {
+        "$ref": "aidomainrequest.json"
+      },
+      "type": "array"
+    },
     "aidomains": {
       "items": {
         "$ref": "aidomain.json"
@@ -264,6 +276,12 @@
       },
       "type": "array"
     },
+    "alertdatasinkevents": {
+      "items": {
+        "$ref": "alertdatasinkevent.json"
+      },
+      "type": "array"
+    },
     "alertdefinitions": {
       "items": {
         "$ref": "alertdefinition.json"
@@ -288,9 +306,21 @@
       },
       "type": "array"
     },
-    "analysis": {
+    "analyses": {
       "items": {
         "$ref": "analysis.json"
+      },
+      "type": "array"
+    },
+    "analysisgraphs": {
+      "items": {
+        "$ref": "analysisgraph.json"
+      },
+      "type": "array"
+    },
+    "analysisresults": {
+      "items": {
+        "$ref": "analysisresult.json"
       },
       "type": "array"
     },
@@ -510,6 +540,54 @@
       },
       "type": "array"
     },
+    "datasinkaccesslogs": {
+      "items": {
+        "$ref": "datasinkaccesslogs.json"
+      },
+      "type": "array"
+    },
+    "datasinkagenticlogs": {
+      "items": {
+        "$ref": "datasinkagenticlogs.json"
+      },
+      "type": "array"
+    },
+    "datasinkbackfills": {
+      "items": {
+        "$ref": "datasinkbackfill.json"
+      },
+      "type": "array"
+    },
+    "datasinkchecks": {
+      "items": {
+        "$ref": "datasinkcheck.json"
+      },
+      "type": "array"
+    },
+    "datasinknotifications": {
+      "items": {
+        "$ref": "datasinknotifications.json"
+      },
+      "type": "array"
+    },
+    "datasinkruns": {
+      "items": {
+        "$ref": "datasinkrun.json"
+      },
+      "type": "array"
+    },
+    "datasinks": {
+      "items": {
+        "$ref": "datasink.json"
+      },
+      "type": "array"
+    },
+    "datasinks3": {
+      "items": {
+        "$ref": "datasinks3.json"
+      },
+      "type": "array"
+    },
     "deploymentinstances": {
       "items": {
         "$ref": "deploymentinstance.json"
@@ -654,6 +732,12 @@
       },
       "type": "array"
     },
+    "genericdetections": {
+      "items": {
+        "$ref": "genericdetection.json"
+      },
+      "type": "array"
+    },
     "gitbooktokens": {
       "items": {
         "$ref": "gitbooktoken.json"
@@ -723,6 +807,12 @@
     "ipsets": {
       "items": {
         "$ref": "ipset.json"
+      },
+      "type": "array"
+    },
+    "k8snamespacemappings": {
+      "items": {
+        "$ref": "k8snamespacemapping.json"
       },
       "type": "array"
     },
@@ -984,6 +1074,24 @@
       },
       "type": "array"
     },
+    "policysimulationoutputs": {
+      "items": {
+        "$ref": "policysimulationoutput.json"
+      },
+      "type": "array"
+    },
+    "policysimulations": {
+      "items": {
+        "$ref": "policysimulation.json"
+      },
+      "type": "array"
+    },
+    "policysimulationtools": {
+      "items": {
+        "$ref": "policysimulationtool.json"
+      },
+      "type": "array"
+    },
     "policyupdates": {
       "items": {
         "$ref": "policyupdate.json"
@@ -1023,6 +1131,12 @@
     "projects": {
       "items": {
         "$ref": "project.json"
+      },
+      "type": "array"
+    },
+    "providercapabilities": {
+      "items": {
+        "$ref": "providercapabilities.json"
       },
       "type": "array"
     },
@@ -1107,6 +1221,12 @@
     "regions": {
       "items": {
         "$ref": "region.json"
+      },
+      "type": "array"
+    },
+    "regobaselibs": {
+      "items": {
+        "$ref": "regobaselibs.json"
       },
       "type": "array"
     },
@@ -1269,6 +1389,12 @@
     "slugs": {
       "items": {
         "$ref": "slug.json"
+      },
+      "type": "array"
+    },
+    "snippets": {
+      "items": {
+        "$ref": "snippet.json"
       },
       "type": "array"
     },

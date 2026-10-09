@@ -1,0 +1,131 @@
+{
+  "$extends": [
+    "@policytransportmode"
+  ],
+  "$friendlyName": "Policy Simulation",
+  "$friendlyNamePlural": "Policy Simulations",
+  "$modelName": "PolicySimulation",
+  "$modelPackage": "okite",
+  "$modelResourceName": "policysimulations",
+  "$modelRestName": "policysimulation",
+  "additionalProperties": false,
+  "description": "Evaluates the current policies for a principal and a provider without sending any traffic. It returns whether the principal can reach the provider, the policies that decided it and, for an MCP server, which of its tools the principal would see. Nothing is stored and no log is written.",
+  "properties": {
+    "claims": {
+      "$friendlyName": "Claims",
+      "description": "The claims of the user to simulate, in the form key=value. Used when principalType is User.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "claims",
+      "type": "array"
+    },
+    "destinationAppComponent": {
+      "$friendlyName": "Destination App Component",
+      "description": "The app component to reach when it acts as the provider, in the form project:app/component, where the project: part is optional. Exactly one of provider and destinationAppComponent must be set.",
+      "title": "destinationAppComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "direction": {
+      "$defaultValue": "Egress",
+      "$friendlyName": "Direction",
+      "description": "Which policies of the app component to evaluate. Egress evaluates the policies for calls the component makes, and Ingress the policies for calls the component receives. Used when principalType is App.",
+      "enum": [
+        "Egress",
+        "Ingress"
+      ],
+      "title": "direction"
+    },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "description": "The name of the gateway the request goes through. Required when transportMode is Gateway.",
+      "title": "gatewayName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "output": {
+      "$friendlyName": "Output",
+      "$readOnly": true,
+      "$ref": "policysimulationoutput.json",
+      "description": "The result of the simulation, filled in by the server.",
+      "title": "output"
+    },
+    "principalType": {
+      "$defaultValue": "User",
+      "$friendlyName": "Principal Type",
+      "description": "The kind of principal to simulate. User uses claims, Team uses teams directly, and App uses sourceAppComponent and the optional userClaims.",
+      "enum": [
+        "User",
+        "Team",
+        "App"
+      ],
+      "title": "principalType"
+    },
+    "provider": {
+      "$friendlyName": "Provider",
+      "description": "The name of the provider to reach. Exactly one of provider and destinationAppComponent must be set.",
+      "title": "provider",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sourceAppComponent": {
+      "$friendlyName": "Source App Component",
+      "description": "The app component making the request, in the form project:app/component, where the project: part is optional. Required when principalType is App.",
+      "title": "sourceAppComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "teams": {
+      "$friendlyName": "Teams",
+      "description": "The teams to simulate. Required when principalType is Team.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "teams",
+      "type": "array"
+    },
+    "transportMode": {
+      "$defaultValue": "Proxy",
+      "$friendlyName": "Transport Mode",
+      "$required": true,
+      "description": "Specify if this policy applies to transparent proxy or gateway.",
+      "enum": [
+        "Proxy",
+        "Gateway"
+      ],
+      "title": "transportMode"
+    },
+    "userClaims": {
+      "$friendlyName": "User Claims",
+      "description": "The claims of the user behind the app component call, in the form key=value. Used when principalType is App.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "userClaims",
+      "type": "array"
+    }
+  },
+  "required": [
+    "transportMode"
+  ],
+  "title": "PolicySimulation",
+  "type": "object"
+}

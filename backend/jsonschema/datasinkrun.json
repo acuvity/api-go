@@ -1,0 +1,247 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Data Sink Run",
+  "$friendlyNamePlural": "Data Sink Runs",
+  "$modelName": "DataSinkRun",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkruns",
+  "$modelRestName": "datasinkrun",
+  "additionalProperties": false,
+  "description": "One export run of one dataset of a data sink, scheduled or part of a backfill, over a range of event time: the export history. Customers read it; only the export service writes it. Retries keep the run ID and range. A failed run can adopt corrected configuration and restart the range, updating its configuration versions and resetting execution progress.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "attempts": {
+      "$friendlyName": "Attempts",
+      "description": "The number of failed attempts so far.",
+      "title": "attempts",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "backfillID": {
+      "$creationOnly": true,
+      "$friendlyName": "Backfill ID",
+      "description": "The backfill of the run, for a Backfill run.",
+      "title": "backfillID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "bytesWritten": {
+      "$friendlyName": "Bytes Written",
+      "description": "Bytes written to the destination for the current configuration execution. May reset when the run restarts with corrected configuration.",
+      "title": "bytesWritten",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSinkID": {
+      "$creationOnly": true,
+      "$friendlyName": "Data Sink ID",
+      "$required": true,
+      "description": "The ID of the data sink.",
+      "title": "dataSinkID",
+      "type": "string"
+    },
+    "dataset": {
+      "$creationOnly": true,
+      "$friendlyName": "Dataset",
+      "$required": true,
+      "description": "The dataset exported: AccessLogs corresponds to access_logs, and AgenticLogs to agentic_logs in the customer output.",
+      "enum": [
+        "AccessLogs",
+        "AgenticLogs"
+      ],
+      "title": "dataset"
+    },
+    "definitionVersion": {
+      "$friendlyName": "Definition Version",
+      "description": "The version of the dataset definition the run uses. The export service may update it when restarting a failed run with corrected configuration.",
+      "title": "definitionVersion",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "endTime": {
+      "$friendlyName": "End Time",
+      "description": "When the run stopped or succeeded. Cleared when execution resumes.",
+      "title": "endTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "description": "The last error, sanitized by the export service before validation.",
+      "maxLength": 4096,
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "filesWritten": {
+      "$friendlyName": "Files Written",
+      "description": "Files written to the destination for the current configuration execution. May reset when the run restarts with corrected configuration.",
+      "title": "filesWritten",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "kind": {
+      "$creationOnly": true,
+      "$defaultValue": "Scheduled",
+      "$friendlyName": "Kind",
+      "$required": true,
+      "description": "Whether the run is a scheduled export or part of a backfill.",
+      "enum": [
+        "Scheduled",
+        "Backfill"
+      ],
+      "title": "kind"
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "rangeEnd": {
+      "$creationOnly": true,
+      "$friendlyName": "Range End",
+      "$required": true,
+      "description": "The end of the exported range in event time, UTC, exclusive.",
+      "title": "rangeEnd",
+      "type": "string"
+    },
+    "rangeStart": {
+      "$creationOnly": true,
+      "$friendlyName": "Range Start",
+      "$required": true,
+      "description": "The start of the exported range in event time, UTC, inclusive.",
+      "title": "rangeStart",
+      "type": "string"
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "description": "The data sink revision the run uses. The export service may update it when restarting a failed run with corrected configuration.",
+      "title": "revision",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "rowsDropped": {
+      "$friendlyName": "Rows Dropped",
+      "description": "Rows read but not exported for the current configuration execution, such as rows the data sink filters exclude. May reset on a configuration-changing restart.",
+      "title": "rowsDropped",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "rowsRead": {
+      "$friendlyName": "Rows Read",
+      "description": "Rows read from the logs for the current configuration execution. May reset when the run restarts with corrected configuration.",
+      "title": "rowsRead",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "rowsWritten": {
+      "$friendlyName": "Rows Written",
+      "description": "Rows written to the destination for the current configuration execution. May reset when the run restarts with corrected configuration.",
+      "title": "rowsWritten",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "runID": {
+      "$creationOnly": true,
+      "$friendlyName": "Run ID",
+      "$required": true,
+      "description": "The run identifier, chosen by the export service. Unique: creating a run with an existing ID returns that run.",
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9._-]+$",
+      "title": "runID",
+      "type": "string"
+    },
+    "startTime": {
+      "$creationOnly": true,
+      "$friendlyName": "Start Time",
+      "$required": true,
+      "description": "When the run first started. Preserved across retries and restarts.",
+      "title": "startTime",
+      "type": "string"
+    },
+    "status": {
+      "$defaultValue": "Running",
+      "$friendlyName": "Status",
+      "description": "Running, Failing (attempts keep failing), Failed (failing for 24 hours; the data sink goes to Error), or Succeeded. Failing and Failed runs can retry and later succeed. Corrected configuration can restart the same run and range with updated versions and reset execution progress. Only Succeeded is terminal.",
+      "enum": [
+        "Running",
+        "Failing",
+        "Failed",
+        "Succeeded"
+      ],
+      "title": "status"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "dataSinkID",
+    "dataset",
+    "kind",
+    "rangeEnd",
+    "rangeStart",
+    "runID",
+    "startTime"
+  ],
+  "title": "DataSinkRun",
+  "type": "object"
+}

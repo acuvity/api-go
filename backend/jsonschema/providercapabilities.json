@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Provider Capabilities",
+  "$friendlyNamePlural": "Provider Capabilities",
+  "$modelName": "ProviderCapabilities",
+  "$modelPackage": "tonya",
+  "$modelResourceName": "providercapabilities",
+  "$modelRestName": "providercapabilities",
+  "additionalProperties": false,
+  "description": "Detection capabilities supported by a provider.",
+  "properties": {
+    "emailDomain": {
+      "$friendlyName": "Email Domain",
+      "description": "Whether the provider can determine the user's email domain.",
+      "title": "emailDomain",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "file": {
+      "$friendlyName": "File",
+      "description": "Whether the provider can extract files submitted to an AI workflow.",
+      "title": "file",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "model": {
+      "$friendlyName": "Model",
+      "description": "Whether the provider can determine the model used for a request.",
+      "title": "model",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "tier": {
+      "$friendlyName": "Tier",
+      "description": "Whether the provider can determine the user's subscription tier.",
+      "title": "tier",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "workspace": {
+      "$friendlyName": "Workspace",
+      "description": "Whether the provider can determine the provider workspace.",
+      "title": "workspace",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ProviderCapabilities",
+  "type": "object"
+}

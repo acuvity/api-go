@@ -124,6 +124,9 @@ type Provider struct {
 	// The MCP endpoint URL for MCP server providers.
 	MCPURL string `json:"MCPURL,omitempty" msgpack:"MCPURL,omitempty" bson:"mcpurl,omitempty" mapstructure:"MCPURL,omitempty"`
 
+	// Detection capabilities supported by the provider.
+	Capabilities *ProviderCapabilities `json:"capabilities,omitempty" msgpack:"capabilities,omitempty" bson:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
 	// The category of the provider.
 	Category ProviderCategoryValue `json:"category" msgpack:"category" bson:"category" mapstructure:"category,omitempty"`
 
@@ -146,7 +149,7 @@ type Provider struct {
 	// List of extractors for the provider.
 	Extractors []*ExtractorRef `json:"extractors" msgpack:"extractors" bson:"extractors" mapstructure:"extractors,omitempty"`
 
-	// Friendly Name of the provider.
+	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
 	// Hosts supported by the providers.
@@ -192,7 +195,8 @@ type Provider struct {
 	// the same model, in which case the most specific pattern wins.
 	Models []string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
 
-	// Name of the provider.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -293,6 +297,7 @@ func (o *Provider) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.MCPURL = o.MCPURL
+	s.Capabilities = o.Capabilities
 	s.Category = o.Category
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -344,6 +349,7 @@ func (o *Provider) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.MCPURL = s.MCPURL
+	o.Capabilities = s.Capabilities
 	o.Category = s.Category
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -423,6 +429,18 @@ func (o *Provider) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *Provider) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *Provider) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *Provider) GetImportHash() string {
 
@@ -445,6 +463,18 @@ func (o *Provider) GetImportLabel() string {
 func (o *Provider) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *Provider) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *Provider) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -492,6 +522,7 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseProvider{
 			ID:                   &o.ID,
 			MCPURL:               &o.MCPURL,
+			Capabilities:         o.Capabilities,
 			Category:             &o.Category,
 			CreateTime:           &o.CreateTime,
 			Description:          &o.Description,
@@ -534,6 +565,8 @@ func (o *Provider) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "MCPURL":
 			sp.MCPURL = &(o.MCPURL)
+		case "capabilities":
+			sp.Capabilities = o.Capabilities
 		case "category":
 			sp.Category = &(o.Category)
 		case "createTime":
@@ -616,6 +649,9 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.MCPURL != nil {
 		o.MCPURL = *so.MCPURL
+	}
+	if so.Capabilities != nil {
+		o.Capabilities = so.Capabilities
 	}
 	if so.Category != nil {
 		o.Category = *so.Category
@@ -718,6 +754,12 @@ func (o *Provider) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Provider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Capabilities != nil {
+		if err := o.Capabilities.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Capabilities' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
@@ -774,6 +816,12 @@ func (o *Provider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Provider) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Capabilities != nil {
+		if err := o.Capabilities.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Capabilities' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.DecryptAttributes(encrypter); err != nil {
@@ -868,6 +916,13 @@ func (o *Provider) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if o.Capabilities != nil {
+		if err := o.Capabilities.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "capabilities")
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("category", string(o.Category)); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -895,6 +950,13 @@ func (o *Provider) Validate() error {
 
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
 	}
 
 	for i, sub := range o.Hosts {
@@ -927,8 +989,8 @@ func (o *Provider) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if err := ValidateURL("officialStatusURL", o.OfficialStatusURL); err != nil {
@@ -1011,6 +1073,8 @@ func (o *Provider) ValueForAttribute(name string) any {
 		return o.ID
 	case "MCPURL":
 		return o.MCPURL
+	case "capabilities":
+		return o.Capabilities
 	case "category":
 		return o.Category
 	case "createTime":
@@ -1107,6 +1171,17 @@ var ProviderAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description:    `Detection capabilities supported by the provider.`,
+		Exposed:        true,
+		Name:           "capabilities",
+		Stored:         true,
+		SubType:        "providercapabilities",
+		Type:           "ref",
+	},
 	"Category": {
 		AllowedChoices: []string{"User", "App"},
 		BSONFieldName:  "category",
@@ -1192,10 +1267,12 @@ PAC Config to make it usable from the proxy.pac.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly Name of the provider.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1318,15 +1395,19 @@ the same model, in which case the most specific pattern wins.`,
 		Type:    "list",
 	},
 	"Name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `Name of the provider.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -1500,6 +1581,17 @@ var ProviderLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Stored:         true,
 		Type:           "string",
 	},
+	"capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description:    `Detection capabilities supported by the provider.`,
+		Exposed:        true,
+		Name:           "capabilities",
+		Stored:         true,
+		SubType:        "providercapabilities",
+		Type:           "ref",
+	},
 	"category": {
 		AllowedChoices: []string{"User", "App"},
 		BSONFieldName:  "category",
@@ -1585,10 +1677,12 @@ PAC Config to make it usable from the proxy.pac.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
 		ConvertedName:  "FriendlyName",
-		Description:    `Friendly Name of the provider.`,
+		Description:    `Friendly name of the object.`,
 		Exposed:        true,
+		Getter:         true,
 		Name:           "friendlyName",
 		Required:       true,
+		Setter:         true,
 		Stored:         true,
 		Type:           "string",
 	},
@@ -1711,15 +1805,19 @@ the same model, in which case the most specific pattern wins.`,
 		Type:    "list",
 	},
 	"name": {
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `Name of the provider.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -1935,6 +2033,9 @@ type SparseProvider struct {
 	// The MCP endpoint URL for MCP server providers.
 	MCPURL *string `json:"MCPURL,omitempty" msgpack:"MCPURL,omitempty" bson:"mcpurl,omitempty" mapstructure:"MCPURL,omitempty"`
 
+	// Detection capabilities supported by the provider.
+	Capabilities *ProviderCapabilities `json:"capabilities,omitempty" msgpack:"capabilities,omitempty" bson:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
 	// The category of the provider.
 	Category *ProviderCategoryValue `json:"category,omitempty" msgpack:"category,omitempty" bson:"category,omitempty" mapstructure:"category,omitempty"`
 
@@ -1957,7 +2058,7 @@ type SparseProvider struct {
 	// List of extractors for the provider.
 	Extractors *[]*ExtractorRef `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"extractors,omitempty" mapstructure:"extractors,omitempty"`
 
-	// Friendly Name of the provider.
+	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
 	// Hosts supported by the providers.
@@ -2003,7 +2104,8 @@ type SparseProvider struct {
 	// the same model, in which case the most specific pattern wins.
 	Models *[]string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
 
-	// Name of the provider.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -2102,6 +2204,9 @@ func (o *SparseProvider) GetBSON() (any, error) {
 	}
 	if o.MCPURL != nil {
 		s.MCPURL = o.MCPURL
+	}
+	if o.Capabilities != nil {
+		s.Capabilities = o.Capabilities
 	}
 	if o.Category != nil {
 		s.Category = o.Category
@@ -2221,6 +2326,9 @@ func (o *SparseProvider) SetBSON(raw bson.Raw) error {
 	if s.MCPURL != nil {
 		o.MCPURL = s.MCPURL
 	}
+	if s.Capabilities != nil {
+		o.Capabilities = s.Capabilities
+	}
 	if s.Category != nil {
 		o.Category = s.Category
 	}
@@ -2337,6 +2445,9 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 	if o.MCPURL != nil {
 		out.MCPURL = *o.MCPURL
 	}
+	if o.Capabilities != nil {
+		out.Capabilities = o.Capabilities
+	}
 	if o.Category != nil {
 		out.Category = *o.Category
 	}
@@ -2440,6 +2551,12 @@ func (o *SparseProvider) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseProvider) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Capabilities != nil {
+		if err := o.Capabilities.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Capabilities' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'ErrorTransformer' for 'Provider' (%s): %w", o.Identifier(), err)
@@ -2506,6 +2623,12 @@ func (o *SparseProvider) EncryptAttributes(encrypter elemental.AttributeEncrypte
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseProvider) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Capabilities != nil {
+		if err := o.Capabilities.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Capabilities' for 'Provider' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.DecryptAttributes(encrypter); err != nil {
@@ -2587,6 +2710,22 @@ func (o *SparseProvider) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseProvider) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseProvider) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseProvider) GetImportHash() (out string) {
 
@@ -2617,6 +2756,22 @@ func (o *SparseProvider) GetImportLabel() (out string) {
 func (o *SparseProvider) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseProvider) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseProvider) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -2694,6 +2849,7 @@ func (o *SparseProvider) DeepCopyInto(out *SparseProvider) {
 type mongoAttributesProvider struct {
 	ID                   bson.ObjectId             `bson:"_id,omitempty"`
 	MCPURL               string                    `bson:"mcpurl,omitempty"`
+	Capabilities         *ProviderCapabilities     `bson:"capabilities,omitempty"`
 	Category             ProviderCategoryValue     `bson:"category"`
 	CreateTime           time.Time                 `bson:"createtime"`
 	Description          string                    `bson:"description"`
@@ -2730,6 +2886,7 @@ type mongoAttributesProvider struct {
 type mongoAttributesSparseProvider struct {
 	ID                   bson.ObjectId              `bson:"_id,omitempty"`
 	MCPURL               *string                    `bson:"mcpurl,omitempty"`
+	Capabilities         *ProviderCapabilities      `bson:"capabilities,omitempty"`
 	Category             *ProviderCategoryValue     `bson:"category,omitempty"`
 	CreateTime           *time.Time                 `bson:"createtime,omitempty"`
 	Description          *string                    `bson:"description,omitempty"`

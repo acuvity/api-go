@@ -142,6 +142,9 @@ type AccessPolicy struct {
 	// and continue to be enforced. Default false.
 	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
 
+	// Friendly name of the object.
+	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -159,7 +162,8 @@ type AccessPolicy struct {
 	// violations.
 	MinimalLogging bool `json:"minimalLogging" msgpack:"minimalLogging" bson:"minimallogging" mapstructure:"minimalLogging,omitempty"`
 
-	// The name of the access policy.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -273,6 +277,7 @@ func (o *AccessPolicy) GetBSON() (any, error) {
 	s.Description = o.Description
 	s.Disabled = o.Disabled
 	s.FailClose = o.FailClose
+	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Match = o.Match
@@ -316,6 +321,7 @@ func (o *AccessPolicy) SetBSON(raw bson.Raw) error {
 	o.Description = s.Description
 	o.Disabled = s.Disabled
 	o.FailClose = s.FailClose
+	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Match = s.Match
@@ -381,6 +387,18 @@ func (o *AccessPolicy) SetCreateTime(createTime time.Time) {
 	o.CreateTime = createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *AccessPolicy) GetFriendlyName() string {
+
+	return o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the given value.
+func (o *AccessPolicy) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *AccessPolicy) GetImportHash() string {
 
@@ -403,6 +421,18 @@ func (o *AccessPolicy) GetImportLabel() string {
 func (o *AccessPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *AccessPolicy) GetName() string {
+
+	return o.Name
+}
+
+// SetName sets the property Name of the receiver using the given value.
+func (o *AccessPolicy) SetName(name string) {
+
+	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -445,6 +475,7 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Description:         &o.Description,
 			Disabled:            &o.Disabled,
 			FailClose:           &o.FailClose,
+			FriendlyName:        &o.FriendlyName,
 			ImportHash:          &o.ImportHash,
 			ImportLabel:         &o.ImportLabel,
 			Match:               &o.Match,
@@ -486,6 +517,8 @@ func (o *AccessPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Disabled = &(o.Disabled)
 		case "failClose":
 			sp.FailClose = &(o.FailClose)
+		case "friendlyName":
+			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
@@ -559,6 +592,9 @@ func (o *AccessPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.FailClose != nil {
 		o.FailClose = *so.FailClose
+	}
+	if so.FriendlyName != nil {
+		o.FriendlyName = *so.FriendlyName
 	}
 	if so.ImportHash != nil {
 		o.ImportHash = *so.ImportHash
@@ -679,6 +715,17 @@ func (o *AccessPolicy) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if err := ValidateFriendlyName("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+	if err := ValidateTrimmed("friendlyName", o.FriendlyName); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for i, sub := range o.Match {
 		if sub == nil {
 			continue
@@ -689,15 +736,7 @@ func (o *AccessPolicy) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
-	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_/@. ]+$`, `must only contain alpha numerical characters, '-', '_', '@', '.' or space.`, true); err != nil {
-		errors = errors.Append(err)
-	}
-
-	if err := ValidateTrimmed("name", o.Name); err != nil {
+	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -773,6 +812,8 @@ func (o *AccessPolicy) ValueForAttribute(name string) any {
 		return o.Disabled
 	case "failClose":
 		return o.FailClose
+	case "friendlyName":
+		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
@@ -921,6 +962,19 @@ and continue to be enforced. Default false.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"FriendlyName": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"ImportHash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -976,16 +1030,19 @@ violations.`,
 		Type:    "boolean",
 	},
 	"Name": {
-		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the access policy.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"Namespace": {
 		AllowedChoices: []string{},
@@ -1232,6 +1289,19 @@ and continue to be enforced. Default false.`,
 		Stored:  true,
 		Type:    "boolean",
 	},
+	"friendlyname": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "friendlyname",
+		ConvertedName:  "FriendlyName",
+		Description:    `Friendly name of the object.`,
+		Exposed:        true,
+		Getter:         true,
+		Name:           "friendlyName",
+		Required:       true,
+		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
 	"importhash": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1287,16 +1357,19 @@ violations.`,
 		Type:    "boolean",
 	},
 	"name": {
-		AllowedChars:   `^[a-zA-Z0-9-_/@. ]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
-		Description:    `The name of the access policy.`,
-		Exposed:        true,
-		Name:           "name",
-		Required:       true,
-		Stored:         true,
-		Type:           "string",
+		CreationOnly:   true,
+		Description: `The internal reference name of the object. It is a sanitized version of Friendly
+Name if empty.`,
+		Exposed: true,
+		Getter:  true,
+		Name:    "name",
+		Setter:  true,
+		Stored:  true,
+		Type:    "string",
 	},
 	"namespace": {
 		AllowedChoices: []string{},
@@ -1529,6 +1602,9 @@ type SparseAccessPolicy struct {
 	// and continue to be enforced. Default false.
 	FailClose *bool `json:"failClose,omitempty" msgpack:"failClose,omitempty" bson:"failclose,omitempty" mapstructure:"failClose,omitempty"`
 
+	// Friendly name of the object.
+	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
+
 	// The hash of the structure used to compare with new import version.
 	ImportHash *string `json:"importHash,omitempty" msgpack:"importHash,omitempty" bson:"importhash,omitempty" mapstructure:"importHash,omitempty"`
 
@@ -1546,7 +1622,8 @@ type SparseAccessPolicy struct {
 	// violations.
 	MinimalLogging *bool `json:"minimalLogging,omitempty" msgpack:"minimalLogging,omitempty" bson:"minimallogging,omitempty" mapstructure:"minimalLogging,omitempty"`
 
-	// The name of the access policy.
+	// The internal reference name of the object. It is a sanitized version of Friendly
+	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
 	// The namespace of the object.
@@ -1677,6 +1754,9 @@ func (o *SparseAccessPolicy) GetBSON() (any, error) {
 	if o.FailClose != nil {
 		s.FailClose = o.FailClose
 	}
+	if o.FriendlyName != nil {
+		s.FriendlyName = o.FriendlyName
+	}
 	if o.ImportHash != nil {
 		s.ImportHash = o.ImportHash
 	}
@@ -1771,6 +1851,9 @@ func (o *SparseAccessPolicy) SetBSON(raw bson.Raw) error {
 	if s.FailClose != nil {
 		o.FailClose = s.FailClose
 	}
+	if s.FriendlyName != nil {
+		o.FriendlyName = s.FriendlyName
+	}
 	if s.ImportHash != nil {
 		o.ImportHash = s.ImportHash
 	}
@@ -1862,6 +1945,9 @@ func (o *SparseAccessPolicy) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.FailClose != nil {
 		out.FailClose = *o.FailClose
+	}
+	if o.FriendlyName != nil {
+		out.FriendlyName = *o.FriendlyName
 	}
 	if o.ImportHash != nil {
 		out.ImportHash = *o.ImportHash
@@ -1968,6 +2054,22 @@ func (o *SparseAccessPolicy) SetCreateTime(createTime time.Time) {
 	o.CreateTime = &createTime
 }
 
+// GetFriendlyName returns the FriendlyName of the receiver.
+func (o *SparseAccessPolicy) GetFriendlyName() (out string) {
+
+	if o.FriendlyName == nil {
+		return
+	}
+
+	return *o.FriendlyName
+}
+
+// SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
+func (o *SparseAccessPolicy) SetFriendlyName(friendlyName string) {
+
+	o.FriendlyName = &friendlyName
+}
+
 // GetImportHash returns the ImportHash of the receiver.
 func (o *SparseAccessPolicy) GetImportHash() (out string) {
 
@@ -1998,6 +2100,22 @@ func (o *SparseAccessPolicy) GetImportLabel() (out string) {
 func (o *SparseAccessPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
+}
+
+// GetName returns the Name of the receiver.
+func (o *SparseAccessPolicy) GetName() (out string) {
+
+	if o.Name == nil {
+		return
+	}
+
+	return *o.Name
+}
+
+// SetName sets the property Name of the receiver using the address of the given value.
+func (o *SparseAccessPolicy) SetName(name string) {
+
+	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
@@ -2066,6 +2184,7 @@ type mongoAttributesAccessPolicy struct {
 	Description         string                         `bson:"description"`
 	Disabled            bool                           `bson:"disabled"`
 	FailClose           bool                           `bson:"failclose"`
+	FriendlyName        string                         `bson:"friendlyname"`
 	ImportHash          string                         `bson:"importhash,omitempty"`
 	ImportLabel         string                         `bson:"importlabel,omitempty"`
 	Match               []*Predicate                   `bson:"match"`
@@ -2094,6 +2213,7 @@ type mongoAttributesSparseAccessPolicy struct {
 	Description         *string                         `bson:"description,omitempty"`
 	Disabled            *bool                           `bson:"disabled,omitempty"`
 	FailClose           *bool                           `bson:"failclose,omitempty"`
+	FriendlyName        *string                         `bson:"friendlyname,omitempty"`
 	ImportHash          *string                         `bson:"importhash,omitempty"`
 	ImportLabel         *string                         `bson:"importlabel,omitempty"`
 	Match               *[]*Predicate                   `bson:"match,omitempty"`

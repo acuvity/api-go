@@ -1,0 +1,35 @@
+{
+  "$extends": [],
+  "$friendlyName": "AI Domain Lookup",
+  "$friendlyNamePlural": "AI Domain Lookups",
+  "$modelName": "AIDomainLookup",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "aidomainlookups",
+  "$modelRestName": "aidomainlookup",
+  "additionalProperties": false,
+  "description": "Looks up the domain a host is filed under in the AI domain catalog. Nothing is stored.",
+  "properties": {
+    "domain": {
+      "$friendlyName": "Domain",
+      "$readOnly": true,
+      "description": "The domain the host is filed under.",
+      "title": "domain",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "host": {
+      "$friendlyName": "Host",
+      "$required": true,
+      "description": "The host or URL to look up.",
+      "title": "host",
+      "type": "string"
+    }
+  },
+  "required": [
+    "host"
+  ],
+  "title": "AIDomainLookup",
+  "type": "object"
+}

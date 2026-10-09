@@ -16,7 +16,7 @@ import (
 var AnalyzerIdentity = elemental.Identity{
 	Name:     "analyzer",
 	Category: "analyzers",
-	Package:  "yorozu",
+	Package:  "kiroshi",
 	Private:  false,
 }
 

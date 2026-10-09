@@ -1,0 +1,68 @@
+{
+  "$extends": [],
+  "$friendlyName": "Data Sink S3",
+  "$friendlyNamePlural": "Data Sink S3s",
+  "$modelName": "DataSinkS3",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinks3",
+  "$modelRestName": "datasinks3",
+  "additionalProperties": false,
+  "description": "An Amazon S3 destination owned by the organization. The access key needs s3:PutObject on the bucket and prefix, and s3:DeleteObject for the connection check. Server-side encryption follows the bucket default.",
+  "properties": {
+    "accessKeyID": {
+      "$friendlyName": "Access Key ID",
+      "$required": true,
+      "description": "The AWS access key ID.",
+      "maxLength": 128,
+      "minLength": 16,
+      "pattern": "^[A-Z0-9]+$",
+      "title": "accessKeyID",
+      "type": "string"
+    },
+    "bucket": {
+      "$friendlyName": "Bucket",
+      "$required": true,
+      "description": "The name of the S3 bucket.",
+      "maxLength": 63,
+      "minLength": 3,
+      "pattern": "^[a-z0-9][a-z0-9.-]*[a-z0-9]$",
+      "title": "bucket",
+      "type": "string"
+    },
+    "prefix": {
+      "$friendlyName": "Prefix",
+      "description": "The key prefix under which data is written. Allowed characters are letters, digits and !_.*'()/-; a leading slash or consecutive slashes are not allowed.",
+      "maxLength": 512,
+      "pattern": "(^([a-zA-Z0-9!_.*'()-]+/)*[a-zA-Z0-9!_.*'()-]*$)?",
+      "title": "prefix",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "region": {
+      "$friendlyName": "Region",
+      "$required": true,
+      "description": "The AWS region code of the bucket, such as us-east-1.",
+      "pattern": "^[a-z]{2}(-[a-z]+)+-[0-9]$",
+      "title": "region",
+      "type": "string"
+    },
+    "secretAccessKey": {
+      "$friendlyName": "Secret Access Key",
+      "description": "The AWS secret access key. Write only: it is never returned. Omit it on update to keep the stored key.",
+      "title": "secretAccessKey",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "accessKeyID",
+    "bucket",
+    "region"
+  ],
+  "title": "DataSinkS3",
+  "type": "object"
+}

@@ -291,6 +291,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewExtractionRequest()
 	case "extractionsummary", "ExtractionSummary":
 		return NewExtractionSummary()
+	case "genericdetection", "GenericDetection":
+		return NewGenericDetection()
 	case "mcpmessage", "MCPMessage":
 		return NewMCPMessage()
 	case "mcpserver", "MCPServer":
@@ -307,6 +309,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewRequestTrace()
 	case "roundtriperror", "RoundtripError":
 		return NewRoundtripError()
+	case "snippet", "Snippet":
+		return NewSnippet()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
 	case "tool", "Tool":

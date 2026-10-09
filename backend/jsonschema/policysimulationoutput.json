@@ -1,0 +1,57 @@
+{
+  "$extends": [],
+  "$friendlyName": "Policy Simulation Output",
+  "$friendlyNamePlural": "Policy Simulation Outputs",
+  "$modelName": "PolicySimulationOutput",
+  "$modelPackage": "okite",
+  "$modelResourceName": "policysimulationoutputs",
+  "$modelRestName": "policysimulationoutput",
+  "additionalProperties": false,
+  "description": "The result of a policy simulation, computed by the server.",
+  "properties": {
+    "assignedTeams": {
+      "$friendlyName": "Assigned Teams",
+      "description": "The teams the principal was assigned to by the provider teams.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "assignedTeams",
+      "type": "array"
+    },
+    "decision": {
+      "$defaultValue": "Denied",
+      "$friendlyName": "Decision",
+      "description": "Whether the principal can reach the provider. AllowedByDefault means no policy matched and the default action of the app component allowed it.",
+      "enum": [
+        "Allowed",
+        "AllowedByDefault",
+        "Denied"
+      ],
+      "title": "decision"
+    },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "The policies that decided whether the principal can reach the provider.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "description": "The tools of the MCP server, each marked as visible or hidden in the tools/list response for this principal.",
+      "items": {
+        "$ref": "policysimulationtool.json"
+      },
+      "title": "tools",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "PolicySimulationOutput",
+  "type": "object"
+}

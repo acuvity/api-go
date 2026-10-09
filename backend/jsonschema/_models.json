@@ -51,6 +51,12 @@
     "aidomain": {
       "$ref": "aidomain.json"
     },
+    "aidomainlookup": {
+      "$ref": "aidomainlookup.json"
+    },
+    "aidomainrequest": {
+      "$ref": "aidomainrequest.json"
+    },
     "aidrisk": {
       "$ref": "aidrisk.json"
     },
@@ -135,6 +141,9 @@
     "alert": {
       "$ref": "alert.json"
     },
+    "alertdatasinkevent": {
+      "$ref": "alertdatasinkevent.json"
+    },
     "alertdefinition": {
       "$ref": "alertdefinition.json"
     },
@@ -146,6 +155,12 @@
     },
     "analysis": {
       "$ref": "analysis.json"
+    },
+    "analysisgraph": {
+      "$ref": "analysisgraph.json"
+    },
+    "analysisresult": {
+      "$ref": "analysisresult.json"
     },
     "analyzer": {
       "$ref": "analyzer.json"
@@ -255,6 +270,30 @@
     "dataset": {
       "$ref": "dataset.json"
     },
+    "datasink": {
+      "$ref": "datasink.json"
+    },
+    "datasinkaccesslogs": {
+      "$ref": "datasinkaccesslogs.json"
+    },
+    "datasinkagenticlogs": {
+      "$ref": "datasinkagenticlogs.json"
+    },
+    "datasinkbackfill": {
+      "$ref": "datasinkbackfill.json"
+    },
+    "datasinkcheck": {
+      "$ref": "datasinkcheck.json"
+    },
+    "datasinknotifications": {
+      "$ref": "datasinknotifications.json"
+    },
+    "datasinkrun": {
+      "$ref": "datasinkrun.json"
+    },
+    "datasinks3": {
+      "$ref": "datasinks3.json"
+    },
     "deployment": {
       "$ref": "deployment.json"
     },
@@ -327,6 +366,9 @@
     "gatewayinstance": {
       "$ref": "gatewayinstance.json"
     },
+    "genericdetection": {
+      "$ref": "genericdetection.json"
+    },
     "gitbooktoken": {
       "$ref": "gitbooktoken.json"
     },
@@ -362,6 +404,9 @@
     },
     "ipset": {
       "$ref": "ipset.json"
+    },
+    "k8snamespacemapping": {
+      "$ref": "k8snamespacemapping.json"
     },
     "kubernetesworkloadgroupselector": {
       "$ref": "kubernetesworkloadgroupselector.json"
@@ -495,6 +540,15 @@
     "policyref": {
       "$ref": "policyref.json"
     },
+    "policysimulation": {
+      "$ref": "policysimulation.json"
+    },
+    "policysimulationoutput": {
+      "$ref": "policysimulationoutput.json"
+    },
+    "policysimulationtool": {
+      "$ref": "policysimulationtool.json"
+    },
     "policyupdate": {
       "$ref": "policyupdate.json"
     },
@@ -518,6 +572,9 @@
     },
     "provider": {
       "$ref": "provider.json"
+    },
+    "providercapabilities": {
+      "$ref": "providercapabilities.json"
     },
     "providerhostsoverride": {
       "$ref": "providerhostsoverride.json"
@@ -557,6 +614,9 @@
     },
     "region": {
       "$ref": "region.json"
+    },
+    "regobaselibs": {
+      "$ref": "regobaselibs.json"
     },
     "resolve": {
       "$ref": "resolve.json"
@@ -638,6 +698,9 @@
     },
     "slug": {
       "$ref": "slug.json"
+    },
+    "snippet": {
+      "$ref": "snippet.json"
     },
     "team": {
       "$ref": "team.json"

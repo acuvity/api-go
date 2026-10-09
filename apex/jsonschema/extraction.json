@@ -1,5 +1,6 @@
 {
   "$extends": [
+    "@annotatable",
     "@extractioncore",
     "@extractionrequestmetadata"
   ],
@@ -26,7 +27,7 @@
       "additionalProperties": {
         "type": "string"
       },
-      "description": "Annotations attached to the extraction.",
+      "description": "Annotations carried alongside the content, like the conversation ID. They are set during extraction, passed to the analysis and kept on what it produces.",
       "title": "annotations",
       "type": "object"
     },
@@ -95,6 +96,15 @@
       "description": "The various exploits attempts.  The current list can be obtained through the analyzers API by searching for detector groups 'Exploits' accross all analyzers.  Example of exploits detected: jailbreak, prompt_injection, malicious_url.  If a key is not present in the map that implies that entity was not detected. If an entity is detected then the value is a score. Here's how to interpret the scores:   - confidence: 'low', 0 \u003c score \u003c0.33   - confidence: 'medium', 0.33 \u003c= score \u003c 0.66   - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
       "title": "exploits",
       "type": "object"
+    },
+    "genericdetections": {
+      "$friendlyName": "Generic Detections",
+      "description": "The generic detections found while applying policies.",
+      "items": {
+        "$ref": "genericdetection.json"
+      },
+      "title": "genericdetections",
+      "type": "array"
     },
     "hash": {
       "$friendlyName": "Hash",

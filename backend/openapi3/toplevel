@@ -52,6 +52,11 @@
             "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
             "type": "boolean"
           },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
           "importHash": {
             "description": "The hash of the structure used to compare with new import version.",
             "type": "string"
@@ -74,8 +79,8 @@
             "type": "boolean"
           },
           "name": {
-            "description": "The name of the access policy.",
-            "example": "my access policy",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
@@ -128,7 +133,7 @@
           }
         },
         "required": [
-          "name",
+          "friendlyName",
           "transportMode"
         ],
         "type": "object"
@@ -636,7 +641,7 @@
           },
           "pingInterval": {
             "default": "6h",
-            "description": "The ping interval at which acushield should check in with the backend.",
+            "description": "How often the agent sends a heartbeat with its status and running configuration\n(i.e: 30m, 6h). Cannot be lower than 5m.",
             "example": "6h",
             "type": "string"
           },
@@ -1348,6 +1353,62 @@
         ],
         "type": "object"
       },
+      "aidomainlookup": {
+        "description": "Looks up the domain a host is filed under in the AI domain catalog. Nothing is\nstored.",
+        "properties": {
+          "domain": {
+            "description": "The domain the host is filed under.",
+            "example": "openai.com",
+            "readOnly": true,
+            "type": "string"
+          },
+          "host": {
+            "description": "The host or URL to look up.",
+            "example": "https://api.openai.com/v1/models",
+            "type": "string"
+          }
+        },
+        "required": [
+          "host"
+        ],
+        "type": "object"
+      },
+      "aidomainrequest": {
+        "description": "A request for a risk report on a domain the AI domain catalog does not have. A\nnamespace holds one request per domain.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "domain": {
+            "description": "The domain a risk report is requested for, as returned by aidomainlookup. It\nis stored as given, in lower case.",
+            "example": "chatgpt.com",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "domain"
+        ],
+        "type": "object"
+      },
       "aidrisk": {
         "description": "AIDomain Risk.",
         "properties": {
@@ -1884,9 +1945,9 @@
             "example": "my-client",
             "type": "string"
           },
-          "clientSecret": {
-            "description": "Upstream OAuth client secret.",
-            "example": "s3cr3t",
+          "encryptedClientSecret": {
+            "description": "Upstream OAuth client secret, encrypted using the key referenced by\npublicKeyName.",
+            "example": "encryptedclientsecret1",
             "type": "string"
           },
           "name": {
@@ -1922,6 +1983,11 @@
               "$ref": "#/components/schemas/aigatewayconftokenpool"
             },
             "type": "array"
+          },
+          "publicKeyName": {
+            "description": "The name of the public key used to encrypt encryptedClientSecret.",
+            "example": "my-deployment-key",
+            "type": "string"
           },
           "route": {
             "description": "The route component.",
@@ -2055,6 +2121,11 @@
             "example": "Connector for the OpenAI API",
             "type": "string"
           },
+          "encryptedClientSecret": {
+            "description": "clientSecret, encrypted using the public key named by publicKeyName.\nPopulated only in the response of a retrieve or retrieve-many that names a\npublicKeyName parameter; clientSecret itself is never exposed.",
+            "readOnly": true,
+            "type": "string"
+          },
           "friendlyName": {
             "description": "Friendly name of the object.",
             "example": "Simple name",
@@ -2094,6 +2165,11 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "publicKeyName": {
+            "description": "The name of the public key used to produce encryptedClientSecret, echoed back\nalongside it so the caller knows which of its private keys to decrypt with.",
+            "readOnly": true,
+            "type": "string"
           },
           "route": {
             "description": "The route component. On a WebhookIntegration connector it represents the base\npath the integration routes are served under, so the third-party product is\npointed at the gateway URL plus this, and each path of the webhook extractor is\nappended to it.",
@@ -2677,6 +2753,17 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
+          "locations": {
+            "description": "The provenance classes (bundled, system, user or workspace) this skill was\ndiscovered at, merged across submissions and used as a trust signal.",
+            "example": [
+              "bundled",
+              "workspace"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the AI skill.",
             "example": "gh-issues",
@@ -2968,6 +3055,14 @@
             "readOnly": true,
             "type": "string"
           },
+          "dataSinkEvents": {
+            "description": "The data sink events of the alert, for an alert of a data sink.",
+            "items": {
+              "$ref": "#/components/schemas/alertdatasinkevent"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
           "end": {
             "description": "When the alert was last raised.",
             "example": "2024-06-21T00:36:15.021Z",
@@ -2998,6 +3093,62 @@
           "end",
           "start"
         ],
+        "type": "object"
+      },
+      "alertdatasinkevent": {
+        "description": "A data sink event of an alert: a run of the data sink keeps failing, or the\ndata sink went to Error. It names the data sink and the run, never a user,\na destination or a credential.",
+        "properties": {
+          "attempts": {
+            "description": "Failed attempts of the run at the event.",
+            "type": "integer"
+          },
+          "backfillID": {
+            "description": "The backfill of the run, for a Backfill run.",
+            "type": "string"
+          },
+          "dataSinkID": {
+            "description": "The ID of the data sink.",
+            "type": "string"
+          },
+          "dataSinkName": {
+            "description": "The name of the data sink.",
+            "type": "string"
+          },
+          "dataset": {
+            "description": "The dataset of the run, using the same values as DataSinkRun.dataset.",
+            "enum": [
+              "AccessLogs",
+              "AgenticLogs"
+            ]
+          },
+          "kind": {
+            "description": "The kind of the run, using the same values as DataSinkRun.kind.",
+            "enum": [
+              "Scheduled",
+              "Backfill"
+            ]
+          },
+          "reason": {
+            "description": "The sanitized error of the run.",
+            "type": "string"
+          },
+          "runID": {
+            "description": "The ID of the DataSinkRun.",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "When the event happened.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "transition": {
+            "description": "Failing (a run keeps failing) or Error (the data sink went to Error).",
+            "enum": [
+              "Failing",
+              "Error"
+            ]
+          }
+        },
         "type": "object"
       },
       "alertdefinition": {
@@ -3144,12 +3295,149 @@
         "type": "object"
       },
       "analysis": {
-        "description": "Represent a ml pipeline graph analysis.",
+        "description": "Runs the analysis pipelines over some content. Nothing is stored: creating\none returns what the pipelines found, in result.\n\nThe content itself is not an attribute. It is sent beside this object, as\nthe second part of a multipart body whose first part is this object, so\nthat a payload of any size is streamed rather than held in memory at every\nhop. See the analyze handler.",
+        "properties": {
+          "analyzers": {
+            "description": "The analyzers to run. An empty list runs the ones enabled by default, and a\nname prefixed with '-' turns one off, '+' turns one on, '@' just run that one.",
+            "example": [
+              "ner_detector"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "annotations": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
+            "type": "object"
+          },
+          "coverage": {
+            "default": "Auto",
+            "description": "How much of the content to look at. Auto lets the pipelines decide from its\nsize.",
+            "enum": [
+              "Auto",
+              "Sparse",
+              "Full"
+            ]
+          },
+          "customDataTypes": {
+            "description": "The custom data types to detect, on top of the built-in ones.",
+            "items": {
+              "$ref": "#/components/schemas/customdatatype"
+            },
+            "type": "array"
+          },
+          "index": {
+            "description": "Which message this is in a multi-turn payload. Analyses run in parallel, so\nthis is what puts the history back in order. Always sent: index 0 is a\nposition, and an absent one means the order is unknown.",
+            "type": "integer"
+          },
+          "keywords": {
+            "description": "The keywords to look for.",
+            "example": [
+              "confidential"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "kind": {
+            "default": "Message",
+            "description": "The kind of content carried by this extraction. Used together with role to\nlabel what the extracted blob represents so the UI can render it correctly and\nanalyzers can dispatch appropriately:\n- Message: free-form natural language (default).\n- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,\nGemini thought).\n- ToolDefinition: tool/function schema advertised to the model (name,\ndescription, JSON schema).\n- ToolInput: structured arguments the model passes when invoking a tool.\n- ToolOutput: result returned to the model after a tool call.\n- File: uploaded or attached file payload.\n- Resource: externally-supplied context injected into the prompt (RAG\ndocument, search result, MCP resource).\n- Event: control or lifecycle marker with no analyzable content.",
+            "enum": [
+              "Message",
+              "Thinking",
+              "ToolDefinition",
+              "ToolInput",
+              "ToolOutput",
+              "File",
+              "Resource",
+              "Event"
+            ]
+          },
+          "principalKey": {
+            "description": "Identifies who the content belongs to, without naming them.",
+            "type": "string"
+          },
+          "processing": {
+            "default": "Inband",
+            "description": "Inband when someone is waiting on the answer, Offband when nobody is. Offband\nrides a longer retry curve.",
+            "enum": [
+              "Inband",
+              "Offband"
+            ]
+          },
+          "profile": {
+            "deprecated": true,
+            "description": "DEPRECATED The analysis profile to run with. The pipelines no longer use\nit.",
+            "type": "string"
+          },
+          "result": {
+            "$ref": "#/components/schemas/analysisresult"
+          },
+          "role": {
+            "default": "User",
+            "description": "The role of the message represented by this extraction.",
+            "enum": [
+              "User",
+              "Assistant",
+              "System",
+              "Tool"
+            ]
+          },
+          "sessionID": {
+            "description": "Ties the analyses of one conversation together.",
+            "type": "string"
+          },
+          "toolFilters": {
+            "description": "Which tools the analysis should be restricted to.",
+            "example": [
+              "search"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "toolResults": {
+            "description": "Tool call results which are passed in to this request.",
+            "items": {
+              "$ref": "#/components/schemas/toolresult"
+            },
+            "type": "array"
+          },
+          "toolUses": {
+            "description": "Tool uses as requested by a model.",
+            "items": {
+              "$ref": "#/components/schemas/tooluse"
+            },
+            "type": "array"
+          },
+          "tools": {
+            "additionalProperties": true,
+            "description": "The tools available, by name.",
+            "type": "object"
+          },
+          "type": {
+            "description": "The type of text.",
+            "enum": [
+              "Input",
+              "Output"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "analysisgraph": {
+        "description": "What one analyzer of the pipeline graph did, and what it chained to.",
         "properties": {
           "analyses": {
             "description": "The list of analysis chained to this analyzer analysis.",
             "items": {
-              "$ref": "#/components/schemas/analysis"
+              "$ref": "#/components/schemas/analysisgraph"
             },
             "type": "array"
           },
@@ -3193,6 +3481,123 @@
           "skippedReason": {
             "description": "The reason the analyzer was skipped.",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "analysisresult": {
+        "description": "What the analysis pipelines found in the submitted content.",
+        "properties": {
+          "PIIs": {
+            "additionalProperties": true,
+            "description": "Where each piece of personally identifiable information was found.",
+            "type": "object"
+          },
+          "analysis": {
+            "$ref": "#/components/schemas/analysisgraph"
+          },
+          "categories": {
+            "description": "The categories the content falls into.",
+            "items": {
+              "$ref": "#/components/schemas/modality"
+            },
+            "type": "array"
+          },
+          "confidentiality": {
+            "description": "How confidential the content is, between 0 and 1.",
+            "example": 0.9,
+            "type": "number"
+          },
+          "content": {
+            "deprecated": true,
+            "description": "DEPRECATED The content as the pipelines returned it, when they rewrote it.\nNothing reads it.",
+            "type": "string"
+          },
+          "customDataTypes": {
+            "additionalProperties": true,
+            "description": "Where each custom data type was found.",
+            "type": "object"
+          },
+          "exploits": {
+            "description": "The exploits detected, and how strongly.",
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "genericdetections": {
+            "description": "What the pipelines detected, in the generic shape that is replacing the per kind\nmaps above.",
+            "items": {
+              "$ref": "#/components/schemas/genericdetection"
+            },
+            "type": "array"
+          },
+          "intent": {
+            "deprecated": true,
+            "description": "DEPRECATED The intents detected, and how strongly. The pipelines no longer\npopulate it.",
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "keywords": {
+            "additionalProperties": true,
+            "description": "Where each requested keyword was found.",
+            "type": "object"
+          },
+          "languages": {
+            "description": "The languages detected, and how strongly.",
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "malcontents": {
+            "description": "The malicious content detected, and how strongly.",
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
+          },
+          "metadata": {
+            "description": "What the pipelines could tell about the content itself.",
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "object"
+          },
+          "modalities": {
+            "description": "The modalities found in the content.",
+            "items": {
+              "$ref": "#/components/schemas/modality"
+            },
+            "type": "array"
+          },
+          "relevance": {
+            "deprecated": true,
+            "description": "DEPRECATED How relevant the content is, between 0 and 1. The pipelines no\nlonger populate it.",
+            "example": 0.9,
+            "type": "number"
+          },
+          "secrets": {
+            "additionalProperties": true,
+            "description": "Where each secret was found.",
+            "type": "object"
+          },
+          "topics": {
+            "description": "The topics detected, and how strongly.",
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
           }
         },
         "type": "object"
@@ -4731,6 +5136,10 @@
             "description": "The category of the referenced object, if it has one.",
             "type": "string"
           },
+          "domain": {
+            "description": "The domain of the referenced object, if it is an AI domain.",
+            "type": "string"
+          },
           "name": {
             "description": "The display name of the referenced object, if it has one.",
             "type": "string"
@@ -5275,6 +5684,548 @@
         ],
         "type": "object"
       },
+      "datasink": {
+        "description": "Represents a scheduled export of an organization's data to a destination it\nowns. A Data Sink is created in an organization namespace and selects the\ndatasets to export; an organization can have several. Creating a Data Sink\nexports from then on: export earlier data with a backfill. Only\nadministrators can configure Data Sinks.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "accessLogs": {
+            "$ref": "#/components/schemas/datasinkaccesslogs"
+          },
+          "agenticLogs": {
+            "$ref": "#/components/schemas/datasinkagenticlogs"
+          },
+          "cadence": {
+            "default": "Hourly",
+            "description": "How often new data is exported.",
+            "enum": [
+              "Hourly",
+              "Daily"
+            ]
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the data sink.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "notifications": {
+            "$ref": "#/components/schemas/datasinknotifications"
+          },
+          "revision": {
+            "description": "Increments on each change of an export setting: cadence, dataset selection\nand filters, destination type and settings, including credentials.",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "s3": {
+            "$ref": "#/components/schemas/datasinks3"
+          },
+          "state": {
+            "default": "Active",
+            "description": "The state of the data sink. Set Active or Paused. The system sets Error when\nexports keep failing; set Active again once the cause is fixed.",
+            "enum": [
+              "Active",
+              "Paused",
+              "Error"
+            ]
+          },
+          "stateReason": {
+            "description": "Why the data sink is in its current state, when the system set it.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "default": "S3",
+            "description": "The type of destination.",
+            "enum": [
+              "S3"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "cadence",
+          "friendlyName",
+          "type"
+        ],
+        "type": "object"
+      },
+      "datasinkaccesslogs": {
+        "description": "Selects the access logs dataset and which of its rows to export. An empty\nlist does not restrict; the values of one list are alternatives, and\npopulated lists combine (AND). An empty selector exports every row.\ncreateTime is when this dataset was enabled, where its live export starts.\nFilter changes preserve createTime; disabling and re-enabling the dataset\ngives it a new createTime. Timestamps are server owned.",
+        "properties": {
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "decisions": {
+            "description": "Keep the rows with one of these decisions.",
+            "example": [
+              "Deny"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includeContent": {
+            "default": false,
+            "description": "Include user content (prompts, responses, tool inputs and outputs, matched\ntext) in the extractions column.",
+            "type": "boolean"
+          },
+          "processors": {
+            "description": "Keep the rows from one of these processors (Proxy, API, Gateway).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providerTypes": {
+            "description": "Keep the rows of one of these provider types (LLM, MCPServer).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providers": {
+            "description": "Keep the rows of one of these providers.",
+            "example": [
+              "openai"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "teams": {
+            "description": "Keep the rows of users in at least one of these teams.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "datasinkagenticlogs": {
+        "description": "Selects the agentic logs dataset and which of its rows to export. An empty\nlist does not restrict; the values of one list are alternatives, and\npopulated lists combine (AND). An empty selector exports every row.\ncreateTime is when this dataset was enabled, where its live export starts.\nFilter changes preserve createTime; disabling and re-enabling the dataset\ngives it a new createTime. Timestamps are server owned.",
+        "properties": {
+          "apps": {
+            "description": "Keep the rows of one of these applications.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "decisions": {
+            "description": "Keep the rows with one of these decisions.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "endUsers": {
+            "description": "Keep the rows of one of these end users of the applications.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "includeContent": {
+            "default": false,
+            "description": "Include user content (prompts, responses, tool inputs and outputs, matched\ntext) in the extractions column.",
+            "type": "boolean"
+          },
+          "processors": {
+            "description": "Keep the rows from one of these processors (Proxy, API, Gateway).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "projects": {
+            "description": "Keep the rows of these projects. Empty exports every project, including\nprojects created later.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providerTypes": {
+            "description": "Keep the rows of one of these provider types (LLM, MCPServer).",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "providers": {
+            "description": "Keep the rows of one of these providers.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "datasinkbackfill": {
+        "description": "Exports the data sink's selected datasets over a time range, using its\nfilters. A backfill has no separate dataset selection or filter overrides.\nThe range is in event time, UTC, from startTime (inclusive) to endTime\n(exclusive). A backfill has its own progress: live export continues\nmeanwhile and is not affected. Customers create, retrieve and delete\nbackfills; only the export service updates their status.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataSinkID": {
+            "description": "The ID of the data sink.",
+            "example": "66b4c2f8e1a2b3c4d5e6f708",
+            "type": "string"
+          },
+          "endTime": {
+            "description": "The end of the range in event time, UTC, exclusive.",
+            "example": "2026-10-01T00:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "error": {
+            "description": "Why the backfill failed. Sanitized by the export service before validation,\nand cleared when it is no longer Failed.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "startTime": {
+            "description": "The start of the range in event time, UTC, inclusive.",
+            "example": "2026-09-24T00:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "default": "Pending",
+            "description": "Pending until the export service starts it, Running while it exports,\nCompleted when all the data sink's selected datasets are exported, Failed\nwhen it stopped on an error. Set by the export service.",
+            "enum": [
+              "Pending",
+              "Running",
+              "Completed",
+              "Failed"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataSinkID",
+          "endTime",
+          "startTime"
+        ],
+        "type": "object"
+      },
+      "datasinkcheck": {
+        "description": "Tests the connection to a data sink destination by writing a small test\nobject under the configured prefix, then deleting it. Give either the ID of a\nsaved data sink, or an unsaved destination with its credentials. A successful\ncheck does not prove multipart upload or SSE-KMS permissions.",
+        "properties": {
+          "cleanupError": {
+            "description": "Why the test object could not be deleted, when it could not.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataSinkID": {
+            "description": "The ID of the saved data sink to test.",
+            "type": "string"
+          },
+          "message": {
+            "description": "The result of the check.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "s3": {
+            "$ref": "#/components/schemas/datasinks3"
+          },
+          "status": {
+            "description": "Succeeded when the object was written and deleted. WriteFailed when it could\nnot be written. CleanupFailed when it was written but could not be deleted:\nthe destination is usable, but remove the test object.",
+            "enum": [
+              "Succeeded",
+              "WriteFailed",
+              "CleanupFailed"
+            ],
+            "readOnly": true
+          },
+          "testKey": {
+            "description": "The key of the test object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": {
+            "default": "S3",
+            "description": "The type of the unsaved destination.",
+            "enum": [
+              "S3"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "datasinknotifications": {
+        "description": "The default alert resources of a data sink, created with it. They are\nordinary alert definitions and notification sinks in the data sink namespace:\nedit them to change recipients, messages or cooldowns; the system never\noverwrites them.",
+        "properties": {
+          "errorAlertDefinition": {
+            "description": "The name of the alert definition raised (Critical) when the data sink goes to\nError.",
+            "type": "string"
+          },
+          "failingAlertDefinition": {
+            "description": "The name of the alert definition raised (Warning) when a run of the data sink\nkeeps failing.",
+            "type": "string"
+          },
+          "sink": {
+            "description": "The name of the default notification sink created with the data sink.\nEmpty when no default notification sink was created.",
+            "type": "string"
+          },
+          "status": {
+            "default": "NeedsRecipient",
+            "description": "Configured: a default notification sink was created for the alert\ndefinitions. NeedsRecipient: the alert definitions were created without a\nnotification sink; configure a recipient or destination and add a sink to\nthem to be notified.",
+            "enum": [
+              "Configured",
+              "NeedsRecipient"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "datasinkrun": {
+        "description": "One export run of one dataset of a data sink, scheduled or part of a\nbackfill, over a range of event time: the export history. Customers read\nit; only the export service writes it. Retries keep the run ID and range.\nA failed run can adopt corrected configuration and restart the range,\nupdating its configuration versions and resetting execution progress.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "attempts": {
+            "description": "The number of failed attempts so far.",
+            "type": "integer"
+          },
+          "backfillID": {
+            "description": "The backfill of the run, for a Backfill run.",
+            "type": "string"
+          },
+          "bytesWritten": {
+            "description": "Bytes written to the destination for the current configuration execution.\nMay reset when the run restarts with corrected configuration.",
+            "type": "integer"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "dataSinkID": {
+            "description": "The ID of the data sink.",
+            "example": "66b4c2f8e1a2b3c4d5e6f708",
+            "type": "string"
+          },
+          "dataset": {
+            "description": "The dataset exported: AccessLogs corresponds to access_logs, and\nAgenticLogs to agentic_logs in the customer output.",
+            "enum": [
+              "AccessLogs",
+              "AgenticLogs"
+            ],
+            "example": "AccessLogs"
+          },
+          "definitionVersion": {
+            "description": "The version of the dataset definition the run uses. The export service may\nupdate it when restarting a failed run with corrected configuration.",
+            "type": "integer"
+          },
+          "endTime": {
+            "description": "When the run stopped or succeeded. Cleared when execution resumes.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "error": {
+            "description": "The last error, sanitized by the export service before validation.",
+            "type": "string"
+          },
+          "filesWritten": {
+            "description": "Files written to the destination for the current configuration execution.\nMay reset when the run restarts with corrected configuration.",
+            "type": "integer"
+          },
+          "kind": {
+            "default": "Scheduled",
+            "description": "Whether the run is a scheduled export or part of a backfill.",
+            "enum": [
+              "Scheduled",
+              "Backfill"
+            ]
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "rangeEnd": {
+            "description": "The end of the exported range in event time, UTC, exclusive.",
+            "example": "2026-10-01T01:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "rangeStart": {
+            "description": "The start of the exported range in event time, UTC, inclusive.",
+            "example": "2026-10-01T00:00:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "revision": {
+            "description": "The data sink revision the run uses. The export service may update it when\nrestarting a failed run with corrected configuration.",
+            "type": "integer"
+          },
+          "rowsDropped": {
+            "description": "Rows read but not exported for the current configuration execution, such\nas rows the data sink filters exclude. May reset on a configuration-changing\nrestart.",
+            "type": "integer"
+          },
+          "rowsRead": {
+            "description": "Rows read from the logs for the current configuration execution. May reset\nwhen the run restarts with corrected configuration.",
+            "type": "integer"
+          },
+          "rowsWritten": {
+            "description": "Rows written to the destination for the current configuration execution.\nMay reset when the run restarts with corrected configuration.",
+            "type": "integer"
+          },
+          "runID": {
+            "description": "The run identifier, chosen by the export service. Unique: creating a run\nwith an existing ID returns that run.",
+            "example": "3f2a9c1e7b6d",
+            "type": "string"
+          },
+          "startTime": {
+            "description": "When the run first started. Preserved across retries and restarts.",
+            "example": "2026-10-01T01:02:00Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "default": "Running",
+            "description": "Running, Failing (attempts keep failing), Failed (failing for 24 hours; the\ndata sink goes to Error), or Succeeded. Failing and Failed runs can retry\nand later succeed. Corrected configuration can restart the same run and\nrange with updated versions and reset execution progress. Only Succeeded\nis terminal.",
+            "enum": [
+              "Running",
+              "Failing",
+              "Failed",
+              "Succeeded"
+            ]
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "dataSinkID",
+          "dataset",
+          "kind",
+          "rangeEnd",
+          "rangeStart",
+          "runID",
+          "startTime"
+        ],
+        "type": "object"
+      },
+      "datasinks3": {
+        "description": "An Amazon S3 destination owned by the organization. The access key needs\ns3:PutObject on the bucket and prefix, and s3:DeleteObject for the connection\ncheck. Server-side encryption follows the bucket default.",
+        "properties": {
+          "accessKeyID": {
+            "description": "The AWS access key ID.",
+            "example": "AKIAIOSFODNN7EXAMPLE",
+            "type": "string"
+          },
+          "bucket": {
+            "description": "The name of the S3 bucket.",
+            "example": "acme-acuvity-export",
+            "type": "string"
+          },
+          "prefix": {
+            "description": "The key prefix under which data is written. Allowed characters are letters,\ndigits and !_.*'()/-; a leading slash or consecutive slashes are not allowed.",
+            "example": "acuvity/",
+            "type": "string"
+          },
+          "region": {
+            "description": "The AWS region code of the bucket, such as us-east-1.",
+            "example": "us-east-1",
+            "type": "string"
+          },
+          "secretAccessKey": {
+            "description": "The AWS secret access key. Write only: it is never returned. Omit it on\nupdate to keep the stored key.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "accessKeyID",
+          "bucket",
+          "region"
+        ],
+        "type": "object"
+      },
       "deployment": {
         "description": "Deployment represents an AI Security Gateway Deployment.",
         "properties": {
@@ -5306,6 +6257,13 @@
           "importLabel": {
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
+          },
+          "k8sNamespaceMappings": {
+            "description": "Maps Kubernetes namespaces to projects for discovery and enforcement.",
+            "items": {
+              "$ref": "#/components/schemas/k8snamespacemapping"
+            },
+            "type": "array"
           },
           "name": {
             "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
@@ -6052,7 +7010,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Annotations attached to the extraction.",
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
             "type": "object"
           },
           "categories": {
@@ -6115,6 +7073,13 @@
               "type": "number"
             },
             "type": "object"
+          },
+          "genericdetections": {
+            "description": "The generic detections found while applying policies.",
+            "items": {
+              "$ref": "#/components/schemas/genericdetection"
+            },
+            "type": "array"
           },
           "hash": {
             "description": "The hash of the extraction.",
@@ -7044,6 +8009,35 @@
         ],
         "type": "object"
       },
+      "genericdetection": {
+        "description": "Represent a generic detection.",
+        "properties": {
+          "end": {
+            "description": "The end position of the positional generic detection.",
+            "type": "integer"
+          },
+          "group": {
+            "description": "The group of the generic detection.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the generic detection.",
+            "type": "string"
+          },
+          "score": {
+            "description": "The normalized score of the generic detection against its confidence level\nthresholds.\nBetween 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
+            "type": "number"
+          },
+          "snippet": {
+            "$ref": "#/components/schemas/snippet"
+          },
+          "start": {
+            "description": "The start position of the poisitional generic detection.",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "gitbooktoken": {
         "description": "Allows to exchange a Proofpoint AI Security token for a token signed for our\ndocumentation.",
         "properties": {
@@ -7891,6 +8885,26 @@
         "required": [
           "CIDRs",
           "friendlyName"
+        ],
+        "type": "object"
+      },
+      "k8snamespacemapping": {
+        "description": "Maps a Kubernetes namespace to a project.",
+        "properties": {
+          "k8sNamespace": {
+            "description": "The Kubernetes namespace to match. Use * as a catch-all namespaces not\nexplicitly mapped.",
+            "example": "payments",
+            "type": "string"
+          },
+          "project": {
+            "description": "The target project to be used for this Kubernetes namespace workloads discovery\nand enforcement.",
+            "example": "payments",
+            "type": "string"
+          }
+        },
+        "required": [
+          "k8sNamespace",
+          "project"
         ],
         "type": "object"
       },
@@ -9791,6 +10805,7 @@
             "type": "object"
           },
           "protocol": {
+            "default": "HTTPProtobuf",
             "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this\ndepends on the OTLP receiver being used.",
             "enum": [
               "GRPC",
@@ -9824,6 +10839,7 @@
             "type": "string"
           },
           "protocol": {
+            "default": "HTTP",
             "description": "Specifies the OTLP transport protocol to be used for trace data. Note that this\ndepends on the OTLP receiver being used.",
             "enum": [
               "GRPC",
@@ -10040,6 +11056,167 @@
           "policyName",
           "policyNamespace"
         ],
+        "type": "object"
+      },
+      "policysimulation": {
+        "description": "Evaluates the current policies for a principal and a provider without sending\nany traffic. It returns whether the principal can reach the provider, the\npolicies that decided it and, for an MCP server, which of its tools the\nprincipal would see. Nothing is stored and no log is written.",
+        "properties": {
+          "claims": {
+            "description": "The claims of the user to simulate, in the form key=value. Used when\nprincipalType is User.",
+            "example": [
+              "@email=bob@acme.com",
+              "@group=support"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "destinationAppComponent": {
+            "description": "The app component to reach when it acts as the provider, in the form\nproject:app/component, where the project: part is optional. Exactly one of\nprovider and destinationAppComponent must be set.",
+            "example": "production:mcp-servers/sharepoint",
+            "type": "string"
+          },
+          "direction": {
+            "default": "Egress",
+            "description": "Which policies of the app component to evaluate. Egress evaluates the\npolicies for calls the component makes, and Ingress the policies for calls\nthe component receives. Used when principalType is App.",
+            "enum": [
+              "Egress",
+              "Ingress"
+            ]
+          },
+          "gatewayName": {
+            "description": "The name of the gateway the request goes through. Required when\ntransportMode is Gateway.",
+            "example": "corp-gateway",
+            "type": "string"
+          },
+          "output": {
+            "$ref": "#/components/schemas/policysimulationoutput"
+          },
+          "principalType": {
+            "default": "User",
+            "description": "The kind of principal to simulate. User uses claims, Team uses teams\ndirectly, and App uses sourceAppComponent and the optional userClaims.",
+            "enum": [
+              "User",
+              "Team",
+              "App"
+            ]
+          },
+          "provider": {
+            "description": "The name of the provider to reach. Exactly one of provider and\ndestinationAppComponent must be set.",
+            "example": "github-mcp",
+            "type": "string"
+          },
+          "sourceAppComponent": {
+            "description": "The app component making the request, in the form project:app/component,\nwhere the project: part is optional. Required when principalType is App.",
+            "example": "production:acme-ai-app/agent",
+            "type": "string"
+          },
+          "teams": {
+            "description": "The teams to simulate. Required when principalType is Team.",
+            "example": [
+              "support"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "transportMode": {
+            "default": "Proxy",
+            "description": "Specify if this policy applies to transparent proxy or gateway.",
+            "enum": [
+              "Proxy",
+              "Gateway"
+            ],
+            "example": "Proxy"
+          },
+          "userClaims": {
+            "description": "The claims of the user behind the app component call, in the form\nkey=value. Used when principalType is App.",
+            "example": [
+              "@email=bob@acme.com"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "transportMode"
+        ],
+        "type": "object"
+      },
+      "policysimulationoutput": {
+        "description": "The result of a policy simulation, computed by the server.",
+        "properties": {
+          "assignedTeams": {
+            "description": "The teams the principal was assigned to by the provider teams.",
+            "example": [
+              "support"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "decision": {
+            "default": "Denied",
+            "description": "Whether the principal can reach the provider. AllowedByDefault means no\npolicy matched and the default action of the app component allowed it.",
+            "enum": [
+              "Allowed",
+              "AllowedByDefault",
+              "Denied"
+            ]
+          },
+          "policyRefs": {
+            "description": "The policies that decided whether the principal can reach the provider.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
+          },
+          "tools": {
+            "description": "The tools of the MCP server, each marked as visible or hidden in the\ntools/list response for this principal.",
+            "items": {
+              "$ref": "#/components/schemas/policysimulationtool"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "policysimulationtool": {
+        "description": "The result of a policy simulation for one tool of an MCP server.",
+        "properties": {
+          "name": {
+            "description": "The name of the tool.",
+            "example": "search_code",
+            "type": "string"
+          },
+          "policyRefs": {
+            "description": "The policies that allowed or denied the tool.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
+          },
+          "reason": {
+            "default": "NotEvaluated",
+            "description": "Why the tool is visible or hidden. NotEvaluated means the reason was not\ncomputed.",
+            "enum": [
+              "NotEvaluated",
+              "Allowed",
+              "DeniedByPolicy",
+              "NoAllowPolicy",
+              "ServerDenied"
+            ]
+          },
+          "visible": {
+            "description": "Whether the tool is returned in the tools/list response.",
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "policyupdate": {
@@ -10407,6 +11584,9 @@
             "example": "https://mcp.example.com/mcp",
             "type": "string"
           },
+          "capabilities": {
+            "$ref": "#/components/schemas/providercapabilities"
+          },
           "category": {
             "description": "The category of the provider.",
             "enum": [
@@ -10447,8 +11627,8 @@
             "type": "array"
           },
           "friendlyName": {
-            "description": "Friendly Name of the provider.",
-            "example": "OpenAI",
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
             "type": "string"
           },
           "hosts": {
@@ -10515,8 +11695,8 @@
             "type": "array"
           },
           "name": {
-            "description": "Name of the provider.",
-            "example": "openai",
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
             "type": "string"
           },
           "namespace": {
@@ -10587,9 +11767,39 @@
         "required": [
           "category",
           "friendlyName",
-          "name",
           "status"
         ],
+        "type": "object"
+      },
+      "providercapabilities": {
+        "description": "Detection capabilities supported by a provider.",
+        "properties": {
+          "emailDomain": {
+            "description": "Whether the provider can determine the user's email domain.",
+            "example": true,
+            "type": "boolean"
+          },
+          "file": {
+            "description": "Whether the provider can extract files submitted to an AI workflow.",
+            "example": true,
+            "type": "boolean"
+          },
+          "model": {
+            "description": "Whether the provider can determine the model used for a request.",
+            "example": true,
+            "type": "boolean"
+          },
+          "tier": {
+            "description": "Whether the provider can determine the user's subscription tier.",
+            "example": true,
+            "type": "boolean"
+          },
+          "workspace": {
+            "description": "Whether the provider can determine the provider workspace.",
+            "example": true,
+            "type": "boolean"
+          }
+        },
         "type": "object"
       },
       "providerhostsoverride": {
@@ -11096,6 +12306,9 @@
             },
             "type": "array"
           },
+          "regoBaseLibs": {
+            "$ref": "#/components/schemas/regobaselibs"
+          },
           "tokens": {
             "description": "Tokens pool to authenticate with the provider.",
             "example": {
@@ -11139,7 +12352,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Annotations attached to the log.",
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
             "type": "object"
           },
           "client": {
@@ -11561,6 +12774,24 @@
         },
         "type": "object"
       },
+      "regobaselibs": {
+        "description": "The source of the base rego libraries the computed policies are compiled\nagainst, one per policy kind.",
+        "properties": {
+          "access": {
+            "description": "The base rego library the access policies are compiled against.",
+            "type": "string"
+          },
+          "assign": {
+            "description": "The base rego library the assign policies are compiled against.",
+            "type": "string"
+          },
+          "content": {
+            "description": "The base rego library the content policies are compiled against.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "resolve": {
         "description": "Actually resolve the finding instance.",
         "properties": {
@@ -11725,6 +12956,7 @@
             "default": "All",
             "description": "Choose which asset kind the risk definition should apply to.",
             "enum": [
+              "AIApp",
               "AIDomain",
               "AIPlugin",
               "AISkill",
@@ -11824,6 +13056,10 @@
           "severityOverride": {
             "$ref": "#/components/schemas/severityoverride"
           },
+          "severityWeight": {
+            "description": "Numeric rank of the severity (Low=1 to Critical=4), for ordering.",
+            "type": "integer"
+          },
           "state": {
             "description": "The state of the finding.",
             "type": "object"
@@ -11837,6 +13073,10 @@
               "Archived"
             ],
             "example": "Open"
+          },
+          "statusWeight": {
+            "description": "Numeric rank of the status (Open=1 to Archived=4), for ordering.",
+            "type": "integer"
           },
           "systemGeneratedSeverity": {
             "description": "The severity computed by the system when the finding was created. Not\naffected by user overrides.",
@@ -12691,6 +13931,24 @@
           "provider",
           "route"
         ],
+        "type": "object"
+      },
+      "snippet": {
+        "description": "Represents an excerpt of content returned alongside a detection.",
+        "properties": {
+          "data": {
+            "description": "The contextual excerpt of the content around the detection.",
+            "type": "string"
+          },
+          "end": {
+            "description": "The end position of the detection inside the snippet data.",
+            "type": "integer"
+          },
+          "start": {
+            "description": "The start position of the detection inside the snippet data.",
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "team": {
@@ -15270,6 +16528,151 @@
         ]
       }
     },
+    "/aidomainlookups": {
+      "post": {
+        "description": "Looks up the domain a host is filed under.",
+        "operationId": "create-AIDomainLookup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aidomainlookup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aidomainlookup"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aidomainrequests": {
+      "get": {
+        "description": "List all AI domain requests.",
+        "operationId": "get-all-AIDomainRequests",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/aidomainrequest"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new AI domain request.",
+        "operationId": "create-AIDomainRequest",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/aidomainrequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aidomainrequest"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/aidomainrequests/{id}": {
+      "delete": {
+        "description": "Delete an AI domain request given its identifier.",
+        "operationId": "delete-AIDomainRequest",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aidomainrequest"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve an AI domain request given its identifier.",
+        "operationId": "get-AIDomainRequest",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/aidomainrequest"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
     "/aidomains": {
       "get": {
         "description": "List all AI domains.",
@@ -15506,6 +16909,17 @@
         "description": "List all available ai gateway connectors.",
         "operationId": "get-all-AIGatewayConnectors",
         "parameters": [
+          {
+            "description": "Names of the public keys used to encrypt any clientSecret.",
+            "example": [
+              "my-deployment-key"
+            ],
+            "in": "query",
+            "name": "publicKeyName",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "This is an example.",
             "example": "hello == world",
@@ -16884,6 +18298,37 @@
         ]
       }
     },
+    "/analyses": {
+      "post": {
+        "description": "Send an analysis request for the given content.",
+        "operationId": "create-Analysis",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/analysis"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/analysis"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/analyzers": {
       "get": {
         "description": "List of analyzers.",
@@ -16908,6 +18353,35 @@
                     "$ref": "#/components/schemas/analyzer"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "apex"
+        ]
+      },
+      "post": {
+        "description": "Validates an analyzer. Nothing is stored.",
+        "operationId": "create-Analyzer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/analyzer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/analyzer"
                 }
               }
             },
@@ -18059,6 +19533,16 @@
       "post": {
         "description": "Creates a new custom data type.",
         "operationId": "create-CustomDataType",
+        "parameters": [
+          {
+            "description": "If set, only asks the pipelines whether they can run the custom data\ntype, and stores nothing.",
+            "in": "query",
+            "name": "validateOnly",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -18305,6 +19789,469 @@
         },
         "tags": [
           "core"
+        ]
+      }
+    },
+    "/datasinkbackfills": {
+      "get": {
+        "description": "List the data sink backfills.",
+        "operationId": "get-all-DataSinkBackfills",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/datasinkbackfill"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "post": {
+        "description": "Creates a new data sink backfill.",
+        "operationId": "create-DataSinkBackfill",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasinkbackfill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkbackfill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinkbackfills/{id}": {
+      "delete": {
+        "description": "Deletes the backfill with the given ID.",
+        "operationId": "delete-DataSinkBackfill",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkbackfill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the backfill with the given ID.",
+        "operationId": "get-DataSinkBackfill",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkbackfill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the status of the backfill. Reserved to the export service.",
+        "operationId": "update-DataSinkBackfill",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasinkbackfill"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkbackfill"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinkchecks": {
+      "post": {
+        "description": "Tests the connection to a data sink destination.",
+        "operationId": "create-DataSinkCheck",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasinkcheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkcheck"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinkruns": {
+      "get": {
+        "description": "List the data sink runs.",
+        "operationId": "get-all-DataSinkRuns",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/datasinkrun"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "post": {
+        "description": "Creates a data sink run. Reserved to the export service.",
+        "operationId": "create-DataSinkRun",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasinkrun"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkrun"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinkruns/{id}": {
+      "get": {
+        "description": "Retrieves the run with the given ID.",
+        "operationId": "get-DataSinkRun",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkrun"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the run. Reserved to the export service.",
+        "operationId": "update-DataSinkRun",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasinkrun"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasinkrun"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinks": {
+      "get": {
+        "description": "List all data sinks.",
+        "operationId": "get-all-DataSinks",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/datasink"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "post": {
+        "description": "Creates a new data sink.",
+        "operationId": "create-DataSink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasink"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasink"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      }
+    },
+    "/datasinks/{id}": {
+      "delete": {
+        "description": "Deletes the data sink with the given ID. Exported data is not deleted.",
+        "operationId": "delete-DataSink",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasink"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "get": {
+        "description": "Retrieves the data sink with the given ID.",
+        "operationId": "get-DataSink",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasink"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Updates the data sink with the given ID.",
+        "operationId": "update-DataSink",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/datasink"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/datasink"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
         ]
       }
     },
@@ -22105,6 +24052,37 @@
         ]
       }
     },
+    "/policysimulations": {
+      "post": {
+        "description": "Simulates the current policies for a principal and a provider.",
+        "operationId": "create-PolicySimulation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/policysimulation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/policysimulation"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/projects": {
       "get": {
         "description": "List all projects.",
@@ -23003,6 +24981,17 @@
         "description": "List all available proxyconf.",
         "operationId": "get-all-ProxyConfs",
         "parameters": [
+          {
+            "description": "Names of the public keys used to encrypt any client secrets.",
+            "example": [
+              "my-deployment-key"
+            ],
+            "in": "query",
+            "name": "publicKeyName",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "This is an example.",
             "example": "hello == world",

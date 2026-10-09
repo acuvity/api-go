@@ -66,6 +66,16 @@
         "null"
       ]
     },
+    "dataSinkEvents": {
+      "$friendlyName": "Data Sink Events",
+      "$readOnly": true,
+      "description": "The data sink events of the alert, for an alert of a data sink.",
+      "items": {
+        "$ref": "alertdatasinkevent.json"
+      },
+      "title": "dataSinkEvents",
+      "type": "array"
+    },
     "end": {
       "$friendlyName": "End",
       "$required": true,

@@ -95,6 +95,44 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[AIDomainLookupIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
+	relationshipsRegistry[AIDomainRequestIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[AIGatewayIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -179,6 +217,11 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name:     "publicKeyName",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
 						Name: "q",
 						Type: "string",
 					},
@@ -188,6 +231,11 @@ func init() {
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "publicKeyName",
+						Type:     "string",
+						Multiple: true,
+					},
 					{
 						Name: "q",
 						Type: "string",
@@ -645,6 +693,8 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[AlertDataSinkEventIdentity] = &elemental.Relationship{}
+
 	relationshipsRegistry[AlertDefinitionIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -692,7 +742,16 @@ func init() {
 
 	relationshipsRegistry[AlertTriggerIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[AnalysisIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[AnalyzerIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
 		RetrieveMany: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
@@ -995,7 +1054,14 @@ func init() {
 
 	relationshipsRegistry[CustomDataTypeIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
-			"root": {},
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "validateOnly",
+						Type: "boolean",
+					},
+				},
+			},
 		},
 		Update: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -1068,6 +1134,145 @@ func init() {
 			},
 		},
 	}
+
+	relationshipsRegistry[DataSinkIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[DataSinkAccessLogsIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[DataSinkAgenticLogsIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[DataSinkBackfillIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[DataSinkCheckIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
+	relationshipsRegistry[DataSinkNotificationsIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[DataSinkRunIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[DataSinkS3Identity] = &elemental.Relationship{}
 
 	relationshipsRegistry[DeploymentIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
@@ -2116,6 +2321,12 @@ func init() {
 
 	relationshipsRegistry[PolicyRefIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[PolicySimulationIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[PolicyUpdateIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[PrincipalIdentity] = &elemental.Relationship{}
@@ -2382,6 +2593,11 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name:     "publicKeyName",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
 						Name: "q",
 						Type: "string",
 					},
@@ -2391,6 +2607,11 @@ func init() {
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "publicKeyName",
+						Type:     "string",
+						Multiple: true,
+					},
 					{
 						Name: "q",
 						Type: "string",

@@ -163,6 +163,12 @@
       "title": "providers",
       "type": "array"
     },
+    "regoBaseLibs": {
+      "$friendlyName": "Rego Base Libraries",
+      "$ref": "regobaselibs.json",
+      "description": "The base rego libraries the computed policies are compiled against.",
+      "title": "regoBaseLibs"
+    },
     "tokens": {
       "$friendlyName": "Tokens",
       "description": "Tokens pool to authenticate with the provider.",

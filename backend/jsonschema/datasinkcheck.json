@@ -1,0 +1,81 @@
+{
+  "$extends": [],
+  "$friendlyName": "Data Sink Check",
+  "$friendlyNamePlural": "Data Sink Checks",
+  "$modelName": "DataSinkCheck",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkchecks",
+  "$modelRestName": "datasinkcheck",
+  "additionalProperties": false,
+  "description": "Tests the connection to a data sink destination by writing a small test object under the configured prefix, then deleting it. Give either the ID of a saved data sink, or an unsaved destination with its credentials. A successful check does not prove multipart upload or SSE-KMS permissions.",
+  "properties": {
+    "cleanupError": {
+      "$friendlyName": "Cleanup Error",
+      "$readOnly": true,
+      "description": "Why the test object could not be deleted, when it could not.",
+      "title": "cleanupError",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSinkID": {
+      "$friendlyName": "Data Sink ID",
+      "description": "The ID of the saved data sink to test.",
+      "title": "dataSinkID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "message": {
+      "$friendlyName": "Message",
+      "$readOnly": true,
+      "description": "The result of the check.",
+      "title": "message",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "s3": {
+      "$friendlyName": "S3",
+      "$ref": "datasinks3.json",
+      "description": "An unsaved S3 destination to test, including its credentials.",
+      "title": "s3"
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$readOnly": true,
+      "description": "Succeeded when the object was written and deleted. WriteFailed when it could not be written. CleanupFailed when it was written but could not be deleted: the destination is usable, but remove the test object.",
+      "enum": [
+        "Succeeded",
+        "WriteFailed",
+        "CleanupFailed"
+      ],
+      "title": "status"
+    },
+    "testKey": {
+      "$friendlyName": "Test Key",
+      "$readOnly": true,
+      "description": "The key of the test object.",
+      "title": "testKey",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$defaultValue": "S3",
+      "$friendlyName": "Type",
+      "description": "The type of the unsaved destination.",
+      "enum": [
+        "S3"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [],
+  "title": "DataSinkCheck",
+  "type": "object"
+}

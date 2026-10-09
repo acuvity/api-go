@@ -1,5 +1,6 @@
 {
   "$extends": [
+    "@annotatable",
     "@identifiable",
     "@importable",
     "@principalable",
@@ -41,7 +42,7 @@
       "additionalProperties": {
         "type": "string"
       },
-      "description": "Annotations attached to the log.",
+      "description": "Annotations carried alongside the content, like the conversation ID. They are set during extraction, passed to the analysis and kept on what it produces.",
       "title": "annotations",
       "type": "object"
     },

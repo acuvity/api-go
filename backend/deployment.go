@@ -104,6 +104,9 @@ type Deployment struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Maps Kubernetes namespaces to projects for discovery and enforcement.
+	K8sNamespaceMappings []*K8sNamespaceMapping `json:"k8sNamespaceMappings" msgpack:"k8sNamespaceMappings" bson:"k8snamespacemappings" mapstructure:"k8sNamespaceMappings,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
@@ -196,6 +199,7 @@ func (o *Deployment) GetBSON() (any, error) {
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.K8sNamespaceMappings = o.K8sNamespaceMappings
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
@@ -228,6 +232,7 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.K8sNamespaceMappings = s.K8sNamespaceMappings
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
@@ -373,25 +378,26 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseDeployment{
-			ID:                 &o.ID,
-			CreateTime:         &o.CreateTime,
-			Description:        &o.Description,
-			FriendlyName:       &o.FriendlyName,
-			ImportHash:         &o.ImportHash,
-			ImportLabel:        &o.ImportLabel,
-			Name:               &o.Name,
-			Namespace:          &o.Namespace,
-			Propagate:          &o.Propagate,
-			PublicKeys:         &o.PublicKeys,
-			PublicURLs:         &o.PublicURLs,
-			RenewToken:         &o.RenewToken,
-			RenewTokenTag:      &o.RenewTokenTag,
-			RenewTokenValidity: &o.RenewTokenValidity,
-			Token:              &o.Token,
-			TokenRefs:          &o.TokenRefs,
-			UpdateTime:         &o.UpdateTime,
-			ZHash:              &o.ZHash,
-			Zone:               &o.Zone,
+			ID:                   &o.ID,
+			CreateTime:           &o.CreateTime,
+			Description:          &o.Description,
+			FriendlyName:         &o.FriendlyName,
+			ImportHash:           &o.ImportHash,
+			ImportLabel:          &o.ImportLabel,
+			K8sNamespaceMappings: &o.K8sNamespaceMappings,
+			Name:                 &o.Name,
+			Namespace:            &o.Namespace,
+			Propagate:            &o.Propagate,
+			PublicKeys:           &o.PublicKeys,
+			PublicURLs:           &o.PublicURLs,
+			RenewToken:           &o.RenewToken,
+			RenewTokenTag:        &o.RenewTokenTag,
+			RenewTokenValidity:   &o.RenewTokenValidity,
+			Token:                &o.Token,
+			TokenRefs:            &o.TokenRefs,
+			UpdateTime:           &o.UpdateTime,
+			ZHash:                &o.ZHash,
+			Zone:                 &o.Zone,
 		}
 	}
 
@@ -410,6 +416,8 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "k8sNamespaceMappings":
+			sp.K8sNamespaceMappings = &(o.K8sNamespaceMappings)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -467,6 +475,9 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
+	if so.K8sNamespaceMappings != nil {
+		o.K8sNamespaceMappings = *so.K8sNamespaceMappings
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -511,6 +522,15 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.K8sNamespaceMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'K8sNamespaceMappings' for 'Deployment' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.TokenRefs {
 		if sub == nil {
 			continue
@@ -525,6 +545,15 @@ func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Deployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.K8sNamespaceMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'K8sNamespaceMappings' for 'Deployment' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.TokenRefs {
 		if sub == nil {
@@ -581,6 +610,16 @@ func (o *Deployment) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	for i, sub := range o.K8sNamespaceMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "k8sNamespaceMappings", i))
+		}
+	}
+
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
 		errors = errors.Append(err)
 	}
@@ -600,6 +639,11 @@ func (o *Deployment) Validate() error {
 			errors = errors.Append(err)
 			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenRefs", i))
 		}
+	}
+
+	// Custom object validation.
+	if err := ValidateDeployment(o); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -648,6 +692,8 @@ func (o *Deployment) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "k8sNamespaceMappings":
+		return o.K8sNamespaceMappings
 	case "name":
 		return o.Name
 	case "namespace":
@@ -761,6 +807,17 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
+	},
+	"K8sNamespaceMappings": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "k8snamespacemappings",
+		ConvertedName:  "K8sNamespaceMappings",
+		Description:    `Maps Kubernetes namespaces to projects for discovery and enforcement.`,
+		Exposed:        true,
+		Name:           "k8sNamespaceMappings",
+		Stored:         true,
+		SubType:        "k8snamespacemapping",
+		Type:           "refList",
 	},
 	"Name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
@@ -980,6 +1037,17 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"k8snamespacemappings": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "k8snamespacemappings",
+		ConvertedName:  "K8sNamespaceMappings",
+		Description:    `Maps Kubernetes namespaces to projects for discovery and enforcement.`,
+		Exposed:        true,
+		Name:           "k8sNamespaceMappings",
+		Stored:         true,
+		SubType:        "k8snamespacemapping",
+		Type:           "refList",
+	},
 	"name": {
 		AllowedChars:   `^[a-zA-Z0-9-_]+$`,
 		AllowedChoices: []string{},
@@ -1197,6 +1265,9 @@ type SparseDeployment struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Maps Kubernetes namespaces to projects for discovery and enforcement.
+	K8sNamespaceMappings *[]*K8sNamespaceMapping `json:"k8sNamespaceMappings,omitempty" msgpack:"k8sNamespaceMappings,omitempty" bson:"k8snamespacemappings,omitempty" mapstructure:"k8sNamespaceMappings,omitempty"`
+
 	// The internal reference name of the object. It is a sanitized version of Friendly
 	// Name if empty.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
@@ -1300,6 +1371,9 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.K8sNamespaceMappings != nil {
+		s.K8sNamespaceMappings = o.K8sNamespaceMappings
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1361,6 +1435,9 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.K8sNamespaceMappings != nil {
+		o.K8sNamespaceMappings = s.K8sNamespaceMappings
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -1420,6 +1497,9 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
+	if o.K8sNamespaceMappings != nil {
+		out.K8sNamespaceMappings = *o.K8sNamespaceMappings
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -1466,6 +1546,17 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.K8sNamespaceMappings != nil {
+		for _, sub := range *o.K8sNamespaceMappings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'K8sNamespaceMappings' for 'Deployment' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.TokenRefs != nil {
 		for _, sub := range *o.TokenRefs {
 			if sub == nil {
@@ -1482,6 +1573,17 @@ func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncryp
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.K8sNamespaceMappings != nil {
+		for _, sub := range *o.K8sNamespaceMappings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'K8sNamespaceMappings' for 'Deployment' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.TokenRefs != nil {
 		for _, sub := range *o.TokenRefs {
@@ -1650,36 +1752,38 @@ func (o *SparseDeployment) DeepCopyInto(out *SparseDeployment) {
 }
 
 type mongoAttributesDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   time.Time     `bson:"createtime"`
-	Description  string        `bson:"description,omitempty"`
-	FriendlyName string        `bson:"friendlyname"`
-	ImportHash   string        `bson:"importhash,omitempty"`
-	ImportLabel  string        `bson:"importlabel,omitempty"`
-	Name         string        `bson:"name"`
-	Namespace    string        `bson:"namespace,omitempty"`
-	Propagate    bool          `bson:"propagate"`
-	PublicKeys   []string      `bson:"publickeys"`
-	PublicURLs   []string      `bson:"publicurls"`
-	TokenRefs    []*TokenRef   `bson:"tokenrefs"`
-	UpdateTime   time.Time     `bson:"updatetime"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+	ID                   bson.ObjectId          `bson:"_id,omitempty"`
+	CreateTime           time.Time              `bson:"createtime"`
+	Description          string                 `bson:"description,omitempty"`
+	FriendlyName         string                 `bson:"friendlyname"`
+	ImportHash           string                 `bson:"importhash,omitempty"`
+	ImportLabel          string                 `bson:"importlabel,omitempty"`
+	K8sNamespaceMappings []*K8sNamespaceMapping `bson:"k8snamespacemappings"`
+	Name                 string                 `bson:"name"`
+	Namespace            string                 `bson:"namespace,omitempty"`
+	Propagate            bool                   `bson:"propagate"`
+	PublicKeys           []string               `bson:"publickeys"`
+	PublicURLs           []string               `bson:"publicurls"`
+	TokenRefs            []*TokenRef            `bson:"tokenrefs"`
+	UpdateTime           time.Time              `bson:"updatetime"`
+	ZHash                int                    `bson:"zhash"`
+	Zone                 int                    `bson:"zone"`
 }
 type mongoAttributesSparseDeployment struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	CreateTime   *time.Time    `bson:"createtime,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	FriendlyName *string       `bson:"friendlyname,omitempty"`
-	ImportHash   *string       `bson:"importhash,omitempty"`
-	ImportLabel  *string       `bson:"importlabel,omitempty"`
-	Name         *string       `bson:"name,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	Propagate    *bool         `bson:"propagate,omitempty"`
-	PublicKeys   *[]string     `bson:"publickeys,omitempty"`
-	PublicURLs   *[]string     `bson:"publicurls,omitempty"`
-	TokenRefs    *[]*TokenRef  `bson:"tokenrefs,omitempty"`
-	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+	ID                   bson.ObjectId           `bson:"_id,omitempty"`
+	CreateTime           *time.Time              `bson:"createtime,omitempty"`
+	Description          *string                 `bson:"description,omitempty"`
+	FriendlyName         *string                 `bson:"friendlyname,omitempty"`
+	ImportHash           *string                 `bson:"importhash,omitempty"`
+	ImportLabel          *string                 `bson:"importlabel,omitempty"`
+	K8sNamespaceMappings *[]*K8sNamespaceMapping `bson:"k8snamespacemappings,omitempty"`
+	Name                 *string                 `bson:"name,omitempty"`
+	Namespace            *string                 `bson:"namespace,omitempty"`
+	Propagate            *bool                   `bson:"propagate,omitempty"`
+	PublicKeys           *[]string               `bson:"publickeys,omitempty"`
+	PublicURLs           *[]string               `bson:"publicurls,omitempty"`
+	TokenRefs            *[]*TokenRef            `bson:"tokenrefs,omitempty"`
+	UpdateTime           *time.Time              `bson:"updatetime,omitempty"`
+	ZHash                *int                    `bson:"zhash,omitempty"`
+	Zone                 *int                    `bson:"zone,omitempty"`
 }

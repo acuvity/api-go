@@ -25,6 +25,15 @@
         "null"
       ]
     },
+    "domain": {
+      "$friendlyName": "Domain",
+      "description": "The domain of the referenced object, if it is an AI domain.",
+      "title": "domain",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "name": {
       "$friendlyName": "Name",
       "description": "The display name of the referenced object, if it has one.",

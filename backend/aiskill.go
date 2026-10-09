@@ -140,6 +140,10 @@ type AISkill struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The provenance classes (bundled, system, user or workspace) this skill was
+	// discovered at, merged across submissions and used as a trust signal.
+	Locations []string `json:"locations,omitempty" msgpack:"locations,omitempty" bson:"locations,omitempty" mapstructure:"locations,omitempty"`
+
 	// The name of the AI skill.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -186,6 +190,7 @@ func NewAISkill() *AISkill {
 	return &AISkill{
 		ModelVersion: 1,
 		Apps:         []string{},
+		Locations:    []string{},
 		Propagate:    true,
 	}
 }
@@ -232,6 +237,7 @@ func (o *AISkill) GetBSON() (any, error) {
 	s.ExecutionContextRisk = o.ExecutionContextRisk
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Locations = o.Locations
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
@@ -273,6 +279,7 @@ func (o *AISkill) SetBSON(raw bson.Raw) error {
 	o.ExecutionContextRisk = s.ExecutionContextRisk
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Locations = s.Locations
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
@@ -409,6 +416,7 @@ func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ExecutionContextRisk:    o.ExecutionContextRisk,
 			ImportHash:              &o.ImportHash,
 			ImportLabel:             &o.ImportLabel,
+			Locations:               &o.Locations,
 			Name:                    &o.Name,
 			Namespace:               &o.Namespace,
 			Propagate:               &o.Propagate,
@@ -451,6 +459,8 @@ func (o *AISkill) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "locations":
+			sp.Locations = &(o.Locations)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -523,6 +533,9 @@ func (o *AISkill) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
+	}
+	if so.Locations != nil {
+		o.Locations = *so.Locations
 	}
 	if so.Name != nil {
 		o.Name = *so.Name
@@ -813,6 +826,8 @@ func (o *AISkill) ValueForAttribute(name string) any {
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "locations":
+		return o.Locations
 	case "name":
 		return o.Name
 	case "namespace":
@@ -989,6 +1004,18 @@ same import operation.`,
 		Setter:  true,
 		Stored:  true,
 		Type:    "string",
+	},
+	"Locations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "locations",
+		ConvertedName:  "Locations",
+		Description: `The provenance classes (bundled, system, user or workspace) this skill was
+discovered at, merged across submissions and used as a trust signal.`,
+		Exposed: true,
+		Name:    "locations",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -1258,6 +1285,18 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"locations": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "locations",
+		ConvertedName:  "Locations",
+		Description: `The provenance classes (bundled, system, user or workspace) this skill was
+discovered at, merged across submissions and used as a trust signal.`,
+		Exposed: true,
+		Name:    "locations",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
@@ -1479,6 +1518,10 @@ type SparseAISkill struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// The provenance classes (bundled, system, user or workspace) this skill was
+	// discovered at, merged across submissions and used as a trust signal.
+	Locations *[]string `json:"locations,omitempty" msgpack:"locations,omitempty" bson:"locations,omitempty" mapstructure:"locations,omitempty"`
+
 	// The name of the AI skill.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -1595,6 +1638,9 @@ func (o *SparseAISkill) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.Locations != nil {
+		s.Locations = o.Locations
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -1683,6 +1729,9 @@ func (o *SparseAISkill) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.Locations != nil {
+		o.Locations = s.Locations
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -1768,6 +1817,9 @@ func (o *SparseAISkill) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
+	}
+	if o.Locations != nil {
+		out.Locations = *o.Locations
 	}
 	if o.Name != nil {
 		out.Name = *o.Name
@@ -2038,6 +2090,7 @@ type mongoAttributesAISkill struct {
 	ExecutionContextRisk    *AIDRisk              `bson:"executioncontextrisk,omitempty"`
 	ImportHash              string                `bson:"importhash,omitempty"`
 	ImportLabel             string                `bson:"importlabel,omitempty"`
+	Locations               []string              `bson:"locations,omitempty"`
 	Name                    string                `bson:"name"`
 	Namespace               string                `bson:"namespace,omitempty"`
 	Propagate               bool                  `bson:"propagate"`
@@ -2064,6 +2117,7 @@ type mongoAttributesSparseAISkill struct {
 	ExecutionContextRisk    *AIDRisk               `bson:"executioncontextrisk,omitempty"`
 	ImportHash              *string                `bson:"importhash,omitempty"`
 	ImportLabel             *string                `bson:"importlabel,omitempty"`
+	Locations               *[]string              `bson:"locations,omitempty"`
 	Name                    *string                `bson:"name,omitempty"`
 	Namespace               *string                `bson:"namespace,omitempty"`
 	Propagate               *bool                  `bson:"propagate,omitempty"`

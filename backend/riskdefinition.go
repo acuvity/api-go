@@ -17,6 +17,9 @@ import (
 type RiskDefinitionTypeValue string
 
 const (
+	// RiskDefinitionTypeAIApp represents the value AIApp.
+	RiskDefinitionTypeAIApp RiskDefinitionTypeValue = "AIApp"
+
 	// RiskDefinitionTypeAIDomain represents the value AIDomain.
 	RiskDefinitionTypeAIDomain RiskDefinitionTypeValue = "AIDomain"
 
@@ -636,7 +639,7 @@ func (o *RiskDefinition) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"AIDomain", "AIPlugin", "AISkill", "All"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"AIApp", "AIDomain", "AIPlugin", "AISkill", "All"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -924,7 +927,7 @@ a risk pillar, and is excluded from customer opt-in matching.`,
 		Type:    "boolean",
 	},
 	"Type": {
-		AllowedChoices: []string{"AIDomain", "AIPlugin", "AISkill", "All"},
+		AllowedChoices: []string{"AIApp", "AIDomain", "AIPlugin", "AISkill", "All"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   RiskDefinitionTypeAll,
@@ -1152,7 +1155,7 @@ a risk pillar, and is excluded from customer opt-in matching.`,
 		Type:    "boolean",
 	},
 	"type": {
-		AllowedChoices: []string{"AIDomain", "AIPlugin", "AISkill", "All"},
+		AllowedChoices: []string{"AIApp", "AIDomain", "AIPlugin", "AISkill", "All"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   RiskDefinitionTypeAll,

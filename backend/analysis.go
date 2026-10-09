@@ -5,36 +5,240 @@ package api
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/mitchellh/copystructure"
 	"go.acuvity.ai/elemental"
 )
 
+// AnalysisCoverageValue represents the possible values for attribute "coverage".
+type AnalysisCoverageValue string
+
+const (
+	// AnalysisCoverageAuto represents the value Auto.
+	AnalysisCoverageAuto AnalysisCoverageValue = "Auto"
+
+	// AnalysisCoverageFull represents the value Full.
+	AnalysisCoverageFull AnalysisCoverageValue = "Full"
+
+	// AnalysisCoverageSparse represents the value Sparse.
+	AnalysisCoverageSparse AnalysisCoverageValue = "Sparse"
+)
+
+// AnalysisKindValue represents the possible values for attribute "kind".
+type AnalysisKindValue string
+
+const (
+	// AnalysisKindEvent represents the value Event.
+	AnalysisKindEvent AnalysisKindValue = "Event"
+
+	// AnalysisKindFile represents the value File.
+	AnalysisKindFile AnalysisKindValue = "File"
+
+	// AnalysisKindMessage represents the value Message.
+	AnalysisKindMessage AnalysisKindValue = "Message"
+
+	// AnalysisKindResource represents the value Resource.
+	AnalysisKindResource AnalysisKindValue = "Resource"
+
+	// AnalysisKindThinking represents the value Thinking.
+	AnalysisKindThinking AnalysisKindValue = "Thinking"
+
+	// AnalysisKindToolDefinition represents the value ToolDefinition.
+	AnalysisKindToolDefinition AnalysisKindValue = "ToolDefinition"
+
+	// AnalysisKindToolInput represents the value ToolInput.
+	AnalysisKindToolInput AnalysisKindValue = "ToolInput"
+
+	// AnalysisKindToolOutput represents the value ToolOutput.
+	AnalysisKindToolOutput AnalysisKindValue = "ToolOutput"
+)
+
+// AnalysisProcessingValue represents the possible values for attribute "processing".
+type AnalysisProcessingValue string
+
+const (
+	// AnalysisProcessingInband represents the value Inband.
+	AnalysisProcessingInband AnalysisProcessingValue = "Inband"
+
+	// AnalysisProcessingOffband represents the value Offband.
+	AnalysisProcessingOffband AnalysisProcessingValue = "Offband"
+)
+
+// AnalysisRoleValue represents the possible values for attribute "role".
+type AnalysisRoleValue string
+
+const (
+	// AnalysisRoleAssistant represents the value Assistant.
+	AnalysisRoleAssistant AnalysisRoleValue = "Assistant"
+
+	// AnalysisRoleSystem represents the value System.
+	AnalysisRoleSystem AnalysisRoleValue = "System"
+
+	// AnalysisRoleTool represents the value Tool.
+	AnalysisRoleTool AnalysisRoleValue = "Tool"
+
+	// AnalysisRoleUser represents the value User.
+	AnalysisRoleUser AnalysisRoleValue = "User"
+)
+
+// AnalysisTypeValue represents the possible values for attribute "type".
+type AnalysisTypeValue string
+
+const (
+	// AnalysisTypeInput represents the value Input.
+	AnalysisTypeInput AnalysisTypeValue = "Input"
+
+	// AnalysisTypeOutput represents the value Output.
+	AnalysisTypeOutput AnalysisTypeValue = "Output"
+)
+
+// AnalysisIdentity represents the Identity of the object.
+var AnalysisIdentity = elemental.Identity{
+	Name:     "analysis",
+	Category: "analyses",
+	Package:  "kiroshi",
+	Private:  false,
+}
+
+// AnalysisList represents a list of Analysis
+type AnalysisList []*Analysis
+
+// Identity returns the identity of the objects in the list.
+func (o AnalysisList) Identity() elemental.Identity {
+
+	return AnalysisIdentity
+}
+
+// Copy returns a pointer to a copy the AnalysisList.
+func (o AnalysisList) Copy() elemental.Identifiables {
+
+	out := slices.Clone(o)
+	return &out
+}
+
+// Append appends the objects to the a new copy of the AnalysisList.
+func (o AnalysisList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := slices.Clone(o)
+	for _, obj := range objects {
+		out = append(out, obj.(*Analysis))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o AnalysisList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := range len(o) {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o AnalysisList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToSparse returns the AnalysisList converted to SparseAnalysisList.
+// Objects in the list will only contain the given fields. No field means entire field set.
+func (o AnalysisList) ToSparse(fields ...string) elemental.Identifiables {
+
+	out := make(SparseAnalysisList, len(o))
+	for i := range len(o) {
+		out[i] = o[i].ToSparse(fields...).(*SparseAnalysis)
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o AnalysisList) Version() int {
+
+	return 1
+}
+
 // Analysis represents the model of a analysis
 type Analysis struct {
-	// The list of analysis chained to this analyzer analysis.
-	Analyses []*Analysis `json:"analyses,omitempty" msgpack:"analyses,omitempty" bson:"-" mapstructure:"analyses,omitempty"`
+	// The analyzers to run. An empty list runs the ones enabled by default, and a
+	// name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.
+	Analyzers []string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
 
-	// The ID of the analyzer.
-	AnalyzerID string `json:"analyzerID" msgpack:"analyzerID" bson:"-" mapstructure:"analyzerID,omitempty"`
+	// Annotations carried alongside the content, like the conversation ID. They are
+	// set during extraction, passed to the analysis and kept on what it produces.
+	Annotations map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
 
-	// The percentage of text analyzed.
-	CoverageRatio float64 `json:"coverageRatio,omitempty" msgpack:"coverageRatio,omitempty" bson:"-" mapstructure:"coverageRatio,omitempty"`
+	// How much of the content to look at. Auto lets the pipelines decide from its
+	// size.
+	Coverage AnalysisCoverageValue `json:"coverage,omitempty" msgpack:"coverage,omitempty" bson:"-" mapstructure:"coverage,omitempty"`
 
-	// The list of detections the analyzer returned.
-	Detections []*Detection `json:"detections,omitempty" msgpack:"detections,omitempty" bson:"-" mapstructure:"detections,omitempty"`
+	// The custom data types to detect, on top of the built-in ones.
+	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
-	// The time taken by the analyzer.
-	Duration float64 `json:"duration,omitempty" msgpack:"duration,omitempty" bson:"-" mapstructure:"duration,omitempty"`
+	// Which message this is in a multi-turn payload. Analyses run in parallel, so
+	// this is what puts the history back in order. Always sent: index 0 is a
+	// position, and an absent one means the order is unknown.
+	Index int `json:"index" msgpack:"index" bson:"-" mapstructure:"index,omitempty"`
 
-	// A list of detections that matches the detection matchers criteria set on
-	// analyzers,
-	// triggering their execution.
-	MatchingDetections []*Detection `json:"matchingDetections,omitempty" msgpack:"matchingDetections,omitempty" bson:"-" mapstructure:"matchingDetections,omitempty"`
+	// The keywords to look for.
+	Keywords []string `json:"keywords,omitempty" msgpack:"keywords,omitempty" bson:"-" mapstructure:"keywords,omitempty"`
 
-	// The reason the analyzer was skipped.
-	SkippedReason string `json:"skippedReason,omitempty" msgpack:"skippedReason,omitempty" bson:"-" mapstructure:"skippedReason,omitempty"`
+	// The kind of content carried by this extraction. Used together with role to
+	// label what the extracted blob represents so the UI can render it correctly and
+	// analyzers can dispatch appropriately:
+	// - Message: free-form natural language (default).
+	// - Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+	// Gemini thought).
+	// - ToolDefinition: tool/function schema advertised to the model (name,
+	// description, JSON schema).
+	// - ToolInput: structured arguments the model passes when invoking a tool.
+	// - ToolOutput: result returned to the model after a tool call.
+	// - File: uploaded or attached file payload.
+	// - Resource: externally-supplied context injected into the prompt (RAG
+	// document, search result, MCP resource).
+	// - Event: control or lifecycle marker with no analyzable content.
+	Kind AnalysisKindValue `json:"kind" msgpack:"kind" bson:"kind" mapstructure:"kind,omitempty"`
+
+	// Identifies who the content belongs to, without naming them.
+	PrincipalKey string `json:"principalKey,omitempty" msgpack:"principalKey,omitempty" bson:"-" mapstructure:"principalKey,omitempty"`
+
+	// Inband when someone is waiting on the answer, Offband when nobody is. Offband
+	// rides a longer retry curve.
+	Processing AnalysisProcessingValue `json:"processing,omitempty" msgpack:"processing,omitempty" bson:"-" mapstructure:"processing,omitempty"`
+
+	// DEPRECATED The analysis profile to run with. The pipelines no longer use
+	// it.
+	Profile string `json:"profile,omitempty" msgpack:"profile,omitempty" bson:"-" mapstructure:"profile,omitempty"`
+
+	// What the pipelines found.
+	Result *AnalysisResult `json:"result,omitempty" msgpack:"result,omitempty" bson:"-" mapstructure:"result,omitempty"`
+
+	// The role of the message represented by this extraction.
+	Role AnalysisRoleValue `json:"role" msgpack:"role" bson:"role" mapstructure:"role,omitempty"`
+
+	// Ties the analyses of one conversation together.
+	SessionID string `json:"sessionID,omitempty" msgpack:"sessionID,omitempty" bson:"-" mapstructure:"sessionID,omitempty"`
+
+	// Which tools the analysis should be restricted to.
+	ToolFilters []string `json:"toolFilters,omitempty" msgpack:"toolFilters,omitempty" bson:"-" mapstructure:"toolFilters,omitempty"`
+
+	// Tool call results which are passed in to this request.
+	ToolResults []ToolResult `json:"toolResults,omitempty" msgpack:"toolResults,omitempty" bson:"toolresults,omitempty" mapstructure:"toolResults,omitempty"`
+
+	// Tool uses as requested by a model.
+	ToolUses []ToolUse `json:"toolUses,omitempty" msgpack:"toolUses,omitempty" bson:"tooluses,omitempty" mapstructure:"toolUses,omitempty"`
+
+	// The tools available, by name.
+	Tools map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"-" mapstructure:"tools,omitempty"`
+
+	// The type of text.
+	Type AnalysisTypeValue `json:"type" msgpack:"type" bson:"type" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -44,18 +248,32 @@ func NewAnalysis() *Analysis {
 
 	return &Analysis{
 		ModelVersion: 1,
+		Analyzers:    []string{},
+		Annotations:  map[string]string{},
+		Coverage:     AnalysisCoverageAuto,
+		Keywords:     []string{},
+		Kind:         AnalysisKindMessage,
+		Processing:   AnalysisProcessingInband,
+		Role:         AnalysisRoleUser,
+		ToolFilters:  []string{},
 	}
 }
+
+// Identity returns the Identity of the object.
 func (o *Analysis) Identity() elemental.Identity {
 
-	return elemental.Identity{}
+	return AnalysisIdentity
 }
+
+// Identifier returns the value of the object's unique identifier.
 func (o *Analysis) Identifier() string {
 
 	return ""
 }
+
+// SetIdentifier sets the value of the object's unique identifier.
 func (o *Analysis) SetIdentifier(id string) {
-	panic("you cannot set identifier on a detached object")
+
 }
 
 // GetBSON implements the bson marshaling interface.
@@ -67,6 +285,13 @@ func (o *Analysis) GetBSON() (any, error) {
 	}
 
 	s := &mongoAttributesAnalysis{}
+
+	s.Annotations = o.Annotations
+	s.Kind = o.Kind
+	s.Role = o.Role
+	s.ToolResults = o.ToolResults
+	s.ToolUses = o.ToolUses
+	s.Type = o.Type
 
 	return s, nil
 }
@@ -84,6 +309,13 @@ func (o *Analysis) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
+	o.Annotations = s.Annotations
+	o.Kind = s.Kind
+	o.Role = s.Role
+	o.ToolResults = s.ToolResults
+	o.ToolUses = s.ToolUses
+	o.Type = s.Type
+
 	return nil
 }
 
@@ -99,39 +331,189 @@ func (o *Analysis) BleveType() string {
 	return "analysis"
 }
 
+// DefaultOrder returns the list of default ordering fields.
+func (o *Analysis) DefaultOrder() []string {
+
+	return []string{}
+}
+
 // Doc returns the documentation for the object
 func (o *Analysis) Doc() string {
 
-	return `Represent a ml pipeline graph analysis.`
+	return `Runs the analysis pipelines over some content. Nothing is stored: creating
+one returns what the pipelines found, in result.
+
+The content itself is not an attribute. It is sent beside this object, as
+the second part of a multipart body whose first part is this object, so
+that a payload of any size is streamed rather than held in memory at every
+hop. See the analyze handler.`
+}
+
+func (o *Analysis) String() string {
+
+	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
+}
+
+// ToSparse returns the sparse version of the model.
+// The returned object will only contain the given fields. No field means entire field set.
+func (o *Analysis) ToSparse(fields ...string) elemental.SparseIdentifiable {
+
+	if len(fields) == 0 {
+		// nolint: goimports
+		return &SparseAnalysis{
+			Analyzers:       &o.Analyzers,
+			Annotations:     &o.Annotations,
+			Coverage:        &o.Coverage,
+			CustomDataTypes: &o.CustomDataTypes,
+			Index:           &o.Index,
+			Keywords:        &o.Keywords,
+			Kind:            &o.Kind,
+			PrincipalKey:    &o.PrincipalKey,
+			Processing:      &o.Processing,
+			Profile:         &o.Profile,
+			Result:          o.Result,
+			Role:            &o.Role,
+			SessionID:       &o.SessionID,
+			ToolFilters:     &o.ToolFilters,
+			ToolResults:     &o.ToolResults,
+			ToolUses:        &o.ToolUses,
+			Tools:           &o.Tools,
+			Type:            &o.Type,
+		}
+	}
+
+	sp := &SparseAnalysis{}
+	for _, f := range fields {
+		switch f {
+		case "analyzers":
+			sp.Analyzers = &(o.Analyzers)
+		case "annotations":
+			sp.Annotations = &(o.Annotations)
+		case "coverage":
+			sp.Coverage = &(o.Coverage)
+		case "customDataTypes":
+			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "index":
+			sp.Index = &(o.Index)
+		case "keywords":
+			sp.Keywords = &(o.Keywords)
+		case "kind":
+			sp.Kind = &(o.Kind)
+		case "principalKey":
+			sp.PrincipalKey = &(o.PrincipalKey)
+		case "processing":
+			sp.Processing = &(o.Processing)
+		case "profile":
+			sp.Profile = &(o.Profile)
+		case "result":
+			sp.Result = o.Result
+		case "role":
+			sp.Role = &(o.Role)
+		case "sessionID":
+			sp.SessionID = &(o.SessionID)
+		case "toolFilters":
+			sp.ToolFilters = &(o.ToolFilters)
+		case "toolResults":
+			sp.ToolResults = &(o.ToolResults)
+		case "toolUses":
+			sp.ToolUses = &(o.ToolUses)
+		case "tools":
+			sp.Tools = &(o.Tools)
+		case "type":
+			sp.Type = &(o.Type)
+		}
+	}
+
+	return sp
+}
+
+// Patch apply the non nil value of a *SparseAnalysis to the object.
+func (o *Analysis) Patch(sparse elemental.SparseIdentifiable) {
+	if !sparse.Identity().IsEqual(o.Identity()) {
+		panic("cannot patch from a parse with different identity")
+	}
+
+	so := sparse.(*SparseAnalysis)
+	if so.Analyzers != nil {
+		o.Analyzers = *so.Analyzers
+	}
+	if so.Annotations != nil {
+		o.Annotations = *so.Annotations
+	}
+	if so.Coverage != nil {
+		o.Coverage = *so.Coverage
+	}
+	if so.CustomDataTypes != nil {
+		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.Index != nil {
+		o.Index = *so.Index
+	}
+	if so.Keywords != nil {
+		o.Keywords = *so.Keywords
+	}
+	if so.Kind != nil {
+		o.Kind = *so.Kind
+	}
+	if so.PrincipalKey != nil {
+		o.PrincipalKey = *so.PrincipalKey
+	}
+	if so.Processing != nil {
+		o.Processing = *so.Processing
+	}
+	if so.Profile != nil {
+		o.Profile = *so.Profile
+	}
+	if so.Result != nil {
+		o.Result = so.Result
+	}
+	if so.Role != nil {
+		o.Role = *so.Role
+	}
+	if so.SessionID != nil {
+		o.SessionID = *so.SessionID
+	}
+	if so.ToolFilters != nil {
+		o.ToolFilters = *so.ToolFilters
+	}
+	if so.ToolResults != nil {
+		o.ToolResults = *so.ToolResults
+	}
+	if so.ToolUses != nil {
+		o.ToolUses = *so.ToolUses
+	}
+	if so.Tools != nil {
+		o.Tools = *so.Tools
+	}
+	if so.Type != nil {
+		o.Type = *so.Type
+	}
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Analysis) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.Analyses {
-		if sub == nil {
-			continue
-		}
+	for _, sub := range o.CustomDataTypes {
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Analyses' for 'Analysis' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'Analysis' (%s): %s", o.Identifier(), err)
 		}
 	}
 
-	for _, sub := range o.Detections {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Detections' for 'Analysis' (%s): %s", o.Identifier(), err)
+	if o.Result != nil {
+		if err := o.Result.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Result' for 'Analysis' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	for _, sub := range o.MatchingDetections {
-		if sub == nil {
-			continue
-		}
+	for _, sub := range o.ToolResults {
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MatchingDetections' for 'Analysis' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolResults' for 'Analysis' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolUses' for 'Analysis' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -141,30 +523,27 @@ func (o *Analysis) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Analysis) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
-	for _, sub := range o.Analyses {
-		if sub == nil {
-			continue
-		}
+	for _, sub := range o.CustomDataTypes {
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Analyses' for 'Analysis' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'Analysis' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	for _, sub := range o.Detections {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Detections' for 'Analysis' (%s): %w", o.Identifier(), err)
+	if o.Result != nil {
+		if err := o.Result.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Result' for 'Analysis' (%s): %w", o.Identifier(), err)
 		}
 	}
 
-	for _, sub := range o.MatchingDetections {
-		if sub == nil {
-			continue
-		}
+	for _, sub := range o.ToolResults {
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MatchingDetections' for 'Analysis' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolResults' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.ToolUses {
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolUses' for 'Analysis' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -203,34 +582,52 @@ func (o *Analysis) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	for i, sub := range o.Analyses {
-		if sub == nil {
-			continue
-		}
+	if err := elemental.ValidateStringInList("coverage", string(o.Coverage), []string{"Auto", "Sparse", "Full"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.CustomDataTypes {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "analyses", i))
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
-	for i, sub := range o.Detections {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
+	if err := elemental.ValidateStringInList("kind", string(o.Kind), []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if err := elemental.ValidateStringInList("processing", string(o.Processing), []string{"Inband", "Offband"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.Result != nil {
+		if err := o.Result.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "detections", i))
+			elemental.InjectAttributePath(errors, "result")
 		}
 	}
 
-	for i, sub := range o.MatchingDetections {
-		if sub == nil {
-			continue
-		}
+	if err := elemental.ValidateStringInList("role", string(o.Role), []string{"User", "Assistant", "System", "Tool"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "matchingDetections", i))
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolResults", i))
 		}
+	}
+
+	for i, sub := range o.ToolUses {
+		if err := sub.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolUses", i))
+		}
+	}
+
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Input", "Output"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if len(requiredErrors) > 0 {
@@ -267,20 +664,42 @@ func (*Analysis) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 func (o *Analysis) ValueForAttribute(name string) any {
 
 	switch name {
-	case "analyses":
-		return o.Analyses
-	case "analyzerID":
-		return o.AnalyzerID
-	case "coverageRatio":
-		return o.CoverageRatio
-	case "detections":
-		return o.Detections
-	case "duration":
-		return o.Duration
-	case "matchingDetections":
-		return o.MatchingDetections
-	case "skippedReason":
-		return o.SkippedReason
+	case "analyzers":
+		return o.Analyzers
+	case "annotations":
+		return o.Annotations
+	case "coverage":
+		return o.Coverage
+	case "customDataTypes":
+		return o.CustomDataTypes
+	case "index":
+		return o.Index
+	case "keywords":
+		return o.Keywords
+	case "kind":
+		return o.Kind
+	case "principalKey":
+		return o.PrincipalKey
+	case "processing":
+		return o.Processing
+	case "profile":
+		return o.Profile
+	case "result":
+		return o.Result
+	case "role":
+		return o.Role
+	case "sessionID":
+		return o.SessionID
+	case "toolFilters":
+		return o.ToolFilters
+	case "toolResults":
+		return o.ToolResults
+	case "toolUses":
+		return o.ToolUses
+	case "tools":
+		return o.Tools
+	case "type":
+		return o.Type
 	}
 
 	return nil
@@ -288,133 +707,800 @@ func (o *Analysis) ValueForAttribute(name string) any {
 
 // AnalysisAttributesMap represents the map of attribute for Analysis.
 var AnalysisAttributesMap = map[string]elemental.AttributeSpecification{
-	"Analyses": {
+	"Analyzers": {
 		AllowedChoices: []string{},
-		ConvertedName:  "Analyses",
-		Description:    `The list of analysis chained to this analyzer analysis.`,
-		Exposed:        true,
-		Name:           "analyses",
-		SubType:        "analysis",
-		Type:           "refList",
-	},
-	"AnalyzerID": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AnalyzerID",
-		Description:    `The ID of the analyzer.`,
-		Exposed:        true,
-		Name:           "analyzerID",
-		Type:           "string",
-	},
-	"CoverageRatio": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CoverageRatio",
-		Description:    `The percentage of text analyzed.`,
-		Exposed:        true,
-		Name:           "coverageRatio",
-		Type:           "float",
-	},
-	"Detections": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Detections",
-		Description:    `The list of detections the analyzer returned.`,
-		Exposed:        true,
-		Name:           "detections",
-		SubType:        "detection",
-		Type:           "refList",
-	},
-	"Duration": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Duration",
-		Description:    `The time taken by the analyzer.`,
-		Exposed:        true,
-		Name:           "duration",
-		Type:           "float",
-	},
-	"MatchingDetections": {
-		AllowedChoices: []string{},
-		ConvertedName:  "MatchingDetections",
-		Description: `A list of detections that matches the detection matchers criteria set on
-analyzers,
-triggering their execution.`,
+		ConvertedName:  "Analyzers",
+		Description: `The analyzers to run. An empty list runs the ones enabled by default, and a
+name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.`,
 		Exposed: true,
-		Name:    "matchingDetections",
-		SubType: "detection",
-		Type:    "refList",
+		Name:    "analyzers",
+		SubType: "string",
+		Type:    "list",
 	},
-	"SkippedReason": {
+	"Annotations": {
 		AllowedChoices: []string{},
-		ConvertedName:  "SkippedReason",
-		Description:    `The reason the analyzer was skipped.`,
+		BSONFieldName:  "annotations",
+		ConvertedName:  "Annotations",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
+	},
+	"Coverage": {
+		AllowedChoices: []string{"Auto", "Sparse", "Full"},
+		ConvertedName:  "Coverage",
+		DefaultValue:   AnalysisCoverageAuto,
+		Description: `How much of the content to look at. Auto lets the pipelines decide from its
+size.`,
+		Exposed: true,
+		Name:    "coverage",
+		Type:    "enum",
+	},
+	"CustomDataTypes": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataTypes",
+		Description:    `The custom data types to detect, on top of the built-in ones.`,
 		Exposed:        true,
-		Name:           "skippedReason",
+		Name:           "customDataTypes",
+		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"Index": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Index",
+		Description: `Which message this is in a multi-turn payload. Analyses run in parallel, so
+this is what puts the history back in order. Always sent: index 0 is a
+position, and an absent one means the order is unknown.`,
+		Exposed: true,
+		Name:    "index",
+		Type:    "integer",
+	},
+	"Keywords": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Keywords",
+		Description:    `The keywords to look for.`,
+		Exposed:        true,
+		Name:           "keywords",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"Kind": {
+		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   AnalysisKindMessage,
+		Description: `The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.`,
+		Exposed: true,
+		Name:    "kind",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"PrincipalKey": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PrincipalKey",
+		Description:    `Identifies who the content belongs to, without naming them.`,
+		Exposed:        true,
+		Name:           "principalKey",
 		Type:           "string",
+	},
+	"Processing": {
+		AllowedChoices: []string{"Inband", "Offband"},
+		ConvertedName:  "Processing",
+		DefaultValue:   AnalysisProcessingInband,
+		Description: `Inband when someone is waiting on the answer, Offband when nobody is. Offband
+rides a longer retry curve.`,
+		Exposed: true,
+		Name:    "processing",
+		Type:    "enum",
+	},
+	"Profile": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Profile",
+		Deprecated:     true,
+		Description: `DEPRECATED The analysis profile to run with. The pipelines no longer use
+it.`,
+		Exposed: true,
+		Name:    "profile",
+		Type:    "string",
+	},
+	"Result": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Result",
+		Description:    `What the pipelines found.`,
+		Exposed:        true,
+		Name:           "result",
+		ReadOnly:       true,
+		SubType:        "analysisresult",
+		Type:           "ref",
+	},
+	"Role": {
+		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
+		BSONFieldName:  "role",
+		ConvertedName:  "Role",
+		DefaultValue:   AnalysisRoleUser,
+		Description:    `The role of the message represented by this extraction.`,
+		Exposed:        true,
+		Name:           "role",
+		Stored:         true,
+		Type:           "enum",
+	},
+	"SessionID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SessionID",
+		Description:    `Ties the analyses of one conversation together.`,
+		Exposed:        true,
+		Name:           "sessionID",
+		Type:           "string",
+	},
+	"ToolFilters": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ToolFilters",
+		Description:    `Which tools the analysis should be restricted to.`,
+		Exposed:        true,
+		Name:           "toolFilters",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"ToolResults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"ToolUses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
+	},
+	"Tools": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Tools",
+		Description:    `The tools available, by name.`,
+		Exposed:        true,
+		Name:           "tools",
+		SubType:        "map[string]tool",
+		Type:           "external",
+	},
+	"Type": {
+		AllowedChoices: []string{"Input", "Output"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of text.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 }
 
 // AnalysisLowerCaseAttributesMap represents the map of attribute for Analysis.
 var AnalysisLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"analyses": {
+	"analyzers": {
 		AllowedChoices: []string{},
-		ConvertedName:  "Analyses",
-		Description:    `The list of analysis chained to this analyzer analysis.`,
-		Exposed:        true,
-		Name:           "analyses",
-		SubType:        "analysis",
-		Type:           "refList",
-	},
-	"analyzerid": {
-		AllowedChoices: []string{},
-		ConvertedName:  "AnalyzerID",
-		Description:    `The ID of the analyzer.`,
-		Exposed:        true,
-		Name:           "analyzerID",
-		Type:           "string",
-	},
-	"coverageratio": {
-		AllowedChoices: []string{},
-		ConvertedName:  "CoverageRatio",
-		Description:    `The percentage of text analyzed.`,
-		Exposed:        true,
-		Name:           "coverageRatio",
-		Type:           "float",
-	},
-	"detections": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Detections",
-		Description:    `The list of detections the analyzer returned.`,
-		Exposed:        true,
-		Name:           "detections",
-		SubType:        "detection",
-		Type:           "refList",
-	},
-	"duration": {
-		AllowedChoices: []string{},
-		ConvertedName:  "Duration",
-		Description:    `The time taken by the analyzer.`,
-		Exposed:        true,
-		Name:           "duration",
-		Type:           "float",
-	},
-	"matchingdetections": {
-		AllowedChoices: []string{},
-		ConvertedName:  "MatchingDetections",
-		Description: `A list of detections that matches the detection matchers criteria set on
-analyzers,
-triggering their execution.`,
+		ConvertedName:  "Analyzers",
+		Description: `The analyzers to run. An empty list runs the ones enabled by default, and a
+name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.`,
 		Exposed: true,
-		Name:    "matchingDetections",
-		SubType: "detection",
-		Type:    "refList",
+		Name:    "analyzers",
+		SubType: "string",
+		Type:    "list",
 	},
-	"skippedreason": {
+	"annotations": {
 		AllowedChoices: []string{},
-		ConvertedName:  "SkippedReason",
-		Description:    `The reason the analyzer was skipped.`,
+		BSONFieldName:  "annotations",
+		ConvertedName:  "Annotations",
+		Description: `Annotations carried alongside the content, like the conversation ID. They are
+set during extraction, passed to the analysis and kept on what it produces.`,
+		Exposed: true,
+		Name:    "annotations",
+		Stored:  true,
+		SubType: "map[string]string",
+		Type:    "external",
+	},
+	"coverage": {
+		AllowedChoices: []string{"Auto", "Sparse", "Full"},
+		ConvertedName:  "Coverage",
+		DefaultValue:   AnalysisCoverageAuto,
+		Description: `How much of the content to look at. Auto lets the pipelines decide from its
+size.`,
+		Exposed: true,
+		Name:    "coverage",
+		Type:    "enum",
+	},
+	"customdatatypes": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CustomDataTypes",
+		Description:    `The custom data types to detect, on top of the built-in ones.`,
 		Exposed:        true,
-		Name:           "skippedReason",
+		Name:           "customDataTypes",
+		SubType:        "customdatatype",
+		Type:           "refList",
+	},
+	"index": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Index",
+		Description: `Which message this is in a multi-turn payload. Analyses run in parallel, so
+this is what puts the history back in order. Always sent: index 0 is a
+position, and an absent one means the order is unknown.`,
+		Exposed: true,
+		Name:    "index",
+		Type:    "integer",
+	},
+	"keywords": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Keywords",
+		Description:    `The keywords to look for.`,
+		Exposed:        true,
+		Name:           "keywords",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"kind": {
+		AllowedChoices: []string{"Message", "Thinking", "ToolDefinition", "ToolInput", "ToolOutput", "File", "Resource", "Event"},
+		BSONFieldName:  "kind",
+		ConvertedName:  "Kind",
+		DefaultValue:   AnalysisKindMessage,
+		Description: `The kind of content carried by this extraction. Used together with role to
+label what the extracted blob represents so the UI can render it correctly and
+analyzers can dispatch appropriately:
+- Message: free-form natural language (default).
+- Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+Gemini thought).
+- ToolDefinition: tool/function schema advertised to the model (name,
+description, JSON schema).
+- ToolInput: structured arguments the model passes when invoking a tool.
+- ToolOutput: result returned to the model after a tool call.
+- File: uploaded or attached file payload.
+- Resource: externally-supplied context injected into the prompt (RAG
+document, search result, MCP resource).
+- Event: control or lifecycle marker with no analyzable content.`,
+		Exposed: true,
+		Name:    "kind",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"principalkey": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PrincipalKey",
+		Description:    `Identifies who the content belongs to, without naming them.`,
+		Exposed:        true,
+		Name:           "principalKey",
 		Type:           "string",
+	},
+	"processing": {
+		AllowedChoices: []string{"Inband", "Offband"},
+		ConvertedName:  "Processing",
+		DefaultValue:   AnalysisProcessingInband,
+		Description: `Inband when someone is waiting on the answer, Offband when nobody is. Offband
+rides a longer retry curve.`,
+		Exposed: true,
+		Name:    "processing",
+		Type:    "enum",
+	},
+	"profile": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Profile",
+		Deprecated:     true,
+		Description: `DEPRECATED The analysis profile to run with. The pipelines no longer use
+it.`,
+		Exposed: true,
+		Name:    "profile",
+		Type:    "string",
+	},
+	"result": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Result",
+		Description:    `What the pipelines found.`,
+		Exposed:        true,
+		Name:           "result",
+		ReadOnly:       true,
+		SubType:        "analysisresult",
+		Type:           "ref",
+	},
+	"role": {
+		AllowedChoices: []string{"User", "Assistant", "System", "Tool"},
+		BSONFieldName:  "role",
+		ConvertedName:  "Role",
+		DefaultValue:   AnalysisRoleUser,
+		Description:    `The role of the message represented by this extraction.`,
+		Exposed:        true,
+		Name:           "role",
+		Stored:         true,
+		Type:           "enum",
+	},
+	"sessionid": {
+		AllowedChoices: []string{},
+		ConvertedName:  "SessionID",
+		Description:    `Ties the analyses of one conversation together.`,
+		Exposed:        true,
+		Name:           "sessionID",
+		Type:           "string",
+	},
+	"toolfilters": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ToolFilters",
+		Description:    `Which tools the analysis should be restricted to.`,
+		Exposed:        true,
+		Name:           "toolFilters",
+		SubType:        "string",
+		Type:           "list",
+	},
+	"toolresults": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "toolresults",
+		ConvertedName:  "ToolResults",
+		Description:    `Tool call results which are passed in to this request.`,
+		Exposed:        true,
+		Name:           "toolResults",
+		Stored:         true,
+		SubType:        "toolresult",
+		Type:           "refList",
+	},
+	"tooluses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "tooluses",
+		ConvertedName:  "ToolUses",
+		Description:    `Tool uses as requested by a model.`,
+		Exposed:        true,
+		Name:           "toolUses",
+		Stored:         true,
+		SubType:        "tooluse",
+		Type:           "refList",
+	},
+	"tools": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Tools",
+		Description:    `The tools available, by name.`,
+		Exposed:        true,
+		Name:           "tools",
+		SubType:        "map[string]tool",
+		Type:           "external",
+	},
+	"type": {
+		AllowedChoices: []string{"Input", "Output"},
+		BSONFieldName:  "type",
+		ConvertedName:  "Type",
+		Description:    `The type of text.`,
+		Exposed:        true,
+		Name:           "type",
+		Stored:         true,
+		Type:           "enum",
 	},
 }
 
+// SparseAnalysisList represents a list of SparseAnalysis
+type SparseAnalysisList []*SparseAnalysis
+
+// Identity returns the identity of the objects in the list.
+func (o SparseAnalysisList) Identity() elemental.Identity {
+
+	return AnalysisIdentity
+}
+
+// Copy returns a pointer to a copy the SparseAnalysisList.
+func (o SparseAnalysisList) Copy() elemental.Identifiables {
+
+	copy := slices.Clone(o)
+	return &copy
+}
+
+// Append appends the objects to the a new copy of the SparseAnalysisList.
+func (o SparseAnalysisList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+
+	out := slices.Clone(o)
+	for _, obj := range objects {
+		out = append(out, obj.(*SparseAnalysis))
+	}
+
+	return out
+}
+
+// List converts the object to an elemental.IdentifiablesList.
+func (o SparseAnalysisList) List() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := range len(o) {
+		out[i] = o[i]
+	}
+
+	return out
+}
+
+// DefaultOrder returns the default ordering fields of the content.
+func (o SparseAnalysisList) DefaultOrder() []string {
+
+	return []string{}
+}
+
+// ToPlain returns the SparseAnalysisList converted to AnalysisList.
+func (o SparseAnalysisList) ToPlain() elemental.IdentifiablesList {
+
+	out := make(elemental.IdentifiablesList, len(o))
+	for i := range len(o) {
+		out[i] = o[i].ToPlain()
+	}
+
+	return out
+}
+
+// Version returns the version of the content.
+func (o SparseAnalysisList) Version() int {
+
+	return 1
+}
+
+// SparseAnalysis represents the sparse version of a analysis.
+type SparseAnalysis struct {
+	// The analyzers to run. An empty list runs the ones enabled by default, and a
+	// name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.
+	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
+
+	// Annotations carried alongside the content, like the conversation ID. They are
+	// set during extraction, passed to the analysis and kept on what it produces.
+	Annotations *map[string]string `json:"annotations,omitempty" msgpack:"annotations,omitempty" bson:"annotations,omitempty" mapstructure:"annotations,omitempty"`
+
+	// How much of the content to look at. Auto lets the pipelines decide from its
+	// size.
+	Coverage *AnalysisCoverageValue `json:"coverage,omitempty" msgpack:"coverage,omitempty" bson:"-" mapstructure:"coverage,omitempty"`
+
+	// The custom data types to detect, on top of the built-in ones.
+	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// Which message this is in a multi-turn payload. Analyses run in parallel, so
+	// this is what puts the history back in order. Always sent: index 0 is a
+	// position, and an absent one means the order is unknown.
+	Index *int `json:"index,omitempty" msgpack:"index,omitempty" bson:"-" mapstructure:"index,omitempty"`
+
+	// The keywords to look for.
+	Keywords *[]string `json:"keywords,omitempty" msgpack:"keywords,omitempty" bson:"-" mapstructure:"keywords,omitempty"`
+
+	// The kind of content carried by this extraction. Used together with role to
+	// label what the extracted blob represents so the UI can render it correctly and
+	// analyzers can dispatch appropriately:
+	// - Message: free-form natural language (default).
+	// - Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning,
+	// Gemini thought).
+	// - ToolDefinition: tool/function schema advertised to the model (name,
+	// description, JSON schema).
+	// - ToolInput: structured arguments the model passes when invoking a tool.
+	// - ToolOutput: result returned to the model after a tool call.
+	// - File: uploaded or attached file payload.
+	// - Resource: externally-supplied context injected into the prompt (RAG
+	// document, search result, MCP resource).
+	// - Event: control or lifecycle marker with no analyzable content.
+	Kind *AnalysisKindValue `json:"kind,omitempty" msgpack:"kind,omitempty" bson:"kind,omitempty" mapstructure:"kind,omitempty"`
+
+	// Identifies who the content belongs to, without naming them.
+	PrincipalKey *string `json:"principalKey,omitempty" msgpack:"principalKey,omitempty" bson:"-" mapstructure:"principalKey,omitempty"`
+
+	// Inband when someone is waiting on the answer, Offband when nobody is. Offband
+	// rides a longer retry curve.
+	Processing *AnalysisProcessingValue `json:"processing,omitempty" msgpack:"processing,omitempty" bson:"-" mapstructure:"processing,omitempty"`
+
+	// DEPRECATED The analysis profile to run with. The pipelines no longer use
+	// it.
+	Profile *string `json:"profile,omitempty" msgpack:"profile,omitempty" bson:"-" mapstructure:"profile,omitempty"`
+
+	// What the pipelines found.
+	Result *AnalysisResult `json:"result,omitempty" msgpack:"result,omitempty" bson:"-" mapstructure:"result,omitempty"`
+
+	// The role of the message represented by this extraction.
+	Role *AnalysisRoleValue `json:"role,omitempty" msgpack:"role,omitempty" bson:"role,omitempty" mapstructure:"role,omitempty"`
+
+	// Ties the analyses of one conversation together.
+	SessionID *string `json:"sessionID,omitempty" msgpack:"sessionID,omitempty" bson:"-" mapstructure:"sessionID,omitempty"`
+
+	// Which tools the analysis should be restricted to.
+	ToolFilters *[]string `json:"toolFilters,omitempty" msgpack:"toolFilters,omitempty" bson:"-" mapstructure:"toolFilters,omitempty"`
+
+	// Tool call results which are passed in to this request.
+	ToolResults *[]ToolResult `json:"toolResults,omitempty" msgpack:"toolResults,omitempty" bson:"toolresults,omitempty" mapstructure:"toolResults,omitempty"`
+
+	// Tool uses as requested by a model.
+	ToolUses *[]ToolUse `json:"toolUses,omitempty" msgpack:"toolUses,omitempty" bson:"tooluses,omitempty" mapstructure:"toolUses,omitempty"`
+
+	// The tools available, by name.
+	Tools *map[string]*Tool `json:"tools,omitempty" msgpack:"tools,omitempty" bson:"-" mapstructure:"tools,omitempty"`
+
+	// The type of text.
+	Type *AnalysisTypeValue `json:"type,omitempty" msgpack:"type,omitempty" bson:"type,omitempty" mapstructure:"type,omitempty"`
+
+	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
+}
+
+// NewSparseAnalysis returns a new  SparseAnalysis.
+func NewSparseAnalysis() *SparseAnalysis {
+	return &SparseAnalysis{}
+}
+
+// Identity returns the Identity of the sparse object.
+func (o *SparseAnalysis) Identity() elemental.Identity {
+
+	return AnalysisIdentity
+}
+
+// Identifier returns the value of the sparse object's unique identifier.
+func (o *SparseAnalysis) Identifier() string {
+
+	return ""
+}
+
+// SetIdentifier sets the value of the sparse object's unique identifier.
+func (o *SparseAnalysis) SetIdentifier(id string) {
+
+}
+
+// GetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseAnalysis) GetBSON() (any, error) {
+
+	if o == nil {
+		return nil, nil
+	}
+
+	s := &mongoAttributesSparseAnalysis{}
+
+	if o.Annotations != nil {
+		s.Annotations = o.Annotations
+	}
+	if o.Kind != nil {
+		s.Kind = o.Kind
+	}
+	if o.Role != nil {
+		s.Role = o.Role
+	}
+	if o.ToolResults != nil {
+		s.ToolResults = o.ToolResults
+	}
+	if o.ToolUses != nil {
+		s.ToolUses = o.ToolUses
+	}
+	if o.Type != nil {
+		s.Type = o.Type
+	}
+
+	return s, nil
+}
+
+// SetBSON implements the bson marshaling interface.
+// This is used to transparently convert ID to MongoDBID as ObectID.
+func (o *SparseAnalysis) SetBSON(raw bson.Raw) error {
+
+	if o == nil {
+		return nil
+	}
+
+	s := &mongoAttributesSparseAnalysis{}
+	if err := raw.Unmarshal(s); err != nil {
+		return err
+	}
+
+	if s.Annotations != nil {
+		o.Annotations = s.Annotations
+	}
+	if s.Kind != nil {
+		o.Kind = s.Kind
+	}
+	if s.Role != nil {
+		o.Role = s.Role
+	}
+	if s.ToolResults != nil {
+		o.ToolResults = s.ToolResults
+	}
+	if s.ToolUses != nil {
+		o.ToolUses = s.ToolUses
+	}
+	if s.Type != nil {
+		o.Type = s.Type
+	}
+
+	return nil
+}
+
+// Version returns the hardcoded version of the model.
+func (o *SparseAnalysis) Version() int {
+
+	return 1
+}
+
+// ToPlain returns the plain version of the sparse model.
+func (o *SparseAnalysis) ToPlain() elemental.PlainIdentifiable {
+
+	out := NewAnalysis()
+	if o.Analyzers != nil {
+		out.Analyzers = *o.Analyzers
+	}
+	if o.Annotations != nil {
+		out.Annotations = *o.Annotations
+	}
+	if o.Coverage != nil {
+		out.Coverage = *o.Coverage
+	}
+	if o.CustomDataTypes != nil {
+		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.Index != nil {
+		out.Index = *o.Index
+	}
+	if o.Keywords != nil {
+		out.Keywords = *o.Keywords
+	}
+	if o.Kind != nil {
+		out.Kind = *o.Kind
+	}
+	if o.PrincipalKey != nil {
+		out.PrincipalKey = *o.PrincipalKey
+	}
+	if o.Processing != nil {
+		out.Processing = *o.Processing
+	}
+	if o.Profile != nil {
+		out.Profile = *o.Profile
+	}
+	if o.Result != nil {
+		out.Result = o.Result
+	}
+	if o.Role != nil {
+		out.Role = *o.Role
+	}
+	if o.SessionID != nil {
+		out.SessionID = *o.SessionID
+	}
+	if o.ToolFilters != nil {
+		out.ToolFilters = *o.ToolFilters
+	}
+	if o.ToolResults != nil {
+		out.ToolResults = *o.ToolResults
+	}
+	if o.ToolUses != nil {
+		out.ToolUses = *o.ToolUses
+	}
+	if o.Tools != nil {
+		out.Tools = *o.Tools
+	}
+	if o.Type != nil {
+		out.Type = *o.Type
+	}
+
+	return out
+}
+
+// EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
+func (o *SparseAnalysis) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'CustomDataTypes' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Result != nil {
+		if err := o.Result.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Result' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolResults != nil {
+		for _, sub := range *o.ToolResults {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolResults' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ToolUses != nil {
+		for _, sub := range *o.ToolUses {
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ToolUses' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
+func (o *SparseAnalysis) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.CustomDataTypes != nil {
+		for _, sub := range *o.CustomDataTypes {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'CustomDataTypes' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Result != nil {
+		if err := o.Result.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Result' for 'Analysis' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.ToolResults != nil {
+		for _, sub := range *o.ToolResults {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolResults' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.ToolUses != nil {
+		for _, sub := range *o.ToolUses {
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ToolUses' for 'Analysis' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// DeepCopy returns a deep copy if the SparseAnalysis.
+func (o *SparseAnalysis) DeepCopy() *SparseAnalysis {
+
+	if o == nil {
+		return nil
+	}
+
+	out := &SparseAnalysis{}
+	o.DeepCopyInto(out)
+
+	return out
+}
+
+// DeepCopyInto copies the receiver into the given *SparseAnalysis.
+func (o *SparseAnalysis) DeepCopyInto(out *SparseAnalysis) {
+
+	target, err := copystructure.Copy(o)
+	if err != nil {
+		panic(fmt.Sprintf("Unable to deepcopy SparseAnalysis: %s", err))
+	}
+
+	*out = *target.(*SparseAnalysis)
+}
+
 type mongoAttributesAnalysis struct {
+	Annotations map[string]string `bson:"annotations,omitempty"`
+	Kind        AnalysisKindValue `bson:"kind"`
+	Role        AnalysisRoleValue `bson:"role"`
+	ToolResults []ToolResult      `bson:"toolresults,omitempty"`
+	ToolUses    []ToolUse         `bson:"tooluses,omitempty"`
+	Type        AnalysisTypeValue `bson:"type"`
+}
+type mongoAttributesSparseAnalysis struct {
+	Annotations *map[string]string `bson:"annotations,omitempty"`
+	Kind        *AnalysisKindValue `bson:"kind,omitempty"`
+	Role        *AnalysisRoleValue `bson:"role,omitempty"`
+	ToolResults *[]ToolResult      `bson:"toolresults,omitempty"`
+	ToolUses    *[]ToolUse         `bson:"tooluses,omitempty"`
+	Type        *AnalysisTypeValue `bson:"type,omitempty"`
 }

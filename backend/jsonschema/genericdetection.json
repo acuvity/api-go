@@ -1,0 +1,67 @@
+{
+  "$extends": [],
+  "$friendlyName": "Generic Detection",
+  "$friendlyNamePlural": "Generic Detections",
+  "$modelName": "GenericDetection",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "genericdetections",
+  "$modelRestName": "genericdetection",
+  "additionalProperties": false,
+  "description": "Represent a generic detection.",
+  "properties": {
+    "end": {
+      "$friendlyName": "End",
+      "description": "The end position of the positional generic detection.",
+      "title": "end",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "group": {
+      "$friendlyName": "Group",
+      "description": "The group of the generic detection.",
+      "title": "group",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the generic detection.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The normalized score of the generic detection against its confidence level thresholds. Between 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
+      "title": "score",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "snippet": {
+      "$friendlyName": "Snippet",
+      "$ref": "snippet.json",
+      "description": "the snippet of the generic detection.",
+      "title": "snippet"
+    },
+    "start": {
+      "$friendlyName": "Start",
+      "description": "The start position of the poisitional generic detection.",
+      "title": "start",
+      "type": [
+        "integer",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "GenericDetection",
+  "type": "object"
+}

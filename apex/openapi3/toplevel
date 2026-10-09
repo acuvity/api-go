@@ -328,7 +328,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Annotations attached to the extraction.",
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
             "type": "object"
           },
           "categories": {
@@ -389,6 +389,13 @@
               "prompt_injection": 0.8
             },
             "type": "object"
+          },
+          "genericdetections": {
+            "description": "The generic detections found while applying policies.",
+            "items": {
+              "$ref": "#/components/schemas/genericdetection"
+            },
+            "type": "array"
           },
           "hash": {
             "description": "The hash of the extraction.",
@@ -643,6 +650,35 @@
             "additionalProperties": true,
             "description": "The topic of the classification.",
             "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "genericdetection": {
+        "description": "Represent a generic detection.",
+        "properties": {
+          "end": {
+            "description": "The end position of the positional generic detection.",
+            "type": "integer"
+          },
+          "group": {
+            "description": "The group of the generic detection.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the generic detection.",
+            "type": "string"
+          },
+          "score": {
+            "description": "The normalized score of the generic detection against its confidence level\nthresholds.\nBetween 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
+            "type": "number"
+          },
+          "snippet": {
+            "$ref": "#/components/schemas/snippet"
+          },
+          "start": {
+            "description": "The start position of the poisitional generic detection.",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -902,7 +938,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Annotations attached to the log.",
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
             "type": "object"
           },
           "client": {
@@ -1558,7 +1594,7 @@
             "additionalProperties": {
               "type": "string"
             },
-            "description": "Annotations attached to the log.",
+            "description": "Annotations carried alongside the content, like the conversation ID. They are\nset during extraction, passed to the analysis and kept on what it produces.",
             "type": "object"
           },
           "client": {
@@ -1685,6 +1721,24 @@
           "principal",
           "providerType"
         ],
+        "type": "object"
+      },
+      "snippet": {
+        "description": "Represents an excerpt of content returned alongside a detection.",
+        "properties": {
+          "data": {
+            "description": "The contextual excerpt of the content around the detection.",
+            "type": "string"
+          },
+          "end": {
+            "description": "The end position of the detection inside the snippet data.",
+            "type": "integer"
+          },
+          "start": {
+            "description": "The start position of the detection inside the snippet data.",
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "textualdetection": {

@@ -162,6 +162,15 @@
       "description": "User override of the system generated severity. When set, the severity attribute reflects the override.",
       "title": "severityOverride"
     },
+    "severityWeight": {
+      "$friendlyName": "Severity Weight",
+      "description": "Numeric rank of the severity (Low=1 to Critical=4), for ordering.",
+      "title": "severityWeight",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "state": {
       "$friendlyName": "State",
       "description": "The state of the finding.",
@@ -179,6 +188,15 @@
         "Archived"
       ],
       "title": "status"
+    },
+    "statusWeight": {
+      "$friendlyName": "Status Weight",
+      "description": "Numeric rank of the status (Open=1 to Archived=4), for ordering.",
+      "title": "statusWeight",
+      "type": [
+        "integer",
+        "null"
+      ]
     },
     "systemGeneratedSeverity": {
       "$friendlyName": "System Generated Severity",

@@ -1,0 +1,110 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "Data Sink Backfill",
+  "$friendlyNamePlural": "Data Sink Backfills",
+  "$modelName": "DataSinkBackfill",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkbackfills",
+  "$modelRestName": "datasinkbackfill",
+  "additionalProperties": false,
+  "description": "Exports the data sink's selected datasets over a time range, using its filters. A backfill has no separate dataset selection or filter overrides. The range is in event time, UTC, from startTime (inclusive) to endTime (exclusive). A backfill has its own progress: live export continues meanwhile and is not affected. Customers create, retrieve and delete backfills; only the export service updates their status.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "dataSinkID": {
+      "$creationOnly": true,
+      "$friendlyName": "Data Sink ID",
+      "$required": true,
+      "description": "The ID of the data sink.",
+      "title": "dataSinkID",
+      "type": "string"
+    },
+    "endTime": {
+      "$creationOnly": true,
+      "$friendlyName": "End Time",
+      "$required": true,
+      "description": "The end of the range in event time, UTC, exclusive.",
+      "title": "endTime",
+      "type": "string"
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "description": "Why the backfill failed. Sanitized by the export service before validation, and cleared when it is no longer Failed.",
+      "maxLength": 4096,
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "startTime": {
+      "$creationOnly": true,
+      "$friendlyName": "Start Time",
+      "$required": true,
+      "description": "The start of the range in event time, UTC, inclusive.",
+      "title": "startTime",
+      "type": "string"
+    },
+    "status": {
+      "$defaultValue": "Pending",
+      "$friendlyName": "Status",
+      "description": "Pending until the export service starts it, Running while it exports, Completed when all the data sink's selected datasets are exported, Failed when it stopped on an error. Set by the export service.",
+      "enum": [
+        "Pending",
+        "Running",
+        "Completed",
+        "Failed"
+      ],
+      "title": "status"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "dataSinkID",
+    "endTime",
+    "startTime"
+  ],
+  "title": "DataSinkBackfill",
+  "type": "object"
+}

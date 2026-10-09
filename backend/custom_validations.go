@@ -28,6 +28,32 @@ import (
 	"go.opentelemetry.io/collector/pdata/ptrace"
 )
 
+func ValidateDeployment(deployment *Deployment) error {
+
+	seenNS := make(map[string]struct{}, len(deployment.K8sNamespaceMappings))
+	wildcards := 0
+
+	for i, m := range deployment.K8sNamespaceMappings {
+		if m == nil {
+			continue
+		}
+
+		if m.K8sNamespace == "*" {
+			wildcards++
+			if wildcards > 1 {
+				return makeErr(fmt.Sprintf("k8sNamespaceMappings/%d/k8sNamespace", i), "at most one wildcard (*) entry is allowed")
+			}
+		}
+
+		if _, ok := seenNS[m.K8sNamespace]; ok {
+			return makeErr(fmt.Sprintf("k8sNamespaceMappings/%d/k8sNamespace", i), fmt.Sprintf("duplicate k8sNamespace '%s'", m.K8sNamespace))
+		}
+		seenNS[m.K8sNamespace] = struct{}{}
+	}
+
+	return nil
+}
+
 // ValidateURL validates the given value is a correct url with any scheme.
 func ValidateURL(attribute string, u string) error {
 
@@ -1805,6 +1831,38 @@ func ValidatePredicate(p *Predicate) error {
 	return nil
 }
 
+// ValidatePolicySimulation validates the policy simulation object.
+func ValidatePolicySimulation(simulation *PolicySimulation) error {
+
+	if simulation.TransportMode == PolicySimulationTransportModeGateway && simulation.GatewayName == "" {
+		return makeErr("gatewayName", "'gatewayName' is required when 'transportMode' is 'Gateway'.")
+	}
+
+	if (simulation.Provider == "") == (simulation.DestinationAppComponent == "") {
+		return makeErr("provider", "Exactly one of 'provider' and 'destinationAppComponent' must be set.")
+	}
+
+	if simulation.DestinationAppComponent != "" {
+		if err := ValidateAppComponentReferences("destinationAppComponent", []string{simulation.DestinationAppComponent}); err != nil {
+			return err
+		}
+	}
+
+	switch simulation.PrincipalType {
+	case PolicySimulationPrincipalTypeTeam:
+		if len(simulation.Teams) == 0 {
+			return makeErr("teams", "'teams' is required when 'principalType' is 'Team'.")
+		}
+	case PolicySimulationPrincipalTypeApp:
+		if simulation.SourceAppComponent == "" {
+			return makeErr("sourceAppComponent", "'sourceAppComponent' is required when 'principalType' is 'App'.")
+		}
+		return ValidateAppComponentReferences("sourceAppComponent", []string{simulation.SourceAppComponent})
+	}
+
+	return nil
+}
+
 // ValidatePrincipal validates the principal object.
 func ValidatePrincipal(principal *Principal) error {
 
@@ -3281,6 +3339,170 @@ func ValidateRSAKey(attribute string, key string) error {
 
 	if _, err := cryptoutil.ParseRSAPublicKey(key); err != nil {
 		return makeErr(attribute, fmt.Sprintf("invalid RSA public key: %s", err.Error()))
+	}
+	return nil
+}
+
+// Data Sink validation: spec-generated checks handle required fields, enums,
+// string shapes and lengths. Custom checks handle cross-field rules,
+// selector lists and nonnegative counters.
+
+// Limits on selector values.
+const (
+	dataSinkMaxSelectorValues = 100
+	dataSinkMaxSelectorLength = 256
+)
+
+var (
+	dataSinkProviderTypes = []string{"LLM", "MCPServer"}
+	dataSinkProcessors    = []string{"Proxy", "API", "Gateway"}
+	dataSinkDecisions     = []string{
+		string(ProxyRoundtripDecisionAllow),
+		string(ProxyRoundtripDecisionAsk),
+		string(ProxyRoundtripDecisionBypassed),
+		string(ProxyRoundtripDecisionDeny),
+		string(ProxyRoundtripDecisionError),
+		string(ProxyRoundtripDecisionForbiddenUser),
+		string(ProxyRoundtripDecisionNotApplicable),
+		string(ProxyRoundtripDecisionRedirected),
+		string(ProxyRoundtripDecisionReport),
+		string(ProxyRoundtripDecisionSkipped),
+		string(ProxyRoundtripDecisionUpstreamError),
+	}
+)
+
+// ValidateDataSink validates a DataSink on its own.
+func ValidateDataSink(ds *DataSink) error {
+
+	if ds.AccessLogs == nil && ds.AgenticLogs == nil {
+		return makeErr("accessLogs", "At least one dataset must be selected: accessLogs or agenticLogs")
+	}
+
+	if ds.Type == DataSinkTypeS3 && ds.S3 == nil {
+		return makeErr("s3", "Attribute 's3' is required when type is S3")
+	}
+
+	return nil
+}
+
+// ValidateDataSinkDecisions validates a decision selector attribute.
+func ValidateDataSinkDecisions(attribute string, values []string) error {
+	return validateSelectorEnum(attribute, values, dataSinkDecisions)
+}
+
+// ValidateDataSinkProviderTypes validates a provider type selector attribute.
+func ValidateDataSinkProviderTypes(attribute string, values []string) error {
+	return validateSelectorEnum(attribute, values, dataSinkProviderTypes)
+}
+
+// ValidateDataSinkProcessors validates a processor selector attribute.
+func ValidateDataSinkProcessors(attribute string, values []string) error {
+	return validateSelectorEnum(attribute, values, dataSinkProcessors)
+}
+
+func validateSelectorEnum(attribute string, values []string, allowed []string) error {
+
+	if len(values) > len(allowed) {
+		return makeErr(attribute, fmt.Sprintf("Attribute '%s' has too many values", attribute))
+	}
+	for _, v := range values {
+		if !slices.Contains(allowed, v) {
+			return makeErr(attribute, fmt.Sprintf("Attribute '%s' contains '%s'; allowed values: %s", attribute, v, strings.Join(allowed, ", ")))
+		}
+	}
+	return nil
+}
+
+// ValidateDataSinkSelectorStrings checks customer strings that become data in the
+// export filter. They are encoded as JSON literals there, never as code; on top
+// of that, '$' is refused because the export pipeline would expand '${...}'.
+// JSON encoding escapes control characters; Avi must check project existence.
+func ValidateDataSinkSelectorStrings(attribute string, values []string) error {
+
+	if len(values) > dataSinkMaxSelectorValues {
+		return makeErr(attribute, fmt.Sprintf("Attribute '%s' must have at most %d values", attribute, dataSinkMaxSelectorValues))
+	}
+	for _, v := range values {
+		if err := ValidateDataSinkString(attribute, v); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidateDataSinkString validates one customer string that ends up in the
+// export configuration.
+func ValidateDataSinkString(attribute string, v string) error {
+
+	switch {
+	case v == "" || strings.TrimSpace(v) != v:
+		return makeErr(attribute, fmt.Sprintf("Attribute '%s' contains an empty value or one with leading or trailing spaces", attribute))
+	case len(v) > dataSinkMaxSelectorLength:
+		return makeErr(attribute, fmt.Sprintf("Attribute '%s' contains a value longer than %d characters", attribute, dataSinkMaxSelectorLength))
+	case strings.ContainsRune(v, '$'):
+		return makeErr(attribute, fmt.Sprintf("Attribute '%s' contains '$', which is not allowed", attribute))
+	}
+	return nil
+}
+
+// ValidateDataSinkCheck validates a connection check request.
+func ValidateDataSinkCheck(check *DataSinkCheck) error {
+
+	switch {
+	case check.DataSinkID != "" && check.S3 != nil:
+		return makeErr("dataSinkID", "Give either 'dataSinkID' or an unsaved destination ('s3'), not both")
+	case check.DataSinkID == "" && check.S3 == nil:
+		return makeErr("dataSinkID", "Give either 'dataSinkID' or an unsaved destination ('s3')")
+	case check.S3 != nil && check.S3.SecretAccessKey == "":
+		return makeErr("s3", "An unsaved destination needs its 'secretAccessKey'")
+	}
+	return nil
+}
+
+// ValidateDataSinkBackfill validates a backfill on its own. The range is in
+// event time; bounds that depend on the current time or on log retention are
+// checked by the processor. Datasets and filters are inherited from the sink.
+func ValidateDataSinkBackfill(bf *DataSinkBackfill) error {
+
+	if !bf.StartTime.Before(bf.EndTime) {
+		return makeErr("endTime", "Attribute 'endTime' must be after 'startTime'")
+	}
+	return nil
+}
+
+// ValidateDataSinkRun validates a run on its own.
+func ValidateDataSinkRun(run *DataSinkRun) error {
+
+	switch run.Kind {
+	case DataSinkRunKindBackfill:
+		if run.BackfillID == "" {
+			return makeErr("backfillID", "A Backfill run needs 'backfillID'")
+		}
+	case DataSinkRunKindScheduled:
+		if run.BackfillID != "" {
+			return makeErr("backfillID", "A Scheduled run has no 'backfillID'")
+		}
+	}
+
+	// The pinned generator only emits min_value checks for positive minima,
+	// so min_value: 0 would not reject negative counters.
+	for name, v := range map[string]int{
+		"attempts": run.Attempts, "bytesWritten": run.BytesWritten, "definitionVersion": run.DefinitionVersion,
+		"filesWritten": run.FilesWritten, "revision": run.Revision, "rowsDropped": run.RowsDropped,
+		"rowsRead": run.RowsRead, "rowsWritten": run.RowsWritten,
+	} {
+		if v < 0 {
+			return makeErr(name, fmt.Sprintf("Attribute '%s' must not be negative", name))
+		}
+	}
+
+	// Required timestamps are checked by generated validation. Here only the
+	// relationships between them are checked; endTime may be empty on a retry.
+	if !run.RangeStart.Before(run.RangeEnd) {
+		return makeErr("rangeEnd", "Attribute 'rangeEnd' must be after 'rangeStart'")
+	}
+	if !run.EndTime.IsZero() && run.EndTime.Before(run.StartTime) {
+		return makeErr("endTime", "Attribute 'endTime' cannot be before 'startTime'")
 	}
 	return nil
 }

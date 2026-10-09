@@ -136,6 +136,9 @@ type ProxyConf struct {
 	// The list of available provider.
 	Providers ProvidersList `json:"providers" msgpack:"providers" bson:"-" mapstructure:"providers,omitempty"`
 
+	// The base rego libraries the computed policies are compiled against.
+	RegoBaseLibs *RegoBaseLibs `json:"regoBaseLibs,omitempty" msgpack:"regoBaseLibs,omitempty" bson:"-" mapstructure:"regoBaseLibs,omitempty"`
+
 	// Tokens pool to authenticate with the provider.
 	Tokens map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
@@ -275,6 +278,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Namespace:           &o.Namespace,
 			OrgSettings:         o.OrgSettings,
 			Providers:           &o.Providers,
+			RegoBaseLibs:        o.RegoBaseLibs,
 			Tokens:              &o.Tokens,
 			WebExtensionConfigs: &o.WebExtensionConfigs,
 		}
@@ -317,6 +321,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.OrgSettings = o.OrgSettings
 		case "providers":
 			sp.Providers = &(o.Providers)
+		case "regoBaseLibs":
+			sp.RegoBaseLibs = o.RegoBaseLibs
 		case "tokens":
 			sp.Tokens = &(o.Tokens)
 		case "webExtensionConfigs":
@@ -384,6 +390,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Providers != nil {
 		o.Providers = *so.Providers
+	}
+	if so.RegoBaseLibs != nil {
+		o.RegoBaseLibs = so.RegoBaseLibs
 	}
 	if so.Tokens != nil {
 		o.Tokens = *so.Tokens
@@ -498,6 +507,12 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.RegoBaseLibs != nil {
+		if err := o.RegoBaseLibs.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -618,6 +633,12 @@ func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.RegoBaseLibs != nil {
+		if err := o.RegoBaseLibs.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -782,6 +803,13 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
+	if o.RegoBaseLibs != nil {
+		if err := o.RegoBaseLibs.Validate(); err != nil {
+			errors = errors.Append(err)
+			elemental.InjectAttributePath(errors, "regoBaseLibs")
+		}
+	}
+
 	for i, sub := range o.WebExtensionConfigs {
 		if sub == nil {
 			continue
@@ -860,6 +888,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.OrgSettings
 	case "providers":
 		return o.Providers
+	case "regoBaseLibs":
+		return o.RegoBaseLibs
 	case "tokens":
 		return o.Tokens
 	case "webExtensionConfigs":
@@ -1033,6 +1063,15 @@ resolved access and content policies.`,
 		Name:           "providers",
 		SubType:        "provider",
 		Type:           "refList",
+	},
+	"RegoBaseLibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RegoBaseLibs",
+		Description:    `The base rego libraries the computed policies are compiled against.`,
+		Exposed:        true,
+		Name:           "regoBaseLibs",
+		SubType:        "regobaselibs",
+		Type:           "ref",
 	},
 	"Tokens": {
 		AllowedChoices: []string{},
@@ -1219,6 +1258,15 @@ resolved access and content policies.`,
 		SubType:        "provider",
 		Type:           "refList",
 	},
+	"regobaselibs": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RegoBaseLibs",
+		Description:    `The base rego libraries the computed policies are compiled against.`,
+		Exposed:        true,
+		Name:           "regoBaseLibs",
+		SubType:        "regobaselibs",
+		Type:           "ref",
+	},
 	"tokens": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Tokens",
@@ -1353,6 +1401,9 @@ type SparseProxyConf struct {
 
 	// The list of available provider.
 	Providers *ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"-" mapstructure:"providers,omitempty"`
+
+	// The base rego libraries the computed policies are compiled against.
+	RegoBaseLibs *RegoBaseLibs `json:"regoBaseLibs,omitempty" msgpack:"regoBaseLibs,omitempty" bson:"-" mapstructure:"regoBaseLibs,omitempty"`
 
 	// Tokens pool to authenticate with the provider.
 	Tokens *map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
@@ -1496,6 +1547,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.Providers != nil {
 		out.Providers = *o.Providers
 	}
+	if o.RegoBaseLibs != nil {
+		out.RegoBaseLibs = o.RegoBaseLibs
+	}
 	if o.Tokens != nil {
 		out.Tokens = *o.Tokens
 	}
@@ -1633,6 +1687,12 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.RegoBaseLibs != nil {
+		if err := o.RegoBaseLibs.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1777,6 +1837,12 @@ func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypt
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Providers' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.RegoBaseLibs != nil {
+		if err := o.RegoBaseLibs.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 

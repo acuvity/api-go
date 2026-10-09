@@ -1,76 +1,197 @@
 {
-  "$extends": [],
+  "$extends": [
+    "@annotatable",
+    "@extractionrequestmetadata",
+    "@pipelinepasstype"
+  ],
   "$friendlyName": "Analysis",
   "$friendlyNamePlural": "Analysis",
   "$modelName": "Analysis",
-  "$modelPackage": "proxy",
-  "$modelResourceName": "analysis",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "analyses",
   "$modelRestName": "analysis",
   "additionalProperties": false,
-  "description": "Represent a ml pipeline graph analysis.",
+  "description": "Runs the analysis pipelines over some content. Nothing is stored: creating one returns what the pipelines found, in result.  The content itself is not an attribute. It is sent beside this object, as the second part of a multipart body whose first part is this object, so that a payload of any size is streamed rather than held in memory at every hop. See the analyze handler.",
   "properties": {
-    "analyses": {
-      "$friendlyName": "Analyses",
-      "description": "The list of analysis chained to this analyzer analysis.",
+    "analyzers": {
+      "$friendlyName": "Analyzers",
+      "description": "The analyzers to run. An empty list runs the ones enabled by default, and a name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.",
       "items": {
-        "$ref": "analysis.json"
+        "type": [
+          "string",
+          "null"
+        ]
       },
-      "title": "analyses",
+      "title": "analyzers",
       "type": "array"
     },
-    "analyzerID": {
-      "$friendlyName": "Analyzer",
-      "description": "The ID of the analyzer.",
-      "title": "analyzerID",
+    "annotations": {
+      "$friendlyName": "Annotations",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "Annotations carried alongside the content, like the conversation ID. They are set during extraction, passed to the analysis and kept on what it produces.",
+      "title": "annotations",
+      "type": "object"
+    },
+    "coverage": {
+      "$defaultValue": "Auto",
+      "$friendlyName": "Coverage",
+      "description": "How much of the content to look at. Auto lets the pipelines decide from its size.",
+      "enum": [
+        "Auto",
+        "Sparse",
+        "Full"
+      ],
+      "title": "coverage"
+    },
+    "customDataTypes": {
+      "$friendlyName": "Custom Data Types",
+      "description": "The custom data types to detect, on top of the built-in ones.",
+      "items": {
+        "$ref": "customdatatype.json"
+      },
+      "title": "customDataTypes",
+      "type": "array"
+    },
+    "index": {
+      "$friendlyName": "Index",
+      "description": "Which message this is in a multi-turn payload. Analyses run in parallel, so this is what puts the history back in order. Always sent: index 0 is a position, and an absent one means the order is unknown.",
+      "title": "index",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "keywords": {
+      "$friendlyName": "Keywords",
+      "description": "The keywords to look for.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "keywords",
+      "type": "array"
+    },
+    "kind": {
+      "$defaultValue": "Message",
+      "$friendlyName": "Kind",
+      "description": "The kind of content carried by this extraction. Used together with role to label what the extracted blob represents so the UI can render it correctly and analyzers can dispatch appropriately: - Message: free-form natural language (default). - Thinking: model reasoning trace (e.g. Anthropic thinking, OpenAI reasoning, Gemini thought). - ToolDefinition: tool/function schema advertised to the model (name, description, JSON schema). - ToolInput: structured arguments the model passes when invoking a tool. - ToolOutput: result returned to the model after a tool call. - File: uploaded or attached file payload. - Resource: externally-supplied context injected into the prompt (RAG document, search result, MCP resource). - Event: control or lifecycle marker with no analyzable content.",
+      "enum": [
+        "Message",
+        "Thinking",
+        "ToolDefinition",
+        "ToolInput",
+        "ToolOutput",
+        "File",
+        "Resource",
+        "Event"
+      ],
+      "title": "kind"
+    },
+    "principalKey": {
+      "$friendlyName": "Principal Key",
+      "description": "Identifies who the content belongs to, without naming them.",
+      "title": "principalKey",
       "type": [
         "string",
         "null"
       ]
     },
-    "coverageRatio": {
-      "$friendlyName": "Coverage Ratio",
-      "description": "The percentage of text analyzed.",
-      "title": "coverageRatio",
-      "type": [
-        "number",
-        "null"
-      ]
+    "processing": {
+      "$defaultValue": "Inband",
+      "$friendlyName": "Processing",
+      "description": "Inband when someone is waiting on the answer, Offband when nobody is. Offband rides a longer retry curve.",
+      "enum": [
+        "Inband",
+        "Offband"
+      ],
+      "title": "processing"
     },
-    "detections": {
-      "$friendlyName": "Detections",
-      "description": "The list of detections the analyzer returned.",
-      "items": {
-        "$ref": "detection.json"
-      },
-      "title": "detections",
-      "type": "array"
-    },
-    "duration": {
-      "$friendlyName": "Duration",
-      "description": "The time taken by the analyzer.",
-      "title": "duration",
-      "type": [
-        "number",
-        "null"
-      ]
-    },
-    "matchingDetections": {
-      "$friendlyName": "Matching Detections",
-      "description": "A list of detections that matches the detection matchers criteria set on analyzers, triggering their execution.",
-      "items": {
-        "$ref": "detection.json"
-      },
-      "title": "matchingDetections",
-      "type": "array"
-    },
-    "skippedReason": {
-      "$friendlyName": "Skipped Reason",
-      "description": "The reason the analyzer was skipped.",
-      "title": "skippedReason",
+    "profile": {
+      "$friendlyName": "Profile",
+      "description": "DEPRECATED The analysis profile to run with. The pipelines no longer use it.",
+      "title": "profile",
       "type": [
         "string",
         "null"
       ]
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "$readOnly": true,
+      "$ref": "analysisresult.json",
+      "description": "What the pipelines found.",
+      "title": "result"
+    },
+    "role": {
+      "$defaultValue": "User",
+      "$friendlyName": "Role",
+      "description": "The role of the message represented by this extraction.",
+      "enum": [
+        "User",
+        "Assistant",
+        "System",
+        "Tool"
+      ],
+      "title": "role"
+    },
+    "sessionID": {
+      "$friendlyName": "Session ID",
+      "description": "Ties the analyses of one conversation together.",
+      "title": "sessionID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "toolFilters": {
+      "$friendlyName": "Tool Filters",
+      "description": "Which tools the analysis should be restricted to.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "toolFilters",
+      "type": "array"
+    },
+    "toolResults": {
+      "$friendlyName": "Tool Results",
+      "description": "Tool call results which are passed in to this request.",
+      "items": {
+        "$ref": "toolresult.json"
+      },
+      "title": "toolResults",
+      "type": "array"
+    },
+    "toolUses": {
+      "$friendlyName": "Tool Uses",
+      "description": "Tool uses as requested by a model.",
+      "items": {
+        "$ref": "tooluse.json"
+      },
+      "title": "toolUses",
+      "type": "array"
+    },
+    "tools": {
+      "$friendlyName": "Tools",
+      "additionalProperties": true,
+      "description": "The tools available, by name.",
+      "title": "tools",
+      "type": "object"
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "The type of text.",
+      "enum": [
+        "Input",
+        "Output"
+      ],
+      "title": "type"
     }
   },
   "required": [],

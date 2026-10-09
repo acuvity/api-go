@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Rego Base Libraries",
+  "$friendlyNamePlural": "Rego Base Libraries",
+  "$modelName": "RegoBaseLibs",
+  "$modelPackage": "haisou",
+  "$modelResourceName": "regobaselibs",
+  "$modelRestName": "regobaselibs",
+  "additionalProperties": false,
+  "description": "The source of the base rego libraries the computed policies are compiled against, one per policy kind.",
+  "properties": {
+    "access": {
+      "$friendlyName": "Access",
+      "description": "The base rego library the access policies are compiled against.",
+      "title": "access",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "assign": {
+      "$friendlyName": "Assign",
+      "description": "The base rego library the assign policies are compiled against.",
+      "title": "assign",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "content": {
+      "$friendlyName": "Content",
+      "description": "The base rego library the content policies are compiled against.",
+      "title": "content",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "RegoBaseLibs",
+  "type": "object"
+}

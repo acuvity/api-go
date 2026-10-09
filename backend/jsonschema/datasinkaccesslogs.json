@@ -1,0 +1,108 @@
+{
+  "$extends": [
+    "@timed"
+  ],
+  "$friendlyName": "Data Sink Access Logs",
+  "$friendlyNamePlural": "Data Sink Access Logs",
+  "$modelName": "DataSinkAccessLogs",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkaccesslogs",
+  "$modelRestName": "datasinkaccesslogs",
+  "additionalProperties": false,
+  "description": "Selects the access logs dataset and which of its rows to export. An empty list does not restrict; the values of one list are alternatives, and populated lists combine (AND). An empty selector exports every row. createTime is when this dataset was enabled, where its live export starts. Filter changes preserve createTime; disabling and re-enabling the dataset gives it a new createTime. Timestamps are server owned.",
+  "properties": {
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "decisions": {
+      "$friendlyName": "Decisions",
+      "description": "Keep the rows with one of these decisions.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "decisions",
+      "type": "array"
+    },
+    "includeContent": {
+      "$defaultValue": false,
+      "$friendlyName": "Include Content",
+      "description": "Include user content (prompts, responses, tool inputs and outputs, matched text) in the extractions column.",
+      "title": "includeContent",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "processors": {
+      "$friendlyName": "Processors",
+      "description": "Keep the rows from one of these processors (Proxy, API, Gateway).",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "processors",
+      "type": "array"
+    },
+    "providerTypes": {
+      "$friendlyName": "Provider Types",
+      "description": "Keep the rows of one of these provider types (LLM, MCPServer).",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providerTypes",
+      "type": "array"
+    },
+    "providers": {
+      "$friendlyName": "Providers",
+      "description": "Keep the rows of one of these providers.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "providers",
+      "type": "array"
+    },
+    "teams": {
+      "$friendlyName": "Teams",
+      "description": "Keep the rows of users in at least one of these teams.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "teams",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DataSinkAccessLogs",
+  "type": "object"
+}
