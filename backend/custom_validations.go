@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"net/mail"
+	"net/netip"
 	"net/url"
 	"reflect"
 	"regexp"
@@ -2366,6 +2367,40 @@ func ValidateIP(attribute string, ipStr string) error {
 	}
 
 	return nil
+}
+
+// ValidateIPsOrRanges validates the given input as an IP address or CIDR range.
+func ValidateIPsOrRanges(attribute string, ipStrs []string) error {
+
+	for i, ipStr := range ipStrs {
+		if ipStr == "" {
+			return makeErr(attribute, fmt.Sprintf("IP at index %d is empty", i))
+		}
+
+		if err := ValidateIPOrRange(attribute, ipStr); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// ValidateIPOrRange validates the given input as an IP address or CIDR range.
+func ValidateIPOrRange(attribute string, ipStr string) error {
+
+	if ipStr == "" {
+		return nil
+	}
+
+	if _, err := netip.ParseAddr(ipStr); err == nil {
+		return nil
+	}
+
+	if _, err := netip.ParsePrefix(ipStr); err == nil {
+		return nil
+	}
+
+	return makeErr(attribute, fmt.Sprintf("Invalid IP address or range '%s'", ipStr))
 }
 
 // ValidateIPPort validate the given input is a valid IP:Port pair.

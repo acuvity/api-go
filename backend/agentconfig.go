@@ -184,9 +184,14 @@ type AgentConfig struct {
 	// proxy.
 	DriverEnabled bool `json:"driverEnabled" msgpack:"driverEnabled" bson:"driverenabled" mapstructure:"driverEnabled,omitempty"`
 
-	// The length of time to exclude an address from being proxied. Fractional seconds
-	// will be truncated.
+	// The length of time to exclude an address from being proxied. Applies to
+	// addresses not defined in the excluded addresses list. Fractional seconds will be
+	// truncated.
 	DriverExcludeAddressTimeout string `json:"driverExcludeAddressTimeout" msgpack:"driverExcludeAddressTimeout" bson:"driverexcludeaddresstimeout" mapstructure:"driverExcludeAddressTimeout,omitempty"`
+
+	// The list of addresses to exclude from being proxied. Can be a single address, a
+	// range or a mixture thereof.
+	DriverExcludedAddresses []string `json:"driverExcludedAddresses" msgpack:"driverExcludedAddresses" bson:"driverexcludedaddresses" mapstructure:"driverExcludedAddresses,omitempty"`
 
 	// The case-insensitive list of processes the driver will exclude from steering
 	// traffic.
@@ -342,6 +347,7 @@ func NewAgentConfig() *AgentConfig {
 		DiagnosticUploadDeadline:    "4h",
 		DomainReportInterval:        "10m",
 		DriverExcludeAddressTimeout: "1h",
+		DriverExcludedAddresses:     []string{},
 		DriverExcludedProcesses:     []string{},
 		ListeningPort:               "8081",
 		LogLevel:                    AgentConfigLogLevelInfo,
@@ -403,6 +409,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.DomainReportInterval = o.DomainReportInterval
 	s.DriverEnabled = o.DriverEnabled
 	s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
+	s.DriverExcludedAddresses = o.DriverExcludedAddresses
 	s.DriverExcludedProcesses = o.DriverExcludedProcesses
 	s.DriverPortRanges = o.DriverPortRanges
 	s.DriverQUICBlockDisabled = o.DriverQUICBlockDisabled
@@ -472,6 +479,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DomainReportInterval = s.DomainReportInterval
 	o.DriverEnabled = s.DriverEnabled
 	o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	o.DriverExcludedAddresses = s.DriverExcludedAddresses
 	o.DriverExcludedProcesses = s.DriverExcludedProcesses
 	o.DriverPortRanges = s.DriverPortRanges
 	o.DriverQUICBlockDisabled = s.DriverQUICBlockDisabled
@@ -625,6 +633,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DomainReportInterval:           &o.DomainReportInterval,
 			DriverEnabled:                  &o.DriverEnabled,
 			DriverExcludeAddressTimeout:    &o.DriverExcludeAddressTimeout,
+			DriverExcludedAddresses:        &o.DriverExcludedAddresses,
 			DriverExcludedProcesses:        &o.DriverExcludedProcesses,
 			DriverPortRanges:               &o.DriverPortRanges,
 			DriverQUICBlockDisabled:        &o.DriverQUICBlockDisabled,
@@ -701,6 +710,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DriverEnabled = &(o.DriverEnabled)
 		case "driverExcludeAddressTimeout":
 			sp.DriverExcludeAddressTimeout = &(o.DriverExcludeAddressTimeout)
+		case "driverExcludedAddresses":
+			sp.DriverExcludedAddresses = &(o.DriverExcludedAddresses)
 		case "driverExcludedProcesses":
 			sp.DriverExcludedProcesses = &(o.DriverExcludedProcesses)
 		case "driverPortRanges":
@@ -837,6 +848,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DriverExcludeAddressTimeout != nil {
 		o.DriverExcludeAddressTimeout = *so.DriverExcludeAddressTimeout
+	}
+	if so.DriverExcludedAddresses != nil {
+		o.DriverExcludedAddresses = *so.DriverExcludedAddresses
 	}
 	if so.DriverExcludedProcesses != nil {
 		o.DriverExcludedProcesses = *so.DriverExcludedProcesses
@@ -1066,6 +1080,10 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	if err := ValidateIPsOrRanges("driverExcludedAddresses", o.DriverExcludedAddresses); err != nil {
+		errors = errors.Append(err)
+	}
+
 	for i, sub := range o.DriverPortRanges {
 		if sub == nil {
 			continue
@@ -1231,6 +1249,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DriverEnabled
 	case "driverExcludeAddressTimeout":
 		return o.DriverExcludeAddressTimeout
+	case "driverExcludedAddresses":
+		return o.DriverExcludedAddresses
 	case "driverExcludedProcesses":
 		return o.DriverExcludedProcesses
 	case "driverPortRanges":
@@ -1491,12 +1511,25 @@ proxy.`,
 		BSONFieldName:  "driverexcludeaddresstimeout",
 		ConvertedName:  "DriverExcludeAddressTimeout",
 		DefaultValue:   "1h",
-		Description: `The length of time to exclude an address from being proxied. Fractional seconds
-will be truncated.`,
+		Description: `The length of time to exclude an address from being proxied. Applies to
+addresses not defined in the excluded addresses list. Fractional seconds will be
+truncated.`,
 		Exposed: true,
 		Name:    "driverExcludeAddressTimeout",
 		Stored:  true,
 		Type:    "string",
+	},
+	"DriverExcludedAddresses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludedaddresses",
+		ConvertedName:  "DriverExcludedAddresses",
+		Description: `The list of addresses to exclude from being proxied. Can be a single address, a
+range or a mixture thereof.`,
+		Exposed: true,
+		Name:    "driverExcludedAddresses",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"DriverExcludedProcesses": {
 		AllowedChoices: []string{},
@@ -2105,12 +2138,25 @@ proxy.`,
 		BSONFieldName:  "driverexcludeaddresstimeout",
 		ConvertedName:  "DriverExcludeAddressTimeout",
 		DefaultValue:   "1h",
-		Description: `The length of time to exclude an address from being proxied. Fractional seconds
-will be truncated.`,
+		Description: `The length of time to exclude an address from being proxied. Applies to
+addresses not defined in the excluded addresses list. Fractional seconds will be
+truncated.`,
 		Exposed: true,
 		Name:    "driverExcludeAddressTimeout",
 		Stored:  true,
 		Type:    "string",
+	},
+	"driverexcludedaddresses": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverexcludedaddresses",
+		ConvertedName:  "DriverExcludedAddresses",
+		Description: `The list of addresses to exclude from being proxied. Can be a single address, a
+range or a mixture thereof.`,
+		Exposed: true,
+		Name:    "driverExcludedAddresses",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"driverexcludedprocesses": {
 		AllowedChoices: []string{},
@@ -2654,9 +2700,14 @@ type SparseAgentConfig struct {
 	// proxy.
 	DriverEnabled *bool `json:"driverEnabled,omitempty" msgpack:"driverEnabled,omitempty" bson:"driverenabled,omitempty" mapstructure:"driverEnabled,omitempty"`
 
-	// The length of time to exclude an address from being proxied. Fractional seconds
-	// will be truncated.
+	// The length of time to exclude an address from being proxied. Applies to
+	// addresses not defined in the excluded addresses list. Fractional seconds will be
+	// truncated.
 	DriverExcludeAddressTimeout *string `json:"driverExcludeAddressTimeout,omitempty" msgpack:"driverExcludeAddressTimeout,omitempty" bson:"driverexcludeaddresstimeout,omitempty" mapstructure:"driverExcludeAddressTimeout,omitempty"`
+
+	// The list of addresses to exclude from being proxied. Can be a single address, a
+	// range or a mixture thereof.
+	DriverExcludedAddresses *[]string `json:"driverExcludedAddresses,omitempty" msgpack:"driverExcludedAddresses,omitempty" bson:"driverexcludedaddresses,omitempty" mapstructure:"driverExcludedAddresses,omitempty"`
 
 	// The case-insensitive list of processes the driver will exclude from steering
 	// traffic.
@@ -2886,6 +2937,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DriverExcludeAddressTimeout != nil {
 		s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
 	}
+	if o.DriverExcludedAddresses != nil {
+		s.DriverExcludedAddresses = o.DriverExcludedAddresses
+	}
 	if o.DriverExcludedProcesses != nil {
 		s.DriverExcludedProcesses = o.DriverExcludedProcesses
 	}
@@ -3057,6 +3111,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.DriverExcludeAddressTimeout != nil {
 		o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
+	}
+	if s.DriverExcludedAddresses != nil {
+		o.DriverExcludedAddresses = s.DriverExcludedAddresses
 	}
 	if s.DriverExcludedProcesses != nil {
 		o.DriverExcludedProcesses = s.DriverExcludedProcesses
@@ -3230,6 +3287,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DriverExcludeAddressTimeout != nil {
 		out.DriverExcludeAddressTimeout = *o.DriverExcludeAddressTimeout
+	}
+	if o.DriverExcludedAddresses != nil {
+		out.DriverExcludedAddresses = *o.DriverExcludedAddresses
 	}
 	if o.DriverExcludedProcesses != nil {
 		out.DriverExcludedProcesses = *o.DriverExcludedProcesses
@@ -3537,6 +3597,7 @@ type mongoAttributesAgentConfig struct {
 	DomainReportInterval          string                           `bson:"domainreportinterval"`
 	DriverEnabled                 bool                             `bson:"driverenabled"`
 	DriverExcludeAddressTimeout   string                           `bson:"driverexcludeaddresstimeout"`
+	DriverExcludedAddresses       []string                         `bson:"driverexcludedaddresses"`
 	DriverExcludedProcesses       []string                         `bson:"driverexcludedprocesses"`
 	DriverPortRanges              []*DriverPortRange               `bson:"driverportranges"`
 	DriverQUICBlockDisabled       bool                             `bson:"driverquicblockdisabled"`
@@ -3591,6 +3652,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
 	DriverEnabled                 *bool                             `bson:"driverenabled,omitempty"`
 	DriverExcludeAddressTimeout   *string                           `bson:"driverexcludeaddresstimeout,omitempty"`
+	DriverExcludedAddresses       *[]string                         `bson:"driverexcludedaddresses,omitempty"`
 	DriverExcludedProcesses       *[]string                         `bson:"driverexcludedprocesses,omitempty"`
 	DriverPortRanges              *[]*DriverPortRange               `bson:"driverportranges,omitempty"`
 	DriverQUICBlockDisabled       *bool                             `bson:"driverquicblockdisabled,omitempty"`

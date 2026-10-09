@@ -162,12 +162,24 @@
     "driverExcludeAddressTimeout": {
       "$defaultValue": "1h",
       "$friendlyName": "Driver Exclude Address Timeout",
-      "description": "The length of time to exclude an address from being proxied. Fractional seconds will be truncated.",
+      "description": "The length of time to exclude an address from being proxied. Applies to addresses not defined in the excluded addresses list. Fractional seconds will be truncated.",
       "title": "driverExcludeAddressTimeout",
       "type": [
         "string",
         "null"
       ]
+    },
+    "driverExcludedAddresses": {
+      "$friendlyName": "Driver Excluded Addresses",
+      "description": "The list of addresses to exclude from being proxied. Can be a single address, a range or a mixture thereof.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "driverExcludedAddresses",
+      "type": "array"
     },
     "driverExcludedProcesses": {
       "$friendlyName": "Driver Excluded Processes",

@@ -559,9 +559,21 @@
           },
           "driverExcludeAddressTimeout": {
             "default": "1h",
-            "description": "The length of time to exclude an address from being proxied. Fractional seconds\nwill be truncated.",
+            "description": "The length of time to exclude an address from being proxied. Applies to\naddresses not defined in the excluded addresses list. Fractional seconds will be\ntruncated.",
             "example": "10m",
             "type": "string"
+          },
+          "driverExcludedAddresses": {
+            "description": "The list of addresses to exclude from being proxied. Can be a single address, a\nrange or a mixture thereof.",
+            "example": [
+              "10.0.0.1",
+              "10.0.0.0/8",
+              "fd00::/8"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "driverExcludedProcesses": {
             "description": "The case-insensitive list of processes the driver will exclude from steering\ntraffic.",

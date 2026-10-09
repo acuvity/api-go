@@ -1393,6 +1393,11 @@ Stores the configuration information for the acushield agent.
   "domainReportInterval": "30m",
   "driverEnabled": false,
   "driverExcludeAddressTimeout": "10m",
+  "driverExcludedAddresses": [
+    "10.0.0.1",
+    "10.0.0.0/8",
+    "fd00::/8"
+  ],
   "driverExcludedProcesses": [
     "zsatunnel",
     "zsatraymanager"
@@ -1581,14 +1586,22 @@ proxy.
 
 Type: `string`
 
-The length of time to exclude an address from being proxied. Fractional seconds
-will be truncated.
+The length of time to exclude an address from being proxied. Applies to
+addresses not defined in the excluded addresses list. Fractional seconds will be
+truncated.
 
 Default value:
 
 ```json
 "1h"
 ```
+
+##### `driverExcludedAddresses`
+
+Type: `[]string`
+
+The list of addresses to exclude from being proxied. Can be a single address, a
+range or a mixture thereof.
 
 ##### `driverExcludedProcesses`
 
