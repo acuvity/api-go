@@ -177,15 +177,6 @@
       "title": "agentDiscoveries",
       "type": "array"
     },
-    "agentEnforcementPolicies": {
-      "$friendlyName": "Agent Enforcement Policies",
-      "description": "Agent enforcement policies to import.",
-      "items": {
-        "$ref": "agentenforcementpolicy.json"
-      },
-      "title": "agentEnforcementPolicies",
-      "type": "array"
-    },
     "alertDefinitions": {
       "$friendlyName": "Alert Definitions",
       "description": "Alert definitions to import.",
@@ -256,6 +247,15 @@
         "$ref": "deployment.json"
       },
       "title": "deployments",
+      "type": "array"
+    },
+    "endpointPolicies": {
+      "$friendlyName": "Endpoint Policies",
+      "description": "Endpoint policies to import.",
+      "items": {
+        "$ref": "endpointpolicy.json"
+      },
+      "title": "endpointPolicies",
       "type": "array"
     },
     "extractorLibs": {

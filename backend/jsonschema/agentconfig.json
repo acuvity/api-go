@@ -43,28 +43,6 @@
         "null"
       ]
     },
-    "agentEnforcementPolicies": {
-      "$friendlyName": "Agent Enforcement Policies",
-      "description": "The list of agent enforcement policies to apply locally.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "agentEnforcementPolicies",
-      "type": "array"
-    },
-    "agentEnforcementPolicyComputed": {
-      "$friendlyName": "Computed Agent Enforcement Policy",
-      "$readOnly": true,
-      "description": "The computed rego agent enforcement policy.",
-      "title": "agentEnforcementPolicyComputed",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "attendedUpgrades": {
       "$friendlyName": "Attended Upgrades",
       "description": "If true, upgrades will only take place with user confirmation.",
@@ -217,6 +195,28 @@
       "title": "emergencyPauseEnabled",
       "type": [
         "boolean",
+        "null"
+      ]
+    },
+    "endpointPolicies": {
+      "$friendlyName": "Endpoint Policies",
+      "description": "The list of endpoint policies to apply locally.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "endpointPolicies",
+      "type": "array"
+    },
+    "endpointPolicyComputed": {
+      "$friendlyName": "Computed Endpoint Policy",
+      "$readOnly": true,
+      "description": "The computed rego endpoint policy.",
+      "title": "endpointPolicyComputed",
+      "type": [
+        "string",
         "null"
       ]
     },

@@ -36,12 +36,6 @@
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
     },
-    "agentenforcementpolicy": {
-      "$ref": "agentenforcementpolicy.json"
-    },
-    "agentenforcementpolicypredicate": {
-      "$ref": "agentenforcementpolicypredicate.json"
-    },
     "aiapp": {
       "$ref": "aiapp.json"
     },
@@ -335,6 +329,12 @@
     },
     "egresspolicy": {
       "$ref": "egresspolicy.json"
+    },
+    "endpointpolicy": {
+      "$ref": "endpointpolicy.json"
+    },
+    "endpointpolicypredicate": {
+      "$ref": "endpointpolicypredicate.json"
     },
     "errortransformer": {
       "$ref": "errortransformer.json"

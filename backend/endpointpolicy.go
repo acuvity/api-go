@@ -13,74 +13,74 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
-// AgentEnforcementPolicyActionValue represents the possible values for attribute "action".
-type AgentEnforcementPolicyActionValue string
+// EndpointPolicyActionValue represents the possible values for attribute "action".
+type EndpointPolicyActionValue string
 
 const (
-	// AgentEnforcementPolicyActionBlockConnection represents the value BlockConnection.
-	AgentEnforcementPolicyActionBlockConnection AgentEnforcementPolicyActionValue = "BlockConnection"
+	// EndpointPolicyActionBlockConnection represents the value BlockConnection.
+	EndpointPolicyActionBlockConnection EndpointPolicyActionValue = "BlockConnection"
 
-	// AgentEnforcementPolicyActionKillProcess represents the value KillProcess.
-	AgentEnforcementPolicyActionKillProcess AgentEnforcementPolicyActionValue = "KillProcess"
+	// EndpointPolicyActionKillProcess represents the value KillProcess.
+	EndpointPolicyActionKillProcess EndpointPolicyActionValue = "KillProcess"
 
-	// AgentEnforcementPolicyActionNotify represents the value Notify.
-	AgentEnforcementPolicyActionNotify AgentEnforcementPolicyActionValue = "Notify"
+	// EndpointPolicyActionNotify represents the value Notify.
+	EndpointPolicyActionNotify EndpointPolicyActionValue = "Notify"
 )
 
-// AgentEnforcementPolicySeverityValue represents the possible values for attribute "severity".
-type AgentEnforcementPolicySeverityValue string
+// EndpointPolicySeverityValue represents the possible values for attribute "severity".
+type EndpointPolicySeverityValue string
 
 const (
-	// AgentEnforcementPolicySeverityCritical represents the value Critical.
-	AgentEnforcementPolicySeverityCritical AgentEnforcementPolicySeverityValue = "Critical"
+	// EndpointPolicySeverityCritical represents the value Critical.
+	EndpointPolicySeverityCritical EndpointPolicySeverityValue = "Critical"
 
-	// AgentEnforcementPolicySeverityHigh represents the value High.
-	AgentEnforcementPolicySeverityHigh AgentEnforcementPolicySeverityValue = "High"
+	// EndpointPolicySeverityHigh represents the value High.
+	EndpointPolicySeverityHigh EndpointPolicySeverityValue = "High"
 
-	// AgentEnforcementPolicySeverityLow represents the value Low.
-	AgentEnforcementPolicySeverityLow AgentEnforcementPolicySeverityValue = "Low"
+	// EndpointPolicySeverityLow represents the value Low.
+	EndpointPolicySeverityLow EndpointPolicySeverityValue = "Low"
 
-	// AgentEnforcementPolicySeverityMedium represents the value Medium.
-	AgentEnforcementPolicySeverityMedium AgentEnforcementPolicySeverityValue = "Medium"
+	// EndpointPolicySeverityMedium represents the value Medium.
+	EndpointPolicySeverityMedium EndpointPolicySeverityValue = "Medium"
 )
 
-// AgentEnforcementPolicyIdentity represents the Identity of the object.
-var AgentEnforcementPolicyIdentity = elemental.Identity{
-	Name:     "agentenforcementpolicy",
-	Category: "agentenforcementpolicies",
+// EndpointPolicyIdentity represents the Identity of the object.
+var EndpointPolicyIdentity = elemental.Identity{
+	Name:     "endpointpolicy",
+	Category: "endpointpolicies",
 	Package:  "okite",
 	Private:  false,
 }
 
-// AgentEnforcementPoliciesList represents a list of AgentEnforcementPolicies
-type AgentEnforcementPoliciesList []*AgentEnforcementPolicy
+// EndpointPoliciesList represents a list of EndpointPolicies
+type EndpointPoliciesList []*EndpointPolicy
 
 // Identity returns the identity of the objects in the list.
-func (o AgentEnforcementPoliciesList) Identity() elemental.Identity {
+func (o EndpointPoliciesList) Identity() elemental.Identity {
 
-	return AgentEnforcementPolicyIdentity
+	return EndpointPolicyIdentity
 }
 
-// Copy returns a pointer to a copy the AgentEnforcementPoliciesList.
-func (o AgentEnforcementPoliciesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the EndpointPoliciesList.
+func (o EndpointPoliciesList) Copy() elemental.Identifiables {
 
 	out := slices.Clone(o)
 	return &out
 }
 
-// Append appends the objects to the a new copy of the AgentEnforcementPoliciesList.
-func (o AgentEnforcementPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the EndpointPoliciesList.
+func (o EndpointPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*AgentEnforcementPolicy))
+		out = append(out, obj.(*EndpointPolicy))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o AgentEnforcementPoliciesList) List() elemental.IdentifiablesList {
+func (o EndpointPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -91,45 +91,45 @@ func (o AgentEnforcementPoliciesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o AgentEnforcementPoliciesList) DefaultOrder() []string {
+func (o EndpointPoliciesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToSparse returns the AgentEnforcementPoliciesList converted to SparseAgentEnforcementPoliciesList.
+// ToSparse returns the EndpointPoliciesList converted to SparseEndpointPoliciesList.
 // Objects in the list will only contain the given fields. No field means entire field set.
-func (o AgentEnforcementPoliciesList) ToSparse(fields ...string) elemental.Identifiables {
+func (o EndpointPoliciesList) ToSparse(fields ...string) elemental.Identifiables {
 
-	out := make(SparseAgentEnforcementPoliciesList, len(o))
+	out := make(SparseEndpointPoliciesList, len(o))
 	for i := range len(o) {
-		out[i] = o[i].ToSparse(fields...).(*SparseAgentEnforcementPolicy)
+		out[i] = o[i].ToSparse(fields...).(*SparseEndpointPolicy)
 	}
 
 	return out
 }
 
 // Version returns the version of the content.
-func (o AgentEnforcementPoliciesList) Version() int {
+func (o EndpointPoliciesList) Version() int {
 
 	return 1
 }
 
-// AgentEnforcementPolicy represents the model of a agentenforcementpolicy
-type AgentEnforcementPolicy struct {
+// EndpointPolicy represents the model of a endpointpolicy
+type EndpointPolicy struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// The action the agent takes when the criteria match.
-	Action AgentEnforcementPolicyActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
+	Action EndpointPolicyActionValue `json:"action" msgpack:"action" bson:"action" mapstructure:"action,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
 	// The match criteria identifying the AI entities the policy targets, or a
 	// named AI assistant with command-line conditions.
-	Criteria []*AgentEnforcementPolicyPredicate `json:"criteria" msgpack:"criteria" bson:"criteria" mapstructure:"criteria,omitempty"`
+	Criteria []*EndpointPolicyPredicate `json:"criteria" msgpack:"criteria" bson:"criteria" mapstructure:"criteria,omitempty"`
 
-	// Description of the agent enforcement policy.
+	// Description of the endpoint policy.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
 	// If true, the policy is disabled.
@@ -156,7 +156,7 @@ type AgentEnforcementPolicy struct {
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The lowest severity level this policy will apply to.
-	Severity AgentEnforcementPolicySeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
+	Severity EndpointPolicySeverityValue `json:"severity" msgpack:"severity" bson:"severity" mapstructure:"severity,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -170,43 +170,43 @@ type AgentEnforcementPolicy struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewAgentEnforcementPolicy returns a new *AgentEnforcementPolicy
-func NewAgentEnforcementPolicy() *AgentEnforcementPolicy {
+// NewEndpointPolicy returns a new *EndpointPolicy
+func NewEndpointPolicy() *EndpointPolicy {
 
-	return &AgentEnforcementPolicy{
+	return &EndpointPolicy{
 		ModelVersion: 1,
-		Action:       AgentEnforcementPolicyActionNotify,
-		Severity:     AgentEnforcementPolicySeverityLow,
+		Action:       EndpointPolicyActionNotify,
+		Severity:     EndpointPolicySeverityLow,
 	}
 }
 
 // Identity returns the Identity of the object.
-func (o *AgentEnforcementPolicy) Identity() elemental.Identity {
+func (o *EndpointPolicy) Identity() elemental.Identity {
 
-	return AgentEnforcementPolicyIdentity
+	return EndpointPolicyIdentity
 }
 
 // Identifier returns the value of the object's unique identifier.
-func (o *AgentEnforcementPolicy) Identifier() string {
+func (o *EndpointPolicy) Identifier() string {
 
 	return o.ID
 }
 
 // SetIdentifier sets the value of the object's unique identifier.
-func (o *AgentEnforcementPolicy) SetIdentifier(id string) {
+func (o *EndpointPolicy) SetIdentifier(id string) {
 
 	o.ID = id
 }
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AgentEnforcementPolicy) GetBSON() (any, error) {
+func (o *EndpointPolicy) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesAgentEnforcementPolicy{}
+	s := &mongoAttributesEndpointPolicy{}
 
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
@@ -232,13 +232,13 @@ func (o *AgentEnforcementPolicy) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *AgentEnforcementPolicy) SetBSON(raw bson.Raw) error {
+func (o *EndpointPolicy) SetBSON(raw bson.Raw) error {
 
 	if o == nil || raw.Kind == bson.ElementNil {
 		return bson.ErrSetZero
 	}
 
-	s := &mongoAttributesAgentEnforcementPolicy{}
+	s := &mongoAttributesEndpointPolicy{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -264,129 +264,129 @@ func (o *AgentEnforcementPolicy) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *AgentEnforcementPolicy) Version() int {
+func (o *EndpointPolicy) Version() int {
 
 	return 1
 }
 
 // BleveType implements the bleve.Classifier Interface.
-func (o *AgentEnforcementPolicy) BleveType() string {
+func (o *EndpointPolicy) BleveType() string {
 
-	return "agentenforcementpolicy"
+	return "endpointpolicy"
 }
 
 // DefaultOrder returns the list of default ordering fields.
-func (o *AgentEnforcementPolicy) DefaultOrder() []string {
+func (o *EndpointPolicy) DefaultOrder() []string {
 
 	return []string{}
 }
 
 // Doc returns the documentation for the object
-func (o *AgentEnforcementPolicy) Doc() string {
+func (o *EndpointPolicy) Doc() string {
 
-	return `Agent Enforcement Policies define the local action an agent takes
+	return `Endpoint Policies define the local action an agent takes
 when a discovered AI entity (or a named AI assistant with command-line
 conditions) matches the policy's criteria. Each policy carries criteria, an
 action, a message shown to the user, and an apply-to selecting whose agents
 receive it.`
 }
 
-func (o *AgentEnforcementPolicy) String() string {
+func (o *EndpointPolicy) String() string {
 
 	return fmt.Sprintf("<%s:%s>", o.Identity().Name, o.Identifier())
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *AgentEnforcementPolicy) GetCreateTime() time.Time {
+func (o *EndpointPolicy) GetCreateTime() time.Time {
 
 	return o.CreateTime
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetCreateTime(createTime time.Time) {
+func (o *EndpointPolicy) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *AgentEnforcementPolicy) GetFriendlyName() string {
+func (o *EndpointPolicy) GetFriendlyName() string {
 
 	return o.FriendlyName
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetFriendlyName(friendlyName string) {
+func (o *EndpointPolicy) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *AgentEnforcementPolicy) GetImportHash() string {
+func (o *EndpointPolicy) GetImportHash() string {
 
 	return o.ImportHash
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetImportHash(importHash string) {
+func (o *EndpointPolicy) SetImportHash(importHash string) {
 
 	o.ImportHash = importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *AgentEnforcementPolicy) GetImportLabel() string {
+func (o *EndpointPolicy) GetImportLabel() string {
 
 	return o.ImportLabel
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetImportLabel(importLabel string) {
+func (o *EndpointPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *AgentEnforcementPolicy) GetName() string {
+func (o *EndpointPolicy) GetName() string {
 
 	return o.Name
 }
 
 // SetName sets the property Name of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetName(name string) {
+func (o *EndpointPolicy) SetName(name string) {
 
 	o.Name = name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *AgentEnforcementPolicy) GetNamespace() string {
+func (o *EndpointPolicy) GetNamespace() string {
 
 	return o.Namespace
 }
 
 // SetNamespace sets the property Namespace of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetNamespace(namespace string) {
+func (o *EndpointPolicy) SetNamespace(namespace string) {
 
 	o.Namespace = namespace
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *AgentEnforcementPolicy) GetUpdateTime() time.Time {
+func (o *EndpointPolicy) GetUpdateTime() time.Time {
 
 	return o.UpdateTime
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the given value.
-func (o *AgentEnforcementPolicy) SetUpdateTime(updateTime time.Time) {
+func (o *EndpointPolicy) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = updateTime
 }
 
 // ToSparse returns the sparse version of the model.
 // The returned object will only contain the given fields. No field means entire field set.
-func (o *AgentEnforcementPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
+func (o *EndpointPolicy) ToSparse(fields ...string) elemental.SparseIdentifiable {
 
 	if len(fields) == 0 {
 		// nolint: goimports
-		return &SparseAgentEnforcementPolicy{
+		return &SparseEndpointPolicy{
 			ID:           &o.ID,
 			Action:       &o.Action,
 			CreateTime:   &o.CreateTime,
@@ -406,7 +406,7 @@ func (o *AgentEnforcementPolicy) ToSparse(fields ...string) elemental.SparseIden
 		}
 	}
 
-	sp := &SparseAgentEnforcementPolicy{}
+	sp := &SparseEndpointPolicy{}
 	for _, f := range fields {
 		switch f {
 		case "ID":
@@ -447,13 +447,13 @@ func (o *AgentEnforcementPolicy) ToSparse(fields ...string) elemental.SparseIden
 	return sp
 }
 
-// Patch apply the non nil value of a *SparseAgentEnforcementPolicy to the object.
-func (o *AgentEnforcementPolicy) Patch(sparse elemental.SparseIdentifiable) {
+// Patch apply the non nil value of a *SparseEndpointPolicy to the object.
+func (o *EndpointPolicy) Patch(sparse elemental.SparseIdentifiable) {
 	if !sparse.Identity().IsEqual(o.Identity()) {
 		panic("cannot patch from a parse with different identity")
 	}
 
-	so := sparse.(*SparseAgentEnforcementPolicy)
+	so := sparse.(*SparseEndpointPolicy)
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
@@ -505,14 +505,14 @@ func (o *AgentEnforcementPolicy) Patch(sparse elemental.SparseIdentifiable) {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *AgentEnforcementPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *EndpointPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	for _, sub := range o.Criteria {
 		if sub == nil {
 			continue
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Criteria' for 'AgentEnforcementPolicy' (%s): %s", o.Identifier(), err)
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Criteria' for 'EndpointPolicy' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -520,46 +520,46 @@ func (o *AgentEnforcementPolicy) EncryptAttributes(encrypter elemental.Attribute
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *AgentEnforcementPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *EndpointPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	for _, sub := range o.Criteria {
 		if sub == nil {
 			continue
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Criteria' for 'AgentEnforcementPolicy' (%s): %w", o.Identifier(), err)
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Criteria' for 'EndpointPolicy' (%s): %w", o.Identifier(), err)
 		}
 	}
 
 	return nil
 }
 
-// DeepCopy returns a deep copy if the AgentEnforcementPolicy.
-func (o *AgentEnforcementPolicy) DeepCopy() *AgentEnforcementPolicy {
+// DeepCopy returns a deep copy if the EndpointPolicy.
+func (o *EndpointPolicy) DeepCopy() *EndpointPolicy {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &AgentEnforcementPolicy{}
+	out := &EndpointPolicy{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *AgentEnforcementPolicy.
-func (o *AgentEnforcementPolicy) DeepCopyInto(out *AgentEnforcementPolicy) {
+// DeepCopyInto copies the receiver into the given *EndpointPolicy.
+func (o *EndpointPolicy) DeepCopyInto(out *EndpointPolicy) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy AgentEnforcementPolicy: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy EndpointPolicy: %s", err))
 	}
 
-	*out = *target.(*AgentEnforcementPolicy)
+	*out = *target.(*EndpointPolicy)
 }
 
 // Validate valides the current information stored into the structure.
-func (o *AgentEnforcementPolicy) Validate() error {
+func (o *EndpointPolicy) Validate() error {
 
 	elemental.ResetDefaultForZeroValues(o)
 
@@ -575,8 +575,8 @@ func (o *AgentEnforcementPolicy) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "criteria", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "criteria", i))
 		}
 	}
 
@@ -604,7 +604,7 @@ func (o *AgentEnforcementPolicy) Validate() error {
 	}
 
 	// Custom object validation.
-	if err := ValidateAgentEnforcementPolicy(o); err != nil {
+	if err := ValidateEndpointPolicy(o); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -620,26 +620,26 @@ func (o *AgentEnforcementPolicy) Validate() error {
 }
 
 // SpecificationForAttribute returns the AttributeSpecification for the given attribute name key.
-func (*AgentEnforcementPolicy) SpecificationForAttribute(name string) elemental.AttributeSpecification {
+func (*EndpointPolicy) SpecificationForAttribute(name string) elemental.AttributeSpecification {
 
-	if v, ok := AgentEnforcementPolicyAttributesMap[name]; ok {
+	if v, ok := EndpointPolicyAttributesMap[name]; ok {
 		return v
 	}
 
 	// We could not find it, so let's check on the lower case indexed spec map
-	return AgentEnforcementPolicyLowerCaseAttributesMap[name]
+	return EndpointPolicyLowerCaseAttributesMap[name]
 }
 
 // AttributeSpecifications returns the full attribute specifications map.
-func (*AgentEnforcementPolicy) AttributeSpecifications() map[string]elemental.AttributeSpecification {
+func (*EndpointPolicy) AttributeSpecifications() map[string]elemental.AttributeSpecification {
 
-	return AgentEnforcementPolicyAttributesMap
+	return EndpointPolicyAttributesMap
 }
 
 // ValueForAttribute returns the value for the given attribute.
 // This is a very advanced function that you should not need but in some
 // very specific use cases.
-func (o *AgentEnforcementPolicy) ValueForAttribute(name string) any {
+func (o *EndpointPolicy) ValueForAttribute(name string) any {
 
 	switch name {
 	case "ID":
@@ -679,8 +679,8 @@ func (o *AgentEnforcementPolicy) ValueForAttribute(name string) any {
 	return nil
 }
 
-// AgentEnforcementPolicyAttributesMap represents the map of attribute for AgentEnforcementPolicy.
-var AgentEnforcementPolicyAttributesMap = map[string]elemental.AttributeSpecification{
+// EndpointPolicyAttributesMap represents the map of attribute for EndpointPolicy.
+var EndpointPolicyAttributesMap = map[string]elemental.AttributeSpecification{
 	"ID": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -700,7 +700,7 @@ var AgentEnforcementPolicyAttributesMap = map[string]elemental.AttributeSpecific
 		AllowedChoices: []string{"BlockConnection", "KillProcess", "Notify"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
-		DefaultValue:   AgentEnforcementPolicyActionNotify,
+		DefaultValue:   EndpointPolicyActionNotify,
 		Description:    `The action the agent takes when the criteria match.`,
 		Exposed:        true,
 		Name:           "action",
@@ -731,14 +731,14 @@ named AI assistant with command-line conditions.`,
 		Exposed: true,
 		Name:    "criteria",
 		Stored:  true,
-		SubType: "agentenforcementpolicypredicate",
+		SubType: "endpointpolicypredicate",
 		Type:    "refList",
 	},
 	"Description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the agent enforcement policy.`,
+		Description:    `Description of the endpoint policy.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -839,7 +839,7 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "severity",
 		ConvertedName:  "Severity",
-		DefaultValue:   AgentEnforcementPolicySeverityLow,
+		DefaultValue:   EndpointPolicySeverityLow,
 		Description:    `The lowest severity level this policy will apply to.`,
 		Exposed:        true,
 		Name:           "severity",
@@ -864,8 +864,8 @@ Name if empty.`,
 	},
 }
 
-// AgentEnforcementPolicyLowerCaseAttributesMap represents the map of attribute for AgentEnforcementPolicy.
-var AgentEnforcementPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+// EndpointPolicyLowerCaseAttributesMap represents the map of attribute for EndpointPolicy.
+var EndpointPolicyLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"id": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -885,7 +885,7 @@ var AgentEnforcementPolicyLowerCaseAttributesMap = map[string]elemental.Attribut
 		AllowedChoices: []string{"BlockConnection", "KillProcess", "Notify"},
 		BSONFieldName:  "action",
 		ConvertedName:  "Action",
-		DefaultValue:   AgentEnforcementPolicyActionNotify,
+		DefaultValue:   EndpointPolicyActionNotify,
 		Description:    `The action the agent takes when the criteria match.`,
 		Exposed:        true,
 		Name:           "action",
@@ -916,14 +916,14 @@ named AI assistant with command-line conditions.`,
 		Exposed: true,
 		Name:    "criteria",
 		Stored:  true,
-		SubType: "agentenforcementpolicypredicate",
+		SubType: "endpointpolicypredicate",
 		Type:    "refList",
 	},
 	"description": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
-		Description:    `Description of the agent enforcement policy.`,
+		Description:    `Description of the endpoint policy.`,
 		Exposed:        true,
 		Name:           "description",
 		Stored:         true,
@@ -1024,7 +1024,7 @@ Name if empty.`,
 		AllowedChoices: []string{"Low", "Medium", "High", "Critical"},
 		BSONFieldName:  "severity",
 		ConvertedName:  "Severity",
-		DefaultValue:   AgentEnforcementPolicySeverityLow,
+		DefaultValue:   EndpointPolicySeverityLow,
 		Description:    `The lowest severity level this policy will apply to.`,
 		Exposed:        true,
 		Name:           "severity",
@@ -1049,35 +1049,35 @@ Name if empty.`,
 	},
 }
 
-// SparseAgentEnforcementPoliciesList represents a list of SparseAgentEnforcementPolicies
-type SparseAgentEnforcementPoliciesList []*SparseAgentEnforcementPolicy
+// SparseEndpointPoliciesList represents a list of SparseEndpointPolicies
+type SparseEndpointPoliciesList []*SparseEndpointPolicy
 
 // Identity returns the identity of the objects in the list.
-func (o SparseAgentEnforcementPoliciesList) Identity() elemental.Identity {
+func (o SparseEndpointPoliciesList) Identity() elemental.Identity {
 
-	return AgentEnforcementPolicyIdentity
+	return EndpointPolicyIdentity
 }
 
-// Copy returns a pointer to a copy the SparseAgentEnforcementPoliciesList.
-func (o SparseAgentEnforcementPoliciesList) Copy() elemental.Identifiables {
+// Copy returns a pointer to a copy the SparseEndpointPoliciesList.
+func (o SparseEndpointPoliciesList) Copy() elemental.Identifiables {
 
 	copy := slices.Clone(o)
 	return &copy
 }
 
-// Append appends the objects to the a new copy of the SparseAgentEnforcementPoliciesList.
-func (o SparseAgentEnforcementPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
+// Append appends the objects to the a new copy of the SparseEndpointPoliciesList.
+func (o SparseEndpointPoliciesList) Append(objects ...elemental.Identifiable) elemental.Identifiables {
 
 	out := slices.Clone(o)
 	for _, obj := range objects {
-		out = append(out, obj.(*SparseAgentEnforcementPolicy))
+		out = append(out, obj.(*SparseEndpointPolicy))
 	}
 
 	return out
 }
 
 // List converts the object to an elemental.IdentifiablesList.
-func (o SparseAgentEnforcementPoliciesList) List() elemental.IdentifiablesList {
+func (o SparseEndpointPoliciesList) List() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1088,13 +1088,13 @@ func (o SparseAgentEnforcementPoliciesList) List() elemental.IdentifiablesList {
 }
 
 // DefaultOrder returns the default ordering fields of the content.
-func (o SparseAgentEnforcementPoliciesList) DefaultOrder() []string {
+func (o SparseEndpointPoliciesList) DefaultOrder() []string {
 
 	return []string{}
 }
 
-// ToPlain returns the SparseAgentEnforcementPoliciesList converted to AgentEnforcementPoliciesList.
-func (o SparseAgentEnforcementPoliciesList) ToPlain() elemental.IdentifiablesList {
+// ToPlain returns the SparseEndpointPoliciesList converted to EndpointPoliciesList.
+func (o SparseEndpointPoliciesList) ToPlain() elemental.IdentifiablesList {
 
 	out := make(elemental.IdentifiablesList, len(o))
 	for i := range len(o) {
@@ -1105,27 +1105,27 @@ func (o SparseAgentEnforcementPoliciesList) ToPlain() elemental.IdentifiablesLis
 }
 
 // Version returns the version of the content.
-func (o SparseAgentEnforcementPoliciesList) Version() int {
+func (o SparseEndpointPoliciesList) Version() int {
 
 	return 1
 }
 
-// SparseAgentEnforcementPolicy represents the sparse version of a agentenforcementpolicy.
-type SparseAgentEnforcementPolicy struct {
+// SparseEndpointPolicy represents the sparse version of a endpointpolicy.
+type SparseEndpointPolicy struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
 	// The action the agent takes when the criteria match.
-	Action *AgentEnforcementPolicyActionValue `json:"action,omitempty" msgpack:"action,omitempty" bson:"action,omitempty" mapstructure:"action,omitempty"`
+	Action *EndpointPolicyActionValue `json:"action,omitempty" msgpack:"action,omitempty" bson:"action,omitempty" mapstructure:"action,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
 	// The match criteria identifying the AI entities the policy targets, or a
 	// named AI assistant with command-line conditions.
-	Criteria *[]*AgentEnforcementPolicyPredicate `json:"criteria,omitempty" msgpack:"criteria,omitempty" bson:"criteria,omitempty" mapstructure:"criteria,omitempty"`
+	Criteria *[]*EndpointPolicyPredicate `json:"criteria,omitempty" msgpack:"criteria,omitempty" bson:"criteria,omitempty" mapstructure:"criteria,omitempty"`
 
-	// Description of the agent enforcement policy.
+	// Description of the endpoint policy.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
 	// If true, the policy is disabled.
@@ -1152,7 +1152,7 @@ type SparseAgentEnforcementPolicy struct {
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The lowest severity level this policy will apply to.
-	Severity *AgentEnforcementPolicySeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
+	Severity *EndpointPolicySeverityValue `json:"severity,omitempty" msgpack:"severity,omitempty" bson:"severity,omitempty" mapstructure:"severity,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1166,19 +1166,19 @@ type SparseAgentEnforcementPolicy struct {
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
-// NewSparseAgentEnforcementPolicy returns a new  SparseAgentEnforcementPolicy.
-func NewSparseAgentEnforcementPolicy() *SparseAgentEnforcementPolicy {
-	return &SparseAgentEnforcementPolicy{}
+// NewSparseEndpointPolicy returns a new  SparseEndpointPolicy.
+func NewSparseEndpointPolicy() *SparseEndpointPolicy {
+	return &SparseEndpointPolicy{}
 }
 
 // Identity returns the Identity of the sparse object.
-func (o *SparseAgentEnforcementPolicy) Identity() elemental.Identity {
+func (o *SparseEndpointPolicy) Identity() elemental.Identity {
 
-	return AgentEnforcementPolicyIdentity
+	return EndpointPolicyIdentity
 }
 
 // Identifier returns the value of the sparse object's unique identifier.
-func (o *SparseAgentEnforcementPolicy) Identifier() string {
+func (o *SparseEndpointPolicy) Identifier() string {
 
 	if o.ID == nil {
 		return ""
@@ -1187,7 +1187,7 @@ func (o *SparseAgentEnforcementPolicy) Identifier() string {
 }
 
 // SetIdentifier sets the value of the sparse object's unique identifier.
-func (o *SparseAgentEnforcementPolicy) SetIdentifier(id string) {
+func (o *SparseEndpointPolicy) SetIdentifier(id string) {
 
 	if id != "" {
 		o.ID = &id
@@ -1198,13 +1198,13 @@ func (o *SparseAgentEnforcementPolicy) SetIdentifier(id string) {
 
 // GetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAgentEnforcementPolicy) GetBSON() (any, error) {
+func (o *SparseEndpointPolicy) GetBSON() (any, error) {
 
 	if o == nil {
 		return nil, nil
 	}
 
-	s := &mongoAttributesSparseAgentEnforcementPolicy{}
+	s := &mongoAttributesSparseEndpointPolicy{}
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
@@ -1260,13 +1260,13 @@ func (o *SparseAgentEnforcementPolicy) GetBSON() (any, error) {
 
 // SetBSON implements the bson marshaling interface.
 // This is used to transparently convert ID to MongoDBID as ObectID.
-func (o *SparseAgentEnforcementPolicy) SetBSON(raw bson.Raw) error {
+func (o *SparseEndpointPolicy) SetBSON(raw bson.Raw) error {
 
 	if o == nil {
 		return nil
 	}
 
-	s := &mongoAttributesSparseAgentEnforcementPolicy{}
+	s := &mongoAttributesSparseEndpointPolicy{}
 	if err := raw.Unmarshal(s); err != nil {
 		return err
 	}
@@ -1323,15 +1323,15 @@ func (o *SparseAgentEnforcementPolicy) SetBSON(raw bson.Raw) error {
 }
 
 // Version returns the hardcoded version of the model.
-func (o *SparseAgentEnforcementPolicy) Version() int {
+func (o *SparseEndpointPolicy) Version() int {
 
 	return 1
 }
 
 // ToPlain returns the plain version of the sparse model.
-func (o *SparseAgentEnforcementPolicy) ToPlain() elemental.PlainIdentifiable {
+func (o *SparseEndpointPolicy) ToPlain() elemental.PlainIdentifiable {
 
-	out := NewAgentEnforcementPolicy()
+	out := NewEndpointPolicy()
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
@@ -1385,7 +1385,7 @@ func (o *SparseAgentEnforcementPolicy) ToPlain() elemental.PlainIdentifiable {
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
-func (o *SparseAgentEnforcementPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseEndpointPolicy) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if o.Criteria != nil {
 		for _, sub := range *o.Criteria {
@@ -1393,7 +1393,7 @@ func (o *SparseAgentEnforcementPolicy) EncryptAttributes(encrypter elemental.Att
 				continue
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Criteria' for 'AgentEnforcementPolicy' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Criteria' for 'EndpointPolicy' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1402,7 +1402,7 @@ func (o *SparseAgentEnforcementPolicy) EncryptAttributes(encrypter elemental.Att
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
-func (o *SparseAgentEnforcementPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+func (o *SparseEndpointPolicy) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
 	if o.Criteria != nil {
 		for _, sub := range *o.Criteria {
@@ -1410,7 +1410,7 @@ func (o *SparseAgentEnforcementPolicy) DecryptAttributes(encrypter elemental.Att
 				continue
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Criteria' for 'AgentEnforcementPolicy' (%s): %w", o.Identifier(), err)
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Criteria' for 'EndpointPolicy' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1419,7 +1419,7 @@ func (o *SparseAgentEnforcementPolicy) DecryptAttributes(encrypter elemental.Att
 }
 
 // GetCreateTime returns the CreateTime of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetCreateTime() (out time.Time) {
+func (o *SparseEndpointPolicy) GetCreateTime() (out time.Time) {
 
 	if o.CreateTime == nil {
 		return
@@ -1429,13 +1429,13 @@ func (o *SparseAgentEnforcementPolicy) GetCreateTime() (out time.Time) {
 }
 
 // SetCreateTime sets the property CreateTime of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetCreateTime(createTime time.Time) {
+func (o *SparseEndpointPolicy) SetCreateTime(createTime time.Time) {
 
 	o.CreateTime = &createTime
 }
 
 // GetFriendlyName returns the FriendlyName of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetFriendlyName() (out string) {
+func (o *SparseEndpointPolicy) GetFriendlyName() (out string) {
 
 	if o.FriendlyName == nil {
 		return
@@ -1445,13 +1445,13 @@ func (o *SparseAgentEnforcementPolicy) GetFriendlyName() (out string) {
 }
 
 // SetFriendlyName sets the property FriendlyName of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetFriendlyName(friendlyName string) {
+func (o *SparseEndpointPolicy) SetFriendlyName(friendlyName string) {
 
 	o.FriendlyName = &friendlyName
 }
 
 // GetImportHash returns the ImportHash of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetImportHash() (out string) {
+func (o *SparseEndpointPolicy) GetImportHash() (out string) {
 
 	if o.ImportHash == nil {
 		return
@@ -1461,13 +1461,13 @@ func (o *SparseAgentEnforcementPolicy) GetImportHash() (out string) {
 }
 
 // SetImportHash sets the property ImportHash of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetImportHash(importHash string) {
+func (o *SparseEndpointPolicy) SetImportHash(importHash string) {
 
 	o.ImportHash = &importHash
 }
 
 // GetImportLabel returns the ImportLabel of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetImportLabel() (out string) {
+func (o *SparseEndpointPolicy) GetImportLabel() (out string) {
 
 	if o.ImportLabel == nil {
 		return
@@ -1477,13 +1477,13 @@ func (o *SparseAgentEnforcementPolicy) GetImportLabel() (out string) {
 }
 
 // SetImportLabel sets the property ImportLabel of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetImportLabel(importLabel string) {
+func (o *SparseEndpointPolicy) SetImportLabel(importLabel string) {
 
 	o.ImportLabel = &importLabel
 }
 
 // GetName returns the Name of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetName() (out string) {
+func (o *SparseEndpointPolicy) GetName() (out string) {
 
 	if o.Name == nil {
 		return
@@ -1493,13 +1493,13 @@ func (o *SparseAgentEnforcementPolicy) GetName() (out string) {
 }
 
 // SetName sets the property Name of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetName(name string) {
+func (o *SparseEndpointPolicy) SetName(name string) {
 
 	o.Name = &name
 }
 
 // GetNamespace returns the Namespace of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetNamespace() (out string) {
+func (o *SparseEndpointPolicy) GetNamespace() (out string) {
 
 	if o.Namespace == nil {
 		return
@@ -1509,13 +1509,13 @@ func (o *SparseAgentEnforcementPolicy) GetNamespace() (out string) {
 }
 
 // SetNamespace sets the property Namespace of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetNamespace(namespace string) {
+func (o *SparseEndpointPolicy) SetNamespace(namespace string) {
 
 	o.Namespace = &namespace
 }
 
 // GetUpdateTime returns the UpdateTime of the receiver.
-func (o *SparseAgentEnforcementPolicy) GetUpdateTime() (out time.Time) {
+func (o *SparseEndpointPolicy) GetUpdateTime() (out time.Time) {
 
 	if o.UpdateTime == nil {
 		return
@@ -1525,68 +1525,68 @@ func (o *SparseAgentEnforcementPolicy) GetUpdateTime() (out time.Time) {
 }
 
 // SetUpdateTime sets the property UpdateTime of the receiver using the address of the given value.
-func (o *SparseAgentEnforcementPolicy) SetUpdateTime(updateTime time.Time) {
+func (o *SparseEndpointPolicy) SetUpdateTime(updateTime time.Time) {
 
 	o.UpdateTime = &updateTime
 }
 
-// DeepCopy returns a deep copy if the SparseAgentEnforcementPolicy.
-func (o *SparseAgentEnforcementPolicy) DeepCopy() *SparseAgentEnforcementPolicy {
+// DeepCopy returns a deep copy if the SparseEndpointPolicy.
+func (o *SparseEndpointPolicy) DeepCopy() *SparseEndpointPolicy {
 
 	if o == nil {
 		return nil
 	}
 
-	out := &SparseAgentEnforcementPolicy{}
+	out := &SparseEndpointPolicy{}
 	o.DeepCopyInto(out)
 
 	return out
 }
 
-// DeepCopyInto copies the receiver into the given *SparseAgentEnforcementPolicy.
-func (o *SparseAgentEnforcementPolicy) DeepCopyInto(out *SparseAgentEnforcementPolicy) {
+// DeepCopyInto copies the receiver into the given *SparseEndpointPolicy.
+func (o *SparseEndpointPolicy) DeepCopyInto(out *SparseEndpointPolicy) {
 
 	target, err := copystructure.Copy(o)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to deepcopy SparseAgentEnforcementPolicy: %s", err))
+		panic(fmt.Sprintf("Unable to deepcopy SparseEndpointPolicy: %s", err))
 	}
 
-	*out = *target.(*SparseAgentEnforcementPolicy)
+	*out = *target.(*SparseEndpointPolicy)
 }
 
-type mongoAttributesAgentEnforcementPolicy struct {
-	ID           bson.ObjectId                       `bson:"_id,omitempty"`
-	Action       AgentEnforcementPolicyActionValue   `bson:"action"`
-	CreateTime   time.Time                           `bson:"createtime"`
-	Criteria     []*AgentEnforcementPolicyPredicate  `bson:"criteria"`
-	Description  string                              `bson:"description"`
-	Disabled     bool                                `bson:"disabled"`
-	FriendlyName string                              `bson:"friendlyname"`
-	ImportHash   string                              `bson:"importhash,omitempty"`
-	ImportLabel  string                              `bson:"importlabel,omitempty"`
-	Message      string                              `bson:"message"`
-	Name         string                              `bson:"name"`
-	Namespace    string                              `bson:"namespace,omitempty"`
-	Severity     AgentEnforcementPolicySeverityValue `bson:"severity"`
-	UpdateTime   time.Time                           `bson:"updatetime"`
-	ZHash        int                                 `bson:"zhash"`
-	Zone         int                                 `bson:"zone"`
+type mongoAttributesEndpointPolicy struct {
+	ID           bson.ObjectId               `bson:"_id,omitempty"`
+	Action       EndpointPolicyActionValue   `bson:"action"`
+	CreateTime   time.Time                   `bson:"createtime"`
+	Criteria     []*EndpointPolicyPredicate  `bson:"criteria"`
+	Description  string                      `bson:"description"`
+	Disabled     bool                        `bson:"disabled"`
+	FriendlyName string                      `bson:"friendlyname"`
+	ImportHash   string                      `bson:"importhash,omitempty"`
+	ImportLabel  string                      `bson:"importlabel,omitempty"`
+	Message      string                      `bson:"message"`
+	Name         string                      `bson:"name"`
+	Namespace    string                      `bson:"namespace,omitempty"`
+	Severity     EndpointPolicySeverityValue `bson:"severity"`
+	UpdateTime   time.Time                   `bson:"updatetime"`
+	ZHash        int                         `bson:"zhash"`
+	Zone         int                         `bson:"zone"`
 }
-type mongoAttributesSparseAgentEnforcementPolicy struct {
-	ID           bson.ObjectId                        `bson:"_id,omitempty"`
-	Action       *AgentEnforcementPolicyActionValue   `bson:"action,omitempty"`
-	CreateTime   *time.Time                           `bson:"createtime,omitempty"`
-	Criteria     *[]*AgentEnforcementPolicyPredicate  `bson:"criteria,omitempty"`
-	Description  *string                              `bson:"description,omitempty"`
-	Disabled     *bool                                `bson:"disabled,omitempty"`
-	FriendlyName *string                              `bson:"friendlyname,omitempty"`
-	ImportHash   *string                              `bson:"importhash,omitempty"`
-	ImportLabel  *string                              `bson:"importlabel,omitempty"`
-	Message      *string                              `bson:"message,omitempty"`
-	Name         *string                              `bson:"name,omitempty"`
-	Namespace    *string                              `bson:"namespace,omitempty"`
-	Severity     *AgentEnforcementPolicySeverityValue `bson:"severity,omitempty"`
-	UpdateTime   *time.Time                           `bson:"updatetime,omitempty"`
-	ZHash        *int                                 `bson:"zhash,omitempty"`
-	Zone         *int                                 `bson:"zone,omitempty"`
+type mongoAttributesSparseEndpointPolicy struct {
+	ID           bson.ObjectId                `bson:"_id,omitempty"`
+	Action       *EndpointPolicyActionValue   `bson:"action,omitempty"`
+	CreateTime   *time.Time                   `bson:"createtime,omitempty"`
+	Criteria     *[]*EndpointPolicyPredicate  `bson:"criteria,omitempty"`
+	Description  *string                      `bson:"description,omitempty"`
+	Disabled     *bool                        `bson:"disabled,omitempty"`
+	FriendlyName *string                      `bson:"friendlyname,omitempty"`
+	ImportHash   *string                      `bson:"importhash,omitempty"`
+	ImportLabel  *string                      `bson:"importlabel,omitempty"`
+	Message      *string                      `bson:"message,omitempty"`
+	Name         *string                      `bson:"name,omitempty"`
+	Namespace    *string                      `bson:"namespace,omitempty"`
+	Severity     *EndpointPolicySeverityValue `bson:"severity,omitempty"`
+	UpdateTime   *time.Time                   `bson:"updatetime,omitempty"`
+	ZHash        *int                         `bson:"zhash,omitempty"`
+	Zone         *int                         `bson:"zone,omitempty"`
 }

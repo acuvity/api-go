@@ -2249,20 +2249,20 @@ func ValidateAgentConfig(agentConfig *AgentConfig) error {
 		}
 	}
 
-	matches := make(map[string]struct{}, len(agentConfig.AgentEnforcementPolicies))
-	for i, aepol := range agentConfig.AgentEnforcementPolicies {
+	matches := make(map[string]struct{}, len(agentConfig.EndpointPolicies))
+	for i, aepol := range agentConfig.EndpointPolicies {
 		if _, ok := matches[aepol]; !ok {
 			matches[aepol] = struct{}{}
 			continue
 		}
-		return makeErr(fmt.Sprintf("agentEnforcementPolicies/%d", i), fmt.Sprintf("you cannot have duplicate agent enforcement policies applied ('%s')", aepol))
+		return makeErr(fmt.Sprintf("endpointPolicies/%d", i), fmt.Sprintf("you cannot have duplicate endpoint policies applied ('%s')", aepol))
 	}
 
 	return nil
 }
 
-// ValidateAgentEnforcementPolicy validates the given agent enforcement policy.
-func ValidateAgentEnforcementPolicy(p *AgentEnforcementPolicy) error {
+// ValidateEndpointPolicy validates the given endpoint policy.
+func ValidateEndpointPolicy(p *EndpointPolicy) error {
 
 	if p.Message != "" {
 		if strings.Contains(p.Message, `"`) || strings.Contains(p.Message, `\`) {
@@ -2273,23 +2273,23 @@ func ValidateAgentEnforcementPolicy(p *AgentEnforcementPolicy) error {
 	return nil
 }
 
-// ValidateAgentEnforcementPolicyPredicate validates the given agent enforcement predicate.
-func ValidateAgentEnforcementPolicyPredicate(p *AgentEnforcementPolicyPredicate) error {
+// ValidateEndpointPolicyPredicate validates the given endpoint predicate.
+func ValidateEndpointPolicyPredicate(p *EndpointPolicyPredicate) error {
 
 	o := p.Operator
 	v := p.Values
 
 	switch p.Key {
-	case AgentEnforcementPolicyPredicateKeyAIDomain:
-		if o != AgentEnforcementPolicyPredicateOperatorAny && o != AgentEnforcementPolicyPredicateOperatorNotAny &&
-			o != AgentEnforcementPolicyPredicateOperatorEquals && o != AgentEnforcementPolicyPredicateOperatorNotEquals &&
-			o != AgentEnforcementPolicyPredicateOperatorContains {
+	case EndpointPolicyPredicateKeyAIDomain:
+		if o != EndpointPolicyPredicateOperatorAny && o != EndpointPolicyPredicateOperatorNotAny &&
+			o != EndpointPolicyPredicateOperatorEquals && o != EndpointPolicyPredicateOperatorNotEquals &&
+			o != EndpointPolicyPredicateOperatorContains {
 			return makeErr("operator", fmt.Sprintf("Key '%s' only supports operator 'Any', 'NotAny', 'Equals', 'NotEquals' and 'Contains'", p.Key))
 		}
 		if len(v) < 1 {
 			return makeErr("values", fmt.Sprintf("Key '%s' must have at least one value", p.Key))
 		}
-		if len(v) > 1 && (o == AgentEnforcementPolicyPredicateOperatorEquals || o == AgentEnforcementPolicyPredicateOperatorNotEquals) {
+		if len(v) > 1 && (o == EndpointPolicyPredicateOperatorEquals || o == EndpointPolicyPredicateOperatorNotEquals) {
 			return makeErr("values", fmt.Sprintf("Key '%s' must have only one value", p.Key))
 		}
 		m := make(map[string]struct{}, len(v))
@@ -2310,16 +2310,16 @@ func ValidateAgentEnforcementPolicyPredicate(p *AgentEnforcementPolicyPredicate)
 			m[strVal] = struct{}{}
 		}
 
-	case AgentEnforcementPolicyPredicateKeyCommandLine, AgentEnforcementPolicyPredicateKeyProcessName:
-		if o != AgentEnforcementPolicyPredicateOperatorAny && o != AgentEnforcementPolicyPredicateOperatorNotAny &&
-			o != AgentEnforcementPolicyPredicateOperatorEquals && o != AgentEnforcementPolicyPredicateOperatorNotEquals &&
-			o != AgentEnforcementPolicyPredicateOperatorContains {
+	case EndpointPolicyPredicateKeyCommandLine, EndpointPolicyPredicateKeyProcessName:
+		if o != EndpointPolicyPredicateOperatorAny && o != EndpointPolicyPredicateOperatorNotAny &&
+			o != EndpointPolicyPredicateOperatorEquals && o != EndpointPolicyPredicateOperatorNotEquals &&
+			o != EndpointPolicyPredicateOperatorContains {
 			return makeErr("operator", fmt.Sprintf("Key '%s' only supports operator 'Any', 'NotAny', 'Equals', 'NotEquals' and 'Contains'", p.Key))
 		}
 		if len(v) < 1 {
 			return makeErr("values", fmt.Sprintf("Key '%s' must have at least one value", p.Key))
 		}
-		if len(v) > 1 && (o == AgentEnforcementPolicyPredicateOperatorEquals || o == AgentEnforcementPolicyPredicateOperatorNotEquals) {
+		if len(v) > 1 && (o == EndpointPolicyPredicateOperatorEquals || o == EndpointPolicyPredicateOperatorNotEquals) {
 			return makeErr("values", fmt.Sprintf("Key '%s' must have only one value", p.Key))
 		}
 		m := make(map[string]struct{}, len(v))

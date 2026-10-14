@@ -66,18 +66,6 @@
       },
       "type": "array"
     },
-    "agentenforcementpolicies": {
-      "items": {
-        "$ref": "agentenforcementpolicy.json"
-      },
-      "type": "array"
-    },
-    "agentenforcementpolicypredicates": {
-      "items": {
-        "$ref": "agentenforcementpolicypredicate.json"
-      },
-      "type": "array"
-    },
     "agents": {
       "items": {
         "$ref": "agent.json"
@@ -669,6 +657,18 @@
     "egresspolicies": {
       "items": {
         "$ref": "egresspolicy.json"
+      },
+      "type": "array"
+    },
+    "endpointpolicies": {
+      "items": {
+        "$ref": "endpointpolicy.json"
+      },
+      "type": "array"
+    },
+    "endpointpolicypredicates": {
+      "items": {
+        "$ref": "endpointpolicypredicate.json"
       },
       "type": "array"
     },

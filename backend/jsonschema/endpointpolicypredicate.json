@@ -2,14 +2,14 @@
   "$extends": [
     "@predicate"
   ],
-  "$friendlyName": "Agent Enforcement Policy Predicate",
-  "$friendlyNamePlural": "Agent Enforcement Policy Predicates",
-  "$modelName": "AgentEnforcementPolicyPredicate",
+  "$friendlyName": "Endpoint Policy Predicate",
+  "$friendlyNamePlural": "Endpoint Policy Predicates",
+  "$modelName": "EndpointPolicyPredicate",
   "$modelPackage": "okite",
-  "$modelResourceName": "agentenforcementpolicypredicates",
-  "$modelRestName": "agentenforcementpolicypredicate",
+  "$modelResourceName": "endpointpolicypredicates",
+  "$modelRestName": "endpointpolicypredicate",
   "additionalProperties": false,
-  "description": "Represents an agent enforcement policy predicate.",
+  "description": "Represents an endpoint policy predicate.",
   "properties": {
     "key": {
       "$friendlyName": "Key",
@@ -52,6 +52,6 @@
     "key",
     "operator"
   ],
-  "title": "AgentEnforcementPolicyPredicate",
+  "title": "EndpointPolicyPredicate",
   "type": "object"
 }

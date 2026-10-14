@@ -6,14 +6,14 @@
     "@timed",
     "@namelinkable"
   ],
-  "$friendlyName": "Agent Enforcement Policy",
-  "$friendlyNamePlural": "Agent Enforcement Policies",
-  "$modelName": "AgentEnforcementPolicy",
+  "$friendlyName": "Endpoint Policy",
+  "$friendlyNamePlural": "Endpoint Policies",
+  "$modelName": "EndpointPolicy",
   "$modelPackage": "okite",
-  "$modelResourceName": "agentenforcementpolicies",
-  "$modelRestName": "agentenforcementpolicy",
+  "$modelResourceName": "endpointpolicies",
+  "$modelRestName": "endpointpolicy",
   "additionalProperties": false,
-  "description": "Agent Enforcement Policies define the local action an agent takes when a discovered AI entity (or a named AI assistant with command-line conditions) matches the policy's criteria. Each policy carries criteria, an action, a message shown to the user, and an apply-to selecting whose agents receive it.",
+  "description": "Endpoint Policies define the local action an agent takes when a discovered AI entity (or a named AI assistant with command-line conditions) matches the policy's criteria. Each policy carries criteria, an action, a message shown to the user, and an apply-to selecting whose agents receive it.",
   "properties": {
     "ID": {
       "$friendlyName": "ID",
@@ -50,14 +50,14 @@
       "$friendlyName": "Criteria",
       "description": "The match criteria identifying the AI entities the policy targets, or a named AI assistant with command-line conditions.",
       "items": {
-        "$ref": "agentenforcementpolicypredicate.json"
+        "$ref": "endpointpolicypredicate.json"
       },
       "title": "criteria",
       "type": "array"
     },
     "description": {
       "$friendlyName": "Description",
-      "description": "Description of the agent enforcement policy.",
+      "description": "Description of the endpoint policy.",
       "title": "description",
       "type": [
         "string",
@@ -158,6 +158,6 @@
     "friendlyName",
     "severity"
   ],
-  "title": "AgentEnforcementPolicy",
+  "title": "EndpointPolicy",
   "type": "object"
 }

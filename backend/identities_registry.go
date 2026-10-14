@@ -14,10 +14,8 @@ var (
 		"agent":       AgentIdentity,
 		"agentconfig": AgentConfigIdentity,
 
-		"agentdiscovery":         AgentDiscoveryIdentity,
-		"agentenforcementpolicy": AgentEnforcementPolicyIdentity,
-
-		"aiapp": AIAppIdentity,
+		"agentdiscovery": AgentDiscoveryIdentity,
+		"aiapp":          AIAppIdentity,
 
 		"aidomain":        AIDomainIdentity,
 		"aidomainlookup":  AIDomainLookupIdentity,
@@ -80,6 +78,8 @@ var (
 
 		"digestreport":        DigestReportIdentity,
 		"digestreportrequest": DigestReportRequestIdentity,
+
+		"endpointpolicy": EndpointPolicyIdentity,
 
 		"errortransformer": ErrorTransformerIdentity,
 
@@ -211,10 +211,8 @@ var (
 		"agents":       AgentIdentity,
 		"agentconfigs": AgentConfigIdentity,
 
-		"agentdiscoveries":         AgentDiscoveryIdentity,
-		"agentenforcementpolicies": AgentEnforcementPolicyIdentity,
-
-		"aiapps": AIAppIdentity,
+		"agentdiscoveries": AgentDiscoveryIdentity,
+		"aiapps":           AIAppIdentity,
 
 		"aidomains":        AIDomainIdentity,
 		"aidomainlookups":  AIDomainLookupIdentity,
@@ -277,6 +275,8 @@ var (
 
 		"digestreports":        DigestReportIdentity,
 		"digestreportrequests": DigestReportRequestIdentity,
+
+		"endpointpolicies": EndpointPolicyIdentity,
 
 		"errortransformers": ErrorTransformerIdentity,
 
@@ -429,13 +429,6 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
-		},
-		"agentenforcementpolicy": {
-			{":shard", ":unique", "zone", "zHash"},
-			{"namespace"},
-			{"namespace", "ID"},
-			{"namespace", "importLabel"},
-			{"namespace", "name"},
 		},
 		"aiapp": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -660,7 +653,14 @@ var (
 			{"namespace", "ID"},
 		},
 		"digestreportrequest": nil,
-		"errortransformer":    nil,
+		"endpointpolicy": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"errortransformer": nil,
 		"extractor": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -1126,8 +1126,6 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewAgentDiscovery()
-	case AgentEnforcementPolicyIdentity:
-		return NewAgentEnforcementPolicy()
 	case AIAppIdentity:
 		return NewAIApp()
 	case AIDomainIdentity:
@@ -1218,6 +1216,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewDigestReport()
 	case DigestReportRequestIdentity:
 		return NewDigestReportRequest()
+	case EndpointPolicyIdentity:
+		return NewEndpointPolicy()
 	case ErrorTransformerIdentity:
 		return NewErrorTransformer()
 	case ExtractorIdentity:
@@ -1415,8 +1415,6 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewSparseAgentDiscovery()
-	case AgentEnforcementPolicyIdentity:
-		return NewSparseAgentEnforcementPolicy()
 	case AIAppIdentity:
 		return NewSparseAIApp()
 	case AIDomainIdentity:
@@ -1507,6 +1505,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseDigestReport()
 	case DigestReportRequestIdentity:
 		return NewSparseDigestReportRequest()
+	case EndpointPolicyIdentity:
+		return NewSparseEndpointPolicy()
 	case ErrorTransformerIdentity:
 		return NewSparseErrorTransformer()
 	case ExtractorIdentity:
@@ -1712,8 +1712,6 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &AgentDiscoveriesList{}
-	case AgentEnforcementPolicyIdentity:
-		return &AgentEnforcementPoliciesList{}
 	case AIAppIdentity:
 		return &AIAppsList{}
 	case AIDomainIdentity:
@@ -1804,6 +1802,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &DigestReportsList{}
 	case DigestReportRequestIdentity:
 		return &DigestReportRequestsList{}
+	case EndpointPolicyIdentity:
+		return &EndpointPoliciesList{}
 	case ErrorTransformerIdentity:
 		return &ErrorTransformersList{}
 	case ExtractorIdentity:
@@ -1999,8 +1999,6 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &SparseAgentDiscoveriesList{}
-	case AgentEnforcementPolicyIdentity:
-		return &SparseAgentEnforcementPoliciesList{}
 	case AIAppIdentity:
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
@@ -2091,6 +2089,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseDigestReportsList{}
 	case DigestReportRequestIdentity:
 		return &SparseDigestReportRequestsList{}
+	case EndpointPolicyIdentity:
+		return &SparseEndpointPoliciesList{}
 	case ErrorTransformerIdentity:
 		return &SparseErrorTransformersList{}
 	case ExtractorIdentity:
@@ -2296,8 +2296,6 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAgentDiscoveredMCP()
 	case "agentdiscoveredskill", "AgentDiscoveredSkill":
 		return NewAgentDiscoveredSkill()
-	case "agentenforcementpolicypredicate", "AgentEnforcementPolicyPredicate":
-		return NewAgentEnforcementPolicyPredicate()
 	case "aidcitation", "AIDCitation":
 		return NewAIDCitation()
 	case "aidrisk", "AIDRisk":
@@ -2404,6 +2402,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewDriverPortRange()
 	case "egresspolicy", "EgressPolicy":
 		return NewEgressPolicy()
+	case "endpointpolicypredicate", "EndpointPolicyPredicate":
+		return NewEndpointPolicyPredicate()
 	case "extraction", "Extraction":
 		return NewExtraction()
 	case "extractioninformation", "ExtractionInformation":
@@ -2555,7 +2555,6 @@ func AllIdentities() []elemental.Identity {
 		AgentIdentity,
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
-		AgentEnforcementPolicyIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
 		AIDomainLookupIdentity,
@@ -2601,6 +2600,7 @@ func AllIdentities() []elemental.Identity {
 		DeploymentInstanceIdentity,
 		DigestReportIdentity,
 		DigestReportRequestIdentity,
+		EndpointPolicyIdentity,
 		ErrorTransformerIdentity,
 		ExtractorIdentity,
 		ExtractorLibIdentity,
@@ -2707,8 +2707,6 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case AgentDiscoveryIdentity:
 		return []string{}
-	case AgentEnforcementPolicyIdentity:
-		return []string{}
 	case AIAppIdentity:
 		return []string{}
 	case AIDomainIdentity:
@@ -2798,6 +2796,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case DigestReportIdentity:
 		return []string{}
 	case DigestReportRequestIdentity:
+		return []string{}
+	case EndpointPolicyIdentity:
 		return []string{}
 	case ErrorTransformerIdentity:
 		return []string{}

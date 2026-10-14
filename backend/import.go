@@ -145,9 +145,6 @@ type Import struct {
 	// Agent Discovery to import.
 	AgentDiscoveries AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"agentdiscoveries,omitempty" mapstructure:"agentDiscoveries,omitempty"`
 
-	// Agent enforcement policies to import.
-	AgentEnforcementPolicies AgentEnforcementPoliciesList `json:"agentEnforcementPolicies,omitempty" msgpack:"agentEnforcementPolicies,omitempty" bson:"agentenforcementpolicies,omitempty" mapstructure:"agentEnforcementPolicies,omitempty"`
-
 	// Alert definitions to import.
 	AlertDefinitions AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"alertdefinitions,omitempty" mapstructure:"alertDefinitions,omitempty"`
 
@@ -171,6 +168,9 @@ type Import struct {
 
 	// Deployments to import.
 	Deployments DeploymentsList `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
+
+	// Endpoint policies to import.
+	EndpointPolicies EndpointPoliciesList `json:"endpointPolicies,omitempty" msgpack:"endpointPolicies,omitempty" bson:"endpointpolicies,omitempty" mapstructure:"endpointPolicies,omitempty"`
 
 	// Extractor Libs to import.
 	ExtractorLibs ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
@@ -240,55 +240,55 @@ type Import struct {
 func NewImport() *Import {
 
 	return &Import{
-		ModelVersion:             1,
-		AIApps:                   AIAppsList{},
-		AIDomains:                AIDomainsList{},
-		AIGatewayConnectors:      AIGatewayConnectorsList{},
-		AIGateways:               AIGatewaysList{},
-		AIMCPServers:             AIMCPServersList{},
-		AIPlugins:                AIPluginsList{},
-		AISecurityProbes:         AISecurityProbesList{},
-		AISkills:                 AISkillsList{},
-		AITools:                  AIToolsList{},
-		APIAuthorizations:        APIAuthorizationsList{},
-		IPSets:                   IPSetsList{},
-		LDAPSources:              api.LDAPSourcesList{},
-		MTLSSources:              api.MTLSSourcesList{},
-		OIDCSources:              api.OIDCSourcesList{},
-		OSProbes:                 OSProbesList{},
-		PACConfigs:               PACConfigsList{},
-		SAMLSources:              api.SAMLSourcesList{},
-		AccessPolicies:           AccessPoliciesList{},
-		AgentConfigs:             AgentConfigsList{},
-		AgentDiscoveries:         AgentDiscoveriesList{},
-		AgentEnforcementPolicies: AgentEnforcementPoliciesList{},
-		AlertDefinitions:         AlertDefinitionsList{},
-		Appagents:                AppAgentsList{},
-		Appreports:               AppReportsList{},
-		Apps:                     AppsList{},
-		ContentPolicies:          ContentPoliciesList{},
-		CustomDataTypes:          CustomDataTypesList{},
-		DataSets:                 DataSetsList{},
-		Deployments:              DeploymentsList{},
-		ExtractorLibs:            ExtractorLibsList{},
-		Extractors:               ExtractorsList{},
-		Findingdefinitions:       FindingDefinitionsList{},
-		HostSets:                 HostSetsList{},
-		IgnoredDomains:           IgnoredDomainsList{},
-		OrgSettings:              OrgSettingsList{},
-		Projects:                 ProjectsList{},
-		ProviderTeams:            ProviderTeamsList{},
-		ProviderTokens:           ProviderTokensList{},
-		Providers:                ProvidersList{},
-		Proxyroundtrips:          ProxyRoundtripsList{},
-		Publickeys:               PublicKeysList{},
-		Riskdefinitions:          RiskDefinitionsList{},
-		Sinks:                    SinksList{},
-		Teams:                    TeamsList{},
-		ThreatDefinitions:        ThreatDefinitionsList{},
-		Visitedurls:              VisitedURLsList{},
-		WebExtensionConfigs:      WebExtensionConfigsList{},
-		WebhookIntegrations:      WebhookIntegrationsList{},
+		ModelVersion:        1,
+		AIApps:              AIAppsList{},
+		AIDomains:           AIDomainsList{},
+		AIGatewayConnectors: AIGatewayConnectorsList{},
+		AIGateways:          AIGatewaysList{},
+		AIMCPServers:        AIMCPServersList{},
+		AIPlugins:           AIPluginsList{},
+		AISecurityProbes:    AISecurityProbesList{},
+		AISkills:            AISkillsList{},
+		AITools:             AIToolsList{},
+		APIAuthorizations:   APIAuthorizationsList{},
+		IPSets:              IPSetsList{},
+		LDAPSources:         api.LDAPSourcesList{},
+		MTLSSources:         api.MTLSSourcesList{},
+		OIDCSources:         api.OIDCSourcesList{},
+		OSProbes:            OSProbesList{},
+		PACConfigs:          PACConfigsList{},
+		SAMLSources:         api.SAMLSourcesList{},
+		AccessPolicies:      AccessPoliciesList{},
+		AgentConfigs:        AgentConfigsList{},
+		AgentDiscoveries:    AgentDiscoveriesList{},
+		AlertDefinitions:    AlertDefinitionsList{},
+		Appagents:           AppAgentsList{},
+		Appreports:          AppReportsList{},
+		Apps:                AppsList{},
+		ContentPolicies:     ContentPoliciesList{},
+		CustomDataTypes:     CustomDataTypesList{},
+		DataSets:            DataSetsList{},
+		Deployments:         DeploymentsList{},
+		EndpointPolicies:    EndpointPoliciesList{},
+		ExtractorLibs:       ExtractorLibsList{},
+		Extractors:          ExtractorsList{},
+		Findingdefinitions:  FindingDefinitionsList{},
+		HostSets:            HostSetsList{},
+		IgnoredDomains:      IgnoredDomainsList{},
+		OrgSettings:         OrgSettingsList{},
+		Projects:            ProjectsList{},
+		ProviderTeams:       ProviderTeamsList{},
+		ProviderTokens:      ProviderTokensList{},
+		Providers:           ProvidersList{},
+		Proxyroundtrips:     ProxyRoundtripsList{},
+		Publickeys:          PublicKeysList{},
+		Riskdefinitions:     RiskDefinitionsList{},
+		Sinks:               SinksList{},
+		Teams:               TeamsList{},
+		ThreatDefinitions:   ThreatDefinitionsList{},
+		Visitedurls:         VisitedURLsList{},
+		WebExtensionConfigs: WebExtensionConfigsList{},
+		WebhookIntegrations: WebhookIntegrationsList{},
 	}
 }
 
@@ -339,7 +339,6 @@ func (o *Import) GetBSON() (any, error) {
 	s.AccessPolicies = o.AccessPolicies
 	s.AgentConfigs = o.AgentConfigs
 	s.AgentDiscoveries = o.AgentDiscoveries
-	s.AgentEnforcementPolicies = o.AgentEnforcementPolicies
 	s.AlertDefinitions = o.AlertDefinitions
 	s.Appagents = o.Appagents
 	s.Appreports = o.Appreports
@@ -348,6 +347,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.CustomDataTypes = o.CustomDataTypes
 	s.DataSets = o.DataSets
 	s.Deployments = o.Deployments
+	s.EndpointPolicies = o.EndpointPolicies
 	s.ExtractorLibs = o.ExtractorLibs
 	s.Extractors = o.Extractors
 	s.Findingdefinitions = o.Findingdefinitions
@@ -405,7 +405,6 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.AccessPolicies = s.AccessPolicies
 	o.AgentConfigs = s.AgentConfigs
 	o.AgentDiscoveries = s.AgentDiscoveries
-	o.AgentEnforcementPolicies = s.AgentEnforcementPolicies
 	o.AlertDefinitions = s.AlertDefinitions
 	o.Appagents = s.Appagents
 	o.Appreports = s.Appreports
@@ -414,6 +413,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.CustomDataTypes = s.CustomDataTypes
 	o.DataSets = s.DataSets
 	o.Deployments = s.Deployments
+	o.EndpointPolicies = s.EndpointPolicies
 	o.ExtractorLibs = s.ExtractorLibs
 	o.Extractors = s.Extractors
 	o.Findingdefinitions = s.Findingdefinitions
@@ -474,55 +474,55 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseImport{
-			AIApps:                   &o.AIApps,
-			AIDomains:                &o.AIDomains,
-			AIGatewayConnectors:      &o.AIGatewayConnectors,
-			AIGateways:               &o.AIGateways,
-			AIMCPServers:             &o.AIMCPServers,
-			AIPlugins:                &o.AIPlugins,
-			AISecurityProbes:         &o.AISecurityProbes,
-			AISkills:                 &o.AISkills,
-			AITools:                  &o.AITools,
-			APIAuthorizations:        &o.APIAuthorizations,
-			IPSets:                   &o.IPSets,
-			LDAPSources:              &o.LDAPSources,
-			MTLSSources:              &o.MTLSSources,
-			OIDCSources:              &o.OIDCSources,
-			OSProbes:                 &o.OSProbes,
-			PACConfigs:               &o.PACConfigs,
-			SAMLSources:              &o.SAMLSources,
-			AccessPolicies:           &o.AccessPolicies,
-			AgentConfigs:             &o.AgentConfigs,
-			AgentDiscoveries:         &o.AgentDiscoveries,
-			AgentEnforcementPolicies: &o.AgentEnforcementPolicies,
-			AlertDefinitions:         &o.AlertDefinitions,
-			Appagents:                &o.Appagents,
-			Appreports:               &o.Appreports,
-			Apps:                     &o.Apps,
-			ContentPolicies:          &o.ContentPolicies,
-			CustomDataTypes:          &o.CustomDataTypes,
-			DataSets:                 &o.DataSets,
-			Deployments:              &o.Deployments,
-			ExtractorLibs:            &o.ExtractorLibs,
-			Extractors:               &o.Extractors,
-			Findingdefinitions:       &o.Findingdefinitions,
-			HostSets:                 &o.HostSets,
-			IgnoredDomains:           &o.IgnoredDomains,
-			Label:                    &o.Label,
-			OrgSettings:              &o.OrgSettings,
-			Projects:                 &o.Projects,
-			ProviderTeams:            &o.ProviderTeams,
-			ProviderTokens:           &o.ProviderTokens,
-			Providers:                &o.Providers,
-			Proxyroundtrips:          &o.Proxyroundtrips,
-			Publickeys:               &o.Publickeys,
-			Riskdefinitions:          &o.Riskdefinitions,
-			Sinks:                    &o.Sinks,
-			Teams:                    &o.Teams,
-			ThreatDefinitions:        &o.ThreatDefinitions,
-			Visitedurls:              &o.Visitedurls,
-			WebExtensionConfigs:      &o.WebExtensionConfigs,
-			WebhookIntegrations:      &o.WebhookIntegrations,
+			AIApps:              &o.AIApps,
+			AIDomains:           &o.AIDomains,
+			AIGatewayConnectors: &o.AIGatewayConnectors,
+			AIGateways:          &o.AIGateways,
+			AIMCPServers:        &o.AIMCPServers,
+			AIPlugins:           &o.AIPlugins,
+			AISecurityProbes:    &o.AISecurityProbes,
+			AISkills:            &o.AISkills,
+			AITools:             &o.AITools,
+			APIAuthorizations:   &o.APIAuthorizations,
+			IPSets:              &o.IPSets,
+			LDAPSources:         &o.LDAPSources,
+			MTLSSources:         &o.MTLSSources,
+			OIDCSources:         &o.OIDCSources,
+			OSProbes:            &o.OSProbes,
+			PACConfigs:          &o.PACConfigs,
+			SAMLSources:         &o.SAMLSources,
+			AccessPolicies:      &o.AccessPolicies,
+			AgentConfigs:        &o.AgentConfigs,
+			AgentDiscoveries:    &o.AgentDiscoveries,
+			AlertDefinitions:    &o.AlertDefinitions,
+			Appagents:           &o.Appagents,
+			Appreports:          &o.Appreports,
+			Apps:                &o.Apps,
+			ContentPolicies:     &o.ContentPolicies,
+			CustomDataTypes:     &o.CustomDataTypes,
+			DataSets:            &o.DataSets,
+			Deployments:         &o.Deployments,
+			EndpointPolicies:    &o.EndpointPolicies,
+			ExtractorLibs:       &o.ExtractorLibs,
+			Extractors:          &o.Extractors,
+			Findingdefinitions:  &o.Findingdefinitions,
+			HostSets:            &o.HostSets,
+			IgnoredDomains:      &o.IgnoredDomains,
+			Label:               &o.Label,
+			OrgSettings:         &o.OrgSettings,
+			Projects:            &o.Projects,
+			ProviderTeams:       &o.ProviderTeams,
+			ProviderTokens:      &o.ProviderTokens,
+			Providers:           &o.Providers,
+			Proxyroundtrips:     &o.Proxyroundtrips,
+			Publickeys:          &o.Publickeys,
+			Riskdefinitions:     &o.Riskdefinitions,
+			Sinks:               &o.Sinks,
+			Teams:               &o.Teams,
+			ThreatDefinitions:   &o.ThreatDefinitions,
+			Visitedurls:         &o.Visitedurls,
+			WebExtensionConfigs: &o.WebExtensionConfigs,
+			WebhookIntegrations: &o.WebhookIntegrations,
 		}
 	}
 
@@ -569,8 +569,6 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AgentConfigs = &(o.AgentConfigs)
 		case "agentDiscoveries":
 			sp.AgentDiscoveries = &(o.AgentDiscoveries)
-		case "agentEnforcementPolicies":
-			sp.AgentEnforcementPolicies = &(o.AgentEnforcementPolicies)
 		case "alertDefinitions":
 			sp.AlertDefinitions = &(o.AlertDefinitions)
 		case "appagents":
@@ -587,6 +585,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DataSets = &(o.DataSets)
 		case "deployments":
 			sp.Deployments = &(o.Deployments)
+		case "endpointPolicies":
+			sp.EndpointPolicies = &(o.EndpointPolicies)
 		case "extractorLibs":
 			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
@@ -700,9 +700,6 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AgentDiscoveries != nil {
 		o.AgentDiscoveries = *so.AgentDiscoveries
 	}
-	if so.AgentEnforcementPolicies != nil {
-		o.AgentEnforcementPolicies = *so.AgentEnforcementPolicies
-	}
 	if so.AlertDefinitions != nil {
 		o.AlertDefinitions = *so.AlertDefinitions
 	}
@@ -726,6 +723,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Deployments != nil {
 		o.Deployments = *so.Deployments
+	}
+	if so.EndpointPolicies != nil {
+		o.EndpointPolicies = *so.EndpointPolicies
 	}
 	if so.ExtractorLibs != nil {
 		o.ExtractorLibs = *so.ExtractorLibs
@@ -936,15 +936,6 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
-	for _, sub := range o.AgentEnforcementPolicies {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentEnforcementPolicies' for 'Import' (%s): %s", o.Identifier(), err)
-		}
-	}
-
 	for _, sub := range o.AlertDefinitions {
 		if sub == nil {
 			continue
@@ -1014,6 +1005,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.EndpointPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'EndpointPolicies' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1338,15 +1338,6 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
-	for _, sub := range o.AgentEnforcementPolicies {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentEnforcementPolicies' for 'Import' (%s): %w", o.Identifier(), err)
-		}
-	}
-
 	for _, sub := range o.AlertDefinitions {
 		if sub == nil {
 			continue
@@ -1416,6 +1407,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.EndpointPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'EndpointPolicies' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1785,16 +1785,6 @@ func (o *Import) Validate() error {
 		}
 	}
 
-	for i, sub := range o.AgentEnforcementPolicies {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "agentEnforcementPolicies", i))
-			errors = errors.Append(err)
-		}
-	}
-
 	for i, sub := range o.AlertDefinitions {
 		if sub == nil {
 			continue
@@ -1871,6 +1861,16 @@ func (o *Import) Validate() error {
 		}
 		if err := sub.Validate(); err != nil {
 			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "deployments", i))
+			errors = errors.Append(err)
+		}
+	}
+
+	for i, sub := range o.EndpointPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "endpointPolicies", i))
 			errors = errors.Append(err)
 		}
 	}
@@ -2143,8 +2143,6 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AgentConfigs
 	case "agentDiscoveries":
 		return o.AgentDiscoveries
-	case "agentEnforcementPolicies":
-		return o.AgentEnforcementPolicies
 	case "alertDefinitions":
 		return o.AlertDefinitions
 	case "appagents":
@@ -2161,6 +2159,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.DataSets
 	case "deployments":
 		return o.Deployments
+	case "endpointPolicies":
+		return o.EndpointPolicies
 	case "extractorLibs":
 		return o.ExtractorLibs
 	case "extractors":
@@ -2428,17 +2428,6 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "agentdiscovery",
 		Type:           "refList",
 	},
-	"AgentEnforcementPolicies": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "agentenforcementpolicies",
-		ConvertedName:  "AgentEnforcementPolicies",
-		Description:    `Agent enforcement policies to import.`,
-		Exposed:        true,
-		Name:           "agentEnforcementPolicies",
-		Stored:         true,
-		SubType:        "agentenforcementpolicy",
-		Type:           "refList",
-	},
 	"AlertDefinitions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinitions",
@@ -2525,6 +2514,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "deployments",
 		Stored:         true,
 		SubType:        "deployment",
+		Type:           "refList",
+	},
+	"EndpointPolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "endpointpolicies",
+		ConvertedName:  "EndpointPolicies",
+		Description:    `Endpoint policies to import.`,
+		Exposed:        true,
+		Name:           "endpointPolicies",
+		Stored:         true,
+		SubType:        "endpointpolicy",
 		Type:           "refList",
 	},
 	"ExtractorLibs": {
@@ -2972,17 +2972,6 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "agentdiscovery",
 		Type:           "refList",
 	},
-	"agentenforcementpolicies": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "agentenforcementpolicies",
-		ConvertedName:  "AgentEnforcementPolicies",
-		Description:    `Agent enforcement policies to import.`,
-		Exposed:        true,
-		Name:           "agentEnforcementPolicies",
-		Stored:         true,
-		SubType:        "agentenforcementpolicy",
-		Type:           "refList",
-	},
 	"alertdefinitions": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alertdefinitions",
@@ -3069,6 +3058,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "deployments",
 		Stored:         true,
 		SubType:        "deployment",
+		Type:           "refList",
+	},
+	"endpointpolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "endpointpolicies",
+		ConvertedName:  "EndpointPolicies",
+		Description:    `Endpoint policies to import.`,
+		Exposed:        true,
+		Name:           "endpointPolicies",
+		Stored:         true,
+		SubType:        "endpointpolicy",
 		Type:           "refList",
 	},
 	"extractorlibs": {
@@ -3417,9 +3417,6 @@ type SparseImport struct {
 	// Agent Discovery to import.
 	AgentDiscoveries *AgentDiscoveriesList `json:"agentDiscoveries,omitempty" msgpack:"agentDiscoveries,omitempty" bson:"agentdiscoveries,omitempty" mapstructure:"agentDiscoveries,omitempty"`
 
-	// Agent enforcement policies to import.
-	AgentEnforcementPolicies *AgentEnforcementPoliciesList `json:"agentEnforcementPolicies,omitempty" msgpack:"agentEnforcementPolicies,omitempty" bson:"agentenforcementpolicies,omitempty" mapstructure:"agentEnforcementPolicies,omitempty"`
-
 	// Alert definitions to import.
 	AlertDefinitions *AlertDefinitionsList `json:"alertDefinitions,omitempty" msgpack:"alertDefinitions,omitempty" bson:"alertdefinitions,omitempty" mapstructure:"alertDefinitions,omitempty"`
 
@@ -3443,6 +3440,9 @@ type SparseImport struct {
 
 	// Deployments to import.
 	Deployments *DeploymentsList `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
+
+	// Endpoint policies to import.
+	EndpointPolicies *EndpointPoliciesList `json:"endpointPolicies,omitempty" msgpack:"endpointPolicies,omitempty" bson:"endpointpolicies,omitempty" mapstructure:"endpointPolicies,omitempty"`
 
 	// Extractor Libs to import.
 	ExtractorLibs *ExtractorLibsList `json:"extractorLibs,omitempty" msgpack:"extractorLibs,omitempty" bson:"extractorlibs,omitempty" mapstructure:"extractorLibs,omitempty"`
@@ -3600,9 +3600,6 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.AgentDiscoveries != nil {
 		s.AgentDiscoveries = o.AgentDiscoveries
 	}
-	if o.AgentEnforcementPolicies != nil {
-		s.AgentEnforcementPolicies = o.AgentEnforcementPolicies
-	}
 	if o.AlertDefinitions != nil {
 		s.AlertDefinitions = o.AlertDefinitions
 	}
@@ -3626,6 +3623,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	}
 	if o.Deployments != nil {
 		s.Deployments = o.Deployments
+	}
+	if o.EndpointPolicies != nil {
+		s.EndpointPolicies = o.EndpointPolicies
 	}
 	if o.ExtractorLibs != nil {
 		s.ExtractorLibs = o.ExtractorLibs
@@ -3764,9 +3764,6 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.AgentDiscoveries != nil {
 		o.AgentDiscoveries = s.AgentDiscoveries
 	}
-	if s.AgentEnforcementPolicies != nil {
-		o.AgentEnforcementPolicies = s.AgentEnforcementPolicies
-	}
 	if s.AlertDefinitions != nil {
 		o.AlertDefinitions = s.AlertDefinitions
 	}
@@ -3790,6 +3787,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 	if s.Deployments != nil {
 		o.Deployments = s.Deployments
+	}
+	if s.EndpointPolicies != nil {
+		o.EndpointPolicies = s.EndpointPolicies
 	}
 	if s.ExtractorLibs != nil {
 		o.ExtractorLibs = s.ExtractorLibs
@@ -3925,9 +3925,6 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.AgentDiscoveries != nil {
 		out.AgentDiscoveries = *o.AgentDiscoveries
 	}
-	if o.AgentEnforcementPolicies != nil {
-		out.AgentEnforcementPolicies = *o.AgentEnforcementPolicies
-	}
 	if o.AlertDefinitions != nil {
 		out.AlertDefinitions = *o.AlertDefinitions
 	}
@@ -3951,6 +3948,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Deployments != nil {
 		out.Deployments = *o.Deployments
+	}
+	if o.EndpointPolicies != nil {
+		out.EndpointPolicies = *o.EndpointPolicies
 	}
 	if o.ExtractorLibs != nil {
 		out.ExtractorLibs = *o.ExtractorLibs
@@ -4195,17 +4195,6 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
-	if o.AgentEnforcementPolicies != nil {
-		for _, sub := range *o.AgentEnforcementPolicies {
-			if sub == nil {
-				continue
-			}
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentEnforcementPolicies' for 'Import' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
-
 	if o.AlertDefinitions != nil {
 		for _, sub := range *o.AlertDefinitions {
 			if sub == nil {
@@ -4290,6 +4279,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.EndpointPolicies != nil {
+		for _, sub := range *o.EndpointPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'EndpointPolicies' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4685,17 +4685,6 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
-	if o.AgentEnforcementPolicies != nil {
-		for _, sub := range *o.AgentEnforcementPolicies {
-			if sub == nil {
-				continue
-			}
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentEnforcementPolicies' for 'Import' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
-
 	if o.AlertDefinitions != nil {
 		for _, sub := range *o.AlertDefinitions {
 			if sub == nil {
@@ -4780,6 +4769,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Deployments' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.EndpointPolicies != nil {
+		for _, sub := range *o.EndpointPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'EndpointPolicies' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -5021,104 +5021,104 @@ func (o *SparseImport) DeepCopyInto(out *SparseImport) {
 }
 
 type mongoAttributesImport struct {
-	AIApps                   AIAppsList                   `bson:"aiapps,omitempty"`
-	AIDomains                AIDomainsList                `bson:"aidomains,omitempty"`
-	AIGatewayConnectors      AIGatewayConnectorsList      `bson:"aigatewayconnectors,omitempty"`
-	AIGateways               AIGatewaysList               `bson:"aigateways,omitempty"`
-	AIMCPServers             AIMCPServersList             `bson:"aimcpservers,omitempty"`
-	AIPlugins                AIPluginsList                `bson:"aiplugins,omitempty"`
-	AISecurityProbes         AISecurityProbesList         `bson:"aisecurityprobes,omitempty"`
-	AISkills                 AISkillsList                 `bson:"aiskills,omitempty"`
-	AITools                  AIToolsList                  `bson:"aitools,omitempty"`
-	APIAuthorizations        APIAuthorizationsList        `bson:"apiauthorizations,omitempty"`
-	IPSets                   IPSetsList                   `bson:"ipsets,omitempty"`
-	LDAPSources              api.LDAPSourcesList          `bson:"ldapsources,omitempty"`
-	MTLSSources              api.MTLSSourcesList          `bson:"mtlssources,omitempty"`
-	OIDCSources              api.OIDCSourcesList          `bson:"oidcsources,omitempty"`
-	OSProbes                 OSProbesList                 `bson:"osprobes,omitempty"`
-	PACConfigs               PACConfigsList               `bson:"pacconfigs,omitempty"`
-	SAMLSources              api.SAMLSourcesList          `bson:"samlsources,omitempty"`
-	AccessPolicies           AccessPoliciesList           `bson:"accesspolicies,omitempty"`
-	AgentConfigs             AgentConfigsList             `bson:"agentconfigs,omitempty"`
-	AgentDiscoveries         AgentDiscoveriesList         `bson:"agentdiscoveries,omitempty"`
-	AgentEnforcementPolicies AgentEnforcementPoliciesList `bson:"agentenforcementpolicies,omitempty"`
-	AlertDefinitions         AlertDefinitionsList         `bson:"alertdefinitions,omitempty"`
-	Appagents                AppAgentsList                `bson:"appagents,omitempty"`
-	Appreports               AppReportsList               `bson:"appreports,omitempty"`
-	Apps                     AppsList                     `bson:"apps,omitempty"`
-	ContentPolicies          ContentPoliciesList          `bson:"contentpolicies,omitempty"`
-	CustomDataTypes          CustomDataTypesList          `bson:"customdatatypes,omitempty"`
-	DataSets                 DataSetsList                 `bson:"datasets,omitempty"`
-	Deployments              DeploymentsList              `bson:"deployments,omitempty"`
-	ExtractorLibs            ExtractorLibsList            `bson:"extractorlibs,omitempty"`
-	Extractors               ExtractorsList               `bson:"extractors,omitempty"`
-	Findingdefinitions       FindingDefinitionsList       `bson:"findingdefinitions,omitempty"`
-	HostSets                 HostSetsList                 `bson:"hostsets,omitempty"`
-	IgnoredDomains           IgnoredDomainsList           `bson:"ignoreddomains,omitempty"`
-	Label                    string                       `bson:"label"`
-	OrgSettings              OrgSettingsList              `bson:"orgsettings,omitempty"`
-	Projects                 ProjectsList                 `bson:"projects,omitempty"`
-	ProviderTeams            ProviderTeamsList            `bson:"providerteams,omitempty"`
-	ProviderTokens           ProviderTokensList           `bson:"providertokens,omitempty"`
-	Providers                ProvidersList                `bson:"providers,omitempty"`
-	Proxyroundtrips          ProxyRoundtripsList          `bson:"proxyroundtrips,omitempty"`
-	Publickeys               PublicKeysList               `bson:"publickeys,omitempty"`
-	Riskdefinitions          RiskDefinitionsList          `bson:"riskdefinitions,omitempty"`
-	Sinks                    SinksList                    `bson:"sinks,omitempty"`
-	Teams                    TeamsList                    `bson:"teams,omitempty"`
-	ThreatDefinitions        ThreatDefinitionsList        `bson:"threatdefinitions,omitempty"`
-	Visitedurls              VisitedURLsList              `bson:"visitedurls,omitempty"`
-	WebExtensionConfigs      WebExtensionConfigsList      `bson:"webextensionconfigs,omitempty"`
-	WebhookIntegrations      WebhookIntegrationsList      `bson:"webhookintegrations,omitempty"`
+	AIApps              AIAppsList              `bson:"aiapps,omitempty"`
+	AIDomains           AIDomainsList           `bson:"aidomains,omitempty"`
+	AIGatewayConnectors AIGatewayConnectorsList `bson:"aigatewayconnectors,omitempty"`
+	AIGateways          AIGatewaysList          `bson:"aigateways,omitempty"`
+	AIMCPServers        AIMCPServersList        `bson:"aimcpservers,omitempty"`
+	AIPlugins           AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISecurityProbes    AISecurityProbesList    `bson:"aisecurityprobes,omitempty"`
+	AISkills            AISkillsList            `bson:"aiskills,omitempty"`
+	AITools             AIToolsList             `bson:"aitools,omitempty"`
+	APIAuthorizations   APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
+	IPSets              IPSetsList              `bson:"ipsets,omitempty"`
+	LDAPSources         api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
+	MTLSSources         api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
+	OIDCSources         api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	OSProbes            OSProbesList            `bson:"osprobes,omitempty"`
+	PACConfigs          PACConfigsList          `bson:"pacconfigs,omitempty"`
+	SAMLSources         api.SAMLSourcesList     `bson:"samlsources,omitempty"`
+	AccessPolicies      AccessPoliciesList      `bson:"accesspolicies,omitempty"`
+	AgentConfigs        AgentConfigsList        `bson:"agentconfigs,omitempty"`
+	AgentDiscoveries    AgentDiscoveriesList    `bson:"agentdiscoveries,omitempty"`
+	AlertDefinitions    AlertDefinitionsList    `bson:"alertdefinitions,omitempty"`
+	Appagents           AppAgentsList           `bson:"appagents,omitempty"`
+	Appreports          AppReportsList          `bson:"appreports,omitempty"`
+	Apps                AppsList                `bson:"apps,omitempty"`
+	ContentPolicies     ContentPoliciesList     `bson:"contentpolicies,omitempty"`
+	CustomDataTypes     CustomDataTypesList     `bson:"customdatatypes,omitempty"`
+	DataSets            DataSetsList            `bson:"datasets,omitempty"`
+	Deployments         DeploymentsList         `bson:"deployments,omitempty"`
+	EndpointPolicies    EndpointPoliciesList    `bson:"endpointpolicies,omitempty"`
+	ExtractorLibs       ExtractorLibsList       `bson:"extractorlibs,omitempty"`
+	Extractors          ExtractorsList          `bson:"extractors,omitempty"`
+	Findingdefinitions  FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	HostSets            HostSetsList            `bson:"hostsets,omitempty"`
+	IgnoredDomains      IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	Label               string                  `bson:"label"`
+	OrgSettings         OrgSettingsList         `bson:"orgsettings,omitempty"`
+	Projects            ProjectsList            `bson:"projects,omitempty"`
+	ProviderTeams       ProviderTeamsList       `bson:"providerteams,omitempty"`
+	ProviderTokens      ProviderTokensList      `bson:"providertokens,omitempty"`
+	Providers           ProvidersList           `bson:"providers,omitempty"`
+	Proxyroundtrips     ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Publickeys          PublicKeysList          `bson:"publickeys,omitempty"`
+	Riskdefinitions     RiskDefinitionsList     `bson:"riskdefinitions,omitempty"`
+	Sinks               SinksList               `bson:"sinks,omitempty"`
+	Teams               TeamsList               `bson:"teams,omitempty"`
+	ThreatDefinitions   ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
+	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
+	WebExtensionConfigs WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
+	WebhookIntegrations WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`
 }
 type mongoAttributesSparseImport struct {
-	AIApps                   *AIAppsList                   `bson:"aiapps,omitempty"`
-	AIDomains                *AIDomainsList                `bson:"aidomains,omitempty"`
-	AIGatewayConnectors      *AIGatewayConnectorsList      `bson:"aigatewayconnectors,omitempty"`
-	AIGateways               *AIGatewaysList               `bson:"aigateways,omitempty"`
-	AIMCPServers             *AIMCPServersList             `bson:"aimcpservers,omitempty"`
-	AIPlugins                *AIPluginsList                `bson:"aiplugins,omitempty"`
-	AISecurityProbes         *AISecurityProbesList         `bson:"aisecurityprobes,omitempty"`
-	AISkills                 *AISkillsList                 `bson:"aiskills,omitempty"`
-	AITools                  *AIToolsList                  `bson:"aitools,omitempty"`
-	APIAuthorizations        *APIAuthorizationsList        `bson:"apiauthorizations,omitempty"`
-	IPSets                   *IPSetsList                   `bson:"ipsets,omitempty"`
-	LDAPSources              *api.LDAPSourcesList          `bson:"ldapsources,omitempty"`
-	MTLSSources              *api.MTLSSourcesList          `bson:"mtlssources,omitempty"`
-	OIDCSources              *api.OIDCSourcesList          `bson:"oidcsources,omitempty"`
-	OSProbes                 *OSProbesList                 `bson:"osprobes,omitempty"`
-	PACConfigs               *PACConfigsList               `bson:"pacconfigs,omitempty"`
-	SAMLSources              *api.SAMLSourcesList          `bson:"samlsources,omitempty"`
-	AccessPolicies           *AccessPoliciesList           `bson:"accesspolicies,omitempty"`
-	AgentConfigs             *AgentConfigsList             `bson:"agentconfigs,omitempty"`
-	AgentDiscoveries         *AgentDiscoveriesList         `bson:"agentdiscoveries,omitempty"`
-	AgentEnforcementPolicies *AgentEnforcementPoliciesList `bson:"agentenforcementpolicies,omitempty"`
-	AlertDefinitions         *AlertDefinitionsList         `bson:"alertdefinitions,omitempty"`
-	Appagents                *AppAgentsList                `bson:"appagents,omitempty"`
-	Appreports               *AppReportsList               `bson:"appreports,omitempty"`
-	Apps                     *AppsList                     `bson:"apps,omitempty"`
-	ContentPolicies          *ContentPoliciesList          `bson:"contentpolicies,omitempty"`
-	CustomDataTypes          *CustomDataTypesList          `bson:"customdatatypes,omitempty"`
-	DataSets                 *DataSetsList                 `bson:"datasets,omitempty"`
-	Deployments              *DeploymentsList              `bson:"deployments,omitempty"`
-	ExtractorLibs            *ExtractorLibsList            `bson:"extractorlibs,omitempty"`
-	Extractors               *ExtractorsList               `bson:"extractors,omitempty"`
-	Findingdefinitions       *FindingDefinitionsList       `bson:"findingdefinitions,omitempty"`
-	HostSets                 *HostSetsList                 `bson:"hostsets,omitempty"`
-	IgnoredDomains           *IgnoredDomainsList           `bson:"ignoreddomains,omitempty"`
-	Label                    *string                       `bson:"label,omitempty"`
-	OrgSettings              *OrgSettingsList              `bson:"orgsettings,omitempty"`
-	Projects                 *ProjectsList                 `bson:"projects,omitempty"`
-	ProviderTeams            *ProviderTeamsList            `bson:"providerteams,omitempty"`
-	ProviderTokens           *ProviderTokensList           `bson:"providertokens,omitempty"`
-	Providers                *ProvidersList                `bson:"providers,omitempty"`
-	Proxyroundtrips          *ProxyRoundtripsList          `bson:"proxyroundtrips,omitempty"`
-	Publickeys               *PublicKeysList               `bson:"publickeys,omitempty"`
-	Riskdefinitions          *RiskDefinitionsList          `bson:"riskdefinitions,omitempty"`
-	Sinks                    *SinksList                    `bson:"sinks,omitempty"`
-	Teams                    *TeamsList                    `bson:"teams,omitempty"`
-	ThreatDefinitions        *ThreatDefinitionsList        `bson:"threatdefinitions,omitempty"`
-	Visitedurls              *VisitedURLsList              `bson:"visitedurls,omitempty"`
-	WebExtensionConfigs      *WebExtensionConfigsList      `bson:"webextensionconfigs,omitempty"`
-	WebhookIntegrations      *WebhookIntegrationsList      `bson:"webhookintegrations,omitempty"`
+	AIApps              *AIAppsList              `bson:"aiapps,omitempty"`
+	AIDomains           *AIDomainsList           `bson:"aidomains,omitempty"`
+	AIGatewayConnectors *AIGatewayConnectorsList `bson:"aigatewayconnectors,omitempty"`
+	AIGateways          *AIGatewaysList          `bson:"aigateways,omitempty"`
+	AIMCPServers        *AIMCPServersList        `bson:"aimcpservers,omitempty"`
+	AIPlugins           *AIPluginsList           `bson:"aiplugins,omitempty"`
+	AISecurityProbes    *AISecurityProbesList    `bson:"aisecurityprobes,omitempty"`
+	AISkills            *AISkillsList            `bson:"aiskills,omitempty"`
+	AITools             *AIToolsList             `bson:"aitools,omitempty"`
+	APIAuthorizations   *APIAuthorizationsList   `bson:"apiauthorizations,omitempty"`
+	IPSets              *IPSetsList              `bson:"ipsets,omitempty"`
+	LDAPSources         *api.LDAPSourcesList     `bson:"ldapsources,omitempty"`
+	MTLSSources         *api.MTLSSourcesList     `bson:"mtlssources,omitempty"`
+	OIDCSources         *api.OIDCSourcesList     `bson:"oidcsources,omitempty"`
+	OSProbes            *OSProbesList            `bson:"osprobes,omitempty"`
+	PACConfigs          *PACConfigsList          `bson:"pacconfigs,omitempty"`
+	SAMLSources         *api.SAMLSourcesList     `bson:"samlsources,omitempty"`
+	AccessPolicies      *AccessPoliciesList      `bson:"accesspolicies,omitempty"`
+	AgentConfigs        *AgentConfigsList        `bson:"agentconfigs,omitempty"`
+	AgentDiscoveries    *AgentDiscoveriesList    `bson:"agentdiscoveries,omitempty"`
+	AlertDefinitions    *AlertDefinitionsList    `bson:"alertdefinitions,omitempty"`
+	Appagents           *AppAgentsList           `bson:"appagents,omitempty"`
+	Appreports          *AppReportsList          `bson:"appreports,omitempty"`
+	Apps                *AppsList                `bson:"apps,omitempty"`
+	ContentPolicies     *ContentPoliciesList     `bson:"contentpolicies,omitempty"`
+	CustomDataTypes     *CustomDataTypesList     `bson:"customdatatypes,omitempty"`
+	DataSets            *DataSetsList            `bson:"datasets,omitempty"`
+	Deployments         *DeploymentsList         `bson:"deployments,omitempty"`
+	EndpointPolicies    *EndpointPoliciesList    `bson:"endpointpolicies,omitempty"`
+	ExtractorLibs       *ExtractorLibsList       `bson:"extractorlibs,omitempty"`
+	Extractors          *ExtractorsList          `bson:"extractors,omitempty"`
+	Findingdefinitions  *FindingDefinitionsList  `bson:"findingdefinitions,omitempty"`
+	HostSets            *HostSetsList            `bson:"hostsets,omitempty"`
+	IgnoredDomains      *IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
+	Label               *string                  `bson:"label,omitempty"`
+	OrgSettings         *OrgSettingsList         `bson:"orgsettings,omitempty"`
+	Projects            *ProjectsList            `bson:"projects,omitempty"`
+	ProviderTeams       *ProviderTeamsList       `bson:"providerteams,omitempty"`
+	ProviderTokens      *ProviderTokensList      `bson:"providertokens,omitempty"`
+	Providers           *ProvidersList           `bson:"providers,omitempty"`
+	Proxyroundtrips     *ProxyRoundtripsList     `bson:"proxyroundtrips,omitempty"`
+	Publickeys          *PublicKeysList          `bson:"publickeys,omitempty"`
+	Riskdefinitions     *RiskDefinitionsList     `bson:"riskdefinitions,omitempty"`
+	Sinks               *SinksList               `bson:"sinks,omitempty"`
+	Teams               *TeamsList               `bson:"teams,omitempty"`
+	ThreatDefinitions   *ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
+	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`
+	WebExtensionConfigs *WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
+	WebhookIntegrations *WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`
 }
