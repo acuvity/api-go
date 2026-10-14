@@ -884,22 +884,22 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "LLMProviders", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "LLMProviders", i))
 		}
 	}
 
 	if o.LLMProvidersRisk != nil {
 		if err := o.LLMProvidersRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "LLMProvidersRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "LLMProvidersRisk")
 		}
 	}
 
 	if o.AccessControlsRisk != nil {
 		if err := o.AccessControlsRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "accessControlsRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "accessControlsRisk")
 		}
 	}
 
@@ -916,15 +916,15 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "compliances", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "compliances", i))
 		}
 	}
 
 	if o.CompliancesRisk != nil {
 		if err := o.CompliancesRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "compliancesRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "compliancesRisk")
 		}
 	}
 
@@ -933,15 +933,15 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "dataPolicies", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataPolicies", i))
 		}
 	}
 
 	if o.DataPoliciesRisk != nil {
 		if err := o.DataPoliciesRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "dataPoliciesRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "dataPoliciesRisk")
 		}
 	}
 
@@ -950,15 +950,15 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "dataProcessors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataProcessors", i))
 		}
 	}
 
 	if o.DataProcessorsRisk != nil {
 		if err := o.DataProcessorsRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "dataProcessorsRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "dataProcessorsRisk")
 		}
 	}
 
@@ -971,15 +971,15 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "features", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "features", i))
 		}
 	}
 
 	if o.Industry != nil {
 		if err := o.Industry.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "industry")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "industry")
 		}
 	}
 
@@ -992,15 +992,15 @@ func (o *AIDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "plans", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "plans", i))
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "summary")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 

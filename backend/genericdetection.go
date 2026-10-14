@@ -160,8 +160,8 @@ func (o *GenericDetection) Validate() error {
 
 	if o.Snippet != nil {
 		if err := o.Snippet.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "snippet")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "snippet")
 		}
 	}
 

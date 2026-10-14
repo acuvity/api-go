@@ -584,8 +584,8 @@ func (o *App) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "components", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "components", i))
 		}
 	}
 
@@ -599,21 +599,21 @@ func (o *App) Validate() error {
 
 	if o.OtelExporter != nil {
 		if err := o.OtelExporter.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "otelExporter")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "otelExporter")
 		}
 	}
 
 	for i, sub := range o.OtelReceivers {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "otelReceivers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "otelReceivers", i))
 		}
 	}
 
 	if err := o.Selector.Validate(); err != nil {
+		elemental.InjectAttributePath(err, "selector")
 		errors = errors.Append(err)
-		elemental.InjectAttributePath(errors, "selector")
 	}
 
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {

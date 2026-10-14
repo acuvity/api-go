@@ -699,8 +699,8 @@ func (o *AIGatewayConnector) Validate() error {
 
 	if o.WebhookIntegrationConfig != nil {
 		if err := o.WebhookIntegrationConfig.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "webhookIntegrationConfig")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "webhookIntegrationConfig")
 		}
 	}
 

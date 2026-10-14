@@ -268,22 +268,22 @@ func (o *ScanDomain) Validate() error {
 
 	if o.HTTPScanResult != nil {
 		if err := o.HTTPScanResult.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "HTTPScanResult")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "HTTPScanResult")
 		}
 	}
 
 	if o.PingScanResult != nil {
 		if err := o.PingScanResult.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "PingScanResult")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "PingScanResult")
 		}
 	}
 
 	if o.TLSScanResult != nil {
 		if err := o.TLSScanResult.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "TLSScanResult")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "TLSScanResult")
 		}
 	}
 
@@ -292,8 +292,8 @@ func (o *ScanDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "advancedScanResults", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "advancedScanResults", i))
 		}
 	}
 
@@ -322,8 +322,8 @@ func (o *ScanDomain) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "users", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "users", i))
 		}
 	}
 

@@ -17,7 +17,7 @@ import (
 var CustomDataTypeIdentity = elemental.Identity{
 	Name:     "customdatatype",
 	Category: "customdatatypes",
-	Package:  "kiroshi",
+	Package:  "zukan",
 	Private:  false,
 }
 

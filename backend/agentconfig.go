@@ -1089,8 +1089,8 @@ func (o *AgentConfig) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "driverPortRanges", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "driverPortRanges", i))
 		}
 	}
 
@@ -1131,8 +1131,8 @@ func (o *AgentConfig) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "scanInstalledApps", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "scanInstalledApps", i))
 		}
 	}
 
@@ -1166,8 +1166,8 @@ func (o *AgentConfig) Validate() error {
 
 	if o.TunnelProxyAuth != nil {
 		if err := o.TunnelProxyAuth.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "tunnelProxyAuth")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "tunnelProxyAuth")
 		}
 	}
 

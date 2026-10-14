@@ -143,8 +143,8 @@ type DataSinkRun struct {
 	// The ID of the data sink.
 	DataSinkID string `json:"dataSinkID" msgpack:"dataSinkID" bson:"datasinkid" mapstructure:"dataSinkID,omitempty"`
 
-	// The dataset exported: AccessLogs corresponds to access_logs, and
-	// AgenticLogs to agentic_logs in the customer output.
+	// The dataset exported. Its enum value is also the customer-facing dataset
+	// name, used directly in S3 paths such as dataset=AccessLogs/.
 	Dataset DataSinkRunDatasetValue `json:"dataset" msgpack:"dataset" bson:"dataset" mapstructure:"dataset,omitempty"`
 
 	// The version of the dataset definition the run uses. The export service may
@@ -851,8 +851,8 @@ May reset when the run restarts with corrected configuration.`,
 		BSONFieldName:  "dataset",
 		ConvertedName:  "Dataset",
 		CreationOnly:   true,
-		Description: `The dataset exported: AccessLogs corresponds to access_logs, and
-AgenticLogs to agentic_logs in the customer output.`,
+		Description: `The dataset exported. Its enum value is also the customer-facing dataset
+name, used directly in S3 paths such as dataset=AccessLogs/.`,
 		Exposed:    true,
 		Filterable: true,
 		Name:       "dataset",
@@ -1146,8 +1146,8 @@ May reset when the run restarts with corrected configuration.`,
 		BSONFieldName:  "dataset",
 		ConvertedName:  "Dataset",
 		CreationOnly:   true,
-		Description: `The dataset exported: AccessLogs corresponds to access_logs, and
-AgenticLogs to agentic_logs in the customer output.`,
+		Description: `The dataset exported. Its enum value is also the customer-facing dataset
+name, used directly in S3 paths such as dataset=AccessLogs/.`,
 		Exposed:    true,
 		Filterable: true,
 		Name:       "dataset",
@@ -1440,8 +1440,8 @@ type SparseDataSinkRun struct {
 	// The ID of the data sink.
 	DataSinkID *string `json:"dataSinkID,omitempty" msgpack:"dataSinkID,omitempty" bson:"datasinkid,omitempty" mapstructure:"dataSinkID,omitempty"`
 
-	// The dataset exported: AccessLogs corresponds to access_logs, and
-	// AgenticLogs to agentic_logs in the customer output.
+	// The dataset exported. Its enum value is also the customer-facing dataset
+	// name, used directly in S3 paths such as dataset=AccessLogs/.
 	Dataset *DataSinkRunDatasetValue `json:"dataset,omitempty" msgpack:"dataset,omitempty" bson:"dataset,omitempty" mapstructure:"dataset,omitempty"`
 
 	// The version of the dataset definition the run uses. The export service may

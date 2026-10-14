@@ -188,8 +188,8 @@ func (o *ConnectionMonitorWorkloadGroupSetSelector) Validate() error {
 
 	if o.Kubernetes != nil {
 		if err := o.Kubernetes.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "kubernetes")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "kubernetes")
 		}
 	}
 
@@ -206,8 +206,8 @@ func (o *ConnectionMonitorWorkloadGroupSetSelector) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "workloadGroupSelectors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "workloadGroupSelectors", i))
 		}
 	}
 

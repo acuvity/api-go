@@ -1,0 +1,22 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Validation",
+  "$friendlyNamePlural": "Custom Data Type Validations",
+  "$modelName": "CustomDataTypeValidation",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "customdatatypevalidations",
+  "$modelRestName": "customdatatypevalidation",
+  "additionalProperties": false,
+  "description": "Checks a custom data type against the analysis pipelines, storing nothing.",
+  "properties": {
+    "customDataType": {
+      "$friendlyName": "Custom Data Type",
+      "$ref": "customdatatype.json",
+      "description": "The custom data type to check.",
+      "title": "customDataType"
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeValidation",
+  "type": "object"
+}

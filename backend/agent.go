@@ -540,8 +540,8 @@ func (o *Agent) Validate() error {
 
 	if o.AgentConfig != nil {
 		if err := o.AgentConfig.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "agentConfig")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "agentConfig")
 		}
 	}
 
@@ -559,8 +559,8 @@ func (o *Agent) Validate() error {
 
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "principal")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 

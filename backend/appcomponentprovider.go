@@ -347,8 +347,8 @@ func (o *AppComponentProvider) Validate() error {
 
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "errorTransformer")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "errorTransformer")
 		}
 	}
 
@@ -357,8 +357,8 @@ func (o *AppComponentProvider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
@@ -375,8 +375,8 @@ func (o *AppComponentProvider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "injectors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "injectors", i))
 		}
 	}
 
@@ -385,8 +385,8 @@ func (o *AppComponentProvider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "mappers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "mappers", i))
 		}
 	}
 
@@ -399,8 +399,8 @@ func (o *AppComponentProvider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 

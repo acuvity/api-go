@@ -4,8 +4,7 @@
     "@importable",
     "@identifiable",
     "@timed",
-    "@namelinkable",
-    "@deploymentrefs"
+    "@namelinkable"
   ],
   "$friendlyName": "AI Security Probe",
   "$friendlyNamePlural": "AI Security Probes",
@@ -54,18 +53,6 @@
         "string",
         "null"
       ]
-    },
-    "deployments": {
-      "$friendlyName": "Deployments",
-      "description": "The name of the deployments this object is bound to.",
-      "items": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "title": "deployments",
-      "type": "array"
     },
     "description": {
       "$friendlyName": "Description",

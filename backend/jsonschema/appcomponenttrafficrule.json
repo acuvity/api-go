@@ -1,0 +1,71 @@
+{
+  "$extends": [],
+  "$friendlyName": "App Component Traffic Rule",
+  "$friendlyNamePlural": "App Component Traffic Rules",
+  "$modelName": "AppComponentTrafficRule",
+  "$modelPackage": "lain",
+  "$modelResourceName": "appcomponenttrafficrules",
+  "$modelRestName": "appcomponenttrafficrule",
+  "additionalProperties": false,
+  "description": "Resolved traffic control rule for an app component. Contains the expanded host and CIDR lists for a specific workload group, ready for enforcement.",
+  "properties": {
+    "allowedHosts": {
+      "$friendlyName": "Allowed Hosts",
+      "description": "The expanded list of hosts allowed for egress, resolved from allowedHostSets.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "allowedHosts",
+      "type": "array"
+    },
+    "blockedCIDRs": {
+      "$friendlyName": "Blocked CIDRs",
+      "description": "The expanded list of IP CIDR blocks blocked, resolved from blockedIPSets.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "blockedCIDRs",
+      "type": "array"
+    },
+    "blockedHosts": {
+      "$friendlyName": "Blocked Hosts",
+      "description": "The expanded list of hosts blocked for egress, resolved from blockedHostSets.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "blockedHosts",
+      "type": "array"
+    },
+    "defaultDNSPolicy": {
+      "$defaultValue": "Allow",
+      "$friendlyName": "Default DNS Policy",
+      "description": "The default policy applied to DNS traffic not matched by any host rule.",
+      "enum": [
+        "Allow",
+        "Deny"
+      ],
+      "title": "defaultDNSPolicy"
+    },
+    "workloadGroupHash": {
+      "$friendlyName": "Workload Group Hash",
+      "description": "The workload group hash identifying the app component this rule applies to.",
+      "title": "workloadGroupHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "AppComponentTrafficRule",
+  "type": "object"
+}

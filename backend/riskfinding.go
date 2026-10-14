@@ -645,8 +645,8 @@ func (o *RiskFinding) Validate() error {
 
 	if o.AssetRef != nil {
 		if err := o.AssetRef.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "assetRef")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "assetRef")
 		}
 	}
 
@@ -675,8 +675,8 @@ func (o *RiskFinding) Validate() error {
 
 	if o.SeverityOverride != nil {
 		if err := o.SeverityOverride.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "severityOverride")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "severityOverride")
 		}
 	}
 

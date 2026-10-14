@@ -724,15 +724,15 @@ func (o *AIMCPServer) Validate() error {
 
 	if o.ActionScopeRisk != nil {
 		if err := o.ActionScopeRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "actionScopeRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "actionScopeRisk")
 		}
 	}
 
 	if o.DataSensitivityRisk != nil {
 		if err := o.DataSensitivityRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "dataSensitivityRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "dataSensitivityRisk")
 		}
 	}
 
@@ -742,8 +742,8 @@ func (o *AIMCPServer) Validate() error {
 
 	if o.ExecutionContextRisk != nil {
 		if err := o.ExecutionContextRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "executionContextRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "executionContextRisk")
 		}
 	}
 
@@ -761,22 +761,22 @@ func (o *AIMCPServer) Validate() error {
 
 	if o.Risk != nil {
 		if err := o.Risk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "risk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "risk")
 		}
 	}
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "summary")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
 	if o.TrustRisk != nil {
 		if err := o.TrustRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "trustRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "trustRisk")
 		}
 	}
 

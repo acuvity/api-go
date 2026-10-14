@@ -69,7 +69,7 @@
     "dataSinkEvents": {
       "$friendlyName": "Data Sink Events",
       "$readOnly": true,
-      "description": "The data sink events of the alert, for an alert of a data sink.",
+      "description": "The current details of the data sink runs linked to this alert, not a snapshot of the original failure.",
       "items": {
         "$ref": "alertdatasinkevent.json"
       },

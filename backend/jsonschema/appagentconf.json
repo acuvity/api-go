@@ -48,6 +48,15 @@
         "string",
         "null"
       ]
+    },
+    "trafficRules": {
+      "$friendlyName": "Traffic Rules",
+      "description": "The resolved traffic control rules per app component, keyed by workload group hash. Each rule contains the expanded host and CIDR lists.",
+      "items": {
+        "$ref": "appcomponenttrafficrule.json"
+      },
+      "title": "trafficRules",
+      "type": "array"
     }
   },
   "required": [],

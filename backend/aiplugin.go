@@ -759,8 +759,8 @@ func (o *AIPlugin) Validate() error {
 
 	if o.IDE != nil {
 		if err := o.IDE.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "IDE")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "IDE")
 		}
 	}
 
@@ -770,22 +770,22 @@ func (o *AIPlugin) Validate() error {
 
 	if o.FeaturesRisk != nil {
 		if err := o.FeaturesRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "featuresRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "featuresRisk")
 		}
 	}
 
 	if o.InfoRisk != nil {
 		if err := o.InfoRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "infoRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "infoRisk")
 		}
 	}
 
 	if o.LlmProviderRisk != nil {
 		if err := o.LlmProviderRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "llmProviderRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "llmProviderRisk")
 		}
 	}
 
@@ -803,8 +803,8 @@ func (o *AIPlugin) Validate() error {
 
 	if o.Risk != nil {
 		if err := o.Risk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "risk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "risk")
 		}
 	}
 
@@ -814,8 +814,8 @@ func (o *AIPlugin) Validate() error {
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "summary")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
@@ -825,8 +825,8 @@ func (o *AIPlugin) Validate() error {
 
 	if o.WebExtension != nil {
 		if err := o.WebExtension.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "webExtension")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "webExtension")
 		}
 	}
 

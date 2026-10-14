@@ -415,8 +415,8 @@ func (o *AppReport) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "DNSReports", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "DNSReports", i))
 		}
 	}
 
@@ -425,15 +425,15 @@ func (o *AppReport) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "connectionReports", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "connectionReports", i))
 		}
 	}
 
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "principal")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 

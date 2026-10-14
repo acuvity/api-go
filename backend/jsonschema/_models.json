@@ -201,6 +201,9 @@
     "appcomponentselector": {
       "$ref": "appcomponentselector.json"
     },
+    "appcomponenttrafficrule": {
+      "$ref": "appcomponenttrafficrule.json"
+    },
     "appgraph": {
       "$ref": "appgraph.json"
     },
@@ -266,6 +269,9 @@
     },
     "customdatatype": {
       "$ref": "customdatatype.json"
+    },
+    "customdatatypevalidation": {
+      "$ref": "customdatatypevalidation.json"
     },
     "dataset": {
       "$ref": "dataset.json"
@@ -599,6 +605,9 @@
     },
     "proxyconf": {
       "$ref": "proxyconf.json"
+    },
+    "proxyconfsimulation": {
+      "$ref": "proxyconfsimulation.json"
     },
     "proxyroundtrip": {
       "$ref": "proxyroundtrip.json"

@@ -500,8 +500,8 @@ func (o *AIGateway) Validate() error {
 
 	if o.OauthApplication != nil {
 		if err := o.OauthApplication.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "oauthApplication")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "oauthApplication")
 		}
 	}
 

@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "ProxyConf Simulation",
+  "$friendlyNamePlural": "ProxyConf Simulations",
+  "$modelName": "ProxyConfSimulation",
+  "$modelPackage": "haisou",
+  "$modelResourceName": "proxyconfsimulations",
+  "$modelRestName": "proxyconfsimulation",
+  "additionalProperties": false,
+  "description": "The extra data only the policy simulator reads. It is added to a proxy configuration on request and never changes how a policy decides.",
+  "properties": {
+    "accessPolicy": {
+      "$friendlyName": "Access Policy",
+      "description": "The rego module that names the policy behind each tool the access policy allows or denies. It compiles together with the access policy.",
+      "title": "accessPolicy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "egressPolicies": {
+      "$friendlyName": "Egress Policies",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The same rego module for the egress access policy of each app component, by app and component name, such as my-app/my-component.",
+      "title": "egressPolicies",
+      "type": "object"
+    }
+  },
+  "required": [],
+  "title": "ProxyConfSimulation",
+  "type": "object"
+}

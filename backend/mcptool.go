@@ -293,8 +293,8 @@ func (o *MCPTool) Validate() error {
 
 	if o.Annotations != nil {
 		if err := o.Annotations.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "annotations")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "annotations")
 		}
 	}
 

@@ -78,6 +78,9 @@ type DNSReport struct {
 	// The reference to the policy ID that triggered this action.
 	PolicyID string `json:"policyID,omitempty" msgpack:"policyID,omitempty" bson:"policyid,omitempty" mapstructure:"policyID,omitempty"`
 
+	// List of references to the policies used to make this dns report.
+	PolicyRefs PolicyRefsList `json:"policyRefs" msgpack:"policyRefs" bson:"policyrefs" mapstructure:"policyRefs,omitempty"`
+
 	// The provider that this target represents.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
@@ -107,6 +110,7 @@ func NewDNSReport() *DNSReport {
 		CNAMEs:       []string{},
 		IPAddresses:  []string{},
 		Action:       DNSReportActionAllow,
+		PolicyRefs:   PolicyRefsList{},
 	}
 }
 func (o *DNSReport) Identity() elemental.Identity {
@@ -144,6 +148,7 @@ func (o *DNSReport) GetBSON() (any, error) {
 	s.GatewayInstance = o.GatewayInstance
 	s.Hits = o.Hits
 	s.PolicyID = o.PolicyID
+	s.PolicyRefs = o.PolicyRefs
 	s.Provider = o.Provider
 	s.Reason = o.Reason
 	s.WorkloadGroupHash = o.WorkloadGroupHash
@@ -180,6 +185,7 @@ func (o *DNSReport) SetBSON(raw bson.Raw) error {
 	o.GatewayInstance = s.GatewayInstance
 	o.Hits = s.Hits
 	o.PolicyID = s.PolicyID
+	o.PolicyRefs = s.PolicyRefs
 	o.Provider = s.Provider
 	o.Reason = s.Reason
 	o.WorkloadGroupHash = s.WorkloadGroupHash
@@ -217,6 +223,15 @@ func (o *DNSReport) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 	}
 
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'PolicyRefs' for 'DNSReport' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -226,6 +241,15 @@ func (o *DNSReport) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 	if o.Error != nil {
 		if err := o.Error.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Error' for 'DNSReport' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'PolicyRefs' for 'DNSReport' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -282,8 +306,8 @@ func (o *DNSReport) Validate() error {
 
 	if o.Error != nil {
 		if err := o.Error.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "error")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "error")
 		}
 	}
 
@@ -293,6 +317,16 @@ func (o *DNSReport) Validate() error {
 
 	if err := elemental.ValidateMinimumInt("hits", o.Hits, int(1), false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.PolicyRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "policyRefs", i))
+			errors = errors.Append(err)
+		}
 	}
 
 	// Custom object validation.
@@ -360,6 +394,8 @@ func (o *DNSReport) ValueForAttribute(name string) any {
 		return o.Hits
 	case "policyID":
 		return o.PolicyID
+	case "policyRefs":
+		return o.PolicyRefs
 	case "provider":
 		return o.Provider
 	case "reason":
@@ -530,6 +566,17 @@ semantics.`,
 		Name:           "policyID",
 		Stored:         true,
 		Type:           "string",
+	},
+	"PolicyRefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this dns report.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
 	},
 	"Provider": {
 		AllowedChoices: []string{},
@@ -747,6 +794,17 @@ semantics.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"policyrefs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "policyrefs",
+		ConvertedName:  "PolicyRefs",
+		Description:    `List of references to the policies used to make this dns report.`,
+		Exposed:        true,
+		Name:           "policyRefs",
+		Stored:         true,
+		SubType:        "policyref",
+		Type:           "refList",
+	},
 	"provider": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "provider",
@@ -823,6 +881,7 @@ type mongoAttributesDNSReport struct {
 	GatewayInstance       string               `bson:"gatewayinstance,omitempty"`
 	Hits                  int                  `bson:"hits"`
 	PolicyID              string               `bson:"policyid,omitempty"`
+	PolicyRefs            PolicyRefsList       `bson:"policyrefs"`
 	Provider              string               `bson:"provider,omitempty"`
 	Reason                string               `bson:"reason,omitempty"`
 	WorkloadGroupHash     string               `bson:"workloadgrouphash,omitempty"`

@@ -13,7 +13,7 @@
   "properties": {
     "claims": {
       "$friendlyName": "Claims",
-      "description": "The claims of the user to simulate, in the form key=value. Used when principalType is User.",
+      "description": "The claims of the user to simulate, in the form key=value. Required when principalType is User, and not allowed otherwise.",
       "items": {
         "type": [
           "string",
@@ -22,6 +22,15 @@
       },
       "title": "claims",
       "type": "array"
+    },
+    "deployment": {
+      "$friendlyName": "Deployment",
+      "description": "The deployment whose gateways to simulate, for a gateway that is not bound to the default deployment, such as an on-prem one. When empty, the gateway is found by gatewayName alone.",
+      "title": "deployment",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "destinationAppComponent": {
       "$friendlyName": "Destination App Component",
@@ -80,7 +89,7 @@
     },
     "sourceAppComponent": {
       "$friendlyName": "Source App Component",
-      "description": "The app component making the request, in the form project:app/component, where the project: part is optional. Required when principalType is App.",
+      "description": "The app component making the request, in the form project:app/component, where the project: part is optional. Required when principalType is App, and not allowed otherwise.",
       "title": "sourceAppComponent",
       "type": [
         "string",
@@ -89,7 +98,7 @@
     },
     "teams": {
       "$friendlyName": "Teams",
-      "description": "The teams to simulate. Required when principalType is Team.",
+      "description": "The teams to simulate. Required when principalType is Team, and not allowed otherwise.",
       "items": {
         "type": [
           "string",
@@ -112,7 +121,7 @@
     },
     "userClaims": {
       "$friendlyName": "User Claims",
-      "description": "The claims of the user behind the app component call, in the form key=value. Used when principalType is App.",
+      "description": "The claims of the user behind the app component call, in the form key=value. Optional when principalType is App, and not allowed otherwise.",
       "items": {
         "type": [
           "string",

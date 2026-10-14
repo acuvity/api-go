@@ -166,6 +166,9 @@ func (o AnalysisList) Version() int {
 
 // Analysis represents the model of a analysis
 type Analysis struct {
+	// External customer identifier, resolved from the namespace opaque.
+	CTSID string `json:"CTSID,omitempty" msgpack:"CTSID,omitempty" bson:"-" mapstructure:"CTSID,omitempty"`
+
 	// The analyzers to run. An empty list runs the ones enabled by default, and a
 	// name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.
 	Analyzers []string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
@@ -180,6 +183,10 @@ type Analysis struct {
 
 	// The custom data types to detect, on top of the built-in ones.
 	CustomDataTypes CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// The extraction hash, equal to Extraction.hash in the log. The pipelines store
+	// it with their evidence, so a reported detection can be traced back.
+	ExtractionHash string `json:"extractionHash,omitempty" msgpack:"extractionHash,omitempty" bson:"-" mapstructure:"extractionHash,omitempty"`
 
 	// Which message this is in a multi-turn payload. Analyses run in parallel, so
 	// this is what puts the history back in order. Always sent: index 0 is a
@@ -361,10 +368,12 @@ func (o *Analysis) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAnalysis{
+			CTSID:           &o.CTSID,
 			Analyzers:       &o.Analyzers,
 			Annotations:     &o.Annotations,
 			Coverage:        &o.Coverage,
 			CustomDataTypes: &o.CustomDataTypes,
+			ExtractionHash:  &o.ExtractionHash,
 			Index:           &o.Index,
 			Keywords:        &o.Keywords,
 			Kind:            &o.Kind,
@@ -385,6 +394,8 @@ func (o *Analysis) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	sp := &SparseAnalysis{}
 	for _, f := range fields {
 		switch f {
+		case "CTSID":
+			sp.CTSID = &(o.CTSID)
 		case "analyzers":
 			sp.Analyzers = &(o.Analyzers)
 		case "annotations":
@@ -393,6 +404,8 @@ func (o *Analysis) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Coverage = &(o.Coverage)
 		case "customDataTypes":
 			sp.CustomDataTypes = &(o.CustomDataTypes)
+		case "extractionHash":
+			sp.ExtractionHash = &(o.ExtractionHash)
 		case "index":
 			sp.Index = &(o.Index)
 		case "keywords":
@@ -434,6 +447,9 @@ func (o *Analysis) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseAnalysis)
+	if so.CTSID != nil {
+		o.CTSID = *so.CTSID
+	}
 	if so.Analyzers != nil {
 		o.Analyzers = *so.Analyzers
 	}
@@ -445,6 +461,9 @@ func (o *Analysis) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.CustomDataTypes != nil {
 		o.CustomDataTypes = *so.CustomDataTypes
+	}
+	if so.ExtractionHash != nil {
+		o.ExtractionHash = *so.ExtractionHash
 	}
 	if so.Index != nil {
 		o.Index = *so.Index
@@ -588,8 +607,8 @@ func (o *Analysis) Validate() error {
 
 	for i, sub := range o.CustomDataTypes {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "customDataTypes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
@@ -603,8 +622,8 @@ func (o *Analysis) Validate() error {
 
 	if o.Result != nil {
 		if err := o.Result.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "result")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "result")
 		}
 	}
 
@@ -614,15 +633,15 @@ func (o *Analysis) Validate() error {
 
 	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "toolResults", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolResults", i))
 		}
 	}
 
 	for i, sub := range o.ToolUses {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "toolUses", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolUses", i))
 		}
 	}
 
@@ -664,6 +683,8 @@ func (*Analysis) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 func (o *Analysis) ValueForAttribute(name string) any {
 
 	switch name {
+	case "CTSID":
+		return o.CTSID
 	case "analyzers":
 		return o.Analyzers
 	case "annotations":
@@ -672,6 +693,8 @@ func (o *Analysis) ValueForAttribute(name string) any {
 		return o.Coverage
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "extractionHash":
+		return o.ExtractionHash
 	case "index":
 		return o.Index
 	case "keywords":
@@ -707,6 +730,15 @@ func (o *Analysis) ValueForAttribute(name string) any {
 
 // AnalysisAttributesMap represents the map of attribute for Analysis.
 var AnalysisAttributesMap = map[string]elemental.AttributeSpecification{
+	"CTSID": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CTSID",
+		Description:    `External customer identifier, resolved from the namespace opaque.`,
+		Exposed:        true,
+		Name:           "CTSID",
+		ReadOnly:       true,
+		Type:           "string",
+	},
 	"Analyzers": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Analyzers",
@@ -747,6 +779,15 @@ size.`,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
 		Type:           "refList",
+	},
+	"ExtractionHash": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractionHash",
+		Description: `The extraction hash, equal to Extraction.hash in the log. The pipelines store
+it with their evidence, so a reported detection can be traced back.`,
+		Exposed: true,
+		Name:    "extractionHash",
+		Type:    "string",
 	},
 	"Index": {
 		AllowedChoices: []string{},
@@ -902,6 +943,15 @@ it.`,
 
 // AnalysisLowerCaseAttributesMap represents the map of attribute for Analysis.
 var AnalysisLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"ctsid": {
+		AllowedChoices: []string{},
+		ConvertedName:  "CTSID",
+		Description:    `External customer identifier, resolved from the namespace opaque.`,
+		Exposed:        true,
+		Name:           "CTSID",
+		ReadOnly:       true,
+		Type:           "string",
+	},
 	"analyzers": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Analyzers",
@@ -942,6 +992,15 @@ size.`,
 		Name:           "customDataTypes",
 		SubType:        "customdatatype",
 		Type:           "refList",
+	},
+	"extractionhash": {
+		AllowedChoices: []string{},
+		ConvertedName:  "ExtractionHash",
+		Description: `The extraction hash, equal to Extraction.hash in the log. The pipelines store
+it with their evidence, so a reported detection can be traced back.`,
+		Exposed: true,
+		Name:    "extractionHash",
+		Type:    "string",
 	},
 	"index": {
 		AllowedChoices: []string{},
@@ -1158,6 +1217,9 @@ func (o SparseAnalysisList) Version() int {
 
 // SparseAnalysis represents the sparse version of a analysis.
 type SparseAnalysis struct {
+	// External customer identifier, resolved from the namespace opaque.
+	CTSID *string `json:"CTSID,omitempty" msgpack:"CTSID,omitempty" bson:"-" mapstructure:"CTSID,omitempty"`
+
 	// The analyzers to run. An empty list runs the ones enabled by default, and a
 	// name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.
 	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
@@ -1172,6 +1234,10 @@ type SparseAnalysis struct {
 
 	// The custom data types to detect, on top of the built-in ones.
 	CustomDataTypes *CustomDataTypesList `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
+
+	// The extraction hash, equal to Extraction.hash in the log. The pipelines store
+	// it with their evidence, so a reported detection can be traced back.
+	ExtractionHash *string `json:"extractionHash,omitempty" msgpack:"extractionHash,omitempty" bson:"-" mapstructure:"extractionHash,omitempty"`
 
 	// Which message this is in a multi-turn payload. Analyses run in parallel, so
 	// this is what puts the history back in order. Always sent: index 0 is a
@@ -1334,6 +1400,9 @@ func (o *SparseAnalysis) Version() int {
 func (o *SparseAnalysis) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewAnalysis()
+	if o.CTSID != nil {
+		out.CTSID = *o.CTSID
+	}
 	if o.Analyzers != nil {
 		out.Analyzers = *o.Analyzers
 	}
@@ -1345,6 +1414,9 @@ func (o *SparseAnalysis) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.CustomDataTypes != nil {
 		out.CustomDataTypes = *o.CustomDataTypes
+	}
+	if o.ExtractionHash != nil {
+		out.ExtractionHash = *o.ExtractionHash
 	}
 	if o.Index != nil {
 		out.Index = *o.Index

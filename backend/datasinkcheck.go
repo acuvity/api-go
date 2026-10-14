@@ -109,13 +109,17 @@ type DataSinkCheck struct {
 	// Why the test object could not be deleted, when it could not.
 	CleanupError string `json:"cleanupError,omitempty" msgpack:"cleanupError,omitempty" bson:"-" mapstructure:"cleanupError,omitempty"`
 
-	// The ID of the saved data sink to test.
+	// The saved data sink used as the default destination and credential source for
+	// the check.
 	DataSinkID string `json:"dataSinkID,omitempty" msgpack:"dataSinkID,omitempty" bson:"-" mapstructure:"dataSinkID,omitempty"`
 
 	// The result of the check.
 	Message string `json:"message,omitempty" msgpack:"message,omitempty" bson:"-" mapstructure:"message,omitempty"`
 
-	// An unsaved S3 destination to test, including its credentials.
+	// The S3 draft to test instead of the stored destination. Supply the bucket,
+	// region and access key ID; an empty or omitted prefix means the bucket root.
+	// With dataSinkID, an empty or omitted secret keeps the stored secret.
+	// Without dataSinkID, the secret is required. The draft is never saved.
 	S3 *DataSinkS3 `json:"s3,omitempty" msgpack:"s3,omitempty" bson:"-" mapstructure:"s3,omitempty"`
 
 	// Succeeded when the object was written and deleted. WriteFailed when it could
@@ -209,9 +213,13 @@ func (o *DataSinkCheck) DefaultOrder() []string {
 func (o *DataSinkCheck) Doc() string {
 
 	return `Tests the connection to a data sink destination by writing a small test
-object under the configured prefix, then deleting it. Give either the ID of a
-saved data sink, or an unsaved destination with its credentials. A successful
-check does not prove multipart upload or SSE-KMS permissions.`
+object under the configured prefix, then deleting it. Give a saved data sink
+ID to test its stored destination, optionally with an S3 draft to test unsaved
+edits. A draft supplies the bucket, region, access key ID and prefix; an empty
+prefix clears the stored prefix. Omit or leave the draft secret empty to reuse
+the saved secret. Without an ID, supply a complete destination and secret.
+Checks never save configuration changes. A successful check does not prove
+multipart upload or SSE-KMS permissions.`
 }
 
 func (o *DataSinkCheck) String() string {
@@ -347,8 +355,8 @@ func (o *DataSinkCheck) Validate() error {
 
 	if o.S3 != nil {
 		if err := o.S3.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "s3")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "s3")
 		}
 	}
 
@@ -433,10 +441,11 @@ var DataSinkCheckAttributesMap = map[string]elemental.AttributeSpecification{
 	"DataSinkID": {
 		AllowedChoices: []string{},
 		ConvertedName:  "DataSinkID",
-		Description:    `The ID of the saved data sink to test.`,
-		Exposed:        true,
-		Name:           "dataSinkID",
-		Type:           "string",
+		Description: `The saved data sink used as the default destination and credential source for
+the check.`,
+		Exposed: true,
+		Name:    "dataSinkID",
+		Type:    "string",
 	},
 	"Message": {
 		AllowedChoices: []string{},
@@ -451,11 +460,14 @@ var DataSinkCheckAttributesMap = map[string]elemental.AttributeSpecification{
 	"S3": {
 		AllowedChoices: []string{},
 		ConvertedName:  "S3",
-		Description:    `An unsaved S3 destination to test, including its credentials.`,
-		Exposed:        true,
-		Name:           "s3",
-		SubType:        "datasinks3",
-		Type:           "ref",
+		Description: `The S3 draft to test instead of the stored destination. Supply the bucket,
+region and access key ID; an empty or omitted prefix means the bucket root.
+With dataSinkID, an empty or omitted secret keeps the stored secret.
+Without dataSinkID, the secret is required. The draft is never saved.`,
+		Exposed: true,
+		Name:    "s3",
+		SubType: "datasinks3",
+		Type:    "ref",
 	},
 	"Status": {
 		AllowedChoices: []string{"Succeeded", "WriteFailed", "CleanupFailed"},
@@ -505,10 +517,11 @@ var DataSinkCheckLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 	"datasinkid": {
 		AllowedChoices: []string{},
 		ConvertedName:  "DataSinkID",
-		Description:    `The ID of the saved data sink to test.`,
-		Exposed:        true,
-		Name:           "dataSinkID",
-		Type:           "string",
+		Description: `The saved data sink used as the default destination and credential source for
+the check.`,
+		Exposed: true,
+		Name:    "dataSinkID",
+		Type:    "string",
 	},
 	"message": {
 		AllowedChoices: []string{},
@@ -523,11 +536,14 @@ var DataSinkCheckLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 	"s3": {
 		AllowedChoices: []string{},
 		ConvertedName:  "S3",
-		Description:    `An unsaved S3 destination to test, including its credentials.`,
-		Exposed:        true,
-		Name:           "s3",
-		SubType:        "datasinks3",
-		Type:           "ref",
+		Description: `The S3 draft to test instead of the stored destination. Supply the bucket,
+region and access key ID; an empty or omitted prefix means the bucket root.
+With dataSinkID, an empty or omitted secret keeps the stored secret.
+Without dataSinkID, the secret is required. The draft is never saved.`,
+		Exposed: true,
+		Name:    "s3",
+		SubType: "datasinks3",
+		Type:    "ref",
 	},
 	"status": {
 		AllowedChoices: []string{"Succeeded", "WriteFailed", "CleanupFailed"},
@@ -628,13 +644,17 @@ type SparseDataSinkCheck struct {
 	// Why the test object could not be deleted, when it could not.
 	CleanupError *string `json:"cleanupError,omitempty" msgpack:"cleanupError,omitempty" bson:"-" mapstructure:"cleanupError,omitempty"`
 
-	// The ID of the saved data sink to test.
+	// The saved data sink used as the default destination and credential source for
+	// the check.
 	DataSinkID *string `json:"dataSinkID,omitempty" msgpack:"dataSinkID,omitempty" bson:"-" mapstructure:"dataSinkID,omitempty"`
 
 	// The result of the check.
 	Message *string `json:"message,omitempty" msgpack:"message,omitempty" bson:"-" mapstructure:"message,omitempty"`
 
-	// An unsaved S3 destination to test, including its credentials.
+	// The S3 draft to test instead of the stored destination. Supply the bucket,
+	// region and access key ID; an empty or omitted prefix means the bucket root.
+	// With dataSinkID, an empty or omitted secret keeps the stored secret.
+	// Without dataSinkID, the secret is required. The draft is never saved.
 	S3 *DataSinkS3 `json:"s3,omitempty" msgpack:"s3,omitempty" bson:"-" mapstructure:"s3,omitempty"`
 
 	// Succeeded when the object was written and deleted. WriteFailed when it could

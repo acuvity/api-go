@@ -7,21 +7,12 @@
   "$modelResourceName": "datasinknotifications",
   "$modelRestName": "datasinknotifications",
   "additionalProperties": false,
-  "description": "The default alert resources of a data sink, created with it. They are ordinary alert definitions and notification sinks in the data sink namespace: edit them to change recipients, messages or cooldowns; the system never overwrites them.",
+  "description": "The alert definition created with a data sink. It is an ordinary alert definition in the data sink namespace. Attach notification sinks manually and edit messages or cooldowns through the existing alert configuration; the system never overwrites these edits.",
   "properties": {
-    "errorAlertDefinition": {
-      "$friendlyName": "Error Alert Definition",
-      "description": "The name of the alert definition raised (Critical) when the data sink goes to Error.",
-      "title": "errorAlertDefinition",
-      "type": [
-        "string",
-        "null"
-      ]
-    },
-    "failingAlertDefinition": {
-      "$friendlyName": "Failing Alert Definition",
-      "description": "The name of the alert definition raised (Warning) when a run of the data sink keeps failing.",
-      "title": "failingAlertDefinition",
+    "alertDefinition": {
+      "$friendlyName": "Alert Definition",
+      "description": "The name of the shared alert definition raised when a run keeps failing or the data sink goes to Error. It defaults to Warning with a one-hour cooldown; both failure states share its notification settings.",
+      "title": "alertDefinition",
       "type": [
         "string",
         "null"
@@ -29,7 +20,7 @@
     },
     "sink": {
       "$friendlyName": "Sink",
-      "description": "The name of the default notification sink created with the data sink. Empty when no default notification sink was created.",
+      "description": "The name of an automatically provisioned notification sink. Empty in this version: notification sinks are attached manually to the alert definition.",
       "title": "sink",
       "type": [
         "string",
@@ -39,7 +30,7 @@
     "status": {
       "$defaultValue": "NeedsRecipient",
       "$friendlyName": "Status",
-      "description": "Configured: a default notification sink was created for the alert definitions. NeedsRecipient: the alert definitions were created without a notification sink; configure a recipient or destination and add a sink to them to be notified.",
+      "description": "The notification setup at creation, not a live report of manually edited alert definition. This version always starts as NeedsRecipient: attach notification sinks to the alert definition to be notified. Configured denotes automatically provisioned notification sinks.",
       "enum": [
         "Configured",
         "NeedsRecipient"

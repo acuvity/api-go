@@ -108,9 +108,6 @@ type AISecurityProbe struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments this object is bound to.
-	Deployments []string `json:"deployments" msgpack:"deployments" bson:"deployments" mapstructure:"deployments,omitempty"`
-
 	// The description of the AI Security Probe configuration.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
@@ -149,7 +146,6 @@ func NewAISecurityProbe() *AISecurityProbe {
 	return &AISecurityProbe{
 		ModelVersion:  1,
 		DNSMonitoring: AISecurityProbeDNSMonitoringEnabled,
-		Deployments:   []string{},
 	}
 }
 
@@ -187,7 +183,6 @@ func (o *AISecurityProbe) GetBSON() (any, error) {
 	}
 	s.ConnectionMonitoring = o.ConnectionMonitoring
 	s.CreateTime = o.CreateTime
-	s.Deployments = o.Deployments
 	s.Description = o.Description
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
@@ -218,7 +213,6 @@ func (o *AISecurityProbe) SetBSON(raw bson.Raw) error {
 	o.ID = s.ID.Hex()
 	o.ConnectionMonitoring = s.ConnectionMonitoring
 	o.CreateTime = s.CreateTime
-	o.Deployments = s.Deployments
 	o.Description = s.Description
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
@@ -357,7 +351,6 @@ func (o *AISecurityProbe) ToSparse(fields ...string) elemental.SparseIdentifiabl
 			ID:                   &o.ID,
 			ConnectionMonitoring: &o.ConnectionMonitoring,
 			CreateTime:           &o.CreateTime,
-			Deployments:          &o.Deployments,
 			Description:          &o.Description,
 			FriendlyName:         &o.FriendlyName,
 			ImportHash:           &o.ImportHash,
@@ -381,8 +374,6 @@ func (o *AISecurityProbe) ToSparse(fields ...string) elemental.SparseIdentifiabl
 			sp.ConnectionMonitoring = &(o.ConnectionMonitoring)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
-		case "deployments":
-			sp.Deployments = &(o.Deployments)
 		case "description":
 			sp.Description = &(o.Description)
 		case "friendlyName":
@@ -425,9 +416,6 @@ func (o *AISecurityProbe) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
-	}
-	if so.Deployments != nil {
-		o.Deployments = *so.Deployments
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
@@ -529,8 +517,8 @@ func (o *AISecurityProbe) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "connectionMonitoring", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "connectionMonitoring", i))
 		}
 	}
 
@@ -591,8 +579,6 @@ func (o *AISecurityProbe) ValueForAttribute(name string) any {
 		return o.ConnectionMonitoring
 	case "createTime":
 		return o.CreateTime
-	case "deployments":
-		return o.Deployments
 	case "description":
 		return o.Description
 	case "friendlyName":
@@ -669,17 +655,6 @@ var AISecurityProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
-	},
-	"Deployments": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "deployments",
-		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments this object is bound to.`,
-		Exposed:        true,
-		Name:           "deployments",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -832,17 +807,6 @@ var AISecurityProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
-	},
-	"deployments": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "deployments",
-		ConvertedName:  "Deployments",
-		Description:    `The name of the deployments this object is bound to.`,
-		Exposed:        true,
-		Name:           "deployments",
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1017,9 +981,6 @@ type SparseAISecurityProbe struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// The name of the deployments this object is bound to.
-	Deployments *[]string `json:"deployments,omitempty" msgpack:"deployments,omitempty" bson:"deployments,omitempty" mapstructure:"deployments,omitempty"`
-
 	// The description of the AI Security Probe configuration.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
@@ -1104,9 +1065,6 @@ func (o *SparseAISecurityProbe) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
-	if o.Deployments != nil {
-		s.Deployments = o.Deployments
-	}
 	if o.Description != nil {
 		s.Description = o.Description
 	}
@@ -1162,9 +1120,6 @@ func (o *SparseAISecurityProbe) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
-	if s.Deployments != nil {
-		o.Deployments = s.Deployments
-	}
 	if s.Description != nil {
 		o.Description = s.Description
 	}
@@ -1217,9 +1172,6 @@ func (o *SparseAISecurityProbe) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
-	}
-	if o.Deployments != nil {
-		out.Deployments = *o.Deployments
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
@@ -1427,7 +1379,6 @@ type mongoAttributesAISecurityProbe struct {
 	ID                   bson.ObjectId                     `bson:"_id,omitempty"`
 	ConnectionMonitoring []*ConnectionMonitorSelector      `bson:"connectionmonitoring"`
 	CreateTime           time.Time                         `bson:"createtime"`
-	Deployments          []string                          `bson:"deployments"`
 	Description          string                            `bson:"description"`
 	FriendlyName         string                            `bson:"friendlyname"`
 	ImportHash           string                            `bson:"importhash,omitempty"`
@@ -1443,7 +1394,6 @@ type mongoAttributesSparseAISecurityProbe struct {
 	ID                   bson.ObjectId                      `bson:"_id,omitempty"`
 	ConnectionMonitoring *[]*ConnectionMonitorSelector      `bson:"connectionmonitoring,omitempty"`
 	CreateTime           *time.Time                         `bson:"createtime,omitempty"`
-	Deployments          *[]string                          `bson:"deployments,omitempty"`
 	Description          *string                            `bson:"description,omitempty"`
 	FriendlyName         *string                            `bson:"friendlyname,omitempty"`
 	ImportHash           *string                            `bson:"importhash,omitempty"`

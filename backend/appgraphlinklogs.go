@@ -161,15 +161,15 @@ func (o *AppGraphLinkLogs) Validate() error {
 
 	if o.Input != nil {
 		if err := o.Input.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "input")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "input")
 		}
 	}
 
 	if o.Output != nil {
 		if err := o.Output.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "output")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "output")
 		}
 	}
 

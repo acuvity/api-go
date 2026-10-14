@@ -253,6 +253,11 @@
             "description": "Indicates whether the organization is entitled to use Agentic Security.",
             "type": "boolean"
           },
+          "entitlementDataSinks": {
+            "default": false,
+            "description": "Indicates whether the organization is entitled to use Data Sinks.",
+            "type": "boolean"
+          },
           "forceReimportTemplate": {
             "description": "This property if true will force reimport the template data. Setting it false is\na noop.",
             "type": "boolean"
@@ -2656,17 +2661,6 @@
             "readOnly": true,
             "type": "string"
           },
-          "deployments": {
-            "description": "The name of the deployments this object is bound to.",
-            "example": [
-              "my-deployment1",
-              "my-deployment2"
-            ],
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "description": {
             "description": "The description of the AI Security Probe configuration.",
             "example": "Created in JIRA ticket ADM-4242.",
@@ -3068,7 +3062,7 @@
             "type": "string"
           },
           "dataSinkEvents": {
-            "description": "The data sink events of the alert, for an alert of a data sink.",
+            "description": "The current details of the data sink runs linked to this alert, not a\nsnapshot of the original failure.",
             "items": {
               "$ref": "#/components/schemas/alertdatasinkevent"
             },
@@ -3108,10 +3102,10 @@
         "type": "object"
       },
       "alertdatasinkevent": {
-        "description": "A data sink event of an alert: a run of the data sink keeps failing, or the\ndata sink went to Error. It names the data sink and the run, never a user,\na destination or a credential.",
+        "description": "The current details of a data sink run linked to an alert, not a snapshot\nof the original failure. It names the data sink and the run, never a user,\na destination or a credential. Status, attempts and reason reflect the\nrun's current state.",
         "properties": {
           "attempts": {
-            "description": "Failed attempts of the run at the event.",
+            "description": "The run's current number of failed attempts.",
             "type": "integer"
           },
           "backfillID": {
@@ -3123,7 +3117,7 @@
             "type": "string"
           },
           "dataSinkName": {
-            "description": "The name of the data sink.",
+            "description": "The current name of the data sink, or its ID if the sink was deleted.",
             "type": "string"
           },
           "dataset": {
@@ -3141,24 +3135,26 @@
             ]
           },
           "reason": {
-            "description": "The sanitized error of the run.",
+            "description": "The run's current safe error message, cleared when execution resumes.",
             "type": "string"
           },
           "runID": {
-            "description": "The ID of the DataSinkRun.",
+            "description": "The runID of the linked DataSinkRun.",
             "type": "string"
+          },
+          "status": {
+            "description": "The current status of the linked run, using the DataSinkRun status values.",
+            "enum": [
+              "Running",
+              "Failing",
+              "Failed",
+              "Succeeded"
+            ]
           },
           "timestamp": {
-            "description": "When the event happened.",
+            "description": "When the linked run was last updated.",
             "format": "date-time",
             "type": "string"
-          },
-          "transition": {
-            "description": "Failing (a run keeps failing) or Error (the data sink went to Error).",
-            "enum": [
-              "Failing",
-              "Error"
-            ]
           }
         },
         "type": "object"
@@ -3309,6 +3305,11 @@
       "analysis": {
         "description": "Runs the analysis pipelines over some content. Nothing is stored: creating\none returns what the pipelines found, in result.\n\nThe content itself is not an attribute. It is sent beside this object, as\nthe second part of a multipart body whose first part is this object, so\nthat a payload of any size is streamed rather than held in memory at every\nhop. See the analyze handler.",
         "properties": {
+          "CTSID": {
+            "description": "External customer identifier, resolved from the namespace opaque.",
+            "readOnly": true,
+            "type": "string"
+          },
           "analyzers": {
             "description": "The analyzers to run. An empty list runs the ones enabled by default, and a\nname prefixed with '-' turns one off, '+' turns one on, '@' just run that one.",
             "example": [
@@ -3341,6 +3342,10 @@
               "$ref": "#/components/schemas/customdatatype"
             },
             "type": "array"
+          },
+          "extractionHash": {
+            "description": "The extraction hash, equal to Extraction.hash in the log. The pipelines store\nit with their evidence, so a reported detection can be traced back.",
+            "type": "string"
           },
           "index": {
             "description": "Which message this is in a multi-turn payload. Analyses run in parallel, so\nthis is what puts the history back in order. Always sent: index 0 is a\nposition, and an absent one means the order is unknown.",
@@ -4107,6 +4112,13 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "trafficRules": {
+            "description": "The resolved traffic control rules per app component, keyed by workload group\nhash. Each rule contains the expanded host and CIDR lists.",
+            "items": {
+              "$ref": "#/components/schemas/appcomponenttrafficrule"
+            },
+            "type": "array"
           }
         },
         "type": "object"
@@ -4445,6 +4457,45 @@
         "required": [
           "type"
         ],
+        "type": "object"
+      },
+      "appcomponenttrafficrule": {
+        "description": "Resolved traffic control rule for an app component. Contains the expanded\nhost and CIDR lists for a specific workload group, ready for enforcement.",
+        "properties": {
+          "allowedHosts": {
+            "description": "The expanded list of hosts allowed for egress, resolved from allowedHostSets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "blockedCIDRs": {
+            "description": "The expanded list of IP CIDR blocks blocked, resolved from blockedIPSets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "blockedHosts": {
+            "description": "The expanded list of hosts blocked for egress, resolved from blockedHostSets.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "defaultDNSPolicy": {
+            "default": "Allow",
+            "description": "The default policy applied to DNS traffic not matched by any host rule.",
+            "enum": [
+              "Allow",
+              "Deny"
+            ]
+          },
+          "workloadGroupHash": {
+            "description": "The workload group hash identifying the app component this rule applies to.",
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "appgraph": {
@@ -5394,6 +5445,13 @@
             "example": "acl-ingress-7d7eb84d-06a6-4e57-a2a0-68d4a35a42bd",
             "type": "string"
           },
+          "policyRefs": {
+            "description": "List of references to the policies used to make this connection report.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
+          },
           "provider": {
             "description": "The provider that this target represents.",
             "example": "openai-api",
@@ -5615,6 +5673,15 @@
         "required": [
           "friendlyName"
         ],
+        "type": "object"
+      },
+      "customdatatypevalidation": {
+        "description": "Checks a custom data type against the analysis pipelines, storing nothing.",
+        "properties": {
+          "customDataType": {
+            "$ref": "#/components/schemas/customdatatype"
+          }
+        },
         "type": "object"
       },
       "dataset": {
@@ -5975,7 +6042,7 @@
           },
           "status": {
             "default": "Pending",
-            "description": "Pending until the export service starts it, Running while it exports,\nCompleted when all the data sink's selected datasets are exported, Failed\nwhen it stopped on an error. Set by the export service.",
+            "description": "Pending until the export service starts it, Running while it exports,\nCompleted when all the data sink's selected datasets are exported, Failed\nwhen it stopped on an error. A failed backfill may return to Running after\ncorrection and reactivation of the data sink, keeping its ID and range.\nCompleted is terminal. Set by the export service.",
             "enum": [
               "Pending",
               "Running",
@@ -5998,7 +6065,7 @@
         "type": "object"
       },
       "datasinkcheck": {
-        "description": "Tests the connection to a data sink destination by writing a small test\nobject under the configured prefix, then deleting it. Give either the ID of a\nsaved data sink, or an unsaved destination with its credentials. A successful\ncheck does not prove multipart upload or SSE-KMS permissions.",
+        "description": "Tests the connection to a data sink destination by writing a small test\nobject under the configured prefix, then deleting it. Give a saved data sink\nID to test its stored destination, optionally with an S3 draft to test unsaved\nedits. A draft supplies the bucket, region, access key ID and prefix; an empty\nprefix clears the stored prefix. Omit or leave the draft secret empty to reuse\nthe saved secret. Without an ID, supply a complete destination and secret.\nChecks never save configuration changes. A successful check does not prove\nmultipart upload or SSE-KMS permissions.",
         "properties": {
           "cleanupError": {
             "description": "Why the test object could not be deleted, when it could not.",
@@ -6006,7 +6073,7 @@
             "type": "string"
           },
           "dataSinkID": {
-            "description": "The ID of the saved data sink to test.",
+            "description": "The saved data sink used as the default destination and credential source for\nthe check.",
             "type": "string"
           },
           "message": {
@@ -6042,23 +6109,19 @@
         "type": "object"
       },
       "datasinknotifications": {
-        "description": "The default alert resources of a data sink, created with it. They are\nordinary alert definitions and notification sinks in the data sink namespace:\nedit them to change recipients, messages or cooldowns; the system never\noverwrites them.",
+        "description": "The alert definition created with a data sink. It is an ordinary alert\ndefinition in the data sink namespace. Attach notification sinks manually\nand edit messages or cooldowns through the existing alert configuration;\nthe system never overwrites these edits.",
         "properties": {
-          "errorAlertDefinition": {
-            "description": "The name of the alert definition raised (Critical) when the data sink goes to\nError.",
-            "type": "string"
-          },
-          "failingAlertDefinition": {
-            "description": "The name of the alert definition raised (Warning) when a run of the data sink\nkeeps failing.",
+          "alertDefinition": {
+            "description": "The name of the shared alert definition raised when a run keeps failing\nor the data sink goes to Error. It defaults to Warning with a one-hour\ncooldown; both failure states share its notification settings.",
             "type": "string"
           },
           "sink": {
-            "description": "The name of the default notification sink created with the data sink.\nEmpty when no default notification sink was created.",
+            "description": "The name of an automatically provisioned notification sink. Empty in this\nversion: notification sinks are attached manually to the alert definition.",
             "type": "string"
           },
           "status": {
             "default": "NeedsRecipient",
-            "description": "Configured: a default notification sink was created for the alert\ndefinitions. NeedsRecipient: the alert definitions were created without a\nnotification sink; configure a recipient or destination and add a sink to\nthem to be notified.",
+            "description": "The notification setup at creation, not a live report of manually edited\nalert definition. This version always starts as NeedsRecipient: attach\nnotification sinks to the alert definition to be notified. Configured\ndenotes automatically provisioned notification sinks.",
             "enum": [
               "Configured",
               "NeedsRecipient"
@@ -6099,7 +6162,7 @@
             "type": "string"
           },
           "dataset": {
-            "description": "The dataset exported: AccessLogs corresponds to access_logs, and\nAgenticLogs to agentic_logs in the customer output.",
+            "description": "The dataset exported. Its enum value is also the customer-facing dataset\nname, used directly in S3 paths such as dataset=AccessLogs/.",
             "enum": [
               "AccessLogs",
               "AgenticLogs"
@@ -6740,6 +6803,13 @@
             "description": "The reference to the policy ID that triggered this action.",
             "example": "acl-ingress-7d7eb84d-06a6-4e57-a2a0-68d4a35a42bd",
             "type": "string"
+          },
+          "policyRefs": {
+            "description": "List of references to the policies used to make this dns report.",
+            "items": {
+              "$ref": "#/components/schemas/policyref"
+            },
+            "type": "array"
           },
           "provider": {
             "description": "The provider that this target represents.",
@@ -8173,6 +8243,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
@@ -8376,6 +8451,13 @@
             },
             "type": "array"
           },
+          "IPSets": {
+            "description": "IP sets to import.",
+            "items": {
+              "$ref": "#/components/schemas/ipset"
+            },
+            "type": "array"
+          },
           "LDAPSources": {
             "description": "LDAP Sources to import.",
             "type": "object"
@@ -8522,13 +8604,6 @@
             "description": "Ignored domains to import.",
             "items": {
               "$ref": "#/components/schemas/ignoreddomain"
-            },
-            "type": "array"
-          },
-          "ipSets": {
-            "description": "IP sets to import.",
-            "items": {
-              "$ref": "#/components/schemas/ipset"
             },
             "type": "array"
           },
@@ -8886,6 +8961,11 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -11074,7 +11154,7 @@
         "description": "Evaluates the current policies for a principal and a provider without sending\nany traffic. It returns whether the principal can reach the provider, the\npolicies that decided it and, for an MCP server, which of its tools the\nprincipal would see. Nothing is stored and no log is written.",
         "properties": {
           "claims": {
-            "description": "The claims of the user to simulate, in the form key=value. Used when\nprincipalType is User.",
+            "description": "The claims of the user to simulate, in the form key=value. Required when\nprincipalType is User, and not allowed otherwise.",
             "example": [
               "@email=bob@acme.com",
               "@group=support"
@@ -11083,6 +11163,11 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "deployment": {
+            "description": "The deployment whose gateways to simulate, for a gateway that is not bound\nto the default deployment, such as an on-prem one. When empty, the gateway\nis found by gatewayName alone.",
+            "example": "acme-onprem",
+            "type": "string"
           },
           "destinationAppComponent": {
             "description": "The app component to reach when it acts as the provider, in the form\nproject:app/component, where the project: part is optional. Exactly one of\nprovider and destinationAppComponent must be set.",
@@ -11120,12 +11205,12 @@
             "type": "string"
           },
           "sourceAppComponent": {
-            "description": "The app component making the request, in the form project:app/component,\nwhere the project: part is optional. Required when principalType is App.",
+            "description": "The app component making the request, in the form project:app/component,\nwhere the project: part is optional. Required when principalType is App,\nand not allowed otherwise.",
             "example": "production:acme-ai-app/agent",
             "type": "string"
           },
           "teams": {
-            "description": "The teams to simulate. Required when principalType is Team.",
+            "description": "The teams to simulate. Required when principalType is Team, and not\nallowed otherwise.",
             "example": [
               "support"
             ],
@@ -11144,7 +11229,7 @@
             "example": "Proxy"
           },
           "userClaims": {
-            "description": "The claims of the user behind the app component call, in the form\nkey=value. Used when principalType is App.",
+            "description": "The claims of the user behind the app component call, in the form\nkey=value. Optional when principalType is App, and not allowed otherwise.",
             "example": [
               "@email=bob@acme.com"
             ],
@@ -12321,6 +12406,9 @@
           "regoBaseLibs": {
             "$ref": "#/components/schemas/regobaselibs"
           },
+          "simulation": {
+            "$ref": "#/components/schemas/proxyconfsimulation"
+          },
           "tokens": {
             "description": "Tokens pool to authenticate with the provider.",
             "example": {
@@ -12341,6 +12429,23 @@
               "$ref": "#/components/schemas/webextensionconfig"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "proxyconfsimulation": {
+        "description": "The extra data only the policy simulator reads. It is added to a proxy\nconfiguration on request and never changes how a policy decides.",
+        "properties": {
+          "accessPolicy": {
+            "description": "The rego module that names the policy behind each tool the access policy\nallows or denies. It compiles together with the access policy.",
+            "type": "string"
+          },
+          "egressPolicies": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The same rego module for the egress access policy of each app component,\nby app and component name, such as my-app/my-component.",
+            "type": "object"
           }
         },
         "type": "object"
@@ -12511,7 +12616,7 @@
           },
           "provider": {
             "description": "The provider to use.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "providerType": {
@@ -12554,7 +12659,12 @@
               "$ref": "#/components/schemas/tool"
             },
             "description": "The various tools used by the request.",
-            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "example": {
+              "tool1": {
+                "description": "This is a tool.",
+                "name": "tool1"
+              }
+            },
             "type": "object"
           },
           "trace": {
@@ -19545,16 +19655,6 @@
       "post": {
         "description": "Creates a new custom data type.",
         "operationId": "create-CustomDataType",
-        "parameters": [
-          {
-            "description": "If set, only asks the pipelines whether they can run the custom data\ntype, and stores nothing.",
-            "in": "query",
-            "name": "validateOnly",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -19650,6 +19750,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/customdatatype"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/customdatatypevalidations": {
+      "post": {
+        "description": "Checks a custom data type against the analysis pipelines.",
+        "operationId": "create-CustomDataTypeValidation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/customdatatypevalidation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdatatypevalidation"
                 }
               }
             },
@@ -24994,6 +25125,15 @@
         "operationId": "get-all-ProxyConfs",
         "parameters": [
           {
+            "description": "The deployment whose AI gateways to include. Defaults to the default\ndeployment, and a deployment token always uses its own.",
+            "example": "acme-onprem",
+            "in": "query",
+            "name": "deployment",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "description": "Names of the public keys used to encrypt any client secrets.",
             "example": [
               "my-deployment-key"
@@ -25011,6 +25151,15 @@
             "name": "q",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "description": "Includes the extra data for the policy simulator. It is ignored when\nthe request uses a deployment token.",
+            "example": true,
+            "in": "query",
+            "name": "simulation",
+            "schema": {
+              "type": "boolean"
             }
           }
         ],

@@ -247,15 +247,15 @@ func (o *ExtractionRequest) Validate() error {
 
 	for i, sub := range o.ToolResults {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "toolResults", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolResults", i))
 		}
 	}
 
 	for i, sub := range o.ToolUses {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "toolUses", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "toolUses", i))
 		}
 	}
 

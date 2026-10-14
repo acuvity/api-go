@@ -61,14 +61,15 @@ var (
 
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicy":       ContentPolicyIdentity,
-		"customdatatype":      CustomDataTypeIdentity,
-		"dataset":             DataSetIdentity,
-		"datasink":            DataSinkIdentity,
-		"datasinkaccesslogs":  DataSinkAccessLogsIdentity,
-		"datasinkagenticlogs": DataSinkAgenticLogsIdentity,
-		"datasinkbackfill":    DataSinkBackfillIdentity,
-		"datasinkcheck":       DataSinkCheckIdentity,
+		"contentpolicy":            ContentPolicyIdentity,
+		"customdatatype":           CustomDataTypeIdentity,
+		"customdatatypevalidation": CustomDataTypeValidationIdentity,
+		"dataset":                  DataSetIdentity,
+		"datasink":                 DataSinkIdentity,
+		"datasinkaccesslogs":       DataSinkAccessLogsIdentity,
+		"datasinkagenticlogs":      DataSinkAgenticLogsIdentity,
+		"datasinkbackfill":         DataSinkBackfillIdentity,
+		"datasinkcheck":            DataSinkCheckIdentity,
 
 		"datasinknotifications": DataSinkNotificationsIdentity,
 
@@ -152,10 +153,11 @@ var (
 
 		"providerusagereport": ProviderUsageReportIdentity,
 		"proxyconf":           ProxyConfIdentity,
-		"proxyroundtrip":      ProxyRoundtripIdentity,
-		"publickey":           PublicKeyIdentity,
-		"query":               QueryIdentity,
-		"queryrange":          QueryRangeIdentity,
+
+		"proxyroundtrip": ProxyRoundtripIdentity,
+		"publickey":      PublicKeyIdentity,
+		"query":          QueryIdentity,
+		"queryrange":     QueryRangeIdentity,
 
 		"resolve":        ResolveIdentity,
 		"revocation":     RevocationIdentity,
@@ -256,14 +258,15 @@ var (
 
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicies":     ContentPolicyIdentity,
-		"customdatatypes":     CustomDataTypeIdentity,
-		"datasets":            DataSetIdentity,
-		"datasinks":           DataSinkIdentity,
-		"datasinkaccesslogs":  DataSinkAccessLogsIdentity,
-		"datasinkagenticlogs": DataSinkAgenticLogsIdentity,
-		"datasinkbackfills":   DataSinkBackfillIdentity,
-		"datasinkchecks":      DataSinkCheckIdentity,
+		"contentpolicies":           ContentPolicyIdentity,
+		"customdatatypes":           CustomDataTypeIdentity,
+		"customdatatypevalidations": CustomDataTypeValidationIdentity,
+		"datasets":                  DataSetIdentity,
+		"datasinks":                 DataSinkIdentity,
+		"datasinkaccesslogs":        DataSinkAccessLogsIdentity,
+		"datasinkagenticlogs":       DataSinkAgenticLogsIdentity,
+		"datasinkbackfills":         DataSinkBackfillIdentity,
+		"datasinkchecks":            DataSinkCheckIdentity,
 
 		"datasinknotifications": DataSinkNotificationsIdentity,
 
@@ -347,10 +350,11 @@ var (
 
 		"providerusagereports": ProviderUsageReportIdentity,
 		"proxyconfs":           ProxyConfIdentity,
-		"proxyroundtrips":      ProxyRoundtripIdentity,
-		"publickeys":           PublicKeyIdentity,
-		"queries":              QueryIdentity,
-		"queryranges":          QueryRangeIdentity,
+
+		"proxyroundtrips": ProxyRoundtripIdentity,
+		"publickeys":      PublicKeyIdentity,
+		"queries":         QueryIdentity,
+		"queryranges":     QueryRangeIdentity,
 
 		"resolve":         ResolveIdentity,
 		"revocations":     RevocationIdentity,
@@ -599,6 +603,7 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"customdatatypevalidation": nil,
 		"dataset": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -1185,6 +1190,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewContentPolicy()
 	case CustomDataTypeIdentity:
 		return NewCustomDataType()
+	case CustomDataTypeValidationIdentity:
+		return NewCustomDataTypeValidation()
 	case DataSetIdentity:
 		return NewDataSet()
 	case DataSinkIdentity:
@@ -1472,6 +1479,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseContentPolicy()
 	case CustomDataTypeIdentity:
 		return NewSparseCustomDataType()
+	case CustomDataTypeValidationIdentity:
+		return NewSparseCustomDataTypeValidation()
 	case DataSetIdentity:
 		return NewSparseDataSet()
 	case DataSinkIdentity:
@@ -1767,6 +1776,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &ContentPoliciesList{}
 	case CustomDataTypeIdentity:
 		return &CustomDataTypesList{}
+	case CustomDataTypeValidationIdentity:
+		return &CustomDataTypeValidationsList{}
 	case DataSetIdentity:
 		return &DataSetsList{}
 	case DataSinkIdentity:
@@ -2052,6 +2063,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseContentPoliciesList{}
 	case CustomDataTypeIdentity:
 		return &SparseCustomDataTypesList{}
+	case CustomDataTypeValidationIdentity:
+		return &SparseCustomDataTypeValidationsList{}
 	case DataSetIdentity:
 		return &SparseDataSetsList{}
 	case DataSinkIdentity:
@@ -2341,6 +2354,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewAppComponentProvider()
 	case "appcomponentselector", "AppComponentSelector":
 		return NewAppComponentSelector()
+	case "appcomponenttrafficrule", "AppComponentTrafficRule":
+		return NewAppComponentTrafficRule()
 	case "appgraph", "AppGraph":
 		return NewAppGraph()
 	case "appgraphlink", "AppGraphLink":
@@ -2465,6 +2480,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewProviderRetentionPolicy()
 	case "providertrainingpolicy", "ProviderTrainingPolicy":
 		return NewProviderTrainingPolicy()
+	case "proxyconfsimulation", "ProxyConfSimulation":
+		return NewProxyConfSimulation()
 	case "regobaselibs", "RegoBaseLibs":
 		return NewRegoBaseLibs()
 	case "roundtriperror", "RoundtripError":
@@ -2570,6 +2587,7 @@ func AllIdentities() []elemental.Identity {
 		AuthSettingsIdentity,
 		ContentPolicyIdentity,
 		CustomDataTypeIdentity,
+		CustomDataTypeValidationIdentity,
 		DataSetIdentity,
 		DataSinkIdentity,
 		DataSinkAccessLogsIdentity,
@@ -2752,6 +2770,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case ContentPolicyIdentity:
 		return []string{}
 	case CustomDataTypeIdentity:
+		return []string{}
+	case CustomDataTypeValidationIdentity:
 		return []string{}
 	case DataSetIdentity:
 		return []string{}

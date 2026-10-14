@@ -918,8 +918,8 @@ func (o *Provider) Validate() error {
 
 	if o.Capabilities != nil {
 		if err := o.Capabilities.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "capabilities")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "capabilities")
 		}
 	}
 
@@ -933,8 +933,8 @@ func (o *Provider) Validate() error {
 
 	if o.ErrorTransformer != nil {
 		if err := o.ErrorTransformer.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "errorTransformer")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "errorTransformer")
 		}
 	}
 
@@ -943,8 +943,8 @@ func (o *Provider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
@@ -964,8 +964,8 @@ func (o *Provider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "hosts", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "hosts", i))
 		}
 	}
 
@@ -974,8 +974,8 @@ func (o *Provider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "injectors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "injectors", i))
 		}
 	}
 
@@ -984,8 +984,8 @@ func (o *Provider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "mappers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "mappers", i))
 		}
 	}
 
@@ -1017,8 +1017,8 @@ func (o *Provider) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 

@@ -113,13 +113,13 @@ its target: either a provider or a destination app and component.
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
-  "provider": "openai",
-  "tools": "{
-  \"tool1\": {
-      \"name\": \"tool1\",
-      \"description\": \"This is a tool.\"
-  }
-}",
+  "provider": "openai-api",
+  "tools": {
+    "tool1": {
+      "description": "This is a tool.",
+      "name": "tool1"
+    }
+  },
   "type": "Input"
 }
 ```
@@ -256,14 +256,14 @@ This is a scan and police response.
       \"user\": \"someone@somewhere.com\"
   }
 }",
-  "provider": "openai",
+  "provider": "openai-api",
   "providerType": "LLM",
-  "tools": "{
-  \"tool1\": {
-      \"name\": \"tool1\",
-      \"description\": \"This is a tool.\"
-  }
-}",
+  "tools": {
+    "tool1": {
+      "description": "This is a tool.",
+      "name": "tool1"
+    }
+  },
   "type": "Input"
 }
 ```
@@ -649,7 +649,7 @@ direction may all be left out.
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
-  "provider": "openai",
+  "provider": "openai-api",
   "redactContent": false,
   "redactContentBypass": false,
   "redactions": [
@@ -657,12 +657,12 @@ direction may all be left out.
     "ssn",
     "location"
   ],
-  "tools": "{
-  \"tool1\": {
-      \"name\": \"tool1\",
-      \"description\": \"This is a tool.\"
-  }
-}",
+  "tools": {
+    "tool1": {
+      "description": "This is a tool.",
+      "name": "tool1"
+    }
+  },
   "type": "Input"
 }
 ```
@@ -851,14 +851,14 @@ This is a scan response.
       \"user\": \"someone@somewhere.com\"
   }
 }",
-  "provider": "openai",
+  "provider": "openai-api",
   "providerType": "LLM",
-  "tools": "{
-  \"tool1\": {
-      \"name\": \"tool1\",
-      \"description\": \"This is a tool.\"
-  }
-}",
+  "tools": {
+    "tool1": {
+      "description": "This is a tool.",
+      "name": "tool1"
+    }
+  },
   "type": "Input"
 }
 ```

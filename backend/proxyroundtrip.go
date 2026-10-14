@@ -1087,8 +1087,8 @@ func (o *ProxyRoundtrip) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "alerts", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "alerts", i))
 		}
 	}
 
@@ -1098,29 +1098,29 @@ func (o *ProxyRoundtrip) Validate() error {
 
 	if o.Destination != nil {
 		if err := o.Destination.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "destination")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "destination")
 		}
 	}
 
 	if o.EncryptionEgress != nil {
 		if err := o.EncryptionEgress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionEgress")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "encryptionEgress")
 		}
 	}
 
 	if o.EncryptionIngress != nil {
 		if err := o.EncryptionIngress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionIngress")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "encryptionIngress")
 		}
 	}
 
 	if o.Error != nil {
 		if err := o.Error.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "error")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "error")
 		}
 	}
 
@@ -1129,22 +1129,22 @@ func (o *ProxyRoundtrip) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
 		}
 	}
 
 	if o.Latency != nil {
 		if err := o.Latency.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "latency")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "latency")
 		}
 	}
 
 	if o.McpMessage != nil {
 		if err := o.McpMessage.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "mcpMessage")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "mcpMessage")
 		}
 	}
 
@@ -1153,15 +1153,15 @@ func (o *ProxyRoundtrip) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "policyRefs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policyRefs", i))
 		}
 	}
 
 	if o.Principal != nil {
 		if err := o.Principal.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "principal")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "principal")
 		}
 	}
 
@@ -1183,15 +1183,15 @@ func (o *ProxyRoundtrip) Validate() error {
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "summary")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
 	if o.ToolChoice != nil {
 		if err := o.ToolChoice.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "toolChoice")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "toolChoice")
 		}
 	}
 
@@ -1200,15 +1200,15 @@ func (o *ProxyRoundtrip) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 
 	if o.Trace != nil {
 		if err := o.Trace.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "trace")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "trace")
 		}
 	}
 

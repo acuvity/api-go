@@ -126,7 +126,9 @@ type DataSinkBackfill struct {
 
 	// Pending until the export service starts it, Running while it exports,
 	// Completed when all the data sink's selected datasets are exported, Failed
-	// when it stopped on an error. Set by the export service.
+	// when it stopped on an error. A failed backfill may return to Running after
+	// correction and reactivation of the data sink, keeping its ID and range.
+	// Completed is terminal. Set by the export service.
 	Status DataSinkBackfillStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.
@@ -620,7 +622,9 @@ and cleared when it is no longer Failed.`,
 		DefaultValue:   DataSinkBackfillStatusPending,
 		Description: `Pending until the export service starts it, Running while it exports,
 Completed when all the data sink's selected datasets are exported, Failed
-when it stopped on an error. Set by the export service.`,
+when it stopped on an error. A failed backfill may return to Running after
+correction and reactivation of the data sink, keeping its ID and range.
+Completed is terminal. Set by the export service.`,
 		Exposed:    true,
 		Filterable: true,
 		Name:       "status",
@@ -747,7 +751,9 @@ and cleared when it is no longer Failed.`,
 		DefaultValue:   DataSinkBackfillStatusPending,
 		Description: `Pending until the export service starts it, Running while it exports,
 Completed when all the data sink's selected datasets are exported, Failed
-when it stopped on an error. Set by the export service.`,
+when it stopped on an error. A failed backfill may return to Running after
+correction and reactivation of the data sink, keeping its ID and range.
+Completed is terminal. Set by the export service.`,
 		Exposed:    true,
 		Filterable: true,
 		Name:       "status",
@@ -858,7 +864,9 @@ type SparseDataSinkBackfill struct {
 
 	// Pending until the export service starts it, Running while it exports,
 	// Completed when all the data sink's selected datasets are exported, Failed
-	// when it stopped on an error. Set by the export service.
+	// when it stopped on an error. A failed backfill may return to Running after
+	// correction and reactivation of the data sink, keeping its ID and range.
+	// Completed is terminal. Set by the export service.
 	Status *DataSinkBackfillStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.

@@ -98,6 +98,10 @@ type AppAgentConf struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The resolved traffic control rules per app component, keyed by workload group
+	// hash. Each rule contains the expanded host and CIDR lists.
+	TrafficRules []*AppComponentTrafficRule `json:"trafficRules,omitempty" msgpack:"trafficRules,omitempty" bson:"-" mapstructure:"trafficRules,omitempty"`
+
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
 
@@ -216,6 +220,7 @@ func (o *AppAgentConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ID:                   &o.ID,
 			ConnectionMonitoring: &o.ConnectionMonitoring,
 			Namespace:            &o.Namespace,
+			TrafficRules:         &o.TrafficRules,
 		}
 	}
 
@@ -230,6 +235,8 @@ func (o *AppAgentConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ConnectionMonitoring = &(o.ConnectionMonitoring)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "trafficRules":
+			sp.TrafficRules = &(o.TrafficRules)
 		}
 	}
 
@@ -255,6 +262,9 @@ func (o *AppAgentConf) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.TrafficRules != nil {
+		o.TrafficRules = *so.TrafficRules
+	}
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
@@ -266,6 +276,15 @@ func (o *AppAgentConf) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ConnectionMonitoring' for 'AppAgentConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.TrafficRules {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'TrafficRules' for 'AppAgentConf' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -281,6 +300,15 @@ func (o *AppAgentConf) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ConnectionMonitoring' for 'AppAgentConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.TrafficRules {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'TrafficRules' for 'AppAgentConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -324,8 +352,18 @@ func (o *AppAgentConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "connectionMonitoring", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "connectionMonitoring", i))
+		}
+	}
+
+	for i, sub := range o.TrafficRules {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "trafficRules", i))
+			errors = errors.Append(err)
 		}
 	}
 
@@ -371,6 +409,8 @@ func (o *AppAgentConf) ValueForAttribute(name string) any {
 		return o.ConnectionMonitoring
 	case "namespace":
 		return o.Namespace
+	case "trafficRules":
+		return o.TrafficRules
 	}
 
 	return nil
@@ -427,6 +467,16 @@ Security Probes.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"TrafficRules": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TrafficRules",
+		Description: `The resolved traffic control rules per app component, keyed by workload group
+hash. Each rule contains the expanded host and CIDR lists.`,
+		Exposed: true,
+		Name:    "trafficRules",
+		SubType: "appcomponenttrafficrule",
+		Type:    "refList",
+	},
 }
 
 // AppAgentConfLowerCaseAttributesMap represents the map of attribute for AppAgentConf.
@@ -479,6 +529,16 @@ Security Probes.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"trafficrules": {
+		AllowedChoices: []string{},
+		ConvertedName:  "TrafficRules",
+		Description: `The resolved traffic control rules per app component, keyed by workload group
+hash. Each rule contains the expanded host and CIDR lists.`,
+		Exposed: true,
+		Name:    "trafficRules",
+		SubType: "appcomponenttrafficrule",
+		Type:    "refList",
 	},
 }
 
@@ -558,6 +618,10 @@ type SparseAppAgentConf struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// The resolved traffic control rules per app component, keyed by workload group
+	// hash. Each rule contains the expanded host and CIDR lists.
+	TrafficRules *[]*AppComponentTrafficRule `json:"trafficRules,omitempty" msgpack:"trafficRules,omitempty" bson:"-" mapstructure:"trafficRules,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -656,6 +720,9 @@ func (o *SparseAppAgentConf) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.TrafficRules != nil {
+		out.TrafficRules = *o.TrafficRules
+	}
 
 	return out
 }
@@ -674,6 +741,17 @@ func (o *SparseAppAgentConf) EncryptAttributes(encrypter elemental.AttributeEncr
 		}
 	}
 
+	if o.TrafficRules != nil {
+		for _, sub := range *o.TrafficRules {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'TrafficRules' for 'AppAgentConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -687,6 +765,17 @@ func (o *SparseAppAgentConf) DecryptAttributes(encrypter elemental.AttributeEncr
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'ConnectionMonitoring' for 'AppAgentConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.TrafficRules != nil {
+		for _, sub := range *o.TrafficRules {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'TrafficRules' for 'AppAgentConf' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}

@@ -120,9 +120,14 @@ func (o PolicySimulationsList) Version() int {
 
 // PolicySimulation represents the model of a policysimulation
 type PolicySimulation struct {
-	// The claims of the user to simulate, in the form key=value. Used when
-	// principalType is User.
+	// The claims of the user to simulate, in the form key=value. Required when
+	// principalType is User, and not allowed otherwise.
 	Claims []string `json:"claims" msgpack:"claims" bson:"-" mapstructure:"claims,omitempty"`
+
+	// The deployment whose gateways to simulate, for a gateway that is not bound
+	// to the default deployment, such as an on-prem one. When empty, the gateway
+	// is found by gatewayName alone.
+	Deployment string `json:"deployment" msgpack:"deployment" bson:"-" mapstructure:"deployment,omitempty"`
 
 	// The app component to reach when it acts as the provider, in the form
 	// project:app/component, where the project: part is optional. Exactly one of
@@ -150,17 +155,19 @@ type PolicySimulation struct {
 	Provider string `json:"provider" msgpack:"provider" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The app component making the request, in the form project:app/component,
-	// where the project: part is optional. Required when principalType is App.
+	// where the project: part is optional. Required when principalType is App,
+	// and not allowed otherwise.
 	SourceAppComponent string `json:"sourceAppComponent" msgpack:"sourceAppComponent" bson:"-" mapstructure:"sourceAppComponent,omitempty"`
 
-	// The teams to simulate. Required when principalType is Team.
+	// The teams to simulate. Required when principalType is Team, and not
+	// allowed otherwise.
 	Teams []string `json:"teams" msgpack:"teams" bson:"-" mapstructure:"teams,omitempty"`
 
 	// Specify if this policy applies to transparent proxy or gateway.
 	TransportMode PolicySimulationTransportModeValue `json:"transportMode" msgpack:"transportMode" bson:"transportmode" mapstructure:"transportMode,omitempty"`
 
 	// The claims of the user behind the app component call, in the form
-	// key=value. Used when principalType is App.
+	// key=value. Optional when principalType is App, and not allowed otherwise.
 	UserClaims []string `json:"userClaims" msgpack:"userClaims" bson:"-" mapstructure:"userClaims,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -271,6 +278,7 @@ func (o *PolicySimulation) ToSparse(fields ...string) elemental.SparseIdentifiab
 		// nolint: goimports
 		return &SparsePolicySimulation{
 			Claims:                  &o.Claims,
+			Deployment:              &o.Deployment,
 			DestinationAppComponent: &o.DestinationAppComponent,
 			Direction:               &o.Direction,
 			GatewayName:             &o.GatewayName,
@@ -289,6 +297,8 @@ func (o *PolicySimulation) ToSparse(fields ...string) elemental.SparseIdentifiab
 		switch f {
 		case "claims":
 			sp.Claims = &(o.Claims)
+		case "deployment":
+			sp.Deployment = &(o.Deployment)
 		case "destinationAppComponent":
 			sp.DestinationAppComponent = &(o.DestinationAppComponent)
 		case "direction":
@@ -324,6 +334,9 @@ func (o *PolicySimulation) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparsePolicySimulation)
 	if so.Claims != nil {
 		o.Claims = *so.Claims
+	}
+	if so.Deployment != nil {
+		o.Deployment = *so.Deployment
 	}
 	if so.DestinationAppComponent != nil {
 		o.DestinationAppComponent = *so.DestinationAppComponent
@@ -419,8 +432,8 @@ func (o *PolicySimulation) Validate() error {
 
 	if o.Output != nil {
 		if err := o.Output.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "output")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "output")
 		}
 	}
 
@@ -477,6 +490,8 @@ func (o *PolicySimulation) ValueForAttribute(name string) any {
 	switch name {
 	case "claims":
 		return o.Claims
+	case "deployment":
+		return o.Deployment
 	case "destinationAppComponent":
 		return o.DestinationAppComponent
 	case "direction":
@@ -507,12 +522,22 @@ var PolicySimulationAttributesMap = map[string]elemental.AttributeSpecification{
 	"Claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
-		Description: `The claims of the user to simulate, in the form key=value. Used when
-principalType is User.`,
+		Description: `The claims of the user to simulate, in the form key=value. Required when
+principalType is User, and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "claims",
 		SubType: "string",
 		Type:    "list",
+	},
+	"Deployment": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Deployment",
+		Description: `The deployment whose gateways to simulate, for a gateway that is not bound
+to the default deployment, such as an on-prem one. When empty, the gateway
+is found by gatewayName alone.`,
+		Exposed: true,
+		Name:    "deployment",
+		Type:    "string",
 	},
 	"DestinationAppComponent": {
 		AllowedChoices: []string{},
@@ -578,7 +603,8 @@ destinationAppComponent must be set.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "SourceAppComponent",
 		Description: `The app component making the request, in the form project:app/component,
-where the project: part is optional. Required when principalType is App.`,
+where the project: part is optional. Required when principalType is App,
+and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "sourceAppComponent",
 		Type:    "string",
@@ -586,11 +612,12 @@ where the project: part is optional. Required when principalType is App.`,
 	"Teams": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Teams",
-		Description:    `The teams to simulate. Required when principalType is Team.`,
-		Exposed:        true,
-		Name:           "teams",
-		SubType:        "string",
-		Type:           "list",
+		Description: `The teams to simulate. Required when principalType is Team, and not
+allowed otherwise.`,
+		Exposed: true,
+		Name:    "teams",
+		SubType: "string",
+		Type:    "list",
 	},
 	"TransportMode": {
 		AllowedChoices: []string{"Proxy", "Gateway"},
@@ -608,7 +635,7 @@ where the project: part is optional. Required when principalType is App.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "UserClaims",
 		Description: `The claims of the user behind the app component call, in the form
-key=value. Used when principalType is App.`,
+key=value. Optional when principalType is App, and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "userClaims",
 		SubType: "string",
@@ -621,12 +648,22 @@ var PolicySimulationLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 	"claims": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Claims",
-		Description: `The claims of the user to simulate, in the form key=value. Used when
-principalType is User.`,
+		Description: `The claims of the user to simulate, in the form key=value. Required when
+principalType is User, and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "claims",
 		SubType: "string",
 		Type:    "list",
+	},
+	"deployment": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Deployment",
+		Description: `The deployment whose gateways to simulate, for a gateway that is not bound
+to the default deployment, such as an on-prem one. When empty, the gateway
+is found by gatewayName alone.`,
+		Exposed: true,
+		Name:    "deployment",
+		Type:    "string",
 	},
 	"destinationappcomponent": {
 		AllowedChoices: []string{},
@@ -692,7 +729,8 @@ destinationAppComponent must be set.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "SourceAppComponent",
 		Description: `The app component making the request, in the form project:app/component,
-where the project: part is optional. Required when principalType is App.`,
+where the project: part is optional. Required when principalType is App,
+and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "sourceAppComponent",
 		Type:    "string",
@@ -700,11 +738,12 @@ where the project: part is optional. Required when principalType is App.`,
 	"teams": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Teams",
-		Description:    `The teams to simulate. Required when principalType is Team.`,
-		Exposed:        true,
-		Name:           "teams",
-		SubType:        "string",
-		Type:           "list",
+		Description: `The teams to simulate. Required when principalType is Team, and not
+allowed otherwise.`,
+		Exposed: true,
+		Name:    "teams",
+		SubType: "string",
+		Type:    "list",
 	},
 	"transportmode": {
 		AllowedChoices: []string{"Proxy", "Gateway"},
@@ -722,7 +761,7 @@ where the project: part is optional. Required when principalType is App.`,
 		AllowedChoices: []string{},
 		ConvertedName:  "UserClaims",
 		Description: `The claims of the user behind the app component call, in the form
-key=value. Used when principalType is App.`,
+key=value. Optional when principalType is App, and not allowed otherwise.`,
 		Exposed: true,
 		Name:    "userClaims",
 		SubType: "string",
@@ -793,9 +832,14 @@ func (o SparsePolicySimulationsList) Version() int {
 
 // SparsePolicySimulation represents the sparse version of a policysimulation.
 type SparsePolicySimulation struct {
-	// The claims of the user to simulate, in the form key=value. Used when
-	// principalType is User.
+	// The claims of the user to simulate, in the form key=value. Required when
+	// principalType is User, and not allowed otherwise.
 	Claims *[]string `json:"claims,omitempty" msgpack:"claims,omitempty" bson:"-" mapstructure:"claims,omitempty"`
+
+	// The deployment whose gateways to simulate, for a gateway that is not bound
+	// to the default deployment, such as an on-prem one. When empty, the gateway
+	// is found by gatewayName alone.
+	Deployment *string `json:"deployment,omitempty" msgpack:"deployment,omitempty" bson:"-" mapstructure:"deployment,omitempty"`
 
 	// The app component to reach when it acts as the provider, in the form
 	// project:app/component, where the project: part is optional. Exactly one of
@@ -823,17 +867,19 @@ type SparsePolicySimulation struct {
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// The app component making the request, in the form project:app/component,
-	// where the project: part is optional. Required when principalType is App.
+	// where the project: part is optional. Required when principalType is App,
+	// and not allowed otherwise.
 	SourceAppComponent *string `json:"sourceAppComponent,omitempty" msgpack:"sourceAppComponent,omitempty" bson:"-" mapstructure:"sourceAppComponent,omitempty"`
 
-	// The teams to simulate. Required when principalType is Team.
+	// The teams to simulate. Required when principalType is Team, and not
+	// allowed otherwise.
 	Teams *[]string `json:"teams,omitempty" msgpack:"teams,omitempty" bson:"-" mapstructure:"teams,omitempty"`
 
 	// Specify if this policy applies to transparent proxy or gateway.
 	TransportMode *PolicySimulationTransportModeValue `json:"transportMode,omitempty" msgpack:"transportMode,omitempty" bson:"transportmode,omitempty" mapstructure:"transportMode,omitempty"`
 
 	// The claims of the user behind the app component call, in the form
-	// key=value. Used when principalType is App.
+	// key=value. Optional when principalType is App, and not allowed otherwise.
 	UserClaims *[]string `json:"userClaims,omitempty" msgpack:"userClaims,omitempty" bson:"-" mapstructure:"userClaims,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -910,6 +956,9 @@ func (o *SparsePolicySimulation) ToPlain() elemental.PlainIdentifiable {
 	out := NewPolicySimulation()
 	if o.Claims != nil {
 		out.Claims = *o.Claims
+	}
+	if o.Deployment != nil {
+		out.Deployment = *o.Deployment
 	}
 	if o.DestinationAppComponent != nil {
 		out.DestinationAppComponent = *o.DestinationAppComponent

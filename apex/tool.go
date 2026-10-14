@@ -234,15 +234,15 @@ func (o *Tool) Validate() error {
 
 	if o.MCPAnnotations != nil {
 		if err := o.MCPAnnotations.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "MCPAnnotations")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "MCPAnnotations")
 		}
 	}
 
 	if o.MCPServer != nil {
 		if err := o.MCPServer.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "MCPServer")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "MCPServer")
 		}
 	}
 
@@ -251,8 +251,8 @@ func (o *Tool) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "arguments", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "arguments", i))
 		}
 	}
 

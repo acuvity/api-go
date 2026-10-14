@@ -155,11 +155,14 @@ type DataSink struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The default alert resources created with the data sink: an alert definition
-	// for a failing export (Warning), one for the Error state (Critical), and
-	// a default notification sink when one can be configured.
-	// Server owned. Edit the alert definitions and notification sinks to change
-	// recipients, destinations, messages or cooldowns.
+	// Internal IDs of the default alert resources owned by this data sink.
+	NotificationResourceIDs []string `json:"-" msgpack:"-" bson:"notificationresourceids" mapstructure:"-,omitempty"`
+
+	// The shared alert definition created with the data sink for failing exports
+	// and the Error state. It defaults to Warning with a one-hour cooldown.
+	// No notification sink is created automatically in this version. Server
+	// owned. Attach notification sinks to the alert definition and edit it
+	// to change recipients, destinations, messages or cooldowns.
 	Notifications *DataSinkNotifications `json:"notifications,omitempty" msgpack:"notifications,omitempty" bson:"notifications,omitempty" mapstructure:"notifications,omitempty"`
 
 	// Increments on each change of an export setting: cadence, dataset selection
@@ -243,6 +246,7 @@ func (o *DataSink) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.NotificationResourceIDs = o.NotificationResourceIDs
 	s.Notifications = o.Notifications
 	s.Revision = o.Revision
 	s.S3 = o.S3
@@ -280,6 +284,7 @@ func (o *DataSink) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.NotificationResourceIDs = s.NotificationResourceIDs
 	o.Notifications = s.Notifications
 	o.Revision = s.Revision
 	o.S3 = s.S3
@@ -417,26 +422,27 @@ func (o *DataSink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseDataSink{
-			ID:            &o.ID,
-			AccessLogs:    o.AccessLogs,
-			AgenticLogs:   o.AgenticLogs,
-			Cadence:       &o.Cadence,
-			CreateTime:    &o.CreateTime,
-			Description:   &o.Description,
-			FriendlyName:  &o.FriendlyName,
-			ImportHash:    &o.ImportHash,
-			ImportLabel:   &o.ImportLabel,
-			Name:          &o.Name,
-			Namespace:     &o.Namespace,
-			Notifications: o.Notifications,
-			Revision:      &o.Revision,
-			S3:            o.S3,
-			State:         &o.State,
-			StateReason:   &o.StateReason,
-			Type:          &o.Type,
-			UpdateTime:    &o.UpdateTime,
-			ZHash:         &o.ZHash,
-			Zone:          &o.Zone,
+			ID:                      &o.ID,
+			AccessLogs:              o.AccessLogs,
+			AgenticLogs:             o.AgenticLogs,
+			Cadence:                 &o.Cadence,
+			CreateTime:              &o.CreateTime,
+			Description:             &o.Description,
+			FriendlyName:            &o.FriendlyName,
+			ImportHash:              &o.ImportHash,
+			ImportLabel:             &o.ImportLabel,
+			Name:                    &o.Name,
+			Namespace:               &o.Namespace,
+			NotificationResourceIDs: &o.NotificationResourceIDs,
+			Notifications:           o.Notifications,
+			Revision:                &o.Revision,
+			S3:                      o.S3,
+			State:                   &o.State,
+			StateReason:             &o.StateReason,
+			Type:                    &o.Type,
+			UpdateTime:              &o.UpdateTime,
+			ZHash:                   &o.ZHash,
+			Zone:                    &o.Zone,
 		}
 	}
 
@@ -465,6 +471,8 @@ func (o *DataSink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "notificationResourceIDs":
+			sp.NotificationResourceIDs = &(o.NotificationResourceIDs)
 		case "notifications":
 			sp.Notifications = o.Notifications
 		case "revision":
@@ -528,6 +536,9 @@ func (o *DataSink) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.NotificationResourceIDs != nil {
+		o.NotificationResourceIDs = *so.NotificationResourceIDs
 	}
 	if so.Notifications != nil {
 		o.Notifications = so.Notifications
@@ -652,15 +663,15 @@ func (o *DataSink) Validate() error {
 
 	if o.AccessLogs != nil {
 		if err := o.AccessLogs.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "accessLogs")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "accessLogs")
 		}
 	}
 
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "agenticLogs")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "agenticLogs")
 		}
 	}
 
@@ -689,15 +700,15 @@ func (o *DataSink) Validate() error {
 
 	if o.Notifications != nil {
 		if err := o.Notifications.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "notifications")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "notifications")
 		}
 	}
 
 	if o.S3 != nil {
 		if err := o.S3.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "s3")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "s3")
 		}
 	}
 
@@ -774,6 +785,8 @@ func (o *DataSink) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "notificationResourceIDs":
+		return o.NotificationResourceIDs
 	case "notifications":
 		return o.Notifications
 	case "revision":
@@ -946,16 +959,17 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+
 	"Notifications": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
 		BSONFieldName:  "notifications",
 		ConvertedName:  "Notifications",
-		Description: `The default alert resources created with the data sink: an alert definition
-for a failing export (Warning), one for the Error state (Critical), and
-a default notification sink when one can be configured.
-Server owned. Edit the alert definitions and notification sinks to change
-recipients, destinations, messages or cooldowns.`,
+		Description: `The shared alert definition created with the data sink for failing exports
+and the Error state. It defaults to Warning with a one-hour cooldown.
+No notification sink is created automatically in this version. Server
+owned. Attach notification sinks to the alert definition and edit it
+to change recipients, destinations, messages or cooldowns.`,
 		Exposed:  true,
 		Name:     "notifications",
 		ReadOnly: true,
@@ -1189,16 +1203,17 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+
 	"notifications": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
 		BSONFieldName:  "notifications",
 		ConvertedName:  "Notifications",
-		Description: `The default alert resources created with the data sink: an alert definition
-for a failing export (Warning), one for the Error state (Critical), and
-a default notification sink when one can be configured.
-Server owned. Edit the alert definitions and notification sinks to change
-recipients, destinations, messages or cooldowns.`,
+		Description: `The shared alert definition created with the data sink for failing exports
+and the Error state. It defaults to Warning with a one-hour cooldown.
+No notification sink is created automatically in this version. Server
+owned. Attach notification sinks to the alert definition and edit it
+to change recipients, destinations, messages or cooldowns.`,
 		Exposed:  true,
 		Name:     "notifications",
 		ReadOnly: true,
@@ -1383,11 +1398,14 @@ type SparseDataSink struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
-	// The default alert resources created with the data sink: an alert definition
-	// for a failing export (Warning), one for the Error state (Critical), and
-	// a default notification sink when one can be configured.
-	// Server owned. Edit the alert definitions and notification sinks to change
-	// recipients, destinations, messages or cooldowns.
+	// Internal IDs of the default alert resources owned by this data sink.
+	NotificationResourceIDs *[]string `json:"-" msgpack:"-" bson:"notificationresourceids,omitempty" mapstructure:"-,omitempty"`
+
+	// The shared alert definition created with the data sink for failing exports
+	// and the Error state. It defaults to Warning with a one-hour cooldown.
+	// No notification sink is created automatically in this version. Server
+	// owned. Attach notification sinks to the alert definition and edit it
+	// to change recipients, destinations, messages or cooldowns.
 	Notifications *DataSinkNotifications `json:"notifications,omitempty" msgpack:"notifications,omitempty" bson:"notifications,omitempty" mapstructure:"notifications,omitempty"`
 
 	// Increments on each change of an export setting: cadence, dataset selection
@@ -1492,6 +1510,9 @@ func (o *SparseDataSink) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.NotificationResourceIDs != nil {
+		s.NotificationResourceIDs = o.NotificationResourceIDs
+	}
 	if o.Notifications != nil {
 		s.Notifications = o.Notifications
 	}
@@ -1568,6 +1589,9 @@ func (o *SparseDataSink) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.NotificationResourceIDs != nil {
+		o.NotificationResourceIDs = s.NotificationResourceIDs
+	}
 	if s.Notifications != nil {
 		o.Notifications = s.Notifications
 	}
@@ -1641,6 +1665,9 @@ func (o *SparseDataSink) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.NotificationResourceIDs != nil {
+		out.NotificationResourceIDs = *o.NotificationResourceIDs
 	}
 	if o.Notifications != nil {
 		out.Notifications = o.Notifications
@@ -1870,46 +1897,48 @@ func (o *SparseDataSink) DeepCopyInto(out *SparseDataSink) {
 }
 
 type mongoAttributesDataSink struct {
-	ID            bson.ObjectId          `bson:"_id,omitempty"`
-	AccessLogs    *DataSinkAccessLogs    `bson:"accesslogs"`
-	AgenticLogs   *DataSinkAgenticLogs   `bson:"agenticlogs"`
-	Cadence       DataSinkCadenceValue   `bson:"cadence"`
-	CreateTime    time.Time              `bson:"createtime"`
-	Description   string                 `bson:"description"`
-	FriendlyName  string                 `bson:"friendlyname"`
-	ImportHash    string                 `bson:"importhash,omitempty"`
-	ImportLabel   string                 `bson:"importlabel,omitempty"`
-	Name          string                 `bson:"name"`
-	Namespace     string                 `bson:"namespace,omitempty"`
-	Notifications *DataSinkNotifications `bson:"notifications,omitempty"`
-	Revision      int                    `bson:"revision"`
-	S3            *DataSinkS3            `bson:"s3"`
-	State         DataSinkStateValue     `bson:"state"`
-	StateReason   string                 `bson:"statereason"`
-	Type          DataSinkTypeValue      `bson:"type"`
-	UpdateTime    time.Time              `bson:"updatetime"`
-	ZHash         int                    `bson:"zhash"`
-	Zone          int                    `bson:"zone"`
+	ID                      bson.ObjectId          `bson:"_id,omitempty"`
+	AccessLogs              *DataSinkAccessLogs    `bson:"accesslogs"`
+	AgenticLogs             *DataSinkAgenticLogs   `bson:"agenticlogs"`
+	Cadence                 DataSinkCadenceValue   `bson:"cadence"`
+	CreateTime              time.Time              `bson:"createtime"`
+	Description             string                 `bson:"description"`
+	FriendlyName            string                 `bson:"friendlyname"`
+	ImportHash              string                 `bson:"importhash,omitempty"`
+	ImportLabel             string                 `bson:"importlabel,omitempty"`
+	Name                    string                 `bson:"name"`
+	Namespace               string                 `bson:"namespace,omitempty"`
+	NotificationResourceIDs []string               `bson:"notificationresourceids"`
+	Notifications           *DataSinkNotifications `bson:"notifications,omitempty"`
+	Revision                int                    `bson:"revision"`
+	S3                      *DataSinkS3            `bson:"s3"`
+	State                   DataSinkStateValue     `bson:"state"`
+	StateReason             string                 `bson:"statereason"`
+	Type                    DataSinkTypeValue      `bson:"type"`
+	UpdateTime              time.Time              `bson:"updatetime"`
+	ZHash                   int                    `bson:"zhash"`
+	Zone                    int                    `bson:"zone"`
 }
 type mongoAttributesSparseDataSink struct {
-	ID            bson.ObjectId          `bson:"_id,omitempty"`
-	AccessLogs    *DataSinkAccessLogs    `bson:"accesslogs,omitempty"`
-	AgenticLogs   *DataSinkAgenticLogs   `bson:"agenticlogs,omitempty"`
-	Cadence       *DataSinkCadenceValue  `bson:"cadence,omitempty"`
-	CreateTime    *time.Time             `bson:"createtime,omitempty"`
-	Description   *string                `bson:"description,omitempty"`
-	FriendlyName  *string                `bson:"friendlyname,omitempty"`
-	ImportHash    *string                `bson:"importhash,omitempty"`
-	ImportLabel   *string                `bson:"importlabel,omitempty"`
-	Name          *string                `bson:"name,omitempty"`
-	Namespace     *string                `bson:"namespace,omitempty"`
-	Notifications *DataSinkNotifications `bson:"notifications,omitempty"`
-	Revision      *int                   `bson:"revision,omitempty"`
-	S3            *DataSinkS3            `bson:"s3,omitempty"`
-	State         *DataSinkStateValue    `bson:"state,omitempty"`
-	StateReason   *string                `bson:"statereason,omitempty"`
-	Type          *DataSinkTypeValue     `bson:"type,omitempty"`
-	UpdateTime    *time.Time             `bson:"updatetime,omitempty"`
-	ZHash         *int                   `bson:"zhash,omitempty"`
-	Zone          *int                   `bson:"zone,omitempty"`
+	ID                      bson.ObjectId          `bson:"_id,omitempty"`
+	AccessLogs              *DataSinkAccessLogs    `bson:"accesslogs,omitempty"`
+	AgenticLogs             *DataSinkAgenticLogs   `bson:"agenticlogs,omitempty"`
+	Cadence                 *DataSinkCadenceValue  `bson:"cadence,omitempty"`
+	CreateTime              *time.Time             `bson:"createtime,omitempty"`
+	Description             *string                `bson:"description,omitempty"`
+	FriendlyName            *string                `bson:"friendlyname,omitempty"`
+	ImportHash              *string                `bson:"importhash,omitempty"`
+	ImportLabel             *string                `bson:"importlabel,omitempty"`
+	Name                    *string                `bson:"name,omitempty"`
+	Namespace               *string                `bson:"namespace,omitempty"`
+	NotificationResourceIDs *[]string              `bson:"notificationresourceids,omitempty"`
+	Notifications           *DataSinkNotifications `bson:"notifications,omitempty"`
+	Revision                *int                   `bson:"revision,omitempty"`
+	S3                      *DataSinkS3            `bson:"s3,omitempty"`
+	State                   *DataSinkStateValue    `bson:"state,omitempty"`
+	StateReason             *string                `bson:"statereason,omitempty"`
+	Type                    *DataSinkTypeValue     `bson:"type,omitempty"`
+	UpdateTime              *time.Time             `bson:"updatetime,omitempty"`
+	ZHash                   *int                   `bson:"zhash,omitempty"`
+	Zone                    *int                   `bson:"zone,omitempty"`
 }

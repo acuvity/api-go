@@ -134,6 +134,15 @@
         "null"
       ]
     },
+    "policyRefs": {
+      "$friendlyName": "Policy References",
+      "description": "List of references to the policies used to make this dns report.",
+      "items": {
+        "$ref": "policyref.json"
+      },
+      "title": "policyRefs",
+      "type": "array"
+    },
     "provider": {
       "$friendlyName": "Provider",
       "description": "The provider that this target represents.",

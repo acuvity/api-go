@@ -153,8 +153,8 @@ func (o *AIGatewayConfMCPTool) Validate() error {
 
 	if o.MCPAnnotations != nil {
 		if err := o.MCPAnnotations.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "MCPAnnotations")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "MCPAnnotations")
 		}
 	}
 

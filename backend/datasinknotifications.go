@@ -95,22 +95,19 @@ func (o DataSinkNotificationsList) Version() int {
 
 // DataSinkNotifications represents the model of a datasinknotifications
 type DataSinkNotifications struct {
-	// The name of the alert definition raised (Critical) when the data sink goes to
-	// Error.
-	ErrorAlertDefinition string `json:"errorAlertDefinition" msgpack:"errorAlertDefinition" bson:"erroralertdefinition" mapstructure:"errorAlertDefinition,omitempty"`
+	// The name of the shared alert definition raised when a run keeps failing
+	// or the data sink goes to Error. It defaults to Warning with a one-hour
+	// cooldown; both failure states share its notification settings.
+	AlertDefinition string `json:"alertDefinition" msgpack:"alertDefinition" bson:"alertdefinition" mapstructure:"alertDefinition,omitempty"`
 
-	// The name of the alert definition raised (Warning) when a run of the data sink
-	// keeps failing.
-	FailingAlertDefinition string `json:"failingAlertDefinition" msgpack:"failingAlertDefinition" bson:"failingalertdefinition" mapstructure:"failingAlertDefinition,omitempty"`
-
-	// The name of the default notification sink created with the data sink.
-	// Empty when no default notification sink was created.
+	// The name of an automatically provisioned notification sink. Empty in this
+	// version: notification sinks are attached manually to the alert definition.
 	Sink string `json:"sink" msgpack:"sink" bson:"sink" mapstructure:"sink,omitempty"`
 
-	// Configured: a default notification sink was created for the alert
-	// definitions. NeedsRecipient: the alert definitions were created without a
-	// notification sink; configure a recipient or destination and add a sink to
-	// them to be notified.
+	// The notification setup at creation, not a live report of manually edited
+	// alert definition. This version always starts as NeedsRecipient: attach
+	// notification sinks to the alert definition to be notified. Configured
+	// denotes automatically provisioned notification sinks.
 	Status DataSinkNotificationsStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -152,8 +149,7 @@ func (o *DataSinkNotifications) GetBSON() (any, error) {
 
 	s := &mongoAttributesDataSinkNotifications{}
 
-	s.ErrorAlertDefinition = o.ErrorAlertDefinition
-	s.FailingAlertDefinition = o.FailingAlertDefinition
+	s.AlertDefinition = o.AlertDefinition
 	s.Sink = o.Sink
 	s.Status = o.Status
 
@@ -173,8 +169,7 @@ func (o *DataSinkNotifications) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	o.ErrorAlertDefinition = s.ErrorAlertDefinition
-	o.FailingAlertDefinition = s.FailingAlertDefinition
+	o.AlertDefinition = s.AlertDefinition
 	o.Sink = s.Sink
 	o.Status = s.Status
 
@@ -202,10 +197,10 @@ func (o *DataSinkNotifications) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *DataSinkNotifications) Doc() string {
 
-	return `The default alert resources of a data sink, created with it. They are
-ordinary alert definitions and notification sinks in the data sink namespace:
-edit them to change recipients, messages or cooldowns; the system never
-overwrites them.`
+	return `The alert definition created with a data sink. It is an ordinary alert
+definition in the data sink namespace. Attach notification sinks manually
+and edit messages or cooldowns through the existing alert configuration;
+the system never overwrites these edits.`
 }
 
 func (o *DataSinkNotifications) String() string {
@@ -220,20 +215,17 @@ func (o *DataSinkNotifications) ToSparse(fields ...string) elemental.SparseIdent
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseDataSinkNotifications{
-			ErrorAlertDefinition:   &o.ErrorAlertDefinition,
-			FailingAlertDefinition: &o.FailingAlertDefinition,
-			Sink:                   &o.Sink,
-			Status:                 &o.Status,
+			AlertDefinition: &o.AlertDefinition,
+			Sink:            &o.Sink,
+			Status:          &o.Status,
 		}
 	}
 
 	sp := &SparseDataSinkNotifications{}
 	for _, f := range fields {
 		switch f {
-		case "errorAlertDefinition":
-			sp.ErrorAlertDefinition = &(o.ErrorAlertDefinition)
-		case "failingAlertDefinition":
-			sp.FailingAlertDefinition = &(o.FailingAlertDefinition)
+		case "alertDefinition":
+			sp.AlertDefinition = &(o.AlertDefinition)
 		case "sink":
 			sp.Sink = &(o.Sink)
 		case "status":
@@ -251,11 +243,8 @@ func (o *DataSinkNotifications) Patch(sparse elemental.SparseIdentifiable) {
 	}
 
 	so := sparse.(*SparseDataSinkNotifications)
-	if so.ErrorAlertDefinition != nil {
-		o.ErrorAlertDefinition = *so.ErrorAlertDefinition
-	}
-	if so.FailingAlertDefinition != nil {
-		o.FailingAlertDefinition = *so.FailingAlertDefinition
+	if so.AlertDefinition != nil {
+		o.AlertDefinition = *so.AlertDefinition
 	}
 	if so.Sink != nil {
 		o.Sink = *so.Sink
@@ -347,10 +336,8 @@ func (*DataSinkNotifications) AttributeSpecifications() map[string]elemental.Att
 func (o *DataSinkNotifications) ValueForAttribute(name string) any {
 
 	switch name {
-	case "errorAlertDefinition":
-		return o.ErrorAlertDefinition
-	case "failingAlertDefinition":
-		return o.FailingAlertDefinition
+	case "alertDefinition":
+		return o.AlertDefinition
 	case "sink":
 		return o.Sink
 	case "status":
@@ -362,25 +349,15 @@ func (o *DataSinkNotifications) ValueForAttribute(name string) any {
 
 // DataSinkNotificationsAttributesMap represents the map of attribute for DataSinkNotifications.
 var DataSinkNotificationsAttributesMap = map[string]elemental.AttributeSpecification{
-	"ErrorAlertDefinition": {
+	"AlertDefinition": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "erroralertdefinition",
-		ConvertedName:  "ErrorAlertDefinition",
-		Description: `The name of the alert definition raised (Critical) when the data sink goes to
-Error.`,
+		BSONFieldName:  "alertdefinition",
+		ConvertedName:  "AlertDefinition",
+		Description: `The name of the shared alert definition raised when a run keeps failing
+or the data sink goes to Error. It defaults to Warning with a one-hour
+cooldown; both failure states share its notification settings.`,
 		Exposed: true,
-		Name:    "errorAlertDefinition",
-		Stored:  true,
-		Type:    "string",
-	},
-	"FailingAlertDefinition": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "failingalertdefinition",
-		ConvertedName:  "FailingAlertDefinition",
-		Description: `The name of the alert definition raised (Warning) when a run of the data sink
-keeps failing.`,
-		Exposed: true,
-		Name:    "failingAlertDefinition",
+		Name:    "alertDefinition",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -388,8 +365,8 @@ keeps failing.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "sink",
 		ConvertedName:  "Sink",
-		Description: `The name of the default notification sink created with the data sink.
-Empty when no default notification sink was created.`,
+		Description: `The name of an automatically provisioned notification sink. Empty in this
+version: notification sinks are attached manually to the alert definition.`,
 		Exposed: true,
 		Name:    "sink",
 		Stored:  true,
@@ -400,10 +377,10 @@ Empty when no default notification sink was created.`,
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		DefaultValue:   DataSinkNotificationsStatusNeedsRecipient,
-		Description: `Configured: a default notification sink was created for the alert
-definitions. NeedsRecipient: the alert definitions were created without a
-notification sink; configure a recipient or destination and add a sink to
-them to be notified.`,
+		Description: `The notification setup at creation, not a live report of manually edited
+alert definition. This version always starts as NeedsRecipient: attach
+notification sinks to the alert definition to be notified. Configured
+denotes automatically provisioned notification sinks.`,
 		Exposed: true,
 		Name:    "status",
 		Stored:  true,
@@ -413,25 +390,15 @@ them to be notified.`,
 
 // DataSinkNotificationsLowerCaseAttributesMap represents the map of attribute for DataSinkNotifications.
 var DataSinkNotificationsLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
-	"erroralertdefinition": {
+	"alertdefinition": {
 		AllowedChoices: []string{},
-		BSONFieldName:  "erroralertdefinition",
-		ConvertedName:  "ErrorAlertDefinition",
-		Description: `The name of the alert definition raised (Critical) when the data sink goes to
-Error.`,
+		BSONFieldName:  "alertdefinition",
+		ConvertedName:  "AlertDefinition",
+		Description: `The name of the shared alert definition raised when a run keeps failing
+or the data sink goes to Error. It defaults to Warning with a one-hour
+cooldown; both failure states share its notification settings.`,
 		Exposed: true,
-		Name:    "errorAlertDefinition",
-		Stored:  true,
-		Type:    "string",
-	},
-	"failingalertdefinition": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "failingalertdefinition",
-		ConvertedName:  "FailingAlertDefinition",
-		Description: `The name of the alert definition raised (Warning) when a run of the data sink
-keeps failing.`,
-		Exposed: true,
-		Name:    "failingAlertDefinition",
+		Name:    "alertDefinition",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -439,8 +406,8 @@ keeps failing.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "sink",
 		ConvertedName:  "Sink",
-		Description: `The name of the default notification sink created with the data sink.
-Empty when no default notification sink was created.`,
+		Description: `The name of an automatically provisioned notification sink. Empty in this
+version: notification sinks are attached manually to the alert definition.`,
 		Exposed: true,
 		Name:    "sink",
 		Stored:  true,
@@ -451,10 +418,10 @@ Empty when no default notification sink was created.`,
 		BSONFieldName:  "status",
 		ConvertedName:  "Status",
 		DefaultValue:   DataSinkNotificationsStatusNeedsRecipient,
-		Description: `Configured: a default notification sink was created for the alert
-definitions. NeedsRecipient: the alert definitions were created without a
-notification sink; configure a recipient or destination and add a sink to
-them to be notified.`,
+		Description: `The notification setup at creation, not a live report of manually edited
+alert definition. This version always starts as NeedsRecipient: attach
+notification sinks to the alert definition to be notified. Configured
+denotes automatically provisioned notification sinks.`,
 		Exposed: true,
 		Name:    "status",
 		Stored:  true,
@@ -525,22 +492,19 @@ func (o SparseDataSinkNotificationsList) Version() int {
 
 // SparseDataSinkNotifications represents the sparse version of a datasinknotifications.
 type SparseDataSinkNotifications struct {
-	// The name of the alert definition raised (Critical) when the data sink goes to
-	// Error.
-	ErrorAlertDefinition *string `json:"errorAlertDefinition,omitempty" msgpack:"errorAlertDefinition,omitempty" bson:"erroralertdefinition,omitempty" mapstructure:"errorAlertDefinition,omitempty"`
+	// The name of the shared alert definition raised when a run keeps failing
+	// or the data sink goes to Error. It defaults to Warning with a one-hour
+	// cooldown; both failure states share its notification settings.
+	AlertDefinition *string `json:"alertDefinition,omitempty" msgpack:"alertDefinition,omitempty" bson:"alertdefinition,omitempty" mapstructure:"alertDefinition,omitempty"`
 
-	// The name of the alert definition raised (Warning) when a run of the data sink
-	// keeps failing.
-	FailingAlertDefinition *string `json:"failingAlertDefinition,omitempty" msgpack:"failingAlertDefinition,omitempty" bson:"failingalertdefinition,omitempty" mapstructure:"failingAlertDefinition,omitempty"`
-
-	// The name of the default notification sink created with the data sink.
-	// Empty when no default notification sink was created.
+	// The name of an automatically provisioned notification sink. Empty in this
+	// version: notification sinks are attached manually to the alert definition.
 	Sink *string `json:"sink,omitempty" msgpack:"sink,omitempty" bson:"sink,omitempty" mapstructure:"sink,omitempty"`
 
-	// Configured: a default notification sink was created for the alert
-	// definitions. NeedsRecipient: the alert definitions were created without a
-	// notification sink; configure a recipient or destination and add a sink to
-	// them to be notified.
+	// The notification setup at creation, not a live report of manually edited
+	// alert definition. This version always starts as NeedsRecipient: attach
+	// notification sinks to the alert definition to be notified. Configured
+	// denotes automatically provisioned notification sinks.
 	Status *DataSinkNotificationsStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -578,11 +542,8 @@ func (o *SparseDataSinkNotifications) GetBSON() (any, error) {
 
 	s := &mongoAttributesSparseDataSinkNotifications{}
 
-	if o.ErrorAlertDefinition != nil {
-		s.ErrorAlertDefinition = o.ErrorAlertDefinition
-	}
-	if o.FailingAlertDefinition != nil {
-		s.FailingAlertDefinition = o.FailingAlertDefinition
+	if o.AlertDefinition != nil {
+		s.AlertDefinition = o.AlertDefinition
 	}
 	if o.Sink != nil {
 		s.Sink = o.Sink
@@ -607,11 +568,8 @@ func (o *SparseDataSinkNotifications) SetBSON(raw bson.Raw) error {
 		return err
 	}
 
-	if s.ErrorAlertDefinition != nil {
-		o.ErrorAlertDefinition = s.ErrorAlertDefinition
-	}
-	if s.FailingAlertDefinition != nil {
-		o.FailingAlertDefinition = s.FailingAlertDefinition
+	if s.AlertDefinition != nil {
+		o.AlertDefinition = s.AlertDefinition
 	}
 	if s.Sink != nil {
 		o.Sink = s.Sink
@@ -633,11 +591,8 @@ func (o *SparseDataSinkNotifications) Version() int {
 func (o *SparseDataSinkNotifications) ToPlain() elemental.PlainIdentifiable {
 
 	out := NewDataSinkNotifications()
-	if o.ErrorAlertDefinition != nil {
-		out.ErrorAlertDefinition = *o.ErrorAlertDefinition
-	}
-	if o.FailingAlertDefinition != nil {
-		out.FailingAlertDefinition = *o.FailingAlertDefinition
+	if o.AlertDefinition != nil {
+		out.AlertDefinition = *o.AlertDefinition
 	}
 	if o.Sink != nil {
 		out.Sink = *o.Sink
@@ -686,14 +641,12 @@ func (o *SparseDataSinkNotifications) DeepCopyInto(out *SparseDataSinkNotificati
 }
 
 type mongoAttributesDataSinkNotifications struct {
-	ErrorAlertDefinition   string                           `bson:"erroralertdefinition"`
-	FailingAlertDefinition string                           `bson:"failingalertdefinition"`
-	Sink                   string                           `bson:"sink"`
-	Status                 DataSinkNotificationsStatusValue `bson:"status"`
+	AlertDefinition string                           `bson:"alertdefinition"`
+	Sink            string                           `bson:"sink"`
+	Status          DataSinkNotificationsStatusValue `bson:"status"`
 }
 type mongoAttributesSparseDataSinkNotifications struct {
-	ErrorAlertDefinition   *string                           `bson:"erroralertdefinition,omitempty"`
-	FailingAlertDefinition *string                           `bson:"failingalertdefinition,omitempty"`
-	Sink                   *string                           `bson:"sink,omitempty"`
-	Status                 *DataSinkNotificationsStatusValue `bson:"status,omitempty"`
+	AlertDefinition *string                           `bson:"alertdefinition,omitempty"`
+	Sink            *string                           `bson:"sink,omitempty"`
+	Status          *DataSinkNotificationsStatusValue `bson:"status,omitempty"`
 }

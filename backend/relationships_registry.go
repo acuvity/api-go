@@ -1054,14 +1054,7 @@ func init() {
 
 	relationshipsRegistry[CustomDataTypeIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
-			"root": {
-				Parameters: []elemental.ParameterDefinition{
-					{
-						Name: "validateOnly",
-						Type: "boolean",
-					},
-				},
-			},
+			"root": {},
 		},
 		Update: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -1094,6 +1087,12 @@ func init() {
 					},
 				},
 			},
+		},
+	}
+
+	relationshipsRegistry[CustomDataTypeValidationIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
 		},
 	}
 
@@ -2593,9 +2592,17 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name: "deployment",
+						Type: "string",
+					},
+					{
 						Name:     "publicKeyName",
 						Type:     "string",
 						Multiple: true,
+					},
+					{
+						Name: "simulation",
+						Type: "boolean",
 					},
 					{
 						Name: "q",
@@ -2608,9 +2615,17 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name: "deployment",
+						Type: "string",
+					},
+					{
 						Name:     "publicKeyName",
 						Type:     "string",
 						Multiple: true,
+					},
+					{
+						Name: "simulation",
+						Type: "boolean",
 					},
 					{
 						Name: "q",

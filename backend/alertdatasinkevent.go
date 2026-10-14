@@ -35,15 +35,21 @@ const (
 	AlertDataSinkEventKindScheduled AlertDataSinkEventKindValue = "Scheduled"
 )
 
-// AlertDataSinkEventTransitionValue represents the possible values for attribute "transition".
-type AlertDataSinkEventTransitionValue string
+// AlertDataSinkEventStatusValue represents the possible values for attribute "status".
+type AlertDataSinkEventStatusValue string
 
 const (
-	// AlertDataSinkEventTransitionError represents the value Error.
-	AlertDataSinkEventTransitionError AlertDataSinkEventTransitionValue = "Error"
+	// AlertDataSinkEventStatusFailed represents the value Failed.
+	AlertDataSinkEventStatusFailed AlertDataSinkEventStatusValue = "Failed"
 
-	// AlertDataSinkEventTransitionFailing represents the value Failing.
-	AlertDataSinkEventTransitionFailing AlertDataSinkEventTransitionValue = "Failing"
+	// AlertDataSinkEventStatusFailing represents the value Failing.
+	AlertDataSinkEventStatusFailing AlertDataSinkEventStatusValue = "Failing"
+
+	// AlertDataSinkEventStatusRunning represents the value Running.
+	AlertDataSinkEventStatusRunning AlertDataSinkEventStatusValue = "Running"
+
+	// AlertDataSinkEventStatusSucceeded represents the value Succeeded.
+	AlertDataSinkEventStatusSucceeded AlertDataSinkEventStatusValue = "Succeeded"
 )
 
 // AlertDataSinkEventIdentity represents the Identity of the object.
@@ -118,7 +124,7 @@ func (o AlertDataSinkEventsList) Version() int {
 
 // AlertDataSinkEvent represents the model of a alertdatasinkevent
 type AlertDataSinkEvent struct {
-	// Failed attempts of the run at the event.
+	// The run's current number of failed attempts.
 	Attempts int `json:"attempts" msgpack:"attempts" bson:"-" mapstructure:"attempts,omitempty"`
 
 	// The backfill of the run, for a Backfill run.
@@ -127,7 +133,7 @@ type AlertDataSinkEvent struct {
 	// The ID of the data sink.
 	DataSinkID string `json:"dataSinkID" msgpack:"dataSinkID" bson:"-" mapstructure:"dataSinkID,omitempty"`
 
-	// The name of the data sink.
+	// The current name of the data sink, or its ID if the sink was deleted.
 	DataSinkName string `json:"dataSinkName" msgpack:"dataSinkName" bson:"-" mapstructure:"dataSinkName,omitempty"`
 
 	// The dataset of the run, using the same values as DataSinkRun.dataset.
@@ -136,17 +142,17 @@ type AlertDataSinkEvent struct {
 	// The kind of the run, using the same values as DataSinkRun.kind.
 	Kind AlertDataSinkEventKindValue `json:"kind" msgpack:"kind" bson:"-" mapstructure:"kind,omitempty"`
 
-	// The sanitized error of the run.
+	// The run's current safe error message, cleared when execution resumes.
 	Reason string `json:"reason" msgpack:"reason" bson:"-" mapstructure:"reason,omitempty"`
 
-	// The ID of the DataSinkRun.
+	// The runID of the linked DataSinkRun.
 	RunID string `json:"runID" msgpack:"runID" bson:"-" mapstructure:"runID,omitempty"`
 
-	// When the event happened.
-	Timestamp time.Time `json:"timestamp" msgpack:"timestamp" bson:"-" mapstructure:"timestamp,omitempty"`
+	// The current status of the linked run, using the DataSinkRun status values.
+	Status AlertDataSinkEventStatusValue `json:"status" msgpack:"status" bson:"-" mapstructure:"status,omitempty"`
 
-	// Failing (a run keeps failing) or Error (the data sink went to Error).
-	Transition AlertDataSinkEventTransitionValue `json:"transition" msgpack:"transition" bson:"-" mapstructure:"transition,omitempty"`
+	// When the linked run was last updated.
+	Timestamp time.Time `json:"timestamp" msgpack:"timestamp" bson:"-" mapstructure:"timestamp,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -226,9 +232,10 @@ func (o *AlertDataSinkEvent) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AlertDataSinkEvent) Doc() string {
 
-	return `A data sink event of an alert: a run of the data sink keeps failing, or the
-data sink went to Error. It names the data sink and the run, never a user,
-a destination or a credential.`
+	return `The current details of a data sink run linked to an alert, not a snapshot
+of the original failure. It names the data sink and the run, never a user,
+a destination or a credential. Status, attempts and reason reflect the
+run's current state.`
 }
 
 func (o *AlertDataSinkEvent) String() string {
@@ -251,8 +258,8 @@ func (o *AlertDataSinkEvent) ToSparse(fields ...string) elemental.SparseIdentifi
 			Kind:         &o.Kind,
 			Reason:       &o.Reason,
 			RunID:        &o.RunID,
+			Status:       &o.Status,
 			Timestamp:    &o.Timestamp,
-			Transition:   &o.Transition,
 		}
 	}
 
@@ -275,10 +282,10 @@ func (o *AlertDataSinkEvent) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Reason = &(o.Reason)
 		case "runID":
 			sp.RunID = &(o.RunID)
+		case "status":
+			sp.Status = &(o.Status)
 		case "timestamp":
 			sp.Timestamp = &(o.Timestamp)
-		case "transition":
-			sp.Transition = &(o.Transition)
 		}
 	}
 
@@ -316,11 +323,11 @@ func (o *AlertDataSinkEvent) Patch(sparse elemental.SparseIdentifiable) {
 	if so.RunID != nil {
 		o.RunID = *so.RunID
 	}
+	if so.Status != nil {
+		o.Status = *so.Status
+	}
 	if so.Timestamp != nil {
 		o.Timestamp = *so.Timestamp
-	}
-	if so.Transition != nil {
-		o.Transition = *so.Transition
 	}
 }
 
@@ -376,7 +383,7 @@ func (o *AlertDataSinkEvent) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("transition", string(o.Transition), []string{"Failing", "Error"}, false); err != nil {
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Running", "Failing", "Failed", "Succeeded"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -430,10 +437,10 @@ func (o *AlertDataSinkEvent) ValueForAttribute(name string) any {
 		return o.Reason
 	case "runID":
 		return o.RunID
+	case "status":
+		return o.Status
 	case "timestamp":
 		return o.Timestamp
-	case "transition":
-		return o.Transition
 	}
 
 	return nil
@@ -444,7 +451,7 @@ var AlertDataSinkEventAttributesMap = map[string]elemental.AttributeSpecificatio
 	"Attempts": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Attempts",
-		Description:    `Failed attempts of the run at the event.`,
+		Description:    `The run's current number of failed attempts.`,
 		Exposed:        true,
 		Name:           "attempts",
 		Type:           "integer",
@@ -468,7 +475,7 @@ var AlertDataSinkEventAttributesMap = map[string]elemental.AttributeSpecificatio
 	"DataSinkName": {
 		AllowedChoices: []string{},
 		ConvertedName:  "DataSinkName",
-		Description:    `The name of the data sink.`,
+		Description:    `The current name of the data sink, or its ID if the sink was deleted.`,
 		Exposed:        true,
 		Name:           "dataSinkName",
 		Type:           "string",
@@ -492,7 +499,7 @@ var AlertDataSinkEventAttributesMap = map[string]elemental.AttributeSpecificatio
 	"Reason": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Reason",
-		Description:    `The sanitized error of the run.`,
+		Description:    `The run's current safe error message, cleared when execution resumes.`,
 		Exposed:        true,
 		Name:           "reason",
 		Type:           "string",
@@ -500,26 +507,26 @@ var AlertDataSinkEventAttributesMap = map[string]elemental.AttributeSpecificatio
 	"RunID": {
 		AllowedChoices: []string{},
 		ConvertedName:  "RunID",
-		Description:    `The ID of the DataSinkRun.`,
+		Description:    `The runID of the linked DataSinkRun.`,
 		Exposed:        true,
 		Name:           "runID",
 		Type:           "string",
 	},
+	"Status": {
+		AllowedChoices: []string{"Running", "Failing", "Failed", "Succeeded"},
+		ConvertedName:  "Status",
+		Description:    `The current status of the linked run, using the DataSinkRun status values.`,
+		Exposed:        true,
+		Name:           "status",
+		Type:           "enum",
+	},
 	"Timestamp": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Timestamp",
-		Description:    `When the event happened.`,
+		Description:    `When the linked run was last updated.`,
 		Exposed:        true,
 		Name:           "timestamp",
 		Type:           "time",
-	},
-	"Transition": {
-		AllowedChoices: []string{"Failing", "Error"},
-		ConvertedName:  "Transition",
-		Description:    `Failing (a run keeps failing) or Error (the data sink went to Error).`,
-		Exposed:        true,
-		Name:           "transition",
-		Type:           "enum",
 	},
 }
 
@@ -528,7 +535,7 @@ var AlertDataSinkEventLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"attempts": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Attempts",
-		Description:    `Failed attempts of the run at the event.`,
+		Description:    `The run's current number of failed attempts.`,
 		Exposed:        true,
 		Name:           "attempts",
 		Type:           "integer",
@@ -552,7 +559,7 @@ var AlertDataSinkEventLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"datasinkname": {
 		AllowedChoices: []string{},
 		ConvertedName:  "DataSinkName",
-		Description:    `The name of the data sink.`,
+		Description:    `The current name of the data sink, or its ID if the sink was deleted.`,
 		Exposed:        true,
 		Name:           "dataSinkName",
 		Type:           "string",
@@ -576,7 +583,7 @@ var AlertDataSinkEventLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"reason": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Reason",
-		Description:    `The sanitized error of the run.`,
+		Description:    `The run's current safe error message, cleared when execution resumes.`,
 		Exposed:        true,
 		Name:           "reason",
 		Type:           "string",
@@ -584,26 +591,26 @@ var AlertDataSinkEventLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 	"runid": {
 		AllowedChoices: []string{},
 		ConvertedName:  "RunID",
-		Description:    `The ID of the DataSinkRun.`,
+		Description:    `The runID of the linked DataSinkRun.`,
 		Exposed:        true,
 		Name:           "runID",
 		Type:           "string",
 	},
+	"status": {
+		AllowedChoices: []string{"Running", "Failing", "Failed", "Succeeded"},
+		ConvertedName:  "Status",
+		Description:    `The current status of the linked run, using the DataSinkRun status values.`,
+		Exposed:        true,
+		Name:           "status",
+		Type:           "enum",
+	},
 	"timestamp": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Timestamp",
-		Description:    `When the event happened.`,
+		Description:    `When the linked run was last updated.`,
 		Exposed:        true,
 		Name:           "timestamp",
 		Type:           "time",
-	},
-	"transition": {
-		AllowedChoices: []string{"Failing", "Error"},
-		ConvertedName:  "Transition",
-		Description:    `Failing (a run keeps failing) or Error (the data sink went to Error).`,
-		Exposed:        true,
-		Name:           "transition",
-		Type:           "enum",
 	},
 }
 
@@ -670,7 +677,7 @@ func (o SparseAlertDataSinkEventsList) Version() int {
 
 // SparseAlertDataSinkEvent represents the sparse version of a alertdatasinkevent.
 type SparseAlertDataSinkEvent struct {
-	// Failed attempts of the run at the event.
+	// The run's current number of failed attempts.
 	Attempts *int `json:"attempts,omitempty" msgpack:"attempts,omitempty" bson:"-" mapstructure:"attempts,omitempty"`
 
 	// The backfill of the run, for a Backfill run.
@@ -679,7 +686,7 @@ type SparseAlertDataSinkEvent struct {
 	// The ID of the data sink.
 	DataSinkID *string `json:"dataSinkID,omitempty" msgpack:"dataSinkID,omitempty" bson:"-" mapstructure:"dataSinkID,omitempty"`
 
-	// The name of the data sink.
+	// The current name of the data sink, or its ID if the sink was deleted.
 	DataSinkName *string `json:"dataSinkName,omitempty" msgpack:"dataSinkName,omitempty" bson:"-" mapstructure:"dataSinkName,omitempty"`
 
 	// The dataset of the run, using the same values as DataSinkRun.dataset.
@@ -688,17 +695,17 @@ type SparseAlertDataSinkEvent struct {
 	// The kind of the run, using the same values as DataSinkRun.kind.
 	Kind *AlertDataSinkEventKindValue `json:"kind,omitempty" msgpack:"kind,omitempty" bson:"-" mapstructure:"kind,omitempty"`
 
-	// The sanitized error of the run.
+	// The run's current safe error message, cleared when execution resumes.
 	Reason *string `json:"reason,omitempty" msgpack:"reason,omitempty" bson:"-" mapstructure:"reason,omitempty"`
 
-	// The ID of the DataSinkRun.
+	// The runID of the linked DataSinkRun.
 	RunID *string `json:"runID,omitempty" msgpack:"runID,omitempty" bson:"-" mapstructure:"runID,omitempty"`
 
-	// When the event happened.
-	Timestamp *time.Time `json:"timestamp,omitempty" msgpack:"timestamp,omitempty" bson:"-" mapstructure:"timestamp,omitempty"`
+	// The current status of the linked run, using the DataSinkRun status values.
+	Status *AlertDataSinkEventStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"-" mapstructure:"status,omitempty"`
 
-	// Failing (a run keeps failing) or Error (the data sink went to Error).
-	Transition *AlertDataSinkEventTransitionValue `json:"transition,omitempty" msgpack:"transition,omitempty" bson:"-" mapstructure:"transition,omitempty"`
+	// When the linked run was last updated.
+	Timestamp *time.Time `json:"timestamp,omitempty" msgpack:"timestamp,omitempty" bson:"-" mapstructure:"timestamp,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -788,11 +795,11 @@ func (o *SparseAlertDataSinkEvent) ToPlain() elemental.PlainIdentifiable {
 	if o.RunID != nil {
 		out.RunID = *o.RunID
 	}
+	if o.Status != nil {
+		out.Status = *o.Status
+	}
 	if o.Timestamp != nil {
 		out.Timestamp = *o.Timestamp
-	}
-	if o.Transition != nil {
-		out.Transition = *o.Transition
 	}
 
 	return out

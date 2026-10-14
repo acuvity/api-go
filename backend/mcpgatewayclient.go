@@ -502,8 +502,8 @@ func (o *MCPGatewayClient) Validate() error {
 
 	if o.OauthClient != nil {
 		if err := o.OauthClient.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "oauthClient")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "oauthClient")
 		}
 	}
 

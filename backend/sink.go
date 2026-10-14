@@ -654,15 +654,15 @@ func (o *Sink) Validate() error {
 
 	if o.Databahn != nil {
 		if err := o.Databahn.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "databahn")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "databahn")
 		}
 	}
 
 	if o.Email != nil {
 		if err := o.Email.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "email")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "email")
 		}
 	}
 
@@ -679,8 +679,8 @@ func (o *Sink) Validate() error {
 
 	if o.MsTeams != nil {
 		if err := o.MsTeams.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "msTeams")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "msTeams")
 		}
 	}
 
@@ -690,22 +690,22 @@ func (o *Sink) Validate() error {
 
 	if o.PagerDuty != nil {
 		if err := o.PagerDuty.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "pagerDuty")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "pagerDuty")
 		}
 	}
 
 	if o.Slack != nil {
 		if err := o.Slack.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "slack")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "slack")
 		}
 	}
 
 	if o.Splunk != nil {
 		if err := o.Splunk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "splunk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "splunk")
 		}
 	}
 

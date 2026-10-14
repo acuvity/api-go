@@ -80,7 +80,7 @@
     "status": {
       "$defaultValue": "Pending",
       "$friendlyName": "Status",
-      "description": "Pending until the export service starts it, Running while it exports, Completed when all the data sink's selected datasets are exported, Failed when it stopped on an error. Set by the export service.",
+      "description": "Pending until the export service starts it, Running while it exports, Completed when all the data sink's selected datasets are exported, Failed when it stopped on an error. A failed backfill may return to Running after correction and reactivation of the data sink, keeping its ID and range. Completed is terminal. Set by the export service.",
       "enum": [
         "Pending",
         "Running",

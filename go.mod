@@ -12,8 +12,8 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0
 	go.acuvity.ai/a3s v0.0.0-20260929154122-d4a95aba46c0
 	go.acuvity.ai/aculib v0.0.0-20260824190401-9f5d5a223598
-	go.acuvity.ai/elemental v0.0.0-20260723202512-a9644d6bbbb1
-	go.opentelemetry.io/collector/pdata v1.68.0
+	go.acuvity.ai/elemental v0.0.0-20261015160217-037450e97331
+	go.opentelemetry.io/collector/pdata v1.69.0
 )
 
 require (
@@ -50,12 +50,12 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4 // indirect
 	go.acuvity.ai/tg v1.0.1-0.20260708162706-306a91e4d7dd // indirect
-	go.opentelemetry.io/collector/featuregate v1.68.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.69.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
-	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	gopkg.in/ini.v1 v1.67.3 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

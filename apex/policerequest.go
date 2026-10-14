@@ -486,8 +486,8 @@ func (o *PoliceRequest) Validate() error {
 
 	if o.Destination != nil {
 		if err := o.Destination.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "destination")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "destination")
 		}
 	}
 
@@ -500,15 +500,15 @@ func (o *PoliceRequest) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractions", i))
 		}
 	}
 
 	if o.Source != nil {
 		if err := o.Source.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "source")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "source")
 		}
 	}
 
@@ -517,15 +517,15 @@ func (o *PoliceRequest) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tools", i))
 		}
 	}
 
 	if o.Trace != nil {
 		if err := o.Trace.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "trace")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "trace")
 		}
 	}
 

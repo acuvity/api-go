@@ -13,6 +13,16 @@
   "additionalProperties": false,
   "description": "Runs the analysis pipelines over some content. Nothing is stored: creating one returns what the pipelines found, in result.  The content itself is not an attribute. It is sent beside this object, as the second part of a multipart body whose first part is this object, so that a payload of any size is streamed rather than held in memory at every hop. See the analyze handler.",
   "properties": {
+    "CTSID": {
+      "$friendlyName": "CTS ID",
+      "$readOnly": true,
+      "description": "External customer identifier, resolved from the namespace opaque.",
+      "title": "CTSID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "analyzers": {
       "$friendlyName": "Analyzers",
       "description": "The analyzers to run. An empty list runs the ones enabled by default, and a name prefixed with '-' turns one off, '+' turns one on, '@' just run that one.",
@@ -53,6 +63,15 @@
       },
       "title": "customDataTypes",
       "type": "array"
+    },
+    "extractionHash": {
+      "$friendlyName": "Extraction Hash",
+      "description": "The extraction hash, equal to Extraction.hash in the log. The pipelines store it with their evidence, so a reported detection can be traced back.",
+      "title": "extractionHash",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "index": {
       "$friendlyName": "Index",

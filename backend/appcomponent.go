@@ -488,15 +488,15 @@ func (o *AppComponent) Validate() error {
 
 	if o.Egress != nil {
 		if err := o.Egress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "egress")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "egress")
 		}
 	}
 
 	if o.Ingress != nil {
 		if err := o.Ingress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "ingress")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "ingress")
 		}
 	}
 
@@ -514,14 +514,14 @@ func (o *AppComponent) Validate() error {
 
 	if o.Provider != nil {
 		if err := o.Provider.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "provider")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "provider")
 		}
 	}
 
 	if err := o.Selector.Validate(); err != nil {
+		elemental.InjectAttributePath(err, "selector")
 		errors = errors.Append(err)
-		elemental.InjectAttributePath(errors, "selector")
 	}
 
 	for i, sub := range o.Tokenref {
@@ -529,15 +529,15 @@ func (o *AppComponent) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tokenref", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenref", i))
 		}
 	}
 
 	if o.TrafficControl != nil {
 		if err := o.TrafficControl.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "trafficControl")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "trafficControl")
 		}
 	}
 

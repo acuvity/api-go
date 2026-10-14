@@ -534,8 +534,8 @@ func (o *Gateway) Validate() error {
 
 	for i, sub := range o.Slugs {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "slugs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "slugs", i))
 		}
 	}
 
@@ -548,8 +548,8 @@ func (o *Gateway) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tokenRefs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "tokenRefs", i))
 		}
 	}
 

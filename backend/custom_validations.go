@@ -451,18 +451,25 @@ func ValidateAccessPolicy(accessPolicy *AccessPolicy) error {
 }
 
 // ValidateRiskDefinition rejects match predicates using a key other than
-// Categories or RiskScore, the only keys the matcher supports.
+// Categories or RiskScore, the only keys the matcher supports, and a
+// non-system definition without any, which would match every asset.
 func ValidateRiskDefinition(riskDefinition *RiskDefinition) error {
 
+	predicates := 0
 	for _, predicate := range riskDefinition.Match {
 		if predicate == nil {
 			continue
 		}
+		predicates++
 		switch predicate.Key {
 		case PredicateKeyCategories, PredicateKeyRiskScore:
 		default:
 			return makeErr("match", fmt.Sprintf("predicate key '%s' is not supported in a risk definition", predicate.Key))
 		}
+	}
+
+	if !riskDefinition.System && predicates == 0 {
+		return makeErr("match", "At least one condition must be added to define the risk rule")
 	}
 
 	return nil
@@ -1511,6 +1518,9 @@ func ValidatePredicate(p *Predicate) error {
 		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
 			return makeErr("operator", "Key 'RiskScore' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
 		}
+		if len(p.Values) == 0 || p.Values[0] == nil {
+			return makeErr("values", "Risk score value is required")
+		}
 		if len(p.Values) != 1 {
 			return makeErr("values", "Key 'RiskScore' only supports one single value")
 		}
@@ -1680,63 +1690,49 @@ func ValidatePredicate(p *Predicate) error {
 		}
 
 	case PredicateKeyTier:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'Tier' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'Tier' only supports operators 'Any' and 'NotAny'")
 		}
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'Tier' must have at least one value")
-			}
-			m := make(map[string]struct{}, len(v))
-			for i, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' only supports string values")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have a value that contains a quote")
-				}
-				if _, ok := m[strVal]; ok {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have duplicate values")
-				}
-				m[strVal] = struct{}{}
-			}
+		if len(v) == 0 {
+			return makeErr("values", "'Tier' must have at least one value")
 		}
-		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'Tier' only supports no values when operation is 'Empty' or 'NotEmpty'")
+		m := make(map[string]struct{}, len(v))
+		for i, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' only supports string values")
 			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have a value that contains a quote")
+			}
+			if _, ok := m[strVal]; ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'Tier' must not have duplicate values")
+			}
+			m[strVal] = struct{}{}
 		}
 
 	case PredicateKeyEmailDomain:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorEmpty && o != PredicateOperatorNotEmpty {
-			return makeErr("operator", "Key 'EmailDomain' only supports operators 'Any', 'NotAny', 'Empty' and 'NotEmpty'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny {
+			return makeErr("operator", "Key 'EmailDomain' only supports operators 'Any' and 'NotAny'")
 		}
-		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
-			if len(v) == 0 {
-				return makeErr("values", "'EmailDomain' must have at least one value")
-			}
-			m := make(map[string]struct{}, len(v))
-			for i, v := range v {
-				strVal, ok := v.(string)
-				if !ok {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' only supports string values")
-				}
-				if strings.Contains(strVal, `"`) {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have a value that contains a quote")
-				}
-				strVal = strings.ToLower(strVal)
-				if _, ok := m[strVal]; ok {
-					return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have duplicate values")
-				}
-				m[strVal] = struct{}{}
-				p.Values[i] = strVal
-			}
+		if len(v) == 0 {
+			return makeErr("values", "'EmailDomain' must have at least one value")
 		}
-		if o == PredicateOperatorEmpty || o == PredicateOperatorNotEmpty {
-			if len(v) > 0 {
-				return makeErr("values", "Key 'EmailDomain' only supports no values when operation is 'Empty' or 'NotEmpty'")
+		m := make(map[string]struct{}, len(v))
+		for i, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' only supports string values")
 			}
+			if strings.Contains(strVal, `"`) {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have a value that contains a quote")
+			}
+			strVal = strings.ToLower(strVal)
+			if _, ok := m[strVal]; ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'EmailDomain' must not have duplicate values")
+			}
+			m[strVal] = struct{}{}
+			p.Values[i] = strVal
 		}
 
 	case PredicateKeyTopics:
@@ -1832,6 +1828,13 @@ func ValidatePredicate(p *Predicate) error {
 	return nil
 }
 
+// policySimulationPrincipalFields lists the fields each principal type uses, the required one first.
+var policySimulationPrincipalFields = map[PolicySimulationPrincipalTypeValue][]string{
+	PolicySimulationPrincipalTypeUser: {"claims"},
+	PolicySimulationPrincipalTypeTeam: {"teams"},
+	PolicySimulationPrincipalTypeApp:  {"sourceAppComponent", "userClaims"},
+}
+
 // ValidatePolicySimulation validates the policy simulation object.
 func ValidatePolicySimulation(simulation *PolicySimulation) error {
 
@@ -1849,15 +1852,29 @@ func ValidatePolicySimulation(simulation *PolicySimulation) error {
 		}
 	}
 
-	switch simulation.PrincipalType {
-	case PolicySimulationPrincipalTypeTeam:
-		if len(simulation.Teams) == 0 {
-			return makeErr("teams", "'teams' is required when 'principalType' is 'Team'.")
+	fields, ok := policySimulationPrincipalFields[simulation.PrincipalType]
+	if !ok {
+		return makeErr("principalType", fmt.Sprintf("Unknown principal type '%s'.", simulation.PrincipalType))
+	}
+
+	supplied := map[string]bool{
+		"claims":             len(simulation.Claims) > 0,
+		"teams":              len(simulation.Teams) > 0,
+		"sourceAppComponent": simulation.SourceAppComponent != "",
+		"userClaims":         len(simulation.UserClaims) > 0,
+	}
+
+	if !supplied[fields[0]] {
+		return makeErr(fields[0], fmt.Sprintf("'%s' is required when 'principalType' is '%s'.", fields[0], simulation.PrincipalType))
+	}
+
+	for _, name := range []string{"claims", "teams", "sourceAppComponent", "userClaims"} {
+		if supplied[name] && !slices.Contains(fields, name) {
+			return makeErr(name, fmt.Sprintf("'%s' cannot be set when 'principalType' is '%s'.", name, simulation.PrincipalType))
 		}
-	case PolicySimulationPrincipalTypeApp:
-		if simulation.SourceAppComponent == "" {
-			return makeErr("sourceAppComponent", "'sourceAppComponent' is required when 'principalType' is 'App'.")
-		}
+	}
+
+	if simulation.PrincipalType == PolicySimulationPrincipalTypeApp {
 		return ValidateAppComponentReferences("sourceAppComponent", []string{simulation.SourceAppComponent})
 	}
 
@@ -3324,9 +3341,8 @@ func ValidateWebhookIntegration(integration *WebhookIntegration) error {
 			return makeErr(fmt.Sprintf("extractors/%d", i), "extractor must not be null")
 		}
 
-		if err := extractor.Validate(); err != nil {
-			return err
-		}
+		// Each extractor's own validation runs in the generated Validate(), which
+		// adds `extractors/N` to the path of its errors.
 
 		if j, ok := names[extractor.Name]; ok {
 			return makeErr(
@@ -3484,11 +3500,9 @@ func ValidateDataSinkString(attribute string, v string) error {
 func ValidateDataSinkCheck(check *DataSinkCheck) error {
 
 	switch {
-	case check.DataSinkID != "" && check.S3 != nil:
-		return makeErr("dataSinkID", "Give either 'dataSinkID' or an unsaved destination ('s3'), not both")
 	case check.DataSinkID == "" && check.S3 == nil:
-		return makeErr("dataSinkID", "Give either 'dataSinkID' or an unsaved destination ('s3')")
-	case check.S3 != nil && check.S3.SecretAccessKey == "":
+		return makeErr("dataSinkID", "Give 'dataSinkID' or an unsaved destination ('s3')")
+	case check.DataSinkID == "" && check.S3.SecretAccessKey == "":
 		return makeErr("s3", "An unsaved destination needs its 'secretAccessKey'")
 	}
 	return nil

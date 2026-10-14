@@ -657,8 +657,8 @@ func (o *Finding) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "lastResolutionItems", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "lastResolutionItems", i))
 		}
 	}
 
@@ -668,15 +668,15 @@ func (o *Finding) Validate() error {
 
 	if o.PolicyRef != nil {
 		if err := o.PolicyRef.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "policyRef")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "policyRef")
 		}
 	}
 
 	for i, sub := range o.PolicyRefs {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "policyRefs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "policyRefs", i))
 		}
 	}
 

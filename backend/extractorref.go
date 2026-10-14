@@ -161,8 +161,8 @@ func (o *ExtractorRef) Validate() error {
 
 	if o.Def != nil {
 		if err := o.Def.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "def")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "def")
 		}
 	}
 

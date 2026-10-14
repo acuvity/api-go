@@ -177,22 +177,22 @@ func (o *AppGraphLink) Validate() error {
 
 	if o.Connections != nil {
 		if err := o.Connections.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "connections")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "connections")
 		}
 	}
 
 	if o.Dns != nil {
 		if err := o.Dns.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "dns")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "dns")
 		}
 	}
 
 	if o.Logs != nil {
 		if err := o.Logs.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "logs")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "logs")
 		}
 	}
 

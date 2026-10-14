@@ -7,11 +7,11 @@
   "$modelResourceName": "alertdatasinkevents",
   "$modelRestName": "alertdatasinkevent",
   "additionalProperties": false,
-  "description": "A data sink event of an alert: a run of the data sink keeps failing, or the data sink went to Error. It names the data sink and the run, never a user, a destination or a credential.",
+  "description": "The current details of a data sink run linked to an alert, not a snapshot of the original failure. It names the data sink and the run, never a user, a destination or a credential. Status, attempts and reason reflect the run's current state.",
   "properties": {
     "attempts": {
       "$friendlyName": "Attempts",
-      "description": "Failed attempts of the run at the event.",
+      "description": "The run's current number of failed attempts.",
       "title": "attempts",
       "type": [
         "integer",
@@ -38,7 +38,7 @@
     },
     "dataSinkName": {
       "$friendlyName": "Data Sink Name",
-      "description": "The name of the data sink.",
+      "description": "The current name of the data sink, or its ID if the sink was deleted.",
       "title": "dataSinkName",
       "type": [
         "string",
@@ -65,7 +65,7 @@
     },
     "reason": {
       "$friendlyName": "Reason",
-      "description": "The sanitized error of the run.",
+      "description": "The run's current safe error message, cleared when execution resumes.",
       "title": "reason",
       "type": [
         "string",
@@ -74,30 +74,32 @@
     },
     "runID": {
       "$friendlyName": "Run ID",
-      "description": "The ID of the DataSinkRun.",
+      "description": "The runID of the linked DataSinkRun.",
       "title": "runID",
       "type": [
         "string",
         "null"
       ]
     },
+    "status": {
+      "$friendlyName": "Status",
+      "description": "The current status of the linked run, using the DataSinkRun status values.",
+      "enum": [
+        "Running",
+        "Failing",
+        "Failed",
+        "Succeeded"
+      ],
+      "title": "status"
+    },
     "timestamp": {
       "$friendlyName": "Timestamp",
-      "description": "When the event happened.",
+      "description": "When the linked run was last updated.",
       "title": "timestamp",
       "type": [
         "string",
         "null"
       ]
-    },
-    "transition": {
-      "$friendlyName": "Transition",
-      "description": "Failing (a run keeps failing) or Error (the data sink went to Error).",
-      "enum": [
-        "Failing",
-        "Error"
-      ],
-      "title": "transition"
     }
   },
   "required": [],

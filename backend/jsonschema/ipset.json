@@ -4,7 +4,8 @@
     "@importable",
     "@identifiable",
     "@timed",
-    "@namelinkable"
+    "@namelinkable",
+    "@auto-propagated"
   ],
   "$friendlyName": "IP Set",
   "$friendlyNamePlural": "IP Sets",
@@ -99,6 +100,16 @@
       "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
         "null"
       ]
     },

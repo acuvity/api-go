@@ -152,8 +152,8 @@ func (o *MCPToolExtraction) Validate() error {
 
 	if o.Extraction != nil {
 		if err := o.Extraction.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "extraction")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "extraction")
 		}
 	}
 

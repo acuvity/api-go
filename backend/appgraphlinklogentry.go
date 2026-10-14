@@ -175,8 +175,8 @@ func (o *AppGraphLinkLogEntry) Validate() error {
 
 	for i, sub := range o.Logs {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "logs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "logs", i))
 		}
 	}
 

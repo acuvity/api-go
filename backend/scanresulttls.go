@@ -182,8 +182,8 @@ func (o *ScanResultTLS) Validate() error {
 
 	if o.CertificateInfo != nil {
 		if err := o.CertificateInfo.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "certificateInfo")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "certificateInfo")
 		}
 	}
 

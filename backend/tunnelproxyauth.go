@@ -149,8 +149,8 @@ func (o *TunnelProxyAuth) Validate() error {
 
 	if o.Basic != nil {
 		if err := o.Basic.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "basic")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "basic")
 		}
 	}
 

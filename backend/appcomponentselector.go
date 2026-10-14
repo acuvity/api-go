@@ -171,8 +171,8 @@ func (o *AppComponentSelector) Validate() error {
 
 	if o.Kubernetes != nil {
 		if err := o.Kubernetes.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "kubernetes")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "kubernetes")
 		}
 	}
 

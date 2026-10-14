@@ -705,8 +705,8 @@ func (o *AISkill) Validate() error {
 
 	if o.ActionScopeRisk != nil {
 		if err := o.ActionScopeRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "actionScopeRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "actionScopeRisk")
 		}
 	}
 
@@ -716,29 +716,29 @@ func (o *AISkill) Validate() error {
 
 	if o.BehavioralIntegrityRisk != nil {
 		if err := o.BehavioralIntegrityRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "behavioralIntegrityRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "behavioralIntegrityRisk")
 		}
 	}
 
 	if o.ComplianceRisk != nil {
 		if err := o.ComplianceRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "complianceRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "complianceRisk")
 		}
 	}
 
 	if o.DataSensitivityRisk != nil {
 		if err := o.DataSensitivityRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "dataSensitivityRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "dataSensitivityRisk")
 		}
 	}
 
 	if o.ExecutionContextRisk != nil {
 		if err := o.ExecutionContextRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "executionContextRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "executionContextRisk")
 		}
 	}
 
@@ -756,15 +756,15 @@ func (o *AISkill) Validate() error {
 
 	if o.Summary != nil {
 		if err := o.Summary.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "summary")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "summary")
 		}
 	}
 
 	if o.TrustRisk != nil {
 		if err := o.TrustRisk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "trustRisk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "trustRisk")
 		}
 	}
 

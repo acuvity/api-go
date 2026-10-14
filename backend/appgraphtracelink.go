@@ -236,8 +236,8 @@ func (o *AppGraphTraceLink) Validate() error {
 
 	if o.Log != nil {
 		if err := o.Log.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "log")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "log")
 		}
 	}
 

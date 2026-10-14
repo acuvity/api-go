@@ -119,7 +119,7 @@
       "$friendlyName": "Notifications",
       "$readOnly": true,
       "$ref": "datasinknotifications.json",
-      "description": "The default alert resources created with the data sink: an alert definition for a failing export (Warning), one for the Error state (Critical), and a default notification sink when one can be configured. Server owned. Edit the alert definitions and notification sinks to change recipients, destinations, messages or cooldowns.",
+      "description": "The shared alert definition created with the data sink for failing exports and the Error state. It defaults to Warning with a one-hour cooldown. No notification sink is created automatically in this version. Server owned. Attach notification sinks to the alert definition and edit it to change recipients, destinations, messages or cooldowns.",
       "title": "notifications"
     },
     "revision": {

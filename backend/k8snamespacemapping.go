@@ -144,11 +144,15 @@ func (o *K8sNamespaceMapping) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	if err := elemental.ValidatePattern("k8sNamespace", o.K8sNamespace, `^([a-zA-Z0-9-]+|\*)$`, `must be '*' or only contain alpha numerical characters or '-'`, true); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if err := elemental.ValidateRequiredString("project", o.Project); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidatePattern("project", o.Project, `^[a-zA-Z0-9-]+$`, `must only contain alpha numerical characters or '-'`, true); err != nil {
+	if err := elemental.ValidatePattern("project", o.Project, `^[a-zA-Z0-9-_/@.]+$`, `must only contain alpha numerical characters, '-' or '_' or '@' or '.'.`, true); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -198,6 +202,7 @@ func (o *K8sNamespaceMapping) ValueForAttribute(name string) any {
 // K8sNamespaceMappingAttributesMap represents the map of attribute for K8sNamespaceMapping.
 var K8sNamespaceMappingAttributesMap = map[string]elemental.AttributeSpecification{
 	"K8sNamespace": {
+		AllowedChars:   `^([a-zA-Z0-9-]+|\*)$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "k8snamespace",
 		ConvertedName:  "K8sNamespace",
@@ -210,7 +215,7 @@ explicitly mapped.`,
 		Type:     "string",
 	},
 	"Project": {
-		AllowedChars:   `^[a-zA-Z0-9-]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_/@.]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "project",
 		ConvertedName:  "Project",
@@ -227,6 +232,7 @@ and enforcement.`,
 // K8sNamespaceMappingLowerCaseAttributesMap represents the map of attribute for K8sNamespaceMapping.
 var K8sNamespaceMappingLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 	"k8snamespace": {
+		AllowedChars:   `^([a-zA-Z0-9-]+|\*)$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "k8snamespace",
 		ConvertedName:  "K8sNamespace",
@@ -239,7 +245,7 @@ explicitly mapped.`,
 		Type:     "string",
 	},
 	"project": {
-		AllowedChars:   `^[a-zA-Z0-9-]+$`,
+		AllowedChars:   `^[a-zA-Z0-9-_/@.]+$`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "project",
 		ConvertedName:  "Project",

@@ -249,8 +249,8 @@ func (o *AIDSectionDataPolicy) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "citations", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "citations", i))
 		}
 	}
 
@@ -260,29 +260,29 @@ func (o *AIDSectionDataPolicy) Validate() error {
 
 	if o.Retention != nil {
 		if err := o.Retention.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "retention")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "retention")
 		}
 	}
 
 	if o.Risk != nil {
 		if err := o.Risk.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "risk")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "risk")
 		}
 	}
 
 	if o.Sharing != nil {
 		if err := o.Sharing.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "sharing")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "sharing")
 		}
 	}
 
 	if o.Training != nil {
 		if err := o.Training.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "training")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "training")
 		}
 	}
 

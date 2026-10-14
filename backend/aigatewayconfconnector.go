@@ -242,8 +242,8 @@ func (o *AIGatewayConfConnector) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "MCPTools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "MCPTools", i))
 		}
 	}
 
@@ -252,8 +252,8 @@ func (o *AIGatewayConfConnector) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "providerTokens", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providerTokens", i))
 		}
 	}
 
@@ -274,8 +274,8 @@ func (o *AIGatewayConfConnector) Validate() error {
 
 	if o.WebhookIntegration != nil {
 		if err := o.WebhookIntegration.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "webhookIntegration")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "webhookIntegration")
 		}
 	}
 

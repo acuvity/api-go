@@ -13,6 +13,7 @@
       "$friendlyName": "Kubernetes Namespace",
       "$required": true,
       "description": "The Kubernetes namespace to match. Use * as a catch-all namespaces not explicitly mapped.",
+      "pattern": "^([a-zA-Z0-9-]+|\\*)$",
       "title": "k8sNamespace",
       "type": "string"
     },
@@ -20,7 +21,7 @@
       "$friendlyName": "Project",
       "$required": true,
       "description": "The target project to be used for this Kubernetes namespace workloads discovery and enforcement.",
-      "pattern": "^[a-zA-Z0-9-]+$",
+      "pattern": "^[a-zA-Z0-9-_/@.]+$",
       "title": "project",
       "type": "string"
     }

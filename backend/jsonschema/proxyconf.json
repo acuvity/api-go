@@ -169,6 +169,12 @@
       "description": "The base rego libraries the computed policies are compiled against.",
       "title": "regoBaseLibs"
     },
+    "simulation": {
+      "$friendlyName": "Simulation",
+      "$ref": "proxyconfsimulation.json",
+      "description": "The extra data for the policy simulator. It is only set when the request asks for it.",
+      "title": "simulation"
+    },
     "tokens": {
       "$friendlyName": "Tokens",
       "description": "Tokens pool to authenticate with the provider.",

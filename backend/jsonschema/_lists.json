@@ -396,6 +396,12 @@
       },
       "type": "array"
     },
+    "appcomponenttrafficrules": {
+      "items": {
+        "$ref": "appcomponenttrafficrule.json"
+      },
+      "type": "array"
+    },
     "appgraphlinkconnections": {
       "items": {
         "$ref": "appgraphlinkconnection.json"
@@ -531,6 +537,12 @@
     "customdatatypes": {
       "items": {
         "$ref": "customdatatype.json"
+      },
+      "type": "array"
+    },
+    "customdatatypevalidations": {
+      "items": {
+        "$ref": "customdatatypevalidation.json"
       },
       "type": "array"
     },
@@ -1191,6 +1203,12 @@
     "proxyconfs": {
       "items": {
         "$ref": "proxyconf.json"
+      },
+      "type": "array"
+    },
+    "proxyconfsimulations": {
+      "items": {
+        "$ref": "proxyconfsimulation.json"
       },
       "type": "array"
     },

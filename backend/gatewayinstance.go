@@ -457,8 +457,8 @@ func (o *GatewayInstance) Validate() error {
 
 	for i, sub := range o.Diagnostics {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "diagnostics", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "diagnostics", i))
 		}
 	}
 

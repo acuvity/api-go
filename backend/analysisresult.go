@@ -237,15 +237,15 @@ func (o *AnalysisResult) Validate() error {
 
 	if o.Analysis != nil {
 		if err := o.Analysis.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "analysis")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "analysis")
 		}
 	}
 
 	for i, sub := range o.Categories {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "categories", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "categories", i))
 		}
 	}
 
@@ -254,15 +254,15 @@ func (o *AnalysisResult) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "genericdetections", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "genericdetections", i))
 		}
 	}
 
 	for i, sub := range o.Modalities {
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "modalities", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "modalities", i))
 		}
 	}
 

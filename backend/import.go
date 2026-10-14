@@ -115,6 +115,9 @@ type Import struct {
 	// APIAuthorizations to import.
 	APIAuthorizations APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
+	// IP sets to import.
+	IPSets IPSetsList `json:"IPSets,omitempty" msgpack:"IPSets,omitempty" bson:"ipsets,omitempty" mapstructure:"IPSets,omitempty"`
+
 	// LDAP Sources to import.
 	LDAPSources api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"ldapsources,omitempty" mapstructure:"LDAPSources,omitempty"`
 
@@ -184,9 +187,6 @@ type Import struct {
 	// Ignored domains to import.
 	IgnoredDomains IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
 
-	// IP sets to import.
-	IpSets IPSetsList `json:"ipSets,omitempty" msgpack:"ipSets,omitempty" bson:"ipsets,omitempty" mapstructure:"ipSets,omitempty"`
-
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
 	Label string `json:"label" msgpack:"label" bson:"label" mapstructure:"label,omitempty"`
@@ -251,6 +251,7 @@ func NewImport() *Import {
 		AISkills:                 AISkillsList{},
 		AITools:                  AIToolsList{},
 		APIAuthorizations:        APIAuthorizationsList{},
+		IPSets:                   IPSetsList{},
 		LDAPSources:              api.LDAPSourcesList{},
 		MTLSSources:              api.MTLSSourcesList{},
 		OIDCSources:              api.OIDCSourcesList{},
@@ -274,7 +275,6 @@ func NewImport() *Import {
 		Findingdefinitions:       FindingDefinitionsList{},
 		HostSets:                 HostSetsList{},
 		IgnoredDomains:           IgnoredDomainsList{},
-		IpSets:                   IPSetsList{},
 		OrgSettings:              OrgSettingsList{},
 		Projects:                 ProjectsList{},
 		ProviderTeams:            ProviderTeamsList{},
@@ -329,6 +329,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.AISkills = o.AISkills
 	s.AITools = o.AITools
 	s.APIAuthorizations = o.APIAuthorizations
+	s.IPSets = o.IPSets
 	s.LDAPSources = o.LDAPSources
 	s.MTLSSources = o.MTLSSources
 	s.OIDCSources = o.OIDCSources
@@ -352,7 +353,6 @@ func (o *Import) GetBSON() (any, error) {
 	s.Findingdefinitions = o.Findingdefinitions
 	s.HostSets = o.HostSets
 	s.IgnoredDomains = o.IgnoredDomains
-	s.IpSets = o.IpSets
 	s.Label = o.Label
 	s.OrgSettings = o.OrgSettings
 	s.Projects = o.Projects
@@ -395,6 +395,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.AISkills = s.AISkills
 	o.AITools = s.AITools
 	o.APIAuthorizations = s.APIAuthorizations
+	o.IPSets = s.IPSets
 	o.LDAPSources = s.LDAPSources
 	o.MTLSSources = s.MTLSSources
 	o.OIDCSources = s.OIDCSources
@@ -418,7 +419,6 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.Findingdefinitions = s.Findingdefinitions
 	o.HostSets = s.HostSets
 	o.IgnoredDomains = s.IgnoredDomains
-	o.IpSets = s.IpSets
 	o.Label = s.Label
 	o.OrgSettings = s.OrgSettings
 	o.Projects = s.Projects
@@ -484,6 +484,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			AISkills:                 &o.AISkills,
 			AITools:                  &o.AITools,
 			APIAuthorizations:        &o.APIAuthorizations,
+			IPSets:                   &o.IPSets,
 			LDAPSources:              &o.LDAPSources,
 			MTLSSources:              &o.MTLSSources,
 			OIDCSources:              &o.OIDCSources,
@@ -507,7 +508,6 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Findingdefinitions:       &o.Findingdefinitions,
 			HostSets:                 &o.HostSets,
 			IgnoredDomains:           &o.IgnoredDomains,
-			IpSets:                   &o.IpSets,
 			Label:                    &o.Label,
 			OrgSettings:              &o.OrgSettings,
 			Projects:                 &o.Projects,
@@ -549,6 +549,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AITools = &(o.AITools)
 		case "APIAuthorizations":
 			sp.APIAuthorizations = &(o.APIAuthorizations)
+		case "IPSets":
+			sp.IPSets = &(o.IPSets)
 		case "LDAPSources":
 			sp.LDAPSources = &(o.LDAPSources)
 		case "MTLSSources":
@@ -595,8 +597,6 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.HostSets = &(o.HostSets)
 		case "ignoredDomains":
 			sp.IgnoredDomains = &(o.IgnoredDomains)
-		case "ipSets":
-			sp.IpSets = &(o.IpSets)
 		case "label":
 			sp.Label = &(o.Label)
 		case "orgSettings":
@@ -670,6 +670,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.APIAuthorizations != nil {
 		o.APIAuthorizations = *so.APIAuthorizations
 	}
+	if so.IPSets != nil {
+		o.IPSets = *so.IPSets
+	}
 	if so.LDAPSources != nil {
 		o.LDAPSources = *so.LDAPSources
 	}
@@ -738,9 +741,6 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.IgnoredDomains != nil {
 		o.IgnoredDomains = *so.IgnoredDomains
-	}
-	if so.IpSets != nil {
-		o.IpSets = *so.IpSets
 	}
 	if so.Label != nil {
 		o.Label = *so.Label
@@ -879,6 +879,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.IPSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IPSets' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1050,15 +1059,6 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %s", o.Identifier(), err)
-		}
-	}
-
-	for _, sub := range o.IpSets {
-		if sub == nil {
-			continue
-		}
-		if err := sub.EncryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to encrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1284,6 +1284,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.IPSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IPSets' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.OSProbes {
 		if sub == nil {
 			continue
@@ -1455,15 +1464,6 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
-	for _, sub := range o.IpSets {
-		if sub == nil {
-			continue
-		}
-		if err := sub.DecryptAttributes(encrypter); err != nil {
-			return fmt.Errorf("unable to decrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
-		}
-	}
-
 	for _, sub := range o.OrgSettings {
 		if sub == nil {
 			continue
@@ -1630,8 +1630,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIApps", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIApps", i))
 		}
 	}
 
@@ -1640,8 +1640,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIDomains", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIDomains", i))
 		}
 	}
 
@@ -1650,8 +1650,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIGatewayConnectors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGatewayConnectors", i))
 		}
 	}
 
@@ -1660,8 +1660,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIGateways", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGateways", i))
 		}
 	}
 
@@ -1670,8 +1670,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIMCPServers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIMCPServers", i))
 		}
 	}
 
@@ -1680,8 +1680,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIPlugins", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIPlugins", i))
 		}
 	}
 
@@ -1690,8 +1690,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AISecurityProbes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AISecurityProbes", i))
 		}
 	}
 
@@ -1700,8 +1700,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AISkills", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AISkills", i))
 		}
 	}
 
@@ -1710,8 +1710,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AITools", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AITools", i))
 		}
 	}
 
@@ -1720,8 +1720,18 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "APIAuthorizations", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "APIAuthorizations", i))
+		}
+	}
+
+	for i, sub := range o.IPSets {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "IPSets", i))
+			errors = errors.Append(err)
 		}
 	}
 
@@ -1730,8 +1740,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "OSProbes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "OSProbes", i))
 		}
 	}
 
@@ -1740,8 +1750,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "PACConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "PACConfigs", i))
 		}
 	}
 
@@ -1750,8 +1760,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "accessPolicies", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "accessPolicies", i))
 		}
 	}
 
@@ -1760,8 +1770,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "agentConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentConfigs", i))
 		}
 	}
 
@@ -1770,8 +1780,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "agentDiscoveries", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentDiscoveries", i))
 		}
 	}
 
@@ -1780,8 +1790,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "agentEnforcementPolicies", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentEnforcementPolicies", i))
 		}
 	}
 
@@ -1790,8 +1800,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "alertDefinitions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "alertDefinitions", i))
 		}
 	}
 
@@ -1800,8 +1810,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "appagents", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "appagents", i))
 		}
 	}
 
@@ -1810,8 +1820,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "appreports", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "appreports", i))
 		}
 	}
 
@@ -1820,8 +1830,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "apps", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "apps", i))
 		}
 	}
 
@@ -1830,8 +1840,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "contentPolicies", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "contentPolicies", i))
 		}
 	}
 
@@ -1840,8 +1850,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "customDataTypes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
@@ -1850,8 +1860,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "dataSets", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataSets", i))
 		}
 	}
 
@@ -1860,8 +1870,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "deployments", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "deployments", i))
 		}
 	}
 
@@ -1870,8 +1880,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractorLibs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractorLibs", i))
 		}
 	}
 
@@ -1880,8 +1890,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
@@ -1890,8 +1900,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "findingdefinitions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "findingdefinitions", i))
 		}
 	}
 
@@ -1900,8 +1910,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "hostSets", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "hostSets", i))
 		}
 	}
 
@@ -1910,18 +1920,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "ignoredDomains", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ignoredDomains", i))
-		}
-	}
-
-	for i, sub := range o.IpSets {
-		if sub == nil {
-			continue
-		}
-		if err := sub.Validate(); err != nil {
-			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "ipSets", i))
 		}
 	}
 
@@ -1934,8 +1934,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "orgSettings", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "orgSettings", i))
 		}
 	}
 
@@ -1944,8 +1944,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "projects", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "projects", i))
 		}
 	}
 
@@ -1954,8 +1954,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "providerTeams", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providerTeams", i))
 		}
 	}
 
@@ -1964,8 +1964,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "providerTokens", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providerTokens", i))
 		}
 	}
 
@@ -1974,8 +1974,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "providers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providers", i))
 		}
 	}
 
@@ -1984,8 +1984,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "proxyroundtrips", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "proxyroundtrips", i))
 		}
 	}
 
@@ -1994,8 +1994,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "publickeys", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "publickeys", i))
 		}
 	}
 
@@ -2004,8 +2004,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "riskdefinitions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "riskdefinitions", i))
 		}
 	}
 
@@ -2014,8 +2014,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "sinks", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "sinks", i))
 		}
 	}
 
@@ -2024,8 +2024,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "teams", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "teams", i))
 		}
 	}
 
@@ -2034,8 +2034,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "threatDefinitions", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "threatDefinitions", i))
 		}
 	}
 
@@ -2044,8 +2044,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "visitedurls", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "visitedurls", i))
 		}
 	}
 
@@ -2054,8 +2054,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 		}
 	}
 
@@ -2064,8 +2064,8 @@ func (o *Import) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "webhookIntegrations", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webhookIntegrations", i))
 		}
 	}
 
@@ -2123,6 +2123,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.AITools
 	case "APIAuthorizations":
 		return o.APIAuthorizations
+	case "IPSets":
+		return o.IPSets
 	case "LDAPSources":
 		return o.LDAPSources
 	case "MTLSSources":
@@ -2169,8 +2171,6 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.HostSets
 	case "ignoredDomains":
 		return o.IgnoredDomains
-	case "ipSets":
-		return o.IpSets
 	case "label":
 		return o.Label
 	case "orgSettings":
@@ -2316,6 +2316,17 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "APIAuthorizations",
 		Stored:         true,
 		SubType:        "apiauthorization",
+		Type:           "refList",
+	},
+	"IPSets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ipsets",
+		ConvertedName:  "IPSets",
+		Description:    `IP sets to import.`,
+		Exposed:        true,
+		Name:           "IPSets",
+		Stored:         true,
+		SubType:        "ipset",
 		Type:           "refList",
 	},
 	"LDAPSources": {
@@ -2569,17 +2580,6 @@ var ImportAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ignoredDomains",
 		Stored:         true,
 		SubType:        "ignoreddomain",
-		Type:           "refList",
-	},
-	"IpSets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "ipsets",
-		ConvertedName:  "IpSets",
-		Description:    `IP sets to import.`,
-		Exposed:        true,
-		Name:           "ipSets",
-		Stored:         true,
-		SubType:        "ipset",
 		Type:           "refList",
 	},
 	"Label": {
@@ -2862,6 +2862,17 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		SubType:        "apiauthorization",
 		Type:           "refList",
 	},
+	"ipsets": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "ipsets",
+		ConvertedName:  "IPSets",
+		Description:    `IP sets to import.`,
+		Exposed:        true,
+		Name:           "IPSets",
+		Stored:         true,
+		SubType:        "ipset",
+		Type:           "refList",
+	},
 	"ldapsources": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "ldapsources",
@@ -3113,17 +3124,6 @@ var ImportLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "ignoredDomains",
 		Stored:         true,
 		SubType:        "ignoreddomain",
-		Type:           "refList",
-	},
-	"ipsets": {
-		AllowedChoices: []string{},
-		BSONFieldName:  "ipsets",
-		ConvertedName:  "IpSets",
-		Description:    `IP sets to import.`,
-		Exposed:        true,
-		Name:           "ipSets",
-		Stored:         true,
-		SubType:        "ipset",
 		Type:           "refList",
 	},
 	"label": {
@@ -3387,6 +3387,9 @@ type SparseImport struct {
 	// APIAuthorizations to import.
 	APIAuthorizations *APIAuthorizationsList `json:"APIAuthorizations,omitempty" msgpack:"APIAuthorizations,omitempty" bson:"apiauthorizations,omitempty" mapstructure:"APIAuthorizations,omitempty"`
 
+	// IP sets to import.
+	IPSets *IPSetsList `json:"IPSets,omitempty" msgpack:"IPSets,omitempty" bson:"ipsets,omitempty" mapstructure:"IPSets,omitempty"`
+
 	// LDAP Sources to import.
 	LDAPSources *api.LDAPSourcesList `json:"LDAPSources,omitempty" msgpack:"LDAPSources,omitempty" bson:"ldapsources,omitempty" mapstructure:"LDAPSources,omitempty"`
 
@@ -3455,9 +3458,6 @@ type SparseImport struct {
 
 	// Ignored domains to import.
 	IgnoredDomains *IgnoredDomainsList `json:"ignoredDomains,omitempty" msgpack:"ignoredDomains,omitempty" bson:"ignoreddomains,omitempty" mapstructure:"ignoredDomains,omitempty"`
-
-	// IP sets to import.
-	IpSets *IPSetsList `json:"ipSets,omitempty" msgpack:"ipSets,omitempty" bson:"ipsets,omitempty" mapstructure:"ipSets,omitempty"`
 
 	// Import label that will be used to identify all the resources imported by this
 	// resource.
@@ -3570,6 +3570,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.APIAuthorizations != nil {
 		s.APIAuthorizations = o.APIAuthorizations
 	}
+	if o.IPSets != nil {
+		s.IPSets = o.IPSets
+	}
 	if o.LDAPSources != nil {
 		s.LDAPSources = o.LDAPSources
 	}
@@ -3638,9 +3641,6 @@ func (o *SparseImport) GetBSON() (any, error) {
 	}
 	if o.IgnoredDomains != nil {
 		s.IgnoredDomains = o.IgnoredDomains
-	}
-	if o.IpSets != nil {
-		s.IpSets = o.IpSets
 	}
 	if o.Label != nil {
 		s.Label = o.Label
@@ -3734,6 +3734,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.APIAuthorizations != nil {
 		o.APIAuthorizations = s.APIAuthorizations
 	}
+	if s.IPSets != nil {
+		o.IPSets = s.IPSets
+	}
 	if s.LDAPSources != nil {
 		o.LDAPSources = s.LDAPSources
 	}
@@ -3802,9 +3805,6 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 	if s.IgnoredDomains != nil {
 		o.IgnoredDomains = s.IgnoredDomains
-	}
-	if s.IpSets != nil {
-		o.IpSets = s.IpSets
 	}
 	if s.Label != nil {
 		o.Label = s.Label
@@ -3895,6 +3895,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.APIAuthorizations != nil {
 		out.APIAuthorizations = *o.APIAuthorizations
 	}
+	if o.IPSets != nil {
+		out.IPSets = *o.IPSets
+	}
 	if o.LDAPSources != nil {
 		out.LDAPSources = *o.LDAPSources
 	}
@@ -3963,9 +3966,6 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.IgnoredDomains != nil {
 		out.IgnoredDomains = *o.IgnoredDomains
-	}
-	if o.IpSets != nil {
-		out.IpSets = *o.IpSets
 	}
 	if o.Label != nil {
 		out.Label = *o.Label
@@ -4125,6 +4125,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'APIAuthorizations' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.IPSets != nil {
+		for _, sub := range *o.IPSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IPSets' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4334,17 +4345,6 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IgnoredDomains' for 'Import' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
-
-	if o.IpSets != nil {
-		for _, sub := range *o.IpSets {
-			if sub == nil {
-				continue
-			}
-			if err := sub.EncryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to encrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4619,6 +4619,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.IPSets != nil {
+		for _, sub := range *o.IPSets {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IPSets' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.OSProbes != nil {
 		for _, sub := range *o.OSProbes {
 			if sub == nil {
@@ -4828,17 +4839,6 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
-	if o.IpSets != nil {
-		for _, sub := range *o.IpSets {
-			if sub == nil {
-				continue
-			}
-			if err := sub.DecryptAttributes(encrypter); err != nil {
-				return fmt.Errorf("unable to decrypt refList/refMap attribute 'IpSets' for 'Import' (%s): %w", o.Identifier(), err)
-			}
-		}
-	}
-
 	if o.OrgSettings != nil {
 		for _, sub := range *o.OrgSettings {
 			if sub == nil {
@@ -5031,6 +5031,7 @@ type mongoAttributesImport struct {
 	AISkills                 AISkillsList                 `bson:"aiskills,omitempty"`
 	AITools                  AIToolsList                  `bson:"aitools,omitempty"`
 	APIAuthorizations        APIAuthorizationsList        `bson:"apiauthorizations,omitempty"`
+	IPSets                   IPSetsList                   `bson:"ipsets,omitempty"`
 	LDAPSources              api.LDAPSourcesList          `bson:"ldapsources,omitempty"`
 	MTLSSources              api.MTLSSourcesList          `bson:"mtlssources,omitempty"`
 	OIDCSources              api.OIDCSourcesList          `bson:"oidcsources,omitempty"`
@@ -5054,7 +5055,6 @@ type mongoAttributesImport struct {
 	Findingdefinitions       FindingDefinitionsList       `bson:"findingdefinitions,omitempty"`
 	HostSets                 HostSetsList                 `bson:"hostsets,omitempty"`
 	IgnoredDomains           IgnoredDomainsList           `bson:"ignoreddomains,omitempty"`
-	IpSets                   IPSetsList                   `bson:"ipsets,omitempty"`
 	Label                    string                       `bson:"label"`
 	OrgSettings              OrgSettingsList              `bson:"orgsettings,omitempty"`
 	Projects                 ProjectsList                 `bson:"projects,omitempty"`
@@ -5082,6 +5082,7 @@ type mongoAttributesSparseImport struct {
 	AISkills                 *AISkillsList                 `bson:"aiskills,omitempty"`
 	AITools                  *AIToolsList                  `bson:"aitools,omitempty"`
 	APIAuthorizations        *APIAuthorizationsList        `bson:"apiauthorizations,omitempty"`
+	IPSets                   *IPSetsList                   `bson:"ipsets,omitempty"`
 	LDAPSources              *api.LDAPSourcesList          `bson:"ldapsources,omitempty"`
 	MTLSSources              *api.MTLSSourcesList          `bson:"mtlssources,omitempty"`
 	OIDCSources              *api.OIDCSourcesList          `bson:"oidcsources,omitempty"`
@@ -5105,7 +5106,6 @@ type mongoAttributesSparseImport struct {
 	Findingdefinitions       *FindingDefinitionsList       `bson:"findingdefinitions,omitempty"`
 	HostSets                 *HostSetsList                 `bson:"hostsets,omitempty"`
 	IgnoredDomains           *IgnoredDomainsList           `bson:"ignoreddomains,omitempty"`
-	IpSets                   *IPSetsList                   `bson:"ipsets,omitempty"`
 	Label                    *string                       `bson:"label,omitempty"`
 	OrgSettings              *OrgSettingsList              `bson:"orgsettings,omitempty"`
 	Projects                 *ProjectsList                 `bson:"projects,omitempty"`

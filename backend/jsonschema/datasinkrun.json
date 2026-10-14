@@ -73,7 +73,7 @@
       "$creationOnly": true,
       "$friendlyName": "Dataset",
       "$required": true,
-      "description": "The dataset exported: AccessLogs corresponds to access_logs, and AgenticLogs to agentic_logs in the customer output.",
+      "description": "The dataset exported. Its enum value is also the customer-facing dataset name, used directly in S3 paths such as dataset=AccessLogs/.",
       "enum": [
         "AccessLogs",
         "AgenticLogs"

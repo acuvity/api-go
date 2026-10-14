@@ -480,8 +480,8 @@ func (o *MCPGatewayBackend) Validate() error {
 
 	if o.ProviderRef != nil {
 		if err := o.ProviderRef.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "providerRef")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "providerRef")
 		}
 	}
 

@@ -7,7 +7,7 @@
   "$modelResourceName": "datasinkchecks",
   "$modelRestName": "datasinkcheck",
   "additionalProperties": false,
-  "description": "Tests the connection to a data sink destination by writing a small test object under the configured prefix, then deleting it. Give either the ID of a saved data sink, or an unsaved destination with its credentials. A successful check does not prove multipart upload or SSE-KMS permissions.",
+  "description": "Tests the connection to a data sink destination by writing a small test object under the configured prefix, then deleting it. Give a saved data sink ID to test its stored destination, optionally with an S3 draft to test unsaved edits. A draft supplies the bucket, region, access key ID and prefix; an empty prefix clears the stored prefix. Omit or leave the draft secret empty to reuse the saved secret. Without an ID, supply a complete destination and secret. Checks never save configuration changes. A successful check does not prove multipart upload or SSE-KMS permissions.",
   "properties": {
     "cleanupError": {
       "$friendlyName": "Cleanup Error",
@@ -21,7 +21,7 @@
     },
     "dataSinkID": {
       "$friendlyName": "Data Sink ID",
-      "description": "The ID of the saved data sink to test.",
+      "description": "The saved data sink used as the default destination and credential source for the check.",
       "title": "dataSinkID",
       "type": [
         "string",
@@ -41,7 +41,7 @@
     "s3": {
       "$friendlyName": "S3",
       "$ref": "datasinks3.json",
-      "description": "An unsaved S3 destination to test, including its credentials.",
+      "description": "The S3 draft to test instead of the stored destination. Supply the bucket, region and access key ID; an empty or omitted prefix means the bucket root. With dataSinkID, an empty or omitted secret keeps the stored secret. Without dataSinkID, the secret is required. The draft is never saved.",
       "title": "s3"
     },
     "status": {

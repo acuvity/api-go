@@ -99,6 +99,15 @@
       "title": "APIAuthorizations",
       "type": "array"
     },
+    "IPSets": {
+      "$friendlyName": "IP Sets",
+      "description": "IP sets to import.",
+      "items": {
+        "$ref": "ipset.json"
+      },
+      "title": "IPSets",
+      "type": "array"
+    },
     "LDAPSources": {
       "$friendlyName": "LDAP Sources",
       "description": "LDAP Sources to import.",
@@ -292,15 +301,6 @@
         "$ref": "ignoreddomain.json"
       },
       "title": "ignoredDomains",
-      "type": "array"
-    },
-    "ipSets": {
-      "$friendlyName": "IP Sets",
-      "description": "IP sets to import.",
-      "items": {
-        "$ref": "ipset.json"
-      },
-      "title": "ipSets",
       "type": "array"
     },
     "label": {

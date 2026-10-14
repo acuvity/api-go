@@ -892,7 +892,7 @@
           },
           "provider": {
             "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "source": {
@@ -903,7 +903,12 @@
               "$ref": "#/components/schemas/tool"
             },
             "description": "The various tools used by the request.",
-            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "example": {
+              "tool1": {
+                "description": "This is a tool.",
+                "name": "tool1"
+              }
+            },
             "type": "object"
           },
           "trace": {
@@ -1028,7 +1033,7 @@
           },
           "provider": {
             "description": "The provider to use.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "providerType": {
@@ -1062,7 +1067,12 @@
               "$ref": "#/components/schemas/tool"
             },
             "description": "The various tools used by the request.",
-            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "example": {
+              "tool1": {
+                "description": "This is a tool.",
+                "name": "tool1"
+              }
+            },
             "type": "object"
           },
           "trace": {
@@ -1528,7 +1538,7 @@
           },
           "provider": {
             "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "redactContent": {
@@ -1559,7 +1569,12 @@
               "$ref": "#/components/schemas/tool"
             },
             "description": "The various tools used by the request.",
-            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "example": {
+              "tool1": {
+                "description": "This is a tool.",
+                "name": "tool1"
+              }
+            },
             "type": "object"
           },
           "trace": {
@@ -1669,7 +1684,7 @@
           },
           "provider": {
             "description": "The provider to use.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "providerType": {
@@ -1703,7 +1718,12 @@
               "$ref": "#/components/schemas/tool"
             },
             "description": "The various tools used by the request.",
-            "example": "{\n  \"tool1\": {\n      \"name\": \"tool1\",\n      \"description\": \"This is a tool.\"\n  }\n}",
+            "example": {
+              "tool1": {
+                "description": "This is a tool.",
+                "name": "tool1"
+              }
+            },
             "type": "object"
           },
           "trace": {

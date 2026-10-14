@@ -139,6 +139,10 @@ type ProxyConf struct {
 	// The base rego libraries the computed policies are compiled against.
 	RegoBaseLibs *RegoBaseLibs `json:"regoBaseLibs,omitempty" msgpack:"regoBaseLibs,omitempty" bson:"-" mapstructure:"regoBaseLibs,omitempty"`
 
+	// The extra data for the policy simulator. It is only set when the request
+	// asks for it.
+	Simulation *ProxyConfSimulation `json:"simulation,omitempty" msgpack:"simulation,omitempty" bson:"-" mapstructure:"simulation,omitempty"`
+
 	// Tokens pool to authenticate with the provider.
 	Tokens map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
 
@@ -279,6 +283,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			OrgSettings:         o.OrgSettings,
 			Providers:           &o.Providers,
 			RegoBaseLibs:        o.RegoBaseLibs,
+			Simulation:          o.Simulation,
 			Tokens:              &o.Tokens,
 			WebExtensionConfigs: &o.WebExtensionConfigs,
 		}
@@ -323,6 +328,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Providers = &(o.Providers)
 		case "regoBaseLibs":
 			sp.RegoBaseLibs = o.RegoBaseLibs
+		case "simulation":
+			sp.Simulation = o.Simulation
 		case "tokens":
 			sp.Tokens = &(o.Tokens)
 		case "webExtensionConfigs":
@@ -393,6 +400,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RegoBaseLibs != nil {
 		o.RegoBaseLibs = so.RegoBaseLibs
+	}
+	if so.Simulation != nil {
+		o.Simulation = so.Simulation
 	}
 	if so.Tokens != nil {
 		o.Tokens = *so.Tokens
@@ -513,6 +523,12 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 	if o.RegoBaseLibs != nil {
 		if err := o.RegoBaseLibs.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Simulation != nil {
+		if err := o.Simulation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Simulation' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -642,6 +658,12 @@ func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 	}
 
+	if o.Simulation != nil {
+		if err := o.Simulation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Simulation' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.WebExtensionConfigs {
 		if sub == nil {
 			continue
@@ -691,8 +713,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "AIGatewayConfs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "AIGatewayConfs", i))
 		}
 	}
 
@@ -701,8 +723,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "Apps", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "Apps", i))
 		}
 	}
 
@@ -711,8 +733,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "MCPGateways", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "MCPGateways", i))
 		}
 	}
 
@@ -721,8 +743,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "OSProbes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "OSProbes", i))
 		}
 	}
 
@@ -731,8 +753,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "PACConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "PACConfigs", i))
 		}
 	}
 
@@ -741,8 +763,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "agentConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "agentConfigs", i))
 		}
 	}
 
@@ -751,8 +773,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "customDataTypes", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "customDataTypes", i))
 		}
 	}
 
@@ -761,8 +783,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "dataSets", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "dataSets", i))
 		}
 	}
 
@@ -771,8 +793,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractorLibs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractorLibs", i))
 		}
 	}
 
@@ -781,15 +803,15 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "extractors", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "extractors", i))
 		}
 	}
 
 	if o.OrgSettings != nil {
 		if err := o.OrgSettings.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "orgSettings")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "orgSettings")
 		}
 	}
 
@@ -798,15 +820,22 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "providers", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "providers", i))
 		}
 	}
 
 	if o.RegoBaseLibs != nil {
 		if err := o.RegoBaseLibs.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "regoBaseLibs")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "regoBaseLibs")
+		}
+	}
+
+	if o.Simulation != nil {
+		if err := o.Simulation.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "simulation")
+			errors = errors.Append(err)
 		}
 	}
 
@@ -815,8 +844,8 @@ func (o *ProxyConf) Validate() error {
 			continue
 		}
 		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, fmt.Sprintf("%s/%v", "webExtensionConfigs", i))
 		}
 	}
 
@@ -890,6 +919,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.Providers
 	case "regoBaseLibs":
 		return o.RegoBaseLibs
+	case "simulation":
+		return o.Simulation
 	case "tokens":
 		return o.Tokens
 	case "webExtensionConfigs":
@@ -1072,6 +1103,16 @@ resolved access and content policies.`,
 		Name:           "regoBaseLibs",
 		SubType:        "regobaselibs",
 		Type:           "ref",
+	},
+	"Simulation": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Simulation",
+		Description: `The extra data for the policy simulator. It is only set when the request
+asks for it.`,
+		Exposed: true,
+		Name:    "simulation",
+		SubType: "proxyconfsimulation",
+		Type:    "ref",
 	},
 	"Tokens": {
 		AllowedChoices: []string{},
@@ -1267,6 +1308,16 @@ resolved access and content policies.`,
 		SubType:        "regobaselibs",
 		Type:           "ref",
 	},
+	"simulation": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Simulation",
+		Description: `The extra data for the policy simulator. It is only set when the request
+asks for it.`,
+		Exposed: true,
+		Name:    "simulation",
+		SubType: "proxyconfsimulation",
+		Type:    "ref",
+	},
 	"tokens": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Tokens",
@@ -1404,6 +1455,10 @@ type SparseProxyConf struct {
 
 	// The base rego libraries the computed policies are compiled against.
 	RegoBaseLibs *RegoBaseLibs `json:"regoBaseLibs,omitempty" msgpack:"regoBaseLibs,omitempty" bson:"-" mapstructure:"regoBaseLibs,omitempty"`
+
+	// The extra data for the policy simulator. It is only set when the request
+	// asks for it.
+	Simulation *ProxyConfSimulation `json:"simulation,omitempty" msgpack:"simulation,omitempty" bson:"-" mapstructure:"simulation,omitempty"`
 
 	// Tokens pool to authenticate with the provider.
 	Tokens *map[string][]string `json:"tokens,omitempty" msgpack:"tokens,omitempty" bson:"-" mapstructure:"tokens,omitempty"`
@@ -1550,6 +1605,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.RegoBaseLibs != nil {
 		out.RegoBaseLibs = o.RegoBaseLibs
 	}
+	if o.Simulation != nil {
+		out.Simulation = o.Simulation
+	}
 	if o.Tokens != nil {
 		out.Tokens = *o.Tokens
 	}
@@ -1693,6 +1751,12 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 	if o.RegoBaseLibs != nil {
 		if err := o.RegoBaseLibs.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Simulation != nil {
+		if err := o.Simulation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Simulation' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1843,6 +1907,12 @@ func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypt
 	if o.RegoBaseLibs != nil {
 		if err := o.RegoBaseLibs.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'RegoBaseLibs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Simulation != nil {
+		if err := o.Simulation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Simulation' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 

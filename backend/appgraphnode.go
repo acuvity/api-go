@@ -212,8 +212,8 @@ func (o *AppGraphNode) Validate() error {
 
 	if o.Links != nil {
 		if err := o.Links.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "links")
 			errors = errors.Append(err)
-			elemental.InjectAttributePath(errors, "links")
 		}
 	}
 
