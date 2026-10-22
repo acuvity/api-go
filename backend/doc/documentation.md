@@ -1391,6 +1391,7 @@ Stores the configuration information for the acushield agent.
   "diagnosticUploadDisabled": false,
   "domainDiscoveryDisabled": false,
   "domainReportInterval": "30m",
+  "driverDNSHTTPSBlockDisabled": false,
   "driverEnabled": false,
   "driverExcludeAddressTimeout": "10m",
   "driverExcludedAddresses": [
@@ -1562,6 +1563,12 @@ Default value:
 ```json
 "10m"
 ```
+
+##### `driverDNSHTTPSBlockDisabled`
+
+Type: `boolean`
+
+If disabled, DNS HTTPS will not be blocked by the driver.
 
 ##### `driverEnabled`
 

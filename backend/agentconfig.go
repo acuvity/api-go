@@ -174,6 +174,9 @@ type AgentConfig struct {
 	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval string `json:"domainReportInterval" msgpack:"domainReportInterval" bson:"domainreportinterval" mapstructure:"domainReportInterval,omitempty"`
 
+	// If disabled, DNS HTTPS will not be blocked by the driver.
+	DriverDNSHTTPSBlockDisabled bool `json:"driverDNSHTTPSBlockDisabled" msgpack:"driverDNSHTTPSBlockDisabled" bson:"driverdnshttpsblockdisabled" mapstructure:"driverDNSHTTPSBlockDisabled,omitempty"`
+
 	// If enabled, the agent will leverage a network driver to steer AI traffic to the
 	// proxy.
 	DriverEnabled bool `json:"driverEnabled" msgpack:"driverEnabled" bson:"driverenabled" mapstructure:"driverEnabled,omitempty"`
@@ -406,6 +409,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.DiagnosticUploadDisabled = o.DiagnosticUploadDisabled
 	s.DomainDiscoveryDisabled = o.DomainDiscoveryDisabled
 	s.DomainReportInterval = o.DomainReportInterval
+	s.DriverDNSHTTPSBlockDisabled = o.DriverDNSHTTPSBlockDisabled
 	s.DriverEnabled = o.DriverEnabled
 	s.DriverExcludeAddressTimeout = o.DriverExcludeAddressTimeout
 	s.DriverExcludedAddresses = o.DriverExcludedAddresses
@@ -476,6 +480,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.DiagnosticUploadDisabled = s.DiagnosticUploadDisabled
 	o.DomainDiscoveryDisabled = s.DomainDiscoveryDisabled
 	o.DomainReportInterval = s.DomainReportInterval
+	o.DriverDNSHTTPSBlockDisabled = s.DriverDNSHTTPSBlockDisabled
 	o.DriverEnabled = s.DriverEnabled
 	o.DriverExcludeAddressTimeout = s.DriverExcludeAddressTimeout
 	o.DriverExcludedAddresses = s.DriverExcludedAddresses
@@ -629,6 +634,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DiagnosticUploadDisabled:      &o.DiagnosticUploadDisabled,
 			DomainDiscoveryDisabled:       &o.DomainDiscoveryDisabled,
 			DomainReportInterval:          &o.DomainReportInterval,
+			DriverDNSHTTPSBlockDisabled:   &o.DriverDNSHTTPSBlockDisabled,
 			DriverEnabled:                 &o.DriverEnabled,
 			DriverExcludeAddressTimeout:   &o.DriverExcludeAddressTimeout,
 			DriverExcludedAddresses:       &o.DriverExcludedAddresses,
@@ -702,6 +708,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DomainDiscoveryDisabled = &(o.DomainDiscoveryDisabled)
 		case "domainReportInterval":
 			sp.DomainReportInterval = &(o.DomainReportInterval)
+		case "driverDNSHTTPSBlockDisabled":
+			sp.DriverDNSHTTPSBlockDisabled = &(o.DriverDNSHTTPSBlockDisabled)
 		case "driverEnabled":
 			sp.DriverEnabled = &(o.DriverEnabled)
 		case "driverExcludeAddressTimeout":
@@ -836,6 +844,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.DomainReportInterval != nil {
 		o.DomainReportInterval = *so.DomainReportInterval
+	}
+	if so.DriverDNSHTTPSBlockDisabled != nil {
+		o.DriverDNSHTTPSBlockDisabled = *so.DriverDNSHTTPSBlockDisabled
 	}
 	if so.DriverEnabled != nil {
 		o.DriverEnabled = *so.DriverEnabled
@@ -1241,6 +1252,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.DomainDiscoveryDisabled
 	case "domainReportInterval":
 		return o.DomainReportInterval
+	case "driverDNSHTTPSBlockDisabled":
+		return o.DriverDNSHTTPSBlockDisabled
 	case "driverEnabled":
 		return o.DriverEnabled
 	case "driverExcludeAddressTimeout":
@@ -1472,6 +1485,16 @@ an extended period.`,
 		Name:           "domainReportInterval",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DriverDNSHTTPSBlockDisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverdnshttpsblockdisabled",
+		ConvertedName:  "DriverDNSHTTPSBlockDisabled",
+		Description:    `If disabled, DNS HTTPS will not be blocked by the driver.`,
+		Exposed:        true,
+		Name:           "driverDNSHTTPSBlockDisabled",
+		Stored:         true,
+		Type:           "boolean",
 	},
 	"DriverEnabled": {
 		AllowedChoices: []string{},
@@ -2100,6 +2123,16 @@ an extended period.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"driverdnshttpsblockdisabled": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "driverdnshttpsblockdisabled",
+		ConvertedName:  "DriverDNSHTTPSBlockDisabled",
+		Description:    `If disabled, DNS HTTPS will not be blocked by the driver.`,
+		Exposed:        true,
+		Name:           "driverDNSHTTPSBlockDisabled",
+		Stored:         true,
+		Type:           "boolean",
+	},
 	"driverenabled": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "driverenabled",
@@ -2690,6 +2723,9 @@ type SparseAgentConfig struct {
 	// The interval in which domains (visited URLs or DNS) are reported.
 	DomainReportInterval *string `json:"domainReportInterval,omitempty" msgpack:"domainReportInterval,omitempty" bson:"domainreportinterval,omitempty" mapstructure:"domainReportInterval,omitempty"`
 
+	// If disabled, DNS HTTPS will not be blocked by the driver.
+	DriverDNSHTTPSBlockDisabled *bool `json:"driverDNSHTTPSBlockDisabled,omitempty" msgpack:"driverDNSHTTPSBlockDisabled,omitempty" bson:"driverdnshttpsblockdisabled,omitempty" mapstructure:"driverDNSHTTPSBlockDisabled,omitempty"`
+
 	// If enabled, the agent will leverage a network driver to steer AI traffic to the
 	// proxy.
 	DriverEnabled *bool `json:"driverEnabled,omitempty" msgpack:"driverEnabled,omitempty" bson:"driverenabled,omitempty" mapstructure:"driverEnabled,omitempty"`
@@ -2928,6 +2964,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.DomainReportInterval != nil {
 		s.DomainReportInterval = o.DomainReportInterval
 	}
+	if o.DriverDNSHTTPSBlockDisabled != nil {
+		s.DriverDNSHTTPSBlockDisabled = o.DriverDNSHTTPSBlockDisabled
+	}
 	if o.DriverEnabled != nil {
 		s.DriverEnabled = o.DriverEnabled
 	}
@@ -3103,6 +3142,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	if s.DomainReportInterval != nil {
 		o.DomainReportInterval = s.DomainReportInterval
 	}
+	if s.DriverDNSHTTPSBlockDisabled != nil {
+		o.DriverDNSHTTPSBlockDisabled = s.DriverDNSHTTPSBlockDisabled
+	}
 	if s.DriverEnabled != nil {
 		o.DriverEnabled = s.DriverEnabled
 	}
@@ -3275,6 +3317,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.DomainReportInterval != nil {
 		out.DomainReportInterval = *o.DomainReportInterval
+	}
+	if o.DriverDNSHTTPSBlockDisabled != nil {
+		out.DriverDNSHTTPSBlockDisabled = *o.DriverDNSHTTPSBlockDisabled
 	}
 	if o.DriverEnabled != nil {
 		out.DriverEnabled = *o.DriverEnabled
@@ -3594,6 +3639,7 @@ type mongoAttributesAgentConfig struct {
 	DiagnosticUploadDisabled      bool                             `bson:"diagnosticuploaddisabled"`
 	DomainDiscoveryDisabled       bool                             `bson:"domaindiscoverydisabled"`
 	DomainReportInterval          string                           `bson:"domainreportinterval"`
+	DriverDNSHTTPSBlockDisabled   bool                             `bson:"driverdnshttpsblockdisabled"`
 	DriverEnabled                 bool                             `bson:"driverenabled"`
 	DriverExcludeAddressTimeout   string                           `bson:"driverexcludeaddresstimeout"`
 	DriverExcludedAddresses       []string                         `bson:"driverexcludedaddresses"`
@@ -3649,6 +3695,7 @@ type mongoAttributesSparseAgentConfig struct {
 	DiagnosticUploadDisabled      *bool                             `bson:"diagnosticuploaddisabled,omitempty"`
 	DomainDiscoveryDisabled       *bool                             `bson:"domaindiscoverydisabled,omitempty"`
 	DomainReportInterval          *string                           `bson:"domainreportinterval,omitempty"`
+	DriverDNSHTTPSBlockDisabled   *bool                             `bson:"driverdnshttpsblockdisabled,omitempty"`
 	DriverEnabled                 *bool                             `bson:"driverenabled,omitempty"`
 	DriverExcludeAddressTimeout   *string                           `bson:"driverexcludeaddresstimeout,omitempty"`
 	DriverExcludedAddresses       *[]string                         `bson:"driverexcludedaddresses,omitempty"`

@@ -128,6 +128,15 @@
         "null"
       ]
     },
+    "driverDNSHTTPSBlockDisabled": {
+      "$friendlyName": "Driver DNS HTTPS Block Disabled",
+      "description": "If disabled, DNS HTTPS will not be blocked by the driver.",
+      "title": "driverDNSHTTPSBlockDisabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "driverEnabled": {
       "$friendlyName": "Driver Enabled",
       "description": "If enabled, the agent will leverage a network driver to steer AI traffic to the proxy.",

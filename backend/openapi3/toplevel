@@ -546,6 +546,10 @@
             "example": "30m",
             "type": "string"
           },
+          "driverDNSHTTPSBlockDisabled": {
+            "description": "If disabled, DNS HTTPS will not be blocked by the driver.",
+            "type": "boolean"
+          },
           "driverEnabled": {
             "description": "If enabled, the agent will leverage a network driver to steer AI traffic to the\nproxy.",
             "type": "boolean"
