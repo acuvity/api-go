@@ -51,6 +51,34 @@ const (
 	PoliceResponseDecisionUpstreamError PoliceResponseDecisionValue = "UpstreamError"
 )
 
+// PoliceResponseEncryptionEgressStateValue represents the possible values for attribute "encryptionEgressState".
+type PoliceResponseEncryptionEgressStateValue string
+
+const (
+	// PoliceResponseEncryptionEgressStateEncrypted represents the value Encrypted.
+	PoliceResponseEncryptionEgressStateEncrypted PoliceResponseEncryptionEgressStateValue = "Encrypted"
+
+	// PoliceResponseEncryptionEgressStateUnencrypted represents the value Unencrypted.
+	PoliceResponseEncryptionEgressStateUnencrypted PoliceResponseEncryptionEgressStateValue = "Unencrypted"
+
+	// PoliceResponseEncryptionEgressStateUnknown represents the value Unknown.
+	PoliceResponseEncryptionEgressStateUnknown PoliceResponseEncryptionEgressStateValue = "Unknown"
+)
+
+// PoliceResponseEncryptionIngressStateValue represents the possible values for attribute "encryptionIngressState".
+type PoliceResponseEncryptionIngressStateValue string
+
+const (
+	// PoliceResponseEncryptionIngressStateEncrypted represents the value Encrypted.
+	PoliceResponseEncryptionIngressStateEncrypted PoliceResponseEncryptionIngressStateValue = "Encrypted"
+
+	// PoliceResponseEncryptionIngressStateUnencrypted represents the value Unencrypted.
+	PoliceResponseEncryptionIngressStateUnencrypted PoliceResponseEncryptionIngressStateValue = "Unencrypted"
+
+	// PoliceResponseEncryptionIngressStateUnknown represents the value Unknown.
+	PoliceResponseEncryptionIngressStateUnknown PoliceResponseEncryptionIngressStateValue = "Unknown"
+)
+
 // PoliceResponseProviderTypeValue represents the possible values for attribute "providerType".
 type PoliceResponseProviderTypeValue string
 
@@ -185,6 +213,22 @@ type PoliceResponse struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState PoliceResponseEncryptionEgressStateValue `json:"encryptionEgressState" msgpack:"encryptionEgressState" bson:"encryptionegressstate" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState PoliceResponseEncryptionIngressStateValue `json:"encryptionIngressState" msgpack:"encryptionIngressState" bson:"encryptioningressstate" mapstructure:"encryptionIngressState,omitempty"`
+
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
 	// UpstreamError), the failing stage, and a human-readable message.
@@ -269,10 +313,12 @@ type PoliceResponse struct {
 func NewPoliceResponse() *PoliceResponse {
 
 	return &PoliceResponse{
-		ModelVersion: 1,
-		Annotations:  map[string]string{},
-		PolicyRefs:   PolicyRefsList{},
-		Principal:    NewPrincipal(),
+		ModelVersion:           1,
+		Annotations:            map[string]string{},
+		EncryptionEgressState:  PoliceResponseEncryptionEgressStateUnknown,
+		EncryptionIngressState: PoliceResponseEncryptionIngressStateUnknown,
+		PolicyRefs:             PolicyRefsList{},
+		Principal:              NewPrincipal(),
 	}
 }
 
@@ -314,6 +360,10 @@ func (o *PoliceResponse) GetBSON() (any, error) {
 	s.ContentRedacted = o.ContentRedacted
 	s.Decision = o.Decision
 	s.Destination = o.Destination
+	s.EncryptionEgress = o.EncryptionEgress
+	s.EncryptionEgressState = o.EncryptionEgressState
+	s.EncryptionIngress = o.EncryptionIngress
+	s.EncryptionIngressState = o.EncryptionIngressState
 	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
@@ -359,6 +409,10 @@ func (o *PoliceResponse) SetBSON(raw bson.Raw) error {
 	o.ContentRedacted = s.ContentRedacted
 	o.Decision = s.Decision
 	o.Destination = s.Destination
+	o.EncryptionEgress = s.EncryptionEgress
+	o.EncryptionEgressState = s.EncryptionEgressState
+	o.EncryptionIngress = s.EncryptionIngress
+	o.EncryptionIngressState = s.EncryptionIngressState
 	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
@@ -431,35 +485,39 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePoliceResponse{
-			ID:              &o.ID,
-			Alerts:          &o.Alerts,
-			Annotations:     &o.Annotations,
-			Client:          &o.Client,
-			ClientVersion:   &o.ClientVersion,
-			ContentRedacted: &o.ContentRedacted,
-			Decision:        &o.Decision,
-			Destination:     o.Destination,
-			Error:           o.Error,
-			Extractions:     &o.Extractions,
-			Hash:            &o.Hash,
-			Latency:         o.Latency,
-			McpMessage:      o.McpMessage,
-			Model:           &o.Model,
-			Namespace:       &o.Namespace,
-			Offband:         &o.Offband,
-			Permissive:      &o.Permissive,
-			PipelineName:    &o.PipelineName,
-			PolicyRefs:      &o.PolicyRefs,
-			Principal:       o.Principal,
-			Provider:        &o.Provider,
-			ProviderType:    &o.ProviderType,
-			Reasons:         &o.Reasons,
-			Summary:         o.Summary,
-			Time:            &o.Time,
-			ToolChoice:      o.ToolChoice,
-			Tools:           &o.Tools,
-			Trace:           o.Trace,
-			Type:            &o.Type,
+			ID:                     &o.ID,
+			Alerts:                 &o.Alerts,
+			Annotations:            &o.Annotations,
+			Client:                 &o.Client,
+			ClientVersion:          &o.ClientVersion,
+			ContentRedacted:        &o.ContentRedacted,
+			Decision:               &o.Decision,
+			Destination:            o.Destination,
+			EncryptionEgress:       o.EncryptionEgress,
+			EncryptionEgressState:  &o.EncryptionEgressState,
+			EncryptionIngress:      o.EncryptionIngress,
+			EncryptionIngressState: &o.EncryptionIngressState,
+			Error:                  o.Error,
+			Extractions:            &o.Extractions,
+			Hash:                   &o.Hash,
+			Latency:                o.Latency,
+			McpMessage:             o.McpMessage,
+			Model:                  &o.Model,
+			Namespace:              &o.Namespace,
+			Offband:                &o.Offband,
+			Permissive:             &o.Permissive,
+			PipelineName:           &o.PipelineName,
+			PolicyRefs:             &o.PolicyRefs,
+			Principal:              o.Principal,
+			Provider:               &o.Provider,
+			ProviderType:           &o.ProviderType,
+			Reasons:                &o.Reasons,
+			Summary:                o.Summary,
+			Time:                   &o.Time,
+			ToolChoice:             o.ToolChoice,
+			Tools:                  &o.Tools,
+			Trace:                  o.Trace,
+			Type:                   &o.Type,
 		}
 	}
 
@@ -482,6 +540,14 @@ func (o *PoliceResponse) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Decision = &(o.Decision)
 		case "destination":
 			sp.Destination = o.Destination
+		case "encryptionEgress":
+			sp.EncryptionEgress = o.EncryptionEgress
+		case "encryptionEgressState":
+			sp.EncryptionEgressState = &(o.EncryptionEgressState)
+		case "encryptionIngress":
+			sp.EncryptionIngress = o.EncryptionIngress
+		case "encryptionIngressState":
+			sp.EncryptionIngressState = &(o.EncryptionIngressState)
 		case "error":
 			sp.Error = o.Error
 		case "extractions":
@@ -560,6 +626,18 @@ func (o *PoliceResponse) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Destination != nil {
 		o.Destination = so.Destination
+	}
+	if so.EncryptionEgress != nil {
+		o.EncryptionEgress = so.EncryptionEgress
+	}
+	if so.EncryptionEgressState != nil {
+		o.EncryptionEgressState = *so.EncryptionEgressState
+	}
+	if so.EncryptionIngress != nil {
+		o.EncryptionIngress = so.EncryptionIngress
+	}
+	if so.EncryptionIngressState != nil {
+		o.EncryptionIngressState = *so.EncryptionIngressState
 	}
 	if so.Error != nil {
 		o.Error = so.Error
@@ -641,6 +719,18 @@ func (o *PoliceResponse) EncryptAttributes(encrypter elemental.AttributeEncrypte
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -731,6 +821,18 @@ func (o *PoliceResponse) DecryptAttributes(encrypter elemental.AttributeEncrypte
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -857,6 +959,28 @@ func (o *PoliceResponse) Validate() error {
 			elemental.InjectAttributePath(err, "destination")
 			errors = errors.Append(err)
 		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionEgress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionEgressState", string(o.EncryptionEgressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionIngress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionIngressState", string(o.EncryptionIngressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Error != nil {
@@ -1000,6 +1124,14 @@ func (o *PoliceResponse) ValueForAttribute(name string) any {
 		return o.Decision
 	case "destination":
 		return o.Destination
+	case "encryptionEgress":
+		return o.EncryptionEgress
+	case "encryptionEgressState":
+		return o.EncryptionEgressState
+	case "encryptionIngress":
+		return o.EncryptionIngress
+	case "encryptionIngressState":
+		return o.EncryptionIngressState
 	case "error":
 		return o.Error
 	case "extractions":
@@ -1152,6 +1284,54 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Stored:         true,
 		SubType:        "destination",
 		Type:           "ref",
+	},
+	"EncryptionEgress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"EncryptionEgressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   PoliceResponseEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"EncryptionIngress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"EncryptionIngressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   PoliceResponseEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Error": {
 		AllowedChoices: []string{},
@@ -1501,6 +1681,54 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		SubType:        "destination",
 		Type:           "ref",
 	},
+	"encryptionegress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"encryptionegressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   PoliceResponseEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"encryptioningress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"encryptioningressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   PoliceResponseEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"error": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "error",
@@ -1846,6 +2074,22 @@ type SparsePoliceResponse struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState *PoliceResponseEncryptionEgressStateValue `json:"encryptionEgressState,omitempty" msgpack:"encryptionEgressState,omitempty" bson:"encryptionegressstate,omitempty" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState *PoliceResponseEncryptionIngressStateValue `json:"encryptionIngressState,omitempty" msgpack:"encryptionIngressState,omitempty" bson:"encryptioningressstate,omitempty" mapstructure:"encryptionIngressState,omitempty"`
+
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
 	// UpstreamError), the failing stage, and a human-readable message.
@@ -1990,6 +2234,18 @@ func (o *SparsePoliceResponse) GetBSON() (any, error) {
 	if o.Destination != nil {
 		s.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		s.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionEgressState != nil {
+		s.EncryptionEgressState = o.EncryptionEgressState
+	}
+	if o.EncryptionIngress != nil {
+		s.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		s.EncryptionIngressState = o.EncryptionIngressState
+	}
 	if o.Error != nil {
 		s.Error = o.Error
 	}
@@ -2090,6 +2346,18 @@ func (o *SparsePoliceResponse) SetBSON(raw bson.Raw) error {
 	if s.Destination != nil {
 		o.Destination = s.Destination
 	}
+	if s.EncryptionEgress != nil {
+		o.EncryptionEgress = s.EncryptionEgress
+	}
+	if s.EncryptionEgressState != nil {
+		o.EncryptionEgressState = s.EncryptionEgressState
+	}
+	if s.EncryptionIngress != nil {
+		o.EncryptionIngress = s.EncryptionIngress
+	}
+	if s.EncryptionIngressState != nil {
+		o.EncryptionIngressState = s.EncryptionIngressState
+	}
 	if s.Error != nil {
 		o.Error = s.Error
 	}
@@ -2188,6 +2456,18 @@ func (o *SparsePoliceResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Destination != nil {
 		out.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		out.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionEgressState != nil {
+		out.EncryptionEgressState = *o.EncryptionEgressState
+	}
+	if o.EncryptionIngress != nil {
+		out.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		out.EncryptionIngressState = *o.EncryptionIngressState
+	}
 	if o.Error != nil {
 		out.Error = o.Error
 	}
@@ -2272,6 +2552,18 @@ func (o *SparsePoliceResponse) EncryptAttributes(encrypter elemental.AttributeEn
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2370,6 +2662,18 @@ func (o *SparsePoliceResponse) DecryptAttributes(encrypter elemental.AttributeEn
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'PoliceResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2492,62 +2796,70 @@ func (o *SparsePoliceResponse) DeepCopyInto(out *SparsePoliceResponse) {
 }
 
 type mongoAttributesPoliceResponse struct {
-	ID              bson.ObjectId                   `bson:"_id,omitempty"`
-	Alerts          []*AlertEvent                   `bson:"alerts,omitempty"`
-	Annotations     map[string]string               `bson:"annotations,omitempty"`
-	Client          string                          `bson:"client,omitempty"`
-	ClientVersion   string                          `bson:"clientversion,omitempty"`
-	ContentRedacted bool                            `bson:"contentredacted,omitempty"`
-	Decision        PoliceResponseDecisionValue     `bson:"decision"`
-	Destination     *Destination                    `bson:"destination,omitempty"`
-	Error           *RoundtripError                 `bson:"error,omitempty"`
-	Extractions     []*Extraction                   `bson:"extractions,omitempty"`
-	Hash            string                          `bson:"hash"`
-	Latency         *Latency                        `bson:"latency,omitempty"`
-	McpMessage      *MCPMessage                     `bson:"mcpmessage,omitempty"`
-	Model           string                          `bson:"model,omitempty"`
-	Namespace       string                          `bson:"namespace,omitempty"`
-	Offband         bool                            `bson:"offband,omitempty"`
-	Permissive      bool                            `bson:"permissive,omitempty"`
-	PipelineName    string                          `bson:"pipelinename"`
-	PolicyRefs      PolicyRefsList                  `bson:"policyrefs"`
-	Principal       *Principal                      `bson:"principal"`
-	Provider        string                          `bson:"provider"`
-	ProviderType    PoliceResponseProviderTypeValue `bson:"providertype"`
-	Reasons         []string                        `bson:"reasons,omitempty"`
-	Summary         *ExtractionSummary              `bson:"summary,omitempty"`
-	ToolChoice      *ToolChoice                     `bson:"toolchoice,omitempty"`
-	Tools           map[string]*Tool                `bson:"tools,omitempty"`
-	Trace           *TraceRef                       `bson:"trace,omitempty"`
-	Type            PoliceResponseTypeValue         `bson:"type"`
+	ID                     bson.ObjectId                             `bson:"_id,omitempty"`
+	Alerts                 []*AlertEvent                             `bson:"alerts,omitempty"`
+	Annotations            map[string]string                         `bson:"annotations,omitempty"`
+	Client                 string                                    `bson:"client,omitempty"`
+	ClientVersion          string                                    `bson:"clientversion,omitempty"`
+	ContentRedacted        bool                                      `bson:"contentredacted,omitempty"`
+	Decision               PoliceResponseDecisionValue               `bson:"decision"`
+	Destination            *Destination                              `bson:"destination,omitempty"`
+	EncryptionEgress       *TLSState                                 `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState  PoliceResponseEncryptionEgressStateValue  `bson:"encryptionegressstate"`
+	EncryptionIngress      *TLSState                                 `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState PoliceResponseEncryptionIngressStateValue `bson:"encryptioningressstate"`
+	Error                  *RoundtripError                           `bson:"error,omitempty"`
+	Extractions            []*Extraction                             `bson:"extractions,omitempty"`
+	Hash                   string                                    `bson:"hash"`
+	Latency                *Latency                                  `bson:"latency,omitempty"`
+	McpMessage             *MCPMessage                               `bson:"mcpmessage,omitempty"`
+	Model                  string                                    `bson:"model,omitempty"`
+	Namespace              string                                    `bson:"namespace,omitempty"`
+	Offband                bool                                      `bson:"offband,omitempty"`
+	Permissive             bool                                      `bson:"permissive,omitempty"`
+	PipelineName           string                                    `bson:"pipelinename"`
+	PolicyRefs             PolicyRefsList                            `bson:"policyrefs"`
+	Principal              *Principal                                `bson:"principal"`
+	Provider               string                                    `bson:"provider"`
+	ProviderType           PoliceResponseProviderTypeValue           `bson:"providertype"`
+	Reasons                []string                                  `bson:"reasons,omitempty"`
+	Summary                *ExtractionSummary                        `bson:"summary,omitempty"`
+	ToolChoice             *ToolChoice                               `bson:"toolchoice,omitempty"`
+	Tools                  map[string]*Tool                          `bson:"tools,omitempty"`
+	Trace                  *TraceRef                                 `bson:"trace,omitempty"`
+	Type                   PoliceResponseTypeValue                   `bson:"type"`
 }
 type mongoAttributesSparsePoliceResponse struct {
-	ID              bson.ObjectId                    `bson:"_id,omitempty"`
-	Alerts          *[]*AlertEvent                   `bson:"alerts,omitempty"`
-	Annotations     *map[string]string               `bson:"annotations,omitempty"`
-	Client          *string                          `bson:"client,omitempty"`
-	ClientVersion   *string                          `bson:"clientversion,omitempty"`
-	ContentRedacted *bool                            `bson:"contentredacted,omitempty"`
-	Decision        *PoliceResponseDecisionValue     `bson:"decision,omitempty"`
-	Destination     *Destination                     `bson:"destination,omitempty"`
-	Error           *RoundtripError                  `bson:"error,omitempty"`
-	Extractions     *[]*Extraction                   `bson:"extractions,omitempty"`
-	Hash            *string                          `bson:"hash,omitempty"`
-	Latency         *Latency                         `bson:"latency,omitempty"`
-	McpMessage      *MCPMessage                      `bson:"mcpmessage,omitempty"`
-	Model           *string                          `bson:"model,omitempty"`
-	Namespace       *string                          `bson:"namespace,omitempty"`
-	Offband         *bool                            `bson:"offband,omitempty"`
-	Permissive      *bool                            `bson:"permissive,omitempty"`
-	PipelineName    *string                          `bson:"pipelinename,omitempty"`
-	PolicyRefs      *PolicyRefsList                  `bson:"policyrefs,omitempty"`
-	Principal       *Principal                       `bson:"principal,omitempty"`
-	Provider        *string                          `bson:"provider,omitempty"`
-	ProviderType    *PoliceResponseProviderTypeValue `bson:"providertype,omitempty"`
-	Reasons         *[]string                        `bson:"reasons,omitempty"`
-	Summary         *ExtractionSummary               `bson:"summary,omitempty"`
-	ToolChoice      *ToolChoice                      `bson:"toolchoice,omitempty"`
-	Tools           *map[string]*Tool                `bson:"tools,omitempty"`
-	Trace           *TraceRef                        `bson:"trace,omitempty"`
-	Type            *PoliceResponseTypeValue         `bson:"type,omitempty"`
+	ID                     bson.ObjectId                              `bson:"_id,omitempty"`
+	Alerts                 *[]*AlertEvent                             `bson:"alerts,omitempty"`
+	Annotations            *map[string]string                         `bson:"annotations,omitempty"`
+	Client                 *string                                    `bson:"client,omitempty"`
+	ClientVersion          *string                                    `bson:"clientversion,omitempty"`
+	ContentRedacted        *bool                                      `bson:"contentredacted,omitempty"`
+	Decision               *PoliceResponseDecisionValue               `bson:"decision,omitempty"`
+	Destination            *Destination                               `bson:"destination,omitempty"`
+	EncryptionEgress       *TLSState                                  `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState  *PoliceResponseEncryptionEgressStateValue  `bson:"encryptionegressstate,omitempty"`
+	EncryptionIngress      *TLSState                                  `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState *PoliceResponseEncryptionIngressStateValue `bson:"encryptioningressstate,omitempty"`
+	Error                  *RoundtripError                            `bson:"error,omitempty"`
+	Extractions            *[]*Extraction                             `bson:"extractions,omitempty"`
+	Hash                   *string                                    `bson:"hash,omitempty"`
+	Latency                *Latency                                   `bson:"latency,omitempty"`
+	McpMessage             *MCPMessage                                `bson:"mcpmessage,omitempty"`
+	Model                  *string                                    `bson:"model,omitempty"`
+	Namespace              *string                                    `bson:"namespace,omitempty"`
+	Offband                *bool                                      `bson:"offband,omitempty"`
+	Permissive             *bool                                      `bson:"permissive,omitempty"`
+	PipelineName           *string                                    `bson:"pipelinename,omitempty"`
+	PolicyRefs             *PolicyRefsList                            `bson:"policyrefs,omitempty"`
+	Principal              *Principal                                 `bson:"principal,omitempty"`
+	Provider               *string                                    `bson:"provider,omitempty"`
+	ProviderType           *PoliceResponseProviderTypeValue           `bson:"providertype,omitempty"`
+	Reasons                *[]string                                  `bson:"reasons,omitempty"`
+	Summary                *ExtractionSummary                         `bson:"summary,omitempty"`
+	ToolChoice             *ToolChoice                                `bson:"toolchoice,omitempty"`
+	Tools                  *map[string]*Tool                          `bson:"tools,omitempty"`
+	Trace                  *TraceRef                                  `bson:"trace,omitempty"`
+	Type                   *PoliceResponseTypeValue                   `bson:"type,omitempty"`
 }

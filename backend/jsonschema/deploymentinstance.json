@@ -23,6 +23,18 @@
         "null"
       ]
     },
+    "capabilities": {
+      "$friendlyName": "Capabilities",
+      "description": "The capabilities supported by this instance, each followed by the version of it that the instance supports, such as Discovery-1. The name is one of the capabilities of a deployment. An instance running a version that predates a capability does not report it.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "capabilities",
+      "type": "array"
+    },
     "config": {
       "$friendlyName": "Config",
       "description": "The configuration that the deployment was started with. The format of the config is version specific and subject to change.",

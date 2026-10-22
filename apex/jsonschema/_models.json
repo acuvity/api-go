@@ -96,6 +96,9 @@
     "textualdetection": {
       "$ref": "textualdetection.json"
     },
+    "tlsstate": {
+      "$ref": "tlsstate.json"
+    },
     "tool": {
       "$ref": "tool.json"
     },

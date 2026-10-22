@@ -65,7 +65,9 @@ var (
 		"dataset":                  DataSetIdentity,
 		"datasink":                 DataSinkIdentity,
 		"datasinkaccesslogs":       DataSinkAccessLogsIdentity,
+		"datasinkaccessmetrics":    DataSinkAccessMetricsIdentity,
 		"datasinkagenticlogs":      DataSinkAgenticLogsIdentity,
+		"datasinkagenticmetrics":   DataSinkAgenticMetricsIdentity,
 		"datasinkbackfill":         DataSinkBackfillIdentity,
 		"datasinkcheck":            DataSinkCheckIdentity,
 
@@ -262,7 +264,9 @@ var (
 		"datasets":                  DataSetIdentity,
 		"datasinks":                 DataSinkIdentity,
 		"datasinkaccesslogs":        DataSinkAccessLogsIdentity,
+		"datasinkaccessmetrics":     DataSinkAccessMetricsIdentity,
 		"datasinkagenticlogs":       DataSinkAgenticLogsIdentity,
+		"datasinkagenticmetrics":    DataSinkAgenticMetricsIdentity,
 		"datasinkbackfills":         DataSinkBackfillIdentity,
 		"datasinkchecks":            DataSinkCheckIdentity,
 
@@ -611,8 +615,10 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"datasinkaccesslogs":  nil,
-		"datasinkagenticlogs": nil,
+		"datasinkaccesslogs":     nil,
+		"datasinkaccessmetrics":  nil,
+		"datasinkagenticlogs":    nil,
+		"datasinkagenticmetrics": nil,
 		"datasinkbackfill": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"dataSinkID", "status"},
@@ -1196,8 +1202,12 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewDataSink()
 	case DataSinkAccessLogsIdentity:
 		return NewDataSinkAccessLogs()
+	case DataSinkAccessMetricsIdentity:
+		return NewDataSinkAccessMetrics()
 	case DataSinkAgenticLogsIdentity:
 		return NewDataSinkAgenticLogs()
+	case DataSinkAgenticMetricsIdentity:
+		return NewDataSinkAgenticMetrics()
 	case DataSinkBackfillIdentity:
 		return NewDataSinkBackfill()
 	case DataSinkCheckIdentity:
@@ -1485,8 +1495,12 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseDataSink()
 	case DataSinkAccessLogsIdentity:
 		return NewSparseDataSinkAccessLogs()
+	case DataSinkAccessMetricsIdentity:
+		return NewSparseDataSinkAccessMetrics()
 	case DataSinkAgenticLogsIdentity:
 		return NewSparseDataSinkAgenticLogs()
+	case DataSinkAgenticMetricsIdentity:
+		return NewSparseDataSinkAgenticMetrics()
 	case DataSinkBackfillIdentity:
 		return NewSparseDataSinkBackfill()
 	case DataSinkCheckIdentity:
@@ -1782,8 +1796,12 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &DataSinksList{}
 	case DataSinkAccessLogsIdentity:
 		return &DataSinkAccessLogsList{}
+	case DataSinkAccessMetricsIdentity:
+		return &DataSinkAccessMetricsList{}
 	case DataSinkAgenticLogsIdentity:
 		return &DataSinkAgenticLogsList{}
+	case DataSinkAgenticMetricsIdentity:
+		return &DataSinkAgenticMetricsList{}
 	case DataSinkBackfillIdentity:
 		return &DataSinkBackfillsList{}
 	case DataSinkCheckIdentity:
@@ -2069,8 +2087,12 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseDataSinksList{}
 	case DataSinkAccessLogsIdentity:
 		return &SparseDataSinkAccessLogsList{}
+	case DataSinkAccessMetricsIdentity:
+		return &SparseDataSinkAccessMetricsList{}
 	case DataSinkAgenticLogsIdentity:
 		return &SparseDataSinkAgenticLogsList{}
+	case DataSinkAgenticMetricsIdentity:
+		return &SparseDataSinkAgenticMetricsList{}
 	case DataSinkBackfillIdentity:
 		return &SparseDataSinkBackfillsList{}
 	case DataSinkCheckIdentity:
@@ -2394,6 +2416,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewDetector()
 	case "diagnostic", "Diagnostic":
 		return NewDiagnostic()
+	case "discoveryconfiguration", "DiscoveryConfiguration":
+		return NewDiscoveryConfiguration()
 	case "dnsreport", "DNSReport":
 		return NewDNSReport()
 	case "domainhits", "DomainHits":
@@ -2590,7 +2614,9 @@ func AllIdentities() []elemental.Identity {
 		DataSetIdentity,
 		DataSinkIdentity,
 		DataSinkAccessLogsIdentity,
+		DataSinkAccessMetricsIdentity,
 		DataSinkAgenticLogsIdentity,
+		DataSinkAgenticMetricsIdentity,
 		DataSinkBackfillIdentity,
 		DataSinkCheckIdentity,
 		DataSinkNotificationsIdentity,
@@ -2777,7 +2803,11 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case DataSinkAccessLogsIdentity:
 		return []string{}
+	case DataSinkAccessMetricsIdentity:
+		return []string{}
 	case DataSinkAgenticLogsIdentity:
+		return []string{}
+	case DataSinkAgenticMetricsIdentity:
 		return []string{}
 	case DataSinkBackfillIdentity:
 		return []string{}

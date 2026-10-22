@@ -872,6 +872,32 @@
               "Ingress"
             ]
           },
+          "encryptionEgress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionEgressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the app component to the origin server was\nencrypted. Unknown when it is not known. When left Unknown and\nencryptionEgress is set, it is considered Encrypted. It must not be\nUnencrypted when encryptionEgress is set.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
+          "encryptionIngress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the client to the app component was encrypted.\nUnknown when it is not known. When left Unknown and encryptionIngress is\nset, it is considered Encrypted. It must not be Unencrypted when\nencryptionIngress is set.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
           "extractions": {
             "description": "The extractions to request.",
             "items": {
@@ -890,8 +916,13 @@
             },
             "type": "array"
           },
+          "model": {
+            "description": "The model used by the request. When the request names neither a provider nor a\ndestination app and component and the destination host resolves no provider\neither, the provider serving this model becomes the policy target.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "provider": {
-            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nWhen neither this nor the destination app and component are set on an egress\nrequest, the provider is resolved from the destination host, and then from the\nmodel. On the police API an egress request must end up with a target. On the\nscan API it may end up with none to run a plain scan that targets nothing.",
             "example": "openai-api",
             "type": "string"
           },
@@ -978,6 +1009,32 @@
           },
           "destination": {
             "$ref": "#/components/schemas/destination"
+          },
+          "encryptionEgress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionEgressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the proxy to the origin server was encrypted.\nUnknown when it was not observed, which is the case for the scan and police\nAPIs and for webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
+          "encryptionIngress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the client to the proxy was encrypted. Unknown\nwhen it was not observed, which is the case for the scan and police APIs and\nfor webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
           },
           "error": {
             "$ref": "#/components/schemas/roundtriperror"
@@ -1344,7 +1401,7 @@
         "type": "object"
       },
       "requestdestination": {
-        "description": "RequestDestination holds the destination information for a request. When app\nand component are set, the request is evaluated against the app component's\npolicies instead of a provider. In that case, the provider field must not be\nset.\nOn the police API an egress request must name its target, so app and component\nare required unless a provider is given. On the scan API they may be left out\nto run a plain scan that targets nothing.",
+        "description": "RequestDestination holds the destination information for a request. When app\nand component are set, the request is evaluated against the app component's\npolicies instead of a provider. In that case, the provider field must not be\nset.\nWhen neither app and component nor a provider are given on egress, the provider\nis resolved from the host, and then from the model of the request. On the police\nAPI an egress request must end up with a target. On the scan API it may end up\nwith none to run a plain scan that targets nothing.",
         "properties": {
           "app": {
             "description": "The name of the destination application. Only takes effect together with\ncomponent: setting one without the other counts as no destination at all.",
@@ -1357,7 +1414,7 @@
             "type": "string"
           },
           "host": {
-            "description": "The host name of the destination. Optional, for logging enrichment.",
+            "description": "The host name of the destination. Optional. When the request names neither a\nprovider nor an app and component, the provider serving this host becomes the\npolicy target.",
             "example": "api.openai.com",
             "type": "string"
           },
@@ -1470,7 +1527,7 @@
         "type": "object"
       },
       "scanrequest": {
-        "description": "This is a scan request. Scan enforces no policy, so unlike police it can be used\nas a plain analyzer with no destination in mind: provider, destination and\ndirection may all be left out.",
+        "description": "This is a scan request. Scan enforces no policy, so unlike police it can be used\nas a plain analyzer with no destination in mind: provider, destination, model\nand direction may all be left out, and a host or model that resolves no\nprovider is not an error.",
         "properties": {
           "analyzers": {
             "description": "The analyzers parameter allows for customizing which analyzers should be used,\noverriding the default selection. Each analyzer entry can optionally include a\nprefix to modify its behavior:\n\n  - No prefix: Runs only the specified analyzers and any dependencies required\nfor deeper analysis (slower but more acurate).\n  - '+' (enable): Activates an analyzer that is disabled by default.\n  - '-' (disable): Disables an analyzer that is enabled by default.\n  - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper\nanalysis (faster but less acurate).\n\nAn analyzers entry can be specified using:\n  - The analyzer name (e.g., 'Toxicity detector')\n  - The analyzer ID (e.g., 'en-text-toxicity-detector')\n  - The analyzer group (e.g., 'Detectors')\n  - A detector name (e.g., 'toxic')\n  - A detector label (e.g., 'insult')\n  - A detector group (e.g., 'Malcontents')\n\nIf left empty, all default analyzers will be executed.",
@@ -1506,6 +1563,32 @@
               "Ingress"
             ]
           },
+          "encryptionEgress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionEgressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the app component to the origin server was\nencrypted. Unknown when it is not known. When left Unknown and\nencryptionEgress is set, it is considered Encrypted. It must not be\nUnencrypted when encryptionEgress is set.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
+          "encryptionIngress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the client to the app component was encrypted.\nUnknown when it is not known. When left Unknown and encryptionIngress is\nset, it is considered Encrypted. It must not be Unencrypted when\nencryptionIngress is set.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
           "extractions": {
             "description": "The extractions to request.",
             "items": {
@@ -1536,8 +1619,13 @@
             },
             "type": "array"
           },
+          "model": {
+            "description": "The model used by the request. When the request names neither a provider nor a\ndestination app and component and the destination host resolves no provider\neither, the provider serving this model becomes the policy target.",
+            "example": "claude-3-7-sonnet",
+            "type": "string"
+          },
           "provider": {
-            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nOn the police API an egress request must set either this or the destination app\nand component. On the scan API both may be omitted to run a plain scan that\ntargets nothing.",
+            "description": "The name of the provider to use for policy resolutions. Must not be set when\ndestination app and component are set.\nWhen neither this nor the destination app and component are set on an egress\nrequest, the provider is resolved from the destination host, and then from the\nmodel. On the police API an egress request must end up with a target. On the\nscan API it may end up with none to run a plain scan that targets nothing.",
             "example": "openai-api",
             "type": "string"
           },
@@ -1644,6 +1732,32 @@
           },
           "destination": {
             "$ref": "#/components/schemas/destination"
+          },
+          "encryptionEgress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionEgressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the proxy to the origin server was encrypted.\nUnknown when it was not observed, which is the case for the scan and police\nAPIs and for webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
+          "encryptionIngress": {
+            "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the client to the proxy was encrypted. Unknown\nwhen it was not observed, which is the case for the scan and police APIs and\nfor webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
           },
           "error": {
             "$ref": "#/components/schemas/roundtriperror"
@@ -1806,6 +1920,41 @@
             ]
           }
         },
+        "type": "object"
+      },
+      "tlsstate": {
+        "description": "Represents the TLS state of a connection.",
+        "properties": {
+          "ALPNNegotiatedProtocol": {
+            "description": "The application protocol being used that was negotiated with ALPN for this\nconnection.",
+            "example": "h2",
+            "type": "string"
+          },
+          "TLSVersion": {
+            "description": "The TLS protocol version used for the connection.",
+            "enum": [
+              "TLS10",
+              "TLS11",
+              "TLS12",
+              "TLS13"
+            ],
+            "example": "TLS12"
+          },
+          "cipherSuite": {
+            "description": "The negotiated cipher suite of the connection.",
+            "example": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+            "type": "string"
+          },
+          "implementation": {
+            "description": "The TLS library/provider/implementation used for the connection if known.",
+            "example": "OpenSSL",
+            "type": "string"
+          }
+        },
+        "required": [
+          "TLSVersion",
+          "cipherSuite"
+        ],
         "type": "object"
       },
       "tool": {
@@ -2199,7 +2348,7 @@
                 }
               }
             },
-            "description": "The request body could not be decoded, a header could not be parsed, an egress request named neither a provider nor a destination app and component, or the app component or provider it named does not exist."
+            "description": "The request body could not be decoded, a header could not be parsed, an egress request named neither a provider nor a destination app and component and none could be resolved from its destination host or model, or the app component or provider it named does not exist."
           },
           "401": {
             "content": {

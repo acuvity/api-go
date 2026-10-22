@@ -1,0 +1,50 @@
+{
+  "$extends": [
+    "@timed"
+  ],
+  "$friendlyName": "Data Sink Access Metrics",
+  "$friendlyNamePlural": "Data Sink Access Metrics",
+  "$modelName": "DataSinkAccessMetrics",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkaccessmetrics",
+  "$modelRestName": "datasinkaccessmetrics",
+  "additionalProperties": false,
+  "description": "Selects the access metrics dataset: the metrics of the organization's employees, rolled up to one row for each label combination and interval. The interval is the cadence of the data sink: one hour for Hourly, 24 hours for Daily. An empty list of groups exports every metric. createTime is when this dataset was enabled, where its live export starts. Changes of the groups preserve createTime; disabling and re-enabling the dataset gives it a new createTime. Timestamps are server owned.",
+  "properties": {
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groups": {
+      "$friendlyName": "Groups",
+      "description": "Export the metrics of these groups. Empty exports every group. A metric that is in more than one group is exported once.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "groups",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DataSinkAccessMetrics",
+  "type": "object"
+}

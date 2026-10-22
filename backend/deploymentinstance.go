@@ -102,6 +102,12 @@ type DeploymentInstance struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The capabilities supported by this instance, each followed by the version of
+	// it that the instance supports, such as Discovery-1. The name is one of the
+	// capabilities of a deployment. An instance running a version that predates a
+	// capability does not report it.
+	Capabilities []string `json:"capabilities,omitempty" msgpack:"capabilities,omitempty" bson:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
 	// The configuration that the deployment was started with. The format of the config
 	// is version specific and subject to change.
 	Config string `json:"config" msgpack:"config" bson:"config" mapstructure:"config,omitempty"`
@@ -150,6 +156,7 @@ func NewDeploymentInstance() *DeploymentInstance {
 
 	return &DeploymentInstance{
 		ModelVersion: 1,
+		Capabilities: []string{},
 		PublicKeys:   []string{},
 	}
 }
@@ -185,6 +192,7 @@ func (o *DeploymentInstance) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Capabilities = o.Capabilities
 	s.Config = o.Config
 	s.CurrentVersion = o.CurrentVersion
 	s.Diagnostics = o.Diagnostics
@@ -216,6 +224,7 @@ func (o *DeploymentInstance) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Capabilities = s.Capabilities
 	o.Config = s.Config
 	o.CurrentVersion = s.CurrentVersion
 	o.Diagnostics = s.Diagnostics
@@ -296,6 +305,7 @@ func (o *DeploymentInstance) ToSparse(fields ...string) elemental.SparseIdentifi
 		// nolint: goimports
 		return &SparseDeploymentInstance{
 			ID:             &o.ID,
+			Capabilities:   &o.Capabilities,
 			Config:         &o.Config,
 			CurrentVersion: &o.CurrentVersion,
 			Diagnostics:    &o.Diagnostics,
@@ -317,6 +327,8 @@ func (o *DeploymentInstance) ToSparse(fields ...string) elemental.SparseIdentifi
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "capabilities":
+			sp.Capabilities = &(o.Capabilities)
 		case "config":
 			sp.Config = &(o.Config)
 		case "currentVersion":
@@ -358,6 +370,9 @@ func (o *DeploymentInstance) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseDeploymentInstance)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.Capabilities != nil {
+		o.Capabilities = *so.Capabilities
 	}
 	if so.Config != nil {
 		o.Config = *so.Config
@@ -511,6 +526,8 @@ func (o *DeploymentInstance) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "capabilities":
+		return o.Capabilities
 	case "config":
 		return o.Config
 	case "currentVersion":
@@ -558,6 +575,20 @@ var DeploymentInstanceAttributesMap = map[string]elemental.AttributeSpecificatio
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description: `The capabilities supported by this instance, each followed by the version of
+it that the instance supports, such as Discovery-1. The name is one of the
+capabilities of a deployment. An instance running a version that predates a
+capability does not report it.`,
+		Exposed: true,
+		Name:    "capabilities",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Config": {
 		AllowedChoices: []string{},
@@ -703,6 +734,20 @@ var DeploymentInstanceLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		ReadOnly:       true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description: `The capabilities supported by this instance, each followed by the version of
+it that the instance supports, such as Discovery-1. The name is one of the
+capabilities of a deployment. An instance running a version that predates a
+capability does not report it.`,
+		Exposed: true,
+		Name:    "capabilities",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"config": {
 		AllowedChoices: []string{},
@@ -898,6 +943,12 @@ type SparseDeploymentInstance struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The capabilities supported by this instance, each followed by the version of
+	// it that the instance supports, such as Discovery-1. The name is one of the
+	// capabilities of a deployment. An instance running a version that predates a
+	// capability does not report it.
+	Capabilities *[]string `json:"capabilities,omitempty" msgpack:"capabilities,omitempty" bson:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
 	// The configuration that the deployment was started with. The format of the config
 	// is version specific and subject to change.
 	Config *string `json:"config,omitempty" msgpack:"config,omitempty" bson:"config,omitempty" mapstructure:"config,omitempty"`
@@ -984,6 +1035,9 @@ func (o *SparseDeploymentInstance) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Capabilities != nil {
+		s.Capabilities = o.Capabilities
+	}
 	if o.Config != nil {
 		s.Config = o.Config
 	}
@@ -1042,6 +1096,9 @@ func (o *SparseDeploymentInstance) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Capabilities != nil {
+		o.Capabilities = s.Capabilities
+	}
 	if s.Config != nil {
 		o.Config = s.Config
 	}
@@ -1097,6 +1154,9 @@ func (o *SparseDeploymentInstance) ToPlain() elemental.PlainIdentifiable {
 	out := NewDeploymentInstance()
 	if o.ID != nil {
 		out.ID = *o.ID
+	}
+	if o.Capabilities != nil {
+		out.Capabilities = *o.Capabilities
 	}
 	if o.Config != nil {
 		out.Config = *o.Config
@@ -1227,6 +1287,7 @@ func (o *SparseDeploymentInstance) DeepCopyInto(out *SparseDeploymentInstance) {
 
 type mongoAttributesDeploymentInstance struct {
 	ID             bson.ObjectId                 `bson:"_id,omitempty"`
+	Capabilities   []string                      `bson:"capabilities,omitempty"`
 	Config         string                        `bson:"config"`
 	CurrentVersion string                        `bson:"currentversion"`
 	Diagnostics    []Diagnostic                  `bson:"diagnostics"`
@@ -1243,6 +1304,7 @@ type mongoAttributesDeploymentInstance struct {
 }
 type mongoAttributesSparseDeploymentInstance struct {
 	ID             bson.ObjectId                  `bson:"_id,omitempty"`
+	Capabilities   *[]string                      `bson:"capabilities,omitempty"`
 	Config         *string                        `bson:"config,omitempty"`
 	CurrentVersion *string                        `bson:"currentversion,omitempty"`
 	Diagnostics    *[]Diagnostic                  `bson:"diagnostics,omitempty"`

@@ -165,6 +165,17 @@ func validateToolsHaveCategory(tools map[string]*Tool) error {
 	return nil
 }
 
+// validateRequestEncryption validates that a leg is not declared Unencrypted
+// while carrying TLS details.
+func validateRequestEncryption(attribute string, unencrypted bool, tls *TLSState) error {
+
+	if unencrypted && tls != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' must not be Unencrypted when TLS details are set", attribute))
+	}
+
+	return nil
+}
+
 // ValidateScanRequest validates the scan request.
 //
 // The body is deliberately a duplicate of ValidatePoliceRequest: both check the
@@ -178,6 +189,14 @@ func ValidateScanRequest(o *ScanRequest) error {
 	}
 
 	if err := validateToolsHaveCategory(o.Tools); err != nil {
+		return err
+	}
+
+	if err := validateRequestEncryption("encryptionEgressState", o.EncryptionEgressState == ScanRequestEncryptionEgressStateUnencrypted, o.EncryptionEgress); err != nil {
+		return err
+	}
+
+	if err := validateRequestEncryption("encryptionIngressState", o.EncryptionIngressState == ScanRequestEncryptionIngressStateUnencrypted, o.EncryptionIngress); err != nil {
 		return err
 	}
 
@@ -217,6 +236,14 @@ func ValidatePoliceRequest(o *PoliceRequest) error {
 	}
 
 	if err := validateToolsHaveCategory(o.Tools); err != nil {
+		return err
+	}
+
+	if err := validateRequestEncryption("encryptionEgressState", o.EncryptionEgressState == PoliceRequestEncryptionEgressStateUnencrypted, o.EncryptionEgress); err != nil {
+		return err
+	}
+
+	if err := validateRequestEncryption("encryptionIngressState", o.EncryptionIngressState == PoliceRequestEncryptionIngressStateUnencrypted, o.EncryptionIngress); err != nil {
 		return err
 	}
 

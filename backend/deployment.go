@@ -88,11 +88,21 @@ type Deployment struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The capabilities enabled on this deployment. 'Gateway' deploys the Apex
+	// proxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires
+	// discoveryConfiguration to be set. At least one capability is required; a
+	// deployment may have both.
+	Capabilities []string `json:"capabilities" msgpack:"capabilities" bson:"capabilities" mapstructure:"capabilities,omitempty"`
+
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
 	// The description of the deployment.
 	Description string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The discovery configuration of the deployment. Required if 'Discovery' is
+	// one of this deployment's capabilities; must not be set otherwise.
+	DiscoveryConfiguration *DiscoveryConfiguration `json:"discoveryConfiguration" msgpack:"discoveryConfiguration" bson:"discoveryconfiguration" mapstructure:"discoveryConfiguration,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
@@ -157,6 +167,7 @@ func NewDeployment() *Deployment {
 
 	return &Deployment{
 		ModelVersion: 1,
+		Capabilities: []string{},
 		Propagate:    true,
 		PublicKeys:   []string{},
 		PublicURLs:   []string{},
@@ -194,8 +205,10 @@ func (o *Deployment) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Capabilities = o.Capabilities
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.DiscoveryConfiguration = o.DiscoveryConfiguration
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
@@ -227,8 +240,10 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Capabilities = s.Capabilities
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.DiscoveryConfiguration = s.DiscoveryConfiguration
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
@@ -378,26 +393,28 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseDeployment{
-			ID:                   &o.ID,
-			CreateTime:           &o.CreateTime,
-			Description:          &o.Description,
-			FriendlyName:         &o.FriendlyName,
-			ImportHash:           &o.ImportHash,
-			ImportLabel:          &o.ImportLabel,
-			K8sNamespaceMappings: &o.K8sNamespaceMappings,
-			Name:                 &o.Name,
-			Namespace:            &o.Namespace,
-			Propagate:            &o.Propagate,
-			PublicKeys:           &o.PublicKeys,
-			PublicURLs:           &o.PublicURLs,
-			RenewToken:           &o.RenewToken,
-			RenewTokenTag:        &o.RenewTokenTag,
-			RenewTokenValidity:   &o.RenewTokenValidity,
-			Token:                &o.Token,
-			TokenRefs:            &o.TokenRefs,
-			UpdateTime:           &o.UpdateTime,
-			ZHash:                &o.ZHash,
-			Zone:                 &o.Zone,
+			ID:                     &o.ID,
+			Capabilities:           &o.Capabilities,
+			CreateTime:             &o.CreateTime,
+			Description:            &o.Description,
+			DiscoveryConfiguration: o.DiscoveryConfiguration,
+			FriendlyName:           &o.FriendlyName,
+			ImportHash:             &o.ImportHash,
+			ImportLabel:            &o.ImportLabel,
+			K8sNamespaceMappings:   &o.K8sNamespaceMappings,
+			Name:                   &o.Name,
+			Namespace:              &o.Namespace,
+			Propagate:              &o.Propagate,
+			PublicKeys:             &o.PublicKeys,
+			PublicURLs:             &o.PublicURLs,
+			RenewToken:             &o.RenewToken,
+			RenewTokenTag:          &o.RenewTokenTag,
+			RenewTokenValidity:     &o.RenewTokenValidity,
+			Token:                  &o.Token,
+			TokenRefs:              &o.TokenRefs,
+			UpdateTime:             &o.UpdateTime,
+			ZHash:                  &o.ZHash,
+			Zone:                   &o.Zone,
 		}
 	}
 
@@ -406,10 +423,14 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "capabilities":
+			sp.Capabilities = &(o.Capabilities)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "discoveryConfiguration":
+			sp.DiscoveryConfiguration = o.DiscoveryConfiguration
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
@@ -460,11 +481,17 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
+	if so.Capabilities != nil {
+		o.Capabilities = *so.Capabilities
+	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.DiscoveryConfiguration != nil {
+		o.DiscoveryConfiguration = so.DiscoveryConfiguration
 	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
@@ -522,6 +549,12 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.DiscoveryConfiguration != nil {
+		if err := o.DiscoveryConfiguration.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DiscoveryConfiguration' for 'Deployment' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.K8sNamespaceMappings {
 		if sub == nil {
 			continue
@@ -545,6 +578,12 @@ func (o *Deployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *Deployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.DiscoveryConfiguration != nil {
+		if err := o.DiscoveryConfiguration.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DiscoveryConfiguration' for 'Deployment' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.K8sNamespaceMappings {
 		if sub == nil {
@@ -598,6 +637,17 @@ func (o *Deployment) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if err := elemental.ValidateRequiredExternal("capabilities", o.Capabilities); err != nil {
+		requiredErrors = requiredErrors.Append(err)
+	}
+
+	if o.DiscoveryConfiguration != nil {
+		if err := o.DiscoveryConfiguration.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "discoveryConfiguration")
+			errors = errors.Append(err)
+		}
+	}
 
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -682,10 +732,14 @@ func (o *Deployment) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "capabilities":
+		return o.Capabilities
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "discoveryConfiguration":
+		return o.DiscoveryConfiguration
 	case "friendlyName":
 		return o.FriendlyName
 	case "importHash":
@@ -742,6 +796,21 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description: `The capabilities enabled on this deployment. 'Gateway' deploys the Apex
+proxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires
+discoveryConfiguration to be set. At least one capability is required; a
+deployment may have both.`,
+		Exposed:  true,
+		Name:     "capabilities",
+		Required: true,
+		Stored:   true,
+		SubType:  "string",
+		Type:     "list",
+	},
 	"CreateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -766,6 +835,18 @@ var DeploymentAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"DiscoveryConfiguration": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "discoveryconfiguration",
+		ConvertedName:  "DiscoveryConfiguration",
+		Description: `The discovery configuration of the deployment. Required if 'Discovery' is
+one of this deployment's capabilities; must not be set otherwise.`,
+		Exposed: true,
+		Name:    "discoveryConfiguration",
+		Stored:  true,
+		SubType: "discoveryconfiguration",
+		Type:    "ref",
 	},
 	"FriendlyName": {
 		AllowedChoices: []string{},
@@ -971,6 +1052,21 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Stored:         true,
 		Type:           "string",
 	},
+	"capabilities": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "capabilities",
+		ConvertedName:  "Capabilities",
+		Description: `The capabilities enabled on this deployment. 'Gateway' deploys the Apex
+proxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires
+discoveryConfiguration to be set. At least one capability is required; a
+deployment may have both.`,
+		Exposed:  true,
+		Name:     "capabilities",
+		Required: true,
+		Stored:   true,
+		SubType:  "string",
+		Type:     "list",
+	},
 	"createtime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -995,6 +1091,18 @@ var DeploymentLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"discoveryconfiguration": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "discoveryconfiguration",
+		ConvertedName:  "DiscoveryConfiguration",
+		Description: `The discovery configuration of the deployment. Required if 'Discovery' is
+one of this deployment's capabilities; must not be set otherwise.`,
+		Exposed: true,
+		Name:    "discoveryConfiguration",
+		Stored:  true,
+		SubType: "discoveryconfiguration",
+		Type:    "ref",
 	},
 	"friendlyname": {
 		AllowedChoices: []string{},
@@ -1249,11 +1357,21 @@ type SparseDeployment struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// The capabilities enabled on this deployment. 'Gateway' deploys the Apex
+	// proxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires
+	// discoveryConfiguration to be set. At least one capability is required; a
+	// deployment may have both.
+	Capabilities *[]string `json:"capabilities,omitempty" msgpack:"capabilities,omitempty" bson:"capabilities,omitempty" mapstructure:"capabilities,omitempty"`
+
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
 	// The description of the deployment.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// The discovery configuration of the deployment. Required if 'Discovery' is
+	// one of this deployment's capabilities; must not be set otherwise.
+	DiscoveryConfiguration *DiscoveryConfiguration `json:"discoveryConfiguration,omitempty" msgpack:"discoveryConfiguration,omitempty" bson:"discoveryconfiguration,omitempty" mapstructure:"discoveryConfiguration,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
@@ -1356,11 +1474,17 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Capabilities != nil {
+		s.Capabilities = o.Capabilities
+	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.DiscoveryConfiguration != nil {
+		s.DiscoveryConfiguration = o.DiscoveryConfiguration
 	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
@@ -1420,11 +1544,17 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Capabilities != nil {
+		o.Capabilities = s.Capabilities
+	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.DiscoveryConfiguration != nil {
+		o.DiscoveryConfiguration = s.DiscoveryConfiguration
 	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
@@ -1482,11 +1612,17 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.Capabilities != nil {
+		out.Capabilities = *o.Capabilities
+	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.DiscoveryConfiguration != nil {
+		out.DiscoveryConfiguration = o.DiscoveryConfiguration
 	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
@@ -1546,6 +1682,12 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.DiscoveryConfiguration != nil {
+		if err := o.DiscoveryConfiguration.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'DiscoveryConfiguration' for 'Deployment' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.K8sNamespaceMappings != nil {
 		for _, sub := range *o.K8sNamespaceMappings {
 			if sub == nil {
@@ -1573,6 +1715,12 @@ func (o *SparseDeployment) EncryptAttributes(encrypter elemental.AttributeEncryp
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseDeployment) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.DiscoveryConfiguration != nil {
+		if err := o.DiscoveryConfiguration.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'DiscoveryConfiguration' for 'Deployment' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.K8sNamespaceMappings != nil {
 		for _, sub := range *o.K8sNamespaceMappings {
@@ -1752,38 +1900,42 @@ func (o *SparseDeployment) DeepCopyInto(out *SparseDeployment) {
 }
 
 type mongoAttributesDeployment struct {
-	ID                   bson.ObjectId          `bson:"_id,omitempty"`
-	CreateTime           time.Time              `bson:"createtime"`
-	Description          string                 `bson:"description,omitempty"`
-	FriendlyName         string                 `bson:"friendlyname"`
-	ImportHash           string                 `bson:"importhash,omitempty"`
-	ImportLabel          string                 `bson:"importlabel,omitempty"`
-	K8sNamespaceMappings []*K8sNamespaceMapping `bson:"k8snamespacemappings"`
-	Name                 string                 `bson:"name"`
-	Namespace            string                 `bson:"namespace,omitempty"`
-	Propagate            bool                   `bson:"propagate"`
-	PublicKeys           []string               `bson:"publickeys"`
-	PublicURLs           []string               `bson:"publicurls"`
-	TokenRefs            []*TokenRef            `bson:"tokenrefs"`
-	UpdateTime           time.Time              `bson:"updatetime"`
-	ZHash                int                    `bson:"zhash"`
-	Zone                 int                    `bson:"zone"`
+	ID                     bson.ObjectId           `bson:"_id,omitempty"`
+	Capabilities           []string                `bson:"capabilities"`
+	CreateTime             time.Time               `bson:"createtime"`
+	Description            string                  `bson:"description,omitempty"`
+	DiscoveryConfiguration *DiscoveryConfiguration `bson:"discoveryconfiguration"`
+	FriendlyName           string                  `bson:"friendlyname"`
+	ImportHash             string                  `bson:"importhash,omitempty"`
+	ImportLabel            string                  `bson:"importlabel,omitempty"`
+	K8sNamespaceMappings   []*K8sNamespaceMapping  `bson:"k8snamespacemappings"`
+	Name                   string                  `bson:"name"`
+	Namespace              string                  `bson:"namespace,omitempty"`
+	Propagate              bool                    `bson:"propagate"`
+	PublicKeys             []string                `bson:"publickeys"`
+	PublicURLs             []string                `bson:"publicurls"`
+	TokenRefs              []*TokenRef             `bson:"tokenrefs"`
+	UpdateTime             time.Time               `bson:"updatetime"`
+	ZHash                  int                     `bson:"zhash"`
+	Zone                   int                     `bson:"zone"`
 }
 type mongoAttributesSparseDeployment struct {
-	ID                   bson.ObjectId           `bson:"_id,omitempty"`
-	CreateTime           *time.Time              `bson:"createtime,omitempty"`
-	Description          *string                 `bson:"description,omitempty"`
-	FriendlyName         *string                 `bson:"friendlyname,omitempty"`
-	ImportHash           *string                 `bson:"importhash,omitempty"`
-	ImportLabel          *string                 `bson:"importlabel,omitempty"`
-	K8sNamespaceMappings *[]*K8sNamespaceMapping `bson:"k8snamespacemappings,omitempty"`
-	Name                 *string                 `bson:"name,omitempty"`
-	Namespace            *string                 `bson:"namespace,omitempty"`
-	Propagate            *bool                   `bson:"propagate,omitempty"`
-	PublicKeys           *[]string               `bson:"publickeys,omitempty"`
-	PublicURLs           *[]string               `bson:"publicurls,omitempty"`
-	TokenRefs            *[]*TokenRef            `bson:"tokenrefs,omitempty"`
-	UpdateTime           *time.Time              `bson:"updatetime,omitempty"`
-	ZHash                *int                    `bson:"zhash,omitempty"`
-	Zone                 *int                    `bson:"zone,omitempty"`
+	ID                     bson.ObjectId           `bson:"_id,omitempty"`
+	Capabilities           *[]string               `bson:"capabilities,omitempty"`
+	CreateTime             *time.Time              `bson:"createtime,omitempty"`
+	Description            *string                 `bson:"description,omitempty"`
+	DiscoveryConfiguration *DiscoveryConfiguration `bson:"discoveryconfiguration,omitempty"`
+	FriendlyName           *string                 `bson:"friendlyname,omitempty"`
+	ImportHash             *string                 `bson:"importhash,omitempty"`
+	ImportLabel            *string                 `bson:"importlabel,omitempty"`
+	K8sNamespaceMappings   *[]*K8sNamespaceMapping `bson:"k8snamespacemappings,omitempty"`
+	Name                   *string                 `bson:"name,omitempty"`
+	Namespace              *string                 `bson:"namespace,omitempty"`
+	Propagate              *bool                   `bson:"propagate,omitempty"`
+	PublicKeys             *[]string               `bson:"publickeys,omitempty"`
+	PublicURLs             *[]string               `bson:"publicurls,omitempty"`
+	TokenRefs              *[]*TokenRef            `bson:"tokenrefs,omitempty"`
+	UpdateTime             *time.Time              `bson:"updatetime,omitempty"`
+	ZHash                  *int                    `bson:"zhash,omitempty"`
+	Zone                   *int                    `bson:"zone,omitempty"`
 }

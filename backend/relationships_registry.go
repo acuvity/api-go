@@ -827,6 +827,11 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name:     "capabilities",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
 						Name: "q",
 						Type: "string",
 					},
@@ -836,6 +841,11 @@ func init() {
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "capabilities",
+						Type:     "string",
+						Multiple: true,
+					},
 					{
 						Name: "q",
 						Type: "string",
@@ -1143,7 +1153,11 @@ func init() {
 
 	relationshipsRegistry[DataSinkAccessLogsIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[DataSinkAccessMetricsIdentity] = &elemental.Relationship{}
+
 	relationshipsRegistry[DataSinkAgenticLogsIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[DataSinkAgenticMetricsIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[DataSinkBackfillIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
@@ -2592,6 +2606,11 @@ func init() {
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
 					{
+						Name:     "capabilities",
+						Type:     "string",
+						Multiple: true,
+					},
+					{
 						Name: "deployment",
 						Type: "string",
 					},
@@ -2614,6 +2633,11 @@ func init() {
 		Info: map[string]*elemental.RelationshipInfo{
 			"root": {
 				Parameters: []elemental.ParameterDefinition{
+					{
+						Name:     "capabilities",
+						Type:     "string",
+						Multiple: true,
+					},
 					{
 						Name: "deployment",
 						Type: "string",

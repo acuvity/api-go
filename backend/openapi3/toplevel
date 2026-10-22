@@ -546,6 +546,10 @@
             "example": "30m",
             "type": "string"
           },
+          "driverDNSHTTPSBlockDisabled": {
+            "description": "If disabled, DNS HTTPS will not be blocked by the driver.",
+            "type": "boolean"
+          },
           "driverEnabled": {
             "description": "If enabled, the agent will leverage a network driver to steer AI traffic to the\nproxy.",
             "type": "boolean"
@@ -2499,10 +2503,11 @@
         "type": "object"
       },
       "aisecurityprobe": {
-        "description": "AI Security Probe defines configuration for probing mechanisms that provide\ndiscovery data about an environment.",
+        "description": "Deprecated: AI Security Probe defines configuration for probing mechanisms\nthat provide discovery data about an environment. Use a Deployment with the\n'Discovery' capability and its discoveryConfiguration instead. Existing\nobjects remain readable and manageable; new objects can no longer be\ncreated.",
         "properties": {
           "DNSMonitoring": {
             "default": "Enabled",
+            "deprecated": true,
             "description": "Enable or disable DNS monitoring.",
             "enum": [
               "Enabled",
@@ -2515,6 +2520,7 @@
             "type": "string"
           },
           "connectionMonitoring": {
+            "deprecated": true,
             "description": "Selects a list of targets for which to perform connection monitoring.",
             "items": {
               "$ref": "#/components/schemas/connectionmonitorselector"
@@ -2528,6 +2534,7 @@
             "type": "string"
           },
           "description": {
+            "deprecated": true,
             "description": "The description of the AI Security Probe configuration.",
             "example": "Created in JIRA ticket ADM-4242.",
             "type": "string"
@@ -2990,7 +2997,9 @@
             "description": "The dataset of the run, using the same values as DataSinkRun.dataset.",
             "enum": [
               "AccessLogs",
-              "AgenticLogs"
+              "AgenticLogs",
+              "AccessMetrics",
+              "AgenticMetrics"
             ]
           },
           "kind": {
@@ -5640,8 +5649,14 @@
           "accessLogs": {
             "$ref": "#/components/schemas/datasinkaccesslogs"
           },
+          "accessMetrics": {
+            "$ref": "#/components/schemas/datasinkaccessmetrics"
+          },
           "agenticLogs": {
             "$ref": "#/components/schemas/datasinkagenticlogs"
+          },
+          "agenticMetrics": {
+            "$ref": "#/components/schemas/datasinkagenticmetrics"
           },
           "cadence": {
             "default": "Hourly",
@@ -5794,6 +5809,31 @@
         },
         "type": "object"
       },
+      "datasinkaccessmetrics": {
+        "description": "Selects the access metrics dataset: the metrics of the organization's employees,\nrolled up to one row for each label combination and interval. The interval\nis the cadence of the data sink: one hour for Hourly, 24 hours for Daily.\nAn empty list of groups exports every metric. createTime is when this\ndataset was enabled, where its live export starts. Changes of the groups\npreserve createTime; disabling and re-enabling the dataset gives it a new\ncreateTime. Timestamps are server owned.",
+        "properties": {
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "groups": {
+            "description": "Export the metrics of these groups. Empty exports every group. A metric\nthat is in more than one group is exported once.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "datasinkagenticlogs": {
         "description": "Selects the agentic logs dataset and which of its rows to export. An empty\nlist does not restrict; the values of one list are alternatives, and\npopulated lists combine (AND). An empty selector exports every row.\ncreateTime is when this dataset was enabled, where its live export starts.\nFilter changes preserve createTime; disabling and re-enabling the dataset\ngives it a new createTime. Timestamps are server owned.",
         "properties": {
@@ -5852,6 +5892,38 @@
           },
           "providers": {
             "description": "Keep the rows of one of these providers.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "datasinkagenticmetrics": {
+        "description": "Selects the agentic metrics dataset: the metrics of the organization's\nprojects (applications and their agents), rolled up to one row for each\nlabel combination and interval. The interval is the cadence of the data\nsink: one hour for Hourly, 24 hours for Daily. An empty list does not\nrestrict. createTime is when this dataset was enabled, where its live\nexport starts. Changes of the selection preserve createTime; disabling and\nre-enabling the dataset gives it a new createTime. Timestamps are server\nowned.",
+        "properties": {
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "groups": {
+            "description": "Export the metrics of these groups. Empty exports every group. A metric\nthat is in more than one group is exported once.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "projects": {
+            "description": "Keep the metrics of these projects. Empty exports every project,\nincluding projects created later.",
             "items": {
               "type": "string"
             },
@@ -6031,7 +6103,9 @@
             "description": "The dataset exported. Its enum value is also the customer-facing dataset\nname, used directly in S3 paths such as dataset=AccessLogs/.",
             "enum": [
               "AccessLogs",
-              "AgenticLogs"
+              "AgenticLogs",
+              "AccessMetrics",
+              "AgenticMetrics"
             ],
             "example": "AccessLogs"
           },
@@ -6175,6 +6249,16 @@
             "readOnly": true,
             "type": "string"
           },
+          "capabilities": {
+            "description": "The capabilities enabled on this deployment. 'Gateway' deploys the Apex\nproxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires\ndiscoveryConfiguration to be set. At least one capability is required; a\ndeployment may have both.",
+            "example": [
+              "Gateway"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "createTime": {
             "description": "Creation date of the object.",
             "format": "date-time",
@@ -6185,6 +6269,9 @@
             "description": "The description of the deployment.",
             "example": "Production AI Security Gateway deployment on cluster-east-1 (ADM-4242)",
             "type": "string"
+          },
+          "discoveryConfiguration": {
+            "$ref": "#/components/schemas/discoveryconfiguration"
           },
           "friendlyName": {
             "description": "Friendly name of the object.",
@@ -6276,6 +6363,7 @@
           }
         },
         "required": [
+          "capabilities",
           "friendlyName"
         ],
         "type": "object"
@@ -6287,6 +6375,16 @@
             "description": "ID is the identifier of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "capabilities": {
+            "description": "The capabilities supported by this instance, each followed by the version of\nit that the instance supports, such as Discovery-1. The name is one of the\ncapabilities of a deployment. An instance running a version that predates a\ncapability does not report it.",
+            "example": [
+              "Discovery-1"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "config": {
             "description": "The configuration that the deployment was started with. The format of the config\nis version specific and subject to change.",
@@ -6585,6 +6683,28 @@
           "timeWindow": {
             "default": "24h",
             "description": "The time window for the report. The report will span from `[now() - tw, now()]`.\n24h is the minimum.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "discoveryconfiguration": {
+        "description": "DiscoveryConfiguration defines configuration for probing mechanisms that\nprovide discovery data about an environment, carried directly on a\nDeployment that has the 'Discovery' capability.",
+        "properties": {
+          "DNSMonitoringEnabled": {
+            "description": "Enable or disable DNS monitoring.",
+            "type": "boolean"
+          },
+          "connectionMonitoring": {
+            "description": "Selects a list of targets for which to perform connection monitoring.",
+            "items": {
+              "$ref": "#/components/schemas/connectionmonitorselector"
+            },
+            "type": "array"
+          },
+          "description": {
+            "description": "The description of the discovery configuration.",
+            "example": "Created in JIRA ticket ADM-4242.",
             "type": "string"
           }
         },
@@ -7521,7 +7641,9 @@
             "enum": [
               "Line",
               "SSE",
-              "GRPCFrame"
+              "GRPCFrame",
+              "EventStream",
+              "WebChannel"
             ]
           },
           "type": {
@@ -12512,8 +12634,28 @@
           "encryptionEgress": {
             "$ref": "#/components/schemas/tlsstate"
           },
+          "encryptionEgressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the proxy to the origin server was encrypted.\nUnknown when it was not observed, which is the case for the scan and police\nAPIs and for webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
+          },
           "encryptionIngress": {
             "$ref": "#/components/schemas/tlsstate"
+          },
+          "encryptionIngressState": {
+            "default": "Unknown",
+            "description": "Whether the connection from the client to the proxy was encrypted. Unknown\nwhen it was not observed, which is the case for the scan and police APIs and\nfor webhook integrations unless the caller provided it.",
+            "enum": [
+              "Unknown",
+              "Unencrypted",
+              "Encrypted"
+            ],
+            "example": "Encrypted"
           },
           "error": {
             "$ref": "#/components/schemas/roundtriperror"
@@ -15426,7 +15568,7 @@
             "type": "string"
           },
           "script": {
-            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nUnlike a provider extractor, each of the functions below runs in its own\nfresh sandbox. Nothing a script leaves in a global or a local survives from\none to the next. What does carry over is the call itself, because `input`\nreads the same request in all of them, and whatever the script chooses to\nreturn as `state`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n- `state`: anything at all, handed back to `webhook_output()` and\n  `webhook_error()` as the same kind of value it was returned as, so a table\n  comes back a table. It is never read or validated. This is how a script\n  maps a verdict back onto the exact place it came from in the vendor's\n  payload, without the bookkeeping that produced it having to be derived\n  twice.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It takes the result as its first\nparameter and the `state` returned by `webhook_input()` as its second. That\n`state` is nil when `webhook_input()` returned none, which is also the case\nwhen it reported nothing to inspect and the action is therefore\n`NotApplicable`. The result is a table containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nLike `webhook_output()` it takes the `state` returned by `webhook_input()`\nas its second parameter, which is nil when the failure happened before the\nscript could produce one. Its first parameter is a table describing the\nfailure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: whether this failure is to be treated as a rejection, so a\n  script may answer the vendor's equivalent of 'reject' or of 'no\n  objection' accordingly. When a stage of the pass failed, this is what the\n  access policy that was evaluated configured, which is also what the\n  logged round-trip records. For a failure that never reached a policy, and\n  on a Scan route, it is what the connector configured.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the fail close behavior\nthe connector configured, when the script could not be run at all.",
+            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nUnlike a provider extractor, each of the functions below runs in its own\nfresh sandbox. Nothing a script leaves in a global or a local survives from\none to the next. What does carry over is the call itself, because `input`\nreads the same request in all of them, and whatever the script chooses to\nreturn as `state`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `encryptionIngress` and `encryptionEgress`: tables with `TLSVersion`\n  and `cipherSuite`, and optionally `ALPNNegotiatedProtocol` and\n  `implementation`. They describe the TLS of the inspected traffic's\n  client-side and upstream-side legs, not of the vendor's call to us.\n- `encryptionIngressState` and `encryptionEgressState`: `Unknown`,\n  `Unencrypted` or `Encrypted`. They default to `Unknown`, or to\n  `Encrypted` when the matching TLS table is given. `Unencrypted`\n  together with a TLS table is rejected.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n- `state`: anything at all, handed back to `webhook_output()` and\n  `webhook_error()` as the same kind of value it was returned as, so a table\n  comes back a table. It is never read or validated. This is how a script\n  maps a verdict back onto the exact place it came from in the vendor's\n  payload, without the bookkeeping that produced it having to be derived\n  twice.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It takes the result as its first\nparameter and the `state` returned by `webhook_input()` as its second. That\n`state` is nil when `webhook_input()` returned none, which is also the case\nwhen it reported nothing to inspect and the action is therefore\n`NotApplicable`. The result is a table containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nLike `webhook_output()` it takes the `state` returned by `webhook_input()`\nas its second parameter, which is nil when the failure happened before the\nscript could produce one. Its first parameter is a table describing the\nfailure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: whether this failure is to be treated as a rejection, so a\n  script may answer the vendor's equivalent of 'reject' or of 'no\n  objection' accordingly. When a stage of the pass failed, this is what the\n  access policy that was evaluated configured, which is also what the\n  logged round-trip records. For a failure that never reached a policy, and\n  on a Scan route, it is what the connector configured.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the fail close behavior\nthe connector configured, when the script could not be run at all.",
             "example": "function webhook_input()\n  local body = json.decode(input.body())\n  return {\n    type = \"input\",\n    model = body.model,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n    state = {sent = body.texts[1]},\n  }\nend\n\nfunction webhook_output(result, state)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  local redacted = result.redactions[\"t0\"]\n  if state and redacted and redacted ~= state.sent then\n    return {body = json.encode({action = \"GUARDRAIL_INTERVENED\", texts = {redacted}})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err, state)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
             "type": "string"
           }
@@ -17564,7 +17706,7 @@
         ]
       },
       "post": {
-        "description": "Creates a new AI Security Probe.",
+        "description": "Deprecated: AI Security Probe can no longer be created. Use a Deployment\nwith the 'Discovery' capability instead.",
         "operationId": "create-AISecurityProbe",
         "requestBody": {
           "content": {
@@ -18531,6 +18673,17 @@
         "description": "List all available appagentconf.",
         "operationId": "get-all-AppAgentConfs",
         "parameters": [
+          {
+            "description": "The capabilities the requesting agent supports, each followed by the\nversion of it that it supports, such as Gateway-1 or Discovery-1.",
+            "example": [
+              "Discovery-1"
+            ],
+            "in": "query",
+            "name": "capabilities",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "This is an example.",
             "example": "hello == world",
@@ -25124,6 +25277,17 @@
         "description": "List all available proxyconf.",
         "operationId": "get-all-ProxyConfs",
         "parameters": [
+          {
+            "description": "The capabilities the requesting agent supports, each followed by the\nversion of it that it supports, such as Gateway-1 or Discovery-1.",
+            "example": [
+              "Discovery-1"
+            ],
+            "in": "query",
+            "name": "capabilities",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "description": "The deployment whose AI gateways to include. Defaults to the default\ndeployment, and a deployment token always uses its own.",
             "example": "acme-onprem",

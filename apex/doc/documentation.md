@@ -109,10 +109,13 @@ its target: either a provider or a destination app and component.
   "anonymization": "FixedSize",
   "conversationID": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
   "direction": "Egress",
+  "encryptionEgressState": "Encrypted",
+  "encryptionIngressState": "Encrypted",
   "messages": [
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
+  "model": "claude-3-7-sonnet",
   "provider": "openai-api",
   "tools": {
     "tool1": {
@@ -160,8 +163,10 @@ Type: [`requestdestination`](#requestdestination)
 
 The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
-On the police API an egress request must set either this or the provider: the
-policy needs a target. On the scan API both may be omitted to run a plain scan
+When an egress request names neither a provider nor a destination app and
+component, the provider is resolved from the destination host, and then from
+the model. On the police API an egress request must end up with a target: the
+policy needs one. On the scan API it may end up with none to run a plain scan
 that targets nothing, in which case the app component identified by the
 caller's token is reported as the destination so that the request still shows
 up in traces.
@@ -180,6 +185,52 @@ Default value:
 "Egress"
 ```
 
+##### `encryptionEgress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the app component to the
+origin server, if known. When it is set, encryptionEgressState defaults to
+Encrypted.
+
+##### `encryptionEgressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the app component to the origin server was
+encrypted. Unknown when it is not known. When left Unknown and
+encryptionEgress is set, it is considered Encrypted. It must not be
+Unencrypted when encryptionEgress is set.
+
+Default value:
+
+```json
+"Unknown"
+```
+
+##### `encryptionIngress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the client to the app
+component, if known. When it is set, encryptionIngressState defaults to
+Encrypted.
+
+##### `encryptionIngressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the client to the app component was encrypted.
+Unknown when it is not known. When left Unknown and encryptionIngress is
+set, it is considered Encrypted. It must not be Unencrypted when
+encryptionIngress is set.
+
+Default value:
+
+```json
+"Unknown"
+```
+
 ##### `extractions`
 
 Type: [`[]extractionrequest`](#extractionrequest)
@@ -193,15 +244,24 @@ Type: `[]string`
 Messages to process and provide detections for. Use data in extractions for
 processing binary data.
 
+##### `model`
+
+Type: `string`
+
+The model used by the request. When the request names neither a provider nor a
+destination app and component and the destination host resolves no provider
+either, the provider serving this model becomes the policy target.
+
 ##### `provider`
 
 Type: `string`
 
 The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
-On the police API an egress request must set either this or the destination app
-and component. On the scan API both may be omitted to run a plain scan that
-targets nothing.
+When neither this nor the destination app and component are set on an egress
+request, the provider is resolved from the destination host, and then from the
+model. On the police API an egress request must end up with a target. On the
+scan API it may end up with none to run a plain scan that targets nothing.
 
 ##### `source`
 
@@ -245,6 +305,8 @@ This is a scan and police response.
   "clientVersion": "7.64.1",
   "contentRedacted": false,
   "decision": "Deny",
+  "encryptionEgressState": "Encrypted",
+  "encryptionIngressState": "Encrypted",
   "model": "claude-3-7-sonnet",
   "offband": false,
   "permissive": false,
@@ -333,6 +395,46 @@ landed on 2026-05-19), once consumers have rolled forward.
 Type: [`destination`](#destination)
 
 Captures all details of the destination of the request.
+
+##### `encryptionEgress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the proxy to the origin server.
+
+##### `encryptionEgressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.
+
+Default value:
+
+```json
+"Unknown"
+```
+
+##### `encryptionIngress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the client to the proxy.
+
+##### `encryptionIngressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.
+
+Default value:
+
+```json
+"Unknown"
+```
 
 ##### `error`
 
@@ -480,9 +582,10 @@ RequestDestination holds the destination information for a request. When app
 and component are set, the request is evaluated against the app component's
 policies instead of a provider. In that case, the provider field must not be
 set.
-On the police API an egress request must name its target, so app and component
-are required unless a provider is given. On the scan API they may be left out
-to run a plain scan that targets nothing.
+When neither app and component nor a provider are given on egress, the provider
+is resolved from the host, and then from the model of the request. On the police
+API an egress request must end up with a target. On the scan API it may end up
+with none to run a plain scan that targets nothing.
 
 #### Example
 
@@ -516,7 +619,9 @@ app: setting one without the other counts as no destination at all.
 
 Type: `string`
 
-The host name of the destination. Optional, for logging enrichment.
+The host name of the destination. Optional. When the request names neither a
+provider nor an app and component, the provider serving this host becomes the
+policy target.
 
 ##### `ip`
 
@@ -627,8 +732,9 @@ The trace ID, as a hex encoded string, this request belongs to.
 ### ScanRequest
 
 This is a scan request. Scan enforces no policy, so unlike police it can be used
-as a plain analyzer with no destination in mind: provider, destination and
-direction may all be left out.
+as a plain analyzer with no destination in mind: provider, destination, model
+and direction may all be left out, and a host or model that resolves no
+provider is not an error.
 
 #### Example
 
@@ -640,6 +746,8 @@ direction may all be left out.
   "anonymization": "FixedSize",
   "conversationID": "6f37d752-bce1-4973-88f6-28b6c100ceb8",
   "direction": "Egress",
+  "encryptionEgressState": "Encrypted",
+  "encryptionIngressState": "Encrypted",
   "keywords": [
     "legal",
     "technical",
@@ -649,6 +757,7 @@ direction may all be left out.
     "Summarize the main points of this article in bullet points.",
     "Generate a list of creative product names for a futuristic tech gadget."
   ],
+  "model": "claude-3-7-sonnet",
   "provider": "openai-api",
   "redactContent": false,
   "redactContentBypass": false,
@@ -728,8 +837,10 @@ Type: [`requestdestination`](#requestdestination)
 
 The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
-On the police API an egress request must set either this or the provider: the
-policy needs a target. On the scan API both may be omitted to run a plain scan
+When an egress request names neither a provider nor a destination app and
+component, the provider is resolved from the destination host, and then from
+the model. On the police API an egress request must end up with a target: the
+policy needs one. On the scan API it may end up with none to run a plain scan
 that targets nothing, in which case the app component identified by the
 caller's token is reported as the destination so that the request still shows
 up in traces.
@@ -746,6 +857,52 @@ Default value:
 
 ```json
 "Egress"
+```
+
+##### `encryptionEgress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the app component to the
+origin server, if known. When it is set, encryptionEgressState defaults to
+Encrypted.
+
+##### `encryptionEgressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the app component to the origin server was
+encrypted. Unknown when it is not known. When left Unknown and
+encryptionEgress is set, it is considered Encrypted. It must not be
+Unencrypted when encryptionEgress is set.
+
+Default value:
+
+```json
+"Unknown"
+```
+
+##### `encryptionIngress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the client to the app
+component, if known. When it is set, encryptionIngressState defaults to
+Encrypted.
+
+##### `encryptionIngressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the client to the app component was encrypted.
+Unknown when it is not known. When left Unknown and encryptionIngress is
+set, it is considered Encrypted. It must not be Unencrypted when
+encryptionIngress is set.
+
+Default value:
+
+```json
+"Unknown"
 ```
 
 ##### `extractions`
@@ -767,15 +924,24 @@ Type: `[]string`
 Messages to process and provide detections for. Use data in extractions for
 processing binary data.
 
+##### `model`
+
+Type: `string`
+
+The model used by the request. When the request names neither a provider nor a
+destination app and component and the destination host resolves no provider
+either, the provider serving this model becomes the policy target.
+
 ##### `provider`
 
 Type: `string`
 
 The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
-On the police API an egress request must set either this or the destination app
-and component. On the scan API both may be omitted to run a plain scan that
-targets nothing.
+When neither this nor the destination app and component are set on an egress
+request, the provider is resolved from the destination host, and then from the
+model. On the police API an egress request must end up with a target. On the
+scan API it may end up with none to run a plain scan that targets nothing.
 
 ##### `redactContent`
 
@@ -842,6 +1008,8 @@ This is a scan response.
   "clientVersion": "7.64.1",
   "contentRedacted": false,
   "decision": "Deny",
+  "encryptionEgressState": "Encrypted",
+  "encryptionIngressState": "Encrypted",
   "model": "claude-3-7-sonnet",
   "principal": "{
   \"type\": \"User\",
@@ -928,6 +1096,46 @@ landed on 2026-05-19), once consumers have rolled forward.
 Type: [`destination`](#destination)
 
 Captures all details of the destination of the request.
+
+##### `encryptionEgress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the proxy to the origin server.
+
+##### `encryptionEgressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.
+
+Default value:
+
+```json
+"Unknown"
+```
+
+##### `encryptionIngress`
+
+Type: [`tlsstate`](#tlsstate)
+
+The encryption details of the connection from the client to the proxy.
+
+##### `encryptionIngressState`
+
+Type: `enum(Unknown | Unencrypted | Encrypted)`
+
+Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.
+
+Default value:
+
+```json
+"Unknown"
+```
 
 ##### `error`
 
@@ -2726,6 +2934,48 @@ The start position of the detection in the original data.
 Type: `enum(Keyword | PII | Secret | CDT)`
 
 The type of detection.
+
+### TLSState
+
+Represents the TLS state of a connection.
+
+#### Example
+
+```json
+{
+  "ALPNNegotiatedProtocol": "h2",
+  "TLSVersion": "TLS12",
+  "cipherSuite": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "implementation": "OpenSSL"
+}
+```
+
+#### Attributes
+
+##### `ALPNNegotiatedProtocol`
+
+Type: `string`
+
+The application protocol being used that was negotiated with ALPN for this
+connection.
+
+##### `TLSVersion` [`required`]
+
+Type: `enum(TLS10 | TLS11 | TLS12 | TLS13)`
+
+The TLS protocol version used for the connection.
+
+##### `cipherSuite` [`required`]
+
+Type: `string`
+
+The negotiated cipher suite of the connection.
+
+##### `implementation`
+
+Type: `string`
+
+The TLS library/provider/implementation used for the connection if known.
 
 ### Tool
 

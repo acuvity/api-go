@@ -35,7 +35,7 @@
     "destination": {
       "$friendlyName": "Destination",
       "$ref": "requestdestination.json",
-      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set. On the police API an egress request must set either this or the provider: the policy needs a target. On the scan API both may be omitted to run a plain scan that targets nothing, in which case the app component identified by the caller's token is reported as the destination so that the request still shows up in traces.",
+      "description": "The destination for this request. When destination app and component are set, they become the policy target and the provider field must not be set. When an egress request names neither a provider nor a destination app and component, the provider is resolved from the destination host, and then from the model. On the police API an egress request must end up with a target: the policy needs one. On the scan API it may end up with none to run a plain scan that targets nothing, in which case the app component identified by the caller's token is reported as the destination so that the request still shows up in traces.",
       "title": "destination"
     },
     "direction": {
@@ -47,6 +47,40 @@
         "Ingress"
       ],
       "title": "direction"
+    },
+    "encryptionEgress": {
+      "$friendlyName": "Encryption Egress",
+      "$ref": "tlsstate.json",
+      "description": "The encryption details of the connection from the app component to the origin server, if known. When it is set, encryptionEgressState defaults to Encrypted.",
+      "title": "encryptionEgress"
+    },
+    "encryptionEgressState": {
+      "$defaultValue": "Unknown",
+      "$friendlyName": "Encryption Egress State",
+      "description": "Whether the connection from the app component to the origin server was encrypted. Unknown when it is not known. When left Unknown and encryptionEgress is set, it is considered Encrypted. It must not be Unencrypted when encryptionEgress is set.",
+      "enum": [
+        "Unknown",
+        "Unencrypted",
+        "Encrypted"
+      ],
+      "title": "encryptionEgressState"
+    },
+    "encryptionIngress": {
+      "$friendlyName": "Encryption Ingress",
+      "$ref": "tlsstate.json",
+      "description": "The encryption details of the connection from the client to the app component, if known. When it is set, encryptionIngressState defaults to Encrypted.",
+      "title": "encryptionIngress"
+    },
+    "encryptionIngressState": {
+      "$defaultValue": "Unknown",
+      "$friendlyName": "Encryption Ingress State",
+      "description": "Whether the connection from the client to the app component was encrypted. Unknown when it is not known. When left Unknown and encryptionIngress is set, it is considered Encrypted. It must not be Unencrypted when encryptionIngress is set.",
+      "enum": [
+        "Unknown",
+        "Unencrypted",
+        "Encrypted"
+      ],
+      "title": "encryptionIngressState"
     },
     "extractions": {
       "$friendlyName": "Extractions",
@@ -69,9 +103,18 @@
       "title": "messages",
       "type": "array"
     },
+    "model": {
+      "$friendlyName": "Model",
+      "description": "The model used by the request. When the request names neither a provider nor a destination app and component and the destination host resolves no provider either, the provider serving this model becomes the policy target.",
+      "title": "model",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "provider": {
       "$friendlyName": "Provider",
-      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set. On the police API an egress request must set either this or the destination app and component. On the scan API both may be omitted to run a plain scan that targets nothing.",
+      "description": "The name of the provider to use for policy resolutions. Must not be set when destination app and component are set. When neither this nor the destination app and component are set on an egress request, the provider is resolved from the destination host, and then from the model. On the police API an egress request must end up with a target. On the scan API it may end up with none to run a plain scan that targets nothing.",
       "title": "provider",
       "type": [
         "string",

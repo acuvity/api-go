@@ -50,7 +50,9 @@
       "description": "The dataset of the run, using the same values as DataSinkRun.dataset.",
       "enum": [
         "AccessLogs",
-        "AgenticLogs"
+        "AgenticLogs",
+        "AccessMetrics",
+        "AgenticMetrics"
       ],
       "title": "dataset"
     },

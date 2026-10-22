@@ -20,8 +20,14 @@ const (
 	// DataSinkRunDatasetAccessLogs represents the value AccessLogs.
 	DataSinkRunDatasetAccessLogs DataSinkRunDatasetValue = "AccessLogs"
 
+	// DataSinkRunDatasetAccessMetrics represents the value AccessMetrics.
+	DataSinkRunDatasetAccessMetrics DataSinkRunDatasetValue = "AccessMetrics"
+
 	// DataSinkRunDatasetAgenticLogs represents the value AgenticLogs.
 	DataSinkRunDatasetAgenticLogs DataSinkRunDatasetValue = "AgenticLogs"
+
+	// DataSinkRunDatasetAgenticMetrics represents the value AgenticMetrics.
+	DataSinkRunDatasetAgenticMetrics DataSinkRunDatasetValue = "AgenticMetrics"
 )
 
 // DataSinkRunKindValue represents the possible values for attribute "kind".
@@ -626,7 +632,7 @@ func (o *DataSinkRun) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("dataset", string(o.Dataset), []string{"AccessLogs", "AgenticLogs"}, false); err != nil {
+	if err := elemental.ValidateStringInList("dataset", string(o.Dataset), []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -847,7 +853,7 @@ May reset when the run restarts with corrected configuration.`,
 		Type:           "string",
 	},
 	"Dataset": {
-		AllowedChoices: []string{"AccessLogs", "AgenticLogs"},
+		AllowedChoices: []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"},
 		BSONFieldName:  "dataset",
 		ConvertedName:  "Dataset",
 		CreationOnly:   true,
@@ -1142,7 +1148,7 @@ May reset when the run restarts with corrected configuration.`,
 		Type:           "string",
 	},
 	"dataset": {
-		AllowedChoices: []string{"AccessLogs", "AgenticLogs"},
+		AllowedChoices: []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"},
 		BSONFieldName:  "dataset",
 		ConvertedName:  "Dataset",
 		CreationOnly:   true,

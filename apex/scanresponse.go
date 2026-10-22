@@ -51,6 +51,34 @@ const (
 	ScanResponseDecisionUpstreamError ScanResponseDecisionValue = "UpstreamError"
 )
 
+// ScanResponseEncryptionEgressStateValue represents the possible values for attribute "encryptionEgressState".
+type ScanResponseEncryptionEgressStateValue string
+
+const (
+	// ScanResponseEncryptionEgressStateEncrypted represents the value Encrypted.
+	ScanResponseEncryptionEgressStateEncrypted ScanResponseEncryptionEgressStateValue = "Encrypted"
+
+	// ScanResponseEncryptionEgressStateUnencrypted represents the value Unencrypted.
+	ScanResponseEncryptionEgressStateUnencrypted ScanResponseEncryptionEgressStateValue = "Unencrypted"
+
+	// ScanResponseEncryptionEgressStateUnknown represents the value Unknown.
+	ScanResponseEncryptionEgressStateUnknown ScanResponseEncryptionEgressStateValue = "Unknown"
+)
+
+// ScanResponseEncryptionIngressStateValue represents the possible values for attribute "encryptionIngressState".
+type ScanResponseEncryptionIngressStateValue string
+
+const (
+	// ScanResponseEncryptionIngressStateEncrypted represents the value Encrypted.
+	ScanResponseEncryptionIngressStateEncrypted ScanResponseEncryptionIngressStateValue = "Encrypted"
+
+	// ScanResponseEncryptionIngressStateUnencrypted represents the value Unencrypted.
+	ScanResponseEncryptionIngressStateUnencrypted ScanResponseEncryptionIngressStateValue = "Unencrypted"
+
+	// ScanResponseEncryptionIngressStateUnknown represents the value Unknown.
+	ScanResponseEncryptionIngressStateUnknown ScanResponseEncryptionIngressStateValue = "Unknown"
+)
+
 // ScanResponseProviderTypeValue represents the possible values for attribute "providerType".
 type ScanResponseProviderTypeValue string
 
@@ -185,6 +213,22 @@ type ScanResponse struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState ScanResponseEncryptionEgressStateValue `json:"encryptionEgressState" msgpack:"encryptionEgressState" bson:"encryptionegressstate" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState ScanResponseEncryptionIngressStateValue `json:"encryptionIngressState" msgpack:"encryptionIngressState" bson:"encryptioningressstate" mapstructure:"encryptionIngressState,omitempty"`
+
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
 	// UpstreamError), the failing stage, and a human-readable message.
@@ -248,9 +292,11 @@ type ScanResponse struct {
 func NewScanResponse() *ScanResponse {
 
 	return &ScanResponse{
-		ModelVersion: 1,
-		Annotations:  map[string]string{},
-		Principal:    NewPrincipal(),
+		ModelVersion:           1,
+		Annotations:            map[string]string{},
+		EncryptionEgressState:  ScanResponseEncryptionEgressStateUnknown,
+		EncryptionIngressState: ScanResponseEncryptionIngressStateUnknown,
+		Principal:              NewPrincipal(),
 	}
 }
 
@@ -292,6 +338,10 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	s.ContentRedacted = o.ContentRedacted
 	s.Decision = o.Decision
 	s.Destination = o.Destination
+	s.EncryptionEgress = o.EncryptionEgress
+	s.EncryptionEgressState = o.EncryptionEgressState
+	s.EncryptionIngress = o.EncryptionIngress
+	s.EncryptionIngressState = o.EncryptionIngressState
 	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.Hash = o.Hash
@@ -334,6 +384,10 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	o.ContentRedacted = s.ContentRedacted
 	o.Decision = s.Decision
 	o.Destination = s.Destination
+	o.EncryptionEgress = s.EncryptionEgress
+	o.EncryptionEgressState = s.EncryptionEgressState
+	o.EncryptionIngress = s.EncryptionIngress
+	o.EncryptionIngressState = s.EncryptionIngressState
 	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.Hash = s.Hash
@@ -403,32 +457,36 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseScanResponse{
-			ID:              &o.ID,
-			Alerts:          &o.Alerts,
-			Annotations:     &o.Annotations,
-			Client:          &o.Client,
-			ClientVersion:   &o.ClientVersion,
-			ContentRedacted: &o.ContentRedacted,
-			Decision:        &o.Decision,
-			Destination:     o.Destination,
-			Error:           o.Error,
-			Extractions:     &o.Extractions,
-			Hash:            &o.Hash,
-			Latency:         o.Latency,
-			McpMessage:      o.McpMessage,
-			Model:           &o.Model,
-			Namespace:       &o.Namespace,
-			PipelineName:    &o.PipelineName,
-			Principal:       o.Principal,
-			Provider:        &o.Provider,
-			ProviderType:    &o.ProviderType,
-			Reasons:         &o.Reasons,
-			Summary:         o.Summary,
-			Time:            &o.Time,
-			ToolChoice:      o.ToolChoice,
-			Tools:           &o.Tools,
-			Trace:           o.Trace,
-			Type:            &o.Type,
+			ID:                     &o.ID,
+			Alerts:                 &o.Alerts,
+			Annotations:            &o.Annotations,
+			Client:                 &o.Client,
+			ClientVersion:          &o.ClientVersion,
+			ContentRedacted:        &o.ContentRedacted,
+			Decision:               &o.Decision,
+			Destination:            o.Destination,
+			EncryptionEgress:       o.EncryptionEgress,
+			EncryptionEgressState:  &o.EncryptionEgressState,
+			EncryptionIngress:      o.EncryptionIngress,
+			EncryptionIngressState: &o.EncryptionIngressState,
+			Error:                  o.Error,
+			Extractions:            &o.Extractions,
+			Hash:                   &o.Hash,
+			Latency:                o.Latency,
+			McpMessage:             o.McpMessage,
+			Model:                  &o.Model,
+			Namespace:              &o.Namespace,
+			PipelineName:           &o.PipelineName,
+			Principal:              o.Principal,
+			Provider:               &o.Provider,
+			ProviderType:           &o.ProviderType,
+			Reasons:                &o.Reasons,
+			Summary:                o.Summary,
+			Time:                   &o.Time,
+			ToolChoice:             o.ToolChoice,
+			Tools:                  &o.Tools,
+			Trace:                  o.Trace,
+			Type:                   &o.Type,
 		}
 	}
 
@@ -451,6 +509,14 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Decision = &(o.Decision)
 		case "destination":
 			sp.Destination = o.Destination
+		case "encryptionEgress":
+			sp.EncryptionEgress = o.EncryptionEgress
+		case "encryptionEgressState":
+			sp.EncryptionEgressState = &(o.EncryptionEgressState)
+		case "encryptionIngress":
+			sp.EncryptionIngress = o.EncryptionIngress
+		case "encryptionIngressState":
+			sp.EncryptionIngressState = &(o.EncryptionIngressState)
 		case "error":
 			sp.Error = o.Error
 		case "extractions":
@@ -524,6 +590,18 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Destination != nil {
 		o.Destination = so.Destination
 	}
+	if so.EncryptionEgress != nil {
+		o.EncryptionEgress = so.EncryptionEgress
+	}
+	if so.EncryptionEgressState != nil {
+		o.EncryptionEgressState = *so.EncryptionEgressState
+	}
+	if so.EncryptionIngress != nil {
+		o.EncryptionIngress = so.EncryptionIngress
+	}
+	if so.EncryptionIngressState != nil {
+		o.EncryptionIngressState = *so.EncryptionIngressState
+	}
 	if so.Error != nil {
 		o.Error = so.Error
 	}
@@ -595,6 +673,18 @@ func (o *ScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -676,6 +766,18 @@ func (o *ScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -793,6 +895,28 @@ func (o *ScanResponse) Validate() error {
 			elemental.InjectAttributePath(err, "destination")
 			errors = errors.Append(err)
 		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionEgress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionEgressState", string(o.EncryptionEgressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionIngress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionIngressState", string(o.EncryptionIngressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Error != nil {
@@ -926,6 +1050,14 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 		return o.Decision
 	case "destination":
 		return o.Destination
+	case "encryptionEgress":
+		return o.EncryptionEgress
+	case "encryptionEgressState":
+		return o.EncryptionEgressState
+	case "encryptionIngress":
+		return o.EncryptionIngress
+	case "encryptionIngressState":
+		return o.EncryptionIngressState
 	case "error":
 		return o.Error
 	case "extractions":
@@ -1072,6 +1204,54 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		Stored:         true,
 		SubType:        "destination",
 		Type:           "ref",
+	},
+	"EncryptionEgress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"EncryptionEgressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ScanResponseEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"EncryptionIngress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"EncryptionIngressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ScanResponseEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Error": {
 		AllowedChoices: []string{},
@@ -1378,6 +1558,54 @@ landed on 2026-05-19), once consumers have rolled forward.`,
 		SubType:        "destination",
 		Type:           "ref",
 	},
+	"encryptionegress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptionegress",
+		ConvertedName:  "EncryptionEgress",
+		Description:    `The encryption details of the connection from the proxy to the origin server.`,
+		Exposed:        true,
+		Name:           "encryptionEgress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"encryptionegressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ScanResponseEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
+	"encryptioningress": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "encryptioningress",
+		ConvertedName:  "EncryptionIngress",
+		Description:    `The encryption details of the connection from the client to the proxy.`,
+		Exposed:        true,
+		Name:           "encryptionIngress",
+		Stored:         true,
+		SubType:        "tlsstate",
+		Type:           "ref",
+	},
+	"encryptioningressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ScanResponseEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"error": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "error",
@@ -1680,6 +1908,22 @@ type SparseScanResponse struct {
 	// Captures all details of the destination of the request.
 	Destination *Destination `json:"destination,omitempty" msgpack:"destination,omitempty" bson:"destination,omitempty" mapstructure:"destination,omitempty"`
 
+	// The encryption details of the connection from the proxy to the origin server.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState *ScanResponseEncryptionEgressStateValue `json:"encryptionEgressState,omitempty" msgpack:"encryptionEgressState,omitempty" bson:"encryptionegressstate,omitempty" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the proxy.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState *ScanResponseEncryptionIngressStateValue `json:"encryptionIngressState,omitempty" msgpack:"encryptionIngressState,omitempty" bson:"encryptioningressstate,omitempty" mapstructure:"encryptionIngressState,omitempty"`
+
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
 	// UpstreamError), the failing stage, and a human-readable message.
@@ -1803,6 +2047,18 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 	if o.Destination != nil {
 		s.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		s.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionEgressState != nil {
+		s.EncryptionEgressState = o.EncryptionEgressState
+	}
+	if o.EncryptionIngress != nil {
+		s.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		s.EncryptionIngressState = o.EncryptionIngressState
+	}
 	if o.Error != nil {
 		s.Error = o.Error
 	}
@@ -1894,6 +2150,18 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 	if s.Destination != nil {
 		o.Destination = s.Destination
 	}
+	if s.EncryptionEgress != nil {
+		o.EncryptionEgress = s.EncryptionEgress
+	}
+	if s.EncryptionEgressState != nil {
+		o.EncryptionEgressState = s.EncryptionEgressState
+	}
+	if s.EncryptionIngress != nil {
+		o.EncryptionIngress = s.EncryptionIngress
+	}
+	if s.EncryptionIngressState != nil {
+		o.EncryptionIngressState = s.EncryptionIngressState
+	}
 	if s.Error != nil {
 		o.Error = s.Error
 	}
@@ -1983,6 +2251,18 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.Destination != nil {
 		out.Destination = o.Destination
 	}
+	if o.EncryptionEgress != nil {
+		out.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionEgressState != nil {
+		out.EncryptionEgressState = *o.EncryptionEgressState
+	}
+	if o.EncryptionIngress != nil {
+		out.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		out.EncryptionIngressState = *o.EncryptionIngressState
+	}
 	if o.Error != nil {
 		out.Error = o.Error
 	}
@@ -2058,6 +2338,18 @@ func (o *SparseScanResponse) EncryptAttributes(encrypter elemental.AttributeEncr
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2145,6 +2437,18 @@ func (o *SparseScanResponse) DecryptAttributes(encrypter elemental.AttributeEncr
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ScanResponse' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -2256,56 +2560,64 @@ func (o *SparseScanResponse) DeepCopyInto(out *SparseScanResponse) {
 }
 
 type mongoAttributesScanResponse struct {
-	ID              bson.ObjectId                 `bson:"_id,omitempty"`
-	Alerts          []*AlertEvent                 `bson:"alerts,omitempty"`
-	Annotations     map[string]string             `bson:"annotations,omitempty"`
-	Client          string                        `bson:"client,omitempty"`
-	ClientVersion   string                        `bson:"clientversion,omitempty"`
-	ContentRedacted bool                          `bson:"contentredacted,omitempty"`
-	Decision        ScanResponseDecisionValue     `bson:"decision"`
-	Destination     *Destination                  `bson:"destination,omitempty"`
-	Error           *RoundtripError               `bson:"error,omitempty"`
-	Extractions     []*Extraction                 `bson:"extractions,omitempty"`
-	Hash            string                        `bson:"hash"`
-	Latency         *Latency                      `bson:"latency,omitempty"`
-	McpMessage      *MCPMessage                   `bson:"mcpmessage,omitempty"`
-	Model           string                        `bson:"model,omitempty"`
-	Namespace       string                        `bson:"namespace,omitempty"`
-	PipelineName    string                        `bson:"pipelinename"`
-	Principal       *Principal                    `bson:"principal"`
-	Provider        string                        `bson:"provider"`
-	ProviderType    ScanResponseProviderTypeValue `bson:"providertype"`
-	Reasons         []string                      `bson:"reasons,omitempty"`
-	Summary         *ExtractionSummary            `bson:"summary,omitempty"`
-	ToolChoice      *ToolChoice                   `bson:"toolchoice,omitempty"`
-	Tools           map[string]*Tool              `bson:"tools,omitempty"`
-	Trace           *TraceRef                     `bson:"trace,omitempty"`
-	Type            ScanResponseTypeValue         `bson:"type"`
+	ID                     bson.ObjectId                           `bson:"_id,omitempty"`
+	Alerts                 []*AlertEvent                           `bson:"alerts,omitempty"`
+	Annotations            map[string]string                       `bson:"annotations,omitempty"`
+	Client                 string                                  `bson:"client,omitempty"`
+	ClientVersion          string                                  `bson:"clientversion,omitempty"`
+	ContentRedacted        bool                                    `bson:"contentredacted,omitempty"`
+	Decision               ScanResponseDecisionValue               `bson:"decision"`
+	Destination            *Destination                            `bson:"destination,omitempty"`
+	EncryptionEgress       *TLSState                               `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState  ScanResponseEncryptionEgressStateValue  `bson:"encryptionegressstate"`
+	EncryptionIngress      *TLSState                               `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState ScanResponseEncryptionIngressStateValue `bson:"encryptioningressstate"`
+	Error                  *RoundtripError                         `bson:"error,omitempty"`
+	Extractions            []*Extraction                           `bson:"extractions,omitempty"`
+	Hash                   string                                  `bson:"hash"`
+	Latency                *Latency                                `bson:"latency,omitempty"`
+	McpMessage             *MCPMessage                             `bson:"mcpmessage,omitempty"`
+	Model                  string                                  `bson:"model,omitempty"`
+	Namespace              string                                  `bson:"namespace,omitempty"`
+	PipelineName           string                                  `bson:"pipelinename"`
+	Principal              *Principal                              `bson:"principal"`
+	Provider               string                                  `bson:"provider"`
+	ProviderType           ScanResponseProviderTypeValue           `bson:"providertype"`
+	Reasons                []string                                `bson:"reasons,omitempty"`
+	Summary                *ExtractionSummary                      `bson:"summary,omitempty"`
+	ToolChoice             *ToolChoice                             `bson:"toolchoice,omitempty"`
+	Tools                  map[string]*Tool                        `bson:"tools,omitempty"`
+	Trace                  *TraceRef                               `bson:"trace,omitempty"`
+	Type                   ScanResponseTypeValue                   `bson:"type"`
 }
 type mongoAttributesSparseScanResponse struct {
-	ID              bson.ObjectId                  `bson:"_id,omitempty"`
-	Alerts          *[]*AlertEvent                 `bson:"alerts,omitempty"`
-	Annotations     *map[string]string             `bson:"annotations,omitempty"`
-	Client          *string                        `bson:"client,omitempty"`
-	ClientVersion   *string                        `bson:"clientversion,omitempty"`
-	ContentRedacted *bool                          `bson:"contentredacted,omitempty"`
-	Decision        *ScanResponseDecisionValue     `bson:"decision,omitempty"`
-	Destination     *Destination                   `bson:"destination,omitempty"`
-	Error           *RoundtripError                `bson:"error,omitempty"`
-	Extractions     *[]*Extraction                 `bson:"extractions,omitempty"`
-	Hash            *string                        `bson:"hash,omitempty"`
-	Latency         *Latency                       `bson:"latency,omitempty"`
-	McpMessage      *MCPMessage                    `bson:"mcpmessage,omitempty"`
-	Model           *string                        `bson:"model,omitempty"`
-	Namespace       *string                        `bson:"namespace,omitempty"`
-	PipelineName    *string                        `bson:"pipelinename,omitempty"`
-	Principal       *Principal                     `bson:"principal,omitempty"`
-	Provider        *string                        `bson:"provider,omitempty"`
-	ProviderType    *ScanResponseProviderTypeValue `bson:"providertype,omitempty"`
-	Reasons         *[]string                      `bson:"reasons,omitempty"`
-	Summary         *ExtractionSummary             `bson:"summary,omitempty"`
-	ToolChoice      *ToolChoice                    `bson:"toolchoice,omitempty"`
-	Tools           *map[string]*Tool              `bson:"tools,omitempty"`
-	Trace           *TraceRef                      `bson:"trace,omitempty"`
-	Type            *ScanResponseTypeValue         `bson:"type,omitempty"`
+	ID                     bson.ObjectId                            `bson:"_id,omitempty"`
+	Alerts                 *[]*AlertEvent                           `bson:"alerts,omitempty"`
+	Annotations            *map[string]string                       `bson:"annotations,omitempty"`
+	Client                 *string                                  `bson:"client,omitempty"`
+	ClientVersion          *string                                  `bson:"clientversion,omitempty"`
+	ContentRedacted        *bool                                    `bson:"contentredacted,omitempty"`
+	Decision               *ScanResponseDecisionValue               `bson:"decision,omitempty"`
+	Destination            *Destination                             `bson:"destination,omitempty"`
+	EncryptionEgress       *TLSState                                `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState  *ScanResponseEncryptionEgressStateValue  `bson:"encryptionegressstate,omitempty"`
+	EncryptionIngress      *TLSState                                `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState *ScanResponseEncryptionIngressStateValue `bson:"encryptioningressstate,omitempty"`
+	Error                  *RoundtripError                          `bson:"error,omitempty"`
+	Extractions            *[]*Extraction                           `bson:"extractions,omitempty"`
+	Hash                   *string                                  `bson:"hash,omitempty"`
+	Latency                *Latency                                 `bson:"latency,omitempty"`
+	McpMessage             *MCPMessage                              `bson:"mcpmessage,omitempty"`
+	Model                  *string                                  `bson:"model,omitempty"`
+	Namespace              *string                                  `bson:"namespace,omitempty"`
+	PipelineName           *string                                  `bson:"pipelinename,omitempty"`
+	Principal              *Principal                               `bson:"principal,omitempty"`
+	Provider               *string                                  `bson:"provider,omitempty"`
+	ProviderType           *ScanResponseProviderTypeValue           `bson:"providertype,omitempty"`
+	Reasons                *[]string                                `bson:"reasons,omitempty"`
+	Summary                *ExtractionSummary                       `bson:"summary,omitempty"`
+	ToolChoice             *ToolChoice                              `bson:"toolchoice,omitempty"`
+	Tools                  *map[string]*Tool                        `bson:"tools,omitempty"`
+	Trace                  *TraceRef                                `bson:"trace,omitempty"`
+	Type                   *ScanResponseTypeValue                   `bson:"type,omitempty"`
 }

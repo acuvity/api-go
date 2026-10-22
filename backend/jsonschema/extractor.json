@@ -250,7 +250,9 @@
       "enum": [
         "Line",
         "SSE",
-        "GRPCFrame"
+        "GRPCFrame",
+        "EventStream",
+        "WebChannel"
       ],
       "title": "streamSplitter"
     },

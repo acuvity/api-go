@@ -313,6 +313,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewSnippet()
 	case "textualdetection", "TextualDetection":
 		return NewTextualDetection()
+	case "tlsstate", "TLSState":
+		return NewTLSState()
 	case "tool", "Tool":
 		return NewTool()
 	case "toolargument", "ToolArgument":

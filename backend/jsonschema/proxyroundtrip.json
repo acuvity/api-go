@@ -112,11 +112,33 @@
       "description": "The encryption details of the connection from the proxy to the origin server.",
       "title": "encryptionEgress"
     },
+    "encryptionEgressState": {
+      "$defaultValue": "Unknown",
+      "$friendlyName": "Encryption Egress State",
+      "description": "Whether the connection from the proxy to the origin server was encrypted. Unknown when it was not observed, which is the case for the scan and police APIs and for webhook integrations unless the caller provided it.",
+      "enum": [
+        "Unknown",
+        "Unencrypted",
+        "Encrypted"
+      ],
+      "title": "encryptionEgressState"
+    },
     "encryptionIngress": {
       "$friendlyName": "Encryption Ingress",
       "$ref": "tlsstate.json",
       "description": "The encryption details of the connection from the client to the proxy.",
       "title": "encryptionIngress"
+    },
+    "encryptionIngressState": {
+      "$defaultValue": "Unknown",
+      "$friendlyName": "Encryption Ingress State",
+      "description": "Whether the connection from the client to the proxy was encrypted. Unknown when it was not observed, which is the case for the scan and police APIs and for webhook integrations unless the caller provided it.",
+      "enum": [
+        "Unknown",
+        "Unencrypted",
+        "Encrypted"
+      ],
+      "title": "encryptionIngressState"
     },
     "error": {
       "$friendlyName": "Error",
