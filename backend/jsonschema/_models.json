@@ -276,8 +276,14 @@
     "datasinkaccesslogs": {
       "$ref": "datasinkaccesslogs.json"
     },
+    "datasinkaccessmetrics": {
+      "$ref": "datasinkaccessmetrics.json"
+    },
     "datasinkagenticlogs": {
       "$ref": "datasinkagenticlogs.json"
+    },
+    "datasinkagenticmetrics": {
+      "$ref": "datasinkagenticmetrics.json"
     },
     "datasinkbackfill": {
       "$ref": "datasinkbackfill.json"
@@ -317,6 +323,9 @@
     },
     "digestreportrequest": {
       "$ref": "digestreportrequest.json"
+    },
+    "discoveryconfiguration": {
+      "$ref": "discoveryconfiguration.json"
     },
     "dnsreport": {
       "$ref": "dnsreport.json"

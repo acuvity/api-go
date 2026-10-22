@@ -51,6 +51,34 @@ const (
 	ProxyRoundtripDecisionUpstreamError ProxyRoundtripDecisionValue = "UpstreamError"
 )
 
+// ProxyRoundtripEncryptionEgressStateValue represents the possible values for attribute "encryptionEgressState".
+type ProxyRoundtripEncryptionEgressStateValue string
+
+const (
+	// ProxyRoundtripEncryptionEgressStateEncrypted represents the value Encrypted.
+	ProxyRoundtripEncryptionEgressStateEncrypted ProxyRoundtripEncryptionEgressStateValue = "Encrypted"
+
+	// ProxyRoundtripEncryptionEgressStateUnencrypted represents the value Unencrypted.
+	ProxyRoundtripEncryptionEgressStateUnencrypted ProxyRoundtripEncryptionEgressStateValue = "Unencrypted"
+
+	// ProxyRoundtripEncryptionEgressStateUnknown represents the value Unknown.
+	ProxyRoundtripEncryptionEgressStateUnknown ProxyRoundtripEncryptionEgressStateValue = "Unknown"
+)
+
+// ProxyRoundtripEncryptionIngressStateValue represents the possible values for attribute "encryptionIngressState".
+type ProxyRoundtripEncryptionIngressStateValue string
+
+const (
+	// ProxyRoundtripEncryptionIngressStateEncrypted represents the value Encrypted.
+	ProxyRoundtripEncryptionIngressStateEncrypted ProxyRoundtripEncryptionIngressStateValue = "Encrypted"
+
+	// ProxyRoundtripEncryptionIngressStateUnencrypted represents the value Unencrypted.
+	ProxyRoundtripEncryptionIngressStateUnencrypted ProxyRoundtripEncryptionIngressStateValue = "Unencrypted"
+
+	// ProxyRoundtripEncryptionIngressStateUnknown represents the value Unknown.
+	ProxyRoundtripEncryptionIngressStateUnknown ProxyRoundtripEncryptionIngressStateValue = "Unknown"
+)
+
 // ProxyRoundtripProcessorValue represents the possible values for attribute "processor".
 type ProxyRoundtripProcessorValue string
 
@@ -219,8 +247,18 @@ type ProxyRoundtrip struct {
 	// The encryption details of the connection from the proxy to the origin server.
 	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
 
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState ProxyRoundtripEncryptionEgressStateValue `json:"encryptionEgressState" msgpack:"encryptionEgressState" bson:"encryptionegressstate" mapstructure:"encryptionEgressState,omitempty"`
+
 	// The encryption details of the connection from the client to the proxy.
 	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState ProxyRoundtripEncryptionIngressStateValue `json:"encryptionIngressState" msgpack:"encryptionIngressState" bson:"encryptioningressstate" mapstructure:"encryptionIngressState,omitempty"`
 
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
@@ -359,12 +397,14 @@ type ProxyRoundtrip struct {
 func NewProxyRoundtrip() *ProxyRoundtrip {
 
 	return &ProxyRoundtrip{
-		ModelVersion:  1,
-		Annotations:   map[string]string{},
-		PolicyRefs:    PolicyRefsList{},
-		Principal:     NewPrincipal(),
-		Processor:     ProxyRoundtripProcessorProxy,
-		ProxyFunction: ProxyRoundtripProxyFunctionForwardProxy,
+		ModelVersion:           1,
+		Annotations:            map[string]string{},
+		EncryptionEgressState:  ProxyRoundtripEncryptionEgressStateUnknown,
+		EncryptionIngressState: ProxyRoundtripEncryptionIngressStateUnknown,
+		PolicyRefs:             PolicyRefsList{},
+		Principal:              NewPrincipal(),
+		Processor:              ProxyRoundtripProcessorProxy,
+		ProxyFunction:          ProxyRoundtripProxyFunctionForwardProxy,
 	}
 }
 
@@ -408,7 +448,9 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.DeploymentName = o.DeploymentName
 	s.Destination = o.Destination
 	s.EncryptionEgress = o.EncryptionEgress
+	s.EncryptionEgressState = o.EncryptionEgressState
 	s.EncryptionIngress = o.EncryptionIngress
+	s.EncryptionIngressState = o.EncryptionIngressState
 	s.Error = o.Error
 	s.Extractions = o.Extractions
 	s.GatewayConnectorName = o.GatewayConnectorName
@@ -466,7 +508,9 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.DeploymentName = s.DeploymentName
 	o.Destination = s.Destination
 	o.EncryptionEgress = s.EncryptionEgress
+	o.EncryptionEgressState = s.EncryptionEgressState
 	o.EncryptionIngress = s.EncryptionIngress
+	o.EncryptionIngressState = s.EncryptionIngressState
 	o.Error = s.Error
 	o.Extractions = s.Extractions
 	o.GatewayConnectorName = s.GatewayConnectorName
@@ -583,7 +627,9 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			DeploymentName:            &o.DeploymentName,
 			Destination:               o.Destination,
 			EncryptionEgress:          o.EncryptionEgress,
+			EncryptionEgressState:     &o.EncryptionEgressState,
 			EncryptionIngress:         o.EncryptionIngress,
+			EncryptionIngressState:    &o.EncryptionIngressState,
 			Error:                     o.Error,
 			Extractions:               &o.Extractions,
 			GatewayConnectorName:      &o.GatewayConnectorName,
@@ -641,8 +687,12 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Destination = o.Destination
 		case "encryptionEgress":
 			sp.EncryptionEgress = o.EncryptionEgress
+		case "encryptionEgressState":
+			sp.EncryptionEgressState = &(o.EncryptionEgressState)
 		case "encryptionIngress":
 			sp.EncryptionIngress = o.EncryptionIngress
+		case "encryptionIngressState":
+			sp.EncryptionIngressState = &(o.EncryptionIngressState)
 		case "error":
 			sp.Error = o.Error
 		case "extractions":
@@ -748,8 +798,14 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.EncryptionEgress != nil {
 		o.EncryptionEgress = so.EncryptionEgress
 	}
+	if so.EncryptionEgressState != nil {
+		o.EncryptionEgressState = *so.EncryptionEgressState
+	}
 	if so.EncryptionIngress != nil {
 		o.EncryptionIngress = so.EncryptionIngress
+	}
+	if so.EncryptionIngressState != nil {
+		o.EncryptionIngressState = *so.EncryptionIngressState
 	}
 	if so.Error != nil {
 		o.Error = so.Error
@@ -1110,11 +1166,19 @@ func (o *ProxyRoundtrip) Validate() error {
 		}
 	}
 
+	if err := elemental.ValidateStringInList("encryptionEgressState", string(o.EncryptionEgressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if o.EncryptionIngress != nil {
 		if err := o.EncryptionIngress.Validate(); err != nil {
 			elemental.InjectAttributePath(err, "encryptionIngress")
 			errors = errors.Append(err)
 		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionIngressState", string(o.EncryptionIngressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
 	}
 
 	if o.Error != nil {
@@ -1270,8 +1334,12 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Destination
 	case "encryptionEgress":
 		return o.EncryptionEgress
+	case "encryptionEgressState":
+		return o.EncryptionEgressState
 	case "encryptionIngress":
 		return o.EncryptionIngress
+	case "encryptionIngressState":
+		return o.EncryptionIngressState
 	case "error":
 		return o.Error
 	case "extractions":
@@ -1466,6 +1534,19 @@ request. Only set when the request was handled by a known deployment.`,
 		SubType:        "tlsstate",
 		Type:           "ref",
 	},
+	"EncryptionEgressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ProxyRoundtripEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"EncryptionIngress": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "encryptioningress",
@@ -1476,6 +1557,19 @@ request. Only set when the request was handled by a known deployment.`,
 		Stored:         true,
 		SubType:        "tlsstate",
 		Type:           "ref",
+	},
+	"EncryptionIngressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ProxyRoundtripEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Error": {
 		AllowedChoices: []string{},
@@ -1978,6 +2072,19 @@ request. Only set when the request was handled by a known deployment.`,
 		SubType:        "tlsstate",
 		Type:           "ref",
 	},
+	"encryptionegressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptionegressstate",
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ProxyRoundtripEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the proxy to the origin server was encrypted.
+Unknown when it was not observed, which is the case for the scan and police
+APIs and for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Stored:  true,
+		Type:    "enum",
+	},
 	"encryptioningress": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "encryptioningress",
@@ -1988,6 +2095,19 @@ request. Only set when the request was handled by a known deployment.`,
 		Stored:         true,
 		SubType:        "tlsstate",
 		Type:           "ref",
+	},
+	"encryptioningressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		BSONFieldName:  "encryptioningressstate",
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ProxyRoundtripEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the proxy was encrypted. Unknown
+when it was not observed, which is the case for the scan and police APIs and
+for webhook integrations unless the caller provided it.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"error": {
 		AllowedChoices: []string{},
@@ -2472,8 +2592,18 @@ type SparseProxyRoundtrip struct {
 	// The encryption details of the connection from the proxy to the origin server.
 	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"encryptionegress,omitempty" mapstructure:"encryptionEgress,omitempty"`
 
+	// Whether the connection from the proxy to the origin server was encrypted.
+	// Unknown when it was not observed, which is the case for the scan and police
+	// APIs and for webhook integrations unless the caller provided it.
+	EncryptionEgressState *ProxyRoundtripEncryptionEgressStateValue `json:"encryptionEgressState,omitempty" msgpack:"encryptionEgressState,omitempty" bson:"encryptionegressstate,omitempty" mapstructure:"encryptionEgressState,omitempty"`
+
 	// The encryption details of the connection from the client to the proxy.
 	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"encryptioningress,omitempty" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the proxy was encrypted. Unknown
+	// when it was not observed, which is the case for the scan and police APIs and
+	// for webhook integrations unless the caller provided it.
+	EncryptionIngressState *ProxyRoundtripEncryptionIngressStateValue `json:"encryptionIngressState,omitempty" msgpack:"encryptionIngressState,omitempty" bson:"encryptioningressstate,omitempty" mapstructure:"encryptionIngressState,omitempty"`
 
 	// Structured error info populated when a non-user-facing platform stage
 	// or the upstream provider failed. Carries the source (PlatformError vs
@@ -2678,8 +2808,14 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.EncryptionEgress != nil {
 		s.EncryptionEgress = o.EncryptionEgress
 	}
+	if o.EncryptionEgressState != nil {
+		s.EncryptionEgressState = o.EncryptionEgressState
+	}
 	if o.EncryptionIngress != nil {
 		s.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		s.EncryptionIngressState = o.EncryptionIngressState
 	}
 	if o.Error != nil {
 		s.Error = o.Error
@@ -2817,8 +2953,14 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.EncryptionEgress != nil {
 		o.EncryptionEgress = s.EncryptionEgress
 	}
+	if s.EncryptionEgressState != nil {
+		o.EncryptionEgressState = s.EncryptionEgressState
+	}
 	if s.EncryptionIngress != nil {
 		o.EncryptionIngress = s.EncryptionIngress
+	}
+	if s.EncryptionIngressState != nil {
+		o.EncryptionIngressState = s.EncryptionIngressState
 	}
 	if s.Error != nil {
 		o.Error = s.Error
@@ -2954,8 +3096,14 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.EncryptionEgress != nil {
 		out.EncryptionEgress = o.EncryptionEgress
 	}
+	if o.EncryptionEgressState != nil {
+		out.EncryptionEgressState = *o.EncryptionEgressState
+	}
 	if o.EncryptionIngress != nil {
 		out.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		out.EncryptionIngressState = *o.EncryptionIngressState
 	}
 	if o.Error != nil {
 		out.Error = o.Error
@@ -3347,88 +3495,92 @@ func (o *SparseProxyRoundtrip) DeepCopyInto(out *SparseProxyRoundtrip) {
 }
 
 type mongoAttributesProxyRoundtrip struct {
-	ID                        bson.ObjectId                    `bson:"_id,omitempty"`
-	Alerts                    []*AlertEvent                    `bson:"alerts,omitempty"`
-	Annotations               map[string]string                `bson:"annotations,omitempty"`
-	Client                    string                           `bson:"client,omitempty"`
-	ClientVersion             string                           `bson:"clientversion,omitempty"`
-	ContentRedacted           bool                             `bson:"contentredacted,omitempty"`
-	Decision                  ProxyRoundtripDecisionValue      `bson:"decision"`
-	DeploymentName            string                           `bson:"deploymentname,omitempty"`
-	Destination               *Destination                     `bson:"destination,omitempty"`
-	EncryptionEgress          *TLSState                        `bson:"encryptionegress,omitempty"`
-	EncryptionIngress         *TLSState                        `bson:"encryptioningress,omitempty"`
-	Error                     *RoundtripError                  `bson:"error,omitempty"`
-	Extractions               []*Extraction                    `bson:"extractions,omitempty"`
-	GatewayConnectorName      string                           `bson:"gatewayconnectorname,omitempty"`
-	GatewayConnectorNamespace string                           `bson:"gatewayconnectornamespace,omitempty"`
-	GatewayName               string                           `bson:"gatewayname,omitempty"`
-	GatewayNamespace          string                           `bson:"gatewaynamespace,omitempty"`
-	GatewayUpstreamURL        string                           `bson:"gatewayupstreamurl,omitempty"`
-	Hash                      string                           `bson:"hash"`
-	ImportHash                string                           `bson:"importhash,omitempty"`
-	ImportLabel               string                           `bson:"importlabel,omitempty"`
-	InternalTraceID           string                           `bson:"internaltraceid,omitempty"`
-	Latency                   *Latency                         `bson:"latency,omitempty"`
-	McpMessage                *MCPMessage                      `bson:"mcpmessage,omitempty"`
-	Model                     string                           `bson:"model,omitempty"`
-	Namespace                 string                           `bson:"namespace,omitempty"`
-	Offband                   bool                             `bson:"offband"`
-	Permissive                bool                             `bson:"permissive,omitempty"`
-	PipelineName              string                           `bson:"pipelinename"`
-	PolicyRefs                PolicyRefsList                   `bson:"policyrefs"`
-	Principal                 *Principal                       `bson:"principal"`
-	Processor                 ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
-	Provider                  string                           `bson:"provider"`
-	ProviderType              ProxyRoundtripProviderTypeValue  `bson:"providertype"`
-	ProxyFunction             ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
-	Reasons                   []string                         `bson:"reasons,omitempty"`
-	Summary                   *ExtractionSummary               `bson:"summary,omitempty"`
-	ToolChoice                *ToolChoice                      `bson:"toolchoice,omitempty"`
-	Tools                     map[string]*Tool                 `bson:"tools,omitempty"`
-	Trace                     *TraceRef                        `bson:"trace,omitempty"`
-	Type                      ProxyRoundtripTypeValue          `bson:"type"`
+	ID                        bson.ObjectId                             `bson:"_id,omitempty"`
+	Alerts                    []*AlertEvent                             `bson:"alerts,omitempty"`
+	Annotations               map[string]string                         `bson:"annotations,omitempty"`
+	Client                    string                                    `bson:"client,omitempty"`
+	ClientVersion             string                                    `bson:"clientversion,omitempty"`
+	ContentRedacted           bool                                      `bson:"contentredacted,omitempty"`
+	Decision                  ProxyRoundtripDecisionValue               `bson:"decision"`
+	DeploymentName            string                                    `bson:"deploymentname,omitempty"`
+	Destination               *Destination                              `bson:"destination,omitempty"`
+	EncryptionEgress          *TLSState                                 `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState     ProxyRoundtripEncryptionEgressStateValue  `bson:"encryptionegressstate"`
+	EncryptionIngress         *TLSState                                 `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState    ProxyRoundtripEncryptionIngressStateValue `bson:"encryptioningressstate"`
+	Error                     *RoundtripError                           `bson:"error,omitempty"`
+	Extractions               []*Extraction                             `bson:"extractions,omitempty"`
+	GatewayConnectorName      string                                    `bson:"gatewayconnectorname,omitempty"`
+	GatewayConnectorNamespace string                                    `bson:"gatewayconnectornamespace,omitempty"`
+	GatewayName               string                                    `bson:"gatewayname,omitempty"`
+	GatewayNamespace          string                                    `bson:"gatewaynamespace,omitempty"`
+	GatewayUpstreamURL        string                                    `bson:"gatewayupstreamurl,omitempty"`
+	Hash                      string                                    `bson:"hash"`
+	ImportHash                string                                    `bson:"importhash,omitempty"`
+	ImportLabel               string                                    `bson:"importlabel,omitempty"`
+	InternalTraceID           string                                    `bson:"internaltraceid,omitempty"`
+	Latency                   *Latency                                  `bson:"latency,omitempty"`
+	McpMessage                *MCPMessage                               `bson:"mcpmessage,omitempty"`
+	Model                     string                                    `bson:"model,omitempty"`
+	Namespace                 string                                    `bson:"namespace,omitempty"`
+	Offband                   bool                                      `bson:"offband"`
+	Permissive                bool                                      `bson:"permissive,omitempty"`
+	PipelineName              string                                    `bson:"pipelinename"`
+	PolicyRefs                PolicyRefsList                            `bson:"policyrefs"`
+	Principal                 *Principal                                `bson:"principal"`
+	Processor                 ProxyRoundtripProcessorValue              `bson:"processor,omitempty"`
+	Provider                  string                                    `bson:"provider"`
+	ProviderType              ProxyRoundtripProviderTypeValue           `bson:"providertype"`
+	ProxyFunction             ProxyRoundtripProxyFunctionValue          `bson:"proxyfunction,omitempty"`
+	Reasons                   []string                                  `bson:"reasons,omitempty"`
+	Summary                   *ExtractionSummary                        `bson:"summary,omitempty"`
+	ToolChoice                *ToolChoice                               `bson:"toolchoice,omitempty"`
+	Tools                     map[string]*Tool                          `bson:"tools,omitempty"`
+	Trace                     *TraceRef                                 `bson:"trace,omitempty"`
+	Type                      ProxyRoundtripTypeValue                   `bson:"type"`
 }
 type mongoAttributesSparseProxyRoundtrip struct {
-	ID                        bson.ObjectId                     `bson:"_id,omitempty"`
-	Alerts                    *[]*AlertEvent                    `bson:"alerts,omitempty"`
-	Annotations               *map[string]string                `bson:"annotations,omitempty"`
-	Client                    *string                           `bson:"client,omitempty"`
-	ClientVersion             *string                           `bson:"clientversion,omitempty"`
-	ContentRedacted           *bool                             `bson:"contentredacted,omitempty"`
-	Decision                  *ProxyRoundtripDecisionValue      `bson:"decision,omitempty"`
-	DeploymentName            *string                           `bson:"deploymentname,omitempty"`
-	Destination               *Destination                      `bson:"destination,omitempty"`
-	EncryptionEgress          *TLSState                         `bson:"encryptionegress,omitempty"`
-	EncryptionIngress         *TLSState                         `bson:"encryptioningress,omitempty"`
-	Error                     *RoundtripError                   `bson:"error,omitempty"`
-	Extractions               *[]*Extraction                    `bson:"extractions,omitempty"`
-	GatewayConnectorName      *string                           `bson:"gatewayconnectorname,omitempty"`
-	GatewayConnectorNamespace *string                           `bson:"gatewayconnectornamespace,omitempty"`
-	GatewayName               *string                           `bson:"gatewayname,omitempty"`
-	GatewayNamespace          *string                           `bson:"gatewaynamespace,omitempty"`
-	GatewayUpstreamURL        *string                           `bson:"gatewayupstreamurl,omitempty"`
-	Hash                      *string                           `bson:"hash,omitempty"`
-	ImportHash                *string                           `bson:"importhash,omitempty"`
-	ImportLabel               *string                           `bson:"importlabel,omitempty"`
-	InternalTraceID           *string                           `bson:"internaltraceid,omitempty"`
-	Latency                   *Latency                          `bson:"latency,omitempty"`
-	McpMessage                *MCPMessage                       `bson:"mcpmessage,omitempty"`
-	Model                     *string                           `bson:"model,omitempty"`
-	Namespace                 *string                           `bson:"namespace,omitempty"`
-	Offband                   *bool                             `bson:"offband,omitempty"`
-	Permissive                *bool                             `bson:"permissive,omitempty"`
-	PipelineName              *string                           `bson:"pipelinename,omitempty"`
-	PolicyRefs                *PolicyRefsList                   `bson:"policyrefs,omitempty"`
-	Principal                 *Principal                        `bson:"principal,omitempty"`
-	Processor                 *ProxyRoundtripProcessorValue     `bson:"processor,omitempty"`
-	Provider                  *string                           `bson:"provider,omitempty"`
-	ProviderType              *ProxyRoundtripProviderTypeValue  `bson:"providertype,omitempty"`
-	ProxyFunction             *ProxyRoundtripProxyFunctionValue `bson:"proxyfunction,omitempty"`
-	Reasons                   *[]string                         `bson:"reasons,omitempty"`
-	Summary                   *ExtractionSummary                `bson:"summary,omitempty"`
-	ToolChoice                *ToolChoice                       `bson:"toolchoice,omitempty"`
-	Tools                     *map[string]*Tool                 `bson:"tools,omitempty"`
-	Trace                     *TraceRef                         `bson:"trace,omitempty"`
-	Type                      *ProxyRoundtripTypeValue          `bson:"type,omitempty"`
+	ID                        bson.ObjectId                              `bson:"_id,omitempty"`
+	Alerts                    *[]*AlertEvent                             `bson:"alerts,omitempty"`
+	Annotations               *map[string]string                         `bson:"annotations,omitempty"`
+	Client                    *string                                    `bson:"client,omitempty"`
+	ClientVersion             *string                                    `bson:"clientversion,omitempty"`
+	ContentRedacted           *bool                                      `bson:"contentredacted,omitempty"`
+	Decision                  *ProxyRoundtripDecisionValue               `bson:"decision,omitempty"`
+	DeploymentName            *string                                    `bson:"deploymentname,omitempty"`
+	Destination               *Destination                               `bson:"destination,omitempty"`
+	EncryptionEgress          *TLSState                                  `bson:"encryptionegress,omitempty"`
+	EncryptionEgressState     *ProxyRoundtripEncryptionEgressStateValue  `bson:"encryptionegressstate,omitempty"`
+	EncryptionIngress         *TLSState                                  `bson:"encryptioningress,omitempty"`
+	EncryptionIngressState    *ProxyRoundtripEncryptionIngressStateValue `bson:"encryptioningressstate,omitempty"`
+	Error                     *RoundtripError                            `bson:"error,omitempty"`
+	Extractions               *[]*Extraction                             `bson:"extractions,omitempty"`
+	GatewayConnectorName      *string                                    `bson:"gatewayconnectorname,omitempty"`
+	GatewayConnectorNamespace *string                                    `bson:"gatewayconnectornamespace,omitempty"`
+	GatewayName               *string                                    `bson:"gatewayname,omitempty"`
+	GatewayNamespace          *string                                    `bson:"gatewaynamespace,omitempty"`
+	GatewayUpstreamURL        *string                                    `bson:"gatewayupstreamurl,omitempty"`
+	Hash                      *string                                    `bson:"hash,omitempty"`
+	ImportHash                *string                                    `bson:"importhash,omitempty"`
+	ImportLabel               *string                                    `bson:"importlabel,omitempty"`
+	InternalTraceID           *string                                    `bson:"internaltraceid,omitempty"`
+	Latency                   *Latency                                   `bson:"latency,omitempty"`
+	McpMessage                *MCPMessage                                `bson:"mcpmessage,omitempty"`
+	Model                     *string                                    `bson:"model,omitempty"`
+	Namespace                 *string                                    `bson:"namespace,omitempty"`
+	Offband                   *bool                                      `bson:"offband,omitempty"`
+	Permissive                *bool                                      `bson:"permissive,omitempty"`
+	PipelineName              *string                                    `bson:"pipelinename,omitempty"`
+	PolicyRefs                *PolicyRefsList                            `bson:"policyrefs,omitempty"`
+	Principal                 *Principal                                 `bson:"principal,omitempty"`
+	Processor                 *ProxyRoundtripProcessorValue              `bson:"processor,omitempty"`
+	Provider                  *string                                    `bson:"provider,omitempty"`
+	ProviderType              *ProxyRoundtripProviderTypeValue           `bson:"providertype,omitempty"`
+	ProxyFunction             *ProxyRoundtripProxyFunctionValue          `bson:"proxyfunction,omitempty"`
+	Reasons                   *[]string                                  `bson:"reasons,omitempty"`
+	Summary                   *ExtractionSummary                         `bson:"summary,omitempty"`
+	ToolChoice                *ToolChoice                                `bson:"toolchoice,omitempty"`
+	Tools                     *map[string]*Tool                          `bson:"tools,omitempty"`
+	Trace                     *TraceRef                                  `bson:"trace,omitempty"`
+	Type                      *ProxyRoundtripTypeValue                   `bson:"type,omitempty"`
 }

@@ -31,11 +31,23 @@
       "description": "Selects the access logs dataset: roundtrips of the organization's employees. Present means selected.",
       "title": "accessLogs"
     },
+    "accessMetrics": {
+      "$friendlyName": "Access Metrics",
+      "$ref": "datasinkaccessmetrics.json",
+      "description": "Selects the access metrics dataset: the rolled-up metrics of the organization's employees. Present means selected.",
+      "title": "accessMetrics"
+    },
     "agenticLogs": {
       "$friendlyName": "Agentic Logs",
       "$ref": "datasinkagenticlogs.json",
       "description": "Selects the agentic logs dataset: roundtrips of the organization's projects (applications and their agents). Present means selected.",
       "title": "agenticLogs"
+    },
+    "agenticMetrics": {
+      "$friendlyName": "Agentic Metrics",
+      "$ref": "datasinkagenticmetrics.json",
+      "description": "Selects the agentic metrics dataset: the rolled-up metrics of the organization's projects. Present means selected.",
+      "title": "agenticMetrics"
     },
     "cadence": {
       "$defaultValue": "Hourly",

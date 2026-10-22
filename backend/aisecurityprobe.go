@@ -247,8 +247,11 @@ func (o *AISecurityProbe) DefaultOrder() []string {
 // Doc returns the documentation for the object
 func (o *AISecurityProbe) Doc() string {
 
-	return `AI Security Probe defines configuration for probing mechanisms that provide
-discovery data about an environment.`
+	return `Deprecated: AI Security Probe defines configuration for probing mechanisms
+that provide discovery data about an environment. Use a Deployment with the
+'Discovery' capability and its discoveryConfiguration instead. Existing
+objects remain readable and manageable; new objects can no longer be
+created.`
 }
 
 func (o *AISecurityProbe) String() string {
@@ -609,6 +612,7 @@ var AISecurityProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "dnsmonitoring",
 		ConvertedName:  "DNSMonitoring",
 		DefaultValue:   AISecurityProbeDNSMonitoringEnabled,
+		Deprecated:     true,
 		Description:    `Enable or disable DNS monitoring.`,
 		Exposed:        true,
 		Name:           "DNSMonitoring",
@@ -634,6 +638,7 @@ var AISecurityProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "connectionmonitoring",
 		ConvertedName:  "ConnectionMonitoring",
+		Deprecated:     true,
 		Description:    `Selects a list of targets for which to perform connection monitoring.`,
 		Exposed:        true,
 		Name:           "connectionMonitoring",
@@ -660,6 +665,7 @@ var AISecurityProbeAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
+		Deprecated:     true,
 		Description:    `The description of the AI Security Probe configuration.`,
 		Exposed:        true,
 		Name:           "description",
@@ -761,6 +767,7 @@ var AISecurityProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		BSONFieldName:  "dnsmonitoring",
 		ConvertedName:  "DNSMonitoring",
 		DefaultValue:   AISecurityProbeDNSMonitoringEnabled,
+		Deprecated:     true,
 		Description:    `Enable or disable DNS monitoring.`,
 		Exposed:        true,
 		Name:           "DNSMonitoring",
@@ -786,6 +793,7 @@ var AISecurityProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		AllowedChoices: []string{},
 		BSONFieldName:  "connectionmonitoring",
 		ConvertedName:  "ConnectionMonitoring",
+		Deprecated:     true,
 		Description:    `Selects a list of targets for which to perform connection monitoring.`,
 		Exposed:        true,
 		Name:           "connectionMonitoring",
@@ -812,6 +820,7 @@ var AISecurityProbeLowerCaseAttributesMap = map[string]elemental.AttributeSpecif
 		AllowedChoices: []string{},
 		BSONFieldName:  "description",
 		ConvertedName:  "Description",
+		Deprecated:     true,
 		Description:    `The description of the AI Security Probe configuration.`,
 		Exposed:        true,
 		Name:           "description",

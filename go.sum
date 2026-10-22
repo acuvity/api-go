@@ -135,8 +135,8 @@ github.com/xeipuuv/gojsonschema v1.2.0 h1:LhYJRs+L4fBtjZUfuSZIKGeVu0QRy8e5Xi7D17
 github.com/xeipuuv/gojsonschema v1.2.0/go.mod h1:anYRn/JVcOK2ZgGU+IjEV4nwlhoK5sQluxsYJ78Id3Y=
 go.acuvity.ai/a3s v0.0.0-20260929154122-d4a95aba46c0 h1:+g0/t4ZrsZgEUjtYN+CJfS1KLj+b8UDk64iaY3VbK8I=
 go.acuvity.ai/a3s v0.0.0-20260929154122-d4a95aba46c0/go.mod h1:/7f6a58FyaEm/uS4Hlfkon8rvBu8JRjSLXUjSMiCgfk=
-go.acuvity.ai/aculib v0.0.0-20260824190401-9f5d5a223598 h1:RZ9eeXRly5G8CVmgu0Nr6TAPT2vhWk8cfEbU7YxZTIA=
-go.acuvity.ai/aculib v0.0.0-20260824190401-9f5d5a223598/go.mod h1:Af5DtGF6HIHC13V0HQN/OYaBZtkypKT9MU7nPczVRS4=
+go.acuvity.ai/aculib v0.0.0-20261016191835-4c218ad152ce h1:Wdh3Gl8AExW+/ytwJB2ipMNEtZPIzmgQoF29WSU0rmM=
+go.acuvity.ai/aculib v0.0.0-20261016191835-4c218ad152ce/go.mod h1:mNnbow2mquE6nC3Q2K+tHHXccjuXxTrBERuRfszms64=
 go.acuvity.ai/elemental v0.0.0-20261015160217-037450e97331 h1:gv2yhda4FuoBnCe3F/LHGT/P9BV5W3zKMoaOLjHiyLg=
 go.acuvity.ai/elemental v0.0.0-20261015160217-037450e97331/go.mod h1:h7PHJlKDt5zeG8EqqzlZf2cJpMBa9UA5njXZazwz6rQ=
 go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4 h1:Twx5zdZEtk/Jbpa78GdxTmBaQZh1A7GeYmDDneYVup8=

@@ -192,6 +192,12 @@
       },
       "type": "array"
     },
+    "tlsstates": {
+      "items": {
+        "$ref": "tlsstate.json"
+      },
+      "type": "array"
+    },
     "toolarguments": {
       "items": {
         "$ref": "toolargument.json"

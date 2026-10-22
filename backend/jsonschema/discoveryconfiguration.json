@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Discovery Configuration",
+  "$friendlyNamePlural": "Discovery Configurations",
+  "$modelName": "DiscoveryConfiguration",
+  "$modelPackage": "torii",
+  "$modelResourceName": "discoveryconfigurations",
+  "$modelRestName": "discoveryconfiguration",
+  "additionalProperties": false,
+  "description": "DiscoveryConfiguration defines configuration for probing mechanisms that provide discovery data about an environment, carried directly on a Deployment that has the 'Discovery' capability.",
+  "properties": {
+    "DNSMonitoringEnabled": {
+      "$friendlyName": "DNS Monitoring Enabled",
+      "description": "Enable or disable DNS monitoring.",
+      "title": "DNSMonitoringEnabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "connectionMonitoring": {
+      "$friendlyName": "Connection Monitoring",
+      "description": "Selects a list of targets for which to perform connection monitoring.",
+      "items": {
+        "$ref": "connectionmonitorselector.json"
+      },
+      "title": "connectionMonitoring",
+      "type": "array"
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "The description of the discovery configuration.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DiscoveryConfiguration",
+  "type": "object"
+}

@@ -20,8 +20,14 @@ const (
 	// AlertDataSinkEventDatasetAccessLogs represents the value AccessLogs.
 	AlertDataSinkEventDatasetAccessLogs AlertDataSinkEventDatasetValue = "AccessLogs"
 
+	// AlertDataSinkEventDatasetAccessMetrics represents the value AccessMetrics.
+	AlertDataSinkEventDatasetAccessMetrics AlertDataSinkEventDatasetValue = "AccessMetrics"
+
 	// AlertDataSinkEventDatasetAgenticLogs represents the value AgenticLogs.
 	AlertDataSinkEventDatasetAgenticLogs AlertDataSinkEventDatasetValue = "AgenticLogs"
+
+	// AlertDataSinkEventDatasetAgenticMetrics represents the value AgenticMetrics.
+	AlertDataSinkEventDatasetAgenticMetrics AlertDataSinkEventDatasetValue = "AgenticMetrics"
 )
 
 // AlertDataSinkEventKindValue represents the possible values for attribute "kind".
@@ -375,7 +381,7 @@ func (o *AlertDataSinkEvent) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
-	if err := elemental.ValidateStringInList("dataset", string(o.Dataset), []string{"AccessLogs", "AgenticLogs"}, false); err != nil {
+	if err := elemental.ValidateStringInList("dataset", string(o.Dataset), []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -481,7 +487,7 @@ var AlertDataSinkEventAttributesMap = map[string]elemental.AttributeSpecificatio
 		Type:           "string",
 	},
 	"Dataset": {
-		AllowedChoices: []string{"AccessLogs", "AgenticLogs"},
+		AllowedChoices: []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"},
 		ConvertedName:  "Dataset",
 		Description:    `The dataset of the run, using the same values as DataSinkRun.dataset.`,
 		Exposed:        true,
@@ -565,7 +571,7 @@ var AlertDataSinkEventLowerCaseAttributesMap = map[string]elemental.AttributeSpe
 		Type:           "string",
 	},
 	"dataset": {
-		AllowedChoices: []string{"AccessLogs", "AgenticLogs"},
+		AllowedChoices: []string{"AccessLogs", "AgenticLogs", "AccessMetrics", "AgenticMetrics"},
 		ConvertedName:  "Dataset",
 		Description:    `The dataset of the run, using the same values as DataSinkRun.dataset.`,
 		Exposed:        true,

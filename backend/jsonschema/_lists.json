@@ -546,9 +546,21 @@
       },
       "type": "array"
     },
+    "datasinkaccessmetrics": {
+      "items": {
+        "$ref": "datasinkaccessmetrics.json"
+      },
+      "type": "array"
+    },
     "datasinkagenticlogs": {
       "items": {
         "$ref": "datasinkagenticlogs.json"
+      },
+      "type": "array"
+    },
+    "datasinkagenticmetrics": {
+      "items": {
+        "$ref": "datasinkagenticmetrics.json"
       },
       "type": "array"
     },
@@ -633,6 +645,12 @@
     "digestreports": {
       "items": {
         "$ref": "digestreport.json"
+      },
+      "type": "array"
+    },
+    "discoveryconfigurations": {
+      "items": {
+        "$ref": "discoveryconfiguration.json"
       },
       "type": "array"
     },

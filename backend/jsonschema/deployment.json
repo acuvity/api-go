@@ -27,6 +27,16 @@
         "null"
       ]
     },
+    "capabilities": {
+      "$friendlyName": "Capabilities",
+      "$required": true,
+      "description": "The capabilities enabled on this deployment. 'Gateway' deploys the Apex proxy/gateway. 'Discovery' deploys the Perrin discovery agent and requires discoveryConfiguration to be set. At least one capability is required; a deployment may have both.",
+      "items": {
+        "type": "string"
+      },
+      "title": "capabilities",
+      "type": "array"
+    },
     "createTime": {
       "$friendlyName": "CreateTime",
       "$readOnly": true,
@@ -45,6 +55,12 @@
         "string",
         "null"
       ]
+    },
+    "discoveryConfiguration": {
+      "$friendlyName": "Discovery Configuration",
+      "$ref": "discoveryconfiguration.json",
+      "description": "The discovery configuration of the deployment. Required if 'Discovery' is one of this deployment's capabilities; must not be set otherwise.",
+      "title": "discoveryConfiguration"
     },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
@@ -196,6 +212,7 @@
     }
   },
   "required": [
+    "capabilities",
     "friendlyName"
   ],
   "title": "Deployment",

@@ -1,0 +1,62 @@
+{
+  "$extends": [
+    "@timed"
+  ],
+  "$friendlyName": "Data Sink Agentic Metrics",
+  "$friendlyNamePlural": "Data Sink Agentic Metrics",
+  "$modelName": "DataSinkAgenticMetrics",
+  "$modelPackage": "avi",
+  "$modelResourceName": "datasinkagenticmetrics",
+  "$modelRestName": "datasinkagenticmetrics",
+  "additionalProperties": false,
+  "description": "Selects the agentic metrics dataset: the metrics of the organization's projects (applications and their agents), rolled up to one row for each label combination and interval. The interval is the cadence of the data sink: one hour for Hourly, 24 hours for Daily. An empty list does not restrict. createTime is when this dataset was enabled, where its live export starts. Changes of the selection preserve createTime; disabling and re-enabling the dataset gives it a new createTime. Timestamps are server owned.",
+  "properties": {
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "groups": {
+      "$friendlyName": "Groups",
+      "description": "Export the metrics of these groups. Empty exports every group. A metric that is in more than one group is exported once.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "groups",
+      "type": "array"
+    },
+    "projects": {
+      "$friendlyName": "Projects",
+      "description": "Keep the metrics of these projects. Empty exports every project, including projects created later.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "projects",
+      "type": "array"
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "DataSinkAgenticMetrics",
+  "type": "object"
+}

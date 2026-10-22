@@ -125,9 +125,17 @@ type DataSink struct {
 	// Present means selected.
 	AccessLogs *DataSinkAccessLogs `json:"accessLogs" msgpack:"accessLogs" bson:"accesslogs" mapstructure:"accessLogs,omitempty"`
 
+	// Selects the access metrics dataset: the rolled-up metrics of the
+	// organization's employees. Present means selected.
+	AccessMetrics *DataSinkAccessMetrics `json:"accessMetrics" msgpack:"accessMetrics" bson:"accessmetrics" mapstructure:"accessMetrics,omitempty"`
+
 	// Selects the agentic logs dataset: roundtrips of the organization's projects
 	// (applications and their agents). Present means selected.
 	AgenticLogs *DataSinkAgenticLogs `json:"agenticLogs" msgpack:"agenticLogs" bson:"agenticlogs" mapstructure:"agenticLogs,omitempty"`
+
+	// Selects the agentic metrics dataset: the rolled-up metrics of the
+	// organization's projects. Present means selected.
+	AgenticMetrics *DataSinkAgenticMetrics `json:"agenticMetrics" msgpack:"agenticMetrics" bson:"agenticmetrics" mapstructure:"agenticMetrics,omitempty"`
 
 	// How often new data is exported.
 	Cadence DataSinkCadenceValue `json:"cadence" msgpack:"cadence" bson:"cadence" mapstructure:"cadence,omitempty"`
@@ -237,7 +245,9 @@ func (o *DataSink) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.AccessLogs = o.AccessLogs
+	s.AccessMetrics = o.AccessMetrics
 	s.AgenticLogs = o.AgenticLogs
+	s.AgenticMetrics = o.AgenticMetrics
 	s.Cadence = o.Cadence
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
@@ -275,7 +285,9 @@ func (o *DataSink) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.AccessLogs = s.AccessLogs
+	o.AccessMetrics = s.AccessMetrics
 	o.AgenticLogs = s.AgenticLogs
+	o.AgenticMetrics = s.AgenticMetrics
 	o.Cadence = s.Cadence
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
@@ -424,7 +436,9 @@ func (o *DataSink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparseDataSink{
 			ID:                      &o.ID,
 			AccessLogs:              o.AccessLogs,
+			AccessMetrics:           o.AccessMetrics,
 			AgenticLogs:             o.AgenticLogs,
+			AgenticMetrics:          o.AgenticMetrics,
 			Cadence:                 &o.Cadence,
 			CreateTime:              &o.CreateTime,
 			Description:             &o.Description,
@@ -453,8 +467,12 @@ func (o *DataSink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "accessLogs":
 			sp.AccessLogs = o.AccessLogs
+		case "accessMetrics":
+			sp.AccessMetrics = o.AccessMetrics
 		case "agenticLogs":
 			sp.AgenticLogs = o.AgenticLogs
+		case "agenticMetrics":
+			sp.AgenticMetrics = o.AgenticMetrics
 		case "cadence":
 			sp.Cadence = &(o.Cadence)
 		case "createTime":
@@ -510,8 +528,14 @@ func (o *DataSink) Patch(sparse elemental.SparseIdentifiable) {
 	if so.AccessLogs != nil {
 		o.AccessLogs = so.AccessLogs
 	}
+	if so.AccessMetrics != nil {
+		o.AccessMetrics = so.AccessMetrics
+	}
 	if so.AgenticLogs != nil {
 		o.AgenticLogs = so.AgenticLogs
+	}
+	if so.AgenticMetrics != nil {
+		o.AgenticMetrics = so.AgenticMetrics
 	}
 	if so.Cadence != nil {
 		o.Cadence = *so.Cadence
@@ -578,9 +602,21 @@ func (o *DataSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (er
 		}
 	}
 
+	if o.AccessMetrics != nil {
+		if err := o.AccessMetrics.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AccessMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'AgenticLogs' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AgenticMetrics != nil {
+		if err := o.AgenticMetrics.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgenticMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -608,9 +644,21 @@ func (o *DataSink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (er
 		}
 	}
 
+	if o.AccessMetrics != nil {
+		if err := o.AccessMetrics.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AccessMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'AgenticLogs' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AgenticMetrics != nil {
+		if err := o.AgenticMetrics.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgenticMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -668,9 +716,23 @@ func (o *DataSink) Validate() error {
 		}
 	}
 
+	if o.AccessMetrics != nil {
+		if err := o.AccessMetrics.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "accessMetrics")
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.Validate(); err != nil {
 			elemental.InjectAttributePath(err, "agenticLogs")
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.AgenticMetrics != nil {
+		if err := o.AgenticMetrics.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "agenticMetrics")
 			errors = errors.Append(err)
 		}
 	}
@@ -767,8 +829,12 @@ func (o *DataSink) ValueForAttribute(name string) any {
 		return o.ID
 	case "accessLogs":
 		return o.AccessLogs
+	case "accessMetrics":
+		return o.AccessMetrics
 	case "agenticLogs":
 		return o.AgenticLogs
+	case "agenticMetrics":
+		return o.AgenticMetrics
 	case "cadence":
 		return o.Cadence
 	case "createTime":
@@ -839,6 +905,18 @@ Present means selected.`,
 		SubType: "datasinkaccesslogs",
 		Type:    "ref",
 	},
+	"AccessMetrics": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "accessmetrics",
+		ConvertedName:  "AccessMetrics",
+		Description: `Selects the access metrics dataset: the rolled-up metrics of the
+organization's employees. Present means selected.`,
+		Exposed: true,
+		Name:    "accessMetrics",
+		Stored:  true,
+		SubType: "datasinkaccessmetrics",
+		Type:    "ref",
+	},
 	"AgenticLogs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "agenticlogs",
@@ -849,6 +927,18 @@ Present means selected.`,
 		Name:    "agenticLogs",
 		Stored:  true,
 		SubType: "datasinkagenticlogs",
+		Type:    "ref",
+	},
+	"AgenticMetrics": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "agenticmetrics",
+		ConvertedName:  "AgenticMetrics",
+		Description: `Selects the agentic metrics dataset: the rolled-up metrics of the
+organization's projects. Present means selected.`,
+		Exposed: true,
+		Name:    "agenticMetrics",
+		Stored:  true,
+		SubType: "datasinkagenticmetrics",
 		Type:    "ref",
 	},
 	"Cadence": {
@@ -1083,6 +1173,18 @@ Present means selected.`,
 		SubType: "datasinkaccesslogs",
 		Type:    "ref",
 	},
+	"accessmetrics": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "accessmetrics",
+		ConvertedName:  "AccessMetrics",
+		Description: `Selects the access metrics dataset: the rolled-up metrics of the
+organization's employees. Present means selected.`,
+		Exposed: true,
+		Name:    "accessMetrics",
+		Stored:  true,
+		SubType: "datasinkaccessmetrics",
+		Type:    "ref",
+	},
 	"agenticlogs": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "agenticlogs",
@@ -1093,6 +1195,18 @@ Present means selected.`,
 		Name:    "agenticLogs",
 		Stored:  true,
 		SubType: "datasinkagenticlogs",
+		Type:    "ref",
+	},
+	"agenticmetrics": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "agenticmetrics",
+		ConvertedName:  "AgenticMetrics",
+		Description: `Selects the agentic metrics dataset: the rolled-up metrics of the
+organization's projects. Present means selected.`,
+		Exposed: true,
+		Name:    "agenticMetrics",
+		Stored:  true,
+		SubType: "datasinkagenticmetrics",
 		Type:    "ref",
 	},
 	"cadence": {
@@ -1368,9 +1482,17 @@ type SparseDataSink struct {
 	// Present means selected.
 	AccessLogs *DataSinkAccessLogs `json:"accessLogs,omitempty" msgpack:"accessLogs,omitempty" bson:"accesslogs,omitempty" mapstructure:"accessLogs,omitempty"`
 
+	// Selects the access metrics dataset: the rolled-up metrics of the
+	// organization's employees. Present means selected.
+	AccessMetrics *DataSinkAccessMetrics `json:"accessMetrics,omitempty" msgpack:"accessMetrics,omitempty" bson:"accessmetrics,omitempty" mapstructure:"accessMetrics,omitempty"`
+
 	// Selects the agentic logs dataset: roundtrips of the organization's projects
 	// (applications and their agents). Present means selected.
 	AgenticLogs *DataSinkAgenticLogs `json:"agenticLogs,omitempty" msgpack:"agenticLogs,omitempty" bson:"agenticlogs,omitempty" mapstructure:"agenticLogs,omitempty"`
+
+	// Selects the agentic metrics dataset: the rolled-up metrics of the
+	// organization's projects. Present means selected.
+	AgenticMetrics *DataSinkAgenticMetrics `json:"agenticMetrics,omitempty" msgpack:"agenticMetrics,omitempty" bson:"agenticmetrics,omitempty" mapstructure:"agenticMetrics,omitempty"`
 
 	// How often new data is exported.
 	Cadence *DataSinkCadenceValue `json:"cadence,omitempty" msgpack:"cadence,omitempty" bson:"cadence,omitempty" mapstructure:"cadence,omitempty"`
@@ -1483,8 +1605,14 @@ func (o *SparseDataSink) GetBSON() (any, error) {
 	if o.AccessLogs != nil {
 		s.AccessLogs = o.AccessLogs
 	}
+	if o.AccessMetrics != nil {
+		s.AccessMetrics = o.AccessMetrics
+	}
 	if o.AgenticLogs != nil {
 		s.AgenticLogs = o.AgenticLogs
+	}
+	if o.AgenticMetrics != nil {
+		s.AgenticMetrics = o.AgenticMetrics
 	}
 	if o.Cadence != nil {
 		s.Cadence = o.Cadence
@@ -1562,8 +1690,14 @@ func (o *SparseDataSink) SetBSON(raw bson.Raw) error {
 	if s.AccessLogs != nil {
 		o.AccessLogs = s.AccessLogs
 	}
+	if s.AccessMetrics != nil {
+		o.AccessMetrics = s.AccessMetrics
+	}
 	if s.AgenticLogs != nil {
 		o.AgenticLogs = s.AgenticLogs
+	}
+	if s.AgenticMetrics != nil {
+		o.AgenticMetrics = s.AgenticMetrics
 	}
 	if s.Cadence != nil {
 		o.Cadence = s.Cadence
@@ -1639,8 +1773,14 @@ func (o *SparseDataSink) ToPlain() elemental.PlainIdentifiable {
 	if o.AccessLogs != nil {
 		out.AccessLogs = o.AccessLogs
 	}
+	if o.AccessMetrics != nil {
+		out.AccessMetrics = o.AccessMetrics
+	}
 	if o.AgenticLogs != nil {
 		out.AgenticLogs = o.AgenticLogs
+	}
+	if o.AgenticMetrics != nil {
+		out.AgenticMetrics = o.AgenticMetrics
 	}
 	if o.Cadence != nil {
 		out.Cadence = *o.Cadence
@@ -1709,9 +1849,21 @@ func (o *SparseDataSink) EncryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	if o.AccessMetrics != nil {
+		if err := o.AccessMetrics.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AccessMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'AgenticLogs' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AgenticMetrics != nil {
+		if err := o.AgenticMetrics.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgenticMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1739,9 +1891,21 @@ func (o *SparseDataSink) DecryptAttributes(encrypter elemental.AttributeEncrypte
 		}
 	}
 
+	if o.AccessMetrics != nil {
+		if err := o.AccessMetrics.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AccessMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	if o.AgenticLogs != nil {
 		if err := o.AgenticLogs.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'AgenticLogs' for 'DataSink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AgenticMetrics != nil {
+		if err := o.AgenticMetrics.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgenticMetrics' for 'DataSink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1897,48 +2061,52 @@ func (o *SparseDataSink) DeepCopyInto(out *SparseDataSink) {
 }
 
 type mongoAttributesDataSink struct {
-	ID                      bson.ObjectId          `bson:"_id,omitempty"`
-	AccessLogs              *DataSinkAccessLogs    `bson:"accesslogs"`
-	AgenticLogs             *DataSinkAgenticLogs   `bson:"agenticlogs"`
-	Cadence                 DataSinkCadenceValue   `bson:"cadence"`
-	CreateTime              time.Time              `bson:"createtime"`
-	Description             string                 `bson:"description"`
-	FriendlyName            string                 `bson:"friendlyname"`
-	ImportHash              string                 `bson:"importhash,omitempty"`
-	ImportLabel             string                 `bson:"importlabel,omitempty"`
-	Name                    string                 `bson:"name"`
-	Namespace               string                 `bson:"namespace,omitempty"`
-	NotificationResourceIDs []string               `bson:"notificationresourceids"`
-	Notifications           *DataSinkNotifications `bson:"notifications,omitempty"`
-	Revision                int                    `bson:"revision"`
-	S3                      *DataSinkS3            `bson:"s3"`
-	State                   DataSinkStateValue     `bson:"state"`
-	StateReason             string                 `bson:"statereason"`
-	Type                    DataSinkTypeValue      `bson:"type"`
-	UpdateTime              time.Time              `bson:"updatetime"`
-	ZHash                   int                    `bson:"zhash"`
-	Zone                    int                    `bson:"zone"`
+	ID                      bson.ObjectId           `bson:"_id,omitempty"`
+	AccessLogs              *DataSinkAccessLogs     `bson:"accesslogs"`
+	AccessMetrics           *DataSinkAccessMetrics  `bson:"accessmetrics"`
+	AgenticLogs             *DataSinkAgenticLogs    `bson:"agenticlogs"`
+	AgenticMetrics          *DataSinkAgenticMetrics `bson:"agenticmetrics"`
+	Cadence                 DataSinkCadenceValue    `bson:"cadence"`
+	CreateTime              time.Time               `bson:"createtime"`
+	Description             string                  `bson:"description"`
+	FriendlyName            string                  `bson:"friendlyname"`
+	ImportHash              string                  `bson:"importhash,omitempty"`
+	ImportLabel             string                  `bson:"importlabel,omitempty"`
+	Name                    string                  `bson:"name"`
+	Namespace               string                  `bson:"namespace,omitempty"`
+	NotificationResourceIDs []string                `bson:"notificationresourceids"`
+	Notifications           *DataSinkNotifications  `bson:"notifications,omitempty"`
+	Revision                int                     `bson:"revision"`
+	S3                      *DataSinkS3             `bson:"s3"`
+	State                   DataSinkStateValue      `bson:"state"`
+	StateReason             string                  `bson:"statereason"`
+	Type                    DataSinkTypeValue       `bson:"type"`
+	UpdateTime              time.Time               `bson:"updatetime"`
+	ZHash                   int                     `bson:"zhash"`
+	Zone                    int                     `bson:"zone"`
 }
 type mongoAttributesSparseDataSink struct {
-	ID                      bson.ObjectId          `bson:"_id,omitempty"`
-	AccessLogs              *DataSinkAccessLogs    `bson:"accesslogs,omitempty"`
-	AgenticLogs             *DataSinkAgenticLogs   `bson:"agenticlogs,omitempty"`
-	Cadence                 *DataSinkCadenceValue  `bson:"cadence,omitempty"`
-	CreateTime              *time.Time             `bson:"createtime,omitempty"`
-	Description             *string                `bson:"description,omitempty"`
-	FriendlyName            *string                `bson:"friendlyname,omitempty"`
-	ImportHash              *string                `bson:"importhash,omitempty"`
-	ImportLabel             *string                `bson:"importlabel,omitempty"`
-	Name                    *string                `bson:"name,omitempty"`
-	Namespace               *string                `bson:"namespace,omitempty"`
-	NotificationResourceIDs *[]string              `bson:"notificationresourceids,omitempty"`
-	Notifications           *DataSinkNotifications `bson:"notifications,omitempty"`
-	Revision                *int                   `bson:"revision,omitempty"`
-	S3                      *DataSinkS3            `bson:"s3,omitempty"`
-	State                   *DataSinkStateValue    `bson:"state,omitempty"`
-	StateReason             *string                `bson:"statereason,omitempty"`
-	Type                    *DataSinkTypeValue     `bson:"type,omitempty"`
-	UpdateTime              *time.Time             `bson:"updatetime,omitempty"`
-	ZHash                   *int                   `bson:"zhash,omitempty"`
-	Zone                    *int                   `bson:"zone,omitempty"`
+	ID                      bson.ObjectId           `bson:"_id,omitempty"`
+	AccessLogs              *DataSinkAccessLogs     `bson:"accesslogs,omitempty"`
+	AccessMetrics           *DataSinkAccessMetrics  `bson:"accessmetrics,omitempty"`
+	AgenticLogs             *DataSinkAgenticLogs    `bson:"agenticlogs,omitempty"`
+	AgenticMetrics          *DataSinkAgenticMetrics `bson:"agenticmetrics,omitempty"`
+	Cadence                 *DataSinkCadenceValue   `bson:"cadence,omitempty"`
+	CreateTime              *time.Time              `bson:"createtime,omitempty"`
+	Description             *string                 `bson:"description,omitempty"`
+	FriendlyName            *string                 `bson:"friendlyname,omitempty"`
+	ImportHash              *string                 `bson:"importhash,omitempty"`
+	ImportLabel             *string                 `bson:"importlabel,omitempty"`
+	Name                    *string                 `bson:"name,omitempty"`
+	Namespace               *string                 `bson:"namespace,omitempty"`
+	NotificationResourceIDs *[]string               `bson:"notificationresourceids,omitempty"`
+	Notifications           *DataSinkNotifications  `bson:"notifications,omitempty"`
+	Revision                *int                    `bson:"revision,omitempty"`
+	S3                      *DataSinkS3             `bson:"s3,omitempty"`
+	State                   *DataSinkStateValue     `bson:"state,omitempty"`
+	StateReason             *string                 `bson:"statereason,omitempty"`
+	Type                    *DataSinkTypeValue      `bson:"type,omitempty"`
+	UpdateTime              *time.Time              `bson:"updatetime,omitempty"`
+	ZHash                   *int                    `bson:"zhash,omitempty"`
+	Zone                    *int                    `bson:"zone,omitempty"`
 }

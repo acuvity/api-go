@@ -34,6 +34,34 @@ const (
 	ScanRequestDirectionIngress ScanRequestDirectionValue = "Ingress"
 )
 
+// ScanRequestEncryptionEgressStateValue represents the possible values for attribute "encryptionEgressState".
+type ScanRequestEncryptionEgressStateValue string
+
+const (
+	// ScanRequestEncryptionEgressStateEncrypted represents the value Encrypted.
+	ScanRequestEncryptionEgressStateEncrypted ScanRequestEncryptionEgressStateValue = "Encrypted"
+
+	// ScanRequestEncryptionEgressStateUnencrypted represents the value Unencrypted.
+	ScanRequestEncryptionEgressStateUnencrypted ScanRequestEncryptionEgressStateValue = "Unencrypted"
+
+	// ScanRequestEncryptionEgressStateUnknown represents the value Unknown.
+	ScanRequestEncryptionEgressStateUnknown ScanRequestEncryptionEgressStateValue = "Unknown"
+)
+
+// ScanRequestEncryptionIngressStateValue represents the possible values for attribute "encryptionIngressState".
+type ScanRequestEncryptionIngressStateValue string
+
+const (
+	// ScanRequestEncryptionIngressStateEncrypted represents the value Encrypted.
+	ScanRequestEncryptionIngressStateEncrypted ScanRequestEncryptionIngressStateValue = "Encrypted"
+
+	// ScanRequestEncryptionIngressStateUnencrypted represents the value Unencrypted.
+	ScanRequestEncryptionIngressStateUnencrypted ScanRequestEncryptionIngressStateValue = "Unencrypted"
+
+	// ScanRequestEncryptionIngressStateUnknown represents the value Unknown.
+	ScanRequestEncryptionIngressStateUnknown ScanRequestEncryptionIngressStateValue = "Unknown"
+)
+
 // ScanRequestTypeValue represents the possible values for attribute "type".
 type ScanRequestTypeValue string
 
@@ -151,8 +179,10 @@ type ScanRequest struct {
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
-	// On the police API an egress request must set either this or the provider: the
-	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// When an egress request names neither a provider nor a destination app and
+	// component, the provider is resolved from the destination host, and then from
+	// the model. On the police API an egress request must end up with a target: the
+	// policy needs one. On the scan API it may end up with none to run a plain scan
 	// that targets nothing, in which case the app component identified by the
 	// caller's token is reported as the destination so that the request still shows
 	// up in traces.
@@ -162,6 +192,28 @@ type ScanRequest struct {
 	// the caller's token identifies. Determines whether the ingress or the egress
 	// policies of that app component are evaluated.
 	Direction ScanRequestDirectionValue `json:"direction" msgpack:"direction" bson:"-" mapstructure:"direction,omitempty"`
+
+	// The encryption details of the connection from the app component to the
+	// origin server, if known. When it is set, encryptionEgressState defaults to
+	// Encrypted.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"-" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the app component to the origin server was
+	// encrypted. Unknown when it is not known. When left Unknown and
+	// encryptionEgress is set, it is considered Encrypted. It must not be
+	// Unencrypted when encryptionEgress is set.
+	EncryptionEgressState ScanRequestEncryptionEgressStateValue `json:"encryptionEgressState" msgpack:"encryptionEgressState" bson:"-" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the app
+	// component, if known. When it is set, encryptionIngressState defaults to
+	// Encrypted.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"-" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the app component was encrypted.
+	// Unknown when it is not known. When left Unknown and encryptionIngress is
+	// set, it is considered Encrypted. It must not be Unencrypted when
+	// encryptionIngress is set.
+	EncryptionIngressState ScanRequestEncryptionIngressStateValue `json:"encryptionIngressState" msgpack:"encryptionIngressState" bson:"-" mapstructure:"encryptionIngressState,omitempty"`
 
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
@@ -173,11 +225,17 @@ type ScanRequest struct {
 	// processing binary data.
 	Messages []string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
+	// The model used by the request. When the request names neither a provider nor a
+	// destination app and component and the destination host resolves no provider
+	// either, the provider serving this model becomes the policy target.
+	Model string `json:"model,omitempty" msgpack:"model,omitempty" bson:"-" mapstructure:"model,omitempty"`
+
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
-	// On the police API an egress request must set either this or the destination app
-	// and component. On the scan API both may be omitted to run a plain scan that
-	// targets nothing.
+	// When neither this nor the destination app and component are set on an egress
+	// request, the provider is resolved from the destination host, and then from the
+	// model. On the police API an egress request must end up with a target. On the
+	// scan API it may end up with none to run a plain scan that targets nothing.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// If true, the user data is removed from the logged roundtrip, while the
@@ -219,10 +277,12 @@ type ScanRequest struct {
 func NewScanRequest() *ScanRequest {
 
 	return &ScanRequest{
-		ModelVersion:  1,
-		Analyzers:     []string{},
-		Anonymization: ScanRequestAnonymizationFixedSize,
-		Direction:     ScanRequestDirectionEgress,
+		ModelVersion:           1,
+		Analyzers:              []string{},
+		Anonymization:          ScanRequestAnonymizationFixedSize,
+		Direction:              ScanRequestDirectionEgress,
+		EncryptionEgressState:  ScanRequestEncryptionEgressStateUnknown,
+		EncryptionIngressState: ScanRequestEncryptionIngressStateUnknown,
 	}
 }
 
@@ -304,8 +364,9 @@ func (o *ScanRequest) DefaultOrder() []string {
 func (o *ScanRequest) Doc() string {
 
 	return `This is a scan request. Scan enforces no policy, so unlike police it can be used
-as a plain analyzer with no destination in mind: provider, destination and
-direction may all be left out.`
+as a plain analyzer with no destination in mind: provider, destination, model
+and direction may all be left out, and a host or model that resolves no
+provider is not an error.`
 }
 
 func (o *ScanRequest) String() string {
@@ -320,22 +381,27 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseScanRequest{
-			Analyzers:           &o.Analyzers,
-			Anonymization:       &o.Anonymization,
-			ConversationID:      &o.ConversationID,
-			Destination:         o.Destination,
-			Direction:           &o.Direction,
-			Extractions:         &o.Extractions,
-			Keywords:            &o.Keywords,
-			Messages:            &o.Messages,
-			Provider:            &o.Provider,
-			RedactContent:       &o.RedactContent,
-			RedactContentBypass: &o.RedactContentBypass,
-			Redactions:          &o.Redactions,
-			Source:              o.Source,
-			Tools:               &o.Tools,
-			Trace:               o.Trace,
-			Type:                &o.Type,
+			Analyzers:              &o.Analyzers,
+			Anonymization:          &o.Anonymization,
+			ConversationID:         &o.ConversationID,
+			Destination:            o.Destination,
+			Direction:              &o.Direction,
+			EncryptionEgress:       o.EncryptionEgress,
+			EncryptionEgressState:  &o.EncryptionEgressState,
+			EncryptionIngress:      o.EncryptionIngress,
+			EncryptionIngressState: &o.EncryptionIngressState,
+			Extractions:            &o.Extractions,
+			Keywords:               &o.Keywords,
+			Messages:               &o.Messages,
+			Model:                  &o.Model,
+			Provider:               &o.Provider,
+			RedactContent:          &o.RedactContent,
+			RedactContentBypass:    &o.RedactContentBypass,
+			Redactions:             &o.Redactions,
+			Source:                 o.Source,
+			Tools:                  &o.Tools,
+			Trace:                  o.Trace,
+			Type:                   &o.Type,
 		}
 	}
 
@@ -352,12 +418,22 @@ func (o *ScanRequest) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Destination = o.Destination
 		case "direction":
 			sp.Direction = &(o.Direction)
+		case "encryptionEgress":
+			sp.EncryptionEgress = o.EncryptionEgress
+		case "encryptionEgressState":
+			sp.EncryptionEgressState = &(o.EncryptionEgressState)
+		case "encryptionIngress":
+			sp.EncryptionIngress = o.EncryptionIngress
+		case "encryptionIngressState":
+			sp.EncryptionIngressState = &(o.EncryptionIngressState)
 		case "extractions":
 			sp.Extractions = &(o.Extractions)
 		case "keywords":
 			sp.Keywords = &(o.Keywords)
 		case "messages":
 			sp.Messages = &(o.Messages)
+		case "model":
+			sp.Model = &(o.Model)
 		case "provider":
 			sp.Provider = &(o.Provider)
 		case "redactContent":
@@ -402,6 +478,18 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Direction != nil {
 		o.Direction = *so.Direction
 	}
+	if so.EncryptionEgress != nil {
+		o.EncryptionEgress = so.EncryptionEgress
+	}
+	if so.EncryptionEgressState != nil {
+		o.EncryptionEgressState = *so.EncryptionEgressState
+	}
+	if so.EncryptionIngress != nil {
+		o.EncryptionIngress = so.EncryptionIngress
+	}
+	if so.EncryptionIngressState != nil {
+		o.EncryptionIngressState = *so.EncryptionIngressState
+	}
 	if so.Extractions != nil {
 		o.Extractions = *so.Extractions
 	}
@@ -410,6 +498,9 @@ func (o *ScanRequest) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Messages != nil {
 		o.Messages = *so.Messages
+	}
+	if so.Model != nil {
+		o.Model = *so.Model
 	}
 	if so.Provider != nil {
 		o.Provider = *so.Provider
@@ -443,6 +534,18 @@ func (o *ScanRequest) EncryptAttributes(encrypter elemental.AttributeEncrypter) 
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -485,6 +588,18 @@ func (o *ScanRequest) DecryptAttributes(encrypter elemental.AttributeEncrypter) 
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -565,6 +680,28 @@ func (o *ScanRequest) Validate() error {
 	}
 
 	if err := elemental.ValidateStringInList("direction", string(o.Direction), []string{"Egress", "Ingress"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionEgress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionEgressState", string(o.EncryptionEgressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "encryptionIngress")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("encryptionIngressState", string(o.EncryptionIngressState), []string{"Unknown", "Unencrypted", "Encrypted"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -655,12 +792,22 @@ func (o *ScanRequest) ValueForAttribute(name string) any {
 		return o.Destination
 	case "direction":
 		return o.Direction
+	case "encryptionEgress":
+		return o.EncryptionEgress
+	case "encryptionEgressState":
+		return o.EncryptionEgressState
+	case "encryptionIngress":
+		return o.EncryptionIngress
+	case "encryptionIngressState":
+		return o.EncryptionIngressState
 	case "extractions":
 		return o.Extractions
 	case "keywords":
 		return o.Keywords
 	case "messages":
 		return o.Messages
+	case "model":
+		return o.Model
 	case "provider":
 		return o.Provider
 	case "redactContent":
@@ -740,8 +887,10 @@ same conversation.`,
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
-On the police API an egress request must set either this or the provider: the
-policy needs a target. On the scan API both may be omitted to run a plain scan
+When an egress request names neither a provider nor a destination app and
+component, the provider is resolved from the destination host, and then from
+the model. On the police API an egress request must end up with a target: the
+policy needs one. On the scan API it may end up with none to run a plain scan
 that targets nothing, in which case the app component identified by the
 caller's token is reported as the destination so that the request still shows
 up in traces.`,
@@ -759,6 +908,52 @@ the caller's token identifies. Determines whether the ingress or the egress
 policies of that app component are evaluated.`,
 		Exposed: true,
 		Name:    "direction",
+		Type:    "enum",
+	},
+	"EncryptionEgress": {
+		AllowedChoices: []string{},
+		ConvertedName:  "EncryptionEgress",
+		Description: `The encryption details of the connection from the app component to the
+origin server, if known. When it is set, encryptionEgressState defaults to
+Encrypted.`,
+		Exposed: true,
+		Name:    "encryptionEgress",
+		SubType: "tlsstate",
+		Type:    "ref",
+	},
+	"EncryptionEgressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ScanRequestEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the app component to the origin server was
+encrypted. Unknown when it is not known. When left Unknown and
+encryptionEgress is set, it is considered Encrypted. It must not be
+Unencrypted when encryptionEgress is set.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Type:    "enum",
+	},
+	"EncryptionIngress": {
+		AllowedChoices: []string{},
+		ConvertedName:  "EncryptionIngress",
+		Description: `The encryption details of the connection from the client to the app
+component, if known. When it is set, encryptionIngressState defaults to
+Encrypted.`,
+		Exposed: true,
+		Name:    "encryptionIngress",
+		SubType: "tlsstate",
+		Type:    "ref",
+	},
+	"EncryptionIngressState": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ScanRequestEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the app component was encrypted.
+Unknown when it is not known. When left Unknown and encryptionIngress is
+set, it is considered Encrypted. It must not be Unencrypted when
+encryptionIngress is set.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
 		Type:    "enum",
 	},
 	"Extractions": {
@@ -789,14 +984,25 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"Model": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Model",
+		Description: `The model used by the request. When the request names neither a provider nor a
+destination app and component and the destination host resolves no provider
+either, the provider serving this model becomes the policy target.`,
+		Exposed: true,
+		Name:    "model",
+		Type:    "string",
+	},
 	"Provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
-On the police API an egress request must set either this or the destination app
-and component. On the scan API both may be omitted to run a plain scan that
-targets nothing.`,
+When neither this nor the destination app and component are set on an egress
+request, the provider is resolved from the destination host, and then from the
+model. On the police API an egress request must end up with a target. On the
+scan API it may end up with none to run a plain scan that targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
@@ -938,8 +1144,10 @@ same conversation.`,
 		ConvertedName:  "Destination",
 		Description: `The destination for this request. When destination app and component are set,
 they become the policy target and the provider field must not be set.
-On the police API an egress request must set either this or the provider: the
-policy needs a target. On the scan API both may be omitted to run a plain scan
+When an egress request names neither a provider nor a destination app and
+component, the provider is resolved from the destination host, and then from
+the model. On the police API an egress request must end up with a target: the
+policy needs one. On the scan API it may end up with none to run a plain scan
 that targets nothing, in which case the app component identified by the
 caller's token is reported as the destination so that the request still shows
 up in traces.`,
@@ -957,6 +1165,52 @@ the caller's token identifies. Determines whether the ingress or the egress
 policies of that app component are evaluated.`,
 		Exposed: true,
 		Name:    "direction",
+		Type:    "enum",
+	},
+	"encryptionegress": {
+		AllowedChoices: []string{},
+		ConvertedName:  "EncryptionEgress",
+		Description: `The encryption details of the connection from the app component to the
+origin server, if known. When it is set, encryptionEgressState defaults to
+Encrypted.`,
+		Exposed: true,
+		Name:    "encryptionEgress",
+		SubType: "tlsstate",
+		Type:    "ref",
+	},
+	"encryptionegressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		ConvertedName:  "EncryptionEgressState",
+		DefaultValue:   ScanRequestEncryptionEgressStateUnknown,
+		Description: `Whether the connection from the app component to the origin server was
+encrypted. Unknown when it is not known. When left Unknown and
+encryptionEgress is set, it is considered Encrypted. It must not be
+Unencrypted when encryptionEgress is set.`,
+		Exposed: true,
+		Name:    "encryptionEgressState",
+		Type:    "enum",
+	},
+	"encryptioningress": {
+		AllowedChoices: []string{},
+		ConvertedName:  "EncryptionIngress",
+		Description: `The encryption details of the connection from the client to the app
+component, if known. When it is set, encryptionIngressState defaults to
+Encrypted.`,
+		Exposed: true,
+		Name:    "encryptionIngress",
+		SubType: "tlsstate",
+		Type:    "ref",
+	},
+	"encryptioningressstate": {
+		AllowedChoices: []string{"Unknown", "Unencrypted", "Encrypted"},
+		ConvertedName:  "EncryptionIngressState",
+		DefaultValue:   ScanRequestEncryptionIngressStateUnknown,
+		Description: `Whether the connection from the client to the app component was encrypted.
+Unknown when it is not known. When left Unknown and encryptionIngress is
+set, it is considered Encrypted. It must not be Unencrypted when
+encryptionIngress is set.`,
+		Exposed: true,
+		Name:    "encryptionIngressState",
 		Type:    "enum",
 	},
 	"extractions": {
@@ -987,14 +1241,25 @@ processing binary data.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"model": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Model",
+		Description: `The model used by the request. When the request names neither a provider nor a
+destination app and component and the destination host resolves no provider
+either, the provider serving this model becomes the policy target.`,
+		Exposed: true,
+		Name:    "model",
+		Type:    "string",
+	},
 	"provider": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Provider",
 		Description: `The name of the provider to use for policy resolutions. Must not be set when
 destination app and component are set.
-On the police API an egress request must set either this or the destination app
-and component. On the scan API both may be omitted to run a plain scan that
-targets nothing.`,
+When neither this nor the destination app and component are set on an egress
+request, the provider is resolved from the destination host, and then from the
+model. On the police API an egress request must end up with a target. On the
+scan API it may end up with none to run a plain scan that targets nothing.`,
 		Exposed: true,
 		Name:    "provider",
 		Type:    "string",
@@ -1175,8 +1440,10 @@ type SparseScanRequest struct {
 
 	// The destination for this request. When destination app and component are set,
 	// they become the policy target and the provider field must not be set.
-	// On the police API an egress request must set either this or the provider: the
-	// policy needs a target. On the scan API both may be omitted to run a plain scan
+	// When an egress request names neither a provider nor a destination app and
+	// component, the provider is resolved from the destination host, and then from
+	// the model. On the police API an egress request must end up with a target: the
+	// policy needs one. On the scan API it may end up with none to run a plain scan
 	// that targets nothing, in which case the app component identified by the
 	// caller's token is reported as the destination so that the request still shows
 	// up in traces.
@@ -1186,6 +1453,28 @@ type SparseScanRequest struct {
 	// the caller's token identifies. Determines whether the ingress or the egress
 	// policies of that app component are evaluated.
 	Direction *ScanRequestDirectionValue `json:"direction,omitempty" msgpack:"direction,omitempty" bson:"-" mapstructure:"direction,omitempty"`
+
+	// The encryption details of the connection from the app component to the
+	// origin server, if known. When it is set, encryptionEgressState defaults to
+	// Encrypted.
+	EncryptionEgress *TLSState `json:"encryptionEgress,omitempty" msgpack:"encryptionEgress,omitempty" bson:"-" mapstructure:"encryptionEgress,omitempty"`
+
+	// Whether the connection from the app component to the origin server was
+	// encrypted. Unknown when it is not known. When left Unknown and
+	// encryptionEgress is set, it is considered Encrypted. It must not be
+	// Unencrypted when encryptionEgress is set.
+	EncryptionEgressState *ScanRequestEncryptionEgressStateValue `json:"encryptionEgressState,omitempty" msgpack:"encryptionEgressState,omitempty" bson:"-" mapstructure:"encryptionEgressState,omitempty"`
+
+	// The encryption details of the connection from the client to the app
+	// component, if known. When it is set, encryptionIngressState defaults to
+	// Encrypted.
+	EncryptionIngress *TLSState `json:"encryptionIngress,omitempty" msgpack:"encryptionIngress,omitempty" bson:"-" mapstructure:"encryptionIngress,omitempty"`
+
+	// Whether the connection from the client to the app component was encrypted.
+	// Unknown when it is not known. When left Unknown and encryptionIngress is
+	// set, it is considered Encrypted. It must not be Unencrypted when
+	// encryptionIngress is set.
+	EncryptionIngressState *ScanRequestEncryptionIngressStateValue `json:"encryptionIngressState,omitempty" msgpack:"encryptionIngressState,omitempty" bson:"-" mapstructure:"encryptionIngressState,omitempty"`
 
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
@@ -1197,11 +1486,17 @@ type SparseScanRequest struct {
 	// processing binary data.
 	Messages *[]string `json:"messages,omitempty" msgpack:"messages,omitempty" bson:"-" mapstructure:"messages,omitempty"`
 
+	// The model used by the request. When the request names neither a provider nor a
+	// destination app and component and the destination host resolves no provider
+	// either, the provider serving this model becomes the policy target.
+	Model *string `json:"model,omitempty" msgpack:"model,omitempty" bson:"-" mapstructure:"model,omitempty"`
+
 	// The name of the provider to use for policy resolutions. Must not be set when
 	// destination app and component are set.
-	// On the police API an egress request must set either this or the destination app
-	// and component. On the scan API both may be omitted to run a plain scan that
-	// targets nothing.
+	// When neither this nor the destination app and component are set on an egress
+	// request, the provider is resolved from the destination host, and then from the
+	// model. On the police API an egress request must end up with a target. On the
+	// scan API it may end up with none to run a plain scan that targets nothing.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"-" mapstructure:"provider,omitempty"`
 
 	// If true, the user data is removed from the logged roundtrip, while the
@@ -1341,6 +1636,18 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	if o.Direction != nil {
 		out.Direction = *o.Direction
 	}
+	if o.EncryptionEgress != nil {
+		out.EncryptionEgress = o.EncryptionEgress
+	}
+	if o.EncryptionEgressState != nil {
+		out.EncryptionEgressState = *o.EncryptionEgressState
+	}
+	if o.EncryptionIngress != nil {
+		out.EncryptionIngress = o.EncryptionIngress
+	}
+	if o.EncryptionIngressState != nil {
+		out.EncryptionIngressState = *o.EncryptionIngressState
+	}
 	if o.Extractions != nil {
 		out.Extractions = *o.Extractions
 	}
@@ -1349,6 +1656,9 @@ func (o *SparseScanRequest) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Messages != nil {
 		out.Messages = *o.Messages
+	}
+	if o.Model != nil {
+		out.Model = *o.Model
 	}
 	if o.Provider != nil {
 		out.Provider = *o.Provider
@@ -1384,6 +1694,18 @@ func (o *SparseScanRequest) EncryptAttributes(encrypter elemental.AttributeEncry
 	if o.Destination != nil {
 		if err := o.Destination.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionEgress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EncryptionIngress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1430,6 +1752,18 @@ func (o *SparseScanRequest) DecryptAttributes(encrypter elemental.AttributeEncry
 	if o.Destination != nil {
 		if err := o.Destination.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Destination' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionEgress != nil {
+		if err := o.EncryptionEgress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionEgress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EncryptionIngress != nil {
+		if err := o.EncryptionIngress.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EncryptionIngress' for 'ScanRequest' (%s): %w", o.Identifier(), err)
 		}
 	}
 

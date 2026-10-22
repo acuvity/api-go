@@ -76,7 +76,9 @@
       "description": "The dataset exported. Its enum value is also the customer-facing dataset name, used directly in S3 paths such as dataset=AccessLogs/.",
       "enum": [
         "AccessLogs",
-        "AgenticLogs"
+        "AgenticLogs",
+        "AccessMetrics",
+        "AgenticMetrics"
       ],
       "title": "dataset"
     },

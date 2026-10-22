@@ -113,6 +113,14 @@ type WebhookExtractor struct {
 	// - `trace`: a table with `traceID` and optional `parentSpanID`.
 	// - `user`: a table with `username` and a list of `claims`.
 	// - `annotations`: a table of string keys and values recorded on the log.
+	// - `encryptionIngress` and `encryptionEgress`: tables with `TLSVersion`
+	//   and `cipherSuite`, and optionally `ALPNNegotiatedProtocol` and
+	//   `implementation`. They describe the TLS of the inspected traffic's
+	//   client-side and upstream-side legs, not of the vendor's call to us.
+	// - `encryptionIngressState` and `encryptionEgressState`: `Unknown`,
+	//   `Unencrypted` or `Encrypted`. They default to `Unknown`, or to
+	//   `Encrypted` when the matching TLS table is given. `Unencrypted`
+	//   together with a TLS table is rejected.
 	// - `extractions`: the list of things to inspect. Each entry has a `luaID`
 	//   that identifies it in the result handed to `webhook_output()`, its
 	//   `content`, and optionally `role`, `kind`, `isFile`, `annotations`,
@@ -541,6 +549,14 @@ table containing:
 - ` + "`" + `trace` + "`" + `: a table with ` + "`" + `traceID` + "`" + ` and optional ` + "`" + `parentSpanID` + "`" + `.
 - ` + "`" + `user` + "`" + `: a table with ` + "`" + `username` + "`" + ` and a list of ` + "`" + `claims` + "`" + `.
 - ` + "`" + `annotations` + "`" + `: a table of string keys and values recorded on the log.
+- ` + "`" + `encryptionIngress` + "`" + ` and ` + "`" + `encryptionEgress` + "`" + `: tables with ` + "`" + `TLSVersion` + "`" + `
+  and ` + "`" + `cipherSuite` + "`" + `, and optionally ` + "`" + `ALPNNegotiatedProtocol` + "`" + ` and
+  ` + "`" + `implementation` + "`" + `. They describe the TLS of the inspected traffic's
+  client-side and upstream-side legs, not of the vendor's call to us.
+- ` + "`" + `encryptionIngressState` + "`" + ` and ` + "`" + `encryptionEgressState` + "`" + `: ` + "`" + `Unknown` + "`" + `,
+  ` + "`" + `Unencrypted` + "`" + ` or ` + "`" + `Encrypted` + "`" + `. They default to ` + "`" + `Unknown` + "`" + `, or to
+  ` + "`" + `Encrypted` + "`" + ` when the matching TLS table is given. ` + "`" + `Unencrypted` + "`" + `
+  together with a TLS table is rejected.
 - ` + "`" + `extractions` + "`" + `: the list of things to inspect. Each entry has a ` + "`" + `luaID` + "`" + `
   that identifies it in the result handed to ` + "`" + `webhook_output()` + "`" + `, its
   ` + "`" + `content` + "`" + `, and optionally ` + "`" + `role` + "`" + `, ` + "`" + `kind` + "`" + `, ` + "`" + `isFile` + "`" + `, ` + "`" + `annotations` + "`" + `,
@@ -731,6 +747,14 @@ table containing:
 - ` + "`" + `trace` + "`" + `: a table with ` + "`" + `traceID` + "`" + ` and optional ` + "`" + `parentSpanID` + "`" + `.
 - ` + "`" + `user` + "`" + `: a table with ` + "`" + `username` + "`" + ` and a list of ` + "`" + `claims` + "`" + `.
 - ` + "`" + `annotations` + "`" + `: a table of string keys and values recorded on the log.
+- ` + "`" + `encryptionIngress` + "`" + ` and ` + "`" + `encryptionEgress` + "`" + `: tables with ` + "`" + `TLSVersion` + "`" + `
+  and ` + "`" + `cipherSuite` + "`" + `, and optionally ` + "`" + `ALPNNegotiatedProtocol` + "`" + ` and
+  ` + "`" + `implementation` + "`" + `. They describe the TLS of the inspected traffic's
+  client-side and upstream-side legs, not of the vendor's call to us.
+- ` + "`" + `encryptionIngressState` + "`" + ` and ` + "`" + `encryptionEgressState` + "`" + `: ` + "`" + `Unknown` + "`" + `,
+  ` + "`" + `Unencrypted` + "`" + ` or ` + "`" + `Encrypted` + "`" + `. They default to ` + "`" + `Unknown` + "`" + `, or to
+  ` + "`" + `Encrypted` + "`" + ` when the matching TLS table is given. ` + "`" + `Unencrypted` + "`" + `
+  together with a TLS table is rejected.
 - ` + "`" + `extractions` + "`" + `: the list of things to inspect. Each entry has a ` + "`" + `luaID` + "`" + `
   that identifies it in the result handed to ` + "`" + `webhook_output()` + "`" + `, its
   ` + "`" + `content` + "`" + `, and optionally ` + "`" + `role` + "`" + `, ` + "`" + `kind` + "`" + `, ` + "`" + `isFile` + "`" + `, ` + "`" + `annotations` + "`" + `,

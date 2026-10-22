@@ -13,7 +13,7 @@
   "$modelResourceName": "aisecurityprobes",
   "$modelRestName": "aisecurityprobe",
   "additionalProperties": false,
-  "description": "AI Security Probe defines configuration for probing mechanisms that provide discovery data about an environment.",
+  "description": "Deprecated: AI Security Probe defines configuration for probing mechanisms that provide discovery data about an environment. Use a Deployment with the 'Discovery' capability and its discoveryConfiguration instead. Existing objects remain readable and manageable; new objects can no longer be created.",
   "properties": {
     "DNSMonitoring": {
       "$defaultValue": "Enabled",

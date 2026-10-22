@@ -21,7 +21,9 @@ type RequestDestination struct {
 	// app: setting one without the other counts as no destination at all.
 	Component string `json:"component,omitempty" msgpack:"component,omitempty" bson:"-" mapstructure:"component,omitempty"`
 
-	// The host name of the destination. Optional, for logging enrichment.
+	// The host name of the destination. Optional. When the request names neither a
+	// provider nor an app and component, the provider serving this host becomes the
+	// policy target.
 	Host string `json:"host,omitempty" msgpack:"host,omitempty" bson:"-" mapstructure:"host,omitempty"`
 
 	// The destination IP address. Optional, for logging enrichment.
@@ -101,9 +103,10 @@ func (o *RequestDestination) Doc() string {
 and component are set, the request is evaluated against the app component's
 policies instead of a provider. In that case, the provider field must not be
 set.
-On the police API an egress request must name its target, so app and component
-are required unless a provider is given. On the scan API they may be left out
-to run a plain scan that targets nothing.`
+When neither app and component nor a provider are given on egress, the provider
+is resolved from the host, and then from the model of the request. On the police
+API an egress request must end up with a target. On the scan API it may end up
+with none to run a plain scan that targets nothing.`
 }
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
@@ -222,10 +225,12 @@ app: setting one without the other counts as no destination at all.`,
 	"Host": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Host",
-		Description:    `The host name of the destination. Optional, for logging enrichment.`,
-		Exposed:        true,
-		Name:           "host",
-		Type:           "string",
+		Description: `The host name of the destination. Optional. When the request names neither a
+provider nor an app and component, the provider serving this host becomes the
+policy target.`,
+		Exposed: true,
+		Name:    "host",
+		Type:    "string",
 	},
 	"Ip": {
 		AllowedChoices: []string{},
@@ -269,10 +274,12 @@ app: setting one without the other counts as no destination at all.`,
 	"host": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Host",
-		Description:    `The host name of the destination. Optional, for logging enrichment.`,
-		Exposed:        true,
-		Name:           "host",
-		Type:           "string",
+		Description: `The host name of the destination. Optional. When the request names neither a
+provider nor an app and component, the provider serving this host becomes the
+policy target.`,
+		Exposed: true,
+		Name:    "host",
+		Type:    "string",
 	},
 	"ip": {
 		AllowedChoices: []string{},

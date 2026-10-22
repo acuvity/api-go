@@ -31,6 +31,28 @@ import (
 
 func ValidateDeployment(deployment *Deployment) error {
 
+	if len(deployment.Capabilities) == 0 {
+		return makeErr("capabilities", "at least one capability is required")
+	}
+
+	hasDiscovery := false
+	for _, c := range deployment.Capabilities {
+		switch CapabilityName(c) {
+		case CapabilityGateway:
+		case CapabilityDiscovery:
+			hasDiscovery = true
+		default:
+			return makeErr("capabilities", fmt.Sprintf("unknown capability '%s'", c))
+		}
+	}
+
+	if hasDiscovery && deployment.DiscoveryConfiguration == nil {
+		return makeErr("discoveryConfiguration", "discoveryConfiguration must be defined if 'Discovery' is one of the deployment's capabilities")
+	}
+	if !hasDiscovery && deployment.DiscoveryConfiguration != nil {
+		return makeErr("discoveryConfiguration", "discoveryConfiguration must not be defined unless 'Discovery' is one of the deployment's capabilities")
+	}
+
 	seenNS := make(map[string]struct{}, len(deployment.K8sNamespaceMappings))
 	wildcards := 0
 
@@ -3425,8 +3447,8 @@ var (
 // ValidateDataSink validates a DataSink on its own.
 func ValidateDataSink(ds *DataSink) error {
 
-	if ds.AccessLogs == nil && ds.AgenticLogs == nil {
-		return makeErr("accessLogs", "At least one dataset must be selected: accessLogs or agenticLogs")
+	if ds.AccessLogs == nil && ds.AgenticLogs == nil && ds.AccessMetrics == nil && ds.AgenticMetrics == nil {
+		return makeErr("accessLogs", "At least one dataset must be selected: accessLogs, agenticLogs, accessMetrics or agenticMetrics")
 	}
 
 	if ds.Type == DataSinkTypeS3 && ds.S3 == nil {

@@ -79,6 +79,9 @@ const (
 type ExtractorStreamSplitterValue string
 
 const (
+	// ExtractorStreamSplitterEventStream represents the value EventStream.
+	ExtractorStreamSplitterEventStream ExtractorStreamSplitterValue = "EventStream"
+
 	// ExtractorStreamSplitterGRPCFrame represents the value GRPCFrame.
 	ExtractorStreamSplitterGRPCFrame ExtractorStreamSplitterValue = "GRPCFrame"
 
@@ -87,6 +90,9 @@ const (
 
 	// ExtractorStreamSplitterSSE represents the value SSE.
 	ExtractorStreamSplitterSSE ExtractorStreamSplitterValue = "SSE"
+
+	// ExtractorStreamSplitterWebChannel represents the value WebChannel.
+	ExtractorStreamSplitterWebChannel ExtractorStreamSplitterValue = "WebChannel"
 )
 
 // ExtractorTypeValue represents the possible values for attribute "type".
@@ -801,7 +807,7 @@ func (o *Extractor) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("streamSplitter", string(o.StreamSplitter), []string{"Line", "SSE", "GRPCFrame"}, false); err != nil {
+	if err := elemental.ValidateStringInList("streamSplitter", string(o.StreamSplitter), []string{"Line", "SSE", "GRPCFrame", "EventStream", "WebChannel"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1199,7 +1205,7 @@ as-is.`,
 		Type:    "boolean",
 	},
 	"StreamSplitter": {
-		AllowedChoices: []string{"Line", "SSE", "GRPCFrame"},
+		AllowedChoices: []string{"Line", "SSE", "GRPCFrame", "EventStream", "WebChannel"},
 		BSONFieldName:  "streamsplitter",
 		ConvertedName:  "StreamSplitter",
 		DefaultValue:   ExtractorStreamSplitterSSE,
@@ -1530,7 +1536,7 @@ as-is.`,
 		Type:    "boolean",
 	},
 	"streamsplitter": {
-		AllowedChoices: []string{"Line", "SSE", "GRPCFrame"},
+		AllowedChoices: []string{"Line", "SSE", "GRPCFrame", "EventStream", "WebChannel"},
 		BSONFieldName:  "streamsplitter",
 		ConvertedName:  "StreamSplitter",
 		DefaultValue:   ExtractorStreamSplitterSSE,
