@@ -10,10 +10,10 @@ require (
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20260929154122-d4a95aba46c0
-	go.acuvity.ai/aculib v0.0.0-20261016191835-4c218ad152ce
-	go.acuvity.ai/elemental v0.0.0-20261015160217-037450e97331
-	go.opentelemetry.io/collector/pdata v1.69.0
+	go.acuvity.ai/a3s v0.0.0-20261030101647-2994a6aa012d
+	go.acuvity.ai/aculib v0.0.0-20261101193528-254c732624db
+	go.acuvity.ai/elemental v0.0.0-20261029223120-85e0be79bd9c
+	go.opentelemetry.io/collector/pdata v1.71.0
 )
 
 require (
@@ -50,7 +50,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4 // indirect
 	go.acuvity.ai/tg v1.0.1-0.20260708162706-306a91e4d7dd // indirect
-	go.opentelemetry.io/collector/featuregate v1.69.0 // indirect
+	go.opentelemetry.io/collector/featuregate v1.71.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/net v0.60.0 // indirect

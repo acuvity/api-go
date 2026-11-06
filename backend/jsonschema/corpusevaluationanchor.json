@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Anchor",
+  "$friendlyNamePlural": "Corpus Evaluation Anchors",
+  "$modelName": "CorpusEvaluationAnchor",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationanchors",
+  "$modelRestName": "corpusevaluationanchor",
+  "additionalProperties": false,
+  "description": "How one anchor behaves.",
+  "properties": {
+    "catches": {
+      "$friendlyName": "Catches",
+      "description": "How many examples this anchor is the best match for. Zero when it is the best match for none of them.",
+      "title": "catches",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "closestIdx": {
+      "$friendlyName": "Closest Index",
+      "description": "The anchor most like this one.",
+      "title": "closestIdx",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "costs": {
+      "$friendlyName": "Costs",
+      "description": "How much lower the line could sit without this anchor.",
+      "title": "costs",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "idx": {
+      "$friendlyName": "Index",
+      "description": "The index of the anchor in the anchors sent.",
+      "title": "idx",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "description": "`duplicate`, `noisy`, `isolated`, `unexercised` or `carrying`.",
+      "title": "status",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationAnchor",
+  "type": "object"
+}

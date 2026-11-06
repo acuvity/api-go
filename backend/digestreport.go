@@ -17,7 +17,7 @@ import (
 var DigestReportIdentity = elemental.Identity{
 	Name:     "digestreport",
 	Category: "digestreports",
-	Package:  "relae",
+	Package:  "avi",
 	Private:  false,
 }
 

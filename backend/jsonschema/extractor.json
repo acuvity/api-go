@@ -30,7 +30,7 @@
     "anonymization": {
       "$defaultValue": "FixedSize",
       "$friendlyName": "Anonymization",
-      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "description": "DEPRECATED: ignored. Redacted values are always masked in place, keeping their byte length. How redacted data is replaced. FixedSize replaces each redacted span with '#' characters of the same length. VariableSize replaces it with a placeholder naming the detection, such as PII_SSN_1.",
       "enum": [
         "FixedSize",
         "VariableSize"
@@ -80,7 +80,7 @@
     },
     "deanonymize": {
       "$friendlyName": "Deanonymize",
-      "description": "If true, deanonymize the redacted data. This has no effects on streaming output.",
+      "description": "DEPRECATED: ignored. Redacted values are no longer put back in the reply. If true, deanonymize the redacted data. This has no effects on streaming output.",
       "title": "deanonymize",
       "type": [
         "boolean",

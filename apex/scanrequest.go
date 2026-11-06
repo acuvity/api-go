@@ -150,11 +150,11 @@ type ScanRequest struct {
 	// prefix to modify its behavior:
 	//
 	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analysis (slower but more acurate).
+	// for deeper analysis (slower but more accurate).
 	//   - '+' (enable): Activates an analyzer that is disabled by default.
 	//   - '-' (disable): Disables an analyzer that is enabled by default.
 	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analysis (faster but less acurate).
+	// analysis (faster but less accurate).
 	//
 	// An analyzers entry can be specified using:
 	//   - The analyzer name (e.g., 'Toxicity detector')
@@ -167,7 +167,11 @@ type ScanRequest struct {
 	// If left empty, all default analyzers will be executed.
 	Analyzers []string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
 
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization ScanRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
 	// Identifies the conversation this request belongs to. Apex records it on the
@@ -218,7 +222,8 @@ type ScanRequest struct {
 	// The extractions to request.
 	Extractions []*ExtractionRequest `json:"extractions" msgpack:"extractions" bson:"-" mapstructure:"extractions,omitempty"`
 
-	// The keywords found during classification.
+	// Additional keywords to look for in the content. Matches are reported as
+	// Keyword detections.
 	Keywords []string `json:"keywords,omitempty" msgpack:"keywords,omitempty" bson:"-" mapstructure:"keywords,omitempty"`
 
 	// Messages to process and provide detections for. Use data in extractions for
@@ -839,11 +844,11 @@ overriding the default selection. Each analyzer entry can optionally include a
 prefix to modify its behavior:
 
   - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analysis (slower but more acurate).
+for deeper analysis (slower but more accurate).
   - '+' (enable): Activates an analyzer that is disabled by default.
   - '-' (disable): Disables an analyzer that is enabled by default.
   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analysis (faster but less acurate).
+analysis (faster but less accurate).
 
 An analyzers entry can be specified using:
   - The analyzer name (e.g., 'Toxicity detector')
@@ -864,11 +869,16 @@ If left empty, all default analyzers will be executed.`,
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   ScanRequestAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"ConversationID": {
 		AllowedChoices: []string{},
@@ -968,11 +978,12 @@ encryptionIngress is set.`,
 	"Keywords": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Keywords",
-		Description:    `The keywords found during classification.`,
-		Exposed:        true,
-		Name:           "keywords",
-		SubType:        "string",
-		Type:           "list",
+		Description: `Additional keywords to look for in the content. Matches are reported as
+Keyword detections.`,
+		Exposed: true,
+		Name:    "keywords",
+		SubType: "string",
+		Type:    "list",
 	},
 	"Messages": {
 		AllowedChoices: []string{},
@@ -1096,11 +1107,11 @@ overriding the default selection. Each analyzer entry can optionally include a
 prefix to modify its behavior:
 
   - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analysis (slower but more acurate).
+for deeper analysis (slower but more accurate).
   - '+' (enable): Activates an analyzer that is disabled by default.
   - '-' (disable): Disables an analyzer that is enabled by default.
   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analysis (faster but less acurate).
+analysis (faster but less accurate).
 
 An analyzers entry can be specified using:
   - The analyzer name (e.g., 'Toxicity detector')
@@ -1121,11 +1132,16 @@ If left empty, all default analyzers will be executed.`,
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   ScanRequestAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"conversationid": {
 		AllowedChoices: []string{},
@@ -1225,11 +1241,12 @@ encryptionIngress is set.`,
 	"keywords": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Keywords",
-		Description:    `The keywords found during classification.`,
-		Exposed:        true,
-		Name:           "keywords",
-		SubType:        "string",
-		Type:           "list",
+		Description: `Additional keywords to look for in the content. Matches are reported as
+Keyword detections.`,
+		Exposed: true,
+		Name:    "keywords",
+		SubType: "string",
+		Type:    "list",
 	},
 	"messages": {
 		AllowedChoices: []string{},
@@ -1411,11 +1428,11 @@ type SparseScanRequest struct {
 	// prefix to modify its behavior:
 	//
 	//   - No prefix: Runs only the specified analyzers and any dependencies required
-	// for deeper analysis (slower but more acurate).
+	// for deeper analysis (slower but more accurate).
 	//   - '+' (enable): Activates an analyzer that is disabled by default.
 	//   - '-' (disable): Disables an analyzer that is enabled by default.
 	//   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-	// analysis (faster but less acurate).
+	// analysis (faster but less accurate).
 	//
 	// An analyzers entry can be specified using:
 	//   - The analyzer name (e.g., 'Toxicity detector')
@@ -1428,7 +1445,11 @@ type SparseScanRequest struct {
 	// If left empty, all default analyzers will be executed.
 	Analyzers *[]string `json:"analyzers,omitempty" msgpack:"analyzers,omitempty" bson:"-" mapstructure:"analyzers,omitempty"`
 
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization *ScanRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
 	// Identifies the conversation this request belongs to. Apex records it on the
@@ -1479,7 +1500,8 @@ type SparseScanRequest struct {
 	// The extractions to request.
 	Extractions *[]*ExtractionRequest `json:"extractions,omitempty" msgpack:"extractions,omitempty" bson:"-" mapstructure:"extractions,omitempty"`
 
-	// The keywords found during classification.
+	// Additional keywords to look for in the content. Matches are reported as
+	// Keyword detections.
 	Keywords *[]string `json:"keywords,omitempty" msgpack:"keywords,omitempty" bson:"-" mapstructure:"keywords,omitempty"`
 
 	// Messages to process and provide detections for. Use data in extractions for

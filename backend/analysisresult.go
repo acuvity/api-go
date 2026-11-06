@@ -32,6 +32,9 @@ type AnalysisResult struct {
 	// Where each custom data type was found.
 	CustomDataTypes map[string][]*TextualDetection `json:"customDataTypes,omitempty" msgpack:"customDataTypes,omitempty" bson:"-" mapstructure:"customDataTypes,omitempty"`
 
+	// Where each Data Loss Prevention detection was found.
+	Dlp map[string][]*TextualDetection `json:"dlp,omitempty" msgpack:"dlp,omitempty" bson:"-" mapstructure:"dlp,omitempty"`
+
 	// The exploits detected, and how strongly.
 	Exploits map[string]float64 `json:"exploits,omitempty" msgpack:"exploits,omitempty" bson:"-" mapstructure:"exploits,omitempty"`
 
@@ -312,6 +315,8 @@ func (o *AnalysisResult) ValueForAttribute(name string) any {
 		return o.Content
 	case "customDataTypes":
 		return o.CustomDataTypes
+	case "dlp":
+		return o.Dlp
 	case "exploits":
 		return o.Exploits
 	case "genericdetections":
@@ -393,6 +398,15 @@ Nothing reads it.`,
 		Description:    `Where each custom data type was found.`,
 		Exposed:        true,
 		Name:           "customDataTypes",
+		SubType:        "map[string][]textualdetection",
+		Type:           "external",
+	},
+	"Dlp": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Dlp",
+		Description:    `Where each Data Loss Prevention detection was found.`,
+		Exposed:        true,
+		Name:           "dlp",
 		SubType:        "map[string][]textualdetection",
 		Type:           "external",
 	},
@@ -555,6 +569,15 @@ Nothing reads it.`,
 		Description:    `Where each custom data type was found.`,
 		Exposed:        true,
 		Name:           "customDataTypes",
+		SubType:        "map[string][]textualdetection",
+		Type:           "external",
+	},
+	"dlp": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Dlp",
+		Description:    `Where each Data Loss Prevention detection was found.`,
+		Exposed:        true,
+		Name:           "dlp",
 		SubType:        "map[string][]textualdetection",
 		Type:           "external",
 	},

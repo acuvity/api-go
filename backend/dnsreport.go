@@ -84,6 +84,9 @@ type DNSReport struct {
 	// The provider that this target represents.
 	Provider string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
+	// The number of times this domain was queried for each DNS record type.
+	QueryTypes map[string]int `json:"queryTypes,omitempty" msgpack:"queryTypes,omitempty" bson:"querytypes,omitempty" mapstructure:"queryTypes,omitempty"`
+
 	// The reason for the action.
 	Reason string `json:"reason,omitempty" msgpack:"reason,omitempty" bson:"reason,omitempty" mapstructure:"reason,omitempty"`
 
@@ -150,6 +153,7 @@ func (o *DNSReport) GetBSON() (any, error) {
 	s.PolicyID = o.PolicyID
 	s.PolicyRefs = o.PolicyRefs
 	s.Provider = o.Provider
+	s.QueryTypes = o.QueryTypes
 	s.Reason = o.Reason
 	s.WorkloadGroupHash = o.WorkloadGroupHash
 	s.WorkloadGroupLabel = o.WorkloadGroupLabel
@@ -187,6 +191,7 @@ func (o *DNSReport) SetBSON(raw bson.Raw) error {
 	o.PolicyID = s.PolicyID
 	o.PolicyRefs = s.PolicyRefs
 	o.Provider = s.Provider
+	o.QueryTypes = s.QueryTypes
 	o.Reason = s.Reason
 	o.WorkloadGroupHash = s.WorkloadGroupHash
 	o.WorkloadGroupLabel = s.WorkloadGroupLabel
@@ -398,6 +403,8 @@ func (o *DNSReport) ValueForAttribute(name string) any {
 		return o.PolicyRefs
 	case "provider":
 		return o.Provider
+	case "queryTypes":
+		return o.QueryTypes
 	case "reason":
 		return o.Reason
 	case "workloadGroupHash":
@@ -587,6 +594,17 @@ semantics.`,
 		Name:           "provider",
 		Stored:         true,
 		Type:           "string",
+	},
+	"QueryTypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "querytypes",
+		ConvertedName:  "QueryTypes",
+		Description:    `The number of times this domain was queried for each DNS record type.`,
+		Exposed:        true,
+		Name:           "queryTypes",
+		Stored:         true,
+		SubType:        "map[string]int",
+		Type:           "external",
 	},
 	"Reason": {
 		AllowedChoices: []string{},
@@ -815,6 +833,17 @@ semantics.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"querytypes": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "querytypes",
+		ConvertedName:  "QueryTypes",
+		Description:    `The number of times this domain was queried for each DNS record type.`,
+		Exposed:        true,
+		Name:           "queryTypes",
+		Stored:         true,
+		SubType:        "map[string]int",
+		Type:           "external",
+	},
 	"reason": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reason",
@@ -883,6 +912,7 @@ type mongoAttributesDNSReport struct {
 	PolicyID              string               `bson:"policyid,omitempty"`
 	PolicyRefs            PolicyRefsList       `bson:"policyrefs"`
 	Provider              string               `bson:"provider,omitempty"`
+	QueryTypes            map[string]int       `bson:"querytypes,omitempty"`
 	Reason                string               `bson:"reason,omitempty"`
 	WorkloadGroupHash     string               `bson:"workloadgrouphash,omitempty"`
 	WorkloadGroupLabel    string               `bson:"workloadgrouplabel,omitempty"`

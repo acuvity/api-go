@@ -192,7 +192,11 @@ type Extractor struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization ExtractorAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
 	// Defines how to handle error in the case of a webpage. If set to Popup, the error
@@ -210,7 +214,9 @@ type Extractor struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
-	// If true, deanonymize the redacted data. This has no effects on streaming output.
+	// DEPRECATED: ignored. Redacted values are no longer put back in the reply.
+	// If true, deanonymize the redacted data. This has no effects on streaming
+	// output.
 	Deanonymize bool `json:"deanonymize" msgpack:"deanonymize" bson:"deanonymize" mapstructure:"deanonymize,omitempty"`
 
 	// The description of the extractor.
@@ -947,11 +953,16 @@ var ExtractorAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   ExtractorAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Behavior": {
 		AllowedChoices: []string{"Popup", "Throw", "Ignore"},
@@ -1007,11 +1018,14 @@ is defined, the request is blocked only if block() returns true.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "deanonymize",
 		ConvertedName:  "Deanonymize",
-		Description:    `If true, deanonymize the redacted data. This has no effects on streaming output.`,
-		Exposed:        true,
-		Name:           "deanonymize",
-		Stored:         true,
-		Type:           "boolean",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are no longer put back in the reply.
+If true, deanonymize the redacted data. This has no effects on streaming
+output.`,
+		Exposed: true,
+		Name:    "deanonymize",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -1278,11 +1292,16 @@ var ExtractorLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   ExtractorAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"behavior": {
 		AllowedChoices: []string{"Popup", "Throw", "Ignore"},
@@ -1338,11 +1357,14 @@ is defined, the request is blocked only if block() returns true.`,
 		AllowedChoices: []string{},
 		BSONFieldName:  "deanonymize",
 		ConvertedName:  "Deanonymize",
-		Description:    `If true, deanonymize the redacted data. This has no effects on streaming output.`,
-		Exposed:        true,
-		Name:           "deanonymize",
-		Stored:         true,
-		Type:           "boolean",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are no longer put back in the reply.
+If true, deanonymize the redacted data. This has no effects on streaming
+output.`,
+		Exposed: true,
+		Name:    "deanonymize",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"description": {
 		AllowedChoices: []string{},
@@ -1653,7 +1675,11 @@ type SparseExtractor struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization *ExtractorAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
 	// Defines how to handle error in the case of a webpage. If set to Popup, the error
@@ -1671,7 +1697,9 @@ type SparseExtractor struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
-	// If true, deanonymize the redacted data. This has no effects on streaming output.
+	// DEPRECATED: ignored. Redacted values are no longer put back in the reply.
+	// If true, deanonymize the redacted data. This has no effects on streaming
+	// output.
 	Deanonymize *bool `json:"deanonymize,omitempty" msgpack:"deanonymize,omitempty" bson:"deanonymize,omitempty" mapstructure:"deanonymize,omitempty"`
 
 	// The description of the extractor.

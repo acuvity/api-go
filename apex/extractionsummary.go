@@ -25,6 +25,9 @@ type ExtractionSummary struct {
 	// The detected dataTypes.
 	DataTypes map[string]ExtractionInformation `json:"dataTypes,omitempty" msgpack:"dataTypes,omitempty" bson:"datatypes,omitempty" mapstructure:"dataTypes,omitempty"`
 
+	// The detected Data Loss Prevention data.
+	Dlp map[string]ExtractionInformation `json:"dlp,omitempty" msgpack:"dlp,omitempty" bson:"dlp,omitempty" mapstructure:"dlp,omitempty"`
+
 	// The various exploits attempts.
 	Exploits map[string]ExtractionInformation `json:"exploits,omitempty" msgpack:"exploits,omitempty" bson:"exploits,omitempty" mapstructure:"exploits,omitempty"`
 
@@ -82,6 +85,7 @@ func (o *ExtractionSummary) GetBSON() (any, error) {
 	s.ConfidenceLevels = o.ConfidenceLevels
 	s.DataSets = o.DataSets
 	s.DataTypes = o.DataTypes
+	s.Dlp = o.Dlp
 	s.Exploits = o.Exploits
 	s.Intent = o.Intent
 	s.Keywords = o.Keywords
@@ -110,6 +114,7 @@ func (o *ExtractionSummary) SetBSON(raw bson.Raw) error {
 	o.ConfidenceLevels = s.ConfidenceLevels
 	o.DataSets = s.DataSets
 	o.DataTypes = s.DataTypes
+	o.Dlp = s.Dlp
 	o.Exploits = s.Exploits
 	o.Intent = s.Intent
 	o.Keywords = s.Keywords
@@ -225,6 +230,8 @@ func (o *ExtractionSummary) ValueForAttribute(name string) any {
 		return o.DataSets
 	case "dataTypes":
 		return o.DataTypes
+	case "dlp":
+		return o.Dlp
 	case "exploits":
 		return o.Exploits
 	case "intent":
@@ -286,6 +293,17 @@ var ExtractionSummaryAttributesMap = map[string]elemental.AttributeSpecification
 		Description:    `The detected dataTypes.`,
 		Exposed:        true,
 		Name:           "dataTypes",
+		Stored:         true,
+		SubType:        "map[string]extractioninformation",
+		Type:           "external",
+	},
+	"Dlp": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dlp",
+		ConvertedName:  "Dlp",
+		Description:    `The detected Data Loss Prevention data.`,
+		Exposed:        true,
+		Name:           "dlp",
 		Stored:         true,
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
@@ -415,6 +433,17 @@ var ExtractionSummaryLowerCaseAttributesMap = map[string]elemental.AttributeSpec
 		SubType:        "map[string]extractioninformation",
 		Type:           "external",
 	},
+	"dlp": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dlp",
+		ConvertedName:  "Dlp",
+		Description:    `The detected Data Loss Prevention data.`,
+		Exposed:        true,
+		Name:           "dlp",
+		Stored:         true,
+		SubType:        "map[string]extractioninformation",
+		Type:           "external",
+	},
 	"exploits": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "exploits",
@@ -499,6 +528,7 @@ type mongoAttributesExtractionSummary struct {
 	ConfidenceLevels map[string]ExtractionInformation `bson:"confidencelevels,omitempty"`
 	DataSets         map[string]ExtractionInformation `bson:"datasets,omitempty"`
 	DataTypes        map[string]ExtractionInformation `bson:"datatypes,omitempty"`
+	Dlp              map[string]ExtractionInformation `bson:"dlp,omitempty"`
 	Exploits         map[string]ExtractionInformation `bson:"exploits,omitempty"`
 	Intent           map[string]ExtractionInformation `bson:"intent,omitempty"`
 	Keywords         map[string]ExtractionInformation `bson:"keywords,omitempty"`

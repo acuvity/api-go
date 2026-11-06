@@ -191,6 +191,9 @@ type Import struct {
 	// resource.
 	Label string `json:"label" msgpack:"label" bson:"label" mapstructure:"label,omitempty"`
 
+	// Masking policies to import.
+	MaskingPolicies MaskingPoliciesList `json:"maskingPolicies,omitempty" msgpack:"maskingPolicies,omitempty" bson:"maskingpolicies,omitempty" mapstructure:"maskingPolicies,omitempty"`
+
 	// OrgSettings to import.
 	OrgSettings OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"orgsettings,omitempty" mapstructure:"orgSettings,omitempty"`
 
@@ -223,6 +226,9 @@ type Import struct {
 
 	// Threat definitions to import.
 	ThreatDefinitions ThreatDefinitionsList `json:"threatDefinitions,omitempty" msgpack:"threatDefinitions,omitempty" bson:"threatdefinitions,omitempty" mapstructure:"threatDefinitions,omitempty"`
+
+	// Traffic samples to import.
+	TrafficSamples TrafficSamplesList `json:"trafficSamples,omitempty" msgpack:"trafficSamples,omitempty" bson:"trafficsamples,omitempty" mapstructure:"trafficSamples,omitempty"`
 
 	// Visited URLs to import.
 	Visitedurls VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
@@ -275,6 +281,7 @@ func NewImport() *Import {
 		Findingdefinitions:  FindingDefinitionsList{},
 		HostSets:            HostSetsList{},
 		IgnoredDomains:      IgnoredDomainsList{},
+		MaskingPolicies:     MaskingPoliciesList{},
 		OrgSettings:         OrgSettingsList{},
 		Projects:            ProjectsList{},
 		ProviderTeams:       ProviderTeamsList{},
@@ -286,6 +293,7 @@ func NewImport() *Import {
 		Sinks:               SinksList{},
 		Teams:               TeamsList{},
 		ThreatDefinitions:   ThreatDefinitionsList{},
+		TrafficSamples:      TrafficSamplesList{},
 		Visitedurls:         VisitedURLsList{},
 		WebExtensionConfigs: WebExtensionConfigsList{},
 		WebhookIntegrations: WebhookIntegrationsList{},
@@ -354,6 +362,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.HostSets = o.HostSets
 	s.IgnoredDomains = o.IgnoredDomains
 	s.Label = o.Label
+	s.MaskingPolicies = o.MaskingPolicies
 	s.OrgSettings = o.OrgSettings
 	s.Projects = o.Projects
 	s.ProviderTeams = o.ProviderTeams
@@ -365,6 +374,7 @@ func (o *Import) GetBSON() (any, error) {
 	s.Sinks = o.Sinks
 	s.Teams = o.Teams
 	s.ThreatDefinitions = o.ThreatDefinitions
+	s.TrafficSamples = o.TrafficSamples
 	s.Visitedurls = o.Visitedurls
 	s.WebExtensionConfigs = o.WebExtensionConfigs
 	s.WebhookIntegrations = o.WebhookIntegrations
@@ -420,6 +430,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.HostSets = s.HostSets
 	o.IgnoredDomains = s.IgnoredDomains
 	o.Label = s.Label
+	o.MaskingPolicies = s.MaskingPolicies
 	o.OrgSettings = s.OrgSettings
 	o.Projects = s.Projects
 	o.ProviderTeams = s.ProviderTeams
@@ -431,6 +442,7 @@ func (o *Import) SetBSON(raw bson.Raw) error {
 	o.Sinks = s.Sinks
 	o.Teams = s.Teams
 	o.ThreatDefinitions = s.ThreatDefinitions
+	o.TrafficSamples = s.TrafficSamples
 	o.Visitedurls = s.Visitedurls
 	o.WebExtensionConfigs = s.WebExtensionConfigs
 	o.WebhookIntegrations = s.WebhookIntegrations
@@ -509,6 +521,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			HostSets:            &o.HostSets,
 			IgnoredDomains:      &o.IgnoredDomains,
 			Label:               &o.Label,
+			MaskingPolicies:     &o.MaskingPolicies,
 			OrgSettings:         &o.OrgSettings,
 			Projects:            &o.Projects,
 			ProviderTeams:       &o.ProviderTeams,
@@ -520,6 +533,7 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Sinks:               &o.Sinks,
 			Teams:               &o.Teams,
 			ThreatDefinitions:   &o.ThreatDefinitions,
+			TrafficSamples:      &o.TrafficSamples,
 			Visitedurls:         &o.Visitedurls,
 			WebExtensionConfigs: &o.WebExtensionConfigs,
 			WebhookIntegrations: &o.WebhookIntegrations,
@@ -599,6 +613,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.IgnoredDomains = &(o.IgnoredDomains)
 		case "label":
 			sp.Label = &(o.Label)
+		case "maskingPolicies":
+			sp.MaskingPolicies = &(o.MaskingPolicies)
 		case "orgSettings":
 			sp.OrgSettings = &(o.OrgSettings)
 		case "projects":
@@ -621,6 +637,8 @@ func (o *Import) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Teams = &(o.Teams)
 		case "threatDefinitions":
 			sp.ThreatDefinitions = &(o.ThreatDefinitions)
+		case "trafficSamples":
+			sp.TrafficSamples = &(o.TrafficSamples)
 		case "visitedurls":
 			sp.Visitedurls = &(o.Visitedurls)
 		case "webExtensionConfigs":
@@ -745,6 +763,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Label != nil {
 		o.Label = *so.Label
 	}
+	if so.MaskingPolicies != nil {
+		o.MaskingPolicies = *so.MaskingPolicies
+	}
 	if so.OrgSettings != nil {
 		o.OrgSettings = *so.OrgSettings
 	}
@@ -777,6 +798,9 @@ func (o *Import) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.ThreatDefinitions != nil {
 		o.ThreatDefinitions = *so.ThreatDefinitions
+	}
+	if so.TrafficSamples != nil {
+		o.TrafficSamples = *so.TrafficSamples
 	}
 	if so.Visitedurls != nil {
 		o.Visitedurls = *so.Visitedurls
@@ -1062,6 +1086,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MaskingPolicies' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.OrgSettings {
 		if sub == nil {
 			continue
@@ -1158,6 +1191,15 @@ func (o *Import) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.TrafficSamples {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'TrafficSamples' for 'Import' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -1464,6 +1506,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 	}
 
+	for _, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MaskingPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.OrgSettings {
 		if sub == nil {
 			continue
@@ -1560,6 +1611,15 @@ func (o *Import) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err 
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.TrafficSamples {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'TrafficSamples' for 'Import' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1929,6 +1989,16 @@ func (o *Import) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
+	for i, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "maskingPolicies", i))
+			errors = errors.Append(err)
+		}
+	}
+
 	for i, sub := range o.OrgSettings {
 		if sub == nil {
 			continue
@@ -2035,6 +2105,16 @@ func (o *Import) Validate() error {
 		}
 		if err := sub.Validate(); err != nil {
 			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "threatDefinitions", i))
+			errors = errors.Append(err)
+		}
+	}
+
+	for i, sub := range o.TrafficSamples {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "trafficSamples", i))
 			errors = errors.Append(err)
 		}
 	}
@@ -2173,6 +2253,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.IgnoredDomains
 	case "label":
 		return o.Label
+	case "maskingPolicies":
+		return o.MaskingPolicies
 	case "orgSettings":
 		return o.OrgSettings
 	case "projects":
@@ -2195,6 +2277,8 @@ func (o *Import) ValueForAttribute(name string) any {
 		return o.Teams
 	case "threatDefinitions":
 		return o.ThreatDefinitions
+	case "trafficSamples":
+		return o.TrafficSamples
 	case "visitedurls":
 		return o.Visitedurls
 	case "webExtensionConfigs":
@@ -2594,6 +2678,17 @@ resource.`,
 		Stored:   true,
 		Type:     "string",
 	},
+	"MaskingPolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "maskingpolicies",
+		ConvertedName:  "MaskingPolicies",
+		Description:    `Masking policies to import.`,
+		Exposed:        true,
+		Name:           "maskingPolicies",
+		Stored:         true,
+		SubType:        "maskingpolicy",
+		Type:           "refList",
+	},
 	"OrgSettings": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "orgsettings",
@@ -2713,6 +2808,17 @@ resource.`,
 		Name:           "threatDefinitions",
 		Stored:         true,
 		SubType:        "threatdefinition",
+		Type:           "refList",
+	},
+	"TrafficSamples": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trafficsamples",
+		ConvertedName:  "TrafficSamples",
+		Description:    `Traffic samples to import.`,
+		Exposed:        true,
+		Name:           "trafficSamples",
+		Stored:         true,
+		SubType:        "trafficsample",
 		Type:           "refList",
 	},
 	"Visitedurls": {
@@ -3138,6 +3244,17 @@ resource.`,
 		Stored:   true,
 		Type:     "string",
 	},
+	"maskingpolicies": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "maskingpolicies",
+		ConvertedName:  "MaskingPolicies",
+		Description:    `Masking policies to import.`,
+		Exposed:        true,
+		Name:           "maskingPolicies",
+		Stored:         true,
+		SubType:        "maskingpolicy",
+		Type:           "refList",
+	},
 	"orgsettings": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "orgsettings",
@@ -3257,6 +3374,17 @@ resource.`,
 		Name:           "threatDefinitions",
 		Stored:         true,
 		SubType:        "threatdefinition",
+		Type:           "refList",
+	},
+	"trafficsamples": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "trafficsamples",
+		ConvertedName:  "TrafficSamples",
+		Description:    `Traffic samples to import.`,
+		Exposed:        true,
+		Name:           "trafficSamples",
+		Stored:         true,
+		SubType:        "trafficsample",
 		Type:           "refList",
 	},
 	"visitedurls": {
@@ -3463,6 +3591,9 @@ type SparseImport struct {
 	// resource.
 	Label *string `json:"label,omitempty" msgpack:"label,omitempty" bson:"label,omitempty" mapstructure:"label,omitempty"`
 
+	// Masking policies to import.
+	MaskingPolicies *MaskingPoliciesList `json:"maskingPolicies,omitempty" msgpack:"maskingPolicies,omitempty" bson:"maskingpolicies,omitempty" mapstructure:"maskingPolicies,omitempty"`
+
 	// OrgSettings to import.
 	OrgSettings *OrgSettingsList `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"orgsettings,omitempty" mapstructure:"orgSettings,omitempty"`
 
@@ -3495,6 +3626,9 @@ type SparseImport struct {
 
 	// Threat definitions to import.
 	ThreatDefinitions *ThreatDefinitionsList `json:"threatDefinitions,omitempty" msgpack:"threatDefinitions,omitempty" bson:"threatdefinitions,omitempty" mapstructure:"threatDefinitions,omitempty"`
+
+	// Traffic samples to import.
+	TrafficSamples *TrafficSamplesList `json:"trafficSamples,omitempty" msgpack:"trafficSamples,omitempty" bson:"trafficsamples,omitempty" mapstructure:"trafficSamples,omitempty"`
 
 	// Visited URLs to import.
 	Visitedurls *VisitedURLsList `json:"visitedurls,omitempty" msgpack:"visitedurls,omitempty" bson:"visitedurls,omitempty" mapstructure:"visitedurls,omitempty"`
@@ -3645,6 +3779,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	if o.Label != nil {
 		s.Label = o.Label
 	}
+	if o.MaskingPolicies != nil {
+		s.MaskingPolicies = o.MaskingPolicies
+	}
 	if o.OrgSettings != nil {
 		s.OrgSettings = o.OrgSettings
 	}
@@ -3677,6 +3814,9 @@ func (o *SparseImport) GetBSON() (any, error) {
 	}
 	if o.ThreatDefinitions != nil {
 		s.ThreatDefinitions = o.ThreatDefinitions
+	}
+	if o.TrafficSamples != nil {
+		s.TrafficSamples = o.TrafficSamples
 	}
 	if o.Visitedurls != nil {
 		s.Visitedurls = o.Visitedurls
@@ -3809,6 +3949,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	if s.Label != nil {
 		o.Label = s.Label
 	}
+	if s.MaskingPolicies != nil {
+		o.MaskingPolicies = s.MaskingPolicies
+	}
 	if s.OrgSettings != nil {
 		o.OrgSettings = s.OrgSettings
 	}
@@ -3841,6 +3984,9 @@ func (o *SparseImport) SetBSON(raw bson.Raw) error {
 	}
 	if s.ThreatDefinitions != nil {
 		o.ThreatDefinitions = s.ThreatDefinitions
+	}
+	if s.TrafficSamples != nil {
+		o.TrafficSamples = s.TrafficSamples
 	}
 	if s.Visitedurls != nil {
 		o.Visitedurls = s.Visitedurls
@@ -3970,6 +4116,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	if o.Label != nil {
 		out.Label = *o.Label
 	}
+	if o.MaskingPolicies != nil {
+		out.MaskingPolicies = *o.MaskingPolicies
+	}
 	if o.OrgSettings != nil {
 		out.OrgSettings = *o.OrgSettings
 	}
@@ -4002,6 +4151,9 @@ func (o *SparseImport) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.ThreatDefinitions != nil {
 		out.ThreatDefinitions = *o.ThreatDefinitions
+	}
+	if o.TrafficSamples != nil {
+		out.TrafficSamples = *o.TrafficSamples
 	}
 	if o.Visitedurls != nil {
 		out.Visitedurls = *o.Visitedurls
@@ -4349,6 +4501,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.MaskingPolicies != nil {
+		for _, sub := range *o.MaskingPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'MaskingPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.OrgSettings != nil {
 		for _, sub := range *o.OrgSettings {
 			if sub == nil {
@@ -4466,6 +4629,17 @@ func (o *SparseImport) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'ThreatDefinitions' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.TrafficSamples != nil {
+		for _, sub := range *o.TrafficSamples {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'TrafficSamples' for 'Import' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -4839,6 +5013,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.MaskingPolicies != nil {
+		for _, sub := range *o.MaskingPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'MaskingPolicies' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.OrgSettings != nil {
 		for _, sub := range *o.OrgSettings {
 			if sub == nil {
@@ -4960,6 +5145,17 @@ func (o *SparseImport) DecryptAttributes(encrypter elemental.AttributeEncrypter)
 		}
 	}
 
+	if o.TrafficSamples != nil {
+		for _, sub := range *o.TrafficSamples {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'TrafficSamples' for 'Import' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Visitedurls != nil {
 		for _, sub := range *o.Visitedurls {
 			if sub == nil {
@@ -5056,6 +5252,7 @@ type mongoAttributesImport struct {
 	HostSets            HostSetsList            `bson:"hostsets,omitempty"`
 	IgnoredDomains      IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
 	Label               string                  `bson:"label"`
+	MaskingPolicies     MaskingPoliciesList     `bson:"maskingpolicies,omitempty"`
 	OrgSettings         OrgSettingsList         `bson:"orgsettings,omitempty"`
 	Projects            ProjectsList            `bson:"projects,omitempty"`
 	ProviderTeams       ProviderTeamsList       `bson:"providerteams,omitempty"`
@@ -5067,6 +5264,7 @@ type mongoAttributesImport struct {
 	Sinks               SinksList               `bson:"sinks,omitempty"`
 	Teams               TeamsList               `bson:"teams,omitempty"`
 	ThreatDefinitions   ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
+	TrafficSamples      TrafficSamplesList      `bson:"trafficsamples,omitempty"`
 	Visitedurls         VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 	WebhookIntegrations WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`
@@ -5107,6 +5305,7 @@ type mongoAttributesSparseImport struct {
 	HostSets            *HostSetsList            `bson:"hostsets,omitempty"`
 	IgnoredDomains      *IgnoredDomainsList      `bson:"ignoreddomains,omitempty"`
 	Label               *string                  `bson:"label,omitempty"`
+	MaskingPolicies     *MaskingPoliciesList     `bson:"maskingpolicies,omitempty"`
 	OrgSettings         *OrgSettingsList         `bson:"orgsettings,omitempty"`
 	Projects            *ProjectsList            `bson:"projects,omitempty"`
 	ProviderTeams       *ProviderTeamsList       `bson:"providerteams,omitempty"`
@@ -5118,6 +5317,7 @@ type mongoAttributesSparseImport struct {
 	Sinks               *SinksList               `bson:"sinks,omitempty"`
 	Teams               *TeamsList               `bson:"teams,omitempty"`
 	ThreatDefinitions   *ThreatDefinitionsList   `bson:"threatdefinitions,omitempty"`
+	TrafficSamples      *TrafficSamplesList      `bson:"trafficsamples,omitempty"`
 	Visitedurls         *VisitedURLsList         `bson:"visitedurls,omitempty"`
 	WebExtensionConfigs *WebExtensionConfigsList `bson:"webextensionconfigs,omitempty"`
 	WebhookIntegrations *WebhookIntegrationsList `bson:"webhookintegrations,omitempty"`

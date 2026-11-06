@@ -26,6 +26,9 @@ const (
 type AppComponentProviderProviderTypeValue string
 
 const (
+	// AppComponentProviderProviderTypeAgent represents the value Agent.
+	AppComponentProviderProviderTypeAgent AppComponentProviderProviderTypeValue = "Agent"
+
 	// AppComponentProviderProviderTypeLLM represents the value LLM.
 	AppComponentProviderProviderTypeLLM AppComponentProviderProviderTypeValue = "LLM"
 
@@ -50,7 +53,9 @@ type AppComponentProvider struct {
 	// List of extractors for the provider.
 	Extractors []*ExtractorRef `json:"extractors" msgpack:"extractors" bson:"extractors" mapstructure:"extractors,omitempty"`
 
-	// The list of hosts that this listener expects to receive traffic for.
+	// The list of hosts that this provider expects to receive traffic for. At least
+	// one of hosts, models or model prefixes must be set. Hosts are never inherited
+	// from the referenced provider.
 	Hosts []string `json:"hosts" msgpack:"hosts" bson:"hosts" mapstructure:"hosts,omitempty"`
 
 	// Defines injection point for javascript snippet.
@@ -82,6 +87,17 @@ type AppComponentProvider struct {
 	// gateways send on the response side of a call. Several providers may match
 	// the same model, in which case the most specific pattern wins.
 	Models []string `json:"models,omitempty" msgpack:"models,omitempty" bson:"models,omitempty" mapstructure:"models,omitempty"`
+
+	// The name of an existing provider to use as the base of this provider. The
+	// referenced provider is resolved like any other provider of the namespace.
+	// Hosts, models, model prefixes, category and provider type always come from
+	// this app component provider. MCP URL, trusted CA, description, error
+	// transformer and lib replace the ones of the referenced provider when set, and
+	// upstream unsecure is enabled when set on either. Extractors, mappers,
+	// injectors and tools are appended to the ones of the referenced provider,
+	// whose own host restrictions are dropped. If the referenced provider cannot
+	// be found, this app component provider is not rendered.
+	ProviderRef string `json:"providerRef,omitempty" msgpack:"providerRef,omitempty" bson:"providerref,omitempty" mapstructure:"providerRef,omitempty"`
 
 	// The type of the provider.
 	ProviderType AppComponentProviderProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
@@ -144,6 +160,7 @@ func (o *AppComponentProvider) GetBSON() (any, error) {
 	s.Mappers = o.Mappers
 	s.ModelPrefixes = o.ModelPrefixes
 	s.Models = o.Models
+	s.ProviderRef = o.ProviderRef
 	s.ProviderType = o.ProviderType
 	s.Tools = o.Tools
 	s.TrustedCA = o.TrustedCA
@@ -176,6 +193,7 @@ func (o *AppComponentProvider) SetBSON(raw bson.Raw) error {
 	o.Mappers = s.Mappers
 	o.ModelPrefixes = s.ModelPrefixes
 	o.Models = s.Models
+	o.ProviderRef = s.ProviderRef
 	o.ProviderType = s.ProviderType
 	o.Tools = s.Tools
 	o.TrustedCA = s.TrustedCA
@@ -362,10 +380,6 @@ func (o *AppComponentProvider) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateRequiredExternal("hosts", o.Hosts); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := ValidateDNSNames("hosts", o.Hosts); err != nil {
 		errors = errors.Append(err)
 	}
@@ -390,7 +404,7 @@ func (o *AppComponentProvider) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"Agent", "LLM", "MCPServer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -405,6 +419,11 @@ func (o *AppComponentProvider) Validate() error {
 	}
 
 	if err := ValidatePEM("trustedCA", o.TrustedCA); err != nil {
+		errors = errors.Append(err)
+	}
+
+	// Custom object validation.
+	if err := ValidateAppComponentProvider(o); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -464,6 +483,8 @@ func (o *AppComponentProvider) ValueForAttribute(name string) any {
 		return o.ModelPrefixes
 	case "models":
 		return o.Models
+	case "providerRef":
+		return o.ProviderRef
 	case "providerType":
 		return o.ProviderType
 	case "tools":
@@ -537,13 +558,14 @@ var AppComponentProviderAttributesMap = map[string]elemental.AttributeSpecificat
 		AllowedChoices: []string{},
 		BSONFieldName:  "hosts",
 		ConvertedName:  "Hosts",
-		Description:    `The list of hosts that this listener expects to receive traffic for.`,
-		Exposed:        true,
-		Name:           "hosts",
-		Required:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Description: `The list of hosts that this provider expects to receive traffic for. At least
+one of hosts, models or model prefixes must be set. Hosts are never inherited
+from the referenced provider.`,
+		Exposed: true,
+		Name:    "hosts",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"Injectors": {
 		AllowedChoices: []string{},
@@ -614,8 +636,26 @@ the same model, in which case the most specific pattern wins.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"ProviderRef": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerref",
+		ConvertedName:  "ProviderRef",
+		Description: `The name of an existing provider to use as the base of this provider. The
+referenced provider is resolved like any other provider of the namespace.
+Hosts, models, model prefixes, category and provider type always come from
+this app component provider. MCP URL, trusted CA, description, error
+transformer and lib replace the ones of the referenced provider when set, and
+upstream unsecure is enabled when set on either. Extractors, mappers,
+injectors and tools are appended to the ones of the referenced provider,
+whose own host restrictions are dropped. If the referenced provider cannot
+be found, this app component provider is not rendered.`,
+		Exposed: true,
+		Name:    "providerRef",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ProviderType": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
 		DefaultValue:   AppComponentProviderProviderTypeLLM,
@@ -720,13 +760,14 @@ var AppComponentProviderLowerCaseAttributesMap = map[string]elemental.AttributeS
 		AllowedChoices: []string{},
 		BSONFieldName:  "hosts",
 		ConvertedName:  "Hosts",
-		Description:    `The list of hosts that this listener expects to receive traffic for.`,
-		Exposed:        true,
-		Name:           "hosts",
-		Required:       true,
-		Stored:         true,
-		SubType:        "string",
-		Type:           "list",
+		Description: `The list of hosts that this provider expects to receive traffic for. At least
+one of hosts, models or model prefixes must be set. Hosts are never inherited
+from the referenced provider.`,
+		Exposed: true,
+		Name:    "hosts",
+		Stored:  true,
+		SubType: "string",
+		Type:    "list",
 	},
 	"injectors": {
 		AllowedChoices: []string{},
@@ -797,8 +838,26 @@ the same model, in which case the most specific pattern wins.`,
 		SubType: "string",
 		Type:    "list",
 	},
+	"providerref": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "providerref",
+		ConvertedName:  "ProviderRef",
+		Description: `The name of an existing provider to use as the base of this provider. The
+referenced provider is resolved like any other provider of the namespace.
+Hosts, models, model prefixes, category and provider type always come from
+this app component provider. MCP URL, trusted CA, description, error
+transformer and lib replace the ones of the referenced provider when set, and
+upstream unsecure is enabled when set on either. Extractors, mappers,
+injectors and tools are appended to the ones of the referenced provider,
+whose own host restrictions are dropped. If the referenced provider cannot
+be found, this app component provider is not rendered.`,
+		Exposed: true,
+		Name:    "providerRef",
+		Stored:  true,
+		Type:    "string",
+	},
 	"providertype": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
 		DefaultValue:   AppComponentProviderProviderTypeLLM,
@@ -855,6 +914,7 @@ type mongoAttributesAppComponentProvider struct {
 	Mappers          []*Mapper                             `bson:"mappers,omitempty"`
 	ModelPrefixes    []string                              `bson:"modelprefixes,omitempty"`
 	Models           []string                              `bson:"models,omitempty"`
+	ProviderRef      string                                `bson:"providerref,omitempty"`
 	ProviderType     AppComponentProviderProviderTypeValue `bson:"providertype"`
 	Tools            []*Tool                               `bson:"tools,omitempty"`
 	TrustedCA        string                                `bson:"trustedca,omitempty"`

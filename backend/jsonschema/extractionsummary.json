@@ -37,6 +37,13 @@
       "title": "dataTypes",
       "type": "object"
     },
+    "dlp": {
+      "$friendlyName": "DLP",
+      "additionalProperties": true,
+      "description": "The detected Data Loss Prevention data.",
+      "title": "dlp",
+      "type": "object"
+    },
     "exploits": {
       "$friendlyName": "Exploits",
       "additionalProperties": true,

@@ -150,7 +150,8 @@
         "PagerDuty",
         "Slack",
         "Splunk",
-        "MSTeams"
+        "MSTeams",
+        "Webhook"
       ],
       "title": "type"
     },
@@ -163,6 +164,12 @@
         "string",
         "null"
       ]
+    },
+    "webhook": {
+      "$friendlyName": "Webhook",
+      "$ref": "sinkwebhook.json",
+      "description": "Contains additional configuration for sending an alert to a generic webhook.",
+      "title": "webhook"
     }
   },
   "required": [

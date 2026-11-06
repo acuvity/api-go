@@ -11,6 +11,15 @@
   "additionalProperties": false,
   "description": "Represent a detection.",
   "properties": {
+    "category": {
+      "$friendlyName": "Category",
+      "description": "The upstream engine's own category for the detection, when it has one (for instance 'Personal Information'). It only helps browsing detectors: policies match on the group and the name.",
+      "title": "category",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "confidence": {
       "$friendlyName": "Confidence",
       "description": "The confidence level of the detection.",
@@ -109,6 +118,15 @@
       "title": "start",
       "type": [
         "integer",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "description": "Who authored the detection, when the upstream engine says: 'predefined' (shipped by the vendor), 'custom' (defined by the organization) or 'ai_classifier' (shipped by the vendor, backed by a model). Empty for analyzers with no upstream engine.",
+      "title": "type",
+      "type": [
+        "string",
         "null"
       ]
     }

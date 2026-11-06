@@ -1,0 +1,181 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@importable",
+    "@timed",
+    "@auto-propagated",
+    "@namelinkable"
+  ],
+  "$friendlyName": "Masking Policy",
+  "$friendlyNamePlural": "Masking Policies",
+  "$modelName": "MaskingPolicy",
+  "$modelPackage": "okite",
+  "$modelResourceName": "maskingpolicies",
+  "$modelRestName": "maskingpolicy",
+  "additionalProperties": false,
+  "description": "Says how the values of some detections are masked when a content policy redacts them, and in the snippets shown in the logs. A detection with no masking policy is fully masked with '#'.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "character": {
+      "$defaultValue": "x",
+      "$friendlyName": "Character",
+      "description": "The character that replaces each masked byte. One printable ASCII character.",
+      "title": "character",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "Description of the masking policy.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detections": {
+      "$friendlyName": "Detections",
+      "$required": true,
+      "description": "The names of the detections this masking policy applies to, as content policies name them (for instance ssn, or the name of a custom data type). A detection is in at most one masking policy of a namespace.",
+      "items": {
+        "type": "string"
+      },
+      "title": "detections",
+      "type": "array"
+    },
+    "first": {
+      "$friendlyName": "First",
+      "description": "The number of characters at the beginning of the value that the mode hides or keeps.",
+      "title": "first",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "friendlyName": {
+      "$friendlyName": "Friendly Name",
+      "$required": true,
+      "description": "Friendly name of the object.",
+      "title": "friendlyName",
+      "type": "string"
+    },
+    "importHash": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportHash",
+      "description": "The hash of the structure used to compare with new import version.",
+      "title": "importHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "importLabel": {
+      "$creationOnly": true,
+      "$friendlyName": "ImportLabel",
+      "description": "The user-defined import label that allows the system to group resources from the same import operation.",
+      "title": "importLabel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "keepCharacters": {
+      "$defaultValue": " -.()+@",
+      "$friendlyName": "Keep Characters",
+      "description": "The characters the masking policy never masks, so a value keeps its shape: the dashes of an SSN, the @ and dots of an email. Every other character is masked, symbols included. Empty masks every character.",
+      "title": "keepCharacters",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "last": {
+      "$friendlyName": "Last",
+      "description": "The number of characters at the end of the value that the mode hides or keeps.",
+      "title": "last",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "mode": {
+      "$defaultValue": "Hide",
+      "$friendlyName": "Mode",
+      "description": "Hide masks the first and last characters. Keep masks every character except those. Neither masks the characters listed in Keep Characters.",
+      "enum": [
+        "Hide",
+        "Keep"
+      ],
+      "title": "mode"
+    },
+    "name": {
+      "$creationOnly": true,
+      "$friendlyName": "Name",
+      "description": "The internal reference name of the object. It is a sanitized version of Friendly Name if empty.",
+      "pattern": "(^[a-zA-Z0-9-_]+$)?",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "propagate": {
+      "$defaultValue": true,
+      "$friendlyName": "Propagate",
+      "description": "Propagates the object to all child namespaces. This is always true.",
+      "title": "propagate",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "detections",
+    "friendlyName"
+  ],
+  "title": "MaskingPolicy",
+  "type": "object"
+}

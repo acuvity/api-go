@@ -61,7 +61,11 @@ const (
 
 // WebhookExtractor represents the model of a webhookextractor
 type WebhookExtractor struct {
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization WebhookExtractorAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
 	// The description of the webhook extractor.
@@ -440,11 +444,16 @@ var WebhookExtractorAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   WebhookExtractorAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"Description": {
 		AllowedChoices: []string{},
@@ -638,11 +647,16 @@ var WebhookExtractorLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   WebhookExtractorAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"description": {
 		AllowedChoices: []string{},

@@ -131,15 +131,21 @@ its target: either a provider or a destination app and component.
 
 ##### `POST /policerequests`
 
-Processes the scan and police request.
+Processes the police request.
 
 #### Attributes
 
 ##### `anonymization`
 
+_This attribute is deprecated_.
+
 Type: `enum(FixedSize | VariableSize)`
 
-How to anonymize the data. If deanonymize is true, then VariablSize is required.
+DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.
 
 Default value:
 
@@ -295,7 +301,7 @@ The type of text.
 
 ### PoliceResponse
 
-This is a scan and police response.
+This is a police response.
 
 #### Example
 
@@ -338,6 +344,12 @@ Type: `string`
 
 ID is the identifier of the object.
 
+##### `a2aMessage`
+
+Type: [`a2amessage`](#a2amessage)
+
+If this is an A2A message, then the A2A message details will be set here.
+
 ##### `alerts`
 
 Type: [`[]alertevent`](#alertevent)
@@ -379,9 +391,10 @@ Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | R
 User-facing outcome of the roundtrip. Reflects the policy
 engine's verdict, or in case of platform failure, the result of the
 failClose strategy (Deny on fail-close, Allow on fail-open, with
-structured error field carring the detail). NotApplicable is
-used by the scan and police APIs, which analyze content without
-rendering an enforcement decision. Error and UpstreamError stay
+structured error field carrying the detail). NotApplicable is
+used by the scan API, which analyzes content without evaluating
+any policy; the police API always renders an enforcement
+decision. Error and UpstreamError stay
 in the allowed_choices list for backward compatibility with
 clients that still PUT those values; new round-trips never emit
 them — platform/upstream failures now surface via the structured
@@ -530,9 +543,10 @@ The provider to use.
 
 ##### `providerType` [`required`]
 
-Type: `enum(LLM | MCPServer)`
+Type: `enum(AIDomain | Agent | LLM | MCPServer)`
 
-The type of the provider.
+The type of the provider. AIDomain when no provider handled a request to a
+host targeted by an access policy.
 
 ##### `reasons`
 
@@ -793,11 +807,11 @@ overriding the default selection. Each analyzer entry can optionally include a
 prefix to modify its behavior:
 
   - No prefix: Runs only the specified analyzers and any dependencies required
-for deeper analysis (slower but more acurate).
+for deeper analysis (slower but more accurate).
   - '+' (enable): Activates an analyzer that is disabled by default.
   - '-' (disable): Disables an analyzer that is enabled by default.
   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper
-analysis (faster but less acurate).
+analysis (faster but less accurate).
 
 An analyzers entry can be specified using:
   - The analyzer name (e.g., 'Toxicity detector')
@@ -811,9 +825,15 @@ If left empty, all default analyzers will be executed.
 
 ##### `anonymization`
 
+_This attribute is deprecated_.
+
 Type: `enum(FixedSize | VariableSize)`
 
-How to anonymize the data. If deanonymize is true, then VariablSize is required.
+DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.
 
 Default value:
 
@@ -915,7 +935,8 @@ The extractions to request.
 
 Type: `[]string`
 
-The keywords found during classification.
+Additional keywords to look for in the content. Matches are reported as
+Keyword detections.
 
 ##### `messages`
 
@@ -1039,6 +1060,12 @@ Type: `string`
 
 ID is the identifier of the object.
 
+##### `a2aMessage`
+
+Type: [`a2amessage`](#a2amessage)
+
+If this is an A2A message, then the A2A message details will be set here.
+
 ##### `alerts`
 
 Type: [`[]alertevent`](#alertevent)
@@ -1080,9 +1107,10 @@ Type: `enum(Deny | Allow | Ask | Report | Bypassed | ForbiddenUser | Skipped | R
 User-facing outcome of the roundtrip. Reflects the policy
 engine's verdict, or in case of platform failure, the result of the
 failClose strategy (Deny on fail-close, Allow on fail-open, with
-structured error field carring the detail). NotApplicable is
-used by the scan and police APIs, which analyze content without
-rendering an enforcement decision. Error and UpstreamError stay
+structured error field carrying the detail). NotApplicable is
+used by the scan API, which analyzes content without evaluating
+any policy; the police API always renders an enforcement
+decision. Error and UpstreamError stay
 in the allowed_choices list for backward compatibility with
 clients that still PUT those values; new round-trips never emit
 them — platform/upstream failures now surface via the structured
@@ -1201,9 +1229,10 @@ The provider to use.
 
 ##### `providerType` [`required`]
 
-Type: `enum(LLM | MCPServer)`
+Type: `enum(AIDomain | Agent | LLM | MCPServer)`
 
-The type of the provider.
+The type of the provider. AIDomain when no provider handled a request to a
+host targeted by an access policy.
 
 ##### `reasons`
 
@@ -1248,6 +1277,68 @@ Type: `enum(Input | Output)`
 The type of text.
 
 ## core
+
+### A2AMessage
+
+Represents A2A message details.
+
+#### Example
+
+```json
+{
+  "contextID": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
+  "direction": "Client2Server",
+  "kind": "Message",
+  "method": "SendStreamingMessage",
+  "requestID": "ae254df1-1b23-4e85-a002-1241a235bcf2",
+  "taskID": "276631a0-667e-4ca8-aaf2-1ffe4a3345e9",
+  "type": "Request"
+}
+```
+
+#### Attributes
+
+##### `contextID`
+
+Type: `string`
+
+The context ID of the A2A exchange.
+
+##### `direction` [`required`]
+
+Type: `enum(Client2Server | Server2Client)`
+
+The communication direction of the A2A message.
+
+##### `kind`
+
+Type: `enum(None | Task | Message | StatusUpdate | ArtifactUpdate)`
+
+The kind of payload carried by the response.
+
+##### `method`
+
+Type: `string`
+
+The A2A RPC method name.
+
+##### `requestID`
+
+Type: `string`
+
+The ID correlating a request and its response.
+
+##### `taskID`
+
+Type: `string`
+
+The A2A task identifier.
+
+##### `type` [`required`]
+
+Type: `enum(Request | Response)`
+
+The A2A message type.
 
 ### AlertEvent
 
@@ -1484,6 +1575,7 @@ Represents the destination that this request was made to.
     "country=us",
     "another-label"
   ],
+  "path": "/design",
   "workloadGroupHash": "wg-0ff92a76a3765740e26d84947d92e5fc",
   "workloadGroupLabel": "k8s:deployment=mcp-chatbot-agent,namespace=demo",
   "workloadGroupSetHash": "wgs-0ff92a76a3765740e26d84947d92e5fc",
@@ -1525,6 +1617,12 @@ Type: `[]string`
 
 The list of labels attached to the application request destination.
 
+##### `path`
+
+Type: `string`
+
+The path of the request, without query.
+
 ##### `workloadGroupHash`
 
 Type: `string`
@@ -1557,11 +1655,21 @@ Represent a detector an analyzer can use.
 
 ```json
 {
-  "positional": false
+  "category": "Personal Information",
+  "positional": false,
+  "type": "predefined"
 }
 ```
 
 #### Attributes
+
+##### `category`
+
+Type: `string`
+
+The upstream engine's own category for the detection, when it has one (for
+instance 'Personal Information'). It only helps browsing detectors: policies
+match on the group and the name.
 
 ##### `description`
 
@@ -1599,6 +1707,15 @@ Type: `boolean`
 
 Tell if the detection is positional.
 
+##### `type`
+
+Type: `string`
+
+Who authored the detection, when the upstream engine says: 'predefined'
+(shipped by the vendor), 'custom' (defined by the organization) or
+'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+analyzers with no upstream engine.
+
 ### Extraction
 
 Represents the extracted information to log.
@@ -1620,6 +1737,9 @@ Represents the extracted information to log.
       "ct2": 2
     }
   },
+  "dlp": {
+    "credit_card": 0.8
+  },
   "exploits": {
     "prompt_injection": 0.8
   },
@@ -1638,6 +1758,11 @@ Represents the extracted information to log.
   },
   "malcontents": {
     "toxic": 0.8
+  },
+  "metadata": {
+    "sensitivity_label": [
+      "Confidential"
+    ]
   },
   "relevance": 0.9,
   "role": "User",
@@ -1663,7 +1788,7 @@ Type: `map[string]float64`
 The PIIs found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'PIIs' accross all analyzers.
+detector groups 'PIIs' across all analyzers.
 
 Example of PIIs detected: aba_routing_number, address, bank_account,
 bitcoin_wallet, credit_card, driver_license, email_address, itin_number,
@@ -1727,6 +1852,22 @@ Type: [`[]textualdetection`](#textualdetection)
 
 The textual detections found while applying policies.
 
+##### `dlp`
+
+Type: `map[string]float64`
+
+The Data Loss Prevention detections found during classification.
+
+The current list can be obtained through the analyzers API by searching for
+detector groups 'DLP' across all analyzers.
+
+If a key is not present in the map that implies that entity was not detected. If
+an entity is detected then the value is a score. Here's how to interpret the
+scores:
+  - confidence: 'low', 0 < score <0.33
+  - confidence: 'medium', 0.33 <= score < 0.66
+  - confidence: 'high', 0.66 <= score <= 1.
+
 ##### `exploits`
 
 Type: `map[string]float64`
@@ -1734,7 +1875,7 @@ Type: `map[string]float64`
 The various exploits attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Exploits' accross all analyzers.
+detector groups 'Exploits' across all analyzers.
 
 Example of exploits detected: jailbreak, prompt_injection, malicious_url.
 
@@ -1764,7 +1905,7 @@ Type: `map[string]float64`
 The estimated intent embodied into the text.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Intent' accross all analyzers.
+detector groups 'Intent' across all analyzers.
 
 Example of intent detected: explain, outline, summarize, write.
 
@@ -1846,7 +1987,7 @@ Type: `map[string]float64`
 The language of the classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Languages' accross all analyzers.
+detector groups 'Languages' across all analyzers.
 
 Example of languages: chinese, english, french, german, gibberish, japanese,
 russian, spanish.
@@ -1865,7 +2006,7 @@ Type: `map[string]float64`
 The various malcontents attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Malcontents' accross all analyzers.
+detector groups 'Malcontents' across all analyzers.
 
 Example of malcontents: biased, harmful, toxic.
 
@@ -1875,6 +2016,13 @@ scores:
   - confidence: 'low', 0 < score <0.33
   - confidence: 'medium', 0.33 <= score < 0.66
   - confidence: 'high', 0.66 <= score <= 1.
+
+##### `metadata`
+
+Type: `map[string][]string`
+
+What the pipelines could tell about the content itself, such as the
+application that made a document or its sensitivity label.
 
 ##### `modalities`
 
@@ -1914,7 +2062,7 @@ Type: `map[string]float64`
 The secrets found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Secrets' accross all analyzers.
+detector groups 'Secrets' across all analyzers.
 
 Example of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,
 aws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,
@@ -2108,6 +2256,12 @@ Type: `map[string]extractioninformation`
 
 The detected dataTypes.
 
+##### `dlp`
+
+Type: `map[string]extractioninformation`
+
+The detected Data Loss Prevention data.
+
 ##### `exploits`
 
 Type: `map[string]extractioninformation`
@@ -2154,7 +2308,23 @@ The topic of the classification.
 
 Represent a generic detection.
 
+#### Example
+
+```json
+{
+  "category": "Personal Information",
+  "redacted": false
+}
+```
+
 #### Attributes
+
+##### `category`
+
+Type: `string`
+
+The upstream engine's own category for the detector, when it has one (for
+instance 'Personal Information').
 
 ##### `end`
 
@@ -2174,6 +2344,13 @@ Type: `string`
 
 The name of the generic detection.
 
+##### `redacted`
+
+Type: `boolean`
+
+If true, a content policy redacted this detection. It is masked in place,
+so its start and end are the same in the original and the redacted data.
+
 ##### `score`
 
 Type: `float`
@@ -2192,7 +2369,7 @@ the snippet of the generic detection.
 
 Type: `integer`
 
-The start position of the poisitional generic detection.
+The start position of the positional generic detection.
 
 ### Latency
 
@@ -2279,7 +2456,7 @@ Type: `boolean`
 IsError is true in case if a response is an error response as opposed to a
 result. Note that this is not the same as a result which has isError set to true
 within the result. This is a protocol level error. This will always be false for
-requests and notifications, and false for reponses when the response has a
+requests and notifications, and false for responses when the response has a
 result.
 
 ##### `method`
@@ -2854,6 +3031,14 @@ Type: `string`
 
 The contextual excerpt of the content around the detection.
 
+##### `encryptedData` [`autogenerated`,`read_only`]
+
+Type: `string`
+
+The original snippet data, encrypted, when apex masked values in it. Apex
+sets it, and only its decrypt endpoint can read it back. It is empty when
+nothing was masked, or when apex has no key to encrypt with.
+
 ##### `end`
 
 Type: `integer`
@@ -2889,9 +3074,14 @@ The end position of the detection in the original data.
 
 ##### `key`
 
+_This attribute is deprecated_.
+
 Type: `string`
 
-The key that is used in the name's place, If empty, a sequence of X's are used.
+DEPRECATED: never set. Redacted values are always masked in place.
+The placeholder that replaced the detection when the anonymization is
+VariableSize, such as PII_SSN_1. It is empty with FixedSize, where the
+detection is replaced with '#' characters of the same length.
 
 ##### `name`
 
@@ -2931,7 +3121,7 @@ The start position of the detection in the original data.
 
 ##### `type`
 
-Type: `enum(Keyword | PII | Secret | CDT)`
+Type: `enum(Keyword | PII | Secret | CDT | DLP)`
 
 The type of detection.
 

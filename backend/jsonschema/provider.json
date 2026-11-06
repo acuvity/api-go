@@ -248,6 +248,7 @@
       "$friendlyName": "Provider Type",
       "description": "The type of the provider.",
       "enum": [
+        "Agent",
         "LLM",
         "MCPServer"
       ],

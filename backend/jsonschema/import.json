@@ -310,6 +310,15 @@
       "title": "label",
       "type": "string"
     },
+    "maskingPolicies": {
+      "$friendlyName": "Masking Policies",
+      "description": "Masking policies to import.",
+      "items": {
+        "$ref": "maskingpolicy.json"
+      },
+      "title": "maskingPolicies",
+      "type": "array"
+    },
     "orgSettings": {
       "$friendlyName": "OrgSettings",
       "description": "OrgSettings to import.",
@@ -407,6 +416,15 @@
         "$ref": "threatdefinition.json"
       },
       "title": "threatDefinitions",
+      "type": "array"
+    },
+    "trafficSamples": {
+      "$friendlyName": "Traffic Samples",
+      "description": "Traffic samples to import.",
+      "items": {
+        "$ref": "trafficsample.json"
+      },
+      "title": "trafficSamples",
       "type": "array"
     },
     "visitedurls": {

@@ -18,6 +18,9 @@ const (
 	// TextualDetectionTypeCDT represents the value CDT.
 	TextualDetectionTypeCDT TextualDetectionTypeValue = "CDT"
 
+	// TextualDetectionTypeDLP represents the value DLP.
+	TextualDetectionTypeDLP TextualDetectionTypeValue = "DLP"
+
 	// TextualDetectionTypeKeyword represents the value Keyword.
 	TextualDetectionTypeKeyword TextualDetectionTypeValue = "Keyword"
 
@@ -30,13 +33,17 @@ const (
 
 // TextualDetection represents the model of a textualdetection
 type TextualDetection struct {
+	// DEPRECATED: never set. Redacted values are no longer put back in the reply.
 	// The original detected content.
 	Content string `json:"-" msgpack:"-" bson:"-" mapstructure:"-,omitempty"`
 
 	// The end position of the detection in the original data.
 	End int `json:"end" msgpack:"end" bson:"end" mapstructure:"end,omitempty"`
 
-	// The key that is used in the name's place, If empty, a sequence of X's are used.
+	// DEPRECATED: never set. Redacted values are always masked in place.
+	// The placeholder that replaced the detection when the anonymization is
+	// VariableSize, such as PII_SSN_1. It is empty with FixedSize, where the
+	// detection is replaced with '#' characters of the same length.
 	Key string `json:"key,omitempty" msgpack:"key,omitempty" bson:"key,omitempty" mapstructure:"key,omitempty"`
 
 	// The name of the detection.
@@ -197,7 +204,7 @@ func (o *TextualDetection) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Keyword", "PII", "Secret", "CDT"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Keyword", "PII", "Secret", "CDT", "DLP"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -277,11 +284,15 @@ var TextualDetectionAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
-		Description:    `The key that is used in the name's place, If empty, a sequence of X's are used.`,
-		Exposed:        true,
-		Name:           "key",
-		Stored:         true,
-		Type:           "string",
+		Deprecated:     true,
+		Description: `DEPRECATED: never set. Redacted values are always masked in place.
+The placeholder that replaced the detection when the anonymization is
+VariableSize, such as PII_SSN_1. It is empty with FixedSize, where the
+detection is replaced with '#' characters of the same length.`,
+		Exposed: true,
+		Name:    "key",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -345,7 +356,7 @@ var TextualDetectionAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "integer",
 	},
 	"Type": {
-		AllowedChoices: []string{"Keyword", "PII", "Secret", "CDT"},
+		AllowedChoices: []string{"Keyword", "PII", "Secret", "CDT", "DLP"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of detection.`,
@@ -373,11 +384,15 @@ var TextualDetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		AllowedChoices: []string{},
 		BSONFieldName:  "key",
 		ConvertedName:  "Key",
-		Description:    `The key that is used in the name's place, If empty, a sequence of X's are used.`,
-		Exposed:        true,
-		Name:           "key",
-		Stored:         true,
-		Type:           "string",
+		Deprecated:     true,
+		Description: `DEPRECATED: never set. Redacted values are always masked in place.
+The placeholder that replaced the detection when the anonymization is
+VariableSize, such as PII_SSN_1. It is empty with FixedSize, where the
+detection is replaced with '#' characters of the same length.`,
+		Exposed: true,
+		Name:    "key",
+		Stored:  true,
+		Type:    "string",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -441,7 +456,7 @@ var TextualDetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Type:           "integer",
 	},
 	"type": {
-		AllowedChoices: []string{"Keyword", "PII", "Secret", "CDT"},
+		AllowedChoices: []string{"Keyword", "PII", "Secret", "CDT", "DLP"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description:    `The type of detection.`,

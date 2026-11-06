@@ -33,7 +33,7 @@ const (
 var FindingDefinitionIdentity = elemental.Identity{
 	Name:     "findingdefinition",
 	Category: "findingdefinitions",
-	Package:  "hanni",
+	Package:  "avi",
 	Private:  false,
 }
 

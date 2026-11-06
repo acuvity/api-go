@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Option",
+  "$friendlyNamePlural": "Corpus Evaluation Options",
+  "$modelName": "CorpusEvaluationOption",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationoptions",
+  "$modelRestName": "corpusevaluationoption",
+  "additionalProperties": false,
+  "description": "One line the author could pick, priced in traffic.",
+  "properties": {
+    "threshold": {
+      "$friendlyName": "Threshold",
+      "description": "The threshold.",
+      "title": "threshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "trafficCost": {
+      "$friendlyName": "Traffic Cost",
+      "description": "The share of ordinary traffic that fires at this threshold.",
+      "title": "trafficCost",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationOption",
+  "type": "object"
+}

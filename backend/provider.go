@@ -28,6 +28,9 @@ const (
 type ProviderProviderTypeValue string
 
 const (
+	// ProviderProviderTypeAgent represents the value Agent.
+	ProviderProviderTypeAgent ProviderProviderTypeValue = "Agent"
+
 	// ProviderProviderTypeLLM represents the value LLM.
 	ProviderProviderTypeLLM ProviderProviderTypeValue = "LLM"
 
@@ -1000,7 +1003,7 @@ func (o *Provider) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"Agent", "LLM", "MCPServer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1448,7 +1451,7 @@ Name if empty.`,
 		Type:           "boolean",
 	},
 	"ProviderType": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
 		DefaultValue:   ProviderProviderTypeLLM,
@@ -1858,7 +1861,7 @@ Name if empty.`,
 		Type:           "boolean",
 	},
 	"providertype": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
 		DefaultValue:   ProviderProviderTypeLLM,

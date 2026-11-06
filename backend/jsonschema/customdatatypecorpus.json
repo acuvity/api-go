@@ -1,0 +1,118 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Corpus",
+  "$friendlyNamePlural": "Custom Data Type Corpus",
+  "$modelName": "CustomDataTypeCorpus",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypecorpuses",
+  "$modelRestName": "customdatatypecorpus",
+  "additionalProperties": false,
+  "description": "Example sentences that define what a custom data type detects by meaning. In a draft only the anchors and the threshold are set; the other fields describe a version that has been activated.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "The identifier of the corpus in the analysis pipelines.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activateTime": {
+      "$friendlyName": "Activate Time",
+      "$readOnly": true,
+      "description": "When this version went live.",
+      "title": "activateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "activatedBy": {
+      "$friendlyName": "Activated By",
+      "$readOnly": true,
+      "description": "Who activated this version.",
+      "title": "activatedBy",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "anchors": {
+      "$friendlyName": "Reference Phrases",
+      "description": "Reference phrases, one per entry, written the way a real person would type the content to detect. The evaluation shows how well they work.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "anchors",
+      "type": "array"
+    },
+    "embedderModel": {
+      "$friendlyName": "Embedder Model",
+      "$readOnly": true,
+      "description": "The model the anchors were embedded with.",
+      "title": "embedderModel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "highThreshold": {
+      "$friendlyName": "High Threshold",
+      "$readOnly": true,
+      "description": "The similarity at or above which a detection is reported with high confidence, from the evaluation this version was activated with. Unset, none is.",
+      "title": "highThreshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "mediumThreshold": {
+      "$friendlyName": "Medium Threshold",
+      "$readOnly": true,
+      "description": "The similarity at or above which a detection is reported with medium confidence, from the evaluation this version was activated with. Unset, none is.",
+      "title": "mediumThreshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "recommendedThreshold": {
+      "$friendlyName": "Recommended Threshold",
+      "$readOnly": true,
+      "description": "The threshold the evaluation recommended when this version was activated.",
+      "title": "recommendedThreshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "$readOnly": true,
+      "description": "The revision of the anchors. It changes only when the anchors do.",
+      "title": "revision",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "threshold": {
+      "$friendlyName": "Threshold",
+      "description": "The similarity at or above which a message is detected. Unset, the analysis pipelines derive one from the anchors.",
+      "maximum": 1,
+      "title": "threshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeCorpus",
+  "type": "object"
+}

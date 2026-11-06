@@ -15,7 +15,7 @@
   "properties": {
     "analyzers": {
       "$friendlyName": "Analyzers",
-      "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analysis (slower but more acurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analysis (faster but less acurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
+      "description": "The analyzers parameter allows for customizing which analyzers should be used, overriding the default selection. Each analyzer entry can optionally include a prefix to modify its behavior:    - No prefix: Runs only the specified analyzers and any dependencies required for deeper analysis (slower but more accurate).   - '+' (enable): Activates an analyzer that is disabled by default.   - '-' (disable): Disables an analyzer that is enabled by default.   - '@' (direct execution): Runs the analyzer immediately, bypassing the deeper analysis (faster but less accurate).  An analyzers entry can be specified using:   - The analyzer name (e.g., 'Toxicity detector')   - The analyzer ID (e.g., 'en-text-toxicity-detector')   - The analyzer group (e.g., 'Detectors')   - A detector name (e.g., 'toxic')   - A detector label (e.g., 'insult')   - A detector group (e.g., 'Malcontents')  If left empty, all default analyzers will be executed.",
       "items": {
         "type": [
           "string",
@@ -28,7 +28,7 @@
     "anonymization": {
       "$defaultValue": "FixedSize",
       "$friendlyName": "Anonymization",
-      "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+      "description": "DEPRECATED: ignored. Redacted values are always masked in place, keeping their byte length. How redacted data is replaced. FixedSize replaces each redacted span with '#' characters of the same length. VariableSize replaces it with a placeholder naming the detection, such as PII_SSN_1.",
       "enum": [
         "FixedSize",
         "VariableSize"
@@ -105,7 +105,7 @@
     },
     "keywords": {
       "$friendlyName": "Keywords",
-      "description": "The keywords found during classification.",
+      "description": "Additional keywords to look for in the content. Matches are reported as Keyword detections.",
       "items": {
         "type": [
           "string",

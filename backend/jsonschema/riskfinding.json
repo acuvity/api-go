@@ -8,7 +8,7 @@
   "$friendlyName": "Risk Finding",
   "$friendlyNamePlural": "Risk Findings",
   "$modelName": "RiskFinding",
-  "$modelPackage": "hanni",
+  "$modelPackage": "avi",
   "$modelResourceName": "riskfindings",
   "$modelRestName": "riskfinding",
   "additionalProperties": false,

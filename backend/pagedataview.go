@@ -91,6 +91,9 @@ type PageDataView struct {
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
+	// The conditions of the saved filter, AND-ed.
+	FilterPredicates []*PageDataViewFilterPredicate `json:"filterPredicates" msgpack:"filterPredicates" bson:"filterpredicates" mapstructure:"filterPredicates,omitempty"`
+
 	// The name of the page data view.
 	Name string `json:"name" msgpack:"name" bson:"name" mapstructure:"name,omitempty"`
 
@@ -155,6 +158,7 @@ func (o *PageDataView) GetBSON() (any, error) {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
 	s.CreateTime = o.CreateTime
+	s.FilterPredicates = o.FilterPredicates
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.PageID = o.PageID
@@ -181,6 +185,7 @@ func (o *PageDataView) SetBSON(raw bson.Raw) error {
 
 	o.ID = s.ID.Hex()
 	o.CreateTime = s.CreateTime
+	o.FilterPredicates = s.FilterPredicates
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.PageID = s.PageID
@@ -264,15 +269,16 @@ func (o *PageDataView) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparsePageDataView{
-			ID:         &o.ID,
-			CreateTime: &o.CreateTime,
-			Name:       &o.Name,
-			Namespace:  &o.Namespace,
-			PageID:     &o.PageID,
-			Predicates: &o.Predicates,
-			UpdateTime: &o.UpdateTime,
-			ZHash:      &o.ZHash,
-			Zone:       &o.Zone,
+			ID:               &o.ID,
+			CreateTime:       &o.CreateTime,
+			FilterPredicates: &o.FilterPredicates,
+			Name:             &o.Name,
+			Namespace:        &o.Namespace,
+			PageID:           &o.PageID,
+			Predicates:       &o.Predicates,
+			UpdateTime:       &o.UpdateTime,
+			ZHash:            &o.ZHash,
+			Zone:             &o.Zone,
 		}
 	}
 
@@ -283,6 +289,8 @@ func (o *PageDataView) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ID = &(o.ID)
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
+		case "filterPredicates":
+			sp.FilterPredicates = &(o.FilterPredicates)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
@@ -316,6 +324,9 @@ func (o *PageDataView) Patch(sparse elemental.SparseIdentifiable) {
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
+	if so.FilterPredicates != nil {
+		o.FilterPredicates = *so.FilterPredicates
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -342,6 +353,15 @@ func (o *PageDataView) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *PageDataView) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.FilterPredicates {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'FilterPredicates' for 'PageDataView' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Predicates {
 		if sub == nil {
 			continue
@@ -356,6 +376,15 @@ func (o *PageDataView) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *PageDataView) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.FilterPredicates {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'FilterPredicates' for 'PageDataView' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Predicates {
 		if sub == nil {
@@ -400,6 +429,16 @@ func (o *PageDataView) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for i, sub := range o.FilterPredicates {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "filterPredicates", i))
+			errors = errors.Append(err)
+		}
+	}
 
 	if err := elemental.ValidateRequiredString("name", o.Name); err != nil {
 		requiredErrors = requiredErrors.Append(err)
@@ -457,6 +496,8 @@ func (o *PageDataView) ValueForAttribute(name string) any {
 		return o.ID
 	case "createTime":
 		return o.CreateTime
+	case "filterPredicates":
+		return o.FilterPredicates
 	case "name":
 		return o.Name
 	case "namespace":
@@ -508,10 +549,22 @@ var PageDataViewAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "time",
 	},
+	"FilterPredicates": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "filterpredicates",
+		ConvertedName:  "FilterPredicates",
+		Description:    `The conditions of the saved filter, AND-ed.`,
+		Exposed:        true,
+		Name:           "filterPredicates",
+		Stored:         true,
+		SubType:        "pagedataviewfilterpredicate",
+		Type:           "refList",
+	},
 	"Name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
+		CreationOnly:   true,
 		Description:    `The name of the page data view.`,
 		Exposed:        true,
 		Name:           "name",
@@ -538,6 +591,7 @@ var PageDataViewAttributesMap = map[string]elemental.AttributeSpecification{
 		AllowedChoices: []string{},
 		BSONFieldName:  "pageid",
 		ConvertedName:  "PageID",
+		CreationOnly:   true,
 		Description:    `The name of the page.`,
 		Exposed:        true,
 		Name:           "pageID",
@@ -605,10 +659,22 @@ var PageDataViewLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "time",
 	},
+	"filterpredicates": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "filterpredicates",
+		ConvertedName:  "FilterPredicates",
+		Description:    `The conditions of the saved filter, AND-ed.`,
+		Exposed:        true,
+		Name:           "filterPredicates",
+		Stored:         true,
+		SubType:        "pagedataviewfilterpredicate",
+		Type:           "refList",
+	},
 	"name": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "name",
 		ConvertedName:  "Name",
+		CreationOnly:   true,
 		Description:    `The name of the page data view.`,
 		Exposed:        true,
 		Name:           "name",
@@ -635,6 +701,7 @@ var PageDataViewLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		AllowedChoices: []string{},
 		BSONFieldName:  "pageid",
 		ConvertedName:  "PageID",
+		CreationOnly:   true,
 		Description:    `The name of the page.`,
 		Exposed:        true,
 		Name:           "pageID",
@@ -739,6 +806,9 @@ type SparsePageDataView struct {
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
+	// The conditions of the saved filter, AND-ed.
+	FilterPredicates *[]*PageDataViewFilterPredicate `json:"filterPredicates,omitempty" msgpack:"filterPredicates,omitempty" bson:"filterpredicates,omitempty" mapstructure:"filterPredicates,omitempty"`
+
 	// The name of the page data view.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -809,6 +879,9 @@ func (o *SparsePageDataView) GetBSON() (any, error) {
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
+	if o.FilterPredicates != nil {
+		s.FilterPredicates = o.FilterPredicates
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -852,6 +925,9 @@ func (o *SparsePageDataView) SetBSON(raw bson.Raw) error {
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
+	if s.FilterPredicates != nil {
+		o.FilterPredicates = s.FilterPredicates
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -893,6 +969,9 @@ func (o *SparsePageDataView) ToPlain() elemental.PlainIdentifiable {
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
+	if o.FilterPredicates != nil {
+		out.FilterPredicates = *o.FilterPredicates
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -921,6 +1000,17 @@ func (o *SparsePageDataView) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparsePageDataView) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.FilterPredicates != nil {
+		for _, sub := range *o.FilterPredicates {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'FilterPredicates' for 'PageDataView' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.Predicates != nil {
 		for _, sub := range *o.Predicates {
 			if sub == nil {
@@ -937,6 +1027,17 @@ func (o *SparsePageDataView) EncryptAttributes(encrypter elemental.AttributeEncr
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparsePageDataView) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.FilterPredicates != nil {
+		for _, sub := range *o.FilterPredicates {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'FilterPredicates' for 'PageDataView' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
 
 	if o.Predicates != nil {
 		for _, sub := range *o.Predicates {
@@ -1025,24 +1126,26 @@ func (o *SparsePageDataView) DeepCopyInto(out *SparsePageDataView) {
 }
 
 type mongoAttributesPageDataView struct {
-	ID         bson.ObjectId            `bson:"_id,omitempty"`
-	CreateTime time.Time                `bson:"createtime"`
-	Name       string                   `bson:"name"`
-	Namespace  string                   `bson:"namespace,omitempty"`
-	PageID     string                   `bson:"pageid"`
-	Predicates []*PageDataViewPredicate `bson:"predicates"`
-	UpdateTime time.Time                `bson:"updatetime"`
-	ZHash      int                      `bson:"zhash"`
-	Zone       int                      `bson:"zone"`
+	ID               bson.ObjectId                  `bson:"_id,omitempty"`
+	CreateTime       time.Time                      `bson:"createtime"`
+	FilterPredicates []*PageDataViewFilterPredicate `bson:"filterpredicates"`
+	Name             string                         `bson:"name"`
+	Namespace        string                         `bson:"namespace,omitempty"`
+	PageID           string                         `bson:"pageid"`
+	Predicates       []*PageDataViewPredicate       `bson:"predicates"`
+	UpdateTime       time.Time                      `bson:"updatetime"`
+	ZHash            int                            `bson:"zhash"`
+	Zone             int                            `bson:"zone"`
 }
 type mongoAttributesSparsePageDataView struct {
-	ID         bson.ObjectId             `bson:"_id,omitempty"`
-	CreateTime *time.Time                `bson:"createtime,omitempty"`
-	Name       *string                   `bson:"name,omitempty"`
-	Namespace  *string                   `bson:"namespace,omitempty"`
-	PageID     *string                   `bson:"pageid,omitempty"`
-	Predicates *[]*PageDataViewPredicate `bson:"predicates,omitempty"`
-	UpdateTime *time.Time                `bson:"updatetime,omitempty"`
-	ZHash      *int                      `bson:"zhash,omitempty"`
-	Zone       *int                      `bson:"zone,omitempty"`
+	ID               bson.ObjectId                   `bson:"_id,omitempty"`
+	CreateTime       *time.Time                      `bson:"createtime,omitempty"`
+	FilterPredicates *[]*PageDataViewFilterPredicate `bson:"filterpredicates,omitempty"`
+	Name             *string                         `bson:"name,omitempty"`
+	Namespace        *string                         `bson:"namespace,omitempty"`
+	PageID           *string                         `bson:"pageid,omitempty"`
+	Predicates       *[]*PageDataViewPredicate       `bson:"predicates,omitempty"`
+	UpdateTime       *time.Time                      `bson:"updatetime,omitempty"`
+	ZHash            *int                            `bson:"zhash,omitempty"`
+	Zone             *int                            `bson:"zone,omitempty"`
 }

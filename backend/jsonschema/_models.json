@@ -1,5 +1,8 @@
 {
   "properties": {
+    "a2amessage": {
+      "$ref": "a2amessage.json"
+    },
     "accesspolicy": {
       "$ref": "accesspolicy.json"
     },
@@ -261,8 +264,74 @@
     "contentpolicy": {
       "$ref": "contentpolicy.json"
     },
+    "corpusevaluation": {
+      "$ref": "corpusevaluation.json"
+    },
+    "corpusevaluationanchor": {
+      "$ref": "corpusevaluationanchor.json"
+    },
+    "corpusevaluationconfidence": {
+      "$ref": "corpusevaluationconfidence.json"
+    },
+    "corpusevaluationcurve": {
+      "$ref": "corpusevaluationcurve.json"
+    },
+    "corpusevaluationfinding": {
+      "$ref": "corpusevaluationfinding.json"
+    },
+    "corpusevaluationmap": {
+      "$ref": "corpusevaluationmap.json"
+    },
+    "corpusevaluationoption": {
+      "$ref": "corpusevaluationoption.json"
+    },
+    "corpusevaluationpoint": {
+      "$ref": "corpusevaluationpoint.json"
+    },
+    "corpusevaluationprobe": {
+      "$ref": "corpusevaluationprobe.json"
+    },
+    "corpusevaluationreport": {
+      "$ref": "corpusevaluationreport.json"
+    },
+    "corpusevaluationscale": {
+      "$ref": "corpusevaluationscale.json"
+    },
+    "corpusevaluationthreshold": {
+      "$ref": "corpusevaluationthreshold.json"
+    },
+    "corpusingestion": {
+      "$ref": "corpusingestion.json"
+    },
     "customdatatype": {
       "$ref": "customdatatype.json"
+    },
+    "customdatatypeactivation": {
+      "$ref": "customdatatypeactivation.json"
+    },
+    "customdatatypeactivationstate": {
+      "$ref": "customdatatypeactivationstate.json"
+    },
+    "customdatatypecorpus": {
+      "$ref": "customdatatypecorpus.json"
+    },
+    "customdatatypedraft": {
+      "$ref": "customdatatypedraft.json"
+    },
+    "customdatatypeevaluation": {
+      "$ref": "customdatatypeevaluation.json"
+    },
+    "customdatatypeevaluationinputs": {
+      "$ref": "customdatatypeevaluationinputs.json"
+    },
+    "customdatatypeevaluationresult": {
+      "$ref": "customdatatypeevaluationresult.json"
+    },
+    "customdatatypeingestion": {
+      "$ref": "customdatatypeingestion.json"
+    },
+    "customdatatypesnapshot": {
+      "$ref": "customdatatypesnapshot.json"
     },
     "customdatatypevalidation": {
       "$ref": "customdatatypevalidation.json"
@@ -447,6 +516,9 @@
     "mapper": {
       "$ref": "mapper.json"
     },
+    "maskingpolicy": {
+      "$ref": "maskingpolicy.json"
+    },
     "mcpgateway": {
       "$ref": "mcpgateway.json"
     },
@@ -492,6 +564,9 @@
     "mcptoolscope": {
       "$ref": "mcptoolscope.json"
     },
+    "mcptoolshadowfinding": {
+      "$ref": "mcptoolshadowfinding.json"
+    },
     "mcptoolsnapshot": {
       "$ref": "mcptoolsnapshot.json"
     },
@@ -515,6 +590,9 @@
     },
     "mtlssource": {
       "$ref": "mtlssource.json"
+    },
+    "mtlssourceciscoduo": {
+      "$ref": "mtlssourceciscoduo.json"
     },
     "mtlssourceentra": {
       "$ref": "mtlssourceentra.json"
@@ -548,6 +626,9 @@
     },
     "pagedataview": {
       "$ref": "pagedataview.json"
+    },
+    "pagedataviewfilterpredicate": {
+      "$ref": "pagedataviewfilterpredicate.json"
     },
     "pagedataviewpredicate": {
       "$ref": "pagedataviewpredicate.json"
@@ -696,6 +777,9 @@
     "sink": {
       "$ref": "sink.json"
     },
+    "sinkcheck": {
+      "$ref": "sinkcheck.json"
+    },
     "sinkdatabahn": {
       "$ref": "sinkdatabahn.json"
     },
@@ -713,6 +797,12 @@
     },
     "sinksplunk": {
       "$ref": "sinksplunk.json"
+    },
+    "sinkwebhook": {
+      "$ref": "sinkwebhook.json"
+    },
+    "sinkwebhookheader": {
+      "$ref": "sinkwebhookheader.json"
     },
     "slug": {
       "$ref": "slug.json"
@@ -770,6 +860,9 @@
     },
     "trafficcontrol": {
       "$ref": "trafficcontrol.json"
+    },
+    "trafficsample": {
+      "$ref": "trafficsample.json"
     },
     "tunnelproxyauth": {
       "$ref": "tunnelproxyauth.json"

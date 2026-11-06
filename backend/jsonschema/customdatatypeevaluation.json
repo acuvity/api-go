@@ -1,0 +1,40 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Evaluation",
+  "$friendlyNamePlural": "Custom Data Type Evaluations",
+  "$modelName": "CustomDataTypeEvaluation",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeevaluations",
+  "$modelRestName": "customdatatypeevaluation",
+  "additionalProperties": false,
+  "description": "Evaluates the stored draft of a custom data type again, its result arriving on the custom data type. With a message, scores that message against the draft's phrases instead, and answers at once.",
+  "properties": {
+    "message": {
+      "$friendlyName": "Message",
+      "description": "A message to score against the draft's phrases.",
+      "maxLength": 1000,
+      "title": "message",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "probe": {
+      "$friendlyName": "Probe",
+      "$readOnly": true,
+      "$ref": "corpusevaluationprobe.json",
+      "description": "How the message scores against the phrases.",
+      "title": "probe"
+    },
+    "result": {
+      "$friendlyName": "Result",
+      "$readOnly": true,
+      "$ref": "customdatatypeevaluationresult.json",
+      "description": "The evaluation.",
+      "title": "result"
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeEvaluation",
+  "type": "object"
+}

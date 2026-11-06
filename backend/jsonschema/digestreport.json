@@ -7,7 +7,7 @@
   "$friendlyName": "Digest Report",
   "$friendlyNamePlural": "Digest Reports",
   "$modelName": "DigestReport",
-  "$modelPackage": "relae",
+  "$modelPackage": "avi",
   "$modelResourceName": "digestreports",
   "$modelRestName": "digestreport",
   "additionalProperties": false,

@@ -30,6 +30,11 @@ const (
 
 // Detection represents the model of a detection
 type Detection struct {
+	// The upstream engine's own category for the detection, when it has one (for
+	// instance 'Personal Information'). It only helps browsing detectors: policies
+	// match on the group and the name.
+	Category string `json:"category,omitempty" msgpack:"category,omitempty" bson:"-" mapstructure:"category,omitempty"`
+
 	// The confidence level of the detection.
 	Confidence DetectionConfidenceValue `json:"confidence" msgpack:"confidence" bson:"-" mapstructure:"confidence,omitempty"`
 
@@ -63,6 +68,12 @@ type Detection struct {
 
 	// The start position of the poisitional detection.
 	Start int `json:"start" msgpack:"start" bson:"-" mapstructure:"start,omitempty"`
+
+	// Who authored the detection, when the upstream engine says: 'predefined'
+	// (shipped by the vendor), 'custom' (defined by the organization) or
+	// 'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+	// analyzers with no upstream engine.
+	Type string `json:"type,omitempty" msgpack:"type,omitempty" bson:"-" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -215,6 +226,8 @@ func (*Detection) AttributeSpecifications() map[string]elemental.AttributeSpecif
 func (o *Detection) ValueForAttribute(name string) any {
 
 	switch name {
+	case "category":
+		return o.Category
 	case "confidence":
 		return o.Confidence
 	case "description":
@@ -237,6 +250,8 @@ func (o *Detection) ValueForAttribute(name string) any {
 		return o.Score
 	case "start":
 		return o.Start
+	case "type":
+		return o.Type
 	}
 
 	return nil
@@ -244,6 +259,16 @@ func (o *Detection) ValueForAttribute(name string) any {
 
 // DetectionAttributesMap represents the map of attribute for Detection.
 var DetectionAttributesMap = map[string]elemental.AttributeSpecification{
+	"Category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detection, when it has one (for
+instance 'Personal Information'). It only helps browsing detectors: policies
+match on the group and the name.`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"Confidence": {
 		AllowedChoices: []string{"Unlikely", "Low", "Medium", "High"},
 		ConvertedName:  "Confidence",
@@ -333,10 +358,31 @@ Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.`,
 		Name:           "start",
 		Type:           "integer",
 	},
+	"Type": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Type",
+		Description: `Who authored the detection, when the upstream engine says: 'predefined'
+(shipped by the vendor), 'custom' (defined by the organization) or
+'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+analyzers with no upstream engine.`,
+		Exposed: true,
+		Name:    "type",
+		Type:    "string",
+	},
 }
 
 // DetectionLowerCaseAttributesMap represents the map of attribute for Detection.
 var DetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detection, when it has one (for
+instance 'Personal Information'). It only helps browsing detectors: policies
+match on the group and the name.`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"confidence": {
 		AllowedChoices: []string{"Unlikely", "Low", "Medium", "High"},
 		ConvertedName:  "Confidence",
@@ -425,6 +471,17 @@ Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.`,
 		Exposed:        true,
 		Name:           "start",
 		Type:           "integer",
+	},
+	"type": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Type",
+		Description: `Who authored the detection, when the upstream engine says: 'predefined'
+(shipped by the vendor), 'custom' (defined by the organization) or
+'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+analyzers with no upstream engine.`,
+		Exposed: true,
+		Name:    "type",
+		Type:    "string",
 	},
 }
 

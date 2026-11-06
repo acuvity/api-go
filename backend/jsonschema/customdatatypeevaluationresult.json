@@ -1,0 +1,104 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Evaluation Result",
+  "$friendlyNamePlural": "Custom Data Type Evaluation Results",
+  "$modelName": "CustomDataTypeEvaluationResult",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeevaluationresults",
+  "$modelRestName": "customdatatypeevaluationresult",
+  "additionalProperties": false,
+  "description": "The evaluation of a custom data type's draft: whether it runs, and the last result, kept while a newer one runs.",
+  "properties": {
+    "attempts": {
+      "$friendlyName": "Attempts",
+      "description": "How many times the evaluation was sent to the pipelines.",
+      "title": "attempts",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "description": "Why the evaluation could not run, when it failed.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evaluateTime": {
+      "$friendlyName": "Evaluate Time",
+      "description": "When the evaluation ran.",
+      "title": "evaluateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "inputsHash": {
+      "$friendlyName": "Inputs Hash",
+      "description": "A hash of the anchors and evaluation inputs evaluated. When it differs from the current ones, the report is out of date.",
+      "title": "inputsHash",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "matchesError": {
+      "$friendlyName": "Matches Error",
+      "description": "Why the pipelines refuse the draft's regular expressions, if they do.",
+      "title": "matchesError",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "report": {
+      "$friendlyName": "Report",
+      "$ref": "corpusevaluationreport.json",
+      "description": "The evaluation.",
+      "title": "report"
+    },
+    "requestTime": {
+      "$friendlyName": "Request Time",
+      "description": "When the evaluation was last sent to the pipelines.",
+      "title": "requestTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "state": {
+      "$friendlyName": "State",
+      "description": "Where the evaluation of the current inputs stands.",
+      "enum": [
+        "Pending",
+        "Done",
+        "Failed"
+      ],
+      "title": "state"
+    },
+    "trafficSample": {
+      "$friendlyName": "Traffic Sample",
+      "description": "The name of the traffic sample used.",
+      "title": "trafficSample",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trafficSampleUpdateTime": {
+      "$friendlyName": "Traffic Sample Update Time",
+      "description": "The traffic sample's last update when it was used.",
+      "title": "trafficSampleUpdateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeEvaluationResult",
+  "type": "object"
+}

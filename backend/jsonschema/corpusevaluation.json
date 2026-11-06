@@ -1,0 +1,93 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation",
+  "$friendlyNamePlural": "Corpus Evaluations",
+  "$modelName": "CorpusEvaluation",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluations",
+  "$modelRestName": "corpusevaluation",
+  "additionalProperties": false,
+  "description": "Evaluates a set of anchors against the analysis pipelines, storing nothing.",
+  "properties": {
+    "anchors": {
+      "$friendlyName": "Anchors",
+      "$required": true,
+      "description": "The anchors to evaluate.",
+      "items": {
+        "type": "string"
+      },
+      "title": "anchors",
+      "type": "array"
+    },
+    "background": {
+      "$friendlyName": "Background",
+      "description": "Ordinary messages to measure false alarms against.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "background",
+      "type": "array"
+    },
+    "negative": {
+      "$friendlyName": "Negative",
+      "description": "Messages that should not be detected.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "negative",
+      "type": "array"
+    },
+    "positive": {
+      "$friendlyName": "Positive",
+      "description": "Messages that should be detected.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "positive",
+      "type": "array"
+    },
+    "report": {
+      "$friendlyName": "Report",
+      "$readOnly": true,
+      "$ref": "corpusevaluationreport.json",
+      "description": "The evaluation.",
+      "title": "report"
+    },
+    "threshold": {
+      "$friendlyName": "Threshold",
+      "description": "The line to grade at. Unset, the recommended one.",
+      "maximum": 1,
+      "title": "threshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "unlabeled": {
+      "$friendlyName": "Unlabeled",
+      "description": "Messages to see the outcome for, with no expectation attached.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "unlabeled",
+      "type": "array"
+    }
+  },
+  "required": [
+    "anchors"
+  ],
+  "title": "CorpusEvaluation",
+  "type": "object"
+}

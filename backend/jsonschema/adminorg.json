@@ -41,6 +41,16 @@
         "null"
       ]
     },
+    "entitlementDSGFindingsExport": {
+      "$defaultValue": false,
+      "$friendlyName": "DSG Findings Export Entitlement",
+      "description": "Indicates whether the organization is entitled to export findings to DSG.",
+      "title": "entitlementDSGFindingsExport",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "entitlementDataSinks": {
       "$defaultValue": false,
       "$friendlyName": "Data Sinks Entitlement",

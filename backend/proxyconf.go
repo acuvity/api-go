@@ -127,11 +127,19 @@ type ProxyConf struct {
 	// The extractors of the organization.
 	Extractors ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
 
+	// The masking policies of the namespace and the ones propagated to it.
+	MaskingPolicies MaskingPoliciesList `json:"maskingPolicies,omitempty" msgpack:"maskingPolicies,omitempty" bson:"-" mapstructure:"maskingPolicies,omitempty"`
+
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The organization settings.
 	OrgSettings *OrgSettings `json:"orgSettings" msgpack:"orgSettings" bson:"-" mapstructure:"orgSettings,omitempty"`
+
+	// The hosts referenced by AIDomain conditions of access policies. Apex serves
+	// them to agents and runs access policies on their traffic even when no
+	// provider owns them.
+	PolicyDomains []string `json:"policyDomains,omitempty" msgpack:"policyDomains,omitempty" bson:"-" mapstructure:"policyDomains,omitempty"`
 
 	// The list of available provider.
 	Providers ProvidersList `json:"providers" msgpack:"providers" bson:"-" mapstructure:"providers,omitempty"`
@@ -156,9 +164,10 @@ type ProxyConf struct {
 func NewProxyConf() *ProxyConf {
 
 	return &ProxyConf{
-		ModelVersion: 1,
-		Providers:    ProvidersList{},
-		Tokens:       map[string][]string{},
+		ModelVersion:  1,
+		PolicyDomains: []string{},
+		Providers:     ProvidersList{},
+		Tokens:        map[string][]string{},
 	}
 }
 
@@ -279,8 +288,10 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			DataSets:            &o.DataSets,
 			ExtractorLibs:       &o.ExtractorLibs,
 			Extractors:          &o.Extractors,
+			MaskingPolicies:     &o.MaskingPolicies,
 			Namespace:           &o.Namespace,
 			OrgSettings:         o.OrgSettings,
+			PolicyDomains:       &o.PolicyDomains,
 			Providers:           &o.Providers,
 			RegoBaseLibs:        o.RegoBaseLibs,
 			Simulation:          o.Simulation,
@@ -320,10 +331,14 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.ExtractorLibs = &(o.ExtractorLibs)
 		case "extractors":
 			sp.Extractors = &(o.Extractors)
+		case "maskingPolicies":
+			sp.MaskingPolicies = &(o.MaskingPolicies)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
 		case "orgSettings":
 			sp.OrgSettings = o.OrgSettings
+		case "policyDomains":
+			sp.PolicyDomains = &(o.PolicyDomains)
 		case "providers":
 			sp.Providers = &(o.Providers)
 		case "regoBaseLibs":
@@ -389,11 +404,17 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Extractors != nil {
 		o.Extractors = *so.Extractors
 	}
+	if so.MaskingPolicies != nil {
+		o.MaskingPolicies = *so.MaskingPolicies
+	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
 	if so.OrgSettings != nil {
 		o.OrgSettings = so.OrgSettings
+	}
+	if so.PolicyDomains != nil {
+		o.PolicyDomains = *so.PolicyDomains
 	}
 	if so.Providers != nil {
 		o.Providers = *so.Providers
@@ -502,6 +523,15 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'MaskingPolicies' for 'ProxyConf' (%s): %s", o.Identifier(), err)
 		}
 	}
 
@@ -634,6 +664,15 @@ func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'MaskingPolicies' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -808,6 +847,16 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
+	for i, sub := range o.MaskingPolicies {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "maskingPolicies", i))
+			errors = errors.Append(err)
+		}
+	}
+
 	if o.OrgSettings != nil {
 		if err := o.OrgSettings.Validate(); err != nil {
 			elemental.InjectAttributePath(err, "orgSettings")
@@ -911,10 +960,14 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.ExtractorLibs
 	case "extractors":
 		return o.Extractors
+	case "maskingPolicies":
+		return o.MaskingPolicies
 	case "namespace":
 		return o.Namespace
 	case "orgSettings":
 		return o.OrgSettings
+	case "policyDomains":
+		return o.PolicyDomains
 	case "providers":
 		return o.Providers
 	case "regoBaseLibs":
@@ -1062,6 +1115,15 @@ resolved access and content policies.`,
 		SubType:        "extractor",
 		Type:           "refList",
 	},
+	"MaskingPolicies": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MaskingPolicies",
+		Description:    `The masking policies of the namespace and the ones propagated to it.`,
+		Exposed:        true,
+		Name:           "maskingPolicies",
+		SubType:        "maskingpolicy",
+		Type:           "refList",
+	},
 	"Namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1085,6 +1147,17 @@ resolved access and content policies.`,
 		Name:           "orgSettings",
 		SubType:        "orgsettings",
 		Type:           "ref",
+	},
+	"PolicyDomains": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PolicyDomains",
+		Description: `The hosts referenced by AIDomain conditions of access policies. Apex serves
+them to agents and runs access policies on their traffic even when no
+provider owns them.`,
+		Exposed: true,
+		Name:    "policyDomains",
+		SubType: "string",
+		Type:    "list",
 	},
 	"Providers": {
 		AllowedChoices: []string{},
@@ -1266,6 +1339,15 @@ resolved access and content policies.`,
 		SubType:        "extractor",
 		Type:           "refList",
 	},
+	"maskingpolicies": {
+		AllowedChoices: []string{},
+		ConvertedName:  "MaskingPolicies",
+		Description:    `The masking policies of the namespace and the ones propagated to it.`,
+		Exposed:        true,
+		Name:           "maskingPolicies",
+		SubType:        "maskingpolicy",
+		Type:           "refList",
+	},
 	"namespace": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1289,6 +1371,17 @@ resolved access and content policies.`,
 		Name:           "orgSettings",
 		SubType:        "orgsettings",
 		Type:           "ref",
+	},
+	"policydomains": {
+		AllowedChoices: []string{},
+		ConvertedName:  "PolicyDomains",
+		Description: `The hosts referenced by AIDomain conditions of access policies. Apex serves
+them to agents and runs access policies on their traffic even when no
+provider owns them.`,
+		Exposed: true,
+		Name:    "policyDomains",
+		SubType: "string",
+		Type:    "list",
 	},
 	"providers": {
 		AllowedChoices: []string{},
@@ -1444,11 +1537,19 @@ type SparseProxyConf struct {
 	// The extractors of the organization.
 	Extractors *ExtractorsList `json:"extractors,omitempty" msgpack:"extractors,omitempty" bson:"-" mapstructure:"extractors,omitempty"`
 
+	// The masking policies of the namespace and the ones propagated to it.
+	MaskingPolicies *MaskingPoliciesList `json:"maskingPolicies,omitempty" msgpack:"maskingPolicies,omitempty" bson:"-" mapstructure:"maskingPolicies,omitempty"`
+
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
 	// The organization settings.
 	OrgSettings *OrgSettings `json:"orgSettings,omitempty" msgpack:"orgSettings,omitempty" bson:"-" mapstructure:"orgSettings,omitempty"`
+
+	// The hosts referenced by AIDomain conditions of access policies. Apex serves
+	// them to agents and runs access policies on their traffic even when no
+	// provider owns them.
+	PolicyDomains *[]string `json:"policyDomains,omitempty" msgpack:"policyDomains,omitempty" bson:"-" mapstructure:"policyDomains,omitempty"`
 
 	// The list of available provider.
 	Providers *ProvidersList `json:"providers,omitempty" msgpack:"providers,omitempty" bson:"-" mapstructure:"providers,omitempty"`
@@ -1593,11 +1694,17 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.Extractors != nil {
 		out.Extractors = *o.Extractors
 	}
+	if o.MaskingPolicies != nil {
+		out.MaskingPolicies = *o.MaskingPolicies
+	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
 	if o.OrgSettings != nil {
 		out.OrgSettings = o.OrgSettings
+	}
+	if o.PolicyDomains != nil {
+		out.PolicyDomains = *o.PolicyDomains
 	}
 	if o.Providers != nil {
 		out.Providers = *o.Providers
@@ -1727,6 +1834,17 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 			}
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.MaskingPolicies != nil {
+		for _, sub := range *o.MaskingPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'MaskingPolicies' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1883,6 +2001,17 @@ func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypt
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.MaskingPolicies != nil {
+		for _, sub := range *o.MaskingPolicies {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'MaskingPolicies' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}

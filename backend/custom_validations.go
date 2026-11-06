@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"maps"
 	"net"
@@ -13,10 +14,12 @@ import (
 	"net/url"
 	"reflect"
 	"regexp"
+	"regexp/syntax"
 	"slices"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/globalsign/mgo/bson"
@@ -311,7 +314,7 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 		if moderation.Redact {
 			var hasRedactedValue bool
 			for j, predicate := range moderation.Predicates {
-				if predicate.Key != PredicateKeyKeywords && predicate.Key != PredicateKeyPIIs && predicate.Key != PredicateKeySecrets && predicate.Key != PredicateKeyCustomDataTypes {
+				if predicate.Key != PredicateKeyKeywords && predicate.Key != PredicateKeyPIIs && predicate.Key != PredicateKeySecrets && predicate.Key != PredicateKeyCustomDataTypes && predicate.Key != PredicateKeyDLP {
 					continue
 				}
 				if predicate.Operator == PredicateOperatorEqualsOrGreaterThan {
@@ -324,7 +327,7 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 				break
 			}
 			if !hasRedactedValue {
-				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d", i, index), "'Redact' must have at least one keyword, PII, CDT or secret tied to it")
+				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d", i, index), "'Redact' must have at least one keyword, PII, CDT, secret or DLP tied to it")
 			}
 		}
 
@@ -615,6 +618,19 @@ func ValidateProvider(provider *Provider) error {
 	}
 
 	return nil
+}
+
+// ValidateAppComponentProvider validates the entire app component provider.
+func ValidateAppComponentProvider(provider *AppComponentProvider) error {
+
+	switch {
+	case len(provider.Hosts) == 0 && len(provider.Models) == 0 && len(provider.ModelPrefixes) == 0:
+		return makeErr("hosts", "at least one of hosts, models or modelPrefixes must be set")
+	case strings.HasPrefix(provider.ProviderRef, "appc:"):
+		return makeErr("providerRef", "provider reference must not start with reserved prefix 'appc:'")
+	default:
+		return nil
+	}
 }
 
 // ValidateProviderTeamName validates the entire provider team name
@@ -925,6 +941,49 @@ func ValidatePredicate(p *Predicate) error {
 	v := p.Values
 
 	switch p.Key {
+	case PredicateKeyAIDomain:
+		if o != PredicateOperatorAny {
+			return makeErr("operator", "Key 'AIDomain' only supports operator 'Any'")
+		}
+		if len(v) == 0 {
+			return makeErr("values", "'AIDomain' must have at least one value")
+		}
+		m := make(map[string]struct{}, len(v))
+		for i, v := range v {
+			strVal, ok := v.(string)
+			if !ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'AIDomain' only supports string values")
+			}
+			if strings.ContainsAny(strVal, `"\`) {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'AIDomain' must not have a value that contains a quote or a backslash")
+			}
+			if strings.Contains(strVal, "://") {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Invalid domain '%s': must not be a full URL", strVal))
+			}
+			host, path := SplitAIDomain(strVal)
+			host = strings.ToLower(host)
+			// A leading *. matches any subdomain, as for provider hosts.
+			domain := strings.TrimPrefix(host, "*.")
+			if domain == "" || len(domain) > 253 {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'AIDomain' requires a hostname between 1 and 253 characters")
+			}
+			if err := ValidateDomain(fmt.Sprintf("values/%d", i), domain); err != nil {
+				return err
+			}
+			if err := ValidateDNSName(fmt.Sprintf("values/%d", i), domain); err != nil {
+				return err
+			}
+			if strings.ContainsAny(path, "?#*") {
+				return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Invalid path '%s': must not contain a query, fragment or wildcard", path))
+			}
+			strVal = host + path
+			if _, ok := m[strVal]; ok {
+				return makeErr(fmt.Sprintf("values/%d", i), "Key 'AIDomain' must not have duplicate values")
+			}
+			m[strVal] = struct{}{}
+			p.Values[i] = strVal
+		}
+
 	case PredicateKeyAccessControlRisk:
 		if o != PredicateOperatorEqualsOrLesserThan && o != PredicateOperatorEqualsOrGreaterThan {
 			return makeErr("operator", "Key 'AccessControlRisk' only supports operators 'EqualsOrGreaterThan' and 'EqualsOrLesserThan'")
@@ -994,10 +1053,10 @@ func ValidatePredicate(p *Predicate) error {
 		}
 
 	case PredicateKeyCustomDataTypes:
-		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
-			return makeErr("operator", "Key 'CustomDataTypes' only supports operators 'Any', 'NotEmpty' and 'EqualsOrGreaterThan'")
+		if o != PredicateOperatorAny && o != PredicateOperatorNotAny && o != PredicateOperatorNotEmpty && o != PredicateOperatorEqualsOrGreaterThan {
+			return makeErr("operator", "Key 'CustomDataTypes' only supports operators 'Any', 'NotAny', 'NotEmpty' and 'EqualsOrGreaterThan'")
 		}
-		if o == PredicateOperatorAny {
+		if o == PredicateOperatorAny || o == PredicateOperatorNotAny {
 			if len(v) == 0 {
 				return makeErr("values", "'CustomDataTypes' must have at least one value")
 			}
@@ -1107,6 +1166,54 @@ func ValidatePredicate(p *Predicate) error {
 				return makeErr(fmt.Sprintf("values/%d", i), "Key 'DstIPRange' must not have duplicate values")
 			}
 			m[strVal] = struct{}{}
+		}
+
+	case PredicateKeyDataSets:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'DataSets' only supports operators 'Any', and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'DataSets' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DataSets' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DataSets' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'DataSets' only supports no values when operation is 'NotEmpty'")
+			}
+		}
+
+	case PredicateKeyDLP:
+		if o != PredicateOperatorAny && o != PredicateOperatorNotEmpty {
+			return makeErr("operator", "Key 'DLP' only supports operators 'Any', and 'NotEmpty'")
+		}
+		if o == PredicateOperatorAny {
+			if len(v) == 0 {
+				return makeErr("values", "'DLP' must have at least one value")
+			}
+			for i, v := range v {
+				strVal, ok := v.(string)
+				if !ok {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DLP' only supports string values when operator is 'Any'")
+				}
+				if strings.Contains(strVal, `"`) {
+					return makeErr(fmt.Sprintf("values/%d", i), "Key 'DLP' must not have a value that contains a quote")
+				}
+			}
+		}
+		if o == PredicateOperatorNotEmpty {
+			if len(v) > 0 {
+				return makeErr("values", "Key 'DLP' only supports no values when operation is 'NotEmpty'")
+			}
 		}
 
 	case PredicateKeyExploits:
@@ -2152,8 +2259,18 @@ func ValidateCert(attribute string, pemdata string) error {
 	return a3sapi.ValidateCert(attribute, pemdata)
 }
 
+// ValidateHostname validates the given value is a bare hostname.
+func ValidateHostname(attribute string, h string) error {
+	return a3sapi.ValidateHostname(attribute, h)
+}
+
 // ValidateMTLSSource validates the given MTLSSource.
 func ValidateMTLSSource(source *MTLSSource) error {
+	var ciscoDuo *a3sapi.MTLSSourceCiscoDuo
+	if source.CiscoDuoApplicationCredentials != nil {
+		ciscoDuo = &a3sapi.MTLSSourceCiscoDuo{}
+	}
+
 	var entra *a3sapi.MTLSSourceEntra
 	if source.EntraApplicationCredentials != nil {
 		entra = &a3sapi.MTLSSourceEntra{}
@@ -2171,6 +2288,7 @@ func ValidateMTLSSource(source *MTLSSource) error {
 
 	return a3sapi.ValidateMTLSSource(&a3sapi.MTLSSource{
 		ClaimsRetrievalMode:                   a3sapi.MTLSSourceClaimsRetrievalModeValue(source.ClaimsRetrievalMode),
+		CiscoDuoApplicationCredentials:        ciscoDuo,
 		EntraApplicationCredentials:           entra,
 		GoogleWorkspaceApplicationCredentials: googleWorkspace,
 		OktaApplicationCredentials:            okta,
@@ -2377,16 +2495,97 @@ func ValidateRegexp(attribute string, r string) error {
 	return nil
 }
 
-// ValidateRegexps validates the given input is a valid list of re2 regex.
+// ValidateRegexps validates the regular expressions of a custom data type
+// as the pipelines run them: RE2, with one capturing group at most.
 func ValidateRegexps(attribute string, r []string) error {
 
-	if len(r) == 0 {
-		return nil
+	for i, rr := range r {
+
+		re, err := regexp.Compile(rr)
+		if err != nil {
+			return makeErr(attribute, fmt.Sprintf("Regular expression %d is not valid: %s", i+1, explainRegexpError(err)))
+		}
+
+		if n := re.NumSubexp(); n > 1 {
+			return makeErr(attribute, fmt.Sprintf("Regular expression %d has %d capturing groups, at most 1 is allowed: make the others non-capturing with (?:...)", i+1, n))
+		}
 	}
 
-	for i, rr := range r {
-		if err := ValidateRegexp(attribute, rr); err != nil {
-			return makeErr(attribute, fmt.Sprintf("Invalid item %d: %s", i, err))
+	return nil
+}
+
+// explainRegexpError says what RE2 refused, naming the Perl features it
+// does not have.
+func explainRegexpError(err error) string {
+
+	var serr *syntax.Error
+	if !errors.As(err, &serr) {
+		return err.Error()
+	}
+
+	switch {
+	case serr.Code == syntax.ErrInvalidEscape && len(serr.Expr) == 2 && serr.Expr[1] >= '1' && serr.Expr[1] <= '9':
+		return fmt.Sprintf("backreferences like %s are not supported", serr.Expr)
+	case serr.Code == syntax.ErrInvalidPerlOp && (strings.HasPrefix(serr.Expr, "(?=") || strings.HasPrefix(serr.Expr, "(?!") || strings.HasPrefix(serr.Expr, "(?<")):
+		return "lookarounds like (?=...) and (?<=...) are not supported"
+	default:
+		return fmt.Sprintf("%s: `%s`", serr.Code, serr.Expr)
+	}
+}
+
+// Limits on the texts of a corpus, tighter than the analysis pipelines' own so
+// a custom data type stays a few MB at worst.
+const (
+	corpusAnchorsMax         = 500
+	corpusProbesMax          = 200
+	trafficSampleMessagesMax = 2000
+	corpusTextMaxChars       = 1000
+
+	// trafficSampleCharsMax bounds what an evaluation embeds before the
+	// pipelines cache it: about 15s on a laptop, under their 30s timeout.
+	trafficSampleCharsMax = 300_000
+)
+
+// ValidateCorpusAnchors validates the anchors of a corpus.
+func ValidateCorpusAnchors(attribute string, anchors []string) error {
+	return validateCorpusTexts(attribute, anchors, corpusAnchorsMax)
+}
+
+// ValidateCorpusProbes validates a list of messages a corpus is evaluated against.
+func ValidateCorpusProbes(attribute string, probes []string) error {
+	return validateCorpusTexts(attribute, probes, corpusProbesMax)
+}
+
+// ValidateTrafficSampleMessages validates the messages of a traffic sample.
+func ValidateTrafficSampleMessages(attribute string, messages []string) error {
+
+	if err := validateCorpusTexts(attribute, messages, trafficSampleMessagesMax); err != nil {
+		return err
+	}
+
+	var total int
+	for _, m := range messages {
+		total += utf8.RuneCountInString(m)
+	}
+	if total > trafficSampleCharsMax {
+		return makeErr(attribute, fmt.Sprintf("Too much text: %d characters, at most %d lines or %d characters, whichever comes first", total, trafficSampleMessagesMax, trafficSampleCharsMax))
+	}
+
+	return nil
+}
+
+func validateCorpusTexts(attribute string, texts []string, maxItems int) error {
+
+	if len(texts) > maxItems {
+		return makeErr(attribute, fmt.Sprintf("Too many entries: %d, at most %d", len(texts), maxItems))
+	}
+
+	for i, t := range texts {
+		if strings.TrimSpace(t) == "" {
+			return makeErr(attribute, fmt.Sprintf("Entry %d is empty", i))
+		}
+		if n := utf8.RuneCountInString(t); n > corpusTextMaxChars {
+			return makeErr(attribute, fmt.Sprintf("Entry %d is too long: %d characters, at most %d", i, n, corpusTextMaxChars))
 		}
 	}
 
@@ -2501,6 +2700,18 @@ func ValidatePorts(attribute string, ports []int) error {
 	}
 
 	return nil
+}
+
+// SplitAIDomain splits an AIDomain predicate value into its host and its path,
+// without trailing slash. The path is empty when the value is a bare host.
+func SplitAIDomain(value string) (host string, path string) {
+
+	host, path, found := strings.Cut(value, "/")
+	if !found {
+		return host, ""
+	}
+
+	return host, strings.TrimRight("/"+path, "/")
 }
 
 // ValidateDomain checks that string sent is actually a domain.
@@ -3013,9 +3224,6 @@ func ValidateDestination(destination *Destination) error {
 
 // ValidateDNSReport validates the DNS report object.
 func ValidateDNSReport(dnsReport *DNSReport) error {
-	if dnsReport.Action == DNSReportActionAllow && len(dnsReport.IPAddresses) == 0 && len(dnsReport.CNAMEs) == 0 {
-		return makeErr("ipAddresses", "At least one IP address or one CNAME must be provided when action is 'Allow'")
-	}
 	if err := validateWorkloadHash(dnsReport.WorkloadGroupLabel, dnsReport.WorkloadGroupHash, "workloadGroupHash", false); err != nil {
 		return err
 	}
@@ -3575,5 +3783,50 @@ func ValidateDataSinkRun(run *DataSinkRun) error {
 	if !run.EndTime.IsZero() && run.EndTime.Before(run.StartTime) {
 		return makeErr("endTime", "Attribute 'endTime' cannot be before 'startTime'")
 	}
+	return nil
+}
+
+// maxMaskingKeepCharacters bounds the characters a masking policy keeps.
+const maxMaskingKeepCharacters = 64
+
+// ValidateMaskingPolicy validates the given MaskingPolicy.
+func ValidateMaskingPolicy(policy *MaskingPolicy) error {
+
+	// One byte, so a masked value keeps its byte length.
+	if len(policy.Character) != 1 || policy.Character[0] < '!' || policy.Character[0] > '~' {
+		return makeErr("character", fmt.Sprintf("must be one printable ASCII character, got '%s'", policy.Character))
+	}
+
+	if policy.First < 0 {
+		return makeErr("first", "must not be negative")
+	}
+
+	if policy.Last < 0 {
+		return makeErr("last", "must not be negative")
+	}
+
+	if policy.Mode == MaskingPolicyModeHide && policy.First == 0 && policy.Last == 0 {
+		return makeErr("first", "Hide masks nothing when first and last are both 0")
+	}
+
+	if !utf8.ValidString(policy.KeepCharacters) {
+		return makeErr("keepCharacters", "must be valid UTF-8")
+	}
+
+	if utf8.RuneCountInString(policy.KeepCharacters) > maxMaskingKeepCharacters {
+		return makeErr("keepCharacters", fmt.Sprintf("must not be longer than %d characters", maxMaskingKeepCharacters))
+	}
+
+	seen := make(map[string]struct{}, len(policy.Detections))
+	for _, d := range policy.Detections {
+		if strings.TrimSpace(d) == "" {
+			return makeErr("detections", "must not contain an empty name")
+		}
+		if _, ok := seen[d]; ok {
+			return makeErr("detections", fmt.Sprintf("'%s' is listed twice", d))
+		}
+		seen[d] = struct{}{}
+	}
+
 	return nil
 }

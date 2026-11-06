@@ -56,10 +56,12 @@
     },
     "hosts": {
       "$friendlyName": "Hosts",
-      "$required": true,
-      "description": "The list of hosts that this listener expects to receive traffic for.",
+      "description": "The list of hosts that this provider expects to receive traffic for. At least one of hosts, models or model prefixes must be set. Hosts are never inherited from the referenced provider.",
       "items": {
-        "type": "string"
+        "type": [
+          "string",
+          "null"
+        ]
       },
       "title": "hosts",
       "type": "array"
@@ -115,11 +117,21 @@
       "title": "models",
       "type": "array"
     },
+    "providerRef": {
+      "$friendlyName": "Provider Reference",
+      "description": "The name of an existing provider to use as the base of this provider. The referenced provider is resolved like any other provider of the namespace. Hosts, models, model prefixes, category and provider type always come from this app component provider. MCP URL, trusted CA, description, error transformer and lib replace the ones of the referenced provider when set, and upstream unsecure is enabled when set on either. Extractors, mappers, injectors and tools are appended to the ones of the referenced provider, whose own host restrictions are dropped. If the referenced provider cannot be found, this app component provider is not rendered.",
+      "title": "providerRef",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "providerType": {
       "$defaultValue": "LLM",
       "$friendlyName": "Provider Type",
       "description": "The type of the provider.",
       "enum": [
+        "Agent",
         "LLM",
         "MCPServer"
       ],
@@ -154,8 +166,7 @@
     }
   },
   "required": [
-    "category",
-    "hosts"
+    "category"
   ],
   "title": "AppComponentProvider",
   "type": "object"

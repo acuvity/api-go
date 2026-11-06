@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Scale",
+  "$friendlyNamePlural": "Corpus Evaluation Scales",
+  "$modelName": "CorpusEvaluationScale",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationscales",
+  "$modelRestName": "corpusevaluationscale",
+  "additionalProperties": false,
+  "description": "What a score means for a set of anchors.",
+  "properties": {
+    "bestPossibleScore": {
+      "$friendlyName": "Best Possible Score",
+      "description": "The highest score anything can reach against these anchors, typically about 0.8.",
+      "title": "bestPossibleScore",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "trafficSamples": {
+      "$friendlyName": "Traffic Samples",
+      "description": "How many ordinary messages the scores are measured on.",
+      "title": "trafficSamples",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "typicalTrafficScore": {
+      "$friendlyName": "Typical Traffic Score",
+      "description": "What a middling ordinary message scores.",
+      "title": "typicalTrafficScore",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationScale",
+  "type": "object"
+}

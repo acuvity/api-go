@@ -1024,6 +1024,28 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[CorpusEvaluationIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
+	relationshipsRegistry[CorpusIngestionIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "jobID",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[CustomDataTypeIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -1059,6 +1081,18 @@ func init() {
 					},
 				},
 			},
+		},
+	}
+
+	relationshipsRegistry[CustomDataTypeActivationIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"customdatatype": {},
+		},
+	}
+
+	relationshipsRegistry[CustomDataTypeEvaluationIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"customdatatype": {},
 		},
 	}
 
@@ -1313,29 +1347,7 @@ func init() {
 
 	relationshipsRegistry[DigestReportIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
-			"root": {
-				RequiredParameters: elemental.NewParametersRequirement(
-					[][][]string{
-						{
-							{
-								"tw",
-								"rcpt",
-							},
-						},
-					},
-				),
-				Parameters: []elemental.ParameterDefinition{
-					{
-						Name:     "rcpt",
-						Type:     "string",
-						Multiple: true,
-					},
-					{
-						Name: "tw",
-						Type: "duration",
-					},
-				},
-			},
+			"root": {},
 		},
 		Retrieve: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -1523,6 +1535,9 @@ func init() {
 	}
 
 	relationshipsRegistry[FindingIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
 		Update: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -1996,6 +2011,32 @@ func init() {
 
 	relationshipsRegistry[MCPToolIdentity] = &elemental.Relationship{}
 
+	relationshipsRegistry[MCPToolShadowFindingIdentity] = &elemental.Relationship{
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[MCPToolSnapshotIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
@@ -2036,6 +2077,44 @@ func init() {
 	}
 
 	relationshipsRegistry[MTLSSourceIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[MaskingPolicyIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -2412,6 +2491,10 @@ func init() {
 						Type: "boolean",
 					},
 					{
+						Name: "slim",
+						Type: "boolean",
+					},
+					{
 						Name: "q",
 						Type: "string",
 					},
@@ -2423,6 +2506,10 @@ func init() {
 				Parameters: []elemental.ParameterDefinition{
 					{
 						Name: "icon",
+						Type: "boolean",
+					},
+					{
+						Name: "slim",
 						Type: "boolean",
 					},
 					{
@@ -2847,6 +2934,9 @@ func init() {
 	}
 
 	relationshipsRegistry[RiskFindingIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
 		Update: map[string]*elemental.RelationshipInfo{
 			"root": {},
 		},
@@ -3044,6 +3134,12 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[SinkCheckIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+	}
+
 	relationshipsRegistry[SinkDatabahnIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[SinkEmailIdentity] = &elemental.Relationship{}
@@ -3055,6 +3151,8 @@ func init() {
 	relationshipsRegistry[SinkSlackIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[SinkSplunkIdentity] = &elemental.Relationship{}
+
+	relationshipsRegistry[SinkWebhookIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[SlugIdentity] = &elemental.Relationship{}
 
@@ -3164,6 +3262,44 @@ func init() {
 	relationshipsRegistry[TraceTagValuesIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
+		},
+	}
+
+	relationshipsRegistry[TrafficSampleIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
 		},
 	}
 

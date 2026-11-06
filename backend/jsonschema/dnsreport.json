@@ -152,6 +152,15 @@
         "null"
       ]
     },
+    "queryTypes": {
+      "$friendlyName": "Query Types",
+      "description": "The number of times this domain was queried for each DNS record type.",
+      "items": {
+        "type": "integer"
+      },
+      "title": "queryTypes",
+      "type": "object"
+    },
     "reason": {
       "$friendlyName": "Reason",
       "description": "The reason for the action.",

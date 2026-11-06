@@ -48,6 +48,15 @@
       ],
       "title": "method"
     },
+    "nativeXHRSubclass": {
+      "$friendlyName": "Native XHR Subclass",
+      "description": "If this is true, XHR requests are patched with a subclass of the browser's XMLHttpRequest instead of a wrapper object. Some providers stop working when their scripts get the wrapper, which is not a real XMLHttpRequest.",
+      "title": "nativeXHRSubclass",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "path": {
       "$friendlyName": "Path",
       "$required": true,

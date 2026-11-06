@@ -50,6 +50,11 @@ type Injector struct {
 	// The method to match.
 	Method InjectorMethodValue `json:"method" msgpack:"method" bson:"method" mapstructure:"method,omitempty"`
 
+	// If this is true, XHR requests are patched with a subclass of the browser's
+	// XMLHttpRequest instead of a wrapper object. Some providers stop working when
+	// their scripts get the wrapper, which is not a real XMLHttpRequest.
+	NativeXHRSubclass bool `json:"nativeXHRSubclass,omitempty" msgpack:"nativeXHRSubclass,omitempty" bson:"nativexhrsubclass,omitempty" mapstructure:"nativeXHRSubclass,omitempty"`
+
 	// A regular expression to match a URL path to log.
 	Path string `json:"path" msgpack:"path" bson:"path" mapstructure:"path,omitempty"`
 
@@ -96,6 +101,7 @@ func (o *Injector) GetBSON() (any, error) {
 	s.DelayXHRPatching = o.DelayXHRPatching
 	s.Hosts = o.Hosts
 	s.Method = o.Method
+	s.NativeXHRSubclass = o.NativeXHRSubclass
 	s.Path = o.Path
 	s.ReplaceBody = o.ReplaceBody
 
@@ -118,6 +124,7 @@ func (o *Injector) SetBSON(raw bson.Raw) error {
 	o.DelayXHRPatching = s.DelayXHRPatching
 	o.Hosts = s.Hosts
 	o.Method = s.Method
+	o.NativeXHRSubclass = s.NativeXHRSubclass
 	o.Path = s.Path
 	o.ReplaceBody = s.ReplaceBody
 
@@ -244,6 +251,8 @@ func (o *Injector) ValueForAttribute(name string) any {
 		return o.Hosts
 	case "method":
 		return o.Method
+	case "nativeXHRSubclass":
+		return o.NativeXHRSubclass
 	case "path":
 		return o.Path
 	case "replaceBody":
@@ -289,6 +298,18 @@ to discriminate which logger to use.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "enum",
+	},
+	"NativeXHRSubclass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "nativexhrsubclass",
+		ConvertedName:  "NativeXHRSubclass",
+		Description: `If this is true, XHR requests are patched with a subclass of the browser's
+XMLHttpRequest instead of a wrapper object. Some providers stop working when
+their scripts get the wrapper, which is not a real XMLHttpRequest.`,
+		Exposed: true,
+		Name:    "nativeXHRSubclass",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Path": {
 		AllowedChoices: []string{},
@@ -355,6 +376,18 @@ to discriminate which logger to use.`,
 		SubType:        "string",
 		Type:           "enum",
 	},
+	"nativexhrsubclass": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "nativexhrsubclass",
+		ConvertedName:  "NativeXHRSubclass",
+		Description: `If this is true, XHR requests are patched with a subclass of the browser's
+XMLHttpRequest instead of a wrapper object. Some providers stop working when
+their scripts get the wrapper, which is not a real XMLHttpRequest.`,
+		Exposed: true,
+		Name:    "nativeXHRSubclass",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"path": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "path",
@@ -384,9 +417,10 @@ avoid capturing popup input.`,
 }
 
 type mongoAttributesInjector struct {
-	DelayXHRPatching bool                `bson:"delayxhrpatching,omitempty"`
-	Hosts            []string            `bson:"hosts,omitempty"`
-	Method           InjectorMethodValue `bson:"method"`
-	Path             string              `bson:"path"`
-	ReplaceBody      bool                `bson:"replacebody,omitempty"`
+	DelayXHRPatching  bool                `bson:"delayxhrpatching,omitempty"`
+	Hosts             []string            `bson:"hosts,omitempty"`
+	Method            InjectorMethodValue `bson:"method"`
+	NativeXHRSubclass bool                `bson:"nativexhrsubclass,omitempty"`
+	Path              string              `bson:"path"`
+	ReplaceBody       bool                `bson:"replacebody,omitempty"`
 }

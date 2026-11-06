@@ -15,6 +15,9 @@ import (
 type AIGatewayConfConnectorTypeValue string
 
 const (
+	// AIGatewayConfConnectorTypeA2A represents the value A2A.
+	AIGatewayConfConnectorTypeA2A AIGatewayConfConnectorTypeValue = "A2A"
+
 	// AIGatewayConfConnectorTypeLLM represents the value LLM.
 	AIGatewayConfConnectorTypeLLM AIGatewayConfConnectorTypeValue = "LLM"
 
@@ -261,7 +264,7 @@ func (o *AIGatewayConfConnector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"MCP", "LLM", "WebhookIntegration"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"A2A", "MCP", "LLM", "WebhookIntegration"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -451,7 +454,7 @@ publicKeyName.`,
 		Type:           "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
 		ConvertedName:  "Type",
 		Description:    `The type of the connector.`,
 		Exposed:        true,
@@ -582,7 +585,7 @@ publicKeyName.`,
 		Type:           "string",
 	},
 	"type": {
-		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
 		ConvertedName:  "Type",
 		Description:    `The type of the connector.`,
 		Exposed:        true,

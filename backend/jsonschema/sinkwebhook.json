@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Webhook",
+  "$friendlyNamePlural": "Sink Webhooks",
+  "$modelName": "SinkWebhook",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkwebhook",
+  "$modelRestName": "sinkwebhook",
+  "additionalProperties": false,
+  "description": "Additional configuration for sending an alert to a generic webhook. The alert is sent as an HTTP POST, with a JSON body built from a template. The webhook URL and the header values are secrets: they are write only and are never returned.",
+  "properties": {
+    "body": {
+      "$friendlyName": "Body",
+      "$required": true,
+      "description": "The JSON body to send, as a Go template. It must render valid JSON of at most 64 KiB. Variables are written like {{.alert.severity}}. Their values are escaped for the inside of a JSON string, so put them inside quotes; only .alert.counter and the event .attempts are numbers that can be used without quotes.  The alert variables are .alert.id, .alert.name, .alert.friendlyName, .alert.severity, .alert.message, .alert.url, .alert.counter, .alert.start, .alert.end and .alert.triggerCriteria. The platform variable is .platform.host.  .events lists up to 10 events, for {{range .events}}...{{end}}. Every event has .type (User, App or DataSink), .timestamp, .provider, .teams, .user, .name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind, .runID, .backfillID, .attempts, .reason and .description. The ones that do not apply to the type of the event are empty. Inside a range, use $.alert or $.platform to reach the other variables.  A range can only iterate over a field, such as .events or .teams, and can be nested twice. The template and block actions are not supported.",
+      "maxLength": 16384,
+      "title": "body",
+      "type": "string"
+    },
+    "headers": {
+      "$friendlyName": "Headers",
+      "description": "The HTTP headers to send with the request. Content-Type defaults to application/json when not set.",
+      "items": {
+        "$ref": "sinkwebhookheader.json"
+      },
+      "title": "headers",
+      "type": "array"
+    },
+    "webhookURL": {
+      "$friendlyName": "Webhook URL",
+      "$required": true,
+      "description": "The URL to send the alert to.",
+      "title": "webhookURL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "body",
+    "webhookURL"
+  ],
+  "title": "SinkWebhook",
+  "type": "object"
+}

@@ -30,6 +30,9 @@ type Destination struct {
 	// The list of labels attached to the application request destination.
 	Labels []string `json:"labels,omitempty" msgpack:"labels,omitempty" bson:"labels,omitempty" mapstructure:"labels,omitempty"`
 
+	// The path of the request, without query.
+	Path string `json:"path,omitempty" msgpack:"path,omitempty" bson:"path,omitempty" mapstructure:"path,omitempty"`
+
 	// The hash of the workload group this application belongs to.
 	WorkloadGroupHash string `json:"workloadGroupHash,omitempty" msgpack:"workloadGroupHash,omitempty" bson:"workloadgrouphash,omitempty" mapstructure:"workloadGroupHash,omitempty"`
 
@@ -80,6 +83,7 @@ func (o *Destination) GetBSON() (any, error) {
 	s.Host = o.Host
 	s.Ip = o.Ip
 	s.Labels = o.Labels
+	s.Path = o.Path
 	s.WorkloadGroupHash = o.WorkloadGroupHash
 	s.WorkloadGroupLabel = o.WorkloadGroupLabel
 	s.WorkloadGroupSetHash = o.WorkloadGroupSetHash
@@ -106,6 +110,7 @@ func (o *Destination) SetBSON(raw bson.Raw) error {
 	o.Host = s.Host
 	o.Ip = s.Ip
 	o.Labels = s.Labels
+	o.Path = s.Path
 	o.WorkloadGroupHash = s.WorkloadGroupHash
 	o.WorkloadGroupLabel = s.WorkloadGroupLabel
 	o.WorkloadGroupSetHash = s.WorkloadGroupSetHash
@@ -225,6 +230,8 @@ func (o *Destination) ValueForAttribute(name string) any {
 		return o.Ip
 	case "labels":
 		return o.Labels
+	case "path":
+		return o.Path
 	case "workloadGroupHash":
 		return o.WorkloadGroupHash
 	case "workloadGroupLabel":
@@ -292,6 +299,16 @@ resolved provider or app component declares a host of its own.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `The path of the request, without query.`,
+		Exposed:        true,
+		Name:           "path",
+		Stored:         true,
+		Type:           "string",
 	},
 	"WorkloadGroupHash": {
 		AllowedChoices: []string{},
@@ -390,6 +407,16 @@ resolved provider or app component declares a host of its own.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"path": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "path",
+		ConvertedName:  "Path",
+		Description:    `The path of the request, without query.`,
+		Exposed:        true,
+		Name:           "path",
+		Stored:         true,
+		Type:           "string",
+	},
 	"workloadgrouphash": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "workloadgrouphash",
@@ -438,6 +465,7 @@ type mongoAttributesDestination struct {
 	Host                  string   `bson:"host,omitempty"`
 	Ip                    string   `bson:"ip,omitempty"`
 	Labels                []string `bson:"labels,omitempty"`
+	Path                  string   `bson:"path,omitempty"`
 	WorkloadGroupHash     string   `bson:"workloadgrouphash,omitempty"`
 	WorkloadGroupLabel    string   `bson:"workloadgrouplabel,omitempty"`
 	WorkloadGroupSetHash  string   `bson:"workloadgroupsethash,omitempty"`

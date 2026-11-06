@@ -13,6 +13,23 @@ import (
 	"go.acuvity.ai/elemental"
 )
 
+// CustomDataTypeStatusValue represents the possible values for attribute "status".
+type CustomDataTypeStatusValue string
+
+const (
+	// CustomDataTypeStatusActivating represents the value Activating.
+	CustomDataTypeStatusActivating CustomDataTypeStatusValue = "Activating"
+
+	// CustomDataTypeStatusActive represents the value Active.
+	CustomDataTypeStatusActive CustomDataTypeStatusValue = "Active"
+
+	// CustomDataTypeStatusDraft represents the value Draft.
+	CustomDataTypeStatusDraft CustomDataTypeStatusValue = "Draft"
+
+	// CustomDataTypeStatusStuck represents the value Stuck.
+	CustomDataTypeStatusStuck CustomDataTypeStatusValue = "Stuck"
+)
+
 // CustomDataTypeIdentity represents the Identity of the object.
 var CustomDataTypeIdentity = elemental.Identity{
 	Name:     "customdatatype",
@@ -88,18 +105,29 @@ type CustomDataType struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Anchors are short, natural-language example sentences that define the intent you
-	// want to detect. The system learns from these examples and flags text with
-	// similar meaning even if worded differently. Use 3–5 realistic, varied sentences
-	// about one clear concept, and avoid near-duplicates. Validations will ensure
-	// anchor quality.
-	Anchors []string `json:"anchors" msgpack:"anchors" bson:"anchors" mapstructure:"anchors,omitempty"`
+	// The activation in progress, if any.
+	Activation *CustomDataTypeActivationState `json:"activation,omitempty" msgpack:"activation,omitempty" bson:"activation,omitempty" mapstructure:"activation,omitempty"`
+
+	// Legacy example sentences, accepted on creation and import only. They become
+	// the first version of the corpus, activated without evaluation. Author a
+	// corpus in `draft` instead.
+	Anchors []string `json:"anchors,omitempty" msgpack:"anchors,omitempty" bson:"anchors,omitempty" mapstructure:"anchors,omitempty"`
+
+	// The live corpus, the one used for detection.
+	Corpus *CustomDataTypeCorpus `json:"corpus,omitempty" msgpack:"corpus,omitempty" bson:"corpus,omitempty" mapstructure:"corpus,omitempty"`
 
 	// Creation date of the object.
 	CreateTime time.Time `json:"createTime" msgpack:"createTime" bson:"createtime" mapstructure:"createTime,omitempty"`
 
 	// Description of the custom data type.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
+
+	// Unpublished changes. Once the custom data type has a corpus, every change to
+	// `matches` or to the corpus is made here and goes live on activation.
+	Draft *CustomDataTypeDraft `json:"draft,omitempty" msgpack:"draft,omitempty" bson:"draft,omitempty" mapstructure:"draft,omitempty"`
+
+	// What the corpus is evaluated against. Never used for detection.
+	EvaluationInputs *CustomDataTypeEvaluationInputs `json:"evaluationInputs,omitempty" msgpack:"evaluationInputs,omitempty" bson:"evaluationinputs,omitempty" mapstructure:"evaluationInputs,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
@@ -111,14 +139,25 @@ type CustomDataType struct {
 	// same import operation.
 	ImportLabel string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Where each corpus revision stands in each region.
+	Ingestions []*CustomDataTypeIngestion `json:"ingestions,omitempty" msgpack:"ingestions,omitempty" bson:"ingestions,omitempty" mapstructure:"ingestions,omitempty"`
+
+	// The most recent evaluation of the draft.
+	LastEvaluation *CustomDataTypeEvaluationResult `json:"lastEvaluation,omitempty" msgpack:"lastEvaluation,omitempty" bson:"lastevaluation,omitempty" mapstructure:"lastEvaluation,omitempty"`
+
+	// Whether the last evaluation gives the live version different Medium and High
+	// confidence thresholds than the ones it was activated with. Activating it again
+	// applies them. Computed on read, not stored.
+	LevelsChanged bool `json:"levelsChanged,omitempty" msgpack:"levelsChanged,omitempty" bson:"-" mapstructure:"levelsChanged,omitempty"`
+
 	// A list of RE2 regular expressions used for data detection. Each expression can
 	// include zero or one capturing group. If no capturing group is present, detection
 	// positions will be determined based on the entire captured portion of the data.
 	// If a single capturing group is included, the detection positions will correspond
-	// to the part defined by that group. However, if more than one capturing group is
-	// found, the system will return a validation error. Additionally, extra
-	// validations are performed to ensure that the regular expressions are not overly
-	// complex, preventing any negative impact on detection engine performance.
+	// to the part defined by that group. More than one capturing group is refused on
+	// save. The analysis pipelines then validate them, refusing those too costly to
+	// run, and they go live only once validated. Once the custom data type has a
+	// corpus, change them in `draft`.
 	Matches []string `json:"matches" msgpack:"matches" bson:"matches" mapstructure:"matches,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
@@ -128,8 +167,20 @@ type CustomDataType struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// When the corpus reconciler next looks at this custom data type.
+	NextReconcileTime time.Time `json:"-" msgpack:"-" bson:"nextreconciletime,omitempty" mapstructure:"-,omitempty"`
+
+	// The version live before the current one, kept for rollback.
+	Previous *CustomDataTypeSnapshot `json:"previous,omitempty" msgpack:"previous,omitempty" bson:"previous,omitempty" mapstructure:"previous,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
+
+	// Whether the custom data type detects. `Draft` has never been activated,
+	// `Activating` is being rolled out to every region, `Stuck` has a region that
+	// keeps failing while the previous version still detects, and `Active`
+	// detects everywhere.
+	Status CustomDataTypeStatusValue `json:"status" msgpack:"status" bson:"status" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
@@ -151,6 +202,7 @@ func NewCustomDataType() *CustomDataType {
 		Anchors:      []string{},
 		Matches:      []string{},
 		Propagate:    true,
+		Status:       CustomDataTypeStatusActive,
 	}
 }
 
@@ -185,16 +237,25 @@ func (o *CustomDataType) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.Activation = o.Activation
 	s.Anchors = o.Anchors
+	s.Corpus = o.Corpus
 	s.CreateTime = o.CreateTime
 	s.Description = o.Description
+	s.Draft = o.Draft
+	s.EvaluationInputs = o.EvaluationInputs
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
+	s.Ingestions = o.Ingestions
+	s.LastEvaluation = o.LastEvaluation
 	s.Matches = o.Matches
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.NextReconcileTime = o.NextReconcileTime
+	s.Previous = o.Previous
 	s.Propagate = o.Propagate
+	s.Status = o.Status
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -216,16 +277,25 @@ func (o *CustomDataType) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.Activation = s.Activation
 	o.Anchors = s.Anchors
+	o.Corpus = s.Corpus
 	o.CreateTime = s.CreateTime
 	o.Description = s.Description
+	o.Draft = s.Draft
+	o.EvaluationInputs = s.EvaluationInputs
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
+	o.Ingestions = s.Ingestions
+	o.LastEvaluation = s.LastEvaluation
 	o.Matches = s.Matches
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.NextReconcileTime = s.NextReconcileTime
+	o.Previous = s.Previous
 	o.Propagate = s.Propagate
+	o.Status = s.Status
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -365,20 +435,30 @@ func (o *CustomDataType) ToSparse(fields ...string) elemental.SparseIdentifiable
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseCustomDataType{
-			ID:           &o.ID,
-			Anchors:      &o.Anchors,
-			CreateTime:   &o.CreateTime,
-			Description:  &o.Description,
-			FriendlyName: &o.FriendlyName,
-			ImportHash:   &o.ImportHash,
-			ImportLabel:  &o.ImportLabel,
-			Matches:      &o.Matches,
-			Name:         &o.Name,
-			Namespace:    &o.Namespace,
-			Propagate:    &o.Propagate,
-			UpdateTime:   &o.UpdateTime,
-			ZHash:        &o.ZHash,
-			Zone:         &o.Zone,
+			ID:                &o.ID,
+			Activation:        o.Activation,
+			Anchors:           &o.Anchors,
+			Corpus:            o.Corpus,
+			CreateTime:        &o.CreateTime,
+			Description:       &o.Description,
+			Draft:             o.Draft,
+			EvaluationInputs:  o.EvaluationInputs,
+			FriendlyName:      &o.FriendlyName,
+			ImportHash:        &o.ImportHash,
+			ImportLabel:       &o.ImportLabel,
+			Ingestions:        &o.Ingestions,
+			LastEvaluation:    o.LastEvaluation,
+			LevelsChanged:     &o.LevelsChanged,
+			Matches:           &o.Matches,
+			Name:              &o.Name,
+			Namespace:         &o.Namespace,
+			NextReconcileTime: &o.NextReconcileTime,
+			Previous:          o.Previous,
+			Propagate:         &o.Propagate,
+			Status:            &o.Status,
+			UpdateTime:        &o.UpdateTime,
+			ZHash:             &o.ZHash,
+			Zone:              &o.Zone,
 		}
 	}
 
@@ -387,26 +467,46 @@ func (o *CustomDataType) ToSparse(fields ...string) elemental.SparseIdentifiable
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "activation":
+			sp.Activation = o.Activation
 		case "anchors":
 			sp.Anchors = &(o.Anchors)
+		case "corpus":
+			sp.Corpus = o.Corpus
 		case "createTime":
 			sp.CreateTime = &(o.CreateTime)
 		case "description":
 			sp.Description = &(o.Description)
+		case "draft":
+			sp.Draft = o.Draft
+		case "evaluationInputs":
+			sp.EvaluationInputs = o.EvaluationInputs
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
 			sp.ImportHash = &(o.ImportHash)
 		case "importLabel":
 			sp.ImportLabel = &(o.ImportLabel)
+		case "ingestions":
+			sp.Ingestions = &(o.Ingestions)
+		case "lastEvaluation":
+			sp.LastEvaluation = o.LastEvaluation
+		case "levelsChanged":
+			sp.LevelsChanged = &(o.LevelsChanged)
 		case "matches":
 			sp.Matches = &(o.Matches)
 		case "name":
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "nextReconcileTime":
+			sp.NextReconcileTime = &(o.NextReconcileTime)
+		case "previous":
+			sp.Previous = o.Previous
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "status":
+			sp.Status = &(o.Status)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
 		case "zHash":
@@ -429,14 +529,26 @@ func (o *CustomDataType) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ID != nil {
 		o.ID = *so.ID
 	}
+	if so.Activation != nil {
+		o.Activation = so.Activation
+	}
 	if so.Anchors != nil {
 		o.Anchors = *so.Anchors
+	}
+	if so.Corpus != nil {
+		o.Corpus = so.Corpus
 	}
 	if so.CreateTime != nil {
 		o.CreateTime = *so.CreateTime
 	}
 	if so.Description != nil {
 		o.Description = *so.Description
+	}
+	if so.Draft != nil {
+		o.Draft = so.Draft
+	}
+	if so.EvaluationInputs != nil {
+		o.EvaluationInputs = so.EvaluationInputs
 	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
@@ -447,6 +559,15 @@ func (o *CustomDataType) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ImportLabel != nil {
 		o.ImportLabel = *so.ImportLabel
 	}
+	if so.Ingestions != nil {
+		o.Ingestions = *so.Ingestions
+	}
+	if so.LastEvaluation != nil {
+		o.LastEvaluation = so.LastEvaluation
+	}
+	if so.LevelsChanged != nil {
+		o.LevelsChanged = *so.LevelsChanged
+	}
 	if so.Matches != nil {
 		o.Matches = *so.Matches
 	}
@@ -456,8 +577,17 @@ func (o *CustomDataType) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
 	}
+	if so.NextReconcileTime != nil {
+		o.NextReconcileTime = *so.NextReconcileTime
+	}
+	if so.Previous != nil {
+		o.Previous = so.Previous
+	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
+	}
+	if so.Status != nil {
+		o.Status = *so.Status
 	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
@@ -473,11 +603,101 @@ func (o *CustomDataType) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *CustomDataType) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Activation != nil {
+		if err := o.Activation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Activation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Corpus != nil {
+		if err := o.Corpus.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Corpus' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Draft != nil {
+		if err := o.Draft.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Draft' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EvaluationInputs != nil {
+		if err := o.EvaluationInputs.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EvaluationInputs' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Ingestions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Ingestions' for 'CustomDataType' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.LastEvaluation != nil {
+		if err := o.LastEvaluation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'LastEvaluation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Previous != nil {
+		if err := o.Previous.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Previous' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *CustomDataType) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Activation != nil {
+		if err := o.Activation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Activation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Corpus != nil {
+		if err := o.Corpus.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Corpus' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Draft != nil {
+		if err := o.Draft.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Draft' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EvaluationInputs != nil {
+		if err := o.EvaluationInputs.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EvaluationInputs' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Ingestions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Ingestions' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.LastEvaluation != nil {
+		if err := o.LastEvaluation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'LastEvaluation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Previous != nil {
+		if err := o.Previous.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Previous' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -514,6 +734,38 @@ func (o *CustomDataType) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.Activation != nil {
+		if err := o.Activation.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "activation")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := ValidateCorpusAnchors("anchors", o.Anchors); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.Corpus != nil {
+		if err := o.Corpus.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "corpus")
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.Draft != nil {
+		if err := o.Draft.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "draft")
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.EvaluationInputs != nil {
+		if err := o.EvaluationInputs.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "evaluationInputs")
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := elemental.ValidateRequiredString("friendlyName", o.FriendlyName); err != nil {
 		requiredErrors = requiredErrors.Append(err)
 	}
@@ -525,11 +777,39 @@ func (o *CustomDataType) Validate() error {
 		errors = errors.Append(err)
 	}
 
+	for i, sub := range o.Ingestions {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "ingestions", i))
+			errors = errors.Append(err)
+		}
+	}
+
+	if o.LastEvaluation != nil {
+		if err := o.LastEvaluation.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "lastEvaluation")
+			errors = errors.Append(err)
+		}
+	}
+
 	if err := ValidateRegexps("matches", o.Matches); err != nil {
 		errors = errors.Append(err)
 	}
 
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	if o.Previous != nil {
+		if err := o.Previous.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "previous")
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := elemental.ValidateStringInList("status", string(o.Status), []string{"Draft", "Activating", "Stuck", "Active"}, true); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -569,26 +849,46 @@ func (o *CustomDataType) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "activation":
+		return o.Activation
 	case "anchors":
 		return o.Anchors
+	case "corpus":
+		return o.Corpus
 	case "createTime":
 		return o.CreateTime
 	case "description":
 		return o.Description
+	case "draft":
+		return o.Draft
+	case "evaluationInputs":
+		return o.EvaluationInputs
 	case "friendlyName":
 		return o.FriendlyName
 	case "importHash":
 		return o.ImportHash
 	case "importLabel":
 		return o.ImportLabel
+	case "ingestions":
+		return o.Ingestions
+	case "lastEvaluation":
+		return o.LastEvaluation
+	case "levelsChanged":
+		return o.LevelsChanged
 	case "matches":
 		return o.Matches
 	case "name":
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "nextReconcileTime":
+		return o.NextReconcileTime
+	case "previous":
+		return o.Previous
 	case "propagate":
 		return o.Propagate
+	case "status":
+		return o.Status
 	case "updateTime":
 		return o.UpdateTime
 	case "zHash":
@@ -617,20 +917,44 @@ var CustomDataTypeAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"Activation": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "activation",
+		ConvertedName:  "Activation",
+		Description:    `The activation in progress, if any.`,
+		Exposed:        true,
+		Name:           "activation",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeactivationstate",
+		Type:           "ref",
+	},
 	"Anchors": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "anchors",
 		ConvertedName:  "Anchors",
-		Description: `Anchors are short, natural-language example sentences that define the intent you
-want to detect. The system learns from these examples and flags text with
-similar meaning even if worded differently. Use 3–5 realistic, varied sentences
-about one clear concept, and avoid near-duplicates. Validations will ensure
-anchor quality.`,
+		Description: `Legacy example sentences, accepted on creation and import only. They become
+the first version of the corpus, activated without evaluation. Author a
+corpus in ` + "`" + `draft` + "`" + ` instead.`,
 		Exposed: true,
 		Name:    "anchors",
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
+	},
+	"Corpus": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "corpus",
+		ConvertedName:  "Corpus",
+		Description:    `The live corpus, the one used for detection.`,
+		Exposed:        true,
+		Name:           "corpus",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypecorpus",
+		Type:           "ref",
 	},
 	"CreateTime": {
 		AllowedChoices: []string{},
@@ -656,6 +980,29 @@ anchor quality.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"Draft": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "draft",
+		ConvertedName:  "Draft",
+		Description: `Unpublished changes. Once the custom data type has a corpus, every change to
+` + "`" + `matches` + "`" + ` or to the corpus is made here and goes live on activation.`,
+		Exposed: true,
+		Name:    "draft",
+		Stored:  true,
+		SubType: "customdatatypedraft",
+		Type:    "ref",
+	},
+	"EvaluationInputs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "evaluationinputs",
+		ConvertedName:  "EvaluationInputs",
+		Description:    `What the corpus is evaluated against. Never used for detection.`,
+		Exposed:        true,
+		Name:           "evaluationInputs",
+		Stored:         true,
+		SubType:        "customdatatypeevaluationinputs",
+		Type:           "ref",
 	},
 	"FriendlyName": {
 		AllowedChoices: []string{},
@@ -698,6 +1045,45 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"Ingestions": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "ingestions",
+		ConvertedName:  "Ingestions",
+		Description:    `Where each corpus revision stands in each region.`,
+		Exposed:        true,
+		Name:           "ingestions",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeingestion",
+		Type:           "refList",
+	},
+	"LastEvaluation": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "lastevaluation",
+		ConvertedName:  "LastEvaluation",
+		Description:    `The most recent evaluation of the draft.`,
+		Exposed:        true,
+		Name:           "lastEvaluation",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeevaluationresult",
+		Type:           "ref",
+	},
+	"LevelsChanged": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "LevelsChanged",
+		Description: `Whether the last evaluation gives the live version different Medium and High
+confidence thresholds than the ones it was activated with. Activating it again
+applies them. Computed on read, not stored.`,
+		Exposed:   true,
+		Name:      "levelsChanged",
+		ReadOnly:  true,
+		Transient: true,
+		Type:      "boolean",
+	},
 	"Matches": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "matches",
@@ -706,10 +1092,10 @@ same import operation.`,
 include zero or one capturing group. If no capturing group is present, detection
 positions will be determined based on the entire captured portion of the data.
 If a single capturing group is included, the detection positions will correspond
-to the part defined by that group. However, if more than one capturing group is
-found, the system will return a validation error. Additionally, extra
-validations are performed to ensure that the regular expressions are not overly
-complex, preventing any negative impact on detection engine performance.`,
+to the part defined by that group. More than one capturing group is refused on
+save. The analysis pipelines then validate them, refusing those too costly to
+run, and they go live only once validated. Once the custom data type has a
+corpus, change them in ` + "`" + `draft` + "`" + `.`,
 		Exposed: true,
 		Name:    "matches",
 		Stored:  true,
@@ -746,6 +1132,20 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+
+	"Previous": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "previous",
+		ConvertedName:  "Previous",
+		Description:    `The version live before the current one, kept for rollback.`,
+		Exposed:        true,
+		Name:           "previous",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypesnapshot",
+		Type:           "ref",
+	},
 	"Propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -758,6 +1158,23 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"Status": {
+		AllowedChoices: []string{"Draft", "Activating", "Stuck", "Active"},
+		Autogenerated:  true,
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   CustomDataTypeStatusActive,
+		Description: `Whether the custom data type detects. ` + "`" + `Draft` + "`" + ` has never been activated,
+` + "`" + `Activating` + "`" + ` is being rolled out to every region, ` + "`" + `Stuck` + "`" + ` has a region that
+keeps failing while the previous version still detects, and ` + "`" + `Active` + "`" + `
+detects everywhere.`,
+		Exposed:    true,
+		Filterable: true,
+		Name:       "status",
+		ReadOnly:   true,
+		Stored:     true,
+		Type:       "enum",
 	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
@@ -793,20 +1210,44 @@ var CustomDataTypeLowerCaseAttributesMap = map[string]elemental.AttributeSpecifi
 		Stored:         true,
 		Type:           "string",
 	},
+	"activation": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "activation",
+		ConvertedName:  "Activation",
+		Description:    `The activation in progress, if any.`,
+		Exposed:        true,
+		Name:           "activation",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeactivationstate",
+		Type:           "ref",
+	},
 	"anchors": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "anchors",
 		ConvertedName:  "Anchors",
-		Description: `Anchors are short, natural-language example sentences that define the intent you
-want to detect. The system learns from these examples and flags text with
-similar meaning even if worded differently. Use 3–5 realistic, varied sentences
-about one clear concept, and avoid near-duplicates. Validations will ensure
-anchor quality.`,
+		Description: `Legacy example sentences, accepted on creation and import only. They become
+the first version of the corpus, activated without evaluation. Author a
+corpus in ` + "`" + `draft` + "`" + ` instead.`,
 		Exposed: true,
 		Name:    "anchors",
 		Stored:  true,
 		SubType: "string",
 		Type:    "list",
+	},
+	"corpus": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "corpus",
+		ConvertedName:  "Corpus",
+		Description:    `The live corpus, the one used for detection.`,
+		Exposed:        true,
+		Name:           "corpus",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypecorpus",
+		Type:           "ref",
 	},
 	"createtime": {
 		AllowedChoices: []string{},
@@ -832,6 +1273,29 @@ anchor quality.`,
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"draft": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "draft",
+		ConvertedName:  "Draft",
+		Description: `Unpublished changes. Once the custom data type has a corpus, every change to
+` + "`" + `matches` + "`" + ` or to the corpus is made here and goes live on activation.`,
+		Exposed: true,
+		Name:    "draft",
+		Stored:  true,
+		SubType: "customdatatypedraft",
+		Type:    "ref",
+	},
+	"evaluationinputs": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "evaluationinputs",
+		ConvertedName:  "EvaluationInputs",
+		Description:    `What the corpus is evaluated against. Never used for detection.`,
+		Exposed:        true,
+		Name:           "evaluationInputs",
+		Stored:         true,
+		SubType:        "customdatatypeevaluationinputs",
+		Type:           "ref",
 	},
 	"friendlyname": {
 		AllowedChoices: []string{},
@@ -874,6 +1338,45 @@ same import operation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"ingestions": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "ingestions",
+		ConvertedName:  "Ingestions",
+		Description:    `Where each corpus revision stands in each region.`,
+		Exposed:        true,
+		Name:           "ingestions",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeingestion",
+		Type:           "refList",
+	},
+	"lastevaluation": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "lastevaluation",
+		ConvertedName:  "LastEvaluation",
+		Description:    `The most recent evaluation of the draft.`,
+		Exposed:        true,
+		Name:           "lastEvaluation",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypeevaluationresult",
+		Type:           "ref",
+	},
+	"levelschanged": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "LevelsChanged",
+		Description: `Whether the last evaluation gives the live version different Medium and High
+confidence thresholds than the ones it was activated with. Activating it again
+applies them. Computed on read, not stored.`,
+		Exposed:   true,
+		Name:      "levelsChanged",
+		ReadOnly:  true,
+		Transient: true,
+		Type:      "boolean",
+	},
 	"matches": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "matches",
@@ -882,10 +1385,10 @@ same import operation.`,
 include zero or one capturing group. If no capturing group is present, detection
 positions will be determined based on the entire captured portion of the data.
 If a single capturing group is included, the detection positions will correspond
-to the part defined by that group. However, if more than one capturing group is
-found, the system will return a validation error. Additionally, extra
-validations are performed to ensure that the regular expressions are not overly
-complex, preventing any negative impact on detection engine performance.`,
+to the part defined by that group. More than one capturing group is refused on
+save. The analysis pipelines then validate them, refusing those too costly to
+run, and they go live only once validated. Once the custom data type has a
+corpus, change them in ` + "`" + `draft` + "`" + `.`,
 		Exposed: true,
 		Name:    "matches",
 		Stored:  true,
@@ -922,6 +1425,20 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "string",
 	},
+
+	"previous": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "previous",
+		ConvertedName:  "Previous",
+		Description:    `The version live before the current one, kept for rollback.`,
+		Exposed:        true,
+		Name:           "previous",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "customdatatypesnapshot",
+		Type:           "ref",
+	},
 	"propagate": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "propagate",
@@ -934,6 +1451,23 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "boolean",
+	},
+	"status": {
+		AllowedChoices: []string{"Draft", "Activating", "Stuck", "Active"},
+		Autogenerated:  true,
+		BSONFieldName:  "status",
+		ConvertedName:  "Status",
+		DefaultValue:   CustomDataTypeStatusActive,
+		Description: `Whether the custom data type detects. ` + "`" + `Draft` + "`" + ` has never been activated,
+` + "`" + `Activating` + "`" + ` is being rolled out to every region, ` + "`" + `Stuck` + "`" + ` has a region that
+keeps failing while the previous version still detects, and ` + "`" + `Active` + "`" + `
+detects everywhere.`,
+		Exposed:    true,
+		Filterable: true,
+		Name:       "status",
+		ReadOnly:   true,
+		Stored:     true,
+		Type:       "enum",
 	},
 	"updatetime": {
 		AllowedChoices: []string{},
@@ -1018,18 +1552,29 @@ type SparseCustomDataType struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
-	// Anchors are short, natural-language example sentences that define the intent you
-	// want to detect. The system learns from these examples and flags text with
-	// similar meaning even if worded differently. Use 3–5 realistic, varied sentences
-	// about one clear concept, and avoid near-duplicates. Validations will ensure
-	// anchor quality.
+	// The activation in progress, if any.
+	Activation *CustomDataTypeActivationState `json:"activation,omitempty" msgpack:"activation,omitempty" bson:"activation,omitempty" mapstructure:"activation,omitempty"`
+
+	// Legacy example sentences, accepted on creation and import only. They become
+	// the first version of the corpus, activated without evaluation. Author a
+	// corpus in `draft` instead.
 	Anchors *[]string `json:"anchors,omitempty" msgpack:"anchors,omitempty" bson:"anchors,omitempty" mapstructure:"anchors,omitempty"`
+
+	// The live corpus, the one used for detection.
+	Corpus *CustomDataTypeCorpus `json:"corpus,omitempty" msgpack:"corpus,omitempty" bson:"corpus,omitempty" mapstructure:"corpus,omitempty"`
 
 	// Creation date of the object.
 	CreateTime *time.Time `json:"createTime,omitempty" msgpack:"createTime,omitempty" bson:"createtime,omitempty" mapstructure:"createTime,omitempty"`
 
 	// Description of the custom data type.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
+
+	// Unpublished changes. Once the custom data type has a corpus, every change to
+	// `matches` or to the corpus is made here and goes live on activation.
+	Draft *CustomDataTypeDraft `json:"draft,omitempty" msgpack:"draft,omitempty" bson:"draft,omitempty" mapstructure:"draft,omitempty"`
+
+	// What the corpus is evaluated against. Never used for detection.
+	EvaluationInputs *CustomDataTypeEvaluationInputs `json:"evaluationInputs,omitempty" msgpack:"evaluationInputs,omitempty" bson:"evaluationinputs,omitempty" mapstructure:"evaluationInputs,omitempty"`
 
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
@@ -1041,14 +1586,25 @@ type SparseCustomDataType struct {
 	// same import operation.
 	ImportLabel *string `json:"importLabel,omitempty" msgpack:"importLabel,omitempty" bson:"importlabel,omitempty" mapstructure:"importLabel,omitempty"`
 
+	// Where each corpus revision stands in each region.
+	Ingestions *[]*CustomDataTypeIngestion `json:"ingestions,omitempty" msgpack:"ingestions,omitempty" bson:"ingestions,omitempty" mapstructure:"ingestions,omitempty"`
+
+	// The most recent evaluation of the draft.
+	LastEvaluation *CustomDataTypeEvaluationResult `json:"lastEvaluation,omitempty" msgpack:"lastEvaluation,omitempty" bson:"lastevaluation,omitempty" mapstructure:"lastEvaluation,omitempty"`
+
+	// Whether the last evaluation gives the live version different Medium and High
+	// confidence thresholds than the ones it was activated with. Activating it again
+	// applies them. Computed on read, not stored.
+	LevelsChanged *bool `json:"levelsChanged,omitempty" msgpack:"levelsChanged,omitempty" bson:"-" mapstructure:"levelsChanged,omitempty"`
+
 	// A list of RE2 regular expressions used for data detection. Each expression can
 	// include zero or one capturing group. If no capturing group is present, detection
 	// positions will be determined based on the entire captured portion of the data.
 	// If a single capturing group is included, the detection positions will correspond
-	// to the part defined by that group. However, if more than one capturing group is
-	// found, the system will return a validation error. Additionally, extra
-	// validations are performed to ensure that the regular expressions are not overly
-	// complex, preventing any negative impact on detection engine performance.
+	// to the part defined by that group. More than one capturing group is refused on
+	// save. The analysis pipelines then validate them, refusing those too costly to
+	// run, and they go live only once validated. Once the custom data type has a
+	// corpus, change them in `draft`.
 	Matches *[]string `json:"matches,omitempty" msgpack:"matches,omitempty" bson:"matches,omitempty" mapstructure:"matches,omitempty"`
 
 	// The internal reference name of the object. It is a sanitized version of Friendly
@@ -1058,8 +1614,20 @@ type SparseCustomDataType struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// When the corpus reconciler next looks at this custom data type.
+	NextReconcileTime *time.Time `json:"-" msgpack:"-" bson:"nextreconciletime,omitempty" mapstructure:"-,omitempty"`
+
+	// The version live before the current one, kept for rollback.
+	Previous *CustomDataTypeSnapshot `json:"previous,omitempty" msgpack:"previous,omitempty" bson:"previous,omitempty" mapstructure:"previous,omitempty"`
+
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
+
+	// Whether the custom data type detects. `Draft` has never been activated,
+	// `Activating` is being rolled out to every region, `Stuck` has a region that
+	// keeps failing while the previous version still detects, and `Active`
+	// detects everywhere.
+	Status *CustomDataTypeStatusValue `json:"status,omitempty" msgpack:"status,omitempty" bson:"status,omitempty" mapstructure:"status,omitempty"`
 
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
@@ -1116,14 +1684,26 @@ func (o *SparseCustomDataType) GetBSON() (any, error) {
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
 	}
+	if o.Activation != nil {
+		s.Activation = o.Activation
+	}
 	if o.Anchors != nil {
 		s.Anchors = o.Anchors
+	}
+	if o.Corpus != nil {
+		s.Corpus = o.Corpus
 	}
 	if o.CreateTime != nil {
 		s.CreateTime = o.CreateTime
 	}
 	if o.Description != nil {
 		s.Description = o.Description
+	}
+	if o.Draft != nil {
+		s.Draft = o.Draft
+	}
+	if o.EvaluationInputs != nil {
+		s.EvaluationInputs = o.EvaluationInputs
 	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
@@ -1134,6 +1714,12 @@ func (o *SparseCustomDataType) GetBSON() (any, error) {
 	if o.ImportLabel != nil {
 		s.ImportLabel = o.ImportLabel
 	}
+	if o.Ingestions != nil {
+		s.Ingestions = o.Ingestions
+	}
+	if o.LastEvaluation != nil {
+		s.LastEvaluation = o.LastEvaluation
+	}
 	if o.Matches != nil {
 		s.Matches = o.Matches
 	}
@@ -1143,8 +1729,17 @@ func (o *SparseCustomDataType) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.NextReconcileTime != nil {
+		s.NextReconcileTime = o.NextReconcileTime
+	}
+	if o.Previous != nil {
+		s.Previous = o.Previous
+	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
+	}
+	if o.Status != nil {
+		s.Status = o.Status
 	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
@@ -1174,14 +1769,26 @@ func (o *SparseCustomDataType) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.Activation != nil {
+		o.Activation = s.Activation
+	}
 	if s.Anchors != nil {
 		o.Anchors = s.Anchors
+	}
+	if s.Corpus != nil {
+		o.Corpus = s.Corpus
 	}
 	if s.CreateTime != nil {
 		o.CreateTime = s.CreateTime
 	}
 	if s.Description != nil {
 		o.Description = s.Description
+	}
+	if s.Draft != nil {
+		o.Draft = s.Draft
+	}
+	if s.EvaluationInputs != nil {
+		o.EvaluationInputs = s.EvaluationInputs
 	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
@@ -1192,6 +1799,12 @@ func (o *SparseCustomDataType) SetBSON(raw bson.Raw) error {
 	if s.ImportLabel != nil {
 		o.ImportLabel = s.ImportLabel
 	}
+	if s.Ingestions != nil {
+		o.Ingestions = s.Ingestions
+	}
+	if s.LastEvaluation != nil {
+		o.LastEvaluation = s.LastEvaluation
+	}
 	if s.Matches != nil {
 		o.Matches = s.Matches
 	}
@@ -1201,8 +1814,17 @@ func (o *SparseCustomDataType) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.NextReconcileTime != nil {
+		o.NextReconcileTime = s.NextReconcileTime
+	}
+	if s.Previous != nil {
+		o.Previous = s.Previous
+	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
+	}
+	if s.Status != nil {
+		o.Status = s.Status
 	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
@@ -1230,14 +1852,26 @@ func (o *SparseCustomDataType) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.Activation != nil {
+		out.Activation = o.Activation
+	}
 	if o.Anchors != nil {
 		out.Anchors = *o.Anchors
+	}
+	if o.Corpus != nil {
+		out.Corpus = o.Corpus
 	}
 	if o.CreateTime != nil {
 		out.CreateTime = *o.CreateTime
 	}
 	if o.Description != nil {
 		out.Description = *o.Description
+	}
+	if o.Draft != nil {
+		out.Draft = o.Draft
+	}
+	if o.EvaluationInputs != nil {
+		out.EvaluationInputs = o.EvaluationInputs
 	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
@@ -1248,6 +1882,15 @@ func (o *SparseCustomDataType) ToPlain() elemental.PlainIdentifiable {
 	if o.ImportLabel != nil {
 		out.ImportLabel = *o.ImportLabel
 	}
+	if o.Ingestions != nil {
+		out.Ingestions = *o.Ingestions
+	}
+	if o.LastEvaluation != nil {
+		out.LastEvaluation = o.LastEvaluation
+	}
+	if o.LevelsChanged != nil {
+		out.LevelsChanged = *o.LevelsChanged
+	}
 	if o.Matches != nil {
 		out.Matches = *o.Matches
 	}
@@ -1257,8 +1900,17 @@ func (o *SparseCustomDataType) ToPlain() elemental.PlainIdentifiable {
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
 	}
+	if o.NextReconcileTime != nil {
+		out.NextReconcileTime = *o.NextReconcileTime
+	}
+	if o.Previous != nil {
+		out.Previous = o.Previous
+	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
+	}
+	if o.Status != nil {
+		out.Status = *o.Status
 	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
@@ -1276,11 +1928,105 @@ func (o *SparseCustomDataType) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseCustomDataType) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.Activation != nil {
+		if err := o.Activation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Activation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Corpus != nil {
+		if err := o.Corpus.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Corpus' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Draft != nil {
+		if err := o.Draft.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Draft' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EvaluationInputs != nil {
+		if err := o.EvaluationInputs.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'EvaluationInputs' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Ingestions != nil {
+		for _, sub := range *o.Ingestions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Ingestions' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.LastEvaluation != nil {
+		if err := o.LastEvaluation.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'LastEvaluation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Previous != nil {
+		if err := o.Previous.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Previous' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseCustomDataType) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.Activation != nil {
+		if err := o.Activation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Activation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Corpus != nil {
+		if err := o.Corpus.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Corpus' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Draft != nil {
+		if err := o.Draft.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Draft' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.EvaluationInputs != nil {
+		if err := o.EvaluationInputs.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'EvaluationInputs' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Ingestions != nil {
+		for _, sub := range *o.Ingestions {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Ingestions' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.LastEvaluation != nil {
+		if err := o.LastEvaluation.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'LastEvaluation' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Previous != nil {
+		if err := o.Previous.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Previous' for 'CustomDataType' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -1438,34 +2184,52 @@ func (o *SparseCustomDataType) DeepCopyInto(out *SparseCustomDataType) {
 }
 
 type mongoAttributesCustomDataType struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	Anchors      []string      `bson:"anchors"`
-	CreateTime   time.Time     `bson:"createtime"`
-	Description  string        `bson:"description"`
-	FriendlyName string        `bson:"friendlyname"`
-	ImportHash   string        `bson:"importhash,omitempty"`
-	ImportLabel  string        `bson:"importlabel,omitempty"`
-	Matches      []string      `bson:"matches"`
-	Name         string        `bson:"name"`
-	Namespace    string        `bson:"namespace,omitempty"`
-	Propagate    bool          `bson:"propagate"`
-	UpdateTime   time.Time     `bson:"updatetime"`
-	ZHash        int           `bson:"zhash"`
-	Zone         int           `bson:"zone"`
+	ID                bson.ObjectId                   `bson:"_id,omitempty"`
+	Activation        *CustomDataTypeActivationState  `bson:"activation,omitempty"`
+	Anchors           []string                        `bson:"anchors,omitempty"`
+	Corpus            *CustomDataTypeCorpus           `bson:"corpus,omitempty"`
+	CreateTime        time.Time                       `bson:"createtime"`
+	Description       string                          `bson:"description"`
+	Draft             *CustomDataTypeDraft            `bson:"draft,omitempty"`
+	EvaluationInputs  *CustomDataTypeEvaluationInputs `bson:"evaluationinputs,omitempty"`
+	FriendlyName      string                          `bson:"friendlyname"`
+	ImportHash        string                          `bson:"importhash,omitempty"`
+	ImportLabel       string                          `bson:"importlabel,omitempty"`
+	Ingestions        []*CustomDataTypeIngestion      `bson:"ingestions,omitempty"`
+	LastEvaluation    *CustomDataTypeEvaluationResult `bson:"lastevaluation,omitempty"`
+	Matches           []string                        `bson:"matches"`
+	Name              string                          `bson:"name"`
+	Namespace         string                          `bson:"namespace,omitempty"`
+	NextReconcileTime time.Time                       `bson:"nextreconciletime,omitempty"`
+	Previous          *CustomDataTypeSnapshot         `bson:"previous,omitempty"`
+	Propagate         bool                            `bson:"propagate"`
+	Status            CustomDataTypeStatusValue       `bson:"status"`
+	UpdateTime        time.Time                       `bson:"updatetime"`
+	ZHash             int                             `bson:"zhash"`
+	Zone              int                             `bson:"zone"`
 }
 type mongoAttributesSparseCustomDataType struct {
-	ID           bson.ObjectId `bson:"_id,omitempty"`
-	Anchors      *[]string     `bson:"anchors,omitempty"`
-	CreateTime   *time.Time    `bson:"createtime,omitempty"`
-	Description  *string       `bson:"description,omitempty"`
-	FriendlyName *string       `bson:"friendlyname,omitempty"`
-	ImportHash   *string       `bson:"importhash,omitempty"`
-	ImportLabel  *string       `bson:"importlabel,omitempty"`
-	Matches      *[]string     `bson:"matches,omitempty"`
-	Name         *string       `bson:"name,omitempty"`
-	Namespace    *string       `bson:"namespace,omitempty"`
-	Propagate    *bool         `bson:"propagate,omitempty"`
-	UpdateTime   *time.Time    `bson:"updatetime,omitempty"`
-	ZHash        *int          `bson:"zhash,omitempty"`
-	Zone         *int          `bson:"zone,omitempty"`
+	ID                bson.ObjectId                   `bson:"_id,omitempty"`
+	Activation        *CustomDataTypeActivationState  `bson:"activation,omitempty"`
+	Anchors           *[]string                       `bson:"anchors,omitempty"`
+	Corpus            *CustomDataTypeCorpus           `bson:"corpus,omitempty"`
+	CreateTime        *time.Time                      `bson:"createtime,omitempty"`
+	Description       *string                         `bson:"description,omitempty"`
+	Draft             *CustomDataTypeDraft            `bson:"draft,omitempty"`
+	EvaluationInputs  *CustomDataTypeEvaluationInputs `bson:"evaluationinputs,omitempty"`
+	FriendlyName      *string                         `bson:"friendlyname,omitempty"`
+	ImportHash        *string                         `bson:"importhash,omitempty"`
+	ImportLabel       *string                         `bson:"importlabel,omitempty"`
+	Ingestions        *[]*CustomDataTypeIngestion     `bson:"ingestions,omitempty"`
+	LastEvaluation    *CustomDataTypeEvaluationResult `bson:"lastevaluation,omitempty"`
+	Matches           *[]string                       `bson:"matches,omitempty"`
+	Name              *string                         `bson:"name,omitempty"`
+	Namespace         *string                         `bson:"namespace,omitempty"`
+	NextReconcileTime *time.Time                      `bson:"nextreconciletime,omitempty"`
+	Previous          *CustomDataTypeSnapshot         `bson:"previous,omitempty"`
+	Propagate         *bool                           `bson:"propagate,omitempty"`
+	Status            *CustomDataTypeStatusValue      `bson:"status,omitempty"`
+	UpdateTime        *time.Time                      `bson:"updatetime,omitempty"`
+	ZHash             *int                            `bson:"zhash,omitempty"`
+	Zone              *int                            `bson:"zone,omitempty"`
 }

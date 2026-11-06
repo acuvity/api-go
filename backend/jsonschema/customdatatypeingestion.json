@@ -1,0 +1,91 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Ingestion",
+  "$friendlyNamePlural": "Custom Data Type Ingestions",
+  "$modelName": "CustomDataTypeIngestion",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeingestions",
+  "$modelRestName": "customdatatypeingestion",
+  "additionalProperties": false,
+  "description": "Where one corpus revision stands in one region.",
+  "properties": {
+    "attempts": {
+      "$friendlyName": "Attempts",
+      "description": "How many times the ingestion was sent.",
+      "title": "attempts",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "embedderModel": {
+      "$friendlyName": "Embedder Model",
+      "description": "The model the region embedded the anchors with.",
+      "title": "embedderModel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "description": "The last error, if any.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "jobID": {
+      "$friendlyName": "Job ID",
+      "description": "The ingestion job in the region, while one runs.",
+      "title": "jobID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region.",
+      "title": "region",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revision": {
+      "$friendlyName": "Revision",
+      "description": "The corpus revision.",
+      "title": "revision",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "state": {
+      "$defaultValue": "Pending",
+      "$friendlyName": "State",
+      "description": "Where the ingestion stands.",
+      "enum": [
+        "Pending",
+        "Running",
+        "Done",
+        "Failed"
+      ],
+      "title": "state"
+    },
+    "updateTime": {
+      "$friendlyName": "Update Time",
+      "description": "When the state last changed.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeIngestion",
+  "type": "object"
+}

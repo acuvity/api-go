@@ -17,6 +17,9 @@ import (
 type AIGatewayConnectorTypeValue string
 
 const (
+	// AIGatewayConnectorTypeA2A represents the value A2A.
+	AIGatewayConnectorTypeA2A AIGatewayConnectorTypeValue = "A2A"
+
 	// AIGatewayConnectorTypeLLM represents the value LLM.
 	AIGatewayConnectorTypeLLM AIGatewayConnectorTypeValue = "LLM"
 
@@ -686,7 +689,7 @@ func (o *AIGatewayConnector) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"MCP", "LLM", "WebhookIntegration"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"A2A", "MCP", "LLM", "WebhookIntegration"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1023,7 +1026,7 @@ appended to it.`,
 		Type:    "string",
 	},
 	"Type": {
-		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description: `The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
@@ -1315,7 +1318,7 @@ appended to it.`,
 		Type:    "string",
 	},
 	"type": {
-		AllowedChoices: []string{"MCP", "LLM", "WebhookIntegration"},
+		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		Description: `The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.

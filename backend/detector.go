@@ -13,6 +13,11 @@ import (
 
 // Detector represents the model of a detector
 type Detector struct {
+	// The upstream engine's own category for the detection, when it has one (for
+	// instance 'Personal Information'). It only helps browsing detectors: policies
+	// match on the group and the name.
+	Category string `json:"category,omitempty" msgpack:"category,omitempty" bson:"-" mapstructure:"category,omitempty"`
+
 	// The description of the detection.
 	Description string `json:"description" msgpack:"description" bson:"-" mapstructure:"description,omitempty"`
 
@@ -30,6 +35,12 @@ type Detector struct {
 
 	// Tell if the detection is positional.
 	Positional bool `json:"positional" msgpack:"positional" bson:"-" mapstructure:"positional,omitempty"`
+
+	// Who authored the detection, when the upstream engine says: 'predefined'
+	// (shipped by the vendor), 'custom' (defined by the organization) or
+	// 'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+	// analyzers with no upstream engine.
+	Type string `json:"type,omitempty" msgpack:"type,omitempty" bson:"-" mapstructure:"type,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
 }
@@ -178,6 +189,8 @@ func (*Detector) AttributeSpecifications() map[string]elemental.AttributeSpecifi
 func (o *Detector) ValueForAttribute(name string) any {
 
 	switch name {
+	case "category":
+		return o.Category
 	case "description":
 		return o.Description
 	case "friendlyName":
@@ -190,6 +203,8 @@ func (o *Detector) ValueForAttribute(name string) any {
 		return o.Name
 	case "positional":
 		return o.Positional
+	case "type":
+		return o.Type
 	}
 
 	return nil
@@ -197,6 +212,16 @@ func (o *Detector) ValueForAttribute(name string) any {
 
 // DetectorAttributesMap represents the map of attribute for Detector.
 var DetectorAttributesMap = map[string]elemental.AttributeSpecification{
+	"Category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detection, when it has one (for
+instance 'Personal Information'). It only helps browsing detectors: policies
+match on the group and the name.`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"Description": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Description",
@@ -245,10 +270,31 @@ var DetectorAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "positional",
 		Type:           "boolean",
 	},
+	"Type": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Type",
+		Description: `Who authored the detection, when the upstream engine says: 'predefined'
+(shipped by the vendor), 'custom' (defined by the organization) or
+'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+analyzers with no upstream engine.`,
+		Exposed: true,
+		Name:    "type",
+		Type:    "string",
+	},
 }
 
 // DetectorLowerCaseAttributesMap represents the map of attribute for Detector.
 var DetectorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detection, when it has one (for
+instance 'Personal Information'). It only helps browsing detectors: policies
+match on the group and the name.`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"description": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Description",
@@ -296,6 +342,17 @@ var DetectorLowerCaseAttributesMap = map[string]elemental.AttributeSpecification
 		Exposed:        true,
 		Name:           "positional",
 		Type:           "boolean",
+	},
+	"type": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Type",
+		Description: `Who authored the detection, when the upstream engine says: 'predefined'
+(shipped by the vendor), 'custom' (defined by the organization) or
+'ai_classifier' (shipped by the vendor, backed by a model). Empty for
+analyzers with no upstream engine.`,
+		Exposed: true,
+		Name:    "type",
+		Type:    "string",
 	},
 }
 

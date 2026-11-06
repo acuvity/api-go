@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Threshold",
+  "$friendlyNamePlural": "Corpus Evaluation Thresholds",
+  "$modelName": "CorpusEvaluationThreshold",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationthresholds",
+  "$modelRestName": "corpusevaluationthreshold",
+  "additionalProperties": false,
+  "description": "Where to put the line for a set of anchors.",
+  "properties": {
+    "basedOn": {
+      "$friendlyName": "Based On",
+      "description": "`traffic_budget` (measured against ordinary traffic), `your_examples` (the examples alone) or `model_default` (a starting point).",
+      "title": "basedOn",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "options": {
+      "$friendlyName": "Options",
+      "description": "Lines the author could pick, priced in traffic.",
+      "items": {
+        "$ref": "corpusevaluationoption.json"
+      },
+      "title": "options",
+      "type": "array"
+    },
+    "recommended": {
+      "$friendlyName": "Recommended",
+      "description": "The recommended threshold.",
+      "title": "recommended",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationThreshold",
+  "type": "object"
+}

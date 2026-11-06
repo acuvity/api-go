@@ -273,6 +273,8 @@ func (f modelManager) DetachedFromString(name string) any {
 
 	switch name {
 
+	case "a2amessage", "A2AMessage":
+		return NewA2AMessage()
 	case "alertevent", "AlertEvent":
 		return NewAlertEvent()
 	case "analyzermatcher", "Matcher":

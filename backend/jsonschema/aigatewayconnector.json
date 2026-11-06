@@ -186,6 +186,7 @@
       "$required": true,
       "description": "The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream. WebhookIntegration accepts calls from a third-party product that wants us to inspect traffic it is handling itself, so it has no upstream.",
       "enum": [
+        "A2A",
         "MCP",
         "LLM",
         "WebhookIntegration"

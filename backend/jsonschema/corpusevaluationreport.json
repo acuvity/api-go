@@ -1,0 +1,94 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Report",
+  "$friendlyNamePlural": "Corpus Evaluation Reports",
+  "$modelName": "CorpusEvaluationReport",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationreports",
+  "$modelRestName": "corpusevaluationreport",
+  "additionalProperties": false,
+  "description": "How well a set of anchors works, and what to fix.",
+  "properties": {
+    "anchors": {
+      "$friendlyName": "Anchors",
+      "description": "One row per anchor, by its index in the anchors sent, worst first.",
+      "items": {
+        "$ref": "corpusevaluationanchor.json"
+      },
+      "title": "anchors",
+      "type": "array"
+    },
+    "confidence": {
+      "$friendlyName": "Confidence",
+      "$ref": "corpusevaluationconfidence.json",
+      "description": "Where each confidence level starts.",
+      "title": "confidence"
+    },
+    "curve": {
+      "$friendlyName": "Curve",
+      "$ref": "corpusevaluationcurve.json",
+      "description": "The share of ordinary traffic at or above each score.",
+      "title": "curve"
+    },
+    "embedder": {
+      "$friendlyName": "Embedder",
+      "description": "The model the anchors were embedded with.",
+      "title": "embedder",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "findings": {
+      "$friendlyName": "Findings",
+      "description": "What is worth knowing, most severe first.",
+      "items": {
+        "$ref": "corpusevaluationfinding.json"
+      },
+      "title": "findings",
+      "type": "array"
+    },
+    "grade": {
+      "$defaultValue": "Unusable",
+      "$friendlyName": "Grade",
+      "description": "The verdict.",
+      "enum": [
+        "Strong",
+        "Usable",
+        "Weak",
+        "Unusable"
+      ],
+      "title": "grade"
+    },
+    "map": {
+      "$friendlyName": "Map",
+      "$ref": "corpusevaluationmap.json",
+      "description": "A 2D picture of where anchors and examples sit.",
+      "title": "map"
+    },
+    "probes": {
+      "$friendlyName": "Probes",
+      "description": "One row per example, by its index in its own list, closest call first.",
+      "items": {
+        "$ref": "corpusevaluationprobe.json"
+      },
+      "title": "probes",
+      "type": "array"
+    },
+    "scale": {
+      "$friendlyName": "Scale",
+      "$ref": "corpusevaluationscale.json",
+      "description": "What a score means for these anchors.",
+      "title": "scale"
+    },
+    "threshold": {
+      "$friendlyName": "Threshold",
+      "$ref": "corpusevaluationthreshold.json",
+      "description": "Where to put the line.",
+      "title": "threshold"
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationReport",
+  "type": "object"
+}

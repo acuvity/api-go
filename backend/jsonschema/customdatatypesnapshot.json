@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Snapshot",
+  "$friendlyNamePlural": "Custom Data Type Snapshots",
+  "$modelName": "CustomDataTypeSnapshot",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypesnapshots",
+  "$modelRestName": "customdatatypesnapshot",
+  "additionalProperties": false,
+  "description": "A version of a custom data type, as activated or being activated.",
+  "properties": {
+    "corpus": {
+      "$friendlyName": "Corpus",
+      "$ref": "customdatatypecorpus.json",
+      "description": "The corpus of this version.",
+      "title": "corpus"
+    },
+    "matches": {
+      "$friendlyName": "Matches",
+      "description": "The RE2 regular expressions of this version.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "matches",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeSnapshot",
+  "type": "object"
+}

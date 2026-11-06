@@ -62,7 +62,7 @@ type Extraction struct {
 	// The PIIs found during classification.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'PIIs' accross all analyzers.
+	// detector groups 'PIIs' across all analyzers.
 	//
 	// Example of PIIs detected: aba_routing_number, address, bank_account,
 	// bitcoin_wallet, credit_card, driver_license, email_address, itin_number,
@@ -106,10 +106,23 @@ type Extraction struct {
 	// The textual detections found while applying policies.
 	Detections []*TextualDetection `json:"detections,omitempty" msgpack:"detections,omitempty" bson:"detections,omitempty" mapstructure:"detections,omitempty"`
 
+	// The Data Loss Prevention detections found during classification.
+	//
+	// The current list can be obtained through the analyzers API by searching for
+	// detector groups 'DLP' across all analyzers.
+	//
+	// If a key is not present in the map that implies that entity was not detected. If
+	// an entity is detected then the value is a score. Here's how to interpret the
+	// scores:
+	//   - confidence: 'low', 0 < score <0.33
+	//   - confidence: 'medium', 0.33 <= score < 0.66
+	//   - confidence: 'high', 0.66 <= score <= 1.
+	Dlp map[string]float64 `json:"dlp,omitempty" msgpack:"dlp,omitempty" bson:"dlp,omitempty" mapstructure:"dlp,omitempty"`
+
 	// The various exploits attempts.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'Exploits' accross all analyzers.
+	// detector groups 'Exploits' across all analyzers.
 	//
 	// Example of exploits detected: jailbreak, prompt_injection, malicious_url.
 	//
@@ -130,7 +143,7 @@ type Extraction struct {
 	// The estimated intent embodied into the text.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'Intent' accross all analyzers.
+	// detector groups 'Intent' across all analyzers.
 	//
 	// Example of intent detected: explain, outline, summarize, write.
 	//
@@ -185,7 +198,7 @@ type Extraction struct {
 	// The language of the classification.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'Languages' accross all analyzers.
+	// detector groups 'Languages' across all analyzers.
 	//
 	// Example of languages: chinese, english, french, german, gibberish, japanese,
 	// russian, spanish.
@@ -201,7 +214,7 @@ type Extraction struct {
 	// The various malcontents attempts.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'Malcontents' accross all analyzers.
+	// detector groups 'Malcontents' across all analyzers.
 	//
 	// Example of malcontents: biased, harmful, toxic.
 	//
@@ -212,6 +225,10 @@ type Extraction struct {
 	//   - confidence: 'medium', 0.33 <= score < 0.66
 	//   - confidence: 'high', 0.66 <= score <= 1.
 	Malcontents map[string]float64 `json:"malcontents,omitempty" msgpack:"malcontents,omitempty" bson:"malcontents,omitempty" mapstructure:"malcontents,omitempty"`
+
+	// What the pipelines could tell about the content itself, such as the
+	// application that made a document or its sensitivity label.
+	Metadata map[string][]string `json:"metadata,omitempty" msgpack:"metadata,omitempty" bson:"metadata,omitempty" mapstructure:"metadata,omitempty"`
 
 	// The modalities of data detected in the data.
 	Modalities []Modality `json:"modalities,omitempty" msgpack:"modalities,omitempty" bson:"modalities,omitempty" mapstructure:"modalities,omitempty"`
@@ -235,7 +252,7 @@ type Extraction struct {
 	// The secrets found during classification.
 	//
 	// The current list can be obtained through the analyzers API by searching for
-	// detector groups 'Secrets' accross all analyzers.
+	// detector groups 'Secrets' across all analyzers.
 	//
 	// Example of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,
 	// aws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,
@@ -352,6 +369,7 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.Data = o.Data
 	s.DataSets = o.DataSets
 	s.Detections = o.Detections
+	s.Dlp = o.Dlp
 	s.Exploits = o.Exploits
 	s.Genericdetections = o.Genericdetections
 	s.Hash = o.Hash
@@ -364,6 +382,7 @@ func (o *Extraction) GetBSON() (any, error) {
 	s.Label = o.Label
 	s.Languages = o.Languages
 	s.Malcontents = o.Malcontents
+	s.Metadata = o.Metadata
 	s.Modalities = o.Modalities
 	s.Relevance = o.Relevance
 	s.Role = o.Role
@@ -396,6 +415,7 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.Data = s.Data
 	o.DataSets = s.DataSets
 	o.Detections = s.Detections
+	o.Dlp = s.Dlp
 	o.Exploits = s.Exploits
 	o.Genericdetections = s.Genericdetections
 	o.Hash = s.Hash
@@ -408,6 +428,7 @@ func (o *Extraction) SetBSON(raw bson.Raw) error {
 	o.Label = s.Label
 	o.Languages = s.Languages
 	o.Malcontents = s.Malcontents
+	o.Metadata = s.Metadata
 	o.Modalities = s.Modalities
 	o.Relevance = s.Relevance
 	o.Role = s.Role
@@ -671,6 +692,8 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.DataSets
 	case "detections":
 		return o.Detections
+	case "dlp":
+		return o.Dlp
 	case "exploits":
 		return o.Exploits
 	case "genericdetections":
@@ -695,6 +718,8 @@ func (o *Extraction) ValueForAttribute(name string) any {
 		return o.Languages
 	case "malcontents":
 		return o.Malcontents
+	case "metadata":
+		return o.Metadata
 	case "modalities":
 		return o.Modalities
 	case "originalData":
@@ -725,7 +750,7 @@ var ExtractionAttributesMap = map[string]elemental.AttributeSpecification{
 		Description: `The PIIs found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'PIIs' accross all analyzers.
+detector groups 'PIIs' across all analyzers.
 
 Example of PIIs detected: aba_routing_number, address, bank_account,
 bitcoin_wallet, credit_card, driver_license, email_address, itin_number,
@@ -827,6 +852,27 @@ scores:
 		SubType:        "textualdetection",
 		Type:           "refList",
 	},
+	"Dlp": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dlp",
+		ConvertedName:  "Dlp",
+		Description: `The Data Loss Prevention detections found during classification.
+
+The current list can be obtained through the analyzers API by searching for
+detector groups 'DLP' across all analyzers.
+
+If a key is not present in the map that implies that entity was not detected. If
+an entity is detected then the value is a score. Here's how to interpret the
+scores:
+  - confidence: 'low', 0 < score <0.33
+  - confidence: 'medium', 0.33 <= score < 0.66
+  - confidence: 'high', 0.66 <= score <= 1.`,
+		Exposed: true,
+		Name:    "dlp",
+		Stored:  true,
+		SubType: "map[string]float64",
+		Type:    "external",
+	},
 	"Exploits": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "exploits",
@@ -834,7 +880,7 @@ scores:
 		Description: `The various exploits attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Exploits' accross all analyzers.
+detector groups 'Exploits' across all analyzers.
 
 Example of exploits detected: jailbreak, prompt_injection, malicious_url.
 
@@ -878,7 +924,7 @@ scores:
 		Description: `The estimated intent embodied into the text.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Intent' accross all analyzers.
+detector groups 'Intent' across all analyzers.
 
 Example of intent detected: explain, outline, summarize, write.
 
@@ -985,7 +1031,7 @@ not go through analysis.`,
 		Description: `The language of the classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Languages' accross all analyzers.
+detector groups 'Languages' across all analyzers.
 
 Example of languages: chinese, english, french, german, gibberish, japanese,
 russian, spanish.
@@ -1009,7 +1055,7 @@ scores:
 		Description: `The various malcontents attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Malcontents' accross all analyzers.
+detector groups 'Malcontents' across all analyzers.
 
 Example of malcontents: biased, harmful, toxic.
 
@@ -1023,6 +1069,18 @@ scores:
 		Name:    "malcontents",
 		Stored:  true,
 		SubType: "map[string]float64",
+		Type:    "external",
+	},
+	"Metadata": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "metadata",
+		ConvertedName:  "Metadata",
+		Description: `What the pipelines could tell about the content itself, such as the
+application that made a document or its sensitivity label.`,
+		Exposed: true,
+		Name:    "metadata",
+		Stored:  true,
+		SubType: "map[string][]string",
 		Type:    "external",
 	},
 	"Modalities": {
@@ -1072,7 +1130,7 @@ scores:
 		Description: `The secrets found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Secrets' accross all analyzers.
+detector groups 'Secrets' across all analyzers.
 
 Example of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,
 aws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,
@@ -1185,7 +1243,7 @@ var ExtractionLowerCaseAttributesMap = map[string]elemental.AttributeSpecificati
 		Description: `The PIIs found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'PIIs' accross all analyzers.
+detector groups 'PIIs' across all analyzers.
 
 Example of PIIs detected: aba_routing_number, address, bank_account,
 bitcoin_wallet, credit_card, driver_license, email_address, itin_number,
@@ -1287,6 +1345,27 @@ scores:
 		SubType:        "textualdetection",
 		Type:           "refList",
 	},
+	"dlp": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "dlp",
+		ConvertedName:  "Dlp",
+		Description: `The Data Loss Prevention detections found during classification.
+
+The current list can be obtained through the analyzers API by searching for
+detector groups 'DLP' across all analyzers.
+
+If a key is not present in the map that implies that entity was not detected. If
+an entity is detected then the value is a score. Here's how to interpret the
+scores:
+  - confidence: 'low', 0 < score <0.33
+  - confidence: 'medium', 0.33 <= score < 0.66
+  - confidence: 'high', 0.66 <= score <= 1.`,
+		Exposed: true,
+		Name:    "dlp",
+		Stored:  true,
+		SubType: "map[string]float64",
+		Type:    "external",
+	},
 	"exploits": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "exploits",
@@ -1294,7 +1373,7 @@ scores:
 		Description: `The various exploits attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Exploits' accross all analyzers.
+detector groups 'Exploits' across all analyzers.
 
 Example of exploits detected: jailbreak, prompt_injection, malicious_url.
 
@@ -1338,7 +1417,7 @@ scores:
 		Description: `The estimated intent embodied into the text.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Intent' accross all analyzers.
+detector groups 'Intent' across all analyzers.
 
 Example of intent detected: explain, outline, summarize, write.
 
@@ -1445,7 +1524,7 @@ not go through analysis.`,
 		Description: `The language of the classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Languages' accross all analyzers.
+detector groups 'Languages' across all analyzers.
 
 Example of languages: chinese, english, french, german, gibberish, japanese,
 russian, spanish.
@@ -1469,7 +1548,7 @@ scores:
 		Description: `The various malcontents attempts.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Malcontents' accross all analyzers.
+detector groups 'Malcontents' across all analyzers.
 
 Example of malcontents: biased, harmful, toxic.
 
@@ -1483,6 +1562,18 @@ scores:
 		Name:    "malcontents",
 		Stored:  true,
 		SubType: "map[string]float64",
+		Type:    "external",
+	},
+	"metadata": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "metadata",
+		ConvertedName:  "Metadata",
+		Description: `What the pipelines could tell about the content itself, such as the
+application that made a document or its sensitivity label.`,
+		Exposed: true,
+		Name:    "metadata",
+		Stored:  true,
+		SubType: "map[string][]string",
 		Type:    "external",
 	},
 	"modalities": {
@@ -1532,7 +1623,7 @@ scores:
 		Description: `The secrets found during classification.
 
 The current list can be obtained through the analyzers API by searching for
-detector groups 'Secrets' accross all analyzers.
+detector groups 'Secrets' across all analyzers.
 
 Example of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,
 aws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,
@@ -1645,6 +1736,7 @@ type mongoAttributesExtraction struct {
 	Data              string                        `bson:"data"`
 	DataSets          map[string]map[string]float64 `bson:"datasets,omitempty"`
 	Detections        []*TextualDetection           `bson:"detections,omitempty"`
+	Dlp               map[string]float64            `bson:"dlp,omitempty"`
 	Exploits          map[string]float64            `bson:"exploits,omitempty"`
 	Genericdetections []*GenericDetection           `bson:"genericdetections,omitempty"`
 	Hash              string                        `bson:"hash,omitempty"`
@@ -1657,6 +1749,7 @@ type mongoAttributesExtraction struct {
 	Label             string                        `bson:"label,omitempty"`
 	Languages         map[string]float64            `bson:"languages,omitempty"`
 	Malcontents       map[string]float64            `bson:"malcontents,omitempty"`
+	Metadata          map[string][]string           `bson:"metadata,omitempty"`
 	Modalities        []Modality                    `bson:"modalities,omitempty"`
 	Relevance         float64                       `bson:"relevance,omitempty"`
 	Role              ExtractionRoleValue           `bson:"role"`

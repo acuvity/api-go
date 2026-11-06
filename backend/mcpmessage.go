@@ -49,7 +49,7 @@ type MCPMessage struct {
 	// IsError is true in case if a response is an error response as opposed to a
 	// result. Note that this is not the same as a result which has isError set to true
 	// within the result. This is a protocol level error. This will always be false for
-	// requests and notifications, and false for reponses when the response has a
+	// requests and notifications, and false for responses when the response has a
 	// result.
 	IsError bool `json:"isError,omitempty" msgpack:"isError,omitempty" bson:"iserror,omitempty" mapstructure:"isError,omitempty"`
 
@@ -307,7 +307,7 @@ that are sent to or received from an MCP gateway.`,
 		Description: `IsError is true in case if a response is an error response as opposed to a
 result. Note that this is not the same as a result which has isError set to true
 within the result. This is a protocol level error. This will always be false for
-requests and notifications, and false for reponses when the response has a
+requests and notifications, and false for responses when the response has a
 result.`,
 		Exposed: true,
 		Name:    "isError",
@@ -404,7 +404,7 @@ that are sent to or received from an MCP gateway.`,
 		Description: `IsError is true in case if a response is an error response as opposed to a
 result. Note that this is not the same as a result which has isError set to true
 within the result. This is a protocol level error. This will always be false for
-requests and notifications, and false for reponses when the response has a
+requests and notifications, and false for responses when the response has a
 result.`,
 		Exposed: true,
 		Name:    "isError",

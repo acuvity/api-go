@@ -1,0 +1,177 @@
+{
+  "$extends": [
+    "@sharded",
+    "@identifiable",
+    "@timed"
+  ],
+  "$friendlyName": "MCP Tool Shadow Finding",
+  "$friendlyNamePlural": "MCP Tool Shadow Findings",
+  "$modelName": "MCPToolShadowFinding",
+  "$modelPackage": "torii",
+  "$modelResourceName": "mcptoolshadowfindings",
+  "$modelRestName": "mcptoolshadowfinding",
+  "additionalProperties": false,
+  "description": "Records a pair of tools from two MCP connectors of the same AI gateway where one tool can shadow the other: the names collide or look alike, or the text of one tool refers to the other.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "connectorA": {
+      "$friendlyName": "Connector A",
+      "$required": true,
+      "description": "The name of the first connector of the pair. For a cross reference, it is the connector of the tool whose text refers to the other tool.",
+      "title": "connectorA",
+      "type": "string"
+    },
+    "connectorB": {
+      "$friendlyName": "Connector B",
+      "$required": true,
+      "description": "The name of the second connector of the pair.",
+      "title": "connectorB",
+      "type": "string"
+    },
+    "createTime": {
+      "$friendlyName": "CreateTime",
+      "$readOnly": true,
+      "description": "Creation date of the object.",
+      "title": "createTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "detail": {
+      "$friendlyName": "Detail",
+      "description": "What triggered the finding, such as the edit distance between the two names or the text that refers to the other tool.",
+      "title": "detail",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "firstDetectedAt": {
+      "$friendlyName": "First Detected At",
+      "description": "When the pair was first detected.",
+      "title": "firstDetectedAt",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "gatewayName": {
+      "$friendlyName": "Gateway Name",
+      "$required": true,
+      "description": "The name of the AI gateway exposing both tools.",
+      "title": "gatewayName",
+      "type": "string"
+    },
+    "mcpServerA": {
+      "$friendlyName": "MCP Server A",
+      "description": "The name of the MCP server behind connector A.",
+      "title": "mcpServerA",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mcpServerB": {
+      "$friendlyName": "MCP Server B",
+      "description": "The name of the MCP server behind connector B.",
+      "title": "mcpServerB",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "signal": {
+      "$friendlyName": "Signal",
+      "$required": true,
+      "description": "The rule that detected the pair. ExactNameCollision: both tools have the same name, ignoring case and spaces. ConfusableName: the names are the same once look-alike characters are mapped to Latin letters. NearDuplicateName: the names differ by a few characters. CrossReference: the text of tool A contains the name of tool B or of the MCP server of connector B.",
+      "enum": [
+        "ExactNameCollision",
+        "ConfusableName",
+        "NearDuplicateName",
+        "CrossReference"
+      ],
+      "title": "signal"
+    },
+    "sourceA": {
+      "$defaultValue": "NotApplicable",
+      "$friendlyName": "Source A",
+      "$required": true,
+      "description": "Where tool A comes from. Baseline: it is the same as the tool in the provider tool list of connector A. Changed: it is not in that list or it differs from it, so the MCP server added or changed it after the list was set. NotApplicable: there is no tool A, or the provider tool list of connector A could not be found.",
+      "enum": [
+        "Baseline",
+        "Changed",
+        "NotApplicable"
+      ],
+      "title": "sourceA"
+    },
+    "sourceB": {
+      "$defaultValue": "NotApplicable",
+      "$friendlyName": "Source B",
+      "$required": true,
+      "description": "Where tool B comes from. Baseline: it is the same as the tool in the provider tool list of connector B. Changed: it is not in that list or it differs from it, so the MCP server added or changed it after the list was set. NotApplicable: there is no tool B, or the provider tool list of connector B could not be found.",
+      "enum": [
+        "Baseline",
+        "Changed",
+        "NotApplicable"
+      ],
+      "title": "sourceB"
+    },
+    "toolA": {
+      "$friendlyName": "Tool A",
+      "$required": true,
+      "description": "The name of the tool on connector A, without the gateway prefix.",
+      "title": "toolA",
+      "type": "string"
+    },
+    "toolB": {
+      "$friendlyName": "Tool B",
+      "description": "The name of the tool on connector B, without the gateway prefix. Empty when tool A refers to the MCP server of connector B rather than to one of its tools.",
+      "title": "toolB",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "updateTime": {
+      "$friendlyName": "UpdateTime",
+      "$readOnly": true,
+      "description": "Last update date of the object.",
+      "title": "updateTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "connectorA",
+    "connectorB",
+    "gatewayName",
+    "signal",
+    "sourceA",
+    "sourceB",
+    "toolA"
+  ],
+  "title": "MCPToolShadowFinding",
+  "type": "object"
+}

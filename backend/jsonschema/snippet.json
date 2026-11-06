@@ -18,6 +18,16 @@
         "null"
       ]
     },
+    "encryptedData": {
+      "$friendlyName": "Encrypted Data",
+      "$readOnly": true,
+      "description": "The original snippet data, encrypted, when apex masked values in it. Apex sets it, and only its decrypt endpoint can read it back. It is empty when nothing was masked, or when apex has no key to encrypt with.",
+      "title": "encryptedData",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "end": {
       "$friendlyName": "End",
       "description": "The end position of the detection inside the snippet data.",

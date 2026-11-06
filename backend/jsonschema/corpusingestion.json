@@ -1,0 +1,119 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Ingestion",
+  "$friendlyNamePlural": "Corpus Ingestions",
+  "$modelName": "CorpusIngestion",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusingestions",
+  "$modelRestName": "corpusingestion",
+  "additionalProperties": false,
+  "description": "A corpus in the analysis pipelines of this region. Creating one ingests it, replacing a corpus with the same ID; retrieving one reports where it stands. Only a kiroshi reaching this region's pipelines from another platform calls it.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$required": true,
+      "description": "The identifier of the corpus.",
+      "title": "ID",
+      "type": "string"
+    },
+    "anchorCount": {
+      "$friendlyName": "Anchor Count",
+      "$readOnly": true,
+      "description": "How many anchors the corpus holds.",
+      "title": "anchorCount",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "anchors": {
+      "$friendlyName": "Anchors",
+      "description": "The anchors to ingest.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "anchors",
+      "type": "array"
+    },
+    "embedderModel": {
+      "$friendlyName": "Embedder Model",
+      "$readOnly": true,
+      "description": "The model the anchors were embedded with, once done.",
+      "title": "embedderModel",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "$readOnly": true,
+      "description": "Why the ingestion failed, if it did.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "jobID": {
+      "$friendlyName": "Job ID",
+      "$readOnly": true,
+      "description": "The ingestion job. Empty when there was nothing to embed.",
+      "title": "jobID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the custom data type the corpus belongs to.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "recommendedThreshold": {
+      "$friendlyName": "Recommended Threshold",
+      "$readOnly": true,
+      "description": "The threshold the pipelines derived from the anchors, once done.",
+      "title": "recommendedThreshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "state": {
+      "$defaultValue": "Pending",
+      "$friendlyName": "State",
+      "$readOnly": true,
+      "description": "Where the ingestion stands.",
+      "enum": [
+        "Pending",
+        "Running",
+        "Done",
+        "Failed"
+      ],
+      "title": "state"
+    },
+    "threshold": {
+      "$friendlyName": "Threshold",
+      "description": "The threshold to store with the corpus.",
+      "maximum": 1,
+      "title": "threshold",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "ID"
+  ],
+  "title": "CorpusIngestion",
+  "type": "object"
+}

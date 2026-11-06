@@ -1,0 +1,34 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Map",
+  "$friendlyNamePlural": "Corpus Evaluation Maps",
+  "$modelName": "CorpusEvaluationMap",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationmaps",
+  "$modelRestName": "corpusevaluationmap",
+  "additionalProperties": false,
+  "description": "A 2D picture of where anchors and examples sit.",
+  "properties": {
+    "points": {
+      "$friendlyName": "Points",
+      "description": "The points.",
+      "items": {
+        "$ref": "corpusevaluationpoint.json"
+      },
+      "title": "points",
+      "type": "array"
+    },
+    "trust": {
+      "$friendlyName": "Trust",
+      "description": "The share of nearest neighbours that survive the flattening to 2D. Below about 0.75 the picture is a hint.",
+      "title": "trust",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationMap",
+  "type": "object"
+}

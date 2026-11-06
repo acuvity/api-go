@@ -145,7 +145,11 @@ func (o PoliceRequestsList) Version() int {
 
 // PoliceRequest represents the model of a policerequest
 type PoliceRequest struct {
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization PoliceRequestAnonymizationValue `json:"anonymization" msgpack:"anonymization" bson:"anonymization" mapstructure:"anonymization,omitempty"`
 
 	// Identifies the conversation this request belongs to. Apex records it on the
@@ -752,11 +756,16 @@ var PoliceRequestAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   PoliceRequestAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"ConversationID": {
 		AllowedChoices: []string{},
@@ -940,11 +949,16 @@ var PoliceRequestLowerCaseAttributesMap = map[string]elemental.AttributeSpecific
 		BSONFieldName:  "anonymization",
 		ConvertedName:  "Anonymization",
 		DefaultValue:   PoliceRequestAnonymizationFixedSize,
-		Description:    `How to anonymize the data. If deanonymize is true, then VariablSize is required.`,
-		Exposed:        true,
-		Name:           "anonymization",
-		Stored:         true,
-		Type:           "enum",
+		Deprecated:     true,
+		Description: `DEPRECATED: ignored. Redacted values are always masked in place, keeping
+their byte length.
+How redacted data is replaced. FixedSize replaces each redacted span with
+'#' characters of the same length. VariableSize replaces it with a
+placeholder naming the detection, such as PII_SSN_1.`,
+		Exposed: true,
+		Name:    "anonymization",
+		Stored:  true,
+		Type:    "enum",
 	},
 	"conversationid": {
 		AllowedChoices: []string{},
@@ -1184,7 +1198,11 @@ func (o SparsePoliceRequestsList) Version() int {
 
 // SparsePoliceRequest represents the sparse version of a policerequest.
 type SparsePoliceRequest struct {
-	// How to anonymize the data. If deanonymize is true, then VariablSize is required.
+	// DEPRECATED: ignored. Redacted values are always masked in place, keeping
+	// their byte length.
+	// How redacted data is replaced. FixedSize replaces each redacted span with
+	// '#' characters of the same length. VariableSize replaces it with a
+	// placeholder naming the detection, such as PII_SSN_1.
 	Anonymization *PoliceRequestAnonymizationValue `json:"anonymization,omitempty" msgpack:"anonymization,omitempty" bson:"anonymization,omitempty" mapstructure:"anonymization,omitempty"`
 
 	// Identifies the conversation this request belongs to. Apex records it on the

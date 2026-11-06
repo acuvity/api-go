@@ -1,0 +1,53 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Draft",
+  "$friendlyNamePlural": "Custom Data Type Drafts",
+  "$modelName": "CustomDataTypeDraft",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypedrafts",
+  "$modelRestName": "customdatatypedraft",
+  "additionalProperties": false,
+  "description": "Unpublished changes to a custom data type. They detect nothing until activated.",
+  "properties": {
+    "activateWhenChecked": {
+      "$friendlyName": "Activate When Checked",
+      "$readOnly": true,
+      "description": "Set by the platform on regular expressions written to a live custom data type: they go live once the pipelines validate them, and the ones live meanwhile keep detecting.",
+      "title": "activateWhenChecked",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "corpus": {
+      "$friendlyName": "Semantic Matching",
+      "$ref": "customdatatypecorpus.json",
+      "description": "The corpus to activate.",
+      "title": "corpus"
+    },
+    "generation": {
+      "$friendlyName": "Generation",
+      "description": "Increments on every change to the draft. Send back the generation you read; a draft changed elsewhere in the meantime is refused.",
+      "title": "generation",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "matches": {
+      "$friendlyName": "Regular Expressions",
+      "description": "The RE2 regular expressions to activate.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "matches",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeDraft",
+  "type": "object"
+}

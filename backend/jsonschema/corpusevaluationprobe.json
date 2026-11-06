@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Probe",
+  "$friendlyNamePlural": "Corpus Evaluation Probes",
+  "$modelName": "CorpusEvaluationProbe",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationprobes",
+  "$modelRestName": "corpusevaluationprobe",
+  "additionalProperties": false,
+  "description": "How one example fares.",
+  "properties": {
+    "closestAnchor": {
+      "$friendlyName": "Closest Anchor",
+      "description": "The anchor it lands on.",
+      "title": "closestAnchor",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "idx": {
+      "$friendlyName": "Index",
+      "description": "The index of the example in its own list.",
+      "title": "idx",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "label": {
+      "$friendlyName": "Label",
+      "description": "`positive`, `negative` or `unlabeled`.",
+      "title": "label",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "Its similarity, on the threshold's scale.",
+      "title": "score",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationProbe",
+  "type": "object"
+}

@@ -16,6 +16,7 @@
       "$required": true,
       "description": "The key of the predicate.",
       "enum": [
+        "AIDomain",
         "AccessControlRisk",
         "Categories",
         "ClientType",
@@ -23,6 +24,8 @@
         "Confidentiality",
         "CustomDataTypes",
         "DataPolicyRisk",
+        "DataSets",
+        "DLP",
         "DstApp",
         "DstComponent",
         "DstIPRange",

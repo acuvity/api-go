@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Activation State",
+  "$friendlyNamePlural": "Custom Data Type Activation States",
+  "$modelName": "CustomDataTypeActivationState",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeactivationstates",
+  "$modelRestName": "customdatatypeactivationstate",
+  "additionalProperties": false,
+  "description": "An activation in progress.",
+  "properties": {
+    "acknowledgedWarnings": {
+      "$friendlyName": "Acknowledged Warnings",
+      "description": "The evaluation warnings the author confirmed when activating.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "acknowledgedWarnings",
+      "type": "array"
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "description": "Why the activation is stuck, if it is.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "pending": {
+      "$friendlyName": "Pending",
+      "$ref": "customdatatypesnapshot.json",
+      "description": "The version being activated.",
+      "title": "pending"
+    },
+    "startTime": {
+      "$friendlyName": "Start Time",
+      "description": "When the activation started.",
+      "title": "startTime",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeActivationState",
+  "type": "object"
+}

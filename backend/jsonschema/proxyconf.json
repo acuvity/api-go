@@ -138,6 +138,15 @@
       "title": "extractors",
       "type": "array"
     },
+    "maskingPolicies": {
+      "$friendlyName": "Masking Policies",
+      "description": "The masking policies of the namespace and the ones propagated to it.",
+      "items": {
+        "$ref": "maskingpolicy.json"
+      },
+      "title": "maskingPolicies",
+      "type": "array"
+    },
     "namespace": {
       "$friendlyName": "Namespace",
       "$readOnly": true,
@@ -153,6 +162,18 @@
       "$ref": "orgsettings.json",
       "description": "The organization settings.",
       "title": "orgSettings"
+    },
+    "policyDomains": {
+      "$friendlyName": "Policy Domains",
+      "description": "The hosts referenced by AIDomain conditions of access policies. Apex serves them to agents and runs access policies on their traffic even when no provider owns them.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "policyDomains",
+      "type": "array"
     },
     "providers": {
       "$friendlyName": "Providers",

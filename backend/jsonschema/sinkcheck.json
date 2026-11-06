@@ -1,0 +1,80 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Check",
+  "$friendlyNamePlural": "Sink Checks",
+  "$modelName": "SinkCheck",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkchecks",
+  "$modelRestName": "sinkcheck",
+  "additionalProperties": false,
+  "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its stored configuration, or a complete webhook draft to test unsaved edits. A draft must include the URL and every header value, because stored secrets are never returned or reused. Checks never save configuration changes.",
+  "properties": {
+    "message": {
+      "$friendlyName": "Message",
+      "$readOnly": true,
+      "description": "The result of the check.",
+      "title": "message",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "responseBody": {
+      "$friendlyName": "Response Body",
+      "$readOnly": true,
+      "description": "The beginning of the response body of the destination, to help troubleshooting. It is truncated.",
+      "title": "responseBody",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sinkID": {
+      "$friendlyName": "Sink ID",
+      "description": "The saved sink to test with its stored configuration.",
+      "title": "sinkID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "$friendlyName": "Status",
+      "$readOnly": true,
+      "description": "Succeeded when the destination answered with a 2xx status. Failed when it could not be reached or refused the request.",
+      "enum": [
+        "Succeeded",
+        "Failed"
+      ],
+      "title": "status"
+    },
+    "statusCode": {
+      "$friendlyName": "Status Code",
+      "$readOnly": true,
+      "description": "The HTTP status code of the response, when the destination answered.",
+      "title": "statusCode",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "type": {
+      "$defaultValue": "Webhook",
+      "$friendlyName": "Type",
+      "description": "The type of the sink to test.",
+      "enum": [
+        "Webhook"
+      ],
+      "title": "type"
+    },
+    "webhook": {
+      "$friendlyName": "Webhook",
+      "$ref": "sinkwebhook.json",
+      "description": "The complete, unsaved webhook configuration to test. Give it or sinkID. The draft is never saved.",
+      "title": "webhook"
+    }
+  },
+  "required": [],
+  "title": "SinkCheck",
+  "type": "object"
+}

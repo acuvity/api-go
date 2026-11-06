@@ -20,7 +20,7 @@
     },
     "key": {
       "$friendlyName": "Key",
-      "description": "The key that is used in the name's place, If empty, a sequence of X's are used.",
+      "description": "DEPRECATED: never set. Redacted values are always masked in place. The placeholder that replaced the detection when the anonymization is VariableSize, such as PII_SSN_1. It is empty with FixedSize, where the detection is replaced with '#' characters of the same length.",
       "title": "key",
       "type": [
         "string",
@@ -89,7 +89,8 @@
         "Keyword",
         "PII",
         "Secret",
-        "CDT"
+        "CDT",
+        "DLP"
       ],
       "title": "type"
     }

@@ -13,6 +13,10 @@ import (
 
 // GenericDetection represents the model of a genericdetection
 type GenericDetection struct {
+	// The upstream engine's own category for the detector, when it has one (for
+	// instance 'Personal Information').
+	Category string `json:"category,omitempty" msgpack:"category,omitempty" bson:"-" mapstructure:"category,omitempty"`
+
 	// The end position of the positional generic detection.
 	End int `json:"end" msgpack:"end" bson:"-" mapstructure:"end,omitempty"`
 
@@ -22,6 +26,10 @@ type GenericDetection struct {
 	// The name of the generic detection.
 	Name string `json:"name" msgpack:"name" bson:"-" mapstructure:"name,omitempty"`
 
+	// If true, a content policy redacted this detection. It is masked in place,
+	// so its start and end are the same in the original and the redacted data.
+	Redacted bool `json:"redacted,omitempty" msgpack:"redacted,omitempty" bson:"-" mapstructure:"redacted,omitempty"`
+
 	// The normalized score of the generic detection against its confidence level
 	// thresholds.
 	// Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.
@@ -30,7 +38,7 @@ type GenericDetection struct {
 	// the snippet of the generic detection.
 	Snippet *Snippet `json:"snippet,omitempty" msgpack:"snippet,omitempty" bson:"-" mapstructure:"snippet,omitempty"`
 
-	// The start position of the poisitional generic detection.
+	// The start position of the positional generic detection.
 	Start int `json:"start" msgpack:"start" bson:"-" mapstructure:"start,omitempty"`
 
 	ModelVersion int `json:"-" msgpack:"-" bson:"_modelversion"`
@@ -199,12 +207,16 @@ func (*GenericDetection) AttributeSpecifications() map[string]elemental.Attribut
 func (o *GenericDetection) ValueForAttribute(name string) any {
 
 	switch name {
+	case "category":
+		return o.Category
 	case "end":
 		return o.End
 	case "group":
 		return o.Group
 	case "name":
 		return o.Name
+	case "redacted":
+		return o.Redacted
 	case "score":
 		return o.Score
 	case "snippet":
@@ -218,6 +230,15 @@ func (o *GenericDetection) ValueForAttribute(name string) any {
 
 // GenericDetectionAttributesMap represents the map of attribute for GenericDetection.
 var GenericDetectionAttributesMap = map[string]elemental.AttributeSpecification{
+	"Category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detector, when it has one (for
+instance 'Personal Information').`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"End": {
 		AllowedChoices: []string{},
 		ConvertedName:  "End",
@@ -242,6 +263,15 @@ var GenericDetectionAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "name",
 		Type:           "string",
 	},
+	"Redacted": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Redacted",
+		Description: `If true, a content policy redacted this detection. It is masked in place,
+so its start and end are the same in the original and the redacted data.`,
+		Exposed: true,
+		Name:    "redacted",
+		Type:    "boolean",
+	},
 	"Score": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Score",
@@ -264,7 +294,7 @@ Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.`,
 	"Start": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Start",
-		Description:    `The start position of the poisitional generic detection.`,
+		Description:    `The start position of the positional generic detection.`,
 		Exposed:        true,
 		Name:           "start",
 		Type:           "integer",
@@ -273,6 +303,15 @@ Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.`,
 
 // GenericDetectionLowerCaseAttributesMap represents the map of attribute for GenericDetection.
 var GenericDetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"category": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Category",
+		Description: `The upstream engine's own category for the detector, when it has one (for
+instance 'Personal Information').`,
+		Exposed: true,
+		Name:    "category",
+		Type:    "string",
+	},
 	"end": {
 		AllowedChoices: []string{},
 		ConvertedName:  "End",
@@ -297,6 +336,15 @@ var GenericDetectionLowerCaseAttributesMap = map[string]elemental.AttributeSpeci
 		Name:           "name",
 		Type:           "string",
 	},
+	"redacted": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Redacted",
+		Description: `If true, a content policy redacted this detection. It is masked in place,
+so its start and end are the same in the original and the redacted data.`,
+		Exposed: true,
+		Name:    "redacted",
+		Type:    "boolean",
+	},
 	"score": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Score",
@@ -319,7 +367,7 @@ Between 0 and 1 as low <0.33, 0.33<=Medium<0.66, high >=0.66.`,
 	"start": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Start",
-		Description:    `The start position of the poisitional generic detection.`,
+		Description:    `The start position of the positional generic detection.`,
 		Exposed:        true,
 		Name:           "start",
 		Type:           "integer",

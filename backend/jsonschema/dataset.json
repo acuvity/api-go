@@ -57,6 +57,15 @@
         "null"
       ]
     },
+    "external": {
+      "$friendlyName": "External",
+      "description": "If true, the data set is managed by an external system. It should not be modified, as the external system may overwrite the changes.",
+      "title": "external",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
       "$required": true,
@@ -102,6 +111,15 @@
       "title": "namespace",
       "type": [
         "string",
+        "null"
+      ]
+    },
+    "predefined": {
+      "$friendlyName": "Predefined",
+      "description": "If true, the data set is provided by default, by the organization template or by the external system that manages it. Otherwise it was created by the organization.",
+      "title": "predefined",
+      "type": [
+        "boolean",
         "null"
       ]
     },

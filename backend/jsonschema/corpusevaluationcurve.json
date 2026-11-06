@@ -1,0 +1,40 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Curve",
+  "$friendlyNamePlural": "Corpus Evaluation Curves",
+  "$modelName": "CorpusEvaluationCurve",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationcurves",
+  "$modelRestName": "corpusevaluationcurve",
+  "additionalProperties": false,
+  "description": "The share of ordinary traffic at or above each score.",
+  "properties": {
+    "fires": {
+      "$friendlyName": "Fires",
+      "description": "The share of ordinary traffic at or above the score of the same index.",
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "title": "fires",
+      "type": "array"
+    },
+    "score": {
+      "$friendlyName": "Score",
+      "description": "The scores, ascending.",
+      "items": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "title": "score",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationCurve",
+  "type": "object"
+}

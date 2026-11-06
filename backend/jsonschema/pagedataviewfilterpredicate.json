@@ -1,0 +1,63 @@
+{
+  "$extends": [],
+  "$friendlyName": "Page Data View Filter Predicate",
+  "$friendlyNamePlural": "Page Data View Filter Predicates",
+  "$modelName": "PageDataViewFilterPredicate",
+  "$modelPackage": "shiori",
+  "$modelResourceName": "pagedataviewfilterpredicates",
+  "$modelRestName": "pagedataviewfilterpredicate",
+  "additionalProperties": false,
+  "description": "Represents one condition of a saved filter.",
+  "properties": {
+    "disabled": {
+      "$friendlyName": "Disabled",
+      "description": "If true, the condition is kept in the saved filter but not applied.",
+      "title": "disabled",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "key": {
+      "$friendlyName": "Key",
+      "$required": true,
+      "description": "The attribute the condition tests.",
+      "title": "key",
+      "type": "string"
+    },
+    "operator": {
+      "$friendlyName": "Operator",
+      "$required": true,
+      "description": "How the attribute is compared with the values.",
+      "enum": [
+        "Contains",
+        "DoesNotExist",
+        "Equals",
+        "EqualsOrGreaterThan",
+        "EqualsOrLesserThan",
+        "Exists",
+        "GreaterThan",
+        "In",
+        "LesserThan",
+        "Matches",
+        "MatchesAll",
+        "NotContains",
+        "NotEquals",
+        "NotIn"
+      ],
+      "title": "operator"
+    },
+    "values": {
+      "$friendlyName": "Values",
+      "description": "The values of the condition. Holds one value for single-value operators, the list for multi-value operators, and nothing for Exists and DoesNotExist. A relative time is stored as an object whose now key holds a duration such as -24h.",
+      "title": "values",
+      "type": "array"
+    }
+  },
+  "required": [
+    "key",
+    "operator"
+  ],
+  "title": "PageDataViewFilterPredicate",
+  "type": "object"
+}

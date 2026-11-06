@@ -68,7 +68,7 @@ const (
 var RiskFindingIdentity = elemental.Identity{
 	Name:     "riskfinding",
 	Category: "riskfindings",
-	Package:  "hanni",
+	Package:  "avi",
 	Private:  false,
 }
 

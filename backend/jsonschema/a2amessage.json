@@ -1,0 +1,87 @@
+{
+  "$extends": [],
+  "$friendlyName": "A2A Message",
+  "$friendlyNamePlural": "A2A Messages",
+  "$modelName": "A2AMessage",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "a2amessages",
+  "$modelRestName": "a2amessage",
+  "additionalProperties": false,
+  "description": "Represents A2A message details.",
+  "properties": {
+    "contextID": {
+      "$friendlyName": "Context ID",
+      "description": "The context ID of the A2A exchange.",
+      "title": "contextID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "direction": {
+      "$friendlyName": "Direction",
+      "$required": true,
+      "description": "The communication direction of the A2A message.",
+      "enum": [
+        "Client2Server",
+        "Server2Client"
+      ],
+      "title": "direction"
+    },
+    "kind": {
+      "$friendlyName": "Kind",
+      "description": "The kind of payload carried by the response.",
+      "enum": [
+        "None",
+        "Task",
+        "Message",
+        "StatusUpdate",
+        "ArtifactUpdate"
+      ],
+      "title": "kind"
+    },
+    "method": {
+      "$friendlyName": "Method",
+      "description": "The A2A RPC method name.",
+      "title": "method",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requestID": {
+      "$friendlyName": "Request ID",
+      "description": "The ID correlating a request and its response.",
+      "title": "requestID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "taskID": {
+      "$friendlyName": "Task ID",
+      "description": "The A2A task identifier.",
+      "title": "taskID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "type": {
+      "$friendlyName": "Type",
+      "$required": true,
+      "description": "The A2A message type.",
+      "enum": [
+        "Request",
+        "Response"
+      ],
+      "title": "type"
+    }
+  },
+  "required": [
+    "direction",
+    "type"
+  ],
+  "title": "A2AMessage",
+  "type": "object"
+}

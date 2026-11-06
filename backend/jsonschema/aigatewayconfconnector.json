@@ -125,6 +125,7 @@
       "$required": true,
       "description": "The type of the connector.",
       "enum": [
+        "A2A",
         "MCP",
         "LLM",
         "WebhookIntegration"

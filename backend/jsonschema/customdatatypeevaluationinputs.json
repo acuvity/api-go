@@ -1,0 +1,50 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Evaluation Inputs",
+  "$friendlyNamePlural": "Custom Data Type Evaluation Inputs",
+  "$modelName": "CustomDataTypeEvaluationInputs",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeevaluationinputs",
+  "$modelRestName": "customdatatypeevaluationinputs",
+  "additionalProperties": false,
+  "description": "What a corpus is evaluated against. These change the evaluation, never detection, so they apply without activation.",
+  "properties": {
+    "negative": {
+      "$friendlyName": "Should Not Detect",
+      "description": "Messages that should not be detected, one per entry.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "negative",
+      "type": "array"
+    },
+    "positive": {
+      "$friendlyName": "Should Detect",
+      "description": "Messages that should be detected, one per entry.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "positive",
+      "type": "array"
+    },
+    "trafficSample": {
+      "$defaultValue": "generic",
+      "$friendlyName": "Background Traffic Sample",
+      "description": "The name of the traffic sample the background match rate is measured on.",
+      "title": "trafficSample",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CustomDataTypeEvaluationInputs",
+  "type": "object"
+}

@@ -57,6 +57,13 @@
       "title": "detections",
       "type": "array"
     },
+    "dlp": {
+      "$friendlyName": "DLP",
+      "additionalProperties": true,
+      "description": "Where each Data Loss Prevention detection was found.",
+      "title": "dlp",
+      "type": "object"
+    },
     "exploits": {
       "$friendlyName": "Exploits",
       "description": "The exploits detected, and how strongly.",

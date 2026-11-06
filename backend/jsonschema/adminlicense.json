@@ -25,6 +25,15 @@
       "title": "end",
       "type": "string"
     },
+    "retention": {
+      "$friendlyName": "Retention",
+      "description": "Number of days data is retained.",
+      "title": "retention",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "seats": {
       "$defaultValue": 1,
       "$friendlyName": "Seats",

@@ -9,6 +9,15 @@
   "additionalProperties": false,
   "description": "Represent a generic detection.",
   "properties": {
+    "category": {
+      "$friendlyName": "Category",
+      "description": "The upstream engine's own category for the detector, when it has one (for instance 'Personal Information').",
+      "title": "category",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "end": {
       "$friendlyName": "End",
       "description": "The end position of the positional generic detection.",
@@ -36,6 +45,15 @@
         "null"
       ]
     },
+    "redacted": {
+      "$friendlyName": "Redacted",
+      "description": "If true, a content policy redacted this detection. It is masked in place, so its start and end are the same in the original and the redacted data.",
+      "title": "redacted",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "score": {
       "$friendlyName": "Score",
       "description": "The normalized score of the generic detection against its confidence level thresholds. Between 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
@@ -53,7 +71,7 @@
     },
     "start": {
       "$friendlyName": "Start",
-      "description": "The start position of the poisitional generic detection.",
+      "description": "The start position of the positional generic detection.",
       "title": "start",
       "type": [
         "integer",

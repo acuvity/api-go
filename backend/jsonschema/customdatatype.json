@@ -26,9 +26,16 @@
         "null"
       ]
     },
+    "activation": {
+      "$friendlyName": "Activation",
+      "$readOnly": true,
+      "$ref": "customdatatypeactivationstate.json",
+      "description": "The activation in progress, if any.",
+      "title": "activation"
+    },
     "anchors": {
       "$friendlyName": "Anchors",
-      "description": "Anchors are short, natural-language example sentences that define the intent you want to detect. The system learns from these examples and flags text with similar meaning even if worded differently. Use 3–5 realistic, varied sentences about one clear concept, and avoid near-duplicates. Validations will ensure anchor quality.",
+      "description": "Legacy example sentences, accepted on creation and import only. They become the first version of the corpus, activated without evaluation. Author a corpus in `draft` instead.",
       "items": {
         "type": [
           "string",
@@ -37,6 +44,13 @@
       },
       "title": "anchors",
       "type": "array"
+    },
+    "corpus": {
+      "$friendlyName": "Corpus",
+      "$readOnly": true,
+      "$ref": "customdatatypecorpus.json",
+      "description": "The live corpus, the one used for detection.",
+      "title": "corpus"
     },
     "createTime": {
       "$friendlyName": "CreateTime",
@@ -56,6 +70,18 @@
         "string",
         "null"
       ]
+    },
+    "draft": {
+      "$friendlyName": "Draft",
+      "$ref": "customdatatypedraft.json",
+      "description": "Unpublished changes. Once the custom data type has a corpus, every change to `matches` or to the corpus is made here and goes live on activation.",
+      "title": "draft"
+    },
+    "evaluationInputs": {
+      "$friendlyName": "Test Cases",
+      "$ref": "customdatatypeevaluationinputs.json",
+      "description": "What the corpus is evaluated against. Never used for detection.",
+      "title": "evaluationInputs"
     },
     "friendlyName": {
       "$friendlyName": "Friendly Name",
@@ -84,9 +110,36 @@
         "null"
       ]
     },
+    "ingestions": {
+      "$friendlyName": "Ingestions",
+      "$readOnly": true,
+      "description": "Where each corpus revision stands in each region.",
+      "items": {
+        "$ref": "customdatatypeingestion.json"
+      },
+      "title": "ingestions",
+      "type": "array"
+    },
+    "lastEvaluation": {
+      "$friendlyName": "Last Evaluation",
+      "$readOnly": true,
+      "$ref": "customdatatypeevaluationresult.json",
+      "description": "The most recent evaluation of the draft.",
+      "title": "lastEvaluation"
+    },
+    "levelsChanged": {
+      "$friendlyName": "Levels Changed",
+      "$readOnly": true,
+      "description": "Whether the last evaluation gives the live version different Medium and High confidence thresholds than the ones it was activated with. Activating it again applies them. Computed on read, not stored.",
+      "title": "levelsChanged",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "matches": {
       "$friendlyName": "Matches",
-      "description": "A list of RE2 regular expressions used for data detection. Each expression can include zero or one capturing group. If no capturing group is present, detection positions will be determined based on the entire captured portion of the data. If a single capturing group is included, the detection positions will correspond to the part defined by that group. However, if more than one capturing group is found, the system will return a validation error. Additionally, extra validations are performed to ensure that the regular expressions are not overly complex, preventing any negative impact on detection engine performance.",
+      "description": "A list of RE2 regular expressions used for data detection. Each expression can include zero or one capturing group. If no capturing group is present, detection positions will be determined based on the entire captured portion of the data. If a single capturing group is included, the detection positions will correspond to the part defined by that group. More than one capturing group is refused on save. The analysis pipelines then validate them, refusing those too costly to run, and they go live only once validated. Once the custom data type has a corpus, change them in `draft`.",
       "items": {
         "type": [
           "string",
@@ -117,6 +170,13 @@
         "null"
       ]
     },
+    "previous": {
+      "$friendlyName": "Previous",
+      "$readOnly": true,
+      "$ref": "customdatatypesnapshot.json",
+      "description": "The version live before the current one, kept for rollback.",
+      "title": "previous"
+    },
     "propagate": {
       "$defaultValue": true,
       "$friendlyName": "Propagate",
@@ -126,6 +186,19 @@
         "boolean",
         "null"
       ]
+    },
+    "status": {
+      "$defaultValue": "Active",
+      "$friendlyName": "Status",
+      "$readOnly": true,
+      "description": "Whether the custom data type detects. `Draft` has never been activated, `Activating` is being rolled out to every region, `Stuck` has a region that keeps failing while the previous version still detects, and `Active` detects everywhere.",
+      "enum": [
+        "Draft",
+        "Activating",
+        "Stuck",
+        "Active"
+      ],
+      "title": "status"
     },
     "updateTime": {
       "$friendlyName": "UpdateTime",

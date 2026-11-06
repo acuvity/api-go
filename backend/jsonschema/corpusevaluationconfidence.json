@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Confidence",
+  "$friendlyNamePlural": "Corpus Evaluation Confidences",
+  "$modelName": "CorpusEvaluationConfidence",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationconfidences",
+  "$modelRestName": "corpusevaluationconfidence",
+  "additionalProperties": false,
+  "description": "Where each confidence level starts, as the share of messages that should not match that still reach it. Each starts at the line at the earliest.",
+  "properties": {
+    "high": {
+      "$friendlyName": "High",
+      "description": "The score High confidence starts at: past `medium`, and past all but `highRate` of the examples that should not match. Unset, nothing reaches High: there were no such examples or no traffic sample.",
+      "title": "high",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "highRate": {
+      "$friendlyName": "High Rate",
+      "description": "The share of messages like the examples that should not match expected to score `high` or more: 1 in 20, or 1 in one more than their number when they are too few to show that.",
+      "title": "highRate",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "medium": {
+      "$friendlyName": "Medium",
+      "description": "The score Medium confidence starts at: past all but `mediumRate` of the traffic sample. Unset, nothing reaches Medium: there was no traffic sample.",
+      "title": "medium",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "mediumRate": {
+      "$friendlyName": "Medium Rate",
+      "description": "The share of ordinary messages like the traffic sample expected to score `medium` or more: 1 in 1000, or 1 in one more than its size when it is too small to show that.",
+      "title": "mediumRate",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationConfidence",
+  "type": "object"
+}

@@ -1,5 +1,11 @@
 {
   "properties": {
+    "a2amessages": {
+      "items": {
+        "$ref": "a2amessage.json"
+      },
+      "type": "array"
+    },
     "alertevents": {
       "items": {
         "$ref": "alertevent.json"

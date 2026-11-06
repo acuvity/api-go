@@ -111,6 +111,10 @@ type DataSet struct {
 	// Description of the dataSet.
 	Description string `json:"description" msgpack:"description" bson:"description" mapstructure:"description,omitempty"`
 
+	// If true, the data set is managed by an external system. It should not be
+	// modified, as the external system may overwrite the changes.
+	External bool `json:"external" msgpack:"external" bson:"external" mapstructure:"external,omitempty"`
+
 	// Friendly name of the object.
 	FriendlyName string `json:"friendlyName" msgpack:"friendlyName" bson:"friendlyname" mapstructure:"friendlyName,omitempty"`
 
@@ -127,6 +131,11 @@ type DataSet struct {
 
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// If true, the data set is provided by default, by the organization template
+	// or by the external system that manages it. Otherwise it was created by the
+	// organization.
+	Predefined bool `json:"predefined" msgpack:"predefined" bson:"predefined" mapstructure:"predefined,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
@@ -191,11 +200,13 @@ func (o *DataSet) GetBSON() (any, error) {
 	s.CreateTime = o.CreateTime
 	s.DataTypes = o.DataTypes
 	s.Description = o.Description
+	s.External = o.External
 	s.FriendlyName = o.FriendlyName
 	s.ImportHash = o.ImportHash
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Predefined = o.Predefined
 	s.Propagate = o.Propagate
 	s.Sensitivity = o.Sensitivity
 	s.UpdateTime = o.UpdateTime
@@ -222,11 +233,13 @@ func (o *DataSet) SetBSON(raw bson.Raw) error {
 	o.CreateTime = s.CreateTime
 	o.DataTypes = s.DataTypes
 	o.Description = s.Description
+	o.External = s.External
 	o.FriendlyName = s.FriendlyName
 	o.ImportHash = s.ImportHash
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Predefined = s.Predefined
 	o.Propagate = s.Propagate
 	o.Sensitivity = s.Sensitivity
 	o.UpdateTime = s.UpdateTime
@@ -372,11 +385,13 @@ func (o *DataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			CreateTime:   &o.CreateTime,
 			DataTypes:    &o.DataTypes,
 			Description:  &o.Description,
+			External:     &o.External,
 			FriendlyName: &o.FriendlyName,
 			ImportHash:   &o.ImportHash,
 			ImportLabel:  &o.ImportLabel,
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
+			Predefined:   &o.Predefined,
 			Propagate:    &o.Propagate,
 			Sensitivity:  &o.Sensitivity,
 			UpdateTime:   &o.UpdateTime,
@@ -396,6 +411,8 @@ func (o *DataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.DataTypes = &(o.DataTypes)
 		case "description":
 			sp.Description = &(o.Description)
+		case "external":
+			sp.External = &(o.External)
 		case "friendlyName":
 			sp.FriendlyName = &(o.FriendlyName)
 		case "importHash":
@@ -406,6 +423,8 @@ func (o *DataSet) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "predefined":
+			sp.Predefined = &(o.Predefined)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
 		case "sensitivity":
@@ -441,6 +460,9 @@ func (o *DataSet) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Description != nil {
 		o.Description = *so.Description
 	}
+	if so.External != nil {
+		o.External = *so.External
+	}
 	if so.FriendlyName != nil {
 		o.FriendlyName = *so.FriendlyName
 	}
@@ -455,6 +477,9 @@ func (o *DataSet) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Predefined != nil {
+		o.Predefined = *so.Predefined
 	}
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
@@ -578,6 +603,8 @@ func (o *DataSet) ValueForAttribute(name string) any {
 		return o.DataTypes
 	case "description":
 		return o.Description
+	case "external":
+		return o.External
 	case "friendlyName":
 		return o.FriendlyName
 	case "importHash":
@@ -588,6 +615,8 @@ func (o *DataSet) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "predefined":
+		return o.Predefined
 	case "propagate":
 		return o.Propagate
 	case "sensitivity":
@@ -655,6 +684,17 @@ var DataSetAttributesMap = map[string]elemental.AttributeSpecification{
 		Name:           "description",
 		Stored:         true,
 		Type:           "string",
+	},
+	"External": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "external",
+		ConvertedName:  "External",
+		Description: `If true, the data set is managed by an external system. It should not be
+modified, as the external system may overwrite the changes.`,
+		Exposed: true,
+		Name:    "external",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"FriendlyName": {
 		AllowedChoices: []string{},
@@ -726,6 +766,18 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"Predefined": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "predefined",
+		ConvertedName:  "Predefined",
+		Description: `If true, the data set is provided by default, by the organization template
+or by the external system that manages it. Otherwise it was created by the
+organization.`,
+		Exposed: true,
+		Name:    "predefined",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"Propagate": {
 		AllowedChoices: []string{},
@@ -821,6 +873,17 @@ var DataSetLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"external": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "external",
+		ConvertedName:  "External",
+		Description: `If true, the data set is managed by an external system. It should not be
+modified, as the external system may overwrite the changes.`,
+		Exposed: true,
+		Name:    "external",
+		Stored:  true,
+		Type:    "boolean",
+	},
 	"friendlyname": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "friendlyname",
@@ -891,6 +954,18 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "string",
+	},
+	"predefined": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "predefined",
+		ConvertedName:  "Predefined",
+		Description: `If true, the data set is provided by default, by the organization template
+or by the external system that manages it. Otherwise it was created by the
+organization.`,
+		Exposed: true,
+		Name:    "predefined",
+		Stored:  true,
+		Type:    "boolean",
 	},
 	"propagate": {
 		AllowedChoices: []string{},
@@ -1008,6 +1083,10 @@ type SparseDataSet struct {
 	// Description of the dataSet.
 	Description *string `json:"description,omitempty" msgpack:"description,omitempty" bson:"description,omitempty" mapstructure:"description,omitempty"`
 
+	// If true, the data set is managed by an external system. It should not be
+	// modified, as the external system may overwrite the changes.
+	External *bool `json:"external,omitempty" msgpack:"external,omitempty" bson:"external,omitempty" mapstructure:"external,omitempty"`
+
 	// Friendly name of the object.
 	FriendlyName *string `json:"friendlyName,omitempty" msgpack:"friendlyName,omitempty" bson:"friendlyname,omitempty" mapstructure:"friendlyName,omitempty"`
 
@@ -1024,6 +1103,11 @@ type SparseDataSet struct {
 
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
+
+	// If true, the data set is provided by default, by the organization template
+	// or by the external system that manages it. Otherwise it was created by the
+	// organization.
+	Predefined *bool `json:"predefined,omitempty" msgpack:"predefined,omitempty" bson:"predefined,omitempty" mapstructure:"predefined,omitempty"`
 
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
@@ -1095,6 +1179,9 @@ func (o *SparseDataSet) GetBSON() (any, error) {
 	if o.Description != nil {
 		s.Description = o.Description
 	}
+	if o.External != nil {
+		s.External = o.External
+	}
 	if o.FriendlyName != nil {
 		s.FriendlyName = o.FriendlyName
 	}
@@ -1109,6 +1196,9 @@ func (o *SparseDataSet) GetBSON() (any, error) {
 	}
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
+	}
+	if o.Predefined != nil {
+		s.Predefined = o.Predefined
 	}
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
@@ -1153,6 +1243,9 @@ func (o *SparseDataSet) SetBSON(raw bson.Raw) error {
 	if s.Description != nil {
 		o.Description = s.Description
 	}
+	if s.External != nil {
+		o.External = s.External
+	}
 	if s.FriendlyName != nil {
 		o.FriendlyName = s.FriendlyName
 	}
@@ -1167,6 +1260,9 @@ func (o *SparseDataSet) SetBSON(raw bson.Raw) error {
 	}
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
+	}
+	if s.Predefined != nil {
+		o.Predefined = s.Predefined
 	}
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
@@ -1209,6 +1305,9 @@ func (o *SparseDataSet) ToPlain() elemental.PlainIdentifiable {
 	if o.Description != nil {
 		out.Description = *o.Description
 	}
+	if o.External != nil {
+		out.External = *o.External
+	}
 	if o.FriendlyName != nil {
 		out.FriendlyName = *o.FriendlyName
 	}
@@ -1223,6 +1322,9 @@ func (o *SparseDataSet) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Predefined != nil {
+		out.Predefined = *o.Predefined
 	}
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
@@ -1412,11 +1514,13 @@ type mongoAttributesDataSet struct {
 	CreateTime   time.Time               `bson:"createtime"`
 	DataTypes    []string                `bson:"datatypes"`
 	Description  string                  `bson:"description"`
+	External     bool                    `bson:"external"`
 	FriendlyName string                  `bson:"friendlyname"`
 	ImportHash   string                  `bson:"importhash,omitempty"`
 	ImportLabel  string                  `bson:"importlabel,omitempty"`
 	Name         string                  `bson:"name"`
 	Namespace    string                  `bson:"namespace,omitempty"`
+	Predefined   bool                    `bson:"predefined"`
 	Propagate    bool                    `bson:"propagate"`
 	Sensitivity  DataSetSensitivityValue `bson:"sensitivity"`
 	UpdateTime   time.Time               `bson:"updatetime"`
@@ -1428,11 +1532,13 @@ type mongoAttributesSparseDataSet struct {
 	CreateTime   *time.Time               `bson:"createtime,omitempty"`
 	DataTypes    *[]string                `bson:"datatypes,omitempty"`
 	Description  *string                  `bson:"description,omitempty"`
+	External     *bool                    `bson:"external,omitempty"`
 	FriendlyName *string                  `bson:"friendlyname,omitempty"`
 	ImportHash   *string                  `bson:"importhash,omitempty"`
 	ImportLabel  *string                  `bson:"importlabel,omitempty"`
 	Name         *string                  `bson:"name,omitempty"`
 	Namespace    *string                  `bson:"namespace,omitempty"`
+	Predefined   *bool                    `bson:"predefined,omitempty"`
 	Propagate    *bool                    `bson:"propagate,omitempty"`
 	Sensitivity  *DataSetSensitivityValue `bson:"sensitivity,omitempty"`
 	UpdateTime   *time.Time               `bson:"updatetime,omitempty"`

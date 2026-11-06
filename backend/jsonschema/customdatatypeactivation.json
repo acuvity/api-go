@@ -1,0 +1,42 @@
+{
+  "$extends": [],
+  "$friendlyName": "Custom Data Type Activation",
+  "$friendlyNamePlural": "Custom Data Type Activations",
+  "$modelName": "CustomDataTypeActivation",
+  "$modelPackage": "zukan",
+  "$modelResourceName": "customdatatypeactivations",
+  "$modelRestName": "customdatatypeactivation",
+  "additionalProperties": false,
+  "description": "Activates the draft of a custom data type, or acts on its activation.",
+  "properties": {
+    "acknowledgeWarnings": {
+      "$friendlyName": "Acknowledge Warnings",
+      "description": "The codes of the evaluation warnings to activate despite.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "acknowledgeWarnings",
+      "type": "array"
+    },
+    "action": {
+      "$friendlyName": "Action",
+      "$required": true,
+      "description": "`Activate` evaluates the draft and, if it passes, rolls it out to every region. `Retry` retries a stuck activation, `Cancel` abandons it and returns its changes to the draft, and `Rollback` swaps the live and previous versions.",
+      "enum": [
+        "Activate",
+        "Retry",
+        "Cancel",
+        "Rollback"
+      ],
+      "title": "action"
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "title": "CustomDataTypeActivation",
+  "type": "object"
+}

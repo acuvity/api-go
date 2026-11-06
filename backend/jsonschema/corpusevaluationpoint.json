@@ -1,0 +1,52 @@
+{
+  "$extends": [],
+  "$friendlyName": "Corpus Evaluation Point",
+  "$friendlyNamePlural": "Corpus Evaluation Points",
+  "$modelName": "CorpusEvaluationPoint",
+  "$modelPackage": "kiroshi",
+  "$modelResourceName": "corpusevaluationpoints",
+  "$modelRestName": "corpusevaluationpoint",
+  "additionalProperties": false,
+  "description": "One anchor or example on the map.",
+  "properties": {
+    "idx": {
+      "$friendlyName": "Index",
+      "description": "Its index in its own list.",
+      "title": "idx",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "kind": {
+      "$friendlyName": "Kind",
+      "description": "`anchor`, `positive`, `negative` or `unlabeled`.",
+      "title": "kind",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "x": {
+      "$friendlyName": "X",
+      "description": "Horizontal position.",
+      "title": "x",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "y": {
+      "$friendlyName": "Y",
+      "description": "Vertical position.",
+      "title": "y",
+      "type": [
+        "number",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "CorpusEvaluationPoint",
+  "type": "object"
+}

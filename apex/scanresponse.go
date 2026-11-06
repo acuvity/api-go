@@ -83,6 +83,12 @@ const (
 type ScanResponseProviderTypeValue string
 
 const (
+	// ScanResponseProviderTypeAIDomain represents the value AIDomain.
+	ScanResponseProviderTypeAIDomain ScanResponseProviderTypeValue = "AIDomain"
+
+	// ScanResponseProviderTypeAgent represents the value Agent.
+	ScanResponseProviderTypeAgent ScanResponseProviderTypeValue = "Agent"
+
 	// ScanResponseProviderTypeLLM represents the value LLM.
 	ScanResponseProviderTypeLLM ScanResponseProviderTypeValue = "LLM"
 
@@ -176,6 +182,9 @@ type ScanResponse struct {
 	// ID is the identifier of the object.
 	ID string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// If this is an A2A message, then the A2A message details will be set here.
+	A2aMessage *A2AMessage `json:"a2aMessage,omitempty" msgpack:"a2aMessage,omitempty" bson:"a2amessage,omitempty" mapstructure:"a2aMessage,omitempty"`
+
 	// List of alerts that got raised during the policy resolution.
 	Alerts []*AlertEvent `json:"alerts,omitempty" msgpack:"alerts,omitempty" bson:"alerts,omitempty" mapstructure:"alerts,omitempty"`
 
@@ -198,9 +207,10 @@ type ScanResponse struct {
 	// User-facing outcome of the roundtrip. Reflects the policy
 	// engine's verdict, or in case of platform failure, the result of the
 	// failClose strategy (Deny on fail-close, Allow on fail-open, with
-	// structured error field carring the detail). NotApplicable is
-	// used by the scan and police APIs, which analyze content without
-	// rendering an enforcement decision. Error and UpstreamError stay
+	// structured error field carrying the detail). NotApplicable is
+	// used by the scan API, which analyzes content without evaluating
+	// any policy; the police API always renders an enforcement
+	// decision. Error and UpstreamError stay
 	// in the allowed_choices list for backward compatibility with
 	// clients that still PUT those values; new round-trips never emit
 	// them — platform/upstream failures now surface via the structured
@@ -261,7 +271,8 @@ type ScanResponse struct {
 	// The provider to use.
 	Provider string `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
-	// The type of the provider.
+	// The type of the provider. AIDomain when no provider handled a request to a
+	// host targeted by an access policy.
 	ProviderType ScanResponseProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -331,6 +342,7 @@ func (o *ScanResponse) GetBSON() (any, error) {
 	if o.ID != "" {
 		s.ID = bson.ObjectIdHex(o.ID)
 	}
+	s.A2aMessage = o.A2aMessage
 	s.Alerts = o.Alerts
 	s.Annotations = o.Annotations
 	s.Client = o.Client
@@ -377,6 +389,7 @@ func (o *ScanResponse) SetBSON(raw bson.Raw) error {
 	}
 
 	o.ID = s.ID.Hex()
+	o.A2aMessage = s.A2aMessage
 	o.Alerts = s.Alerts
 	o.Annotations = s.Annotations
 	o.Client = s.Client
@@ -458,6 +471,7 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		// nolint: goimports
 		return &SparseScanResponse{
 			ID:                     &o.ID,
+			A2aMessage:             o.A2aMessage,
 			Alerts:                 &o.Alerts,
 			Annotations:            &o.Annotations,
 			Client:                 &o.Client,
@@ -495,6 +509,8 @@ func (o *ScanResponse) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		switch f {
 		case "ID":
 			sp.ID = &(o.ID)
+		case "a2aMessage":
+			sp.A2aMessage = o.A2aMessage
 		case "alerts":
 			sp.Alerts = &(o.Alerts)
 		case "annotations":
@@ -568,6 +584,9 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 	so := sparse.(*SparseScanResponse)
 	if so.ID != nil {
 		o.ID = *so.ID
+	}
+	if so.A2aMessage != nil {
+		o.A2aMessage = so.A2aMessage
 	}
 	if so.Alerts != nil {
 		o.Alerts = *so.Alerts
@@ -661,6 +680,12 @@ func (o *ScanResponse) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *ScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.A2aMessage != nil {
+		if err := o.A2aMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'A2aMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Alerts {
 		if sub == nil {
 			continue
@@ -753,6 +778,12 @@ func (o *ScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter)
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *ScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.A2aMessage != nil {
+		if err := o.A2aMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'A2aMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Alerts {
 		if sub == nil {
@@ -876,6 +907,13 @@ func (o *ScanResponse) Validate() error {
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
 
+	if o.A2aMessage != nil {
+		if err := o.A2aMessage.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "a2aMessage")
+			errors = errors.Append(err)
+		}
+	}
+
 	for i, sub := range o.Alerts {
 		if sub == nil {
 			continue
@@ -961,7 +999,7 @@ func (o *ScanResponse) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"LLM", "MCPServer"}, false); err != nil {
+	if err := elemental.ValidateStringInList("providerType", string(o.ProviderType), []string{"AIDomain", "Agent", "LLM", "MCPServer"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -1036,6 +1074,8 @@ func (o *ScanResponse) ValueForAttribute(name string) any {
 	switch name {
 	case "ID":
 		return o.ID
+	case "a2aMessage":
+		return o.A2aMessage
 	case "alerts":
 		return o.Alerts
 	case "annotations":
@@ -1116,6 +1156,17 @@ var ScanResponseAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		Type:           "string",
 	},
+	"A2aMessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "a2amessage",
+		ConvertedName:  "A2aMessage",
+		Description:    `If this is an A2A message, then the A2A message details will be set here.`,
+		Exposed:        true,
+		Name:           "a2aMessage",
+		Stored:         true,
+		SubType:        "a2amessage",
+		Type:           "ref",
+	},
 	"Alerts": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alerts",
@@ -1179,9 +1230,10 @@ redactContentBypass can leave the content in place.`,
 		Description: `User-facing outcome of the roundtrip. Reflects the policy
 engine's verdict, or in case of platform failure, the result of the
 failClose strategy (Deny on fail-close, Allow on fail-open, with
-structured error field carring the detail). NotApplicable is
-used by the scan and police APIs, which analyze content without
-rendering an enforcement decision. Error and UpstreamError stay
+structured error field carrying the detail). NotApplicable is
+used by the scan API, which analyzes content without evaluating
+any policy; the police API always renders an enforcement
+decision. Error and UpstreamError stay
 in the allowed_choices list for backward compatibility with
 clients that still PUT those values; new round-trips never emit
 them — platform/upstream failures now surface via the structured
@@ -1367,15 +1419,16 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Type:           "string",
 	},
 	"ProviderType": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"AIDomain", "Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
-		Description:    `The type of the provider.`,
-		Exposed:        true,
-		Name:           "providerType",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The type of the provider. AIDomain when no provider handled a request to a
+host targeted by an access policy.`,
+		Exposed:  true,
+		Name:     "providerType",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"Reasons": {
 		AllowedChoices: []string{},
@@ -1469,6 +1522,17 @@ var ScanResponseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		Type:           "string",
 	},
+	"a2amessage": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "a2amessage",
+		ConvertedName:  "A2aMessage",
+		Description:    `If this is an A2A message, then the A2A message details will be set here.`,
+		Exposed:        true,
+		Name:           "a2aMessage",
+		Stored:         true,
+		SubType:        "a2amessage",
+		Type:           "ref",
+	},
 	"alerts": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "alerts",
@@ -1532,9 +1596,10 @@ redactContentBypass can leave the content in place.`,
 		Description: `User-facing outcome of the roundtrip. Reflects the policy
 engine's verdict, or in case of platform failure, the result of the
 failClose strategy (Deny on fail-close, Allow on fail-open, with
-structured error field carring the detail). NotApplicable is
-used by the scan and police APIs, which analyze content without
-rendering an enforcement decision. Error and UpstreamError stay
+structured error field carrying the detail). NotApplicable is
+used by the scan API, which analyzes content without evaluating
+any policy; the police API always renders an enforcement
+decision. Error and UpstreamError stay
 in the allowed_choices list for backward compatibility with
 clients that still PUT those values; new round-trips never emit
 them — platform/upstream failures now surface via the structured
@@ -1720,15 +1785,16 @@ UpstreamError), the failing stage, and a human-readable message.`,
 		Type:           "string",
 	},
 	"providertype": {
-		AllowedChoices: []string{"LLM", "MCPServer"},
+		AllowedChoices: []string{"AIDomain", "Agent", "LLM", "MCPServer"},
 		BSONFieldName:  "providertype",
 		ConvertedName:  "ProviderType",
-		Description:    `The type of the provider.`,
-		Exposed:        true,
-		Name:           "providerType",
-		Required:       true,
-		Stored:         true,
-		Type:           "enum",
+		Description: `The type of the provider. AIDomain when no provider handled a request to a
+host targeted by an access policy.`,
+		Exposed:  true,
+		Name:     "providerType",
+		Required: true,
+		Stored:   true,
+		Type:     "enum",
 	},
 	"reasons": {
 		AllowedChoices: []string{},
@@ -1871,6 +1937,9 @@ type SparseScanResponse struct {
 	// ID is the identifier of the object.
 	ID *string `json:"ID,omitempty" msgpack:"ID,omitempty" bson:"-" mapstructure:"ID,omitempty"`
 
+	// If this is an A2A message, then the A2A message details will be set here.
+	A2aMessage *A2AMessage `json:"a2aMessage,omitempty" msgpack:"a2aMessage,omitempty" bson:"a2amessage,omitempty" mapstructure:"a2aMessage,omitempty"`
+
 	// List of alerts that got raised during the policy resolution.
 	Alerts *[]*AlertEvent `json:"alerts,omitempty" msgpack:"alerts,omitempty" bson:"alerts,omitempty" mapstructure:"alerts,omitempty"`
 
@@ -1893,9 +1962,10 @@ type SparseScanResponse struct {
 	// User-facing outcome of the roundtrip. Reflects the policy
 	// engine's verdict, or in case of platform failure, the result of the
 	// failClose strategy (Deny on fail-close, Allow on fail-open, with
-	// structured error field carring the detail). NotApplicable is
-	// used by the scan and police APIs, which analyze content without
-	// rendering an enforcement decision. Error and UpstreamError stay
+	// structured error field carrying the detail). NotApplicable is
+	// used by the scan API, which analyzes content without evaluating
+	// any policy; the police API always renders an enforcement
+	// decision. Error and UpstreamError stay
 	// in the allowed_choices list for backward compatibility with
 	// clients that still PUT those values; new round-trips never emit
 	// them — platform/upstream failures now surface via the structured
@@ -1956,7 +2026,8 @@ type SparseScanResponse struct {
 	// The provider to use.
 	Provider *string `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
-	// The type of the provider.
+	// The type of the provider. AIDomain when no provider handled a request to a
+	// host targeted by an access policy.
 	ProviderType *ScanResponseProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
 
 	// The various reasons returned by the policy engine.
@@ -2025,6 +2096,9 @@ func (o *SparseScanResponse) GetBSON() (any, error) {
 
 	if o.ID != nil {
 		s.ID = bson.ObjectIdHex(*o.ID)
+	}
+	if o.A2aMessage != nil {
+		s.A2aMessage = o.A2aMessage
 	}
 	if o.Alerts != nil {
 		s.Alerts = o.Alerts
@@ -2129,6 +2203,9 @@ func (o *SparseScanResponse) SetBSON(raw bson.Raw) error {
 
 	id := s.ID.Hex()
 	o.ID = &id
+	if s.A2aMessage != nil {
+		o.A2aMessage = s.A2aMessage
+	}
 	if s.Alerts != nil {
 		o.Alerts = s.Alerts
 	}
@@ -2230,6 +2307,9 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 	if o.ID != nil {
 		out.ID = *o.ID
 	}
+	if o.A2aMessage != nil {
+		out.A2aMessage = o.A2aMessage
+	}
 	if o.Alerts != nil {
 		out.Alerts = *o.Alerts
 	}
@@ -2323,6 +2403,12 @@ func (o *SparseScanResponse) ToPlain() elemental.PlainIdentifiable {
 
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparseScanResponse) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.A2aMessage != nil {
+		if err := o.A2aMessage.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'A2aMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Alerts != nil {
 		for _, sub := range *o.Alerts {
@@ -2422,6 +2508,12 @@ func (o *SparseScanResponse) EncryptAttributes(encrypter elemental.AttributeEncr
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparseScanResponse) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.A2aMessage != nil {
+		if err := o.A2aMessage.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'A2aMessage' for 'ScanResponse' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	if o.Alerts != nil {
 		for _, sub := range *o.Alerts {
@@ -2561,6 +2653,7 @@ func (o *SparseScanResponse) DeepCopyInto(out *SparseScanResponse) {
 
 type mongoAttributesScanResponse struct {
 	ID                     bson.ObjectId                           `bson:"_id,omitempty"`
+	A2aMessage             *A2AMessage                             `bson:"a2amessage,omitempty"`
 	Alerts                 []*AlertEvent                           `bson:"alerts,omitempty"`
 	Annotations            map[string]string                       `bson:"annotations,omitempty"`
 	Client                 string                                  `bson:"client,omitempty"`
@@ -2592,6 +2685,7 @@ type mongoAttributesScanResponse struct {
 }
 type mongoAttributesSparseScanResponse struct {
 	ID                     bson.ObjectId                            `bson:"_id,omitempty"`
+	A2aMessage             *A2AMessage                              `bson:"a2amessage,omitempty"`
 	Alerts                 *[]*AlertEvent                           `bson:"alerts,omitempty"`
 	Annotations            *map[string]string                       `bson:"annotations,omitempty"`
 	Client                 *string                                  `bson:"client,omitempty"`

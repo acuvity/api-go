@@ -1,5 +1,11 @@
 {
   "properties": {
+    "a2amessages": {
+      "items": {
+        "$ref": "a2amessage.json"
+      },
+      "type": "array"
+    },
     "accesspolicies": {
       "items": {
         "$ref": "accesspolicy.json"
@@ -522,9 +528,141 @@
       },
       "type": "array"
     },
+    "corpusevaluationanchors": {
+      "items": {
+        "$ref": "corpusevaluationanchor.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationconfidences": {
+      "items": {
+        "$ref": "corpusevaluationconfidence.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationcurves": {
+      "items": {
+        "$ref": "corpusevaluationcurve.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationfindings": {
+      "items": {
+        "$ref": "corpusevaluationfinding.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationmaps": {
+      "items": {
+        "$ref": "corpusevaluationmap.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationoptions": {
+      "items": {
+        "$ref": "corpusevaluationoption.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationpoints": {
+      "items": {
+        "$ref": "corpusevaluationpoint.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationprobes": {
+      "items": {
+        "$ref": "corpusevaluationprobe.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationreports": {
+      "items": {
+        "$ref": "corpusevaluationreport.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluations": {
+      "items": {
+        "$ref": "corpusevaluation.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationscales": {
+      "items": {
+        "$ref": "corpusevaluationscale.json"
+      },
+      "type": "array"
+    },
+    "corpusevaluationthresholds": {
+      "items": {
+        "$ref": "corpusevaluationthreshold.json"
+      },
+      "type": "array"
+    },
+    "corpusingestions": {
+      "items": {
+        "$ref": "corpusingestion.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeactivations": {
+      "items": {
+        "$ref": "customdatatypeactivation.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeactivationstates": {
+      "items": {
+        "$ref": "customdatatypeactivationstate.json"
+      },
+      "type": "array"
+    },
+    "customdatatypecorpuses": {
+      "items": {
+        "$ref": "customdatatypecorpus.json"
+      },
+      "type": "array"
+    },
+    "customdatatypedrafts": {
+      "items": {
+        "$ref": "customdatatypedraft.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeevaluationinputs": {
+      "items": {
+        "$ref": "customdatatypeevaluationinputs.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeevaluationresults": {
+      "items": {
+        "$ref": "customdatatypeevaluationresult.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeevaluations": {
+      "items": {
+        "$ref": "customdatatypeevaluation.json"
+      },
+      "type": "array"
+    },
+    "customdatatypeingestions": {
+      "items": {
+        "$ref": "customdatatypeingestion.json"
+      },
+      "type": "array"
+    },
     "customdatatypes": {
       "items": {
         "$ref": "customdatatype.json"
+      },
+      "type": "array"
+    },
+    "customdatatypesnapshots": {
+      "items": {
+        "$ref": "customdatatypesnapshot.json"
       },
       "type": "array"
     },
@@ -894,6 +1032,12 @@
       },
       "type": "array"
     },
+    "maskingpolicies": {
+      "items": {
+        "$ref": "maskingpolicy.json"
+      },
+      "type": "array"
+    },
     "mcpgatewaybackends": {
       "items": {
         "$ref": "mcpgatewaybackend.json"
@@ -978,6 +1122,12 @@
       },
       "type": "array"
     },
+    "mcptoolshadowfindings": {
+      "items": {
+        "$ref": "mcptoolshadowfinding.json"
+      },
+      "type": "array"
+    },
     "mcptoolsnapshots": {
       "items": {
         "$ref": "mcptoolsnapshot.json"
@@ -1017,6 +1167,12 @@
     "moderations": {
       "items": {
         "$ref": "moderation.json"
+      },
+      "type": "array"
+    },
+    "mtlssourceciscoduo": {
+      "items": {
+        "$ref": "mtlssourceciscoduo.json"
       },
       "type": "array"
     },
@@ -1083,6 +1239,12 @@
     "pacconfigs": {
       "items": {
         "$ref": "pacconfig.json"
+      },
+      "type": "array"
+    },
+    "pagedataviewfilterpredicates": {
+      "items": {
+        "$ref": "pagedataviewfilterpredicate.json"
       },
       "type": "array"
     },
@@ -1380,6 +1542,12 @@
       },
       "type": "array"
     },
+    "sinkchecks": {
+      "items": {
+        "$ref": "sinkcheck.json"
+      },
+      "type": "array"
+    },
     "sinkdatabahn": {
       "items": {
         "$ref": "sinkdatabahn.json"
@@ -1419,6 +1587,18 @@
     "sinksplunk": {
       "items": {
         "$ref": "sinksplunk.json"
+      },
+      "type": "array"
+    },
+    "sinkwebhook": {
+      "items": {
+        "$ref": "sinkwebhook.json"
+      },
+      "type": "array"
+    },
+    "sinkwebhookheader": {
+      "items": {
+        "$ref": "sinkwebhookheader.json"
       },
       "type": "array"
     },
@@ -1533,6 +1713,12 @@
     "trafficcontrols": {
       "items": {
         "$ref": "trafficcontrol.json"
+      },
+      "type": "array"
+    },
+    "trafficsamples": {
+      "items": {
+        "$ref": "trafficsample.json"
       },
       "type": "array"
     },

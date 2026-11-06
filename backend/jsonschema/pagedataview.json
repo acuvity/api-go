@@ -33,7 +33,17 @@
         "null"
       ]
     },
+    "filterPredicates": {
+      "$friendlyName": "Filter Predicates",
+      "description": "The conditions of the saved filter, AND-ed.",
+      "items": {
+        "$ref": "pagedataviewfilterpredicate.json"
+      },
+      "title": "filterPredicates",
+      "type": "array"
+    },
     "name": {
+      "$creationOnly": true,
       "$friendlyName": "Name",
       "$required": true,
       "description": "The name of the page data view.",
@@ -51,6 +61,7 @@
       ]
     },
     "pageID": {
+      "$creationOnly": true,
       "$friendlyName": "Page ID",
       "$required": true,
       "description": "The name of the page.",

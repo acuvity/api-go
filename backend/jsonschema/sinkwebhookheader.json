@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "Sink Webhook Header",
+  "$friendlyNamePlural": "Sink Webhook Headers",
+  "$modelName": "SinkWebhookHeader",
+  "$modelPackage": "avi",
+  "$modelResourceName": "sinkwebhookheader",
+  "$modelRestName": "sinkwebhookheader",
+  "additionalProperties": false,
+  "description": "An HTTP header sent with every request of a webhook sink.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the header, such as Authorization or X-API-Key.",
+      "maxLength": 256,
+      "pattern": "^[!#$%\u0026'*+.^_|~0-9A-Za-z-]+$",
+      "title": "name",
+      "type": "string"
+    },
+    "value": {
+      "$friendlyName": "Value",
+      "$required": true,
+      "description": "The value of the header. Write only: it is never returned, because it commonly holds a credential.",
+      "maxLength": 4096,
+      "title": "value",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "value"
+  ],
+  "title": "SinkWebhookHeader",
+  "type": "object"
+}

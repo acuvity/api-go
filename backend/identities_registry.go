@@ -7,6 +7,7 @@ import "go.acuvity.ai/elemental"
 
 var (
 	identityNamesMap = map[string]elemental.Identity{
+
 		"accesspolicy": AccessPolicyIdentity,
 
 		"adminlicense": AdminLicenseIdentity,
@@ -59,8 +60,15 @@ var (
 
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicy":            ContentPolicyIdentity,
+		"contentpolicy":    ContentPolicyIdentity,
+		"corpusevaluation": CorpusEvaluationIdentity,
+
+		"corpusingestion":          CorpusIngestionIdentity,
 		"customdatatype":           CustomDataTypeIdentity,
+		"customdatatypeactivation": CustomDataTypeActivationIdentity,
+
+		"customdatatypeevaluation": CustomDataTypeEvaluationIdentity,
+
 		"customdatatypevalidation": CustomDataTypeValidationIdentity,
 		"dataset":                  DataSetIdentity,
 		"datasink":                 DataSinkIdentity,
@@ -69,7 +77,8 @@ var (
 		"datasinkagenticlogs":      DataSinkAgenticLogsIdentity,
 		"datasinkagenticmetrics":   DataSinkAgenticMetricsIdentity,
 		"datasinkbackfill":         DataSinkBackfillIdentity,
-		"datasinkcheck":            DataSinkCheckIdentity,
+
+		"datasinkcheck": DataSinkCheckIdentity,
 
 		"datasinknotifications": DataSinkNotificationsIdentity,
 
@@ -112,6 +121,7 @@ var (
 		"latency":    LatencyIdentity,
 		"logbundle":  LogBundleIdentity,
 
+		"maskingpolicy":     MaskingPolicyIdentity,
 		"mcpgateway":        MCPGatewayIdentity,
 		"mcpgatewaybackend": MCPGatewayBackendIdentity,
 		"mcpgatewayclient":  MCPGatewayClientIdentity,
@@ -119,11 +129,12 @@ var (
 
 		"mcptool": MCPToolIdentity,
 
-		"mcptoolsnapshot":  MCPToolSnapshotIdentity,
-		"metric":           MetricIdentity,
-		"metriclabelvalue": MetricLabelValueIdentity,
-		"metricrange":      MetricRangeIdentity,
-		"metricserie":      MetricSerieIdentity,
+		"mcptoolshadowfinding": MCPToolShadowFindingIdentity,
+		"mcptoolsnapshot":      MCPToolSnapshotIdentity,
+		"metric":               MetricIdentity,
+		"metriclabelvalue":     MetricLabelValueIdentity,
+		"metricrange":          MetricRangeIdentity,
+		"metricserie":          MetricSerieIdentity,
 
 		"mtlssource": MTLSSourceIdentity,
 
@@ -177,13 +188,16 @@ var (
 
 		"signup":        SignupIdentity,
 		"sink":          SinkIdentity,
+		"sinkcheck":     SinkCheckIdentity,
 		"sinkdatabahn":  SinkDatabahnIdentity,
 		"sinkemail":     SinkEmailIdentity,
 		"sinkmsteams":   SinkMSTeamsIdentity,
 		"sinkpagerduty": SinkPagerDutyIdentity,
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
-		"slug":          SlugIdentity,
+		"sinkwebhook":   SinkWebhookIdentity,
+
+		"slug": SlugIdentity,
 
 		"team": TeamIdentity,
 
@@ -194,6 +208,8 @@ var (
 		"tracesearch":    TraceSearchIdentity,
 		"tracetagkeys":   TraceTagKeysIdentity,
 		"tracetagvalues": TraceTagValuesIdentity,
+
+		"trafficsample": TrafficSampleIdentity,
 
 		"usertoken":          UserTokenIdentity,
 		"validate":           ValidateIdentity,
@@ -206,6 +222,7 @@ var (
 	}
 
 	identitycategoriesMap = map[string]elemental.Identity{
+
 		"accesspolicies": AccessPolicyIdentity,
 
 		"adminlicenses": AdminLicenseIdentity,
@@ -258,8 +275,15 @@ var (
 
 		"authsettings": AuthSettingsIdentity,
 
-		"contentpolicies":           ContentPolicyIdentity,
+		"contentpolicies":   ContentPolicyIdentity,
+		"corpusevaluations": CorpusEvaluationIdentity,
+
+		"corpusingestions":          CorpusIngestionIdentity,
 		"customdatatypes":           CustomDataTypeIdentity,
+		"customdatatypeactivations": CustomDataTypeActivationIdentity,
+
+		"customdatatypeevaluations": CustomDataTypeEvaluationIdentity,
+
 		"customdatatypevalidations": CustomDataTypeValidationIdentity,
 		"datasets":                  DataSetIdentity,
 		"datasinks":                 DataSinkIdentity,
@@ -268,7 +292,8 @@ var (
 		"datasinkagenticlogs":       DataSinkAgenticLogsIdentity,
 		"datasinkagenticmetrics":    DataSinkAgenticMetricsIdentity,
 		"datasinkbackfills":         DataSinkBackfillIdentity,
-		"datasinkchecks":            DataSinkCheckIdentity,
+
+		"datasinkchecks": DataSinkCheckIdentity,
 
 		"datasinknotifications": DataSinkNotificationsIdentity,
 
@@ -311,6 +336,7 @@ var (
 		"latencies":   LatencyIdentity,
 		"logbundles":  LogBundleIdentity,
 
+		"maskingpolicies":    MaskingPolicyIdentity,
 		"mcpgateways":        MCPGatewayIdentity,
 		"mcpgatewaybackends": MCPGatewayBackendIdentity,
 		"clients":            MCPGatewayClientIdentity,
@@ -318,11 +344,12 @@ var (
 
 		"mcptools": MCPToolIdentity,
 
-		"mcptoolsnapshots":  MCPToolSnapshotIdentity,
-		"metrics":           MetricIdentity,
-		"metriclabelvalues": MetricLabelValueIdentity,
-		"metricranges":      MetricRangeIdentity,
-		"metricseries":      MetricSerieIdentity,
+		"mcptoolshadowfindings": MCPToolShadowFindingIdentity,
+		"mcptoolsnapshots":      MCPToolSnapshotIdentity,
+		"metrics":               MetricIdentity,
+		"metriclabelvalues":     MetricLabelValueIdentity,
+		"metricranges":          MetricRangeIdentity,
+		"metricseries":          MetricSerieIdentity,
 
 		"mtlssources": MTLSSourceIdentity,
 
@@ -376,13 +403,16 @@ var (
 
 		"signups":       SignupIdentity,
 		"sinks":         SinkIdentity,
+		"sinkchecks":    SinkCheckIdentity,
 		"sinkdatabahn":  SinkDatabahnIdentity,
 		"sinkemail":     SinkEmailIdentity,
 		"sinkmsteams":   SinkMSTeamsIdentity,
 		"sinkpagerduty": SinkPagerDutyIdentity,
 		"sinkslack":     SinkSlackIdentity,
 		"sinksplunk":    SinkSplunkIdentity,
-		"slugs":         SlugIdentity,
+		"sinkwebhook":   SinkWebhookIdentity,
+
+		"slugs": SlugIdentity,
 
 		"teams": TeamIdentity,
 
@@ -393,6 +423,8 @@ var (
 		"tracesearches":  TraceSearchIdentity,
 		"tracetagkeys":   TraceTagKeysIdentity,
 		"tracetagvalues": TraceTagValuesIdentity,
+
+		"trafficsamples": TrafficSampleIdentity,
 
 		"usertokens":          UserTokenIdentity,
 		"validate":            ValidateIdentity,
@@ -449,6 +481,7 @@ var (
 			{"namespace", "domain"},
 			{"namespace", "importLabel"},
 			{"namespace", "providerName"},
+			{"namespace", "riskWeight"},
 		},
 		"aidomainlookup": nil,
 		"aidomainrequest": {
@@ -593,13 +626,18 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"corpusevaluation": nil,
+		"corpusingestion":  nil,
 		"customdatatype": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
+			{"nextReconcileTime"},
 		},
+		"customdatatypeactivation": nil,
+		"customdatatypeevaluation": nil,
 		"customdatatypevalidation": nil,
 		"dataset": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -762,6 +800,13 @@ var (
 			{"namespace"},
 			{"namespace", "ID"},
 		},
+		"maskingpolicy": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
 		"mcpgateway": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -788,6 +833,13 @@ var (
 			{"namespace", "ID"},
 		},
 		"mcptool": nil,
+		"mcptoolshadowfinding": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "gatewayName"},
+			{"namespace", "gatewayName", "connectorA", "toolA", "connectorB", "toolB", "signal"},
+		},
 		"mcptoolsnapshot": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -1007,12 +1059,14 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
+		"sinkcheck":     nil,
 		"sinkdatabahn":  nil,
 		"sinkemail":     nil,
 		"sinkmsteams":   nil,
 		"sinkpagerduty": nil,
 		"sinkslack":     nil,
 		"sinksplunk":    nil,
+		"sinkwebhook":   nil,
 		"slug":          nil,
 		"team": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -1044,6 +1098,13 @@ var (
 		"tracetagvalues": {
 			{"namespace"},
 			{"namespace", "ID"},
+		},
+		"trafficsample": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
 		},
 		"usertoken": {
 			{":shard", ":unique", "zone", "zHash"},
@@ -1192,8 +1253,16 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAuthSettings()
 	case ContentPolicyIdentity:
 		return NewContentPolicy()
+	case CorpusEvaluationIdentity:
+		return NewCorpusEvaluation()
+	case CorpusIngestionIdentity:
+		return NewCorpusIngestion()
 	case CustomDataTypeIdentity:
 		return NewCustomDataType()
+	case CustomDataTypeActivationIdentity:
+		return NewCustomDataTypeActivation()
+	case CustomDataTypeEvaluationIdentity:
+		return NewCustomDataTypeEvaluation()
 	case CustomDataTypeValidationIdentity:
 		return NewCustomDataTypeValidation()
 	case DataSetIdentity:
@@ -1268,6 +1337,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewLatency()
 	case LogBundleIdentity:
 		return NewLogBundle()
+	case MaskingPolicyIdentity:
+		return NewMaskingPolicy()
 	case MCPGatewayIdentity:
 		return NewMCPGateway()
 	case MCPGatewayBackendIdentity:
@@ -1278,6 +1349,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewMCPGatewayConf()
 	case MCPToolIdentity:
 		return NewMCPTool()
+	case MCPToolShadowFindingIdentity:
+		return NewMCPToolShadowFinding()
 	case MCPToolSnapshotIdentity:
 		return NewMCPToolSnapshot()
 	case MetricIdentity:
@@ -1364,6 +1437,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSignup()
 	case SinkIdentity:
 		return NewSink()
+	case SinkCheckIdentity:
+		return NewSinkCheck()
 	case SinkDatabahnIdentity:
 		return NewSinkDatabahn()
 	case SinkEmailIdentity:
@@ -1376,6 +1451,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewSinkSlack()
 	case SinkSplunkIdentity:
 		return NewSinkSplunk()
+	case SinkWebhookIdentity:
+		return NewSinkWebhook()
 	case SlugIdentity:
 		return NewSlug()
 	case TeamIdentity:
@@ -1392,6 +1469,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewTraceTagKeys()
 	case TraceTagValuesIdentity:
 		return NewTraceTagValues()
+	case TrafficSampleIdentity:
+		return NewTrafficSample()
 	case UserTokenIdentity:
 		return NewUserToken()
 	case ValidateIdentity:
@@ -1485,8 +1564,16 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAuthSettings()
 	case ContentPolicyIdentity:
 		return NewSparseContentPolicy()
+	case CorpusEvaluationIdentity:
+		return NewSparseCorpusEvaluation()
+	case CorpusIngestionIdentity:
+		return NewSparseCorpusIngestion()
 	case CustomDataTypeIdentity:
 		return NewSparseCustomDataType()
+	case CustomDataTypeActivationIdentity:
+		return NewSparseCustomDataTypeActivation()
+	case CustomDataTypeEvaluationIdentity:
+		return NewSparseCustomDataTypeEvaluation()
 	case CustomDataTypeValidationIdentity:
 		return NewSparseCustomDataTypeValidation()
 	case DataSetIdentity:
@@ -1561,6 +1648,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseLatency()
 	case LogBundleIdentity:
 		return NewSparseLogBundle()
+	case MaskingPolicyIdentity:
+		return NewSparseMaskingPolicy()
 	case MCPGatewayIdentity:
 		return NewSparseMCPGateway()
 	case MCPGatewayBackendIdentity:
@@ -1571,6 +1660,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseMCPGatewayConf()
 	case MCPToolIdentity:
 		return NewSparseMCPTool()
+	case MCPToolShadowFindingIdentity:
+		return NewSparseMCPToolShadowFinding()
 	case MCPToolSnapshotIdentity:
 		return NewSparseMCPToolSnapshot()
 	case MetricIdentity:
@@ -1655,6 +1746,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSignup()
 	case SinkIdentity:
 		return NewSparseSink()
+	case SinkCheckIdentity:
+		return NewSparseSinkCheck()
 	case SinkDatabahnIdentity:
 		return NewSparseSinkDatabahn()
 	case SinkEmailIdentity:
@@ -1667,6 +1760,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseSinkSlack()
 	case SinkSplunkIdentity:
 		return NewSparseSinkSplunk()
+	case SinkWebhookIdentity:
+		return NewSparseSinkWebhook()
 	case SlugIdentity:
 		return NewSparseSlug()
 	case TeamIdentity:
@@ -1683,6 +1778,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseTraceTagKeys()
 	case TraceTagValuesIdentity:
 		return NewSparseTraceTagValues()
+	case TrafficSampleIdentity:
+		return NewSparseTrafficSample()
 	case UserTokenIdentity:
 		return NewSparseUserToken()
 	case ValidateIdentity:
@@ -1786,8 +1883,16 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &ContentPoliciesList{}
+	case CorpusEvaluationIdentity:
+		return &CorpusEvaluationsList{}
+	case CorpusIngestionIdentity:
+		return &CorpusIngestionsList{}
 	case CustomDataTypeIdentity:
 		return &CustomDataTypesList{}
+	case CustomDataTypeActivationIdentity:
+		return &CustomDataTypeActivationsList{}
+	case CustomDataTypeEvaluationIdentity:
+		return &CustomDataTypeEvaluationsList{}
 	case CustomDataTypeValidationIdentity:
 		return &CustomDataTypeValidationsList{}
 	case DataSetIdentity:
@@ -1862,6 +1967,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &LatenciesList{}
 	case LogBundleIdentity:
 		return &LogBundlesList{}
+	case MaskingPolicyIdentity:
+		return &MaskingPoliciesList{}
 	case MCPGatewayIdentity:
 		return &MCPGatewaysList{}
 	case MCPGatewayBackendIdentity:
@@ -1872,6 +1979,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &MCPGatewayConfsList{}
 	case MCPToolIdentity:
 		return &MCPToolsList{}
+	case MCPToolShadowFindingIdentity:
+		return &MCPToolShadowFindingsList{}
 	case MCPToolSnapshotIdentity:
 		return &MCPToolSnapshotsList{}
 	case MetricIdentity:
@@ -1956,6 +2065,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SignupsList{}
 	case SinkIdentity:
 		return &SinksList{}
+	case SinkCheckIdentity:
+		return &SinkChecksList{}
 	case SinkDatabahnIdentity:
 		return &SinkDatabahnsList{}
 	case SinkEmailIdentity:
@@ -1968,6 +2079,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &SinkSlacksList{}
 	case SinkSplunkIdentity:
 		return &SinkSplunksList{}
+	case SinkWebhookIdentity:
+		return &SinkWebhooksList{}
 	case SlugIdentity:
 		return &SlugsList{}
 	case TeamIdentity:
@@ -1984,6 +2097,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &TraceTagKeysList{}
 	case TraceTagValuesIdentity:
 		return &TraceTagValuesList{}
+	case TrafficSampleIdentity:
+		return &TrafficSamplesList{}
 	case UserTokenIdentity:
 		return &UserTokensList{}
 	case ValidateIdentity:
@@ -2077,8 +2192,16 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAuthSettingsList{}
 	case ContentPolicyIdentity:
 		return &SparseContentPoliciesList{}
+	case CorpusEvaluationIdentity:
+		return &SparseCorpusEvaluationsList{}
+	case CorpusIngestionIdentity:
+		return &SparseCorpusIngestionsList{}
 	case CustomDataTypeIdentity:
 		return &SparseCustomDataTypesList{}
+	case CustomDataTypeActivationIdentity:
+		return &SparseCustomDataTypeActivationsList{}
+	case CustomDataTypeEvaluationIdentity:
+		return &SparseCustomDataTypeEvaluationsList{}
 	case CustomDataTypeValidationIdentity:
 		return &SparseCustomDataTypeValidationsList{}
 	case DataSetIdentity:
@@ -2153,6 +2276,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseLatenciesList{}
 	case LogBundleIdentity:
 		return &SparseLogBundlesList{}
+	case MaskingPolicyIdentity:
+		return &SparseMaskingPoliciesList{}
 	case MCPGatewayIdentity:
 		return &SparseMCPGatewaysList{}
 	case MCPGatewayBackendIdentity:
@@ -2163,6 +2288,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseMCPGatewayConfsList{}
 	case MCPToolIdentity:
 		return &SparseMCPToolsList{}
+	case MCPToolShadowFindingIdentity:
+		return &SparseMCPToolShadowFindingsList{}
 	case MCPToolSnapshotIdentity:
 		return &SparseMCPToolSnapshotsList{}
 	case MetricIdentity:
@@ -2247,6 +2374,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSignupsList{}
 	case SinkIdentity:
 		return &SparseSinksList{}
+	case SinkCheckIdentity:
+		return &SparseSinkChecksList{}
 	case SinkDatabahnIdentity:
 		return &SparseSinkDatabahnsList{}
 	case SinkEmailIdentity:
@@ -2259,6 +2388,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseSinkSlacksList{}
 	case SinkSplunkIdentity:
 		return &SparseSinkSplunksList{}
+	case SinkWebhookIdentity:
+		return &SparseSinkWebhooksList{}
 	case SlugIdentity:
 		return &SparseSlugsList{}
 	case TeamIdentity:
@@ -2275,6 +2406,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseTraceTagKeysList{}
 	case TraceTagValuesIdentity:
 		return &SparseTraceTagValuesList{}
+	case TrafficSampleIdentity:
+		return &SparseTrafficSamplesList{}
 	case UserTokenIdentity:
 		return &SparseUserTokensList{}
 	case ValidateIdentity:
@@ -2312,6 +2445,8 @@ func (f modelManager) DetachedFromString(name string) any {
 
 	switch name {
 
+	case "a2amessage", "A2AMessage":
+		return NewA2AMessage()
 	case "agentdiscoveredapp", "AgentDiscoveredApp":
 		return NewAgentDiscoveredApp()
 	case "agentdiscoveredmcp", "AgentDiscoveredMCP":
@@ -2408,6 +2543,44 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewConnectionMonitorWorkloadGroupSetSelector()
 	case "connectionreport", "ConnectionReport":
 		return NewConnectionReport()
+	case "corpusevaluationanchor", "CorpusEvaluationAnchor":
+		return NewCorpusEvaluationAnchor()
+	case "corpusevaluationconfidence", "CorpusEvaluationConfidence":
+		return NewCorpusEvaluationConfidence()
+	case "corpusevaluationcurve", "CorpusEvaluationCurve":
+		return NewCorpusEvaluationCurve()
+	case "corpusevaluationfinding", "CorpusEvaluationFinding":
+		return NewCorpusEvaluationFinding()
+	case "corpusevaluationmap", "CorpusEvaluationMap":
+		return NewCorpusEvaluationMap()
+	case "corpusevaluationoption", "CorpusEvaluationOption":
+		return NewCorpusEvaluationOption()
+	case "corpusevaluationpoint", "CorpusEvaluationPoint":
+		return NewCorpusEvaluationPoint()
+	case "corpusevaluationprobe", "CorpusEvaluationProbe":
+		return NewCorpusEvaluationProbe()
+	case "corpusevaluationreport", "CorpusEvaluationReport":
+		return NewCorpusEvaluationReport()
+	case "corpusevaluationscale", "CorpusEvaluationScale":
+		return NewCorpusEvaluationScale()
+	case "corpusevaluationthreshold", "CorpusEvaluationThreshold":
+		return NewCorpusEvaluationThreshold()
+	case "customdatatypeactivationstate", "CustomDataTypeActivationState":
+		return NewCustomDataTypeActivationState()
+	case "customdatatypecorpus", "CustomDataTypeCorpus":
+		return NewCustomDataTypeCorpus()
+	case "customdatatypedraft", "CustomDataTypeDraft":
+		return NewCustomDataTypeDraft()
+	case "customdatatypeevaluationinputs", "CustomDataTypeEvaluationInputs":
+		return NewCustomDataTypeEvaluationInputs()
+	case "customdatatypeevaluationresult", "CustomDataTypeEvaluationResult":
+		return NewCustomDataTypeEvaluationResult()
+	case "customdatatypeingestion", "CustomDataTypeIngestion":
+		return NewCustomDataTypeIngestion()
+	case "customdatatypesnapshot", "CustomDataTypeSnapshot":
+		return NewCustomDataTypeSnapshot()
+	case "datasinkcatalogmetric", "DataSinkCatalogMetric":
+		return NewDataSinkCatalogMetric()
 	case "destination", "Destination":
 		return NewDestination()
 	case "detection", "Detection":
@@ -2480,6 +2653,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewModality()
 	case "moderation", "Moderation":
 		return NewModeration()
+	case "mtlssourceciscoduo", "MTLSSourceCiscoDuo":
+		return NewMTLSSourceCiscoDuo()
 	case "mtlssourceentra", "MTLSSourceEntra":
 		return NewMTLSSourceEntra()
 	case "mtlssourcegoogle", "MTLSSourceGoogle":
@@ -2490,6 +2665,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewOTLPEndpoint()
 	case "otlpreceiver", "OTLPReceiver":
 		return NewOTLPReceiver()
+	case "pagedataviewfilterpredicate", "PageDataViewFilterPredicate":
+		return NewPageDataViewFilterPredicate()
 	case "pagedataviewpredicate", "PageDataViewPredicate":
 		return NewPageDataViewPredicate()
 	case "policysimulationoutput", "PolicySimulationOutput":
@@ -2524,6 +2701,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewScanUser()
 	case "severityoverride", "SeverityOverride":
 		return NewSeverityOverride()
+	case "sinkwebhookheader", "SinkWebhookHeader":
+		return NewSinkWebhookHeader()
 	case "snippet", "Snippet":
 		return NewSnippet()
 	case "textualdetection", "TextualDetection":
@@ -2609,7 +2788,11 @@ func AllIdentities() []elemental.Identity {
 		AppTokenIdentity,
 		AuthSettingsIdentity,
 		ContentPolicyIdentity,
+		CorpusEvaluationIdentity,
+		CorpusIngestionIdentity,
 		CustomDataTypeIdentity,
+		CustomDataTypeActivationIdentity,
+		CustomDataTypeEvaluationIdentity,
 		CustomDataTypeValidationIdentity,
 		DataSetIdentity,
 		DataSinkIdentity,
@@ -2647,11 +2830,13 @@ func AllIdentities() []elemental.Identity {
 		LandingIdentity,
 		LatencyIdentity,
 		LogBundleIdentity,
+		MaskingPolicyIdentity,
 		MCPGatewayIdentity,
 		MCPGatewayBackendIdentity,
 		MCPGatewayClientIdentity,
 		MCPGatewayConfIdentity,
 		MCPToolIdentity,
+		MCPToolShadowFindingIdentity,
 		MCPToolSnapshotIdentity,
 		MetricIdentity,
 		MetricLabelValueIdentity,
@@ -2695,12 +2880,14 @@ func AllIdentities() []elemental.Identity {
 		SerieIdentity,
 		SignupIdentity,
 		SinkIdentity,
+		SinkCheckIdentity,
 		SinkDatabahnIdentity,
 		SinkEmailIdentity,
 		SinkMSTeamsIdentity,
 		SinkPagerDutyIdentity,
 		SinkSlackIdentity,
 		SinkSplunkIdentity,
+		SinkWebhookIdentity,
 		SlugIdentity,
 		TeamIdentity,
 		ThreatDefinitionIdentity,
@@ -2709,6 +2896,7 @@ func AllIdentities() []elemental.Identity {
 		TraceSearchIdentity,
 		TraceTagKeysIdentity,
 		TraceTagValuesIdentity,
+		TrafficSampleIdentity,
 		UserTokenIdentity,
 		ValidateIdentity,
 		VisitedURLIdentity,
@@ -2793,7 +2981,15 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case ContentPolicyIdentity:
 		return []string{}
+	case CorpusEvaluationIdentity:
+		return []string{}
+	case CorpusIngestionIdentity:
+		return []string{}
 	case CustomDataTypeIdentity:
+		return []string{}
+	case CustomDataTypeActivationIdentity:
+		return []string{}
+	case CustomDataTypeEvaluationIdentity:
 		return []string{}
 	case CustomDataTypeValidationIdentity:
 		return []string{}
@@ -2869,6 +3065,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case LogBundleIdentity:
 		return []string{}
+	case MaskingPolicyIdentity:
+		return []string{}
 	case MCPGatewayIdentity:
 		return []string{}
 	case MCPGatewayBackendIdentity:
@@ -2878,6 +3076,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case MCPGatewayConfIdentity:
 		return []string{}
 	case MCPToolIdentity:
+		return []string{}
+	case MCPToolShadowFindingIdentity:
 		return []string{}
 	case MCPToolSnapshotIdentity:
 		return []string{}
@@ -2965,6 +3165,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 		return []string{}
 	case SinkIdentity:
 		return []string{}
+	case SinkCheckIdentity:
+		return []string{}
 	case SinkDatabahnIdentity:
 		return []string{}
 	case SinkEmailIdentity:
@@ -2976,6 +3178,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case SinkSlackIdentity:
 		return []string{}
 	case SinkSplunkIdentity:
+		return []string{}
+	case SinkWebhookIdentity:
 		return []string{}
 	case SlugIdentity:
 		return []string{}
@@ -2992,6 +3196,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case TraceTagKeysIdentity:
 		return []string{}
 	case TraceTagValuesIdentity:
+		return []string{}
+	case TrafficSampleIdentity:
 		return []string{}
 	case UserTokenIdentity:
 		return []string{}

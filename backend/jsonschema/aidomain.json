@@ -256,6 +256,15 @@
         "null"
       ]
     },
+    "riskWeight": {
+      "$friendlyName": "Risk Weight",
+      "description": "Numeric rank of the summary level (Low=1 to Critical=4), for ordering.",
+      "title": "riskWeight",
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
     "summary": {
       "$friendlyName": "Summary",
       "$ref": "aidsummary.json",

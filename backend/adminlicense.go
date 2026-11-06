@@ -102,6 +102,9 @@ type AdminLicense struct {
 	// End date of the license.
 	End time.Time `json:"end" msgpack:"end" bson:"end" mapstructure:"end,omitempty"`
 
+	// Number of days data is retained.
+	Retention int `json:"retention,omitempty" msgpack:"retention,omitempty" bson:"retention,omitempty" mapstructure:"retention,omitempty"`
+
 	// The number of seats the license allows.
 	Seats int `json:"seats" msgpack:"seats" bson:"seats" mapstructure:"seats,omitempty"`
 
@@ -152,6 +155,7 @@ func (o *AdminLicense) GetBSON() (any, error) {
 
 	s.Active = o.Active
 	s.End = o.End
+	s.Retention = o.Retention
 	s.Seats = o.Seats
 	s.Start = o.Start
 	s.Type = o.Type
@@ -174,6 +178,7 @@ func (o *AdminLicense) SetBSON(raw bson.Raw) error {
 
 	o.Active = s.Active
 	o.End = s.End
+	o.Retention = s.Retention
 	o.Seats = s.Seats
 	o.Start = s.Start
 	o.Type = s.Type
@@ -217,11 +222,12 @@ func (o *AdminLicense) ToSparse(fields ...string) elemental.SparseIdentifiable {
 	if len(fields) == 0 {
 		// nolint: goimports
 		return &SparseAdminLicense{
-			Active: &o.Active,
-			End:    &o.End,
-			Seats:  &o.Seats,
-			Start:  &o.Start,
-			Type:   &o.Type,
+			Active:    &o.Active,
+			End:       &o.End,
+			Retention: &o.Retention,
+			Seats:     &o.Seats,
+			Start:     &o.Start,
+			Type:      &o.Type,
 		}
 	}
 
@@ -232,6 +238,8 @@ func (o *AdminLicense) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Active = &(o.Active)
 		case "end":
 			sp.End = &(o.End)
+		case "retention":
+			sp.Retention = &(o.Retention)
 		case "seats":
 			sp.Seats = &(o.Seats)
 		case "start":
@@ -256,6 +264,9 @@ func (o *AdminLicense) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.End != nil {
 		o.End = *so.End
+	}
+	if so.Retention != nil {
+		o.Retention = *so.Retention
 	}
 	if so.Seats != nil {
 		o.Seats = *so.Seats
@@ -374,6 +385,8 @@ func (o *AdminLicense) ValueForAttribute(name string) any {
 		return o.Active
 	case "end":
 		return o.End
+	case "retention":
+		return o.Retention
 	case "seats":
 		return o.Seats
 	case "start":
@@ -407,6 +420,16 @@ var AdminLicenseAttributesMap = map[string]elemental.AttributeSpecification{
 		Required:       true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Retention": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "retention",
+		ConvertedName:  "Retention",
+		Description:    `Number of days data is retained.`,
+		Exposed:        true,
+		Name:           "retention",
+		Stored:         true,
+		Type:           "integer",
 	},
 	"Seats": {
 		AllowedChoices: []string{},
@@ -467,6 +490,16 @@ var AdminLicenseLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Required:       true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"retention": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "retention",
+		ConvertedName:  "Retention",
+		Description:    `Number of days data is retained.`,
+		Exposed:        true,
+		Name:           "retention",
+		Stored:         true,
+		Type:           "integer",
 	},
 	"seats": {
 		AllowedChoices: []string{},
@@ -574,6 +607,9 @@ type SparseAdminLicense struct {
 	// End date of the license.
 	End *time.Time `json:"end,omitempty" msgpack:"end,omitempty" bson:"end,omitempty" mapstructure:"end,omitempty"`
 
+	// Number of days data is retained.
+	Retention *int `json:"retention,omitempty" msgpack:"retention,omitempty" bson:"retention,omitempty" mapstructure:"retention,omitempty"`
+
 	// The number of seats the license allows.
 	Seats *int `json:"seats,omitempty" msgpack:"seats,omitempty" bson:"seats,omitempty" mapstructure:"seats,omitempty"`
 
@@ -624,6 +660,9 @@ func (o *SparseAdminLicense) GetBSON() (any, error) {
 	if o.End != nil {
 		s.End = o.End
 	}
+	if o.Retention != nil {
+		s.Retention = o.Retention
+	}
 	if o.Seats != nil {
 		s.Seats = o.Seats
 	}
@@ -656,6 +695,9 @@ func (o *SparseAdminLicense) SetBSON(raw bson.Raw) error {
 	if s.End != nil {
 		o.End = s.End
 	}
+	if s.Retention != nil {
+		o.Retention = s.Retention
+	}
 	if s.Seats != nil {
 		o.Seats = s.Seats
 	}
@@ -684,6 +726,9 @@ func (o *SparseAdminLicense) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.End != nil {
 		out.End = *o.End
+	}
+	if o.Retention != nil {
+		out.Retention = *o.Retention
 	}
 	if o.Seats != nil {
 		out.Seats = *o.Seats
@@ -735,16 +780,18 @@ func (o *SparseAdminLicense) DeepCopyInto(out *SparseAdminLicense) {
 }
 
 type mongoAttributesAdminLicense struct {
-	Active bool                  `bson:"active"`
-	End    time.Time             `bson:"end"`
-	Seats  int                   `bson:"seats"`
-	Start  time.Time             `bson:"start"`
-	Type   AdminLicenseTypeValue `bson:"type"`
+	Active    bool                  `bson:"active"`
+	End       time.Time             `bson:"end"`
+	Retention int                   `bson:"retention,omitempty"`
+	Seats     int                   `bson:"seats"`
+	Start     time.Time             `bson:"start"`
+	Type      AdminLicenseTypeValue `bson:"type"`
 }
 type mongoAttributesSparseAdminLicense struct {
-	Active *bool                  `bson:"active,omitempty"`
-	End    *time.Time             `bson:"end,omitempty"`
-	Seats  *int                   `bson:"seats,omitempty"`
-	Start  *time.Time             `bson:"start,omitempty"`
-	Type   *AdminLicenseTypeValue `bson:"type,omitempty"`
+	Active    *bool                  `bson:"active,omitempty"`
+	End       *time.Time             `bson:"end,omitempty"`
+	Retention *int                   `bson:"retention,omitempty"`
+	Seats     *int                   `bson:"seats,omitempty"`
+	Start     *time.Time             `bson:"start,omitempty"`
+	Type      *AdminLicenseTypeValue `bson:"type,omitempty"`
 }

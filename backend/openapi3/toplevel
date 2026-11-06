@@ -1,6 +1,63 @@
 {
   "components": {
     "schemas": {
+      "a2amessage": {
+        "description": "Represents A2A message details.",
+        "properties": {
+          "contextID": {
+            "description": "The context ID of the A2A exchange.",
+            "example": "1f02aa20-22d8-6e87-8432-be15d4f7b5b2",
+            "type": "string"
+          },
+          "direction": {
+            "description": "The communication direction of the A2A message.",
+            "enum": [
+              "Client2Server",
+              "Server2Client"
+            ],
+            "example": "Client2Server"
+          },
+          "kind": {
+            "description": "The kind of payload carried by the response.",
+            "enum": [
+              "None",
+              "Task",
+              "Message",
+              "StatusUpdate",
+              "ArtifactUpdate"
+            ],
+            "example": "Message"
+          },
+          "method": {
+            "description": "The A2A RPC method name.",
+            "example": "SendStreamingMessage",
+            "type": "string"
+          },
+          "requestID": {
+            "description": "The ID correlating a request and its response.",
+            "example": "ae254df1-1b23-4e85-a002-1241a235bcf2",
+            "type": "string"
+          },
+          "taskID": {
+            "description": "The A2A task identifier.",
+            "example": "276631a0-667e-4ca8-aaf2-1ffe4a3345e9",
+            "type": "string"
+          },
+          "type": {
+            "description": "The A2A message type.",
+            "enum": [
+              "Request",
+              "Response"
+            ],
+            "example": "Request"
+          }
+        },
+        "required": [
+          "direction",
+          "type"
+        ],
+        "type": "object"
+      },
       "accesspolicy": {
         "description": "Access Policies define rules governing how users can interact with a provider.\nThey control whether access is permitted or denied and can enforce additional\nbehaviors, such as redacting sensitive data, issuing warnings for problematic\nqueries, and other security or compliance measures by applying Content Policies.",
         "properties": {
@@ -189,6 +246,11 @@
             "format": "date-time",
             "type": "string"
           },
+          "retention": {
+            "description": "Number of days data is retained.",
+            "example": "30",
+            "type": "integer"
+          },
           "seats": {
             "default": 1,
             "description": "The number of seats the license allows.",
@@ -251,6 +313,11 @@
           "entitlementAgenticSecurity": {
             "default": false,
             "description": "Indicates whether the organization is entitled to use Agentic Security.",
+            "type": "boolean"
+          },
+          "entitlementDSGFindingsExport": {
+            "default": false,
+            "description": "Indicates whether the organization is entitled to export findings to DSG.",
             "type": "boolean"
           },
           "entitlementDataSinks": {
@@ -1223,6 +1290,10 @@
             "example": "chatgpt",
             "type": "string"
           },
+          "riskWeight": {
+            "description": "Numeric rank of the summary level (Low=1 to Critical=4), for ordering.",
+            "type": "integer"
+          },
           "summary": {
             "$ref": "#/components/schemas/aidsummary"
           },
@@ -1884,6 +1955,7 @@
           "type": {
             "description": "The type of the connector.",
             "enum": [
+              "A2A",
               "MCP",
               "LLM",
               "WebhookIntegration"
@@ -2066,6 +2138,7 @@
           "type": {
             "description": "The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.\nWebhookIntegration accepts calls from a third-party product that wants us to\ninspect traffic it is handling itself, so it has no upstream.",
             "enum": [
+              "A2A",
               "MCP",
               "LLM",
               "WebhookIntegration"
@@ -3410,6 +3483,11 @@
             "description": "Where each custom data type was found.",
             "type": "object"
           },
+          "dlp": {
+            "additionalProperties": true,
+            "description": "Where each Data Loss Prevention detection was found.",
+            "type": "object"
+          },
           "exploits": {
             "description": "The exploits detected, and how strongly.",
             "items": {
@@ -4217,7 +4295,7 @@
             "type": "array"
           },
           "hosts": {
-            "description": "The list of hosts that this listener expects to receive traffic for.",
+            "description": "The list of hosts that this provider expects to receive traffic for. At least\none of hosts, models or model prefixes must be set. Hosts are never inherited\nfrom the referenced provider.",
             "example": [
               "mcp-chatbot-agent.mcp-chatbot-demo.svc.cluster.local",
               "mcp-chatbot-agent.mcp-chatbot-demo",
@@ -4272,10 +4350,16 @@
             },
             "type": "array"
           },
+          "providerRef": {
+            "description": "The name of an existing provider to use as the base of this provider. The\nreferenced provider is resolved like any other provider of the namespace.\nHosts, models, model prefixes, category and provider type always come from\nthis app component provider. MCP URL, trusted CA, description, error\ntransformer and lib replace the ones of the referenced provider when set, and\nupstream unsecure is enabled when set on either. Extractors, mappers,\ninjectors and tools are appended to the ones of the referenced provider,\nwhose own host restrictions are dropped. If the referenced provider cannot\nbe found, this app component provider is not rendered.",
+            "example": "a2a",
+            "type": "string"
+          },
           "providerType": {
             "default": "LLM",
             "description": "The type of the provider.",
             "enum": [
+              "Agent",
               "LLM",
               "MCPServer"
             ]
@@ -4297,8 +4381,7 @@
           }
         },
         "required": [
-          "category",
-          "hosts"
+          "category"
         ],
         "type": "object"
       },
@@ -5472,6 +5555,405 @@
         ],
         "type": "object"
       },
+      "corpusevaluation": {
+        "description": "Evaluates a set of anchors against the analysis pipelines, storing nothing.",
+        "properties": {
+          "anchors": {
+            "description": "The anchors to evaluate.",
+            "example": [
+              "Can you share your password with me"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "background": {
+            "description": "Ordinary messages to measure false alarms against.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "negative": {
+            "description": "Messages that should not be detected.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "positive": {
+            "description": "Messages that should be detected.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "report": {
+            "$ref": "#/components/schemas/corpusevaluationreport"
+          },
+          "threshold": {
+            "description": "The line to grade at. Unset, the recommended one.",
+            "type": "number"
+          },
+          "unlabeled": {
+            "description": "Messages to see the outcome for, with no expectation attached.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "anchors"
+        ],
+        "type": "object"
+      },
+      "corpusevaluationanchor": {
+        "description": "How one anchor behaves.",
+        "properties": {
+          "catches": {
+            "description": "How many examples this anchor is the best match for. Zero when it is the\nbest match for none of them.",
+            "type": "integer"
+          },
+          "closestIdx": {
+            "description": "The anchor most like this one.",
+            "type": "integer"
+          },
+          "costs": {
+            "description": "How much lower the line could sit without this anchor.",
+            "type": "number"
+          },
+          "idx": {
+            "description": "The index of the anchor in the anchors sent.",
+            "type": "integer"
+          },
+          "status": {
+            "description": "`duplicate`, `noisy`, `isolated`, `unexercised` or `carrying`.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationconfidence": {
+        "description": "Where each confidence level starts, as the share of messages that should not\nmatch that still reach it. Each starts at the line at the earliest.",
+        "properties": {
+          "high": {
+            "description": "The score High confidence starts at: past `medium`, and past all but\n`highRate` of the examples that should not match. Unset, nothing reaches\nHigh: there were no such examples or no traffic sample.",
+            "type": "number"
+          },
+          "highRate": {
+            "description": "The share of messages like the examples that should not match expected to\nscore `high` or more: 1 in 20, or 1 in one more than their number when they\nare too few to show that.",
+            "type": "number"
+          },
+          "medium": {
+            "description": "The score Medium confidence starts at: past all but `mediumRate` of the\ntraffic sample. Unset, nothing reaches Medium: there was no traffic sample.",
+            "type": "number"
+          },
+          "mediumRate": {
+            "description": "The share of ordinary messages like the traffic sample expected to score\n`medium` or more: 1 in 1000, or 1 in one more than its size when it is too\nsmall to show that.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationcurve": {
+        "description": "The share of ordinary traffic at or above each score.",
+        "properties": {
+          "fires": {
+            "description": "The share of ordinary traffic at or above the score of the same index.",
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "score": {
+            "description": "The scores, ascending.",
+            "items": {
+              "type": "number"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationfinding": {
+        "description": "One thing worth knowing about a set of anchors, as data: the code says\nwhat, and the numbers say how much. Which numbers are set depends on the\ncode.",
+        "properties": {
+          "anchors": {
+            "description": "The anchors the finding is about, by index.",
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "code": {
+            "description": "What the finding is, as a stable code, and which numbers it sets:\n`too_few_distinct_anchors` (`count` distinct of `of` anchors),\n`duplicate_anchors` (`count` pairs), `low_ceiling` (`score`, the best any\nmessage can reach), `multiple_topics` (`count` topics),\n`misses_your_examples` and `misses_some_examples` (`count` of `of`\nexamples match at `score`), `few_examples` (`count` of `of` examples\nmatch, too few to show more than `score` of such messages would; no\n`of` when there are none), `catching_the_rest_is_noisy` (catching them\nneeds `score`, where `trafficCost` of ordinary traffic matches too),\n`false_alarms` (`count` of `of` counter-examples match at `score`),\n`few_counter_examples` (`count` of `of` counter-examples match, too few\nto rule out `score` of such messages matching; no `of` when there are\nnone),\n`noisy_anchors` (`count` anchors, worst first in `anchors`; without the\nfirst the line could be `score` lower), `no_background`, and\n`background_resolution` (`count` messages cannot measure a `trafficCost`\nbudget).",
+            "type": "string"
+          },
+          "count": {
+            "description": "How many, for the codes that count something.",
+            "type": "integer"
+          },
+          "of": {
+            "description": "Out of how many, for the codes that count part of a whole.",
+            "type": "integer"
+          },
+          "score": {
+            "description": "The score the finding is about, on the threshold's scale, or for\n`few_examples` and `few_counter_examples` the share of messages the\nexamples can vouch for.",
+            "type": "number"
+          },
+          "severity": {
+            "default": "Advice",
+            "description": "`Blocker` means it will not work and refuses activation, `Warn` means it\nwill work badly and must be acknowledged, `Advice` is a call only the author\ncan make.",
+            "enum": [
+              "Blocker",
+              "Warn",
+              "Advice"
+            ]
+          },
+          "trafficCost": {
+            "description": "The share of ordinary traffic the finding is about.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationmap": {
+        "description": "A 2D picture of where anchors and examples sit.",
+        "properties": {
+          "points": {
+            "description": "The points.",
+            "items": {
+              "$ref": "#/components/schemas/corpusevaluationpoint"
+            },
+            "type": "array"
+          },
+          "trust": {
+            "description": "The share of nearest neighbours that survive the flattening to 2D. Below\nabout 0.75 the picture is a hint.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationoption": {
+        "description": "One line the author could pick, priced in traffic.",
+        "properties": {
+          "threshold": {
+            "description": "The threshold.",
+            "type": "number"
+          },
+          "trafficCost": {
+            "description": "The share of ordinary traffic that fires at this threshold.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationpoint": {
+        "description": "One anchor or example on the map.",
+        "properties": {
+          "idx": {
+            "description": "Its index in its own list.",
+            "type": "integer"
+          },
+          "kind": {
+            "description": "`anchor`, `positive`, `negative` or `unlabeled`.",
+            "type": "string"
+          },
+          "x": {
+            "description": "Horizontal position.",
+            "type": "number"
+          },
+          "y": {
+            "description": "Vertical position.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationprobe": {
+        "description": "How one example fares.",
+        "properties": {
+          "closestAnchor": {
+            "description": "The anchor it lands on.",
+            "type": "integer"
+          },
+          "idx": {
+            "description": "The index of the example in its own list.",
+            "type": "integer"
+          },
+          "label": {
+            "description": "`positive`, `negative` or `unlabeled`.",
+            "type": "string"
+          },
+          "score": {
+            "description": "Its similarity, on the threshold's scale.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationreport": {
+        "description": "How well a set of anchors works, and what to fix.",
+        "properties": {
+          "anchors": {
+            "description": "One row per anchor, by its index in the anchors sent, worst first.",
+            "items": {
+              "$ref": "#/components/schemas/corpusevaluationanchor"
+            },
+            "type": "array"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/corpusevaluationconfidence"
+          },
+          "curve": {
+            "$ref": "#/components/schemas/corpusevaluationcurve"
+          },
+          "embedder": {
+            "description": "The model the anchors were embedded with.",
+            "type": "string"
+          },
+          "findings": {
+            "description": "What is worth knowing, most severe first.",
+            "items": {
+              "$ref": "#/components/schemas/corpusevaluationfinding"
+            },
+            "type": "array"
+          },
+          "grade": {
+            "default": "Unusable",
+            "description": "The verdict.",
+            "enum": [
+              "Strong",
+              "Usable",
+              "Weak",
+              "Unusable"
+            ]
+          },
+          "map": {
+            "$ref": "#/components/schemas/corpusevaluationmap"
+          },
+          "probes": {
+            "description": "One row per example, by its index in its own list, closest call first.",
+            "items": {
+              "$ref": "#/components/schemas/corpusevaluationprobe"
+            },
+            "type": "array"
+          },
+          "scale": {
+            "$ref": "#/components/schemas/corpusevaluationscale"
+          },
+          "threshold": {
+            "$ref": "#/components/schemas/corpusevaluationthreshold"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationscale": {
+        "description": "What a score means for a set of anchors.",
+        "properties": {
+          "bestPossibleScore": {
+            "description": "The highest score anything can reach against these anchors, typically about 0.8.",
+            "type": "number"
+          },
+          "trafficSamples": {
+            "description": "How many ordinary messages the scores are measured on.",
+            "type": "integer"
+          },
+          "typicalTrafficScore": {
+            "description": "What a middling ordinary message scores.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusevaluationthreshold": {
+        "description": "Where to put the line for a set of anchors.",
+        "properties": {
+          "basedOn": {
+            "description": "`traffic_budget` (measured against ordinary traffic), `your_examples` (the\nexamples alone) or `model_default` (a starting point).",
+            "type": "string"
+          },
+          "options": {
+            "description": "Lines the author could pick, priced in traffic.",
+            "items": {
+              "$ref": "#/components/schemas/corpusevaluationoption"
+            },
+            "type": "array"
+          },
+          "recommended": {
+            "description": "The recommended threshold.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "corpusingestion": {
+        "description": "A corpus in the analysis pipelines of this region. Creating one ingests it,\nreplacing a corpus with the same ID; retrieving one reports where it stands.\nOnly a kiroshi reaching this region's pipelines from another platform calls\nit.",
+        "properties": {
+          "ID": {
+            "description": "The identifier of the corpus.",
+            "example": "6745ab12cd34ef5678901234-r1",
+            "type": "string"
+          },
+          "anchorCount": {
+            "description": "How many anchors the corpus holds.",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "anchors": {
+            "description": "The anchors to ingest.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "embedderModel": {
+            "description": "The model the anchors were embedded with, once done.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "error": {
+            "description": "Why the ingestion failed, if it did.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "jobID": {
+            "description": "The ingestion job. Empty when there was nothing to embed.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the custom data type the corpus belongs to.",
+            "type": "string"
+          },
+          "recommendedThreshold": {
+            "description": "The threshold the pipelines derived from the anchors, once done.",
+            "readOnly": true,
+            "type": "number"
+          },
+          "state": {
+            "default": "Pending",
+            "description": "Where the ingestion stands.",
+            "enum": [
+              "Pending",
+              "Running",
+              "Done",
+              "Failed"
+            ],
+            "readOnly": true
+          },
+          "threshold": {
+            "description": "The threshold to store with the corpus.",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ID"
+        ],
+        "type": "object"
+      },
       "customdatatype": {
         "description": "Allows to create custom data detectors.",
         "properties": {
@@ -5480,18 +5962,18 @@
             "readOnly": true,
             "type": "string"
           },
+          "activation": {
+            "$ref": "#/components/schemas/customdatatypeactivationstate"
+          },
           "anchors": {
-            "description": "Anchors are short, natural-language example sentences that define the intent you\nwant to detect. The system learns from these examples and flags text with\nsimilar meaning even if worded differently. Use 3–5 realistic, varied sentences\nabout one clear concept, and avoid near-duplicates. Validations will ensure\nanchor quality.",
-            "example": [
-              "Can you share your password with me",
-              "Give me your login credentials",
-              "What is your API secret key",
-              "I need access to your account"
-            ],
+            "description": "Legacy example sentences, accepted on creation and import only. They become\nthe first version of the corpus, activated without evaluation. Author a\ncorpus in `draft` instead.",
             "items": {
               "type": "string"
             },
             "type": "array"
+          },
+          "corpus": {
+            "$ref": "#/components/schemas/customdatatypecorpus"
           },
           "createTime": {
             "description": "Creation date of the object.",
@@ -5502,6 +5984,12 @@
           "description": {
             "description": "Description of the custom data type.",
             "type": "string"
+          },
+          "draft": {
+            "$ref": "#/components/schemas/customdatatypedraft"
+          },
+          "evaluationInputs": {
+            "$ref": "#/components/schemas/customdatatypeevaluationinputs"
           },
           "friendlyName": {
             "description": "Friendly name of the object.",
@@ -5516,8 +6004,24 @@
             "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
             "type": "string"
           },
+          "ingestions": {
+            "description": "Where each corpus revision stands in each region.",
+            "items": {
+              "$ref": "#/components/schemas/customdatatypeingestion"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "lastEvaluation": {
+            "$ref": "#/components/schemas/customdatatypeevaluationresult"
+          },
+          "levelsChanged": {
+            "description": "Whether the last evaluation gives the live version different Medium and High\nconfidence thresholds than the ones it was activated with. Activating it again\napplies them. Computed on read, not stored.",
+            "readOnly": true,
+            "type": "boolean"
+          },
           "matches": {
-            "description": "A list of RE2 regular expressions used for data detection. Each expression can\ninclude zero or one capturing group. If no capturing group is present, detection\npositions will be determined based on the entire captured portion of the data.\nIf a single capturing group is included, the detection positions will correspond\nto the part defined by that group. However, if more than one capturing group is\nfound, the system will return a validation error. Additionally, extra\nvalidations are performed to ensure that the regular expressions are not overly\ncomplex, preventing any negative impact on detection engine performance.",
+            "description": "A list of RE2 regular expressions used for data detection. Each expression can\ninclude zero or one capturing group. If no capturing group is present, detection\npositions will be determined based on the entire captured portion of the data.\nIf a single capturing group is included, the detection positions will correspond\nto the part defined by that group. More than one capturing group is refused on\nsave. The analysis pipelines then validate them, refusing those too costly to\nrun, and they go live only once validated. Once the custom data type has a\ncorpus, change them in `draft`.",
             "items": {
               "type": "string"
             },
@@ -5533,10 +6037,24 @@
             "readOnly": true,
             "type": "string"
           },
+          "previous": {
+            "$ref": "#/components/schemas/customdatatypesnapshot"
+          },
           "propagate": {
             "default": true,
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
+          },
+          "status": {
+            "default": "Active",
+            "description": "Whether the custom data type detects. `Draft` has never been activated,\n`Activating` is being rolled out to every region, `Stuck` has a region that\nkeeps failing while the previous version still detects, and `Active`\ndetects everywhere.",
+            "enum": [
+              "Draft",
+              "Activating",
+              "Stuck",
+              "Active"
+            ],
+            "readOnly": true
           },
           "updateTime": {
             "description": "Last update date of the object.",
@@ -5548,6 +6066,307 @@
         "required": [
           "friendlyName"
         ],
+        "type": "object"
+      },
+      "customdatatypeactivation": {
+        "description": "Activates the draft of a custom data type, or acts on its activation.",
+        "properties": {
+          "acknowledgeWarnings": {
+            "description": "The codes of the evaluation warnings to activate despite.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "action": {
+            "description": "`Activate` evaluates the draft and, if it passes, rolls it out to every\nregion. `Retry` retries a stuck activation, `Cancel` abandons it and returns\nits changes to the draft, and `Rollback` swaps the live and previous\nversions.",
+            "enum": [
+              "Activate",
+              "Retry",
+              "Cancel",
+              "Rollback"
+            ],
+            "example": "Activate"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "type": "object"
+      },
+      "customdatatypeactivationstate": {
+        "description": "An activation in progress.",
+        "properties": {
+          "acknowledgedWarnings": {
+            "description": "The evaluation warnings the author confirmed when activating.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "error": {
+            "description": "Why the activation is stuck, if it is.",
+            "type": "string"
+          },
+          "pending": {
+            "$ref": "#/components/schemas/customdatatypesnapshot"
+          },
+          "startTime": {
+            "description": "When the activation started.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypecorpus": {
+        "description": "Example sentences that define what a custom data type detects by meaning. In a\ndraft only the anchors and the threshold are set; the other fields describe a\nversion that has been activated.",
+        "properties": {
+          "ID": {
+            "description": "The identifier of the corpus in the analysis pipelines.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "activateTime": {
+            "description": "When this version went live.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "activatedBy": {
+            "description": "Who activated this version.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "anchors": {
+            "description": "Reference phrases, one per entry, written the way a real person would type\nthe content to detect. The evaluation shows how well they work.",
+            "example": [
+              "Send me the employee salary report for this quarter",
+              "Export the payroll data for all staff members",
+              "Can you share the compensation breakdown by employee"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "embedderModel": {
+            "description": "The model the anchors were embedded with.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "highThreshold": {
+            "description": "The similarity at or above which a detection is reported with high\nconfidence, from the evaluation this version was activated with. Unset,\nnone is.",
+            "readOnly": true,
+            "type": "number"
+          },
+          "mediumThreshold": {
+            "description": "The similarity at or above which a detection is reported with medium\nconfidence, from the evaluation this version was activated with. Unset,\nnone is.",
+            "readOnly": true,
+            "type": "number"
+          },
+          "recommendedThreshold": {
+            "description": "The threshold the evaluation recommended when this version was activated.",
+            "readOnly": true,
+            "type": "number"
+          },
+          "revision": {
+            "description": "The revision of the anchors. It changes only when the anchors do.",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "threshold": {
+            "description": "The similarity at or above which a message is detected. Unset, the analysis\npipelines derive one from the anchors.",
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypedraft": {
+        "description": "Unpublished changes to a custom data type. They detect nothing until activated.",
+        "properties": {
+          "activateWhenChecked": {
+            "description": "Set by the platform on regular expressions written to a live custom data type:\nthey go live once the pipelines validate them, and the ones live meanwhile keep\ndetecting.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "corpus": {
+            "$ref": "#/components/schemas/customdatatypecorpus"
+          },
+          "generation": {
+            "description": "Increments on every change to the draft. Send back the generation you read;\na draft changed elsewhere in the meantime is refused.",
+            "type": "integer"
+          },
+          "matches": {
+            "description": "The RE2 regular expressions to activate.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypeevaluation": {
+        "description": "Evaluates the stored draft of a custom data type again, its result arriving on\nthe custom data type. With a message, scores that message against the draft's\nphrases instead, and answers at once.",
+        "properties": {
+          "message": {
+            "description": "A message to score against the draft's phrases.",
+            "type": "string"
+          },
+          "probe": {
+            "$ref": "#/components/schemas/corpusevaluationprobe"
+          },
+          "result": {
+            "$ref": "#/components/schemas/customdatatypeevaluationresult"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypeevaluationinputs": {
+        "description": "What a corpus is evaluated against. These change the evaluation, never\ndetection, so they apply without activation.",
+        "properties": {
+          "negative": {
+            "description": "Messages that should not be detected, one per entry.",
+            "example": [
+              "Can you explain how our salary bands are determined",
+              "What is the average salary for a data analyst in Austin"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "positive": {
+            "description": "Messages that should be detected, one per entry.",
+            "example": [
+              "Could you provide a spreadsheet showing everyone's annual pay",
+              "List what each person on the sales team earns"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "trafficSample": {
+            "default": "generic",
+            "description": "The name of the traffic sample the background match rate is measured on.",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypeevaluationresult": {
+        "description": "The evaluation of a custom data type's draft: whether it runs, and the last\nresult, kept while a newer one runs.",
+        "properties": {
+          "attempts": {
+            "description": "How many times the evaluation was sent to the pipelines.",
+            "type": "integer"
+          },
+          "error": {
+            "description": "Why the evaluation could not run, when it failed.",
+            "type": "string"
+          },
+          "evaluateTime": {
+            "description": "When the evaluation ran.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "inputsHash": {
+            "description": "A hash of the anchors and evaluation inputs evaluated. When it differs from\nthe current ones, the report is out of date.",
+            "type": "string"
+          },
+          "matchesError": {
+            "description": "Why the pipelines refuse the draft's regular expressions, if they do.",
+            "type": "string"
+          },
+          "report": {
+            "$ref": "#/components/schemas/corpusevaluationreport"
+          },
+          "requestTime": {
+            "description": "When the evaluation was last sent to the pipelines.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "state": {
+            "description": "Where the evaluation of the current inputs stands.",
+            "enum": [
+              "Pending",
+              "Done",
+              "Failed"
+            ]
+          },
+          "trafficSample": {
+            "description": "The name of the traffic sample used.",
+            "type": "string"
+          },
+          "trafficSampleUpdateTime": {
+            "description": "The traffic sample's last update when it was used.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypeingestion": {
+        "description": "Where one corpus revision stands in one region.",
+        "properties": {
+          "attempts": {
+            "description": "How many times the ingestion was sent.",
+            "type": "integer"
+          },
+          "embedderModel": {
+            "description": "The model the region embedded the anchors with.",
+            "type": "string"
+          },
+          "error": {
+            "description": "The last error, if any.",
+            "type": "string"
+          },
+          "jobID": {
+            "description": "The ingestion job in the region, while one runs.",
+            "type": "string"
+          },
+          "region": {
+            "description": "The region.",
+            "type": "string"
+          },
+          "revision": {
+            "description": "The corpus revision.",
+            "type": "integer"
+          },
+          "state": {
+            "default": "Pending",
+            "description": "Where the ingestion stands.",
+            "enum": [
+              "Pending",
+              "Running",
+              "Done",
+              "Failed"
+            ]
+          },
+          "updateTime": {
+            "description": "When the state last changed.",
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "customdatatypesnapshot": {
+        "description": "A version of a custom data type, as activated or being activated.",
+        "properties": {
+          "corpus": {
+            "$ref": "#/components/schemas/customdatatypecorpus"
+          },
+          "matches": {
+            "description": "The RE2 regular expressions of this version.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "customdatatypevalidation": {
@@ -5589,6 +6408,10 @@
             "description": "Description of the dataSet.",
             "type": "string"
           },
+          "external": {
+            "description": "If true, the data set is managed by an external system. It should not be\nmodified, as the external system may overwrite the changes.",
+            "type": "boolean"
+          },
           "friendlyName": {
             "description": "Friendly name of the object.",
             "example": "Simple name",
@@ -5611,6 +6434,10 @@
             "description": "The namespace of the object.",
             "readOnly": true,
             "type": "string"
+          },
+          "predefined": {
+            "description": "If true, the data set is provided by default, by the organization template\nor by the external system that manages it. Otherwise it was created by the\norganization.",
+            "type": "boolean"
           },
           "propagate": {
             "default": true,
@@ -6494,6 +7321,11 @@
             },
             "type": "array"
           },
+          "path": {
+            "description": "The path of the request, without query.",
+            "example": "/design",
+            "type": "string"
+          },
           "workloadGroupHash": {
             "description": "The hash of the workload group this application belongs to.",
             "example": "wg-0ff92a76a3765740e26d84947d92e5fc",
@@ -6520,6 +7352,11 @@
       "detection": {
         "description": "Represent a detection.",
         "properties": {
+          "category": {
+            "description": "The upstream engine's own category for the detection, when it has one (for\ninstance 'Personal Information'). It only helps browsing detectors: policies\nmatch on the group and the name.",
+            "example": "Personal Information",
+            "type": "string"
+          },
           "confidence": {
             "description": "The confidence level of the detection.",
             "enum": [
@@ -6568,6 +7405,11 @@
           "start": {
             "description": "The start position of the poisitional detection.",
             "type": "integer"
+          },
+          "type": {
+            "description": "Who authored the detection, when the upstream engine says: 'predefined'\n(shipped by the vendor), 'custom' (defined by the organization) or\n'ai_classifier' (shipped by the vendor, backed by a model). Empty for\nanalyzers with no upstream engine.",
+            "example": "predefined",
+            "type": "string"
           }
         },
         "type": "object"
@@ -6575,6 +7417,11 @@
       "detector": {
         "description": "Represent a detector an analyzer can use.",
         "properties": {
+          "category": {
+            "description": "The upstream engine's own category for the detection, when it has one (for\ninstance 'Personal Information'). It only helps browsing detectors: policies\nmatch on the group and the name.",
+            "example": "Personal Information",
+            "type": "string"
+          },
           "description": {
             "description": "The description of the detection.",
             "type": "string"
@@ -6598,6 +7445,11 @@
           "positional": {
             "description": "Tell if the detection is positional.",
             "type": "boolean"
+          },
+          "type": {
+            "description": "Who authored the detection, when the upstream engine says: 'predefined'\n(shipped by the vendor), 'custom' (defined by the organization) or\n'ai_classifier' (shipped by the vendor, backed by a model). Empty for\nanalyzers with no upstream engine.",
+            "example": "predefined",
+            "type": "string"
           }
         },
         "type": "object"
@@ -6801,6 +7653,17 @@
             "description": "The provider that this target represents.",
             "example": "openai-api",
             "type": "string"
+          },
+          "queryTypes": {
+            "description": "The number of times this domain was queried for each DNS record type.",
+            "example": {
+              "A": 3,
+              "AAAA": 1
+            },
+            "items": {
+              "type": "integer"
+            },
+            "type": "object"
           },
           "reason": {
             "description": "The reason for the action.",
@@ -7198,7 +8061,7 @@
         "description": "Represents the extracted information to log.",
         "properties": {
           "PIIs": {
-            "description": "The PIIs found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'PIIs' accross all analyzers.\n\nExample of PIIs detected: aba_routing_number, address, bank_account,\nbitcoin_wallet, credit_card, driver_license, email_address, itin_number,\nlocation, medical_license, money_amount, passport_number, person, phone_number,\nssn.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The PIIs found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'PIIs' across all analyzers.\n\nExample of PIIs detected: aba_routing_number, address, bank_account,\nbitcoin_wallet, credit_card, driver_license, email_address, itin_number,\nlocation, medical_license, money_amount, passport_number, person, phone_number,\nssn.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "ssn": 0.8
             },
@@ -7265,8 +8128,19 @@
             },
             "type": "array"
           },
+          "dlp": {
+            "description": "The Data Loss Prevention detections found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'DLP' across all analyzers.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "example": {
+              "credit_card": 0.8
+            },
+            "items": {
+              "format": "float",
+              "type": "number"
+            },
+            "type": "object"
+          },
           "exploits": {
-            "description": "The various exploits attempts.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Exploits' accross all analyzers.\n\nExample of exploits detected: jailbreak, prompt_injection, malicious_url.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The various exploits attempts.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Exploits' across all analyzers.\n\nExample of exploits detected: jailbreak, prompt_injection, malicious_url.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "prompt_injection": 0.8
             },
@@ -7288,7 +8162,7 @@
             "type": "string"
           },
           "intent": {
-            "description": "The estimated intent embodied into the text.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Intent' accross all analyzers.\n\nExample of intent detected: explain, outline, summarize, write.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The estimated intent embodied into the text.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Intent' across all analyzers.\n\nExample of intent detected: explain, outline, summarize, write.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "write": 0.8
             },
@@ -7340,7 +8214,7 @@
             "type": "string"
           },
           "languages": {
-            "description": "The language of the classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Languages' accross all analyzers.\n\nExample of languages: chinese, english, french, german, gibberish, japanese,\nrussian, spanish.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The language of the classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Languages' across all analyzers.\n\nExample of languages: chinese, english, french, german, gibberish, japanese,\nrussian, spanish.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "english": 0.8
             },
@@ -7355,13 +8229,28 @@
             "type": "string"
           },
           "malcontents": {
-            "description": "The various malcontents attempts.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Malcontents' accross all analyzers.\n\nExample of malcontents: biased, harmful, toxic.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The various malcontents attempts.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Malcontents' across all analyzers.\n\nExample of malcontents: biased, harmful, toxic.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "toxic": 0.8
             },
             "items": {
               "format": "float",
               "type": "number"
+            },
+            "type": "object"
+          },
+          "metadata": {
+            "description": "What the pipelines could tell about the content itself, such as the\napplication that made a document or its sensitivity label.",
+            "example": {
+              "sensitivity_label": [
+                "Confidential"
+              ]
+            },
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
             },
             "type": "object"
           },
@@ -7388,7 +8277,7 @@
             ]
           },
           "secrets": {
-            "description": "The secrets found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Secrets' accross all analyzers.\n\nExample of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,\naws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,\ncredentials, database_url_with_credentials, databricks, denodeploy, dfuse,\ndigitalocean, discord_webhook, docker_hub, doppler, dropbox, endorlabs,\nfleetbase, flutterwave, frameio, freshdesk, fullstory, github, gitlab,\ngocardless, google_api, grafana, groq, huggingface, intra42, jwt, klaviyo,\nlaunchdarkly, linearapi, locationiq, mailchimp, mailgun, mapbox, maxmind,\nmicrosoft_teams_webhook, nightfall, notion, npm, openai, otp_auth_url, pagarme,\npaystack, planetscale, planetscaledb, portainer, posthog, postman, prefect,\nprivate_key, pubnub_publish, pubnub_subscribe, pulumi, ramp, razorpay, readme,\nrechargepayments, replicate, rubygems, salesforce, sendgrid, sendinblue,\nshopify, slack_access, slack_bot, slack_refresh, slack_user, slack_webhook,\nslack_workflow_webhook, sourcegraph, sourcegraphcody, squareapp, squareup,\nstripe, supabase, tailscale, tines_webhook, trufflehog, twilio, ubidots,\nvoiceflow, web_url_with_credentials, zapierwebhook.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
+            "description": "The secrets found during classification.\n\nThe current list can be obtained through the analyzers API by searching for\ndetector groups 'Secrets' across all analyzers.\n\nExample of secrets: adafruit, alibaba, anthropic, apideck, apify, atlassian,\naws_secret_key, buildkite, checkout, clickuppersonal, contentfulpersonalaccess,\ncredentials, database_url_with_credentials, databricks, denodeploy, dfuse,\ndigitalocean, discord_webhook, docker_hub, doppler, dropbox, endorlabs,\nfleetbase, flutterwave, frameio, freshdesk, fullstory, github, gitlab,\ngocardless, google_api, grafana, groq, huggingface, intra42, jwt, klaviyo,\nlaunchdarkly, linearapi, locationiq, mailchimp, mailgun, mapbox, maxmind,\nmicrosoft_teams_webhook, nightfall, notion, npm, openai, otp_auth_url, pagarme,\npaystack, planetscale, planetscaledb, portainer, posthog, postman, prefect,\nprivate_key, pubnub_publish, pubnub_subscribe, pulumi, ramp, razorpay, readme,\nrechargepayments, replicate, rubygems, salesforce, sendgrid, sendinblue,\nshopify, slack_access, slack_bot, slack_refresh, slack_user, slack_webhook,\nslack_workflow_webhook, sourcegraph, sourcegraphcody, squareapp, squareup,\nstripe, supabase, tailscale, tines_webhook, trufflehog, twilio, ubidots,\nvoiceflow, web_url_with_credentials, zapierwebhook.\n\nIf a key is not present in the map that implies that entity was not detected. If\nan entity is detected then the value is a score. Here's how to interpret the\nscores:\n  - confidence: 'low', 0 \u003c score \u003c0.33\n  - confidence: 'medium', 0.33 \u003c= score \u003c 0.66\n  - confidence: 'high', 0.66 \u003c= score \u003c= 1.",
             "example": {
               "credentials": 0.7
             },
@@ -7463,6 +8352,11 @@
             "description": "The detected dataTypes.",
             "type": "object"
           },
+          "dlp": {
+            "additionalProperties": true,
+            "description": "The detected Data Loss Prevention data.",
+            "type": "object"
+          },
           "exploits": {
             "additionalProperties": true,
             "description": "The various exploits attempts.",
@@ -7511,7 +8405,8 @@
           },
           "anonymization": {
             "default": "FixedSize",
-            "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+            "deprecated": true,
+            "description": "DEPRECATED: ignored. Redacted values are always masked in place, keeping\ntheir byte length.\nHow redacted data is replaced. FixedSize replaces each redacted span with\n'#' characters of the same length. VariableSize replaces it with a\nplaceholder naming the detection, such as PII_SSN_1.",
             "enum": [
               "FixedSize",
               "VariableSize"
@@ -7546,7 +8441,8 @@
             "type": "string"
           },
           "deanonymize": {
-            "description": "If true, deanonymize the redacted data. This has no effects on streaming output.",
+            "deprecated": true,
+            "description": "DEPRECATED: ignored. Redacted values are no longer put back in the reply.\nIf true, deanonymize the redacted data. This has no effects on streaming\noutput.",
             "type": "boolean"
           },
           "description": {
@@ -7797,7 +8693,7 @@
           },
           "provider": {
             "description": "The provider of the feedback.",
-            "example": "openai",
+            "example": "openai-api",
             "type": "string"
           },
           "score": {
@@ -8216,6 +9112,11 @@
       "genericdetection": {
         "description": "Represent a generic detection.",
         "properties": {
+          "category": {
+            "description": "The upstream engine's own category for the detector, when it has one (for\ninstance 'Personal Information').",
+            "example": "Personal Information",
+            "type": "string"
+          },
           "end": {
             "description": "The end position of the positional generic detection.",
             "type": "integer"
@@ -8228,6 +9129,10 @@
             "description": "The name of the generic detection.",
             "type": "string"
           },
+          "redacted": {
+            "description": "If true, a content policy redacted this detection. It is masked in place,\nso its start and end are the same in the original and the redacted data.",
+            "type": "boolean"
+          },
           "score": {
             "description": "The normalized score of the generic detection against its confidence level\nthresholds.\nBetween 0 and 1 as low \u003c0.33, 0.33\u003c=Medium\u003c0.66, high \u003e=0.66.",
             "type": "number"
@@ -8236,7 +9141,7 @@
             "$ref": "#/components/schemas/snippet"
           },
           "start": {
-            "description": "The start position of the poisitional generic detection.",
+            "description": "The start position of the positional generic detection.",
             "type": "integer"
           }
         },
@@ -8734,6 +9639,13 @@
             "example": "my-super-import",
             "type": "string"
           },
+          "maskingPolicies": {
+            "description": "Masking policies to import.",
+            "items": {
+              "$ref": "#/components/schemas/maskingpolicy"
+            },
+            "type": "array"
+          },
           "orgSettings": {
             "description": "OrgSettings to import.",
             "items": {
@@ -8808,6 +9720,13 @@
             "description": "Threat definitions to import.",
             "items": {
               "$ref": "#/components/schemas/threatdefinition"
+            },
+            "type": "array"
+          },
+          "trafficSamples": {
+            "description": "Traffic samples to import.",
+            "items": {
+              "$ref": "#/components/schemas/trafficsample"
             },
             "type": "array"
           },
@@ -9011,6 +9930,10 @@
             "example": [
               "Post"
             ]
+          },
+          "nativeXHRSubclass": {
+            "description": "If this is true, XHR requests are patched with a subclass of the browser's\nXMLHttpRequest instead of a wrapper object. Some providers stop working when\ntheir scripts get the wrapper, which is not a real XMLHttpRequest.",
+            "type": "boolean"
           },
           "path": {
             "description": "A regular expression to match a URL path to log.",
@@ -9417,6 +10340,104 @@
         ],
         "type": "object"
       },
+      "maskingpolicy": {
+        "description": "Says how the values of some detections are masked when a content policy\nredacts them, and in the snippets shown in the logs. A detection with no\nmasking policy is fully masked with '#'.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "character": {
+            "default": "x",
+            "description": "The character that replaces each masked byte. One printable ASCII character.",
+            "example": "*",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the masking policy.",
+            "type": "string"
+          },
+          "detections": {
+            "description": "The names of the detections this masking policy applies to, as content\npolicies name them (for instance ssn, or the name of a custom data type). A\ndetection is in at most one masking policy of a namespace.",
+            "example": [
+              "ssn",
+              "us_ssn"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "first": {
+            "description": "The number of characters at the beginning of the value that the mode hides or\nkeeps.",
+            "type": "integer"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "keepCharacters": {
+            "default": " -.()+@",
+            "description": "The characters the masking policy never masks, so a value keeps its shape:\nthe dashes of an SSN, the @ and dots of an email. Every other character is\nmasked, symbols included. Empty masks every character.",
+            "example": "-",
+            "type": "string"
+          },
+          "last": {
+            "description": "The number of characters at the end of the value that the mode hides or keeps.",
+            "type": "integer"
+          },
+          "mode": {
+            "default": "Hide",
+            "description": "Hide masks the first and last characters. Keep masks every character\nexcept those. Neither masks the characters listed in Keep Characters.",
+            "enum": [
+              "Hide",
+              "Keep"
+            ]
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "detections",
+          "friendlyName"
+        ],
+        "type": "object"
+      },
       "mcpgateway": {
         "description": "Represents MCP Gateways connected to the system.",
         "properties": {
@@ -9804,7 +10825,7 @@
             "type": "string"
           },
           "isError": {
-            "description": "IsError is true in case if a response is an error response as opposed to a\nresult. Note that this is not the same as a result which has isError set to true\nwithin the result. This is a protocol level error. This will always be false for\nrequests and notifications, and false for reponses when the response has a\nresult.",
+            "description": "IsError is true in case if a response is an error response as opposed to a\nresult. Note that this is not the same as a result which has isError set to true\nwithin the result. This is a protocol level error. This will always be false for\nrequests and notifications, and false for responses when the response has a\nresult.",
             "type": "boolean"
           },
           "method": {
@@ -10018,6 +11039,115 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "mcptoolshadowfinding": {
+        "description": "Records a pair of tools from two MCP connectors of the same AI gateway where\none tool can shadow the other: the names collide or look alike, or the text\nof one tool refers to the other.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "connectorA": {
+            "description": "The name of the first connector of the pair. For a cross reference, it is the\nconnector of the tool whose text refers to the other tool.",
+            "example": "free-tools",
+            "type": "string"
+          },
+          "connectorB": {
+            "description": "The name of the second connector of the pair.",
+            "example": "email-corp",
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "detail": {
+            "description": "What triggered the finding, such as the edit distance between the two names\nor the text that refers to the other tool.",
+            "type": "string"
+          },
+          "firstDetectedAt": {
+            "description": "When the pair was first detected.",
+            "format": "date-time",
+            "type": "string"
+          },
+          "gatewayName": {
+            "description": "The name of the AI gateway exposing both tools.",
+            "example": "my-ai-gateway",
+            "type": "string"
+          },
+          "mcpServerA": {
+            "description": "The name of the MCP server behind connector A.",
+            "type": "string"
+          },
+          "mcpServerB": {
+            "description": "The name of the MCP server behind connector B.",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "signal": {
+            "description": "The rule that detected the pair. ExactNameCollision: both tools have the same\nname, ignoring case and spaces. ConfusableName: the names are the same once\nlook-alike characters are mapped to Latin letters. NearDuplicateName: the names\ndiffer by a few characters. CrossReference: the text of tool A contains the\nname of tool B or of the MCP server of connector B.",
+            "enum": [
+              "ExactNameCollision",
+              "ConfusableName",
+              "NearDuplicateName",
+              "CrossReference"
+            ],
+            "example": "ExactNameCollision"
+          },
+          "sourceA": {
+            "default": "NotApplicable",
+            "description": "Where tool A comes from. Baseline: it is the same as the tool in the\nprovider tool list of connector A. Changed: it is not in that list or it\ndiffers from it, so the MCP server added or changed it after the list was\nset. NotApplicable: there is no tool A, or the provider tool list of\nconnector A could not be found.",
+            "enum": [
+              "Baseline",
+              "Changed",
+              "NotApplicable"
+            ],
+            "example": "Baseline"
+          },
+          "sourceB": {
+            "default": "NotApplicable",
+            "description": "Where tool B comes from. Baseline: it is the same as the tool in the\nprovider tool list of connector B. Changed: it is not in that list or it\ndiffers from it, so the MCP server added or changed it after the list was\nset. NotApplicable: there is no tool B, or the provider tool list of\nconnector B could not be found.",
+            "enum": [
+              "Baseline",
+              "Changed",
+              "NotApplicable"
+            ],
+            "example": "Baseline"
+          },
+          "toolA": {
+            "description": "The name of the tool on connector A, without the gateway prefix.",
+            "example": "get_weather",
+            "type": "string"
+          },
+          "toolB": {
+            "description": "The name of the tool on connector B, without the gateway prefix. Empty when\ntool A refers to the MCP server of connector B rather than to one of its\ntools.",
+            "example": "send_email",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "connectorA",
+          "connectorB",
+          "gatewayName",
+          "signal",
+          "sourceA",
+          "sourceB",
+          "toolA"
         ],
         "type": "object"
       },
@@ -10419,10 +11549,14 @@
             "readOnly": true,
             "type": "string"
           },
+          "ciscoDuoApplicationCredentials": {
+            "$ref": "#/components/schemas/mtlssourceciscoduo"
+          },
           "claimsRetrievalMode": {
             "default": "X509",
             "description": "Defines if and how you want to enable auto login with client certificates.",
             "enum": [
+              "CiscoDuo",
               "Entra",
               "GoogleWorkspace",
               "Okta",
@@ -10523,6 +11657,32 @@
         "required": [
           "CA",
           "name"
+        ],
+        "type": "object"
+      },
+      "mtlssourceciscoduo": {
+        "description": "Additional authentication information for MTLS source getting information from\nCisco Duo.\n\nYou will need a Duo Admin API application with the Grant resource - Read\npermission.",
+        "properties": {
+          "APIHostname": {
+            "description": "The API hostname of the Duo Admin API application.",
+            "example": "api-xxxxxxxx.duosecurity.com",
+            "type": "string"
+          },
+          "integrationKey": {
+            "description": "The integration key of the Duo Admin API application.",
+            "example": "DIWJ8X6AEYOR5OMC6TQ1",
+            "type": "string"
+          },
+          "secretKey": {
+            "description": "The secret key of the Duo Admin API application.",
+            "example": "Zh5eGmUq9zpfQnyUIu5OL9iWoMMv5ZNmk3zLJ4Ep",
+            "type": "string"
+          }
+        },
+        "required": [
+          "APIHostname",
+          "integrationKey",
+          "secretKey"
         ],
         "type": "object"
       },
@@ -11138,6 +12298,13 @@
             "readOnly": true,
             "type": "string"
           },
+          "filterPredicates": {
+            "description": "The conditions of the saved filter, AND-ed.",
+            "items": {
+              "$ref": "#/components/schemas/pagedataviewfilterpredicate"
+            },
+            "type": "array"
+          },
           "name": {
             "description": "The name of the page data view.",
             "example": "all-chatgpt-conversations",
@@ -11171,6 +12338,53 @@
         "required": [
           "name",
           "pageID"
+        ],
+        "type": "object"
+      },
+      "pagedataviewfilterpredicate": {
+        "description": "Represents one condition of a saved filter.",
+        "properties": {
+          "disabled": {
+            "description": "If true, the condition is kept in the saved filter but not applied.",
+            "type": "boolean"
+          },
+          "key": {
+            "description": "The attribute the condition tests.",
+            "example": "status",
+            "type": "string"
+          },
+          "operator": {
+            "description": "How the attribute is compared with the values.",
+            "enum": [
+              "Contains",
+              "DoesNotExist",
+              "Equals",
+              "EqualsOrGreaterThan",
+              "EqualsOrLesserThan",
+              "Exists",
+              "GreaterThan",
+              "In",
+              "LesserThan",
+              "Matches",
+              "MatchesAll",
+              "NotContains",
+              "NotEquals",
+              "NotIn"
+            ],
+            "example": "In"
+          },
+          "values": {
+            "description": "The values of the condition. Holds one value for single-value operators, the\nlist for multi-value operators, and nothing for Exists and DoesNotExist. A\nrelative time is stored as an object whose now key holds a duration such as\n-24h.",
+            "example": "[\"Active\", \"Paused\"]",
+            "items": {
+              "type": "any"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "key",
+          "operator"
         ],
         "type": "object"
       },
@@ -11465,6 +12679,7 @@
           "key": {
             "description": "The key of the predicate.",
             "enum": [
+              "AIDomain",
               "AccessControlRisk",
               "Categories",
               "ClientType",
@@ -11472,6 +12687,8 @@
               "Confidentiality",
               "CustomDataTypes",
               "DataPolicyRisk",
+              "DataSets",
+              "DLP",
               "DstApp",
               "DstComponent",
               "DstIPRange",
@@ -11937,6 +13154,7 @@
             "default": "LLM",
             "description": "The type of the provider.",
             "enum": [
+              "Agent",
               "LLM",
               "MCPServer"
             ]
@@ -12510,6 +13728,13 @@
             },
             "type": "array"
           },
+          "maskingPolicies": {
+            "description": "The masking policies of the namespace and the ones propagated to it.",
+            "items": {
+              "$ref": "#/components/schemas/maskingpolicy"
+            },
+            "type": "array"
+          },
           "namespace": {
             "description": "The namespace of the object.",
             "readOnly": true,
@@ -12517,6 +13742,13 @@
           },
           "orgSettings": {
             "$ref": "#/components/schemas/orgsettings"
+          },
+          "policyDomains": {
+            "description": "The hosts referenced by AIDomain conditions of access policies. Apex serves\nthem to agents and runs access policies on their traffic even when no\nprovider owns them.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
           },
           "providers": {
             "description": "The list of available provider.",
@@ -12580,6 +13812,9 @@
             "readOnly": true,
             "type": "string"
           },
+          "a2aMessage": {
+            "$ref": "#/components/schemas/a2amessage"
+          },
           "alerts": {
             "description": "List of alerts that got raised during the policy resolution.",
             "items": {
@@ -12609,7 +13844,7 @@
             "type": "boolean"
           },
           "decision": {
-            "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carring the detail). NotApplicable is\nused by the scan and police APIs, which analyze content without\nrendering an enforcement decision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
+            "description": "User-facing outcome of the roundtrip. Reflects the policy\nengine's verdict, or in case of platform failure, the result of the\nfailClose strategy (Deny on fail-close, Allow on fail-open, with\nstructured error field carrying the detail). NotApplicable is\nused by the scan API, which analyzes content without evaluating\nany policy; the police API always renders an enforcement\ndecision. Error and UpstreamError stay\nin the allowed_choices list for backward compatibility with\nclients that still PUT those values; new round-trips never emit\nthem — platform/upstream failures now surface via the structured\nError field instead.\nNOTE: safe to drop Error and UpstreamError from this enum on or\nafter 2026-07-19 (two months after the structured RoundtripError\nlanded on 2026-05-19), once consumers have rolled forward.",
             "enum": [
               "Deny",
               "Allow",
@@ -12762,8 +13997,10 @@
             "type": "string"
           },
           "providerType": {
-            "description": "The type of the provider.",
+            "description": "The type of the provider. AIDomain when no provider handled a request to a\nhost targeted by an access policy.",
             "enum": [
+              "AIDomain",
+              "Agent",
               "LLM",
               "MCPServer"
             ],
@@ -14051,7 +15288,8 @@
               "PagerDuty",
               "Slack",
               "Splunk",
-              "MSTeams"
+              "MSTeams",
+              "Webhook"
             ]
           },
           "updateTime": {
@@ -14059,12 +15297,58 @@
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/sinkwebhook"
           }
         },
         "required": [
           "friendlyName",
           "type"
         ],
+        "type": "object"
+      },
+      "sinkcheck": {
+        "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its\nstored configuration, or a complete webhook draft to test unsaved edits. A\ndraft must include the URL and every header value, because stored secrets are\nnever returned or reused. Checks never save configuration changes.",
+        "properties": {
+          "message": {
+            "description": "The result of the check.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "responseBody": {
+            "description": "The beginning of the response body of the destination, to help\ntroubleshooting. It is truncated.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "sinkID": {
+            "description": "The saved sink to test with its stored configuration.",
+            "type": "string"
+          },
+          "status": {
+            "description": "Succeeded when the destination answered with a 2xx status. Failed when it\ncould not be reached or refused the request.",
+            "enum": [
+              "Succeeded",
+              "Failed"
+            ],
+            "readOnly": true
+          },
+          "statusCode": {
+            "description": "The HTTP status code of the response, when the destination answered.",
+            "readOnly": true,
+            "type": "integer"
+          },
+          "type": {
+            "default": "Webhook",
+            "description": "The type of the sink to test.",
+            "enum": [
+              "Webhook"
+            ]
+          },
+          "webhook": {
+            "$ref": "#/components/schemas/sinkwebhook"
+          }
+        },
         "type": "object"
       },
       "sinkdatabahn": {
@@ -14177,6 +15461,53 @@
         ],
         "type": "object"
       },
+      "sinkwebhook": {
+        "description": "Additional configuration for sending an alert to a generic webhook. The\nalert is sent as an HTTP POST, with a JSON body built from a template.\nThe webhook URL and the header values are secrets: they are write only and\nare never returned.",
+        "properties": {
+          "body": {
+            "description": "The JSON body to send, as a Go template. It must render valid JSON of at\nmost 64 KiB. Variables are written like {{.alert.severity}}. Their values\nare escaped for the inside of a JSON string, so put them inside quotes;\nonly .alert.counter and the event .attempts are numbers that can be\nused without quotes.\n\nThe alert variables are .alert.id, .alert.name, .alert.friendlyName,\n.alert.severity, .alert.message, .alert.url, .alert.counter,\n.alert.start, .alert.end and .alert.triggerCriteria. The platform\nvariable is .platform.host.\n\n.events lists up to 10 events, for {{range .events}}...{{end}}. Every event\nhas .type (User, App or DataSink), .timestamp, .provider, .teams, .user,\n.name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,\n.runID, .backfillID, .attempts, .reason and .description. The ones that\ndo not apply to the type of the event are empty. Inside a range, use\n$.alert or $.platform to reach the other variables.\n\nA range can only iterate over a field, such as .events or .teams, and can\nbe nested twice. The template and block actions are not supported.",
+            "example": "{\"summary\": \"Acuvity alert: {{.alert.friendlyName}}\", \"severity\": \"{{.alert.severity}}\", \"description\": \"{{.alert.message}}\"}",
+            "type": "string"
+          },
+          "headers": {
+            "description": "The HTTP headers to send with the request. Content-Type defaults to\napplication/json when not set.",
+            "items": {
+              "$ref": "#/components/schemas/sinkwebhookheader"
+            },
+            "type": "array"
+          },
+          "webhookURL": {
+            "description": "The URL to send the alert to.",
+            "example": "https://acme.atlassian.net/rest/api/3/issue",
+            "type": "string"
+          }
+        },
+        "required": [
+          "body",
+          "webhookURL"
+        ],
+        "type": "object"
+      },
+      "sinkwebhookheader": {
+        "description": "An HTTP header sent with every request of a webhook sink.",
+        "properties": {
+          "name": {
+            "description": "The name of the header, such as Authorization or X-API-Key.",
+            "example": "Authorization",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value of the header. Write only: it is never returned, because it\ncommonly holds a credential.",
+            "example": "Bearer 0a11421bcb4c45aseve7d822fake333a",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "value"
+        ],
+        "type": "object"
+      },
       "slug": {
         "description": "A route slug mapping for a gateway provider.",
         "properties": {
@@ -14202,6 +15533,11 @@
         "properties": {
           "data": {
             "description": "The contextual excerpt of the content around the detection.",
+            "type": "string"
+          },
+          "encryptedData": {
+            "description": "The original snippet data, encrypted, when apex masked values in it. Apex\nsets it, and only its decrypt endpoint can read it back. It is empty when\nnothing was masked, or when apex has no key to encrypt with.",
+            "readOnly": true,
             "type": "string"
           },
           "end": {
@@ -14289,7 +15625,8 @@
             "type": "integer"
           },
           "key": {
-            "description": "The key that is used in the name's place, If empty, a sequence of X's are used.",
+            "deprecated": true,
+            "description": "DEPRECATED: never set. Redacted values are always masked in place.\nThe placeholder that replaced the detection when the anonymization is\nVariableSize, such as PII_SSN_1. It is empty with FixedSize, where the\ndetection is replaced with '#' characters of the same length.",
             "type": "string"
           },
           "name": {
@@ -14322,7 +15659,8 @@
               "Keyword",
               "PII",
               "Secret",
-              "CDT"
+              "CDT",
+              "DLP"
             ]
           }
         },
@@ -15118,6 +16456,80 @@
         },
         "type": "object"
       },
+      "trafficsample": {
+        "description": "Ordinary messages a custom data type's corpus is evaluated against, to measure\nhow often it would fire on traffic it should leave alone.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the traffic sample.",
+            "type": "string"
+          },
+          "friendlyName": {
+            "description": "Friendly name of the object.",
+            "example": "Simple name",
+            "type": "string"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "messages": {
+            "description": "Ordinary messages, one per entry.",
+            "example": [
+              "Can you summarize this article for me",
+              "ok thanks"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "name": {
+            "description": "The internal reference name of the object. It is a sanitized version of Friendly\nName if empty.",
+            "example": "my-simple-policy",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "propagate": {
+            "default": true,
+            "description": "Propagates the object to all child namespaces. This is always true.",
+            "type": "boolean"
+          },
+          "provenance": {
+            "description": "Where the messages come from, and under which licence.",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "friendlyName",
+          "messages"
+        ],
+        "type": "object"
+      },
       "tunnelproxyauth": {
         "description": "The authentication information for the HTTP proxy used by the tunnel of the\nagent.",
         "properties": {
@@ -15514,7 +16926,8 @@
         "properties": {
           "anonymization": {
             "default": "FixedSize",
-            "description": "How to anonymize the data. If deanonymize is true, then VariablSize is required.",
+            "deprecated": true,
+            "description": "DEPRECATED: ignored. Redacted values are always masked in place, keeping\ntheir byte length.\nHow redacted data is replaced. FixedSize replaces each redacted span with\n'#' characters of the same length. VariableSize replaces it with a\nplaceholder naming the detection, such as PII_SSN_1.",
             "enum": [
               "FixedSize",
               "VariableSize"
@@ -19628,6 +21041,110 @@
         ]
       }
     },
+    "/corpusevaluations": {
+      "post": {
+        "description": "Evaluates a set of anchors against the analysis pipelines.",
+        "operationId": "create-CorpusEvaluation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/corpusevaluation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/corpusevaluation"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/corpusingestions": {
+      "post": {
+        "description": "Ingests a corpus into the analysis pipelines of this region.",
+        "operationId": "create-CorpusIngestion",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/corpusingestion"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/corpusingestion"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/corpusingestions/{id}": {
+      "get": {
+        "description": "Retrieves where a corpus stands in this region.",
+        "operationId": "get-CorpusIngestion",
+        "parameters": [
+          {
+            "description": "The ingestion job to report on. Without it, the stored corpus is reported.",
+            "example": "40b14ef9c2d1",
+            "in": "query",
+            "name": "jobID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/corpusingestion"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
     "/customdatatypes": {
       "get": {
         "description": "List all custom data types.",
@@ -19760,6 +21277,88 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/customdatatype"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/customdatatypes/{id}/customdatatypeactivations": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Activates, retries, cancels or rolls back the corpus.",
+        "operationId": "create-CustomDataTypeActivation-in-customdatatype",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/customdatatypeactivation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdatatypeactivation"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/customdatatypes/{id}/customdatatypeevaluations": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "post": {
+        "description": "Evaluates the stored draft against its evaluation inputs.",
+        "operationId": "create-CustomDataTypeEvaluation-in-customdatatype",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/customdatatypeevaluation"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/customdatatypeevaluation"
                 }
               }
             },
@@ -20759,31 +22358,8 @@
         ]
       },
       "post": {
-        "description": "Ask for a report generation immediately.",
+        "description": "Creates a digest report.",
         "operationId": "create-DigestReport",
-        "parameters": [
-          {
-            "description": "List of recipients to send the email to.",
-            "example": [
-              "bob@acme.com",
-              "other.bob@acme.com"
-            ],
-            "in": "query",
-            "name": "rcpt",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "The time window of the report in go notation. The report is always for `[now() - tw, now()]`. Min value is 24h.",
-            "example": "24h",
-            "in": "query",
-            "name": "tw",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -21581,6 +23157,35 @@
                     "$ref": "#/components/schemas/finding"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a finding.",
+        "operationId": "create-Finding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/finding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/finding"
                 }
               }
             },
@@ -22734,6 +24339,149 @@
         }
       ]
     },
+    "/maskingpolicies": {
+      "get": {
+        "description": "List all masking policies.",
+        "operationId": "get-all-MaskingPolicies",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/maskingpolicy"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new masking policy.",
+        "operationId": "create-MaskingPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/maskingpolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/maskingpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/maskingpolicies/{id}": {
+      "delete": {
+        "description": "Delete a masking policy given its identifier.",
+        "operationId": "delete-MaskingPolicy",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/maskingpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a masking policy given its identifier.",
+        "operationId": "get-MaskingPolicy",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/maskingpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a masking policy given its identifier.",
+        "operationId": "update-MaskingPolicy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/maskingpolicy"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/maskingpolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
     "/mcpgatewaybackends/{id}": {
       "delete": {
         "description": "Delete an MCP Gateway Backend given its identifier.",
@@ -23074,6 +24822,72 @@
         },
         "tags": [
           "mcp"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/mcptoolshadowfindings": {
+      "get": {
+        "description": "List all MCP tool shadow findings.",
+        "operationId": "get-all-MCPToolShadowFindings",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/mcptoolshadowfinding"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/mcptoolshadowfindings/{id}": {
+      "get": {
+        "description": "Retrieves the MCP tool shadow finding with the given ID.",
+        "operationId": "get-MCPToolShadowFinding",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/mcptoolshadowfinding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
         ]
       },
       "parameters": [
@@ -24686,6 +26500,14 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "description": "If set, leave out the extractors, injectors, mappers, error transformer and library.",
+            "in": "query",
+            "name": "slim",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -26108,6 +27930,35 @@
         "tags": [
           "core"
         ]
+      },
+      "post": {
+        "description": "Creates a risk finding.",
+        "operationId": "create-RiskFinding",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/riskfinding"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riskfinding"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
       }
     },
     "/riskfindings/{id}": {
@@ -26572,6 +28423,37 @@
         },
         "tags": [
           "core"
+        ]
+      }
+    },
+    "/sinkchecks": {
+      "post": {
+        "description": "Tests a sink by sending it a sample alert.",
+        "operationId": "create-SinkCheck",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sinkcheck"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/sinkcheck"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "notification"
         ]
       }
     },
@@ -27139,6 +29021,149 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/tracetagvalues"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/trafficsamples": {
+      "get": {
+        "description": "List all traffic samples.",
+        "operationId": "get-all-TrafficSamples",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/trafficsample"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "post": {
+        "description": "Creates a new traffic sample.",
+        "operationId": "create-TrafficSample",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/trafficsample"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/trafficsample"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/trafficsamples/{id}": {
+      "delete": {
+        "description": "Delete a traffic sample given its identifier.",
+        "operationId": "delete-TrafficSample",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/trafficsample"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "get": {
+        "description": "Retrieve a traffic sample given its identifier.",
+        "operationId": "get-TrafficSample",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/trafficsample"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a traffic sample given its identifier.",
+        "operationId": "update-TrafficSample",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/trafficsample"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/trafficsample"
                 }
               }
             },

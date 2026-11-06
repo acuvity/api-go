@@ -34,6 +34,9 @@ const (
 
 	// SinkTypeSplunk represents the value Splunk.
 	SinkTypeSplunk SinkTypeValue = "Splunk"
+
+	// SinkTypeWebhook represents the value Webhook.
+	SinkTypeWebhook SinkTypeValue = "Webhook"
 )
 
 // SinkIdentity represents the Identity of the object.
@@ -161,6 +164,9 @@ type Sink struct {
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
 
+	// Contains additional configuration for sending an alert to a generic webhook.
+	Webhook *SinkWebhook `json:"webhook,omitempty" msgpack:"webhook,omitempty" bson:"webhook,omitempty" mapstructure:"webhook,omitempty"`
+
 	// Hash of the object used to shard the data.
 	ZHash int `json:"-" msgpack:"-" bson:"zhash" mapstructure:"-,omitempty"`
 
@@ -227,6 +233,7 @@ func (o *Sink) GetBSON() (any, error) {
 	s.Splunk = o.Splunk
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
+	s.Webhook = o.Webhook
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
 
@@ -263,6 +270,7 @@ func (o *Sink) SetBSON(raw bson.Raw) error {
 	o.Splunk = s.Splunk
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
+	o.Webhook = s.Webhook
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
 
@@ -418,6 +426,7 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Splunk:       o.Splunk,
 			Type:         &o.Type,
 			UpdateTime:   &o.UpdateTime,
+			Webhook:      o.Webhook,
 			ZHash:        &o.ZHash,
 			Zone:         &o.Zone,
 		}
@@ -460,6 +469,8 @@ func (o *Sink) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Type = &(o.Type)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "webhook":
+			sp.Webhook = o.Webhook
 		case "zHash":
 			sp.ZHash = &(o.ZHash)
 		case "zone":
@@ -528,6 +539,9 @@ func (o *Sink) Patch(sparse elemental.SparseIdentifiable) {
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
 	}
+	if so.Webhook != nil {
+		o.Webhook = so.Webhook
+	}
 	if so.ZHash != nil {
 		o.ZHash = *so.ZHash
 	}
@@ -575,6 +589,12 @@ func (o *Sink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 		}
 	}
 
+	if o.Webhook != nil {
+		if err := o.Webhook.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Webhook' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -614,6 +634,12 @@ func (o *Sink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err er
 	if o.Splunk != nil {
 		if err := o.Splunk.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Webhook != nil {
+		if err := o.Webhook.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Webhook' for 'Sink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -713,8 +739,15 @@ func (o *Sink) Validate() error {
 		requiredErrors = requiredErrors.Append(err)
 	}
 
-	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"}, false); err != nil {
+	if err := elemental.ValidateStringInList("type", string(o.Type), []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams", "Webhook"}, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	if o.Webhook != nil {
+		if err := o.Webhook.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "webhook")
+			errors = errors.Append(err)
+		}
 	}
 
 	// Custom object validation.
@@ -790,6 +823,8 @@ func (o *Sink) ValueForAttribute(name string) any {
 		return o.Type
 	case "updateTime":
 		return o.UpdateTime
+	case "webhook":
+		return o.Webhook
 	case "zHash":
 		return o.ZHash
 	case "zone":
@@ -992,7 +1027,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"Type": {
-		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams", "Webhook"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -1017,6 +1052,17 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Webhook": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhook",
+		ConvertedName:  "Webhook",
+		Description:    `Contains additional configuration for sending an alert to a generic webhook.`,
+		Exposed:        true,
+		Name:           "webhook",
+		Stored:         true,
+		SubType:        "sinkwebhook",
+		Type:           "ref",
 	},
 }
 
@@ -1213,7 +1259,7 @@ Name if empty.`,
 		Type:           "ref",
 	},
 	"type": {
-		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams"},
+		AllowedChoices: []string{"Databahn", "Email", "PagerDuty", "Slack", "Splunk", "MSTeams", "Webhook"},
 		BSONFieldName:  "type",
 		ConvertedName:  "Type",
 		DefaultValue:   SinkTypeEmail,
@@ -1238,6 +1284,17 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"webhook": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "webhook",
+		ConvertedName:  "Webhook",
+		Description:    `Contains additional configuration for sending an alert to a generic webhook.`,
+		Exposed:        true,
+		Name:           "webhook",
+		Stored:         true,
+		SubType:        "sinkwebhook",
+		Type:           "ref",
 	},
 }
 
@@ -1357,6 +1414,9 @@ type SparseSink struct {
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
 
+	// Contains additional configuration for sending an alert to a generic webhook.
+	Webhook *SinkWebhook `json:"webhook,omitempty" msgpack:"webhook,omitempty" bson:"webhook,omitempty" mapstructure:"webhook,omitempty"`
+
 	// Hash of the object used to shard the data.
 	ZHash *int `json:"-" msgpack:"-" bson:"zhash,omitempty" mapstructure:"-,omitempty"`
 
@@ -1457,6 +1517,9 @@ func (o *SparseSink) GetBSON() (any, error) {
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
 	}
+	if o.Webhook != nil {
+		s.Webhook = o.Webhook
+	}
 	if o.ZHash != nil {
 		s.ZHash = o.ZHash
 	}
@@ -1530,6 +1593,9 @@ func (o *SparseSink) SetBSON(raw bson.Raw) error {
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
 	}
+	if s.Webhook != nil {
+		o.Webhook = s.Webhook
+	}
 	if s.ZHash != nil {
 		o.ZHash = s.ZHash
 	}
@@ -1601,6 +1667,9 @@ func (o *SparseSink) ToPlain() elemental.PlainIdentifiable {
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
 	}
+	if o.Webhook != nil {
+		out.Webhook = o.Webhook
+	}
 	if o.ZHash != nil {
 		out.ZHash = *o.ZHash
 	}
@@ -1650,6 +1719,12 @@ func (o *SparseSink) EncryptAttributes(encrypter elemental.AttributeEncrypter) (
 		}
 	}
 
+	if o.Webhook != nil {
+		if err := o.Webhook.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'Webhook' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -1689,6 +1764,12 @@ func (o *SparseSink) DecryptAttributes(encrypter elemental.AttributeEncrypter) (
 	if o.Splunk != nil {
 		if err := o.Splunk.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt ref attribute 'Splunk' for 'Sink' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.Webhook != nil {
+		if err := o.Webhook.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'Webhook' for 'Sink' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1865,6 +1946,7 @@ type mongoAttributesSink struct {
 	Splunk       *SinkSplunk    `bson:"splunk,omitempty"`
 	Type         SinkTypeValue  `bson:"type"`
 	UpdateTime   time.Time      `bson:"updatetime"`
+	Webhook      *SinkWebhook   `bson:"webhook,omitempty"`
 	ZHash        int            `bson:"zhash"`
 	Zone         int            `bson:"zone"`
 }
@@ -1886,6 +1968,7 @@ type mongoAttributesSparseSink struct {
 	Splunk       *SinkSplunk    `bson:"splunk,omitempty"`
 	Type         *SinkTypeValue `bson:"type,omitempty"`
 	UpdateTime   *time.Time     `bson:"updatetime,omitempty"`
+	Webhook      *SinkWebhook   `bson:"webhook,omitempty"`
 	ZHash        *int           `bson:"zhash,omitempty"`
 	Zone         *int           `bson:"zone,omitempty"`
 }
