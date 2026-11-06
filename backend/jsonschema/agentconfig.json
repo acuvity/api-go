@@ -437,7 +437,6 @@
     },
     "subject": {
       "$friendlyName": "Subject",
-      "$required": true,
       "description": "A tag expression that identifies the user(s) tied to this config.",
       "items": {
         "items": {
@@ -541,8 +540,7 @@
   },
   "required": [
     "listeningPort",
-    "name",
-    "subject"
+    "name"
   ],
   "title": "AgentConfig",
   "type": "object"

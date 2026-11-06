@@ -1930,7 +1930,7 @@ Default value:
 "50ms"
 ```
 
-##### `subject` [`required`]
+##### `subject`
 
 Type: `[][]string`
 

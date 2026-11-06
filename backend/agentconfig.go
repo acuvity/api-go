@@ -1159,10 +1159,6 @@ func (o *AgentConfig) Validate() error {
 		errors = errors.Append(err)
 	}
 
-	if err := elemental.ValidateRequiredExternal("subject", o.Subject); err != nil {
-		requiredErrors = requiredErrors.Append(err)
-	}
-
 	if err := ValidateTagsExpression("subject", o.Subject); err != nil {
 		errors = errors.Append(err)
 	}
@@ -1855,7 +1851,6 @@ speed.`,
 		Exposed:        true,
 		Name:           "subject",
 		Orderable:      true,
-		Required:       true,
 		Stored:         true,
 		SubType:        "[][]string",
 		Type:           "external",
@@ -2492,7 +2487,6 @@ speed.`,
 		Exposed:        true,
 		Name:           "subject",
 		Orderable:      true,
-		Required:       true,
 		Stored:         true,
 		SubType:        "[][]string",
 		Type:           "external",

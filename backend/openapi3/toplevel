@@ -862,8 +862,7 @@
         },
         "required": [
           "listeningPort",
-          "name",
-          "subject"
+          "name"
         ],
         "type": "object"
       },
