@@ -137,8 +137,8 @@ go.acuvity.ai/a3s v0.0.0-20261030101647-2994a6aa012d h1:C6ODj1cS4oXJwzPstKoF4V41
 go.acuvity.ai/a3s v0.0.0-20261030101647-2994a6aa012d/go.mod h1:/7f6a58FyaEm/uS4Hlfkon8rvBu8JRjSLXUjSMiCgfk=
 go.acuvity.ai/aculib v0.0.0-20261101193528-254c732624db h1:x6GyJy+M4r4ljvE2BHSNVRyZUw81NJFp9lhYJyjesK0=
 go.acuvity.ai/aculib v0.0.0-20261101193528-254c732624db/go.mod h1:mNnbow2mquE6nC3Q2K+tHHXccjuXxTrBERuRfszms64=
-go.acuvity.ai/elemental v0.0.0-20261029223120-85e0be79bd9c h1:ySB0/D060D5G1Xjw3Dx3Mj8Ag3r4NjMsPak1zo5EFYs=
-go.acuvity.ai/elemental v0.0.0-20261029223120-85e0be79bd9c/go.mod h1:h7PHJlKDt5zeG8EqqzlZf2cJpMBa9UA5njXZazwz6rQ=
+go.acuvity.ai/elemental v0.0.0-20261109164313-58599f90af89 h1:cRvR5ziQToAhcrcldaZNe3XbwCY8ebPJDsjbeVPkiXk=
+go.acuvity.ai/elemental v0.0.0-20261109164313-58599f90af89/go.mod h1:h7PHJlKDt5zeG8EqqzlZf2cJpMBa9UA5njXZazwz6rQ=
 go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4 h1:Twx5zdZEtk/Jbpa78GdxTmBaQZh1A7GeYmDDneYVup8=
 go.acuvity.ai/regolithe v0.0.0-20260723001905-94d204bf1aa4/go.mod h1:KuX0NAZzZX76xCIhsDcnKk73XDQBrNrJMXorokwCMto=
 go.acuvity.ai/tg v1.0.1-0.20260708162706-306a91e4d7dd h1:mNHaN6Es8aWBrGIuhJ6b97wHNCq0GqrHMlPQiqk7sa8=

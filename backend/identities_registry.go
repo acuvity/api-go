@@ -2579,8 +2579,6 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewCustomDataTypeIngestion()
 	case "customdatatypesnapshot", "CustomDataTypeSnapshot":
 		return NewCustomDataTypeSnapshot()
-	case "datasinkcatalogmetric", "DataSinkCatalogMetric":
-		return NewDataSinkCatalogMetric()
 	case "destination", "Destination":
 		return NewDestination()
 	case "detection", "Detection":

@@ -12,7 +12,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0
 	go.acuvity.ai/a3s v0.0.0-20261030101647-2994a6aa012d
 	go.acuvity.ai/aculib v0.0.0-20261101193528-254c732624db
-	go.acuvity.ai/elemental v0.0.0-20261029223120-85e0be79bd9c
+	go.acuvity.ai/elemental v0.0.0-20261109164313-58599f90af89
 	go.opentelemetry.io/collector/pdata v1.71.0
 )
 
