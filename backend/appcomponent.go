@@ -127,6 +127,9 @@ type AppComponent struct {
 	// ingress setinngs.
 	Provider *AppComponentProvider `json:"provider" msgpack:"provider" bson:"provider" mapstructure:"provider,omitempty"`
 
+	// The region for the renewed token.
+	Region string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -200,6 +203,7 @@ func (o *AppComponent) GetBSON() (any, error) {
 	s.Kind = o.Kind
 	s.Name = o.Name
 	s.Provider = o.Provider
+	s.Region = o.Region
 	s.Selector = o.Selector
 	s.Tokenref = o.Tokenref
 	s.TrafficControl = o.TrafficControl
@@ -226,6 +230,7 @@ func (o *AppComponent) SetBSON(raw bson.Raw) error {
 	o.Kind = s.Kind
 	o.Name = s.Name
 	o.Provider = s.Provider
+	o.Region = s.Region
 	o.Selector = s.Selector
 	o.Tokenref = s.Tokenref
 	o.TrafficControl = s.TrafficControl
@@ -275,6 +280,7 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Kind:               &o.Kind,
 			Name:               &o.Name,
 			Provider:           o.Provider,
+			Region:             &o.Region,
 			RenewToken:         &o.RenewToken,
 			RenewTokenTag:      &o.RenewTokenTag,
 			RenewTokenValidity: &o.RenewTokenValidity,
@@ -300,6 +306,8 @@ func (o *AppComponent) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "provider":
 			sp.Provider = o.Provider
+		case "region":
+			sp.Region = &(o.Region)
 		case "renewToken":
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
@@ -344,6 +352,9 @@ func (o *AppComponent) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Provider != nil {
 		o.Provider = so.Provider
+	}
+	if so.Region != nil {
+		o.Region = *so.Region
 	}
 	if so.RenewToken != nil {
 		o.RenewToken = *so.RenewToken
@@ -587,6 +598,8 @@ func (o *AppComponent) ValueForAttribute(name string) any {
 		return o.Name
 	case "provider":
 		return o.Provider
+	case "region":
+		return o.Region
 	case "renewToken":
 		return o.RenewToken
 	case "renewTokenTag":
@@ -678,6 +691,16 @@ ingress setinngs.`,
 		Stored:  true,
 		SubType: "appcomponentprovider",
 		Type:    "ref",
+	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
 	},
 	"RenewToken": {
 		AllowedChoices: []string{},
@@ -830,6 +853,16 @@ ingress setinngs.`,
 		Stored:  true,
 		SubType: "appcomponentprovider",
 		Type:    "ref",
+	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
 	},
 	"renewtoken": {
 		AllowedChoices: []string{},
@@ -996,6 +1029,9 @@ type SparseAppComponent struct {
 	// ingress setinngs.
 	Provider *AppComponentProvider `json:"provider,omitempty" msgpack:"provider,omitempty" bson:"provider,omitempty" mapstructure:"provider,omitempty"`
 
+	// The region for the renewed token.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -1073,6 +1109,9 @@ func (o *SparseAppComponent) GetBSON() (any, error) {
 	if o.Provider != nil {
 		s.Provider = o.Provider
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.Selector != nil {
 		s.Selector = o.Selector
 	}
@@ -1117,6 +1156,9 @@ func (o *SparseAppComponent) SetBSON(raw bson.Raw) error {
 	if s.Provider != nil {
 		o.Provider = s.Provider
 	}
+	if s.Region != nil {
+		o.Region = s.Region
+	}
 	if s.Selector != nil {
 		o.Selector = s.Selector
 	}
@@ -1157,6 +1199,9 @@ func (o *SparseAppComponent) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Provider != nil {
 		out.Provider = o.Provider
+	}
+	if o.Region != nil {
+		out.Region = *o.Region
 	}
 	if o.RenewToken != nil {
 		out.RenewToken = *o.RenewToken
@@ -1304,6 +1349,7 @@ type mongoAttributesAppComponent struct {
 	Kind           AppComponentKindValue `bson:"kind"`
 	Name           string                `bson:"name"`
 	Provider       *AppComponentProvider `bson:"provider"`
+	Region         string                `bson:"region,omitempty"`
 	Selector       AppComponentSelector  `bson:"selector"`
 	Tokenref       []*TokenRef           `bson:"tokenref,omitempty"`
 	TrafficControl *TrafficControl       `bson:"trafficcontrol,omitempty"`
@@ -1315,6 +1361,7 @@ type mongoAttributesSparseAppComponent struct {
 	Kind           *AppComponentKindValue `bson:"kind,omitempty"`
 	Name           *string                `bson:"name,omitempty"`
 	Provider       *AppComponentProvider  `bson:"provider,omitempty"`
+	Region         *string                `bson:"region,omitempty"`
 	Selector       *AppComponentSelector  `bson:"selector,omitempty"`
 	Tokenref       *[]*TokenRef           `bson:"tokenref,omitempty"`
 	TrafficControl *TrafficControl        `bson:"trafficcontrol,omitempty"`

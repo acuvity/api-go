@@ -255,6 +255,11 @@ type AgentConfig struct {
 	// Values can be negative.
 	Priority int `json:"priority" msgpack:"priority" bson:"priority" mapstructure:"priority,omitempty"`
 
+	// The region whose endpoints the client uses, such as the apex of the region.
+	// Empty, the client uses the global endpoints. A region set on the client
+	// itself, at installation, takes precedence.
+	Region string `json:"region" msgpack:"region" bson:"region" mapstructure:"region,omitempty"`
+
 	// The release train to follow when updating. Manual means it will not auto-update,
 	// essentially pinning to a version.
 	ReleaseTrain AgentConfigReleaseTrainValue `json:"releaseTrain" msgpack:"releaseTrain" bson:"releasetrain" mapstructure:"releaseTrain,omitempty"`
@@ -430,6 +435,7 @@ func (o *AgentConfig) GetBSON() (any, error) {
 	s.PauseEnabled = o.PauseEnabled
 	s.PingInterval = o.PingInterval
 	s.Priority = o.Priority
+	s.Region = o.Region
 	s.ReleaseTrain = o.ReleaseTrain
 	s.ReleaseTrainOffset = o.ReleaseTrainOffset
 	s.ReleaseTrainVersion = o.ReleaseTrainVersion
@@ -501,6 +507,7 @@ func (o *AgentConfig) SetBSON(raw bson.Raw) error {
 	o.PauseEnabled = s.PauseEnabled
 	o.PingInterval = s.PingInterval
 	o.Priority = s.Priority
+	o.Region = s.Region
 	o.ReleaseTrain = s.ReleaseTrain
 	o.ReleaseTrainOffset = s.ReleaseTrainOffset
 	o.ReleaseTrainVersion = s.ReleaseTrainVersion
@@ -656,6 +663,7 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PauseEnabled:                  &o.PauseEnabled,
 			PingInterval:                  &o.PingInterval,
 			Priority:                      &o.Priority,
+			Region:                        &o.Region,
 			ReleaseTrain:                  &o.ReleaseTrain,
 			ReleaseTrainOffset:            &o.ReleaseTrainOffset,
 			ReleaseTrainVersion:           &o.ReleaseTrainVersion,
@@ -752,6 +760,8 @@ func (o *AgentConfig) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PingInterval = &(o.PingInterval)
 		case "priority":
 			sp.Priority = &(o.Priority)
+		case "region":
+			sp.Region = &(o.Region)
 		case "releaseTrain":
 			sp.ReleaseTrain = &(o.ReleaseTrain)
 		case "releaseTrainOffset":
@@ -910,6 +920,9 @@ func (o *AgentConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Priority != nil {
 		o.Priority = *so.Priority
+	}
+	if so.Region != nil {
+		o.Region = *so.Region
 	}
 	if so.ReleaseTrain != nil {
 		o.ReleaseTrain = *so.ReleaseTrain
@@ -1292,6 +1305,8 @@ func (o *AgentConfig) ValueForAttribute(name string) any {
 		return o.PingInterval
 	case "priority":
 		return o.Priority
+	case "region":
+		return o.Region
 	case "releaseTrain":
 		return o.ReleaseTrain
 	case "releaseTrainOffset":
@@ -1740,6 +1755,18 @@ Values can be negative.`,
 		Name:    "priority",
 		Stored:  true,
 		Type:    "integer",
+	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description: `The region whose endpoints the client uses, such as the apex of the region.
+Empty, the client uses the global endpoints. A region set on the client
+itself, at installation, takes precedence.`,
+		Exposed: true,
+		Name:    "region",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ReleaseTrain": {
 		AllowedChoices: []string{"Manual", "SpecificVersion", "Stable", "StableMinusN", "Unstable"},
@@ -2377,6 +2404,18 @@ Values can be negative.`,
 		Stored:  true,
 		Type:    "integer",
 	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description: `The region whose endpoints the client uses, such as the apex of the region.
+Empty, the client uses the global endpoints. A region set on the client
+itself, at installation, takes precedence.`,
+		Exposed: true,
+		Name:    "region",
+		Stored:  true,
+		Type:    "string",
+	},
 	"releasetrain": {
 		AllowedChoices: []string{"Manual", "SpecificVersion", "Stable", "StableMinusN", "Unstable"},
 		BSONFieldName:  "releasetrain",
@@ -2798,6 +2837,11 @@ type SparseAgentConfig struct {
 	// Values can be negative.
 	Priority *int `json:"priority,omitempty" msgpack:"priority,omitempty" bson:"priority,omitempty" mapstructure:"priority,omitempty"`
 
+	// The region whose endpoints the client uses, such as the apex of the region.
+	// Empty, the client uses the global endpoints. A region set on the client
+	// itself, at installation, takes precedence.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// The release train to follow when updating. Manual means it will not auto-update,
 	// essentially pinning to a version.
 	ReleaseTrain *AgentConfigReleaseTrainValue `json:"releaseTrain,omitempty" msgpack:"releaseTrain,omitempty" bson:"releasetrain,omitempty" mapstructure:"releaseTrain,omitempty"`
@@ -3021,6 +3065,9 @@ func (o *SparseAgentConfig) GetBSON() (any, error) {
 	if o.Priority != nil {
 		s.Priority = o.Priority
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.ReleaseTrain != nil {
 		s.ReleaseTrain = o.ReleaseTrain
 	}
@@ -3198,6 +3245,9 @@ func (o *SparseAgentConfig) SetBSON(raw bson.Raw) error {
 	}
 	if s.Priority != nil {
 		o.Priority = s.Priority
+	}
+	if s.Region != nil {
+		o.Region = s.Region
 	}
 	if s.ReleaseTrain != nil {
 		o.ReleaseTrain = s.ReleaseTrain
@@ -3377,6 +3427,9 @@ func (o *SparseAgentConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Priority != nil {
 		out.Priority = *o.Priority
+	}
+	if o.Region != nil {
+		out.Region = *o.Region
 	}
 	if o.ReleaseTrain != nil {
 		out.ReleaseTrain = *o.ReleaseTrain
@@ -3654,6 +3707,7 @@ type mongoAttributesAgentConfig struct {
 	PauseEnabled                  bool                             `bson:"pauseenabled"`
 	PingInterval                  string                           `bson:"pinginterval"`
 	Priority                      int                              `bson:"priority"`
+	Region                        string                           `bson:"region"`
 	ReleaseTrain                  AgentConfigReleaseTrainValue     `bson:"releasetrain"`
 	ReleaseTrainOffset            int                              `bson:"releasetrainoffset"`
 	ReleaseTrainVersion           string                           `bson:"releasetrainversion"`
@@ -3710,6 +3764,7 @@ type mongoAttributesSparseAgentConfig struct {
 	PauseEnabled                  *bool                             `bson:"pauseenabled,omitempty"`
 	PingInterval                  *string                           `bson:"pinginterval,omitempty"`
 	Priority                      *int                              `bson:"priority,omitempty"`
+	Region                        *string                           `bson:"region,omitempty"`
 	ReleaseTrain                  *AgentConfigReleaseTrainValue     `bson:"releasetrain,omitempty"`
 	ReleaseTrainOffset            *int                              `bson:"releasetrainoffset,omitempty"`
 	ReleaseTrainVersion           *string                           `bson:"releasetrainversion,omitempty"`

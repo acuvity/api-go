@@ -59,6 +59,15 @@
       "description": "The optional provider configuration of the component. If this app component is a server and is itself acting as a provider, define the provider settings here. Policies for incoming requests to this provider are controlled through the ingress setinngs.",
       "title": "provider"
     },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region for the renewed token.",
+      "title": "region",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "renewToken": {
       "$friendlyName": "Renew Token",
       "description": "Set to true on update to issue a new credential.",

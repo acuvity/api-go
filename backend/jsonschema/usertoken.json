@@ -107,6 +107,16 @@
         "null"
       ]
     },
+    "region": {
+      "$creationOnly": true,
+      "$friendlyName": "Region",
+      "description": "The region of the token. This will insert a region claim in the token.",
+      "title": "region",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "sourceIP": {
       "$friendlyName": "SourceIP",
       "$readOnly": true,

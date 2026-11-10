@@ -121,6 +121,11 @@ type WebExtensionConfig struct {
 	// WebExtensions.
 	RefreshWebExtensionConfigInterval int `json:"refreshWebExtensionConfigInterval" msgpack:"refreshWebExtensionConfigInterval" bson:"refreshwebextensionconfiginterval" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
+	// The region whose endpoints the client uses, such as the apex of the region.
+	// Empty, the client uses the global endpoints. A region set on the client
+	// itself, at installation, takes precedence.
+	Region string `json:"region" msgpack:"region" bson:"region" mapstructure:"region,omitempty"`
+
 	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval int `json:"reportVisitedURLsInterval" msgpack:"reportVisitedURLsInterval" bson:"reportvisitedurlsinterval" mapstructure:"reportVisitedURLsInterval,omitempty"`
 
@@ -190,6 +195,7 @@ func (o *WebExtensionConfig) GetBSON() (any, error) {
 	s.Namespace = o.Namespace
 	s.Priority = o.Priority
 	s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
+	s.Region = o.Region
 	s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
 	s.Subject = o.Subject
 	s.UpdateTime = o.UpdateTime
@@ -222,6 +228,7 @@ func (o *WebExtensionConfig) SetBSON(raw bson.Raw) error {
 	o.Namespace = s.Namespace
 	o.Priority = s.Priority
 	o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
+	o.Region = s.Region
 	o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
 	o.Subject = s.Subject
 	o.UpdateTime = s.UpdateTime
@@ -337,6 +344,7 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			Namespace:                         &o.Namespace,
 			Priority:                          &o.Priority,
 			RefreshWebExtensionConfigInterval: &o.RefreshWebExtensionConfigInterval,
+			Region:                            &o.Region,
 			ReportVisitedURLsInterval:         &o.ReportVisitedURLsInterval,
 			Subject:                           &o.Subject,
 			UpdateTime:                        &o.UpdateTime,
@@ -368,6 +376,8 @@ func (o *WebExtensionConfig) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Priority = &(o.Priority)
 		case "refreshWebExtensionConfigInterval":
 			sp.RefreshWebExtensionConfigInterval = &(o.RefreshWebExtensionConfigInterval)
+		case "region":
+			sp.Region = &(o.Region)
 		case "reportVisitedURLsInterval":
 			sp.ReportVisitedURLsInterval = &(o.ReportVisitedURLsInterval)
 		case "subject":
@@ -420,6 +430,9 @@ func (o *WebExtensionConfig) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.RefreshWebExtensionConfigInterval != nil {
 		o.RefreshWebExtensionConfigInterval = *so.RefreshWebExtensionConfigInterval
+	}
+	if so.Region != nil {
+		o.Region = *so.Region
 	}
 	if so.ReportVisitedURLsInterval != nil {
 		o.ReportVisitedURLsInterval = *so.ReportVisitedURLsInterval
@@ -556,6 +569,8 @@ func (o *WebExtensionConfig) ValueForAttribute(name string) any {
 		return o.Priority
 	case "refreshWebExtensionConfigInterval":
 		return o.RefreshWebExtensionConfigInterval
+	case "region":
+		return o.Region
 	case "reportVisitedURLsInterval":
 		return o.ReportVisitedURLsInterval
 	case "subject":
@@ -703,6 +718,18 @@ WebExtensions.`,
 		Name:     "refreshWebExtensionConfigInterval",
 		Stored:   true,
 		Type:     "integer",
+	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description: `The region whose endpoints the client uses, such as the apex of the region.
+Empty, the client uses the global endpoints. A region set on the client
+itself, at installation, takes precedence.`,
+		Exposed: true,
+		Name:    "region",
+		Stored:  true,
+		Type:    "string",
 	},
 	"ReportVisitedURLsInterval": {
 		AllowedChoices: []string{},
@@ -879,6 +906,18 @@ WebExtensions.`,
 		Stored:   true,
 		Type:     "integer",
 	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description: `The region whose endpoints the client uses, such as the apex of the region.
+Empty, the client uses the global endpoints. A region set on the client
+itself, at installation, takes precedence.`,
+		Exposed: true,
+		Name:    "region",
+		Stored:  true,
+		Type:    "string",
+	},
 	"reportvisitedurlsinterval": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reportvisitedurlsinterval",
@@ -1020,6 +1059,11 @@ type SparseWebExtensionConfig struct {
 	// WebExtensions.
 	RefreshWebExtensionConfigInterval *int `json:"refreshWebExtensionConfigInterval,omitempty" msgpack:"refreshWebExtensionConfigInterval,omitempty" bson:"refreshwebextensionconfiginterval,omitempty" mapstructure:"refreshWebExtensionConfigInterval,omitempty"`
 
+	// The region whose endpoints the client uses, such as the apex of the region.
+	// Empty, the client uses the global endpoints. A region set on the client
+	// itself, at installation, takes precedence.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Define the interval in minutes between two reports of the visited URLs.
 	ReportVisitedURLsInterval *int `json:"reportVisitedURLsInterval,omitempty" msgpack:"reportVisitedURLsInterval,omitempty" bson:"reportvisitedurlsinterval,omitempty" mapstructure:"reportVisitedURLsInterval,omitempty"`
 
@@ -1108,6 +1152,9 @@ func (o *SparseWebExtensionConfig) GetBSON() (any, error) {
 	if o.RefreshWebExtensionConfigInterval != nil {
 		s.RefreshWebExtensionConfigInterval = o.RefreshWebExtensionConfigInterval
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.ReportVisitedURLsInterval != nil {
 		s.ReportVisitedURLsInterval = o.ReportVisitedURLsInterval
 	}
@@ -1169,6 +1216,9 @@ func (o *SparseWebExtensionConfig) SetBSON(raw bson.Raw) error {
 	if s.RefreshWebExtensionConfigInterval != nil {
 		o.RefreshWebExtensionConfigInterval = s.RefreshWebExtensionConfigInterval
 	}
+	if s.Region != nil {
+		o.Region = s.Region
+	}
 	if s.ReportVisitedURLsInterval != nil {
 		o.ReportVisitedURLsInterval = s.ReportVisitedURLsInterval
 	}
@@ -1227,6 +1277,9 @@ func (o *SparseWebExtensionConfig) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.RefreshWebExtensionConfigInterval != nil {
 		out.RefreshWebExtensionConfigInterval = *o.RefreshWebExtensionConfigInterval
+	}
+	if o.Region != nil {
+		out.Region = *o.Region
 	}
 	if o.ReportVisitedURLsInterval != nil {
 		out.ReportVisitedURLsInterval = *o.ReportVisitedURLsInterval
@@ -1374,6 +1427,7 @@ type mongoAttributesWebExtensionConfig struct {
 	Namespace                         string        `bson:"namespace,omitempty"`
 	Priority                          int           `bson:"priority"`
 	RefreshWebExtensionConfigInterval int           `bson:"refreshwebextensionconfiginterval"`
+	Region                            string        `bson:"region"`
 	ReportVisitedURLsInterval         int           `bson:"reportvisitedurlsinterval"`
 	Subject                           [][]string    `bson:"subject"`
 	UpdateTime                        time.Time     `bson:"updatetime"`
@@ -1391,6 +1445,7 @@ type mongoAttributesSparseWebExtensionConfig struct {
 	Namespace                         *string       `bson:"namespace,omitempty"`
 	Priority                          *int          `bson:"priority,omitempty"`
 	RefreshWebExtensionConfigInterval *int          `bson:"refreshwebextensionconfiginterval,omitempty"`
+	Region                            *string       `bson:"region,omitempty"`
 	ReportVisitedURLsInterval         *int          `bson:"reportvisitedurlsinterval,omitempty"`
 	Subject                           *[][]string   `bson:"subject,omitempty"`
 	UpdateTime                        *time.Time    `bson:"updatetime,omitempty"`

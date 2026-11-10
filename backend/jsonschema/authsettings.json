@@ -9,6 +9,19 @@
   "additionalProperties": false,
   "description": "Returns the authentication source names available for this organization.",
   "properties": {
+    "regions": {
+      "$friendlyName": "Regions",
+      "$readOnly": true,
+      "description": "The regions the organization is assigned to, to sign in to one of them. Empty when the organization is not assigned to any region.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "regions",
+      "type": "array"
+    },
     "sourceName": {
       "$defaultValue": "default",
       "$friendlyName": "Source name",

@@ -370,6 +370,13 @@ type ProxyRoundtrip struct {
 	// host targeted by an access policy.
 	ProviderType ProxyRoundtripProviderTypeValue `json:"providerType" msgpack:"providerType" bson:"providertype" mapstructure:"providerType,omitempty"`
 
+	// How the client reached the apex that processed this request: Global when it
+	// used the global apex name, Direct when it used the name of the apex region.
+	// The scan and police APIs report Global unless they are called on the name of
+	// the apex region. This is the ProxyAccess the access policies matched. Empty
+	// on a round-trip recorded by an older apex.
+	ProxyAccess string `json:"proxyAccess,omitempty" msgpack:"proxyAccess,omitempty" bson:"proxyaccess,omitempty" mapstructure:"proxyAccess,omitempty"`
+
 	// Denotes the proxy function of this processor in the chain of servers. The proxy
 	// processor acts as a forwarding proxy on the egress side, between a client or
 	// application and the origin server, and as a reverse proxy on the ingress side,
@@ -380,8 +387,16 @@ type ProxyRoundtrip struct {
 	// currently not in use, and only appears on roundtrips recorded by an older apex.
 	ProxyFunction ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
+	// The region of the apex that processed this request. This is the ProxyRegion
+	// the access policies matched. Empty when the apex has no region.
+	ProxyRegion string `json:"proxyRegion,omitempty" msgpack:"proxyRegion,omitempty" bson:"proxyregion,omitempty" mapstructure:"proxyRegion,omitempty"`
+
 	// The various reasons returned by the policy engine.
 	Reasons []string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
+
+	// The region of the caller's token. This is the SrcRegion the access policies
+	// matched. Empty when the token carries no region.
+	SrcRegion string `json:"srcRegion,omitempty" msgpack:"srcRegion,omitempty" bson:"srcregion,omitempty" mapstructure:"srcRegion,omitempty"`
 
 	// The summary of the extractions.
 	Summary *ExtractionSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
@@ -486,8 +501,11 @@ func (o *ProxyRoundtrip) GetBSON() (any, error) {
 	s.Processor = o.Processor
 	s.Provider = o.Provider
 	s.ProviderType = o.ProviderType
+	s.ProxyAccess = o.ProxyAccess
 	s.ProxyFunction = o.ProxyFunction
+	s.ProxyRegion = o.ProxyRegion
 	s.Reasons = o.Reasons
+	s.SrcRegion = o.SrcRegion
 	s.Summary = o.Summary
 	s.ToolChoice = o.ToolChoice
 	s.Tools = o.Tools
@@ -547,8 +565,11 @@ func (o *ProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	o.Processor = s.Processor
 	o.Provider = s.Provider
 	o.ProviderType = s.ProviderType
+	o.ProxyAccess = s.ProxyAccess
 	o.ProxyFunction = s.ProxyFunction
+	o.ProxyRegion = s.ProxyRegion
 	o.Reasons = s.Reasons
+	o.SrcRegion = s.SrcRegion
 	o.Summary = s.Summary
 	o.ToolChoice = s.ToolChoice
 	o.Tools = s.Tools
@@ -667,8 +688,11 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			Processor:                 &o.Processor,
 			Provider:                  &o.Provider,
 			ProviderType:              &o.ProviderType,
+			ProxyAccess:               &o.ProxyAccess,
 			ProxyFunction:             &o.ProxyFunction,
+			ProxyRegion:               &o.ProxyRegion,
 			Reasons:                   &o.Reasons,
+			SrcRegion:                 &o.SrcRegion,
 			Summary:                   o.Summary,
 			Time:                      &o.Time,
 			ToolChoice:                o.ToolChoice,
@@ -755,10 +779,16 @@ func (o *ProxyRoundtrip) ToSparse(fields ...string) elemental.SparseIdentifiable
 			sp.Provider = &(o.Provider)
 		case "providerType":
 			sp.ProviderType = &(o.ProviderType)
+		case "proxyAccess":
+			sp.ProxyAccess = &(o.ProxyAccess)
 		case "proxyFunction":
 			sp.ProxyFunction = &(o.ProxyFunction)
+		case "proxyRegion":
+			sp.ProxyRegion = &(o.ProxyRegion)
 		case "reasons":
 			sp.Reasons = &(o.Reasons)
+		case "srcRegion":
+			sp.SrcRegion = &(o.SrcRegion)
 		case "summary":
 			sp.Summary = o.Summary
 		case "time":
@@ -895,11 +925,20 @@ func (o *ProxyRoundtrip) Patch(sparse elemental.SparseIdentifiable) {
 	if so.ProviderType != nil {
 		o.ProviderType = *so.ProviderType
 	}
+	if so.ProxyAccess != nil {
+		o.ProxyAccess = *so.ProxyAccess
+	}
 	if so.ProxyFunction != nil {
 		o.ProxyFunction = *so.ProxyFunction
 	}
+	if so.ProxyRegion != nil {
+		o.ProxyRegion = *so.ProxyRegion
+	}
 	if so.Reasons != nil {
 		o.Reasons = *so.Reasons
+	}
+	if so.SrcRegion != nil {
+		o.SrcRegion = *so.SrcRegion
 	}
 	if so.Summary != nil {
 		o.Summary = so.Summary
@@ -1426,10 +1465,16 @@ func (o *ProxyRoundtrip) ValueForAttribute(name string) any {
 		return o.Provider
 	case "providerType":
 		return o.ProviderType
+	case "proxyAccess":
+		return o.ProxyAccess
 	case "proxyFunction":
 		return o.ProxyFunction
+	case "proxyRegion":
+		return o.ProxyRegion
 	case "reasons":
 		return o.Reasons
+	case "srcRegion":
+		return o.SrcRegion
 	case "summary":
 		return o.Summary
 	case "time":
@@ -1905,6 +1950,20 @@ host targeted by an access policy.`,
 		Stored:   true,
 		Type:     "enum",
 	},
+	"ProxyAccess": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "proxyaccess",
+		ConvertedName:  "ProxyAccess",
+		Description: `How the client reached the apex that processed this request: Global when it
+used the global apex name, Direct when it used the name of the apex region.
+The scan and police APIs report Global unless they are called on the name of
+the apex region. This is the ProxyAccess the access policies matched. Empty
+on a round-trip recorded by an older apex.`,
+		Exposed: true,
+		Name:    "proxyAccess",
+		Stored:  true,
+		Type:    "string",
+	},
 	"ProxyFunction": {
 		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
@@ -1923,6 +1982,17 @@ currently not in use, and only appears on roundtrips recorded by an older apex.`
 		Stored:  true,
 		Type:    "enum",
 	},
+	"ProxyRegion": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "proxyregion",
+		ConvertedName:  "ProxyRegion",
+		Description: `The region of the apex that processed this request. This is the ProxyRegion
+the access policies matched. Empty when the apex has no region.`,
+		Exposed: true,
+		Name:    "proxyRegion",
+		Stored:  true,
+		Type:    "string",
+	},
 	"Reasons": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reasons",
@@ -1933,6 +2003,17 @@ currently not in use, and only appears on roundtrips recorded by an older apex.`
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"SrcRegion": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "srcregion",
+		ConvertedName:  "SrcRegion",
+		Description: `The region of the caller's token. This is the SrcRegion the access policies
+matched. Empty when the token carries no region.`,
+		Exposed: true,
+		Name:    "srcRegion",
+		Stored:  true,
+		Type:    "string",
 	},
 	"Summary": {
 		AllowedChoices: []string{},
@@ -2456,6 +2537,20 @@ host targeted by an access policy.`,
 		Stored:   true,
 		Type:     "enum",
 	},
+	"proxyaccess": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "proxyaccess",
+		ConvertedName:  "ProxyAccess",
+		Description: `How the client reached the apex that processed this request: Global when it
+used the global apex name, Direct when it used the name of the apex region.
+The scan and police APIs report Global unless they are called on the name of
+the apex region. This is the ProxyAccess the access policies matched. Empty
+on a round-trip recorded by an older apex.`,
+		Exposed: true,
+		Name:    "proxyAccess",
+		Stored:  true,
+		Type:    "string",
+	},
 	"proxyfunction": {
 		AllowedChoices: []string{"ForwardProxy", "ReverseProxy", "NotApplicable"},
 		BSONFieldName:  "proxyfunction",
@@ -2474,6 +2569,17 @@ currently not in use, and only appears on roundtrips recorded by an older apex.`
 		Stored:  true,
 		Type:    "enum",
 	},
+	"proxyregion": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "proxyregion",
+		ConvertedName:  "ProxyRegion",
+		Description: `The region of the apex that processed this request. This is the ProxyRegion
+the access policies matched. Empty when the apex has no region.`,
+		Exposed: true,
+		Name:    "proxyRegion",
+		Stored:  true,
+		Type:    "string",
+	},
 	"reasons": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "reasons",
@@ -2484,6 +2590,17 @@ currently not in use, and only appears on roundtrips recorded by an older apex.`
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"srcregion": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "srcregion",
+		ConvertedName:  "SrcRegion",
+		Description: `The region of the caller's token. This is the SrcRegion the access policies
+matched. Empty when the token carries no region.`,
+		Exposed: true,
+		Name:    "srcRegion",
+		Stored:  true,
+		Type:    "string",
 	},
 	"summary": {
 		AllowedChoices: []string{},
@@ -2775,6 +2892,13 @@ type SparseProxyRoundtrip struct {
 	// host targeted by an access policy.
 	ProviderType *ProxyRoundtripProviderTypeValue `json:"providerType,omitempty" msgpack:"providerType,omitempty" bson:"providertype,omitempty" mapstructure:"providerType,omitempty"`
 
+	// How the client reached the apex that processed this request: Global when it
+	// used the global apex name, Direct when it used the name of the apex region.
+	// The scan and police APIs report Global unless they are called on the name of
+	// the apex region. This is the ProxyAccess the access policies matched. Empty
+	// on a round-trip recorded by an older apex.
+	ProxyAccess *string `json:"proxyAccess,omitempty" msgpack:"proxyAccess,omitempty" bson:"proxyaccess,omitempty" mapstructure:"proxyAccess,omitempty"`
+
 	// Denotes the proxy function of this processor in the chain of servers. The proxy
 	// processor acts as a forwarding proxy on the egress side, between a client or
 	// application and the origin server, and as a reverse proxy on the ingress side,
@@ -2785,8 +2909,16 @@ type SparseProxyRoundtrip struct {
 	// currently not in use, and only appears on roundtrips recorded by an older apex.
 	ProxyFunction *ProxyRoundtripProxyFunctionValue `json:"proxyFunction,omitempty" msgpack:"proxyFunction,omitempty" bson:"proxyfunction,omitempty" mapstructure:"proxyFunction,omitempty"`
 
+	// The region of the apex that processed this request. This is the ProxyRegion
+	// the access policies matched. Empty when the apex has no region.
+	ProxyRegion *string `json:"proxyRegion,omitempty" msgpack:"proxyRegion,omitempty" bson:"proxyregion,omitempty" mapstructure:"proxyRegion,omitempty"`
+
 	// The various reasons returned by the policy engine.
 	Reasons *[]string `json:"reasons,omitempty" msgpack:"reasons,omitempty" bson:"reasons,omitempty" mapstructure:"reasons,omitempty"`
+
+	// The region of the caller's token. This is the SrcRegion the access policies
+	// matched. Empty when the token carries no region.
+	SrcRegion *string `json:"srcRegion,omitempty" msgpack:"srcRegion,omitempty" bson:"srcregion,omitempty" mapstructure:"srcRegion,omitempty"`
 
 	// The summary of the extractions.
 	Summary *ExtractionSummary `json:"summary,omitempty" msgpack:"summary,omitempty" bson:"summary,omitempty" mapstructure:"summary,omitempty"`
@@ -2960,11 +3092,20 @@ func (o *SparseProxyRoundtrip) GetBSON() (any, error) {
 	if o.ProviderType != nil {
 		s.ProviderType = o.ProviderType
 	}
+	if o.ProxyAccess != nil {
+		s.ProxyAccess = o.ProxyAccess
+	}
 	if o.ProxyFunction != nil {
 		s.ProxyFunction = o.ProxyFunction
 	}
+	if o.ProxyRegion != nil {
+		s.ProxyRegion = o.ProxyRegion
+	}
 	if o.Reasons != nil {
 		s.Reasons = o.Reasons
+	}
+	if o.SrcRegion != nil {
+		s.SrcRegion = o.SrcRegion
 	}
 	if o.Summary != nil {
 		s.Summary = o.Summary
@@ -3108,11 +3249,20 @@ func (o *SparseProxyRoundtrip) SetBSON(raw bson.Raw) error {
 	if s.ProviderType != nil {
 		o.ProviderType = s.ProviderType
 	}
+	if s.ProxyAccess != nil {
+		o.ProxyAccess = s.ProxyAccess
+	}
 	if s.ProxyFunction != nil {
 		o.ProxyFunction = s.ProxyFunction
 	}
+	if s.ProxyRegion != nil {
+		o.ProxyRegion = s.ProxyRegion
+	}
 	if s.Reasons != nil {
 		o.Reasons = s.Reasons
+	}
+	if s.SrcRegion != nil {
+		o.SrcRegion = s.SrcRegion
 	}
 	if s.Summary != nil {
 		o.Summary = s.Summary
@@ -3254,11 +3404,20 @@ func (o *SparseProxyRoundtrip) ToPlain() elemental.PlainIdentifiable {
 	if o.ProviderType != nil {
 		out.ProviderType = *o.ProviderType
 	}
+	if o.ProxyAccess != nil {
+		out.ProxyAccess = *o.ProxyAccess
+	}
 	if o.ProxyFunction != nil {
 		out.ProxyFunction = *o.ProxyFunction
 	}
+	if o.ProxyRegion != nil {
+		out.ProxyRegion = *o.ProxyRegion
+	}
 	if o.Reasons != nil {
 		out.Reasons = *o.Reasons
+	}
+	if o.SrcRegion != nil {
+		out.SrcRegion = *o.SrcRegion
 	}
 	if o.Summary != nil {
 		out.Summary = o.Summary
@@ -3624,8 +3783,11 @@ type mongoAttributesProxyRoundtrip struct {
 	Processor                 ProxyRoundtripProcessorValue              `bson:"processor,omitempty"`
 	Provider                  string                                    `bson:"provider"`
 	ProviderType              ProxyRoundtripProviderTypeValue           `bson:"providertype"`
+	ProxyAccess               string                                    `bson:"proxyaccess,omitempty"`
 	ProxyFunction             ProxyRoundtripProxyFunctionValue          `bson:"proxyfunction,omitempty"`
+	ProxyRegion               string                                    `bson:"proxyregion,omitempty"`
 	Reasons                   []string                                  `bson:"reasons,omitempty"`
+	SrcRegion                 string                                    `bson:"srcregion,omitempty"`
 	Summary                   *ExtractionSummary                        `bson:"summary,omitempty"`
 	ToolChoice                *ToolChoice                               `bson:"toolchoice,omitempty"`
 	Tools                     map[string]*Tool                          `bson:"tools,omitempty"`
@@ -3670,8 +3832,11 @@ type mongoAttributesSparseProxyRoundtrip struct {
 	Processor                 *ProxyRoundtripProcessorValue              `bson:"processor,omitempty"`
 	Provider                  *string                                    `bson:"provider,omitempty"`
 	ProviderType              *ProxyRoundtripProviderTypeValue           `bson:"providertype,omitempty"`
+	ProxyAccess               *string                                    `bson:"proxyaccess,omitempty"`
 	ProxyFunction             *ProxyRoundtripProxyFunctionValue          `bson:"proxyfunction,omitempty"`
+	ProxyRegion               *string                                    `bson:"proxyregion,omitempty"`
 	Reasons                   *[]string                                  `bson:"reasons,omitempty"`
+	SrcRegion                 *string                                    `bson:"srcregion,omitempty"`
 	Summary                   *ExtractionSummary                         `bson:"summary,omitempty"`
 	ToolChoice                *ToolChoice                                `bson:"toolchoice,omitempty"`
 	Tools                     *map[string]*Tool                          `bson:"tools,omitempty"`

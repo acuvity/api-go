@@ -153,6 +153,15 @@
       "title": "publicURLs",
       "type": "array"
     },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region for the renewed token.",
+      "title": "region",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "renewToken": {
       "$friendlyName": "Renew Token",
       "description": "Set to true on update to issue a new credential.",

@@ -163,11 +163,30 @@ type AIGatewayConnector struct {
 	// alongside it so the caller knows which of its private keys to decrypt with.
 	PublicKeyName string `json:"publicKeyName,omitempty" msgpack:"publicKeyName,omitempty" bson:"-" mapstructure:"publicKeyName,omitempty"`
 
+	// The region for the renewed token.
+	Region string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
+	// Set to true on update to issue a new credential.
+	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
+
+	// Set to value on update to associate a tag with the issued token.
+	RenewTokenTag string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
+	// Set to value on update to set the validity for a token.
+	RenewTokenValidity string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
+
 	// The route component. On a WebhookIntegration connector it represents the base
 	// path the integration routes are served under, so the third-party product is
 	// pointed at the gateway URL plus this, and each path of the webhook extractor is
 	// appended to it.
 	Route string `json:"route" msgpack:"route" bson:"route" mapstructure:"route,omitempty"`
+
+	// The issued JWT, populated only in the response of an update where
+	// renewToken was set to true.
+	Token string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// The list of references to issued tokens.
+	TokenRefs []*TokenRef `json:"tokenRefs" msgpack:"tokenRefs" bson:"tokenrefs" mapstructure:"tokenRefs,omitempty"`
 
 	// The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
 	// WebhookIntegration accepts calls from a third-party product that wants us to
@@ -254,7 +273,9 @@ func (o *AIGatewayConnector) GetBSON() (any, error) {
 	s.Propagate = o.Propagate
 	s.Provider = o.Provider
 	s.ProviderTokenPools = o.ProviderTokenPools
+	s.Region = o.Region
 	s.Route = o.Route
+	s.TokenRefs = o.TokenRefs
 	s.Type = o.Type
 	s.UpdateTime = o.UpdateTime
 	s.UpstreamURL = o.UpstreamURL
@@ -293,7 +314,9 @@ func (o *AIGatewayConnector) SetBSON(raw bson.Raw) error {
 	o.Propagate = s.Propagate
 	o.Provider = s.Provider
 	o.ProviderTokenPools = s.ProviderTokenPools
+	o.Region = s.Region
 	o.Route = s.Route
+	o.TokenRefs = s.TokenRefs
 	o.Type = s.Type
 	o.UpdateTime = s.UpdateTime
 	o.UpstreamURL = s.UpstreamURL
@@ -453,7 +476,13 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 			Provider:                 &o.Provider,
 			ProviderTokenPools:       &o.ProviderTokenPools,
 			PublicKeyName:            &o.PublicKeyName,
+			Region:                   &o.Region,
+			RenewToken:               &o.RenewToken,
+			RenewTokenTag:            &o.RenewTokenTag,
+			RenewTokenValidity:       &o.RenewTokenValidity,
 			Route:                    &o.Route,
+			Token:                    &o.Token,
+			TokenRefs:                &o.TokenRefs,
 			Type:                     &o.Type,
 			UpdateTime:               &o.UpdateTime,
 			UpstreamURL:              &o.UpstreamURL,
@@ -499,8 +528,20 @@ func (o *AIGatewayConnector) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.ProviderTokenPools = &(o.ProviderTokenPools)
 		case "publicKeyName":
 			sp.PublicKeyName = &(o.PublicKeyName)
+		case "region":
+			sp.Region = &(o.Region)
+		case "renewToken":
+			sp.RenewToken = &(o.RenewToken)
+		case "renewTokenTag":
+			sp.RenewTokenTag = &(o.RenewTokenTag)
+		case "renewTokenValidity":
+			sp.RenewTokenValidity = &(o.RenewTokenValidity)
 		case "route":
 			sp.Route = &(o.Route)
+		case "token":
+			sp.Token = &(o.Token)
+		case "tokenRefs":
+			sp.TokenRefs = &(o.TokenRefs)
 		case "type":
 			sp.Type = &(o.Type)
 		case "updateTime":
@@ -576,8 +617,26 @@ func (o *AIGatewayConnector) Patch(sparse elemental.SparseIdentifiable) {
 	if so.PublicKeyName != nil {
 		o.PublicKeyName = *so.PublicKeyName
 	}
+	if so.Region != nil {
+		o.Region = *so.Region
+	}
+	if so.RenewToken != nil {
+		o.RenewToken = *so.RenewToken
+	}
+	if so.RenewTokenTag != nil {
+		o.RenewTokenTag = *so.RenewTokenTag
+	}
+	if so.RenewTokenValidity != nil {
+		o.RenewTokenValidity = *so.RenewTokenValidity
+	}
 	if so.Route != nil {
 		o.Route = *so.Route
+	}
+	if so.Token != nil {
+		o.Token = *so.Token
+	}
+	if so.TokenRefs != nil {
+		o.TokenRefs = *so.TokenRefs
 	}
 	if so.Type != nil {
 		o.Type = *so.Type
@@ -609,6 +668,15 @@ func (o *AIGatewayConnector) EncryptAttributes(encrypter elemental.AttributeEncr
 		return fmt.Errorf("unable to encrypt attribute 'ClientSecret' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
 	}
 
+	for _, sub := range o.TokenRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'AIGatewayConnector' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	if o.WebhookIntegrationConfig != nil {
 		if err := o.WebhookIntegrationConfig.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
@@ -623,6 +691,15 @@ func (o *AIGatewayConnector) DecryptAttributes(encrypter elemental.AttributeEncr
 
 	if o.ClientSecret, err = encrypter.DecryptString(o.ClientSecret); err != nil {
 		return fmt.Errorf("unable to decrypt attribute 'ClientSecret' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+	}
+
+	for _, sub := range o.TokenRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+		}
 	}
 
 	if o.WebhookIntegrationConfig != nil {
@@ -683,6 +760,16 @@ func (o *AIGatewayConnector) Validate() error {
 
 	if err := elemental.ValidatePattern("route", o.Route, `^(\/[a-zA-Z0-9_-]+)+$`, `must be a valid URL path starting with '/' and containing only alphanumeric characters, '-' and '_'`, false); err != nil {
 		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.TokenRefs {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "tokenRefs", i))
+			errors = errors.Append(err)
+		}
 	}
 
 	if err := elemental.ValidateRequiredString("type", string(o.Type)); err != nil {
@@ -778,8 +865,20 @@ func (o *AIGatewayConnector) ValueForAttribute(name string) any {
 		return o.ProviderTokenPools
 	case "publicKeyName":
 		return o.PublicKeyName
+	case "region":
+		return o.Region
+	case "renewToken":
+		return o.RenewToken
+	case "renewTokenTag":
+		return o.RenewTokenTag
+	case "renewTokenValidity":
+		return o.RenewTokenValidity
 	case "route":
 		return o.Route
+	case "token":
+		return o.Token
+	case "tokenRefs":
+		return o.TokenRefs
 	case "type":
 		return o.Type
 	case "updateTime":
@@ -1011,6 +1110,43 @@ alongside it so the caller knows which of its private keys to decrypt with.`,
 		Transient: true,
 		Type:      "string",
 	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
+	},
+	"RenewToken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewToken",
+		Description:    `Set to true on update to issue a new credential.`,
+		Exposed:        true,
+		Name:           "renewToken",
+		Transient:      true,
+		Type:           "boolean",
+	},
+	"RenewTokenTag": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenTag",
+		Description:    `Set to value on update to associate a tag with the issued token.`,
+		Exposed:        true,
+		Name:           "renewTokenTag",
+		Transient:      true,
+		Type:           "string",
+	},
+	"RenewTokenValidity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenValidity",
+		Description:    `Set to value on update to set the validity for a token.`,
+		Exposed:        true,
+		Name:           "renewTokenValidity",
+		Transient:      true,
+		Type:           "string",
+	},
 	"Route": {
 		AllowedChars:   `^(\/[a-zA-Z0-9_-]+)+$`,
 		AllowedChoices: []string{},
@@ -1024,6 +1160,31 @@ appended to it.`,
 		Name:    "route",
 		Stored:  true,
 		Type:    "string",
+	},
+	"Token": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "Token",
+		Description: `The issued JWT, populated only in the response of an update where
+renewToken was set to true.`,
+		Exposed:   true,
+		Name:      "token",
+		ReadOnly:  true,
+		Transient: true,
+		Type:      "string",
+	},
+	"TokenRefs": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "tokenrefs",
+		ConvertedName:  "TokenRefs",
+		Description:    `The list of references to issued tokens.`,
+		Exposed:        true,
+		Name:           "tokenRefs",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "tokenref",
+		Type:           "refList",
 	},
 	"Type": {
 		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
@@ -1303,6 +1464,43 @@ alongside it so the caller knows which of its private keys to decrypt with.`,
 		Transient: true,
 		Type:      "string",
 	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
+	},
+	"renewtoken": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewToken",
+		Description:    `Set to true on update to issue a new credential.`,
+		Exposed:        true,
+		Name:           "renewToken",
+		Transient:      true,
+		Type:           "boolean",
+	},
+	"renewtokentag": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenTag",
+		Description:    `Set to value on update to associate a tag with the issued token.`,
+		Exposed:        true,
+		Name:           "renewTokenTag",
+		Transient:      true,
+		Type:           "string",
+	},
+	"renewtokenvalidity": {
+		AllowedChoices: []string{},
+		ConvertedName:  "RenewTokenValidity",
+		Description:    `Set to value on update to set the validity for a token.`,
+		Exposed:        true,
+		Name:           "renewTokenValidity",
+		Transient:      true,
+		Type:           "string",
+	},
 	"route": {
 		AllowedChars:   `^(\/[a-zA-Z0-9_-]+)+$`,
 		AllowedChoices: []string{},
@@ -1316,6 +1514,31 @@ appended to it.`,
 		Name:    "route",
 		Stored:  true,
 		Type:    "string",
+	},
+	"token": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		ConvertedName:  "Token",
+		Description: `The issued JWT, populated only in the response of an update where
+renewToken was set to true.`,
+		Exposed:   true,
+		Name:      "token",
+		ReadOnly:  true,
+		Transient: true,
+		Type:      "string",
+	},
+	"tokenrefs": {
+		AllowedChoices: []string{},
+		Autogenerated:  true,
+		BSONFieldName:  "tokenrefs",
+		ConvertedName:  "TokenRefs",
+		Description:    `The list of references to issued tokens.`,
+		Exposed:        true,
+		Name:           "tokenRefs",
+		ReadOnly:       true,
+		Stored:         true,
+		SubType:        "tokenref",
+		Type:           "refList",
 	},
 	"type": {
 		AllowedChoices: []string{"A2A", "MCP", "LLM", "WebhookIntegration"},
@@ -1507,11 +1730,30 @@ type SparseAIGatewayConnector struct {
 	// alongside it so the caller knows which of its private keys to decrypt with.
 	PublicKeyName *string `json:"publicKeyName,omitempty" msgpack:"publicKeyName,omitempty" bson:"-" mapstructure:"publicKeyName,omitempty"`
 
+	// The region for the renewed token.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
+	// Set to true on update to issue a new credential.
+	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
+
+	// Set to value on update to associate a tag with the issued token.
+	RenewTokenTag *string `json:"renewTokenTag,omitempty" msgpack:"renewTokenTag,omitempty" bson:"-" mapstructure:"renewTokenTag,omitempty"`
+
+	// Set to value on update to set the validity for a token.
+	RenewTokenValidity *string `json:"renewTokenValidity,omitempty" msgpack:"renewTokenValidity,omitempty" bson:"-" mapstructure:"renewTokenValidity,omitempty"`
+
 	// The route component. On a WebhookIntegration connector it represents the base
 	// path the integration routes are served under, so the third-party product is
 	// pointed at the gateway URL plus this, and each path of the webhook extractor is
 	// appended to it.
 	Route *string `json:"route,omitempty" msgpack:"route,omitempty" bson:"route,omitempty" mapstructure:"route,omitempty"`
+
+	// The issued JWT, populated only in the response of an update where
+	// renewToken was set to true.
+	Token *string `json:"token,omitempty" msgpack:"token,omitempty" bson:"-" mapstructure:"token,omitempty"`
+
+	// The list of references to issued tokens.
+	TokenRefs *[]*TokenRef `json:"tokenRefs,omitempty" msgpack:"tokenRefs,omitempty" bson:"tokenrefs,omitempty" mapstructure:"tokenRefs,omitempty"`
 
 	// The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.
 	// WebhookIntegration accepts calls from a third-party product that wants us to
@@ -1626,8 +1868,14 @@ func (o *SparseAIGatewayConnector) GetBSON() (any, error) {
 	if o.ProviderTokenPools != nil {
 		s.ProviderTokenPools = o.ProviderTokenPools
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.Route != nil {
 		s.Route = o.Route
+	}
+	if o.TokenRefs != nil {
+		s.TokenRefs = o.TokenRefs
 	}
 	if o.Type != nil {
 		s.Type = o.Type
@@ -1708,8 +1956,14 @@ func (o *SparseAIGatewayConnector) SetBSON(raw bson.Raw) error {
 	if s.ProviderTokenPools != nil {
 		o.ProviderTokenPools = s.ProviderTokenPools
 	}
+	if s.Region != nil {
+		o.Region = s.Region
+	}
 	if s.Route != nil {
 		o.Route = s.Route
+	}
+	if s.TokenRefs != nil {
+		o.TokenRefs = s.TokenRefs
 	}
 	if s.Type != nil {
 		o.Type = s.Type
@@ -1794,8 +2048,26 @@ func (o *SparseAIGatewayConnector) ToPlain() elemental.PlainIdentifiable {
 	if o.PublicKeyName != nil {
 		out.PublicKeyName = *o.PublicKeyName
 	}
+	if o.Region != nil {
+		out.Region = *o.Region
+	}
+	if o.RenewToken != nil {
+		out.RenewToken = *o.RenewToken
+	}
+	if o.RenewTokenTag != nil {
+		out.RenewTokenTag = *o.RenewTokenTag
+	}
+	if o.RenewTokenValidity != nil {
+		out.RenewTokenValidity = *o.RenewTokenValidity
+	}
 	if o.Route != nil {
 		out.Route = *o.Route
+	}
+	if o.Token != nil {
+		out.Token = *o.Token
+	}
+	if o.TokenRefs != nil {
+		out.TokenRefs = *o.TokenRefs
 	}
 	if o.Type != nil {
 		out.Type = *o.Type
@@ -1829,6 +2101,17 @@ func (o *SparseAIGatewayConnector) EncryptAttributes(encrypter elemental.Attribu
 		return fmt.Errorf("unable to encrypt attribute 'ClientSecret' for 'SparseAIGatewayConnector' (%s): %w", o.Identifier(), err)
 	}
 
+	if o.TokenRefs != nil {
+		for _, sub := range *o.TokenRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'TokenRefs' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	if o.WebhookIntegrationConfig != nil {
 		if err := o.WebhookIntegrationConfig.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt ref attribute 'WebhookIntegrationConfig' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
@@ -1843,6 +2126,17 @@ func (o *SparseAIGatewayConnector) DecryptAttributes(encrypter elemental.Attribu
 
 	if *o.ClientSecret, err = encrypter.DecryptString(*o.ClientSecret); err != nil {
 		return fmt.Errorf("unable to decrypt attribute 'ClientSecret' for 'SparseAIGatewayConnector' (%s): %w", o.Identifier(), err)
+	}
+
+	if o.TokenRefs != nil {
+		for _, sub := range *o.TokenRefs {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'TokenRefs' for 'AIGatewayConnector' (%s): %w", o.Identifier(), err)
+			}
+		}
 	}
 
 	if o.WebhookIntegrationConfig != nil {
@@ -2021,7 +2315,9 @@ type mongoAttributesAIGatewayConnector struct {
 	Propagate                bool                        `bson:"propagate"`
 	Provider                 string                      `bson:"provider"`
 	ProviderTokenPools       []string                    `bson:"providertokenpools"`
+	Region                   string                      `bson:"region,omitempty"`
 	Route                    string                      `bson:"route"`
+	TokenRefs                []*TokenRef                 `bson:"tokenrefs"`
 	Type                     AIGatewayConnectorTypeValue `bson:"type"`
 	UpdateTime               time.Time                   `bson:"updatetime"`
 	UpstreamURL              string                      `bson:"upstreamurl"`
@@ -2045,7 +2341,9 @@ type mongoAttributesSparseAIGatewayConnector struct {
 	Propagate                *bool                        `bson:"propagate,omitempty"`
 	Provider                 *string                      `bson:"provider,omitempty"`
 	ProviderTokenPools       *[]string                    `bson:"providertokenpools,omitempty"`
+	Region                   *string                      `bson:"region,omitempty"`
 	Route                    *string                      `bson:"route,omitempty"`
+	TokenRefs                *[]*TokenRef                 `bson:"tokenrefs,omitempty"`
 	Type                     *AIGatewayConnectorTypeValue `bson:"type,omitempty"`
 	UpdateTime               *time.Time                   `bson:"updatetime,omitempty"`
 	UpstreamURL              *string                      `bson:"upstreamurl,omitempty"`

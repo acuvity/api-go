@@ -3,7 +3,8 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@clientregion"
   ],
   "$friendlyName": "WebExtension Configuration",
   "$friendlyNamePlural": "WebExtension Configurations",
@@ -106,6 +107,15 @@
       "title": "refreshWebExtensionConfigInterval",
       "type": [
         "integer",
+        "null"
+      ]
+    },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region whose endpoints the client uses, such as the apex of the region. Empty, the client uses the global endpoints. A region set on the client itself, at installation, takes precedence.",
+      "title": "region",
+      "type": [
+        "string",
         "null"
       ]
     },

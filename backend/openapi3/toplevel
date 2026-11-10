@@ -737,6 +737,11 @@
             "description": "Set the priority for this agent configuration. When multiple agent\nconfigurations match an acushield user's claims, the priority determines which\nconfiguration takes precedence. A lower numeric value indicates a higher\npriority, meaning configurations with smaller numbers will be applied first.\nValues can be negative.",
             "type": "integer"
           },
+          "region": {
+            "description": "The region whose endpoints the client uses, such as the apex of the region.\nEmpty, the client uses the global endpoints. A region set on the client\nitself, at installation, takes precedence.",
+            "example": "us-east-2",
+            "type": "string"
+          },
           "releaseTrain": {
             "default": "Stable",
             "description": "The release train to follow when updating. Manual means it will not auto-update,\nessentially pinning to a version.",
@@ -2129,10 +2134,40 @@
             "readOnly": true,
             "type": "string"
           },
+          "region": {
+            "description": "The region for the renewed token.",
+            "example": "eu-1",
+            "type": "string"
+          },
+          "renewToken": {
+            "description": "Set to true on update to issue a new credential.",
+            "type": "boolean"
+          },
+          "renewTokenTag": {
+            "description": "Set to value on update to associate a tag with the issued token.",
+            "type": "string"
+          },
+          "renewTokenValidity": {
+            "description": "Set to value on update to set the validity for a token.",
+            "type": "string"
+          },
           "route": {
             "description": "The route component. On a WebhookIntegration connector it represents the base\npath the integration routes are served under, so the third-party product is\npointed at the gateway URL plus this, and each path of the webhook extractor is\nappended to it.",
             "example": "/openai-api",
             "type": "string"
+          },
+          "token": {
+            "description": "The issued JWT, populated only in the response of an update where\nrenewToken was set to true.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "tokenRefs": {
+            "description": "The list of references to issued tokens.",
+            "items": {
+              "$ref": "#/components/schemas/tokenref"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "type": {
             "description": "The type of the AI Gateway Connector. MCP and LLM proxy traffic to an upstream.\nWebhookIntegration accepts calls from a third-party product that wants us to\ninspect traffic it is handling itself, so it has no upstream.",
@@ -4130,6 +4165,11 @@
           "provider": {
             "$ref": "#/components/schemas/appcomponentprovider"
           },
+          "region": {
+            "description": "The region for the renewed token.",
+            "example": "eu-1",
+            "type": "string"
+          },
           "renewToken": {
             "description": "Set to true on update to issue a new credential.",
             "type": "boolean"
@@ -5099,6 +5139,11 @@
             "description": "This fields allows to set opaque key value pair that will be incorporated in the\ntoken. All the keys will be prefixed with 'usr/' to make sure the system can\nidentify these opaque values. For instance if you add {k: v} then the\ntoken will have {usr/k: v}. They are not stored as they may contain sensitive\nuser information.",
             "type": "object"
           },
+          "region": {
+            "description": "The region of the token. This will insert a region claim in the token.",
+            "example": "us-east-2",
+            "type": "string"
+          },
           "sourceIP": {
             "description": "The source IP of the request that initiated the creation of the token.",
             "readOnly": true,
@@ -5185,6 +5230,14 @@
       "authsettings": {
         "description": "Returns the authentication source names available for this organization.",
         "properties": {
+          "regions": {
+            "description": "The regions the organization is assigned to, to sign in to one of them.\nEmpty when the organization is not assigned to any region.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
           "sourceName": {
             "default": "default",
             "description": "The name of the source.",
@@ -7156,6 +7209,11 @@
             },
             "type": "array"
           },
+          "region": {
+            "description": "The region for the renewed token.",
+            "example": "eu-1",
+            "type": "string"
+          },
           "renewToken": {
             "description": "Set to true on update to issue a new credential.",
             "type": "boolean"
@@ -8985,6 +9043,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "region": {
+            "description": "The region for the renewed token.",
+            "example": "eu-1",
+            "type": "string"
+          },
           "renewToken": {
             "description": "Set to true on update to issue a new credential.",
             "type": "boolean"
@@ -10189,6 +10252,14 @@
             },
             "description": "The permissions for the landing type.",
             "type": "object"
+          },
+          "regions": {
+            "description": "The regions the organization is assigned to. A token can be issued for\nany of them. Empty when the organization is not assigned to any region.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
           },
           "type": {
             "description": "Type of access.",
@@ -12710,6 +12781,8 @@
               "Plugin",
               "Provider",
               "ProviderType",
+              "ProxyAccess",
+              "ProxyRegion",
               "Relevance",
               "RiskScore",
               "Secrets",
@@ -12718,6 +12791,7 @@
               "SrcComponent",
               "SrcIPRange",
               "SrcProject",
+              "SrcRegion",
               "Status",
               "Team",
               "Tier",
@@ -14005,6 +14079,11 @@
             ],
             "example": "LLM"
           },
+          "proxyAccess": {
+            "description": "How the client reached the apex that processed this request: Global when it\nused the global apex name, Direct when it used the name of the apex region.\nThe scan and police APIs report Global unless they are called on the name of\nthe apex region. This is the ProxyAccess the access policies matched. Empty\non a round-trip recorded by an older apex.",
+            "example": "Direct",
+            "type": "string"
+          },
           "proxyFunction": {
             "default": "ForwardProxy",
             "description": "Denotes the proxy function of this processor in the chain of servers. The proxy\nprocessor acts as a forwarding proxy on the egress side, between a client or\napplication and the origin server, and as a reverse proxy on the ingress side,\nin front of an application. The gateway processor always operates as a reverse\nproxy. The API processor (scan and police APIs) never sit in the data path, but\nthey simulate proxy behaviour, so they are reported as a forwarding or a\nreverse proxy according to the direction of the request. NotApplicable is\ncurrently not in use, and only appears on roundtrips recorded by an older apex.",
@@ -14014,12 +14093,22 @@
               "NotApplicable"
             ]
           },
+          "proxyRegion": {
+            "description": "The region of the apex that processed this request. This is the ProxyRegion\nthe access policies matched. Empty when the apex has no region.",
+            "example": "eu-west-1",
+            "type": "string"
+          },
           "reasons": {
             "description": "The various reasons returned by the policy engine.",
             "items": {
               "type": "string"
             },
             "type": "array"
+          },
+          "srcRegion": {
+            "description": "The region of the caller's token. This is the SrcRegion the access policies\nmatched. Empty when the token carries no region.",
+            "example": "eu-west-1",
+            "type": "string"
           },
           "summary": {
             "$ref": "#/components/schemas/extractionsummary"
@@ -16616,6 +16705,11 @@
             "readOnly": true,
             "type": "string"
           },
+          "region": {
+            "description": "The region of the token. This will insert a region claim in the token.",
+            "example": "us-east-2",
+            "type": "string"
+          },
           "sourceIP": {
             "description": "The source IP of the request that initiated the creation of the token.",
             "readOnly": true,
@@ -16885,6 +16979,11 @@
             "default": 120,
             "description": "Defines the refresh interval in minutes for the configuration of the deployed\nWebExtensions.",
             "type": "integer"
+          },
+          "region": {
+            "description": "The region whose endpoints the client uses, such as the apex of the region.\nEmpty, the client uses the global endpoints. A region set on the client\nitself, at installation, takes precedence.",
+            "example": "us-east-2",
+            "type": "string"
           },
           "reportVisitedURLsInterval": {
             "default": 60,
@@ -18514,7 +18613,7 @@
     },
     "/aigatewayconnectors/{id}": {
       "delete": {
-        "description": "Delete an AI Gateway Connector given its identifier.",
+        "description": "Deletes the AI Gateway Connector with the given ID and revokes all tokens\nissued for this connector.",
         "operationId": "delete-AIGatewayConnector",
         "responses": {
           "200": {
@@ -18562,7 +18661,7 @@
         }
       ],
       "put": {
-        "description": "Update an AI Gateway Connector given its identifier.",
+        "description": "Updates the AI Gateway Connector with the given ID. Set renewToken to true\nto issue a new JWT for this connector; only a connector of type\nWebhookIntegration can issue tokens, so renewToken is refused on the other\ntypes. The new token will be returned in the response via the transient\ntoken field and a reference to it will be appended to tokenRefs. The type\ncannot change while tokenRefs still holds a token: revoke them first.",
         "operationId": "update-AIGatewayConnector",
         "requestBody": {
           "content": {
