@@ -515,6 +515,7 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 			{"namespace", "provider"},
+			{"namespace", "tokenrefs.tokenid"},
 		},
 		"aimcpserver": {
 			{":shard", ":unique", "zone", "zHash"},

@@ -37,6 +37,10 @@ type Moderation struct {
 	// moderation.
 	Link string `json:"link,omitempty" msgpack:"link,omitempty" bson:"link,omitempty" mapstructure:"link,omitempty"`
 
+	// Sets an optional display text for the link. If not set, a default
+	// text is used when rendering the link.
+	LinkText string `json:"linkText,omitempty" msgpack:"linkText,omitempty" bson:"linktext,omitempty" mapstructure:"linkText,omitempty"`
+
 	// The message if the moderation action is warn or block.
 	Message string `json:"message" msgpack:"message" bson:"message" mapstructure:"message,omitempty"`
 
@@ -82,6 +86,7 @@ func (o *Moderation) GetBSON() (any, error) {
 	s.Action = o.Action
 	s.AlertDefinition = o.AlertDefinition
 	s.Link = o.Link
+	s.LinkText = o.LinkText
 	s.Message = o.Message
 	s.Predicates = o.Predicates
 	s.Redact = o.Redact
@@ -105,6 +110,7 @@ func (o *Moderation) SetBSON(raw bson.Raw) error {
 	o.Action = s.Action
 	o.AlertDefinition = s.AlertDefinition
 	o.Link = s.Link
+	o.LinkText = s.LinkText
 	o.Message = s.Message
 	o.Predicates = s.Predicates
 	o.Redact = s.Redact
@@ -257,6 +263,8 @@ func (o *Moderation) ValueForAttribute(name string) any {
 		return o.AlertDefinition
 	case "link":
 		return o.Link
+	case "linkText":
+		return o.LinkText
 	case "message":
 		return o.Message
 	case "predicates":
@@ -300,6 +308,17 @@ var ModerationAttributesMap = map[string]elemental.AttributeSpecification{
 moderation.`,
 		Exposed: true,
 		Name:    "link",
+		Stored:  true,
+		Type:    "string",
+	},
+	"LinkText": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "linktext",
+		ConvertedName:  "LinkText",
+		Description: `Sets an optional display text for the link. If not set, a default
+text is used when rendering the link.`,
+		Exposed: true,
+		Name:    "linkText",
 		Stored:  true,
 		Type:    "string",
 	},
@@ -371,6 +390,17 @@ moderation.`,
 		Stored:  true,
 		Type:    "string",
 	},
+	"linktext": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "linktext",
+		ConvertedName:  "LinkText",
+		Description: `Sets an optional display text for the link. If not set, a default
+text is used when rendering the link.`,
+		Exposed: true,
+		Name:    "linkText",
+		Stored:  true,
+		Type:    "string",
+	},
 	"message": {
 		AllowedChoices: []string{},
 		BSONFieldName:  "message",
@@ -408,6 +438,7 @@ type mongoAttributesModeration struct {
 	Action          ModerationActionValue `bson:"action"`
 	AlertDefinition string                `bson:"alertdefinition"`
 	Link            string                `bson:"link,omitempty"`
+	LinkText        string                `bson:"linktext,omitempty"`
 	Message         string                `bson:"message"`
 	Predicates      []*Predicate          `bson:"predicates"`
 	Redact          bool                  `bson:"redact"`

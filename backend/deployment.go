@@ -134,6 +134,9 @@ type Deployment struct {
 	// Public URLs of the deployment.
 	PublicURLs []string `json:"publicURLs" msgpack:"publicURLs" bson:"publicurls" mapstructure:"publicURLs,omitempty"`
 
+	// The region for the renewed token.
+	Region string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -218,6 +221,7 @@ func (o *Deployment) GetBSON() (any, error) {
 	s.Propagate = o.Propagate
 	s.PublicKeys = o.PublicKeys
 	s.PublicURLs = o.PublicURLs
+	s.Region = o.Region
 	s.TokenRefs = o.TokenRefs
 	s.UpdateTime = o.UpdateTime
 	s.ZHash = o.ZHash
@@ -253,6 +257,7 @@ func (o *Deployment) SetBSON(raw bson.Raw) error {
 	o.Propagate = s.Propagate
 	o.PublicKeys = s.PublicKeys
 	o.PublicURLs = s.PublicURLs
+	o.Region = s.Region
 	o.TokenRefs = s.TokenRefs
 	o.UpdateTime = s.UpdateTime
 	o.ZHash = s.ZHash
@@ -407,6 +412,7 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			Propagate:              &o.Propagate,
 			PublicKeys:             &o.PublicKeys,
 			PublicURLs:             &o.PublicURLs,
+			Region:                 &o.Region,
 			RenewToken:             &o.RenewToken,
 			RenewTokenTag:          &o.RenewTokenTag,
 			RenewTokenValidity:     &o.RenewTokenValidity,
@@ -449,6 +455,8 @@ func (o *Deployment) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.PublicKeys = &(o.PublicKeys)
 		case "publicURLs":
 			sp.PublicURLs = &(o.PublicURLs)
+		case "region":
+			sp.Region = &(o.Region)
 		case "renewToken":
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
@@ -519,6 +527,9 @@ func (o *Deployment) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.PublicURLs != nil {
 		o.PublicURLs = *so.PublicURLs
+	}
+	if so.Region != nil {
+		o.Region = *so.Region
 	}
 	if so.RenewToken != nil {
 		o.RenewToken = *so.RenewToken
@@ -758,6 +769,8 @@ func (o *Deployment) ValueForAttribute(name string) any {
 		return o.PublicKeys
 	case "publicURLs":
 		return o.PublicURLs
+	case "region":
+		return o.Region
 	case "renewToken":
 		return o.RenewToken
 	case "renewTokenTag":
@@ -965,6 +978,16 @@ this deployment's instances.`,
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
 	},
 	"RenewToken": {
 		AllowedChoices: []string{},
@@ -1222,6 +1245,16 @@ this deployment's instances.`,
 		SubType:        "string",
 		Type:           "list",
 	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
+	},
 	"renewtoken": {
 		AllowedChoices: []string{},
 		ConvertedName:  "RenewToken",
@@ -1403,6 +1436,9 @@ type SparseDeployment struct {
 	// Public URLs of the deployment.
 	PublicURLs *[]string `json:"publicURLs,omitempty" msgpack:"publicURLs,omitempty" bson:"publicurls,omitempty" mapstructure:"publicURLs,omitempty"`
 
+	// The region for the renewed token.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -1513,6 +1549,9 @@ func (o *SparseDeployment) GetBSON() (any, error) {
 	if o.PublicURLs != nil {
 		s.PublicURLs = o.PublicURLs
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.TokenRefs != nil {
 		s.TokenRefs = o.TokenRefs
 	}
@@ -1583,6 +1622,9 @@ func (o *SparseDeployment) SetBSON(raw bson.Raw) error {
 	if s.PublicURLs != nil {
 		o.PublicURLs = s.PublicURLs
 	}
+	if s.Region != nil {
+		o.Region = s.Region
+	}
 	if s.TokenRefs != nil {
 		o.TokenRefs = s.TokenRefs
 	}
@@ -1650,6 +1692,9 @@ func (o *SparseDeployment) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.PublicURLs != nil {
 		out.PublicURLs = *o.PublicURLs
+	}
+	if o.Region != nil {
+		out.Region = *o.Region
 	}
 	if o.RenewToken != nil {
 		out.RenewToken = *o.RenewToken
@@ -1914,6 +1959,7 @@ type mongoAttributesDeployment struct {
 	Propagate              bool                    `bson:"propagate"`
 	PublicKeys             []string                `bson:"publickeys"`
 	PublicURLs             []string                `bson:"publicurls"`
+	Region                 string                  `bson:"region,omitempty"`
 	TokenRefs              []*TokenRef             `bson:"tokenrefs"`
 	UpdateTime             time.Time               `bson:"updatetime"`
 	ZHash                  int                     `bson:"zhash"`
@@ -1934,6 +1980,7 @@ type mongoAttributesSparseDeployment struct {
 	Propagate              *bool                   `bson:"propagate,omitempty"`
 	PublicKeys             *[]string               `bson:"publickeys,omitempty"`
 	PublicURLs             *[]string               `bson:"publicurls,omitempty"`
+	Region                 *string                 `bson:"region,omitempty"`
 	TokenRefs              *[]*TokenRef            `bson:"tokenrefs,omitempty"`
 	UpdateTime             *time.Time              `bson:"updatetime,omitempty"`
 	ZHash                  *int                    `bson:"zhash,omitempty"`

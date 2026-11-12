@@ -306,6 +306,9 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 			if predicate.Key == PredicateKeyMCPAttacks {
 				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), "'MCPAttacks' can only be used in threat definitions")
 			}
+			if _, ok := accessOnlyPredicateKeys[predicate.Key]; ok {
+				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), fmt.Sprintf("'%s' can only be used in access policies", predicate.Key))
+			}
 			if predicate.Key == PredicateKeyTools && contentPolicy.Type == ContentPolicyTypeResponse {
 				return makeErr(fmt.Sprintf("moderations/%d/predicates/%d/key", i, j), "'Tools' can only be used with policy type 'Request' or 'Both', not 'Response'")
 			}
@@ -934,6 +937,67 @@ func ValidateMCPToolArgumentScope(argument *MCPToolArgumentScope) error {
 	return nil
 }
 
+// The values of a ProxyAccess predicate: the name a client reached the apex
+// with, the global apex name (Global) or one of the apex's own names, the
+// hosts of its deployment's public URLs (Direct).
+const (
+	PredicateProxyAccessGlobal = "Global"
+	PredicateProxyAccessDirect = "Direct"
+)
+
+// accessOnlyPredicateKeys are the keys describing how the request reached the
+// apex, only transpiled in access policies.
+var accessOnlyPredicateKeys = map[PredicateKeyValue]struct{}{
+	PredicateKeyProxyRegion: {},
+	PredicateKeySrcRegion:   {},
+	PredicateKeyProxyAccess: {},
+}
+
+// validateRegionPredicate validates a predicate on a region: 'Equals' and
+// 'NotEquals' take one region, 'Any' and 'NotAny' at least one, 'Empty' and
+// 'NotEmpty' none.
+func validateRegionPredicate(key PredicateKeyValue, o PredicateOperatorValue, v []any) error {
+
+	switch o {
+
+	case PredicateOperatorEquals, PredicateOperatorNotEquals:
+		if len(v) != 1 {
+			return makeErr("values", fmt.Sprintf("Key '%s' only supports one single value with operator '%s'", key, o))
+		}
+
+	case PredicateOperatorAny, PredicateOperatorNotAny:
+		if len(v) == 0 {
+			return makeErr("values", fmt.Sprintf("'%s' must have at least one value", key))
+		}
+
+	case PredicateOperatorEmpty, PredicateOperatorNotEmpty:
+		if len(v) > 0 {
+			return makeErr("values", fmt.Sprintf("Key '%s' only supports no values when operation is 'Empty' or 'NotEmpty'", key))
+		}
+		return nil
+
+	default:
+		return makeErr("operator", fmt.Sprintf("Key '%s' only supports operators 'Equals', 'NotEquals', 'Any', 'NotAny', 'Empty' and 'NotEmpty'", key))
+	}
+
+	seen := make(map[string]struct{}, len(v))
+	for i, value := range v {
+		region, ok := value.(string)
+		if !ok || region == "" {
+			return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' only supports non-empty string values", key))
+		}
+		if strings.ContainsAny(region, `"\`) {
+			return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have a value that contains a quote or a backslash", key))
+		}
+		if _, ok := seen[region]; ok {
+			return makeErr(fmt.Sprintf("values/%d", i), fmt.Sprintf("Key '%s' must not have duplicate values", key))
+		}
+		seen[region] = struct{}{}
+	}
+
+	return nil
+}
+
 // ValidatePredicate validates the given Predicate.
 func ValidatePredicate(p *Predicate) error {
 
@@ -995,6 +1059,11 @@ func ValidatePredicate(p *Predicate) error {
 		case int, float64, uint64, int64:
 		default:
 			return makeErr("values/0", fmt.Sprintf("Key 'AccessControlRisk' only supports float value. Found '%T'", t))
+		}
+
+	case PredicateKeyProxyRegion, PredicateKeySrcRegion:
+		if err := validateRegionPredicate(p.Key, o, v); err != nil {
+			return err
 		}
 
 	case PredicateKeyCategories:
@@ -1238,6 +1307,17 @@ func ValidatePredicate(p *Predicate) error {
 			if len(v) > 0 {
 				return makeErr("values", "Key 'Exploits' only supports no values when operation is 'NotEmpty'")
 			}
+		}
+
+	case PredicateKeyProxyAccess:
+		if o != PredicateOperatorEquals && o != PredicateOperatorNotEquals {
+			return makeErr("operator", "Key 'ProxyAccess' only supports operators 'Equals' and 'NotEquals'")
+		}
+		if len(v) != 1 {
+			return makeErr("values", "Key 'ProxyAccess' only supports one single value")
+		}
+		if name, ok := v[0].(string); !ok || (name != PredicateProxyAccessGlobal && name != PredicateProxyAccessDirect) {
+			return makeErr("values/0", fmt.Sprintf("Key 'ProxyAccess' only supports values '%s' and '%s'", PredicateProxyAccessGlobal, PredicateProxyAccessDirect))
 		}
 
 	case PredicateKeyFeatureName:

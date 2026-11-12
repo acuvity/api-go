@@ -1,6 +1,6 @@
 module go.acuvity.ai/api
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
@@ -10,8 +10,8 @@ require (
 	github.com/mitchellh/copystructure v1.2.0
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/spaolacci/murmur3 v1.1.0
-	go.acuvity.ai/a3s v0.0.0-20261030101647-2994a6aa012d
-	go.acuvity.ai/aculib v0.0.0-20261101193528-254c732624db
+	go.acuvity.ai/a3s v0.0.0-20261110202829-1145035591be
+	go.acuvity.ai/aculib v0.0.0-20261110223722-94647b1ca277
 	go.acuvity.ai/elemental v0.0.0-20261109164313-58599f90af89
 	go.opentelemetry.io/collector/pdata v1.71.0
 )

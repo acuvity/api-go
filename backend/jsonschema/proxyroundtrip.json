@@ -350,6 +350,15 @@
       ],
       "title": "providerType"
     },
+    "proxyAccess": {
+      "$friendlyName": "Proxy Access",
+      "description": "How the client reached the apex that processed this request: Global when it used the global apex name, Direct when it used the name of the apex region. The scan and police APIs report Global unless they are called on the name of the apex region. This is the ProxyAccess the access policies matched. Empty on a round-trip recorded by an older apex.",
+      "title": "proxyAccess",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "proxyFunction": {
       "$defaultValue": "ForwardProxy",
       "$friendlyName": "Proxy Function",
@@ -360,6 +369,15 @@
         "NotApplicable"
       ],
       "title": "proxyFunction"
+    },
+    "proxyRegion": {
+      "$friendlyName": "Proxy Region",
+      "description": "The region of the apex that processed this request. This is the ProxyRegion the access policies matched. Empty when the apex has no region.",
+      "title": "proxyRegion",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "reasons": {
       "$friendlyName": "Reasons",
@@ -372,6 +390,15 @@
       },
       "title": "reasons",
       "type": "array"
+    },
+    "srcRegion": {
+      "$friendlyName": "Source Region",
+      "description": "The region of the caller's token. This is the SrcRegion the access policies matched. Empty when the token carries no region.",
+      "title": "srcRegion",
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "summary": {
       "$friendlyName": "Summary",

@@ -110,6 +110,9 @@ type Gateway struct {
 	// The namespace of the object.
 	Namespace string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The region for the renewed token.
+	Region string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -188,6 +191,7 @@ func (o *Gateway) GetBSON() (any, error) {
 	s.ImportLabel = o.ImportLabel
 	s.Name = o.Name
 	s.Namespace = o.Namespace
+	s.Region = o.Region
 	s.Slugs = o.Slugs
 	s.TokenRefs = o.TokenRefs
 	s.UpdateTime = o.UpdateTime
@@ -218,6 +222,7 @@ func (o *Gateway) SetBSON(raw bson.Raw) error {
 	o.ImportLabel = s.ImportLabel
 	o.Name = s.Name
 	o.Namespace = s.Namespace
+	o.Region = s.Region
 	o.Slugs = s.Slugs
 	o.TokenRefs = s.TokenRefs
 	o.UpdateTime = s.UpdateTime
@@ -331,6 +336,7 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			ImportLabel:        &o.ImportLabel,
 			Name:               &o.Name,
 			Namespace:          &o.Namespace,
+			Region:             &o.Region,
 			RenewToken:         &o.RenewToken,
 			RenewTokenTag:      &o.RenewTokenTag,
 			RenewTokenValidity: &o.RenewTokenValidity,
@@ -362,6 +368,8 @@ func (o *Gateway) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Name = &(o.Name)
 		case "namespace":
 			sp.Namespace = &(o.Namespace)
+		case "region":
+			sp.Region = &(o.Region)
 		case "renewToken":
 			sp.RenewToken = &(o.RenewToken)
 		case "renewTokenTag":
@@ -416,6 +424,9 @@ func (o *Gateway) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.Namespace != nil {
 		o.Namespace = *so.Namespace
+	}
+	if so.Region != nil {
+		o.Region = *so.Region
 	}
 	if so.RenewToken != nil {
 		o.RenewToken = *so.RenewToken
@@ -603,6 +614,8 @@ func (o *Gateway) ValueForAttribute(name string) any {
 		return o.Name
 	case "namespace":
 		return o.Namespace
+	case "region":
+		return o.Region
 	case "renewToken":
 		return o.RenewToken
 	case "renewTokenTag":
@@ -732,6 +745,16 @@ same import operation.`,
 		Orderable:      true,
 		ReadOnly:       true,
 		Setter:         true,
+		Stored:         true,
+		Type:           "string",
+	},
+	"Region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
 		Stored:         true,
 		Type:           "string",
 	},
@@ -924,6 +947,16 @@ same import operation.`,
 		Stored:         true,
 		Type:           "string",
 	},
+	"region": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "region",
+		ConvertedName:  "Region",
+		Description:    `The region for the renewed token.`,
+		Exposed:        true,
+		Name:           "region",
+		Stored:         true,
+		Type:           "string",
+	},
 	"renewtoken": {
 		AllowedChoices: []string{},
 		ConvertedName:  "RenewToken",
@@ -1092,6 +1125,9 @@ type SparseGateway struct {
 	// The namespace of the object.
 	Namespace *string `json:"namespace,omitempty" msgpack:"namespace,omitempty" bson:"namespace,omitempty" mapstructure:"namespace,omitempty"`
 
+	// The region for the renewed token.
+	Region *string `json:"region,omitempty" msgpack:"region,omitempty" bson:"region,omitempty" mapstructure:"region,omitempty"`
+
 	// Set to true on update to issue a new credential.
 	RenewToken *bool `json:"renewToken,omitempty" msgpack:"renewToken,omitempty" bson:"-" mapstructure:"renewToken,omitempty"`
 
@@ -1187,6 +1223,9 @@ func (o *SparseGateway) GetBSON() (any, error) {
 	if o.Namespace != nil {
 		s.Namespace = o.Namespace
 	}
+	if o.Region != nil {
+		s.Region = o.Region
+	}
 	if o.Slugs != nil {
 		s.Slugs = o.Slugs
 	}
@@ -1242,6 +1281,9 @@ func (o *SparseGateway) SetBSON(raw bson.Raw) error {
 	if s.Namespace != nil {
 		o.Namespace = s.Namespace
 	}
+	if s.Region != nil {
+		o.Region = s.Region
+	}
 	if s.Slugs != nil {
 		o.Slugs = s.Slugs
 	}
@@ -1294,6 +1336,9 @@ func (o *SparseGateway) ToPlain() elemental.PlainIdentifiable {
 	}
 	if o.Namespace != nil {
 		out.Namespace = *o.Namespace
+	}
+	if o.Region != nil {
+		out.Region = *o.Region
 	}
 	if o.RenewToken != nil {
 		out.RenewToken = *o.RenewToken
@@ -1489,6 +1534,7 @@ type mongoAttributesGateway struct {
 	ImportLabel string        `bson:"importlabel,omitempty"`
 	Name        string        `bson:"name"`
 	Namespace   string        `bson:"namespace,omitempty"`
+	Region      string        `bson:"region,omitempty"`
 	Slugs       SlugsList     `bson:"slugs,omitempty"`
 	TokenRefs   []*TokenRef   `bson:"tokenrefs"`
 	UpdateTime  time.Time     `bson:"updatetime"`
@@ -1504,6 +1550,7 @@ type mongoAttributesSparseGateway struct {
 	ImportLabel *string       `bson:"importlabel,omitempty"`
 	Name        *string       `bson:"name,omitempty"`
 	Namespace   *string       `bson:"namespace,omitempty"`
+	Region      *string       `bson:"region,omitempty"`
 	Slugs       *SlugsList    `bson:"slugs,omitempty"`
 	TokenRefs   *[]*TokenRef  `bson:"tokenrefs,omitempty"`
 	UpdateTime  *time.Time    `bson:"updatetime,omitempty"`

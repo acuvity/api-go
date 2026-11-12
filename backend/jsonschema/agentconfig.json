@@ -3,7 +3,8 @@
     "@sharded",
     "@identifiable",
     "@importable",
-    "@timed"
+    "@timed",
+    "@clientregion"
   ],
   "$friendlyName": "Agent Configuration",
   "$friendlyNamePlural": "Agent Configurations",
@@ -339,6 +340,15 @@
       "title": "priority",
       "type": [
         "integer",
+        "null"
+      ]
+    },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region whose endpoints the client uses, such as the apex of the region. Empty, the client uses the global endpoints. A region set on the client itself, at installation, takes precedence.",
+      "title": "region",
+      "type": [
+        "string",
         "null"
       ]
     },

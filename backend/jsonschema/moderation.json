@@ -39,6 +39,15 @@
         "null"
       ]
     },
+    "linkText": {
+      "$friendlyName": "Link Text",
+      "description": "Sets an optional display text for the link. If not set, a default text is used when rendering the link.",
+      "title": "linkText",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "message": {
       "$friendlyName": "Message",
       "description": "The message if the moderation action is warn or block.",

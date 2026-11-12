@@ -4,6 +4,7 @@
     "@identifiable",
     "@importable",
     "@timed",
+    "@tokenrenewable",
     "@namelinkable",
     "@auto-propagated"
   ],
@@ -171,6 +172,42 @@
         "null"
       ]
     },
+    "region": {
+      "$friendlyName": "Region",
+      "description": "The region for the renewed token.",
+      "title": "region",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "renewToken": {
+      "$friendlyName": "Renew Token",
+      "description": "Set to true on update to issue a new credential.",
+      "title": "renewToken",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "renewTokenTag": {
+      "$friendlyName": "Renew Token Tag",
+      "description": "Set to value on update to associate a tag with the issued token.",
+      "title": "renewTokenTag",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "renewTokenValidity": {
+      "$friendlyName": "Renew Token Validity",
+      "description": "Set to value on update to set the validity for a token.",
+      "title": "renewTokenValidity",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "route": {
       "$friendlyName": "Route",
       "description": "The route component. On a WebhookIntegration connector it represents the base path the integration routes are served under, so the third-party product is pointed at the gateway URL plus this, and each path of the webhook extractor is appended to it.",
@@ -180,6 +217,26 @@
         "string",
         "null"
       ]
+    },
+    "token": {
+      "$friendlyName": "Token",
+      "$readOnly": true,
+      "description": "The issued JWT, populated only in the response of an update where renewToken was set to true.",
+      "title": "token",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "tokenRefs": {
+      "$friendlyName": "Token References",
+      "$readOnly": true,
+      "description": "The list of references to issued tokens.",
+      "items": {
+        "$ref": "tokenref.json"
+      },
+      "title": "tokenRefs",
+      "type": "array"
     },
     "type": {
       "$friendlyName": "Type",

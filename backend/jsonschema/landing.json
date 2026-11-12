@@ -30,6 +30,19 @@
       "title": "permissions",
       "type": "object"
     },
+    "regions": {
+      "$friendlyName": "Regions",
+      "$readOnly": true,
+      "description": "The regions the organization is assigned to. A token can be issued for any of them. Empty when the organization is not assigned to any region.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "regions",
+      "type": "array"
+    },
     "type": {
       "$friendlyName": "Type",
       "description": "Type of access.",
