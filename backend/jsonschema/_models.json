@@ -6,6 +6,12 @@
     "accesspolicy": {
       "$ref": "accesspolicy.json"
     },
+    "activitylog": {
+      "$ref": "activitylog.json"
+    },
+    "activityloghint": {
+      "$ref": "activityloghint.json"
+    },
     "admindomainanalysis": {
       "$ref": "admindomainanalysis.json"
     },
@@ -38,6 +44,9 @@
     },
     "agentdiscovery": {
       "$ref": "agentdiscovery.json"
+    },
+    "agentscanartifacts": {
+      "$ref": "agentscanartifacts.json"
     },
     "aiapp": {
       "$ref": "aiapp.json"
@@ -414,6 +423,9 @@
     "endpointpolicypredicate": {
       "$ref": "endpointpolicypredicate.json"
     },
+    "entrasource": {
+      "$ref": "entrasource.json"
+    },
     "errortransformer": {
       "$ref": "errortransformer.json"
     },
@@ -660,6 +672,9 @@
     "principalexternal": {
       "$ref": "principalexternal.json"
     },
+    "principalmappedfrom": {
+      "$ref": "principalmappedfrom.json"
+    },
     "principaluser": {
       "$ref": "principaluser.json"
     },
@@ -888,6 +903,9 @@
     "webextensionconfig": {
       "$ref": "webextensionconfig.json"
     },
+    "webhookappcomponentmapping": {
+      "$ref": "webhookappcomponentmapping.json"
+    },
     "webhookextractor": {
       "$ref": "webhookextractor.json"
     },
@@ -899,6 +917,12 @@
     },
     "webhookintegrationconfig": {
       "$ref": "webhookintegrationconfig.json"
+    },
+    "webhookintegrationsetting": {
+      "$ref": "webhookintegrationsetting.json"
+    },
+    "webhookintegrationvariable": {
+      "$ref": "webhookintegrationvariable.json"
     },
     "workload": {
       "$ref": "workload.json"

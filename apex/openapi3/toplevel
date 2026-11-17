@@ -1344,7 +1344,8 @@
               "Hostname",
               "Token",
               "ComponentToken",
-              "External"
+              "External",
+              "AIGatewayConnectorToken"
             ]
           },
           "claims": {
@@ -1413,6 +1414,9 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "mappedFrom": {
+            "$ref": "#/components/schemas/principalmappedfrom"
           },
           "name": {
             "description": "The name of the application.",
@@ -1498,6 +1502,28 @@
             "description": "The label format of the workload group set this application belongs to.",
             "example": "k8s:namespace=demo",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "principalmappedfrom": {
+        "description": "Describes the source a principal was mapped from.",
+        "properties": {
+          "name": {
+            "description": "The name of the source, such as the AI gateway connector.",
+            "example": "apim-gateway",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the source.",
+            "example": "/orgs/acme/gateways",
+            "type": "string"
+          },
+          "source": {
+            "description": "The kind of source the principal was mapped from.",
+            "enum": [
+              "AIGatewayConnector"
+            ]
           }
         },
         "type": "object"

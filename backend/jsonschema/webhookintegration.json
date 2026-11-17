@@ -130,6 +130,15 @@
         "null"
       ]
     },
+    "settings": {
+      "$friendlyName": "Settings",
+      "additionalProperties": {
+        "$ref": "webhookintegrationsetting.json"
+      },
+      "description": "The settings this integration supports, keyed by setting name, each with what it does, its default value and, optionally, a regular expression its values must match. A connector's settings override the defaults; a setting a connector sets that is not declared here is not part of this integration and its scripts ignore it. The scripts receive the defaults overridden by the connector's values.",
+      "title": "settings",
+      "type": "object"
+    },
     "updateTime": {
       "$friendlyName": "UpdateTime",
       "$readOnly": true,
@@ -139,6 +148,15 @@
         "string",
         "null"
       ]
+    },
+    "variables": {
+      "$friendlyName": "Variables",
+      "additionalProperties": {
+        "$ref": "webhookintegrationvariable.json"
+      },
+      "description": "The variables this integration's scripts derive from a call, keyed by variable name. The match of an app component mapping is written against them. It documents the integration and lets a client suggest variables and warn about ones the integration does not know; it is not enforced.",
+      "title": "variables",
+      "type": "object"
     },
     "vendorURL": {
       "$friendlyName": "Vendor URL",

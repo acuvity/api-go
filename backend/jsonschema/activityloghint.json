@@ -1,0 +1,36 @@
+{
+  "$extends": [],
+  "$friendlyName": "Activity Log Hint",
+  "$friendlyNamePlural": "Activity Log Hints",
+  "$modelName": "ActivityLogHint",
+  "$modelPackage": "remi",
+  "$modelResourceName": "activityloghints",
+  "$modelRestName": "activityloghint",
+  "additionalProperties": false,
+  "description": "The values of the activity logs of the last 30 days for a key: user for the callers, or claim for the claims of the tokens issued, as key=value, most seen first.",
+  "properties": {
+    "key": {
+      "$friendlyName": "Key",
+      "$readOnly": true,
+      "description": "The key of the value.",
+      "title": "key",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "value": {
+      "$friendlyName": "Value",
+      "$readOnly": true,
+      "description": "The value.",
+      "title": "value",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ActivityLogHint",
+  "type": "object"
+}

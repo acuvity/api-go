@@ -1,0 +1,39 @@
+{
+  "$extends": [],
+  "$friendlyName": "Webhook App Component Mapping",
+  "$friendlyNamePlural": "Webhook App Component Mappings",
+  "$modelName": "WebhookAppComponentMapping",
+  "$modelPackage": "torii",
+  "$modelResourceName": "webhookappcomponentmappings",
+  "$modelRestName": "webhookappcomponentmapping",
+  "additionalProperties": false,
+  "description": "Maps the calls a webhook integration receives onto the app component that made them. The integration's script derives variables from the call (token claims, the gateway's own credential, request headers, body fields), and the mappings are evaluated in order against them. The first mapping whose match holds names the app component the call runs as.",
+  "properties": {
+    "appComponent": {
+      "$friendlyName": "App Component",
+      "$required": true,
+      "description": "The app component the matching calls run as, written project:app/component. The call is then evaluated under the policies of that app component in that project.  It is a Go template, so the app component can be taken from the call's variables. Besides the built-in functions it provides:  - `var NAME`: the single value of the variable NAME. It fails when the   variable is missing or has several values. - `vars NAME`: all values of the variable NAME as a list, empty when it is   missing, for use with index, range or len. - `matched NAME`: the value of the variable NAME that made the match of this   mapping hold. Only the first inner list of match that holds counts, and   only its entries for NAME. It fails unless exactly one value matched them.   It picks the right value of a variable with several values, such as roles. - `regex PATTERN VALUE`: the first capture group of PATTERN in VALUE, or the   whole match when PATTERN has no group. It fails when VALUE does not match. - `regexReplace PATTERN REPLACEMENT VALUE`: VALUE with the match of PATTERN   replaced by REPLACEMENT, which can refer to capture groups as $1. It fails   when VALUE does not match.  A piped value is passed as the last argument, so the value of a variable can be piped into regex or regexReplace. Patterns are best written as raw strings between backticks. Variable names contain colons, so they cannot be accessed as fields.  When the template fails, or renders something that is not written project:app/component, the call is handled like one whose app component does not exist. A value that has no template actions must already be written project:app/component.",
+      "title": "appComponent",
+      "type": "string"
+    },
+    "match": {
+      "$friendlyName": "Match",
+      "$required": true,
+      "description": "The calls this mapping applies to, written as key=value entries where the key is the name of one of the integration's variables. The outer list is OR and each inner list is AND, so the mapping applies when all entries of any one inner list hold for the call. An entry holds when any value of its variable matches its value, so a variable with several values, such as roles, holds for each of them. In the value, * matches any run of characters, and nothing else is special; key=* holds whenever the variable is present. Keys are exact and start with an alphanumeric character. Header variables are named header:\u003clowercased name\u003e, and variables whose values the vendor did not verify are prefixed unverified:, since any client can set them.",
+      "items": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "title": "match",
+      "type": "array"
+    }
+  },
+  "required": [
+    "appComponent",
+    "match"
+  ],
+  "title": "WebhookAppComponentMapping",
+  "type": "object"
+}

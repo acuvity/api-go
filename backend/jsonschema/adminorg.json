@@ -61,6 +61,16 @@
         "null"
       ]
     },
+    "entitlementWebhookSink": {
+      "$defaultValue": false,
+      "$friendlyName": "Webhook Sink Entitlement",
+      "description": "Indicates whether the organization is entitled to use webhook alert sinks.",
+      "title": "entitlementWebhookSink",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
     "forceReimportTemplate": {
       "$friendlyName": "Force Reimport Template",
       "description": "This property if true will force reimport the template data. Setting it false is a noop.",

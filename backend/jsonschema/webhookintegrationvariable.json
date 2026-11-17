@@ -1,0 +1,43 @@
+{
+  "$extends": [],
+  "$friendlyName": "Webhook Integration Variable",
+  "$friendlyNamePlural": "Webhook Integration Variables",
+  "$modelName": "WebhookIntegrationVariable",
+  "$modelPackage": "torii",
+  "$modelResourceName": "webhookintegrationvariables",
+  "$modelRestName": "webhookintegrationvariable",
+  "additionalProperties": false,
+  "description": "Describes a variable the scripts of a webhook integration derive from a call, such as a claim of a token, the gateway's own credential, a request header or a body field.",
+  "properties": {
+    "description": {
+      "$friendlyName": "Description",
+      "description": "A longer explanation of the variable, for when the short description is not enough, for example with links to the vendor's documentation.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the variable. It must be the key the variable is listed under, start with an alphanumeric character and contain neither = nor spaces. A name may use * to match any run of characters, for variables whose exact name is the user's choice, such as a header name. Header variables are named header:\u003clowercased name\u003e, and variables whose values the vendor did not verify are prefixed unverified:, since any client can set them.",
+      "pattern": "^[a-zA-Z0-9][^= ]*$",
+      "title": "name",
+      "type": "string"
+    },
+    "shortDescription": {
+      "$friendlyName": "Short Description",
+      "$required": true,
+      "description": "What the variable is, in one sentence, including whether the vendor verified it.",
+      "title": "shortDescription",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "shortDescription"
+  ],
+  "title": "WebhookIntegrationVariable",
+  "type": "object"
+}

@@ -532,6 +532,70 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[ActivityLogIdentity] = &elemental.Relationship{
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
+	relationshipsRegistry[ActivityLogHintIdentity] = &elemental.Relationship{
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				RequiredParameters: elemental.NewParametersRequirement(
+					[][][]string{
+						{
+							{
+								"key",
+							},
+						},
+					},
+				),
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "key",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				RequiredParameters: elemental.NewParametersRequirement(
+					[][][]string{
+						{
+							{
+								"key",
+							},
+						},
+					},
+				),
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "key",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[AdminLicenseIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[AgentIdentity] = &elemental.Relationship{
@@ -607,6 +671,37 @@ func init() {
 	relationshipsRegistry[AgentDiscoveryIdentity] = &elemental.Relationship{
 		Create: map[string]*elemental.RelationshipInfo{
 			"root": {},
+		},
+	}
+
+	relationshipsRegistry[AgentScanArtifactsIdentity] = &elemental.Relationship{
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "refreshCache",
+						Type: "boolean",
+					},
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "refreshCache",
+						Type: "boolean",
+					},
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
 		},
 	}
 
@@ -1418,6 +1513,44 @@ func init() {
 		},
 	}
 
+	relationshipsRegistry[EntraSourceIdentity] = &elemental.Relationship{
+		Create: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Update: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Patch: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Delete: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		Retrieve: map[string]*elemental.RelationshipInfo{
+			"root": {},
+		},
+		RetrieveMany: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+		Info: map[string]*elemental.RelationshipInfo{
+			"root": {
+				Parameters: []elemental.ParameterDefinition{
+					{
+						Name: "q",
+						Type: "string",
+					},
+				},
+			},
+		},
+	}
+
 	relationshipsRegistry[ErrorTransformerIdentity] = &elemental.Relationship{}
 
 	relationshipsRegistry[ExtractorIdentity] = &elemental.Relationship{
@@ -1695,6 +1828,10 @@ func init() {
 						Name: "key",
 						Type: "string",
 					},
+					{
+						Name: "q",
+						Type: "string",
+					},
 				},
 			},
 		},
@@ -1712,6 +1849,10 @@ func init() {
 				Parameters: []elemental.ParameterDefinition{
 					{
 						Name: "key",
+						Type: "string",
+					},
+					{
+						Name: "q",
 						Type: "string",
 					},
 				},

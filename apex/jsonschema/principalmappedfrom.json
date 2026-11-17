@@ -1,0 +1,42 @@
+{
+  "$extends": [],
+  "$friendlyName": "Principal Mapped From",
+  "$friendlyNamePlural": "Principal Mapped Froms",
+  "$modelName": "PrincipalMappedFrom",
+  "$modelPackage": "colektor",
+  "$modelResourceName": "principalmappedfroms",
+  "$modelRestName": "principalmappedfrom",
+  "additionalProperties": false,
+  "description": "Describes the source a principal was mapped from.",
+  "properties": {
+    "name": {
+      "$friendlyName": "Name",
+      "description": "The name of the source, such as the AI gateway connector.",
+      "title": "name",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "description": "The namespace of the source.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source": {
+      "$friendlyName": "Source",
+      "description": "The kind of source the principal was mapped from.",
+      "enum": [
+        "AIGatewayConnector"
+      ],
+      "title": "source"
+    }
+  },
+  "required": [],
+  "title": "PrincipalMappedFrom",
+  "type": "object"
+}

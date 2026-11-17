@@ -34,6 +34,12 @@
       "title": "labels",
       "type": "array"
     },
+    "mappedFrom": {
+      "$friendlyName": "Mapped From",
+      "$ref": "principalmappedfrom.json",
+      "description": "If set, the request was made with the credential of another source and mapped onto this application component. It names that source.",
+      "title": "mappedFrom"
+    },
     "name": {
       "$friendlyName": "Name",
       "description": "The name of the application.",

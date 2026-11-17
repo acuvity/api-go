@@ -1,0 +1,61 @@
+{
+  "$extends": [],
+  "$friendlyName": "Webhook Integration Setting",
+  "$friendlyNamePlural": "Webhook Integration Settings",
+  "$modelName": "WebhookIntegrationSetting",
+  "$modelPackage": "torii",
+  "$modelResourceName": "webhookintegrationsettings",
+  "$modelRestName": "webhookintegrationsetting",
+  "additionalProperties": false,
+  "description": "Describes a setting a webhook integration supports: what it does, the value it takes when a connector does not set it, and which values it accepts.",
+  "properties": {
+    "defaultValue": {
+      "$friendlyName": "Default Value",
+      "description": "The value of the setting when a connector does not set it. Values are strings the integration's scripts parse; booleans are `true` or `false`. An empty string is a valid default. When validation is set, the default must match it, so a validation can also rule out an empty default.",
+      "title": "defaultValue",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "$friendlyName": "Description",
+      "description": "A longer explanation of the setting, for when the short description is not enough, for example with the values it accepts and what each of them does.",
+      "title": "description",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "name": {
+      "$friendlyName": "Name",
+      "$required": true,
+      "description": "The name of the setting. It must be the key the setting is listed under, start with an alphanumeric character and contain no spaces.",
+      "pattern": "^[a-zA-Z0-9][^ ]*$",
+      "title": "name",
+      "type": "string"
+    },
+    "shortDescription": {
+      "$friendlyName": "Short Description",
+      "$required": true,
+      "description": "What the setting does, in one sentence.",
+      "title": "shortDescription",
+      "type": "string"
+    },
+    "validation": {
+      "$friendlyName": "Validation",
+      "description": "If set, a regular expression the value a connector sets must match, so a client can check a value before it is saved.",
+      "title": "validation",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "name",
+    "shortDescription"
+  ],
+  "title": "WebhookIntegrationSetting",
+  "type": "object"
+}

@@ -18,6 +18,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"text/template"
+	"text/template/parse"
 	"time"
 	"unicode/utf8"
 
@@ -350,6 +352,7 @@ func ValidateContentPolicy(contentPolicy *ContentPolicy) error {
 func ValidateThreatDefinition(threatDefinition *ThreatDefinition) error {
 
 	allowedMatchKeys := map[PredicateKeyValue]struct{}{
+		PredicateKeyDLP:         {},
 		PredicateKeyExploits:    {},
 		PredicateKeyKeywords:    {},
 		PredicateKeyLanguages:   {},
@@ -363,7 +366,7 @@ func ValidateThreatDefinition(threatDefinition *ThreatDefinition) error {
 		if _, ok := allowedMatchKeys[predicate.Key]; !ok {
 			return makeErr(
 				fmt.Sprintf("match/%d/key", i),
-				"Threat definition 'match' only supports keys 'Exploits', 'Keywords', 'Languages', 'Malcontents', 'MCPAttacks', 'PIIs', and 'Secrets'",
+				"Threat definition 'match' only supports keys 'DLP', 'Exploits', 'Keywords', 'Languages', 'Malcontents', 'MCPAttacks', 'PIIs', and 'Secrets'",
 			)
 		}
 	}
@@ -2158,44 +2161,110 @@ func ValidateSink(sink *Sink) error {
 		if sink.Databahn == nil {
 			return makeErr("databahn", "'Databahn' must have its configuration defined.")
 		}
-		if sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
+		if sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'Databahn', only the databahn property must be set.")
 		}
 	case SinkTypeEmail:
 		if sink.Email == nil {
 			return makeErr("email", "'Email' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
+		if sink.Databahn != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'Email', only the email property must be set.")
 		}
 	case SinkTypePagerDuty:
 		if sink.PagerDuty == nil {
 			return makeErr("pagerDuty", "'PagerDuty' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'PageDuty', only the pagerDuty property must be set.")
 		}
 	case SinkTypeSlack:
 		if sink.Slack == nil {
 			return makeErr("slack", "'Slack' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Splunk != nil || sink.MsTeams != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Splunk != nil || sink.MsTeams != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'Slack', only the slack property must be set.")
 		}
 	case SinkTypeSplunk:
 		if sink.Splunk == nil {
 			return makeErr("splunk", "'Splunk' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.MsTeams != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.MsTeams != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'Splunk', only the splunk property must be set.")
 		}
 	case SinkTypeMSTeams:
 		if sink.MsTeams == nil {
 			return makeErr("msTeams", "'MSTeams' must have its configuration defined.")
 		}
-		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil {
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.Webhook != nil {
 			return makeErr("type", "If type is 'MSTeams', only the msTeams property must be set.")
 		}
+	case SinkTypeWebhook:
+		if sink.Webhook == nil {
+			return makeErr("webhook", "'Webhook' must have its configuration defined.")
+		}
+		if sink.Databahn != nil || sink.Email != nil || sink.PagerDuty != nil || sink.Slack != nil || sink.Splunk != nil || sink.MsTeams != nil {
+			return makeErr("type", "If type is 'Webhook', only the webhook property must be set.")
+		}
+	}
+
+	return nil
+}
+
+const sinkWebhookMaxHeaders = 20
+
+// sinkWebhookReservedHeaders are managed by the HTTP client or describe the
+// framing of the request, so a webhook cannot set them.
+var sinkWebhookReservedHeaders = []string{"host", "content-length", "transfer-encoding", "connection"}
+
+// ValidateSinkWebhook validates the URL and the headers of a webhook sink. The
+// URL and the header values are secrets that can be left empty to keep the
+// stored ones, so their presence is checked by the processors. The generated
+// validation skips secret attributes, so the URL format is checked here.
+func ValidateSinkWebhook(webhook *SinkWebhook) error {
+
+	if err := ValidateURL("webhookURL", webhook.WebhookURL); err != nil {
+		return err
+	}
+	if u, _ := url.Parse(webhook.WebhookURL); u != nil && u.Scheme != "" && u.Scheme != "http" && u.Scheme != "https" {
+		return makeErr("webhookURL", "The URL must use the http or https scheme.")
+	}
+
+	if len(webhook.Headers) > sinkWebhookMaxHeaders {
+		return makeErr("headers", fmt.Sprintf("There can be at most %d headers.", sinkWebhookMaxHeaders))
+	}
+
+	names := make(map[string]struct{}, len(webhook.Headers))
+	for _, header := range webhook.Headers {
+		if header == nil {
+			return makeErr("headers", "A header must not be null.")
+		}
+
+		name := strings.ToLower(header.Name)
+		if slices.Contains(sinkWebhookReservedHeaders, name) {
+			return makeErr("headers", fmt.Sprintf("The header '%s' cannot be set.", header.Name))
+		}
+		if _, ok := names[name]; ok {
+			return makeErr("headers", fmt.Sprintf("The header '%s' is set more than once.", header.Name))
+		}
+		names[name] = struct{}{}
+
+		if strings.ContainsAny(header.Value, "\r\n") {
+			return makeErr("headers", fmt.Sprintf("The value of the header '%s' must not contain a line break.", header.Name))
+		}
+	}
+
+	return nil
+}
+
+// ValidateSinkCheck validates a sink check request.
+func ValidateSinkCheck(check *SinkCheck) error {
+
+	switch {
+	case check.SinkID == "" && check.Webhook == nil:
+		return makeErr("sinkID", "Give 'sinkID' or an unsaved webhook ('webhook')")
+	case check.SinkID == "" && check.Webhook.WebhookURL == "":
+		return makeErr("webhook", "An unsaved webhook needs its 'webhookURL'")
 	}
 
 	return nil
@@ -3678,6 +3747,279 @@ func ValidateWebhookIntegration(integration *WebhookIntegration) error {
 	return nil
 }
 
+var (
+	// appComponentNotation matches an app component written project:app/component.
+	// It is the allowed_chars of fallbackAppComponent, which is never a template.
+	appComponentNotation = regexp.MustCompile(`^[a-zA-Z0-9-_@.]+:[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+$`)
+
+	// webhookVariableName matches the name of a webhook integration variable. It
+	// is the allowed_chars of webhookintegrationvariable.name.
+	webhookVariableName = regexp.MustCompile(`^[a-zA-Z0-9][^= ]*$`)
+
+	// webhookSettingName matches the name of a webhook integration setting.
+	webhookSettingName = regexp.MustCompile(`^[a-zA-Z0-9][^ ]*$`)
+
+	// appComponentTemplateFuncs stubs the functions an app component template can
+	// call besides the built-in ones, so a template can be parsed and checked. The
+	// gateway provides the implementations under the same names.
+	appComponentTemplateFuncs = template.FuncMap{
+		"var":          func(string) (string, error) { return "", nil },
+		"vars":         func(string) []string { return nil },
+		"matched":      func(string) (string, error) { return "", nil },
+		"regex":        func(string, string) (string, error) { return "", nil },
+		"regexReplace": func(string, string, string) (string, error) { return "", nil },
+	}
+)
+
+// ValidateWebhookAppComponent validates the appComponent of a webhook app component
+// mapping: it must parse as a template that only calls known functions and gives
+// regex and regexReplace string literal patterns that compile, and it must be
+// written project:app/component when it has no template actions.
+func ValidateWebhookAppComponent(attribute string, appComponent string) error {
+
+	tmpl, err := template.New(attribute).Funcs(appComponentTemplateFuncs).Parse(appComponent)
+	if err != nil {
+		return makeErr(attribute, fmt.Sprintf("'%s' is not a valid template: %s", appComponent, err))
+	}
+
+	templates := tmpl.Templates()
+	if len(templates) <= 1 && (tmpl.Tree == nil || !slices.ContainsFunc(
+		tmpl.Root.Nodes,
+		func(n parse.Node) bool { return n.Type() != parse.NodeText },
+	)) {
+		if !appComponentNotation.MatchString(appComponent) {
+			return makeErr(attribute, fmt.Sprintf("'%s' must be written project:app/component", appComponent))
+		}
+		return nil
+	}
+
+	for _, t := range templates {
+		if t.Tree == nil {
+			continue
+		}
+		if err := checkAppComponentTemplateNode(t.Root); err != nil {
+			return makeErr(attribute, fmt.Sprintf("'%s' is not a valid template: %s", appComponent, err))
+		}
+	}
+
+	return nil
+}
+
+// checkAppComponentTemplateNode walks a parsed app component template and checks
+// every call to regex and regexReplace.
+func checkAppComponentTemplateNode(node parse.Node) error {
+
+	switch n := node.(type) {
+
+	case *parse.ListNode:
+		if n == nil {
+			return nil
+		}
+		for _, child := range n.Nodes {
+			if err := checkAppComponentTemplateNode(child); err != nil {
+				return err
+			}
+		}
+
+	case *parse.ActionNode:
+		return checkAppComponentTemplateNode(n.Pipe)
+
+	case *parse.IfNode:
+		return checkAppComponentTemplateBranch(&n.BranchNode)
+
+	case *parse.RangeNode:
+		return checkAppComponentTemplateBranch(&n.BranchNode)
+
+	case *parse.WithNode:
+		return checkAppComponentTemplateBranch(&n.BranchNode)
+
+	case *parse.TemplateNode:
+		return checkAppComponentTemplateNode(n.Pipe)
+
+	case *parse.PipeNode:
+		if n == nil {
+			return nil
+		}
+		for _, cmd := range n.Cmds {
+			if err := checkAppComponentTemplateNode(cmd); err != nil {
+				return err
+			}
+		}
+
+	case *parse.CommandNode:
+		// regex and regexReplace need a string literal pattern that compiles, and
+		// regexReplace a string literal replacement, so they are checked here.
+		if ident, ok := n.Args[0].(*parse.IdentifierNode); ok && (ident.Ident == "regex" || ident.Ident == "regexReplace") {
+			var pattern *parse.StringNode
+			if len(n.Args) > 1 {
+				pattern, _ = n.Args[1].(*parse.StringNode)
+			}
+			if pattern == nil {
+				return fmt.Errorf("%s needs a string literal pattern", ident.Ident)
+			}
+			if _, err := regexp.Compile(pattern.Text); err != nil {
+				return fmt.Errorf("%s pattern %s does not compile: %w", ident.Ident, pattern.Quoted, err)
+			}
+			if ident.Ident == "regexReplace" {
+				if len(n.Args) < 3 {
+					return fmt.Errorf("regexReplace needs a string literal replacement")
+				}
+				if _, ok := n.Args[2].(*parse.StringNode); !ok {
+					return fmt.Errorf("regexReplace needs a string literal replacement")
+				}
+			}
+		}
+		for _, arg := range n.Args {
+			if err := checkAppComponentTemplateNode(arg); err != nil {
+				return err
+			}
+		}
+
+	case *parse.ChainNode:
+		return checkAppComponentTemplateNode(n.Node)
+	}
+
+	return nil
+}
+
+// checkAppComponentTemplateBranch checks the pipeline and both lists of an if,
+// range or with node.
+func checkAppComponentTemplateBranch(n *parse.BranchNode) error {
+
+	if err := checkAppComponentTemplateNode(n.Pipe); err != nil {
+		return err
+	}
+
+	if err := checkAppComponentTemplateNode(n.List); err != nil {
+		return err
+	}
+
+	return checkAppComponentTemplateNode(n.ElseList)
+}
+
+// ValidateWebhookAppComponentMappingMatch validates the match of a webhook app
+// component mapping: the key of every entry must be a valid variable name.
+func ValidateWebhookAppComponentMappingMatch(attribute string, match [][]string) error {
+
+	for _, tags := range match {
+		for _, tag := range tags {
+			key, _, _ := strings.Cut(tag, "=")
+			if !webhookVariableName.MatchString(key) {
+				return makeErr(
+					attribute,
+					fmt.Sprintf("the key of '%s' must start with an alphanumeric character and contain neither '=' nor spaces", tag),
+				)
+			}
+		}
+	}
+
+	return nil
+}
+
+// ValidateWebhookAppComponentMappings validates a list of webhook app component
+// mappings: no two of them may have the same appComponent.
+func ValidateWebhookAppComponentMappings(attribute string, mappings []*WebhookAppComponentMapping) error {
+
+	seen := map[string]int{}
+
+	for i, mapping := range mappings {
+
+		if mapping == nil {
+			continue
+		}
+
+		if j, ok := seen[mapping.AppComponent]; ok {
+			return makeErr(
+				fmt.Sprintf("%s/%d/appComponent", attribute, i),
+				fmt.Sprintf("duplicate appComponent '%s', already used by mapping %d", mapping.AppComponent, j),
+			)
+		}
+		seen[mapping.AppComponent] = i
+	}
+
+	return nil
+}
+
+// ValidateWebhookIntegrationVariables validates the variables of a webhook
+// integration: no entry may be null, and each must be named after its key.
+func ValidateWebhookIntegrationVariables(attribute string, variables map[string]*WebhookIntegrationVariable) error {
+
+	for _, key := range slices.Sorted(maps.Keys(variables)) {
+
+		variable := variables[key]
+
+		if variable == nil {
+			return makeErr(fmt.Sprintf("%s/%s", attribute, key), "variable must not be null")
+		}
+
+		if variable.Name != key {
+			return makeErr(
+				fmt.Sprintf("%s/%s/name", attribute, key),
+				fmt.Sprintf("name '%s' must be the key '%s'", variable.Name, key),
+			)
+		}
+	}
+
+	return nil
+}
+
+// ValidateWebhookIntegrationSettings validates the settings a webhook integration
+// declares: no entry may be null, and each must be named after its key.
+func ValidateWebhookIntegrationSettings(attribute string, settings map[string]*WebhookIntegrationSetting) error {
+
+	for _, key := range slices.Sorted(maps.Keys(settings)) {
+
+		setting := settings[key]
+
+		if setting == nil {
+			return makeErr(fmt.Sprintf("%s/%s", attribute, key), "setting must not be null")
+		}
+
+		if setting.Name != key {
+			return makeErr(
+				fmt.Sprintf("%s/%s/name", attribute, key),
+				fmt.Sprintf("name '%s' must be the key '%s'", setting.Name, key),
+			)
+		}
+	}
+
+	return nil
+}
+
+// ValidateWebhookIntegrationSetting validates a setting a webhook integration
+// declares: when it has a validation, its default value must match it. A
+// validation that does not compile is reported by $regexp on the attribute.
+func ValidateWebhookIntegrationSetting(setting *WebhookIntegrationSetting) error {
+
+	if setting.Validation != "" {
+		if re, err := regexp.Compile(setting.Validation); err == nil && !re.MatchString(setting.DefaultValue) {
+			return makeErr(
+				"defaultValue",
+				fmt.Sprintf("default value '%s' does not match the validation '%s'", setting.DefaultValue, setting.Validation),
+			)
+		}
+	}
+
+	return nil
+}
+
+// ValidateWebhookSettings validates the settings of a webhook integration's
+// configuration on a connector: every setting name must start with an
+// alphanumeric character and contain no spaces.
+func ValidateWebhookSettings(attribute string, settings map[string]string) error {
+
+	for _, key := range slices.Sorted(maps.Keys(settings)) {
+		if !webhookSettingName.MatchString(key) {
+			return makeErr(
+				fmt.Sprintf("%s/%s", attribute, key),
+				"setting names must start with an alphanumeric character and contain no spaces",
+			)
+		}
+	}
+
+	return nil
+}
+
 // ValidateWebhookIntegrationConfig validates the given WebhookIntegrationConfig.
 func ValidateWebhookIntegrationConfig(config *WebhookIntegrationConfig) error {
 
@@ -3687,6 +4029,10 @@ func ValidateWebhookIntegrationConfig(config *WebhookIntegrationConfig) error {
 
 	if config.RedactContentBypass && !config.RedactContent {
 		return makeErr("redactContentBypass", "redactContentBypass has no effect unless redactContent is also set")
+	}
+
+	if config.FallbackMappingOnError && config.FallbackAppComponent == "" {
+		return makeErr("fallbackMappingOnError", "fallbackMappingOnError has no effect unless fallbackAppComponent is also set")
 	}
 
 	return nil

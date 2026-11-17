@@ -195,6 +195,98 @@
         ],
         "type": "object"
       },
+      "activitylog": {
+        "description": "An audited operation on the platform: a configuration change, or a token\nissued (objectIdentity issue). Activity logs are read only.\n\nThe list can be filtered with q on user, operation, success, objectIdentity,\nobjectID, objectName and date. A date condition sets the time window,\nwhich is the last 30 days by default. Conditions can only be combined with\nand. The list is ordered by date (order=date or order=-date, the default)\nand is paginated with after and limit.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "claims": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The claims of the caller, or of the token issued.",
+            "readOnly": true,
+            "type": "object"
+          },
+          "date": {
+            "description": "When the operation happened.",
+            "example": "2026-11-13T00:06:14.047Z",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "error": {
+            "description": "The error of the operation, if it failed.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "objectDiff": {
+            "description": "The change made to the object, if any.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "objectID": {
+            "description": "The ID of the object of the operation, if any.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "objectIdentity": {
+            "description": "The identity of the object of the operation, issue for a token issued.",
+            "example": "apptoken",
+            "readOnly": true,
+            "type": "string"
+          },
+          "objectName": {
+            "description": "The name of the object of the operation, if any.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "operation": {
+            "description": "The operation.",
+            "example": "create",
+            "readOnly": true,
+            "type": "string"
+          },
+          "success": {
+            "description": "Whether the operation succeeded.",
+            "readOnly": true,
+            "type": "boolean"
+          },
+          "user": {
+            "description": "The email of the caller.",
+            "example": "alice@example.com",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "activityloghint": {
+        "description": "The values of the activity logs of the last 30 days for a key: user for\nthe callers, or claim for the claims of the tokens issued, as key=value,\nmost seen first.",
+        "properties": {
+          "key": {
+            "description": "The key of the value.",
+            "example": "user",
+            "readOnly": true,
+            "type": "string"
+          },
+          "value": {
+            "description": "The value.",
+            "example": "alice@example.com",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "admindomainanalysis": {
         "description": "Administrative API to send a request to analyze a domain.",
         "properties": {
@@ -323,6 +415,11 @@
           "entitlementDataSinks": {
             "default": false,
             "description": "Indicates whether the organization is entitled to use Data Sinks.",
+            "type": "boolean"
+          },
+          "entitlementWebhookSink": {
+            "default": false,
+            "description": "Indicates whether the organization is entitled to use webhook alert sinks.",
             "type": "boolean"
           },
           "forceReimportTemplate": {
@@ -1033,6 +1130,28 @@
         "required": [
           "principal"
         ],
+        "type": "object"
+      },
+      "agentscanartifacts": {
+        "description": "Retrieves the Agent Scan Artifacts.",
+        "properties": {
+          "installedApps": {
+            "description": "The list of installed applications the agent scanner will look for.",
+            "items": {
+              "$ref": "#/components/schemas/agentdiscoveredapp"
+            },
+            "readOnly": true,
+            "type": "array"
+          },
+          "runningProcesses": {
+            "description": "The list of running processes the agent scanner will look for.",
+            "items": {
+              "type": "string"
+            },
+            "readOnly": true,
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "aiapp": {
@@ -8103,6 +8222,82 @@
         ],
         "type": "object"
       },
+      "entrasource": {
+        "description": "A source that issues tokens from Microsoft Entra ID access tokens obtained by\nusers of a given Entra tenant for the A3S Entra API application.",
+        "properties": {
+          "ID": {
+            "description": "ID is the identifier of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "createTime": {
+            "description": "Creation date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          },
+          "description": {
+            "description": "The description of the object.",
+            "type": "string"
+          },
+          "ignoredKeys": {
+            "description": "A list of claims that will be filtered out from the identity token. A claim will\nbe ignored if it is prefixed with one of the items in the ignoredKeys list. This\nruns before includedKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "importHash": {
+            "description": "The hash of the structure used to compare with new import version.",
+            "type": "string"
+          },
+          "importLabel": {
+            "description": "The user-defined import label that allows the system to group resources from the\nsame import operation.",
+            "type": "string"
+          },
+          "includedKeys": {
+            "description": "A list of claims that defines which claims will be added to the identity\ntoken. A claim will be included if it is prefixed with one of the items in the\nincludedKeys list. This runs after ignoreddKeys computation.",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "modifier": {
+            "$ref": "#/components/schemas/identitymodifier"
+          },
+          "name": {
+            "description": "The name of the source.",
+            "example": "my-entra-source",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the object.",
+            "readOnly": true,
+            "type": "string"
+          },
+          "subClaim": {
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources, `nameid` for SAML sources and `oid` for Entra sources. A\nsource where it resolves to nothing cannot serve an OpenID Connect\nrequest, as a3s has no subject to name.",
+            "example": "sub",
+            "type": "string"
+          },
+          "tenantID": {
+            "description": "The ID of the Entra tenant whose users can authenticate with this source.\nTokens issued by any other tenant are rejected.",
+            "example": "1ec8ce6a-2b6d-4828-b298-be4d2eeb573b",
+            "type": "string"
+          },
+          "updateTime": {
+            "description": "Last update date of the object.",
+            "format": "date-time",
+            "readOnly": true,
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "tenantID"
+        ],
+        "type": "object"
+      },
       "errortransformer": {
         "description": "Used to transform errors before sending them back to the client.",
         "properties": {
@@ -9537,6 +9732,13 @@
             "description": "APIAuthorizations to import.",
             "items": {
               "$ref": "#/components/schemas/apiauthorization"
+            },
+            "type": "array"
+          },
+          "EntraSources": {
+            "description": "Entra Sources to import.",
+            "items": {
+              "$ref": "#/components/schemas/entrasource"
             },
             "type": "array"
           },
@@ -11710,7 +11912,7 @@
             ]
           },
           "subClaim": {
-            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources, `nameid` for SAML sources and `oid` for Entra sources. A\nsource where it resolves to nothing cannot serve an OpenID Connect\nrequest, as a3s has no subject to name.",
             "example": "sub",
             "type": "string"
           },
@@ -11939,7 +12141,7 @@
             "type": "array"
           },
           "subClaim": {
-            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources, `nameid` for SAML sources and `oid` for Entra sources. A\nsource where it resolves to nothing cannot serve an OpenID Connect\nrequest, as a3s has no subject to name.",
             "example": "sub",
             "type": "string"
           },
@@ -12864,7 +13066,8 @@
               "Hostname",
               "Token",
               "ComponentToken",
-              "External"
+              "External",
+              "AIGatewayConnectorToken"
             ]
           },
           "claims": {
@@ -12933,6 +13136,9 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "mappedFrom": {
+            "$ref": "#/components/schemas/principalmappedfrom"
           },
           "name": {
             "description": "The name of the application.",
@@ -13018,6 +13224,28 @@
             "description": "The label format of the workload group set this application belongs to.",
             "example": "k8s:namespace=demo",
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "principalmappedfrom": {
+        "description": "Describes the source a principal was mapped from.",
+        "properties": {
+          "name": {
+            "description": "The name of the source, such as the AI gateway connector.",
+            "example": "apim-gateway",
+            "type": "string"
+          },
+          "namespace": {
+            "description": "The namespace of the source.",
+            "example": "/orgs/acme/gateways",
+            "type": "string"
+          },
+          "source": {
+            "description": "The kind of source the principal was mapped from.",
+            "enum": [
+              "AIGatewayConnector"
+            ]
           }
         },
         "type": "object"
@@ -13769,6 +13997,9 @@
               "$ref": "#/components/schemas/agentconfig"
             },
             "type": "array"
+          },
+          "agentScanArtifacts": {
+            "$ref": "#/components/schemas/agentscanartifacts"
           },
           "assignPolicy": {
             "description": "The computed assign policy.",
@@ -14867,7 +15098,7 @@
             "type": "boolean"
           },
           "subClaim": {
-            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources and `nameid` for SAML sources. A source where it resolves to\nnothing cannot serve an OpenID Connect request, as a3s has no subject to\nname.",
+            "description": "The name of the identity claim naming the subject this source\nauthenticates. a3s derives the OpenID Connect `sub` claim of its ID Tokens\nand userinfo responses from that claim's value. It defaults to `sub` for\nOIDC sources, `nameid` for SAML sources and `oid` for Entra sources. A\nsource where it resolves to nothing cannot serve an OpenID Connect\nrequest, as a3s has no subject to name.",
             "example": "sub",
             "type": "string"
           },
@@ -15402,20 +15633,20 @@
         "type": "object"
       },
       "sinkcheck": {
-        "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its\nstored configuration, or a complete webhook draft to test unsaved edits. A\ndraft must include the URL and every header value, because stored secrets are\nnever returned or reused. Checks never save configuration changes.",
+        "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its\nstored configuration, optionally with a webhook draft to test unsaved edits.\nA draft replaces the stored body and headers; an empty webhook URL keeps the\nstored URL, and an empty header value keeps the stored value of the header\nwith the same name, as long as the URL is kept. With a new URL, every header\nvalue must be given again, so a stored secret is never sent to another\naddress. Without an ID, supply a complete webhook with its URL. Checks never\nsave configuration changes.",
         "properties": {
           "message": {
             "description": "The result of the check.",
             "readOnly": true,
             "type": "string"
           },
-          "responseBody": {
-            "description": "The beginning of the response body of the destination, to help\ntroubleshooting. It is truncated.",
+          "renderedBody": {
+            "description": "The JSON body that was sent, rendered from the template with sample alert\ndata. It never holds a secret.",
             "readOnly": true,
             "type": "string"
           },
           "sinkID": {
-            "description": "The saved sink to test with its stored configuration.",
+            "description": "The saved sink used as the default destination and credential source for\nthe check.",
             "type": "string"
           },
           "status": {
@@ -15558,12 +15789,12 @@
         "description": "Additional configuration for sending an alert to a generic webhook. The\nalert is sent as an HTTP POST, with a JSON body built from a template.\nThe webhook URL and the header values are secrets: they are write only and\nare never returned.",
         "properties": {
           "body": {
-            "description": "The JSON body to send, as a Go template. It must render valid JSON of at\nmost 64 KiB. Variables are written like {{.alert.severity}}. Their values\nare escaped for the inside of a JSON string, so put them inside quotes;\nonly .alert.counter and the event .attempts are numbers that can be\nused without quotes.\n\nThe alert variables are .alert.id, .alert.name, .alert.friendlyName,\n.alert.severity, .alert.message, .alert.url, .alert.counter,\n.alert.start, .alert.end and .alert.triggerCriteria. The platform\nvariable is .platform.host.\n\n.events lists up to 10 events, for {{range .events}}...{{end}}. Every event\nhas .type (User, App or DataSink), .timestamp, .provider, .teams, .user,\n.name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,\n.runID, .backfillID, .attempts, .reason and .description. The ones that\ndo not apply to the type of the event are empty. Inside a range, use\n$.alert or $.platform to reach the other variables.\n\nA range can only iterate over a field, such as .events or .teams, and can\nbe nested twice. The template and block actions are not supported.",
-            "example": "{\"summary\": \"Acuvity alert: {{.alert.friendlyName}}\", \"severity\": \"{{.alert.severity}}\", \"description\": \"{{.alert.message}}\"}",
+            "description": "The JSON body to send, as a Go template. It must render valid JSON of at\nmost 64 KiB. Variables are written like {{.alert.alertDefinition.severity}}.\nTheir values are escaped for the inside of a JSON string, so put them\ninside quotes; only the numbers (.alert.counter, .occurrences and\n.attempts) can be used without quotes.\n\nThe alert has the names of the Alerts API: .alert.ID, .alert.counter,\n.alert.start, .alert.end and .alert.alertDefinition, which has .name,\n.friendlyName, .severity, .message and .trigger (.occurrences and\n.interval). .alert.url is the link to the alert, and .platform.host is the\nhost of the platform.\n\n.alert.alertEvents lists up to 10 events, for\n{{range .alert.alertEvents}}...{{end}}. Each has .provider, .timestamp and\n.principal, which has .type, .teams, .user.name, .app.name and\n.app.component. .alert.dataSinkEvents lists the events of data sinks. Each\nhas .dataSinkID, .dataSinkName, .dataset, .kind, .status, .runID,\n.backfillID, .attempts, .reason and .timestamp.\n\nA field without a value is empty, such as .principal.user.name of an app.\nInside a range, use $.alert or $.platform to reach the other variables.",
+            "example": "{\"summary\": \"Acuvity alert: {{.alert.alertDefinition.friendlyName}}\", \"severity\": \"{{.alert.alertDefinition.severity}}\", \"description\": \"{{.alert.alertDefinition.message}}\"}",
             "type": "string"
           },
           "headers": {
-            "description": "The HTTP headers to send with the request. Content-Type defaults to\napplication/json when not set.",
+            "description": "The HTTP headers to send with the request. Content-Type defaults to\napplication/json when not set. There can be at most 20 headers, with\ndistinct names. Host, Content-Length, Transfer-Encoding and Connection\ncannot be set.",
             "items": {
               "$ref": "#/components/schemas/sinkwebhookheader"
             },
@@ -17024,6 +17255,37 @@
         ],
         "type": "object"
       },
+      "webhookappcomponentmapping": {
+        "description": "Maps the calls a webhook integration receives onto the app component that made\nthem. The integration's script derives variables from the call (token claims,\nthe gateway's own credential, request headers, body fields), and the mappings\nare evaluated in order against them. The first mapping whose match holds names\nthe app component the call runs as.",
+        "properties": {
+          "appComponent": {
+            "description": "The app component the matching calls run as, written project:app/component.\nThe call is then evaluated under the policies of that app component in that\nproject.\n\nIt is a Go template, so the app component can be taken from the call's\nvariables. Besides the built-in functions it provides:\n\n- `var NAME`: the single value of the variable NAME. It fails when the\n  variable is missing or has several values.\n- `vars NAME`: all values of the variable NAME as a list, empty when it is\n  missing, for use with index, range or len.\n- `matched NAME`: the value of the variable NAME that made the match of this\n  mapping hold. Only the first inner list of match that holds counts, and\n  only its entries for NAME. It fails unless exactly one value matched them.\n  It picks the right value of a variable with several values, such as roles.\n- `regex PATTERN VALUE`: the first capture group of PATTERN in VALUE, or the\n  whole match when PATTERN has no group. It fails when VALUE does not match.\n- `regexReplace PATTERN REPLACEMENT VALUE`: VALUE with the match of PATTERN\n  replaced by REPLACEMENT, which can refer to capture groups as $1. It fails\n  when VALUE does not match.\n\nA piped value is passed as the last argument, so the value of a variable can\nbe piped into regex or regexReplace. Patterns are best written as raw\nstrings between backticks. Variable names contain colons, so they cannot be\naccessed as fields.\n\nWhen the template fails, or renders something that is not written\nproject:app/component, the call is handled like one whose app component does\nnot exist. A value that has no template actions must already be written\nproject:app/component.",
+            "example": "billing:invoicing/agent",
+            "type": "string"
+          },
+          "match": {
+            "description": "The calls this mapping applies to, written as key=value entries where the key\nis the name of one of the integration's variables. The outer list is OR and\neach inner list is AND, so the mapping applies when all entries of any one\ninner list hold for the call. An entry holds when any value of its variable\nmatches its value, so a variable with several values, such as roles, holds\nfor each of them. In the value, * matches any run of characters, and nothing\nelse is special; key=* holds whenever the variable is present. Keys are\nexact and start with an alphanumeric character. Header variables are named\nheader:\u003clowercased name\u003e, and variables whose values the vendor did not\nverify are prefixed unverified:, since any client can set them.",
+            "example": [
+              [
+                "apim:subscription_id=sub-1",
+                "entra:agent_app_id=3f2a9c1e-0000-4000-8000-000000000000"
+              ]
+            ],
+            "items": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "appComponent",
+          "match"
+        ],
+        "type": "object"
+      },
       "webhookextractor": {
         "description": "A webhook extractor handles one route of a webhook integration. It is to a\nwebhook integration what an extractor is to a provider: the method and path\nselect it, and the lua script does the work.\nUnlike a provider extractor it never sees an upstream response, so both\ndirections of one vendor call arrive on the same route as inbound requests,\nand it is the payload that says which one it is. The script therefore reports\nwhat the call is about rather than having it configured here.\nReusable helper code belongs in an extractorlib, referenced through libs, or\nin the lib of the integration.",
         "properties": {
@@ -17084,8 +17346,8 @@
             "type": "string"
           },
           "script": {
-            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nUnlike a provider extractor, each of the functions below runs in its own\nfresh sandbox. Nothing a script leaves in a global or a local survives from\none to the next. What does carry over is the call itself, because `input`\nreads the same request in all of them, and whatever the script chooses to\nreturn as `state`.\n\nIt must contain a top level function called `webhook_input()` taking no\nparameters. It returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `encryptionIngress` and `encryptionEgress`: tables with `TLSVersion`\n  and `cipherSuite`, and optionally `ALPNNegotiatedProtocol` and\n  `implementation`. They describe the TLS of the inspected traffic's\n  client-side and upstream-side legs, not of the vendor's call to us.\n- `encryptionIngressState` and `encryptionEgressState`: `Unknown`,\n  `Unencrypted` or `Encrypted`. They default to `Unknown`, or to\n  `Encrypted` when the matching TLS table is given. `Unencrypted`\n  together with a TLS table is rejected.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n- `state`: anything at all, handed back to `webhook_output()` and\n  `webhook_error()` as the same kind of value it was returned as, so a table\n  comes back a table. It is never read or validated. This is how a script\n  maps a verdict back onto the exact place it came from in the vendor's\n  payload, without the bookkeeping that produced it having to be derived\n  twice.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It takes the result as its first\nparameter and the `state` returned by `webhook_input()` as its second. That\n`state` is nil when `webhook_input()` returned none, which is also the case\nwhen it reported nothing to inspect and the action is therefore\n`NotApplicable`. The result is a table containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nLike `webhook_output()` it takes the `state` returned by `webhook_input()`\nas its second parameter, which is nil when the failure happened before the\nscript could produce one. Its first parameter is a table describing the\nfailure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: whether this failure is to be treated as a rejection, so a\n  script may answer the vendor's equivalent of 'reject' or of 'no\n  objection' accordingly. When a stage of the pass failed, this is what the\n  access policy that was evaluated configured, which is also what the\n  logged round-trip records. For a failure that never reached a policy, and\n  on a Scan route, it is what the connector configured.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the fail close behavior\nthe connector configured, when the script could not be run at all.",
-            "example": "function webhook_input()\n  local body = json.decode(input.body())\n  return {\n    type = \"input\",\n    model = body.model,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n    state = {sent = body.texts[1]},\n  }\nend\n\nfunction webhook_output(result, state)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  local redacted = result.redactions[\"t0\"]\n  if state and redacted and redacted ~= state.sent then\n    return {body = json.encode({action = \"GUARDRAIL_INTERVENED\", texts = {redacted}})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err, state)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
+            "description": "The lua code that runs this route. It has the same globals as a provider\nextractor script, so the incoming call is read through `input`.\n\nUnlike a provider extractor, each of the functions below runs in its own\nfresh sandbox. Nothing a script leaves in a global or a local survives from\none to the next. What does carry over is the call itself, because `input`\nreads the same request in all of them, and whatever the script chooses to\nreturn as `state`.\n\nIt must contain a top level function called `webhook_input(settings)`.\n`settings` is the effective settings map of the integration (its declared\ndefaults overridden by the connector's values), never nil, with string values.\nIt returns nil or an empty table when there is nothing to\ninspect, in which case no scan or police pass runs. Otherwise it returns a\ntable containing:\n\n- `type`: `input` or `output`. Required.\n- `direction`: `egress` or `ingress`. Defaults to `egress`.\n- `model`: the model the call is addressed to. The provider is resolved\n  from it unless `provider` or `destination` is given.\n- `provider`: names the policy target explicitly.\n- `destination`: a table with `app` and `component`, and optional `host`\n  and `port`. Mutually exclusive with `provider`.\n- `conversationID`: groups the calls of one conversation in the logs.\n- `trace`: a table with `traceID` and optional `parentSpanID`.\n- `user`: a table with `username` and a list of `claims`.\n- `annotations`: a table of string keys and values recorded on the log.\n- `encryptionIngress` and `encryptionEgress`: tables with `TLSVersion`\n  and `cipherSuite`, and optionally `ALPNNegotiatedProtocol` and\n  `implementation`. They describe the TLS of the inspected traffic's\n  client-side and upstream-side legs, not of the vendor's call to us.\n- `encryptionIngressState` and `encryptionEgressState`: `Unknown`,\n  `Unencrypted` or `Encrypted`. They default to `Unknown`, or to\n  `Encrypted` when the matching TLS table is given. `Unencrypted`\n  together with a TLS table is rejected.\n- `extractions`: the list of things to inspect. Each entry has a `luaID`\n  that identifies it in the result handed to `webhook_output()`, its\n  `content`, and optionally `role`, `kind`, `isFile`, `annotations`,\n  `toolUses` and `toolResults`.\n- `tools`: the tools advertised by the call, keyed by name.\n- `analyzers` and `redactions`: only honored when mode is Scan, where no\n  policy runs to decide them. The script owns them because both follow from\n  what this payload carries and from what the vendor accepts back.\n- `variables`: what the script derived from the call, as a list of\n  `key=value` strings, such as claims of a token, the gateway's own\n  credential, request headers or body fields. A variable with several values,\n  such as roles, is listed once per value. Keys start with an alphanumeric\n  character and contain neither `=` nor spaces, and a variable without a\n  value is left out; an entry that breaks these rules is answered through\n  `webhook_error()` with stage `Target`. The integration documents its\n  variables in its `variables`. When the caller authenticated with an AI\n  gateway connector token, the connector's app component mappings are\n  evaluated against them to pick the app component the call runs as;\n  otherwise they are not used. The script needs no knowledge of either.\n- `state`: anything at all, handed back to `webhook_output()` and\n  `webhook_error()` as the same kind of value it was returned as, so a table\n  comes back a table. It is never read or validated. This is how a script\n  maps a verdict back onto the exact place it came from in the vendor's\n  payload, without the bookkeeping that produced it having to be derived\n  twice.\n\nIt must also contain a top level function called `webhook_output()`, which\nbuilds the answer this route sends back. It takes the result as its first\nparameter, the `state` returned by `webhook_input()` as its second, and the\nsame `settings` as `webhook_input()` as its third. That\n`state` is nil when `webhook_input()` returned none, which is also the case\nwhen it reported nothing to inspect and the action is therefore\n`NotApplicable`. The result is a table containing:\n\n- `action`: the decision.\n- `permissive`: true when the decision must not be enforced.\n- `reasons`: a list of tables with keys `reason` and `link`.\n- `redactions`: the redacted content, keyed by `luaID`.\n- `decisions`: per `luaID`, a table with `action` and `reasons`.\n- `extractions`: per `luaID`, the resulting extraction with its `data` and\n  its detections.\n\nIt must return a table containing the following keys:\n\n- `code`: the HTTP status code as a number. Defaults to 200. Third-party\n  products commonly ignore it and only read the body, so a rejection\n  usually still has to be a 200.\n- `content_type`: the Content-Type as a string. Defaults to\n  `application/json`.\n- `body`: the response body as a string.\n\nIt must also contain a top level function called `webhook_error()`, called\ninstead of `webhook_output()` whenever a stage of the pass failed and\nthere is therefore no verdict to report. A provider can let such a failure\nbecome a plain HTTP error, but a webhook cannot: a vendor does not read an\nHTTP error as a verdict, and will fall back to whatever its own\nconfiguration says instead of to what this deployment decided. What to\nanswer when we cannot answer is part of an integration's contract, not\nsomething to be inferred, which is why it is required rather than optional.\nLike `webhook_output()` it takes the `state` returned by `webhook_input()`\nas its second parameter, which is nil when the failure happened before the\nscript could produce one, and `settings` as its third. Its first parameter\nis a table describing the failure:\n\n- `stage`: where it happened. `Target` when no policy target could be\n  determined, otherwise the round-trip error stages (`Extraction`,\n  `Analysis`, `AccessPolicy`, `ContentPolicy`, `Redaction`) or `Timeout`.\n- `message`: the error.\n- `failClose`: whether this failure is to be treated as a rejection, so a\n  script may answer the vendor's equivalent of 'reject' or of 'no\n  objection' accordingly. When a stage of the pass failed, this is what the\n  access policy that was evaluated configured, which is also what the\n  logged round-trip records. For a failure that never reached a policy, and\n  on a Scan route, it is what the connector configured.\n\nIt returns the same table `webhook_output()` does. The engine only answers\na failure on its own, generically and according to the fail close behavior\nthe connector configured, when the script could not be run at all.",
+            "example": "function webhook_input(settings)\n  local body = json.decode(input.body())\n  local variables = {}\n  if body.team then\n    table.insert(variables, \"litellm:team_alias=\" .. body.team)\n  end\n  return {\n    type = \"input\",\n    model = body.model,\n    variables = variables,\n    extractions = {\n      {luaID = \"t0\", content = body.texts[1], role = \"User\"},\n    },\n    state = {sent = body.texts[1]},\n  }\nend\n\nfunction webhook_output(result, state, settings)\n  if result.action == \"Deny\" then\n    return {body = json.encode({action = \"BLOCKED\"})}\n  end\n  local redacted = result.redactions[\"t0\"]\n  if state and redacted and redacted ~= state.sent then\n    return {body = json.encode({action = \"GUARDRAIL_INTERVENED\", texts = {redacted}})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend\n\nfunction webhook_error(err, state, settings)\n  if err.failClose then\n    return {body = json.encode({action = \"BLOCKED\", blocked_reason = err.message})}\n  end\n  return {body = json.encode({action = \"NONE\"})}\nend",
             "type": "string"
           }
         },
@@ -17159,11 +17421,25 @@
             "description": "Propagates the object to all child namespaces. This is always true.",
             "type": "boolean"
           },
+          "settings": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/webhookintegrationsetting"
+            },
+            "description": "The settings this integration supports, keyed by setting name, each with\nwhat it does, its default value and, optionally, a regular expression its\nvalues must match. A connector's settings override the defaults; a setting a\nconnector sets that is not declared here is not part of this integration and\nits scripts ignore it. The scripts receive the defaults overridden by the\nconnector's values.",
+            "type": "object"
+          },
           "updateTime": {
             "description": "Last update date of the object.",
             "format": "date-time",
             "readOnly": true,
             "type": "string"
+          },
+          "variables": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/webhookintegrationvariable"
+            },
+            "description": "The variables this integration's scripts derive from a call, keyed by\nvariable name. The match of an app component mapping is written against\nthem. It documents the integration and lets a client suggest variables and\nwarn about ones the integration does not know; it is not enforced.",
+            "type": "object"
           },
           "vendorURL": {
             "description": "URL to the vendor's documentation for this integration point.",
@@ -17179,6 +17455,13 @@
       "webhookintegrationconf": {
         "description": "The rendered webhook integration shape consumed by the AI Gateway.",
         "properties": {
+          "appComponentMappings": {
+            "description": "How a call made with an AI gateway connector token is mapped onto the app\ncomponent that made it. The mappings are evaluated in order against the\nvariables the integration's script derived from the call, and the first whose\nmatch holds names the app component. When none matches, fallbackAppComponent\napplies. Two mappings must not have the same appComponent. It has no effect\nfor calls authenticated any other way.",
+            "items": {
+              "$ref": "#/components/schemas/webhookappcomponentmapping"
+            },
+            "type": "array"
+          },
           "extractors": {
             "description": "The routes of this integration. Each one serves a method and a path under\nthe route of the connector the integration is attached to.",
             "items": {
@@ -17188,6 +17471,15 @@
           },
           "failClose": {
             "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
+          },
+          "fallbackAppComponent": {
+            "description": "The app component, written project:app/component, a call made with an AI\ngateway connector token runs as when no app component mapping matched. When\nfallbackMappingOnError is set, it is also used when a mapping matched but its\nappComponent failed to render or names an app component that does not exist.\nWhen it is not set and nothing matched, the call fails.",
+            "example": "shared:gateway/default",
+            "type": "string"
+          },
+          "fallbackMappingOnError": {
+            "description": "If true, a call whose matching mapping's appComponent fails to render or names\nan app component that does not exist runs as fallbackAppComponent instead of\nfailing. It has no effect unless fallbackAppComponent is set.",
             "type": "boolean"
           },
           "lib": {
@@ -17218,6 +17510,16 @@
             "description": "If true, and redactContent is also true, the user data is kept in the\nlogged roundtrip whenever the analysis reports a violation, so the content\nbehind a finding stays available for review. It has no effect on its own,\nand like redactContent it only applies to Scan-mode routes.",
             "type": "boolean"
           },
+          "settings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The effective settings of the integration: the defaults it declares, overridden\nby the values the connector sets. This is the map the integration's scripts\nreceive.",
+            "example": {
+              "responseInspection": "nonStreaming"
+            },
+            "type": "object"
+          },
           "timeout": {
             "description": "How long a call may take in total, including the scan or police pass. When\nit elapses, the call is answered according to failClose. When empty, the\nsystem default applies.",
             "example": "10s",
@@ -17227,10 +17529,26 @@
         "type": "object"
       },
       "webhookintegrationconfig": {
-        "description": "Configures how a webhook integration behaves on the AI Gateway connector it is\nattached to. It configures what happens when a call cannot be evaluated and\nwhat of its content is kept in the logs. Two connectors can run the same\nintegration with different settings. When it is not set, the defaults apply.",
+        "description": "Configures how a webhook integration behaves on the AI Gateway connector it is\nattached to. It configures what happens when a call cannot be evaluated and\nwhat of its content is kept in the logs. Two connectors can run the same\nintegration with different settings. When it is not set, the defaults apply.\nIt also holds the values of the integration's settings, and how callers\nauthenticated with an AI gateway connector token are mapped onto the app\ncomponent that made the call.",
         "properties": {
+          "appComponentMappings": {
+            "description": "How a call made with an AI gateway connector token is mapped onto the app\ncomponent that made it. The mappings are evaluated in order against the\nvariables the integration's script derived from the call, and the first whose\nmatch holds names the app component. When none matches, fallbackAppComponent\napplies. Two mappings must not have the same appComponent. It has no effect\nfor calls authenticated any other way.",
+            "items": {
+              "$ref": "#/components/schemas/webhookappcomponentmapping"
+            },
+            "type": "array"
+          },
           "failClose": {
             "description": "If true, when any non-user-facing platform stage fails during request\nhandling (extractor, mapper, analyzer, content policy, body read, etc.),\nthe request is rejected. When false (default), the request is allowed\nthrough unanalyzed (fail-open), trading safety for availability.\nUser-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected\nand continue to be enforced. Default false.",
+            "type": "boolean"
+          },
+          "fallbackAppComponent": {
+            "description": "The app component, written project:app/component, a call made with an AI\ngateway connector token runs as when no app component mapping matched. When\nfallbackMappingOnError is set, it is also used when a mapping matched but its\nappComponent failed to render or names an app component that does not exist.\nWhen it is not set and nothing matched, the call fails.",
+            "example": "shared:gateway/default",
+            "type": "string"
+          },
+          "fallbackMappingOnError": {
+            "description": "If true, a call whose matching mapping's appComponent fails to render or names\nan app component that does not exist runs as fallbackAppComponent instead of\nfailing. It has no effect unless fallbackAppComponent is set.",
             "type": "boolean"
           },
           "redactContent": {
@@ -17240,8 +17558,76 @@
           "redactContentBypass": {
             "description": "If true, and redactContent is also true, the user data is kept in the\nlogged roundtrip whenever the analysis reports a violation, so the content\nbehind a finding stays available for review. It has no effect on its own,\nand like redactContent it only applies to Scan-mode routes.",
             "type": "boolean"
+          },
+          "settings": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "The values of the settings the webhook integration declares, keyed by setting\nname. A setting not given here keeps the integration's default. Values are\nstrings; each integration documents what its settings accept, booleans being\n`true` or `false`. When the integration gives a setting a validation, the\nvalue must match it.",
+            "example": {
+              "responseInspection": "nonStreaming"
+            },
+            "type": "object"
           }
         },
+        "type": "object"
+      },
+      "webhookintegrationsetting": {
+        "description": "Describes a setting a webhook integration supports: what it does, the value it\ntakes when a connector does not set it, and which values it accepts.",
+        "properties": {
+          "defaultValue": {
+            "description": "The value of the setting when a connector does not set it. Values are\nstrings the integration's scripts parse; booleans are `true` or `false`.\nAn empty string is a valid default. When validation is set, the default must\nmatch it, so a validation can also rule out an empty default.",
+            "example": "all",
+            "type": "string"
+          },
+          "description": {
+            "description": "A longer explanation of the setting, for when the short description is not\nenough, for example with the values it accepts and what each of them does.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the setting. It must be the key the setting is listed under,\nstart with an alphanumeric character and contain no spaces.",
+            "example": "responseInspection",
+            "type": "string"
+          },
+          "shortDescription": {
+            "description": "What the setting does, in one sentence.",
+            "example": "Which answers are inspected, all, nonStreaming or none.",
+            "type": "string"
+          },
+          "validation": {
+            "description": "If set, a regular expression the value a connector sets must match, so a\nclient can check a value before it is saved.",
+            "example": "^(all|nonStreaming|none)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "shortDescription"
+        ],
+        "type": "object"
+      },
+      "webhookintegrationvariable": {
+        "description": "Describes a variable the scripts of a webhook integration derive from a call,\nsuch as a claim of a token, the gateway's own credential, a request header or\na body field.",
+        "properties": {
+          "description": {
+            "description": "A longer explanation of the variable, for when the short description is not\nenough, for example with links to the vendor's documentation.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The name of the variable. It must be the key the variable is listed under,\nstart with an alphanumeric character and contain neither = nor spaces. A\nname may use * to match any run of characters, for variables whose exact\nname is the user's choice, such as a header name. Header variables are named\nheader:\u003clowercased name\u003e, and variables whose values the vendor did not\nverify are prefixed unverified:, since any client can set them.",
+            "example": "litellm:team_alias",
+            "type": "string"
+          },
+          "shortDescription": {
+            "description": "What the variable is, in one sentence, including whether the vendor verified\nit.",
+            "example": "The alias of the virtual key's team.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "shortDescription"
+        ],
         "type": "object"
       },
       "workload": {
@@ -17506,6 +17892,76 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/accesspolicy"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/activityloghints": {
+      "get": {
+        "description": "List the values of the activity logs for a key.",
+        "operationId": "get-all-ActivityLogHints",
+        "parameters": [
+          {
+            "description": "The key to list the values of.",
+            "example": "user",
+            "in": "query",
+            "name": "key",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/activityloghint"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
+    },
+    "/activitylogs": {
+      "get": {
+        "description": "List the activity logs.",
+        "operationId": "get-all-ActivityLogs",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/activitylog"
+                  },
+                  "type": "array"
                 }
               }
             },
@@ -18021,6 +18477,49 @@
           }
         }
       ]
+    },
+    "/agentscanartifacts": {
+      "get": {
+        "description": "Retrieves the agent scan artifacts.",
+        "operationId": "get-all-AgentScanArtifacts",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "If set, compute the agent scan artifacts again instead of reading the cache, and refresh the cache with the result.",
+            "in": "query",
+            "name": "refreshCache",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/agentscanartifacts"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "core"
+        ]
+      }
     },
     "/aiapps": {
       "get": {
@@ -22664,6 +23163,149 @@
         ]
       }
     },
+    "/entrasources": {
+      "get": {
+        "description": "List all entrasources.",
+        "operationId": "get-all-EntraSources",
+        "parameters": [
+          {
+            "description": "This is an example.",
+            "example": "hello == world",
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/entrasource"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "post": {
+        "description": "Creates a new entrasource.",
+        "operationId": "create-EntraSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/entrasource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/entrasource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
+    "/entrasources/{id}": {
+      "delete": {
+        "description": "Delete a particular entrasource object.",
+        "operationId": "delete-EntraSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/entrasource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "get": {
+        "description": "Get a particular entrasource object.",
+        "operationId": "get-EntraSource",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/entrasource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "put": {
+        "description": "Update a particular entrasource object.",
+        "operationId": "update-EntraSource",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/entrasource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/entrasource"
+                }
+              }
+            },
+            "description": "n/a"
+          }
+        },
+        "tags": [
+          "authn/source"
+        ]
+      }
+    },
     "/extractorlibs": {
       "get": {
         "description": "List all extractor libs.",
@@ -23742,6 +24384,15 @@
             "example": "Tier",
             "in": "query",
             "name": "key",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only returns the hints whose value contains this text, ignoring case.",
+            "example": "search",
+            "in": "query",
+            "name": "q",
             "schema": {
               "type": "string"
             }

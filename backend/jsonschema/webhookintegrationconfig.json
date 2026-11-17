@@ -9,12 +9,40 @@
   "$modelResourceName": "webhookintegrationconfigs",
   "$modelRestName": "webhookintegrationconfig",
   "additionalProperties": false,
-  "description": "Configures how a webhook integration behaves on the AI Gateway connector it is attached to. It configures what happens when a call cannot be evaluated and what of its content is kept in the logs. Two connectors can run the same integration with different settings. When it is not set, the defaults apply.",
+  "description": "Configures how a webhook integration behaves on the AI Gateway connector it is attached to. It configures what happens when a call cannot be evaluated and what of its content is kept in the logs. Two connectors can run the same integration with different settings. When it is not set, the defaults apply. It also holds the values of the integration's settings, and how callers authenticated with an AI gateway connector token are mapped onto the app component that made the call.",
   "properties": {
+    "appComponentMappings": {
+      "$friendlyName": "App Component Mappings",
+      "description": "How a call made with an AI gateway connector token is mapped onto the app component that made it. The mappings are evaluated in order against the variables the integration's script derived from the call, and the first whose match holds names the app component. When none matches, fallbackAppComponent applies. Two mappings must not have the same appComponent. It has no effect for calls authenticated any other way.",
+      "items": {
+        "$ref": "webhookappcomponentmapping.json"
+      },
+      "title": "appComponentMappings",
+      "type": "array"
+    },
     "failClose": {
       "$friendlyName": "Fail Close",
       "description": "If true, when any non-user-facing platform stage fails during request handling (extractor, mapper, analyzer, content policy, body read, etc.), the request is rejected. When false (default), the request is allowed through unanalyzed (fail-open), trading safety for availability. User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected and continue to be enforced. Default false.",
       "title": "failClose",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "fallbackAppComponent": {
+      "$friendlyName": "Fallback App Component",
+      "description": "The app component, written project:app/component, a call made with an AI gateway connector token runs as when no app component mapping matched. When fallbackMappingOnError is set, it is also used when a mapping matched but its appComponent failed to render or names an app component that does not exist. When it is not set and nothing matched, the call fails.",
+      "pattern": "(^[a-zA-Z0-9-_@.]+:[a-zA-Z0-9-_]+/[a-zA-Z0-9-_]+$)?",
+      "title": "fallbackAppComponent",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "fallbackMappingOnError": {
+      "$friendlyName": "Fallback Mapping On Error",
+      "description": "If true, a call whose matching mapping's appComponent fails to render or names an app component that does not exist runs as fallbackAppComponent instead of failing. It has no effect unless fallbackAppComponent is set.",
+      "title": "fallbackMappingOnError",
       "type": [
         "boolean",
         "null"
@@ -37,6 +65,15 @@
         "boolean",
         "null"
       ]
+    },
+    "settings": {
+      "$friendlyName": "Settings",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The values of the settings the webhook integration declares, keyed by setting name. A setting not given here keeps the integration's default. Values are strings; each integration documents what its settings accept, booleans being `true` or `false`. When the integration gives a setting a validation, the value must match it.",
+      "title": "settings",
+      "type": "object"
     }
   },
   "required": [],

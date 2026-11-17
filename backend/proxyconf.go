@@ -109,6 +109,9 @@ type ProxyConf struct {
 	// The agent configurations.
 	AgentConfigs AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
+	// The apps and the processes the agent scanner looks for.
+	AgentScanArtifacts *AgentScanArtifacts `json:"agentScanArtifacts,omitempty" msgpack:"agentScanArtifacts,omitempty" bson:"-" mapstructure:"agentScanArtifacts,omitempty"`
+
 	// The computed assign policy.
 	AssignPolicy string `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"-" mapstructure:"assignPolicy,omitempty"`
 
@@ -282,6 +285,7 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			PACConfigs:          &o.PACConfigs,
 			AccessPolicy:        &o.AccessPolicy,
 			AgentConfigs:        &o.AgentConfigs,
+			AgentScanArtifacts:  o.AgentScanArtifacts,
 			AssignPolicy:        &o.AssignPolicy,
 			ContentPolicy:       &o.ContentPolicy,
 			CustomDataTypes:     &o.CustomDataTypes,
@@ -319,6 +323,8 @@ func (o *ProxyConf) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.AccessPolicy = &(o.AccessPolicy)
 		case "agentConfigs":
 			sp.AgentConfigs = &(o.AgentConfigs)
+		case "agentScanArtifacts":
+			sp.AgentScanArtifacts = o.AgentScanArtifacts
 		case "assignPolicy":
 			sp.AssignPolicy = &(o.AssignPolicy)
 		case "contentPolicy":
@@ -385,6 +391,9 @@ func (o *ProxyConf) Patch(sparse elemental.SparseIdentifiable) {
 	}
 	if so.AgentConfigs != nil {
 		o.AgentConfigs = *so.AgentConfigs
+	}
+	if so.AgentScanArtifacts != nil {
+		o.AgentScanArtifacts = so.AgentScanArtifacts
 	}
 	if so.AssignPolicy != nil {
 		o.AssignPolicy = *so.AssignPolicy
@@ -487,6 +496,12 @@ func (o *ProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.EncryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	if o.AgentScanArtifacts != nil {
+		if err := o.AgentScanArtifacts.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgentScanArtifacts' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -628,6 +643,12 @@ func (o *ProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (e
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	if o.AgentScanArtifacts != nil {
+		if err := o.AgentScanArtifacts.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgentScanArtifacts' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -807,6 +828,13 @@ func (o *ProxyConf) Validate() error {
 		}
 	}
 
+	if o.AgentScanArtifacts != nil {
+		if err := o.AgentScanArtifacts.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "agentScanArtifacts")
+			errors = errors.Append(err)
+		}
+	}
+
 	for i, sub := range o.CustomDataTypes {
 		if sub == nil {
 			continue
@@ -948,6 +976,8 @@ func (o *ProxyConf) ValueForAttribute(name string) any {
 		return o.AccessPolicy
 	case "agentConfigs":
 		return o.AgentConfigs
+	case "agentScanArtifacts":
+		return o.AgentScanArtifacts
 	case "assignPolicy":
 		return o.AssignPolicy
 	case "contentPolicy":
@@ -1062,6 +1092,15 @@ resolved access and content policies.`,
 		Name:           "agentConfigs",
 		SubType:        "agentconfig",
 		Type:           "refList",
+	},
+	"AgentScanArtifacts": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AgentScanArtifacts",
+		Description:    `The apps and the processes the agent scanner looks for.`,
+		Exposed:        true,
+		Name:           "agentScanArtifacts",
+		SubType:        "agentscanartifacts",
+		Type:           "ref",
 	},
 	"AssignPolicy": {
 		AllowedChoices: []string{},
@@ -1286,6 +1325,15 @@ resolved access and content policies.`,
 		Name:           "agentConfigs",
 		SubType:        "agentconfig",
 		Type:           "refList",
+	},
+	"agentscanartifacts": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AgentScanArtifacts",
+		Description:    `The apps and the processes the agent scanner looks for.`,
+		Exposed:        true,
+		Name:           "agentScanArtifacts",
+		SubType:        "agentscanartifacts",
+		Type:           "ref",
 	},
 	"assignpolicy": {
 		AllowedChoices: []string{},
@@ -1519,6 +1567,9 @@ type SparseProxyConf struct {
 	// The agent configurations.
 	AgentConfigs *AgentConfigsList `json:"agentConfigs,omitempty" msgpack:"agentConfigs,omitempty" bson:"-" mapstructure:"agentConfigs,omitempty"`
 
+	// The apps and the processes the agent scanner looks for.
+	AgentScanArtifacts *AgentScanArtifacts `json:"agentScanArtifacts,omitempty" msgpack:"agentScanArtifacts,omitempty" bson:"-" mapstructure:"agentScanArtifacts,omitempty"`
+
 	// The computed assign policy.
 	AssignPolicy *string `json:"assignPolicy,omitempty" msgpack:"assignPolicy,omitempty" bson:"-" mapstructure:"assignPolicy,omitempty"`
 
@@ -1676,6 +1727,9 @@ func (o *SparseProxyConf) ToPlain() elemental.PlainIdentifiable {
 	if o.AgentConfigs != nil {
 		out.AgentConfigs = *o.AgentConfigs
 	}
+	if o.AgentScanArtifacts != nil {
+		out.AgentScanArtifacts = o.AgentScanArtifacts
+	}
 	if o.AssignPolicy != nil {
 		out.AssignPolicy = *o.AssignPolicy
 	}
@@ -1791,6 +1845,12 @@ func (o *SparseProxyConf) EncryptAttributes(encrypter elemental.AttributeEncrypt
 			if err := sub.EncryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to encrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.AgentScanArtifacts != nil {
+		if err := o.AgentScanArtifacts.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'AgentScanArtifacts' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -1958,6 +2018,12 @@ func (o *SparseProxyConf) DecryptAttributes(encrypter elemental.AttributeEncrypt
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'AgentConfigs' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 			}
+		}
+	}
+
+	if o.AgentScanArtifacts != nil {
+		if err := o.AgentScanArtifacts.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'AgentScanArtifacts' for 'ProxyConf' (%s): %w", o.Identifier(), err)
 		}
 	}
 

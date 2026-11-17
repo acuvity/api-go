@@ -8,15 +8,18 @@ import "go.acuvity.ai/elemental"
 var (
 	identityNamesMap = map[string]elemental.Identity{
 
-		"accesspolicy": AccessPolicyIdentity,
+		"accesspolicy":    AccessPolicyIdentity,
+		"activitylog":     ActivityLogIdentity,
+		"activityloghint": ActivityLogHintIdentity,
 
 		"adminlicense": AdminLicenseIdentity,
 
 		"agent":       AgentIdentity,
 		"agentconfig": AgentConfigIdentity,
 
-		"agentdiscovery": AgentDiscoveryIdentity,
-		"aiapp":          AIAppIdentity,
+		"agentdiscovery":     AgentDiscoveryIdentity,
+		"agentscanartifacts": AgentScanArtifactsIdentity,
+		"aiapp":              AIAppIdentity,
 
 		"aidomain":        AIDomainIdentity,
 		"aidomainlookup":  AIDomainLookupIdentity,
@@ -92,6 +95,7 @@ var (
 
 		"endpointpolicy": EndpointPolicyIdentity,
 
+		"entrasource":      EntraSourceIdentity,
 		"errortransformer": ErrorTransformerIdentity,
 
 		"extractor":    ExtractorIdentity,
@@ -154,9 +158,10 @@ var (
 		"principal":         PrincipalIdentity,
 		"principalapp":      PrincipalAppIdentity,
 		"principalexternal": PrincipalExternalIdentity,
-		"principaluser":     PrincipalUserIdentity,
-		"project":           ProjectIdentity,
-		"provider":          ProviderIdentity,
+
+		"principaluser": PrincipalUserIdentity,
+		"project":       ProjectIdentity,
+		"provider":      ProviderIdentity,
 
 		"providerhostsoverride": ProviderHostsOverrideIdentity,
 
@@ -223,15 +228,18 @@ var (
 
 	identitycategoriesMap = map[string]elemental.Identity{
 
-		"accesspolicies": AccessPolicyIdentity,
+		"accesspolicies":   AccessPolicyIdentity,
+		"activitylogs":     ActivityLogIdentity,
+		"activityloghints": ActivityLogHintIdentity,
 
 		"adminlicenses": AdminLicenseIdentity,
 
 		"agents":       AgentIdentity,
 		"agentconfigs": AgentConfigIdentity,
 
-		"agentdiscoveries": AgentDiscoveryIdentity,
-		"aiapps":           AIAppIdentity,
+		"agentdiscoveries":   AgentDiscoveryIdentity,
+		"agentscanartifacts": AgentScanArtifactsIdentity,
+		"aiapps":             AIAppIdentity,
 
 		"aidomains":        AIDomainIdentity,
 		"aidomainlookups":  AIDomainLookupIdentity,
@@ -307,6 +315,7 @@ var (
 
 		"endpointpolicies": EndpointPolicyIdentity,
 
+		"entrasources":      EntraSourceIdentity,
 		"errortransformers": ErrorTransformerIdentity,
 
 		"extractors":    ExtractorIdentity,
@@ -369,9 +378,10 @@ var (
 		"principals":         PrincipalIdentity,
 		"principalapps":      PrincipalAppIdentity,
 		"principalexternals": PrincipalExternalIdentity,
-		"principalusers":     PrincipalUserIdentity,
-		"projects":           ProjectIdentity,
-		"providers":          ProviderIdentity,
+
+		"principalusers": PrincipalUserIdentity,
+		"projects":       ProjectIdentity,
+		"providers":      ProviderIdentity,
 
 		"providerhostsoverrides": ProviderHostsOverrideIdentity,
 
@@ -446,7 +456,12 @@ var (
 			{"namespace", "importLabel"},
 			{"namespace", "name"},
 		},
-		"adminlicense": nil,
+		"activitylog": {
+			{"namespace"},
+			{"namespace", "ID"},
+		},
+		"activityloghint": nil,
+		"adminlicense":    nil,
 		"agent": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -466,6 +481,7 @@ var (
 			{"namespace", "ID"},
 			{"namespace", "importLabel"},
 		},
+		"agentscanartifacts": nil,
 		"aiapp": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
@@ -699,6 +715,13 @@ var (
 		},
 		"digestreportrequest": nil,
 		"endpointpolicy": {
+			{":shard", ":unique", "zone", "zHash"},
+			{"namespace"},
+			{"namespace", "ID"},
+			{"namespace", "importLabel"},
+			{"namespace", "name"},
+		},
+		"entrasource": {
 			{":shard", ":unique", "zone", "zHash"},
 			{"namespace"},
 			{"namespace", "ID"},
@@ -1186,6 +1209,10 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 
 	case AccessPolicyIdentity:
 		return NewAccessPolicy()
+	case ActivityLogIdentity:
+		return NewActivityLog()
+	case ActivityLogHintIdentity:
+		return NewActivityLogHint()
 	case AdminLicenseIdentity:
 		return NewAdminLicense()
 	case AgentIdentity:
@@ -1194,6 +1221,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewAgentDiscovery()
+	case AgentScanArtifactsIdentity:
+		return NewAgentScanArtifacts()
 	case AIAppIdentity:
 		return NewAIApp()
 	case AIDomainIdentity:
@@ -1298,6 +1327,8 @@ func (f modelManager) Identifiable(identity elemental.Identity) elemental.Identi
 		return NewDigestReportRequest()
 	case EndpointPolicyIdentity:
 		return NewEndpointPolicy()
+	case EntraSourceIdentity:
+		return NewEntraSource()
 	case ErrorTransformerIdentity:
 		return NewErrorTransformer()
 	case ExtractorIdentity:
@@ -1497,6 +1528,10 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 
 	case AccessPolicyIdentity:
 		return NewSparseAccessPolicy()
+	case ActivityLogIdentity:
+		return NewSparseActivityLog()
+	case ActivityLogHintIdentity:
+		return NewSparseActivityLogHint()
 	case AdminLicenseIdentity:
 		return NewSparseAdminLicense()
 	case AgentIdentity:
@@ -1505,6 +1540,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseAgentConfig()
 	case AgentDiscoveryIdentity:
 		return NewSparseAgentDiscovery()
+	case AgentScanArtifactsIdentity:
+		return NewSparseAgentScanArtifacts()
 	case AIAppIdentity:
 		return NewSparseAIApp()
 	case AIDomainIdentity:
@@ -1609,6 +1646,8 @@ func (f modelManager) SparseIdentifiable(identity elemental.Identity) elemental.
 		return NewSparseDigestReportRequest()
 	case EndpointPolicyIdentity:
 		return NewSparseEndpointPolicy()
+	case EntraSourceIdentity:
+		return NewSparseEntraSource()
 	case ErrorTransformerIdentity:
 		return NewSparseErrorTransformer()
 	case ExtractorIdentity:
@@ -1816,6 +1855,10 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 
 	case AccessPolicyIdentity:
 		return &AccessPoliciesList{}
+	case ActivityLogIdentity:
+		return &ActivityLogsList{}
+	case ActivityLogHintIdentity:
+		return &ActivityLogHintsList{}
 	case AdminLicenseIdentity:
 		return &AdminLicensesList{}
 	case AgentIdentity:
@@ -1824,6 +1867,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &AgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &AgentDiscoveriesList{}
+	case AgentScanArtifactsIdentity:
+		return &AgentScanArtifactsList{}
 	case AIAppIdentity:
 		return &AIAppsList{}
 	case AIDomainIdentity:
@@ -1928,6 +1973,8 @@ func (f modelManager) Identifiables(identity elemental.Identity) elemental.Ident
 		return &DigestReportRequestsList{}
 	case EndpointPolicyIdentity:
 		return &EndpointPoliciesList{}
+	case EntraSourceIdentity:
+		return &EntraSourcesList{}
 	case ErrorTransformerIdentity:
 		return &ErrorTransformersList{}
 	case ExtractorIdentity:
@@ -2125,6 +2172,10 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 
 	case AccessPolicyIdentity:
 		return &SparseAccessPoliciesList{}
+	case ActivityLogIdentity:
+		return &SparseActivityLogsList{}
+	case ActivityLogHintIdentity:
+		return &SparseActivityLogHintsList{}
 	case AdminLicenseIdentity:
 		return &SparseAdminLicensesList{}
 	case AgentIdentity:
@@ -2133,6 +2184,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseAgentConfigsList{}
 	case AgentDiscoveryIdentity:
 		return &SparseAgentDiscoveriesList{}
+	case AgentScanArtifactsIdentity:
+		return &SparseAgentScanArtifactsList{}
 	case AIAppIdentity:
 		return &SparseAIAppsList{}
 	case AIDomainIdentity:
@@ -2237,6 +2290,8 @@ func (f modelManager) SparseIdentifiables(identity elemental.Identity) elemental
 		return &SparseDigestReportRequestsList{}
 	case EndpointPolicyIdentity:
 		return &SparseEndpointPoliciesList{}
+	case EntraSourceIdentity:
+		return &SparseEntraSourcesList{}
 	case ErrorTransformerIdentity:
 		return &SparseErrorTransformersList{}
 	case ExtractorIdentity:
@@ -2674,6 +2729,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewPolicySimulationTool()
 	case "predicate", "Predicate":
 		return NewPredicate()
+	case "principalmappedfrom", "PrincipalMappedFrom":
+		return NewPrincipalMappedFrom()
 	case "providercapabilities", "ProviderCapabilities":
 		return NewProviderCapabilities()
 	case "providerretentionpolicy", "ProviderRetentionPolicy":
@@ -2728,12 +2785,18 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewTunnelProxyAuth()
 	case "tunnelproxyauthbasic", "TunnelProxyAuthBasic":
 		return NewTunnelProxyAuthBasic()
+	case "webhookappcomponentmapping", "WebhookAppComponentMapping":
+		return NewWebhookAppComponentMapping()
 	case "webhookextractor", "WebhookExtractor":
 		return NewWebhookExtractor()
 	case "webhookintegrationconf", "WebhookIntegrationConf":
 		return NewWebhookIntegrationConf()
 	case "webhookintegrationconfig", "WebhookIntegrationConfig":
 		return NewWebhookIntegrationConfig()
+	case "webhookintegrationsetting", "WebhookIntegrationSetting":
+		return NewWebhookIntegrationSetting()
+	case "webhookintegrationvariable", "WebhookIntegrationVariable":
+		return NewWebhookIntegrationVariable()
 	case "workload", "Workload":
 		return NewWorkload()
 	case "workloadstatus", "WorkloadStatus":
@@ -2753,10 +2816,13 @@ func AllIdentities() []elemental.Identity {
 
 	return []elemental.Identity{
 		AccessPolicyIdentity,
+		ActivityLogIdentity,
+		ActivityLogHintIdentity,
 		AdminLicenseIdentity,
 		AgentIdentity,
 		AgentConfigIdentity,
 		AgentDiscoveryIdentity,
+		AgentScanArtifactsIdentity,
 		AIAppIdentity,
 		AIDomainIdentity,
 		AIDomainLookupIdentity,
@@ -2809,6 +2875,7 @@ func AllIdentities() []elemental.Identity {
 		DigestReportIdentity,
 		DigestReportRequestIdentity,
 		EndpointPolicyIdentity,
+		EntraSourceIdentity,
 		ErrorTransformerIdentity,
 		ExtractorIdentity,
 		ExtractorLibIdentity,
@@ -2912,6 +2979,10 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	switch identity {
 	case AccessPolicyIdentity:
 		return []string{}
+	case ActivityLogIdentity:
+		return []string{}
+	case ActivityLogHintIdentity:
+		return []string{}
 	case AdminLicenseIdentity:
 		return []string{}
 	case AgentIdentity:
@@ -2919,6 +2990,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case AgentConfigIdentity:
 		return []string{}
 	case AgentDiscoveryIdentity:
+		return []string{}
+	case AgentScanArtifactsIdentity:
 		return []string{}
 	case AIAppIdentity:
 		return []string{}
@@ -3023,6 +3096,8 @@ func AliasesForIdentity(identity elemental.Identity) []string {
 	case DigestReportRequestIdentity:
 		return []string{}
 	case EndpointPolicyIdentity:
+		return []string{}
+	case EntraSourceIdentity:
 		return []string{}
 	case ErrorTransformerIdentity:
 		return []string{}

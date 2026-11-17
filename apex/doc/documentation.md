@@ -2747,7 +2747,7 @@ The application principal information if type is App.
 
 ##### `authType`
 
-Type: `enum(Certificate | UserToken | AppToken | Hostname | Token | ComponentToken | External)`
+Type: `enum(Certificate | UserToken | AppToken | Hostname | Token | ComponentToken | External | AIGatewayConnectorToken)`
 
 The type of authentication.
 
@@ -2833,6 +2833,13 @@ The component of the application request.
 Type: `[]string`
 
 The list of labels attached to an application request.
+
+##### `mappedFrom`
+
+Type: [`principalmappedfrom`](#principalmappedfrom)
+
+If set, the request was made with the credential of another source and mapped
+onto this application component. It names that source.
 
 ##### `name`
 
@@ -2936,6 +2943,40 @@ The hash of the workload group set this application belongs to.
 Type: `string`
 
 The label format of the workload group set this application belongs to.
+
+### PrincipalMappedFrom
+
+Describes the source a principal was mapped from.
+
+#### Example
+
+```json
+{
+  "name": "apim-gateway",
+  "namespace": "/orgs/acme/gateways",
+  "source": "AIGatewayConnector"
+}
+```
+
+#### Attributes
+
+##### `name`
+
+Type: `string`
+
+The name of the source, such as the AI gateway connector.
+
+##### `namespace`
+
+Type: `string`
+
+The namespace of the source.
+
+##### `source`
+
+Type: `enum(AIGatewayConnector)`
+
+The kind of source the principal was mapped from.
 
 ### PrincipalUser
 

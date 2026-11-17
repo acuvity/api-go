@@ -18,7 +18,8 @@ var (
 		"principal":         PrincipalIdentity,
 		"principalapp":      PrincipalAppIdentity,
 		"principalexternal": PrincipalExternalIdentity,
-		"principaluser":     PrincipalUserIdentity,
+
+		"principaluser": PrincipalUserIdentity,
 
 		"root": RootIdentity,
 
@@ -40,7 +41,8 @@ var (
 		"principals":         PrincipalIdentity,
 		"principalapps":      PrincipalAppIdentity,
 		"principalexternals": PrincipalExternalIdentity,
-		"principalusers":     PrincipalUserIdentity,
+
+		"principalusers": PrincipalUserIdentity,
 
 		"root": RootIdentity,
 
@@ -303,6 +305,8 @@ func (f modelManager) DetachedFromString(name string) any {
 		return NewMCPToolAnnotations()
 	case "modality", "Modality":
 		return NewModality()
+	case "principalmappedfrom", "PrincipalMappedFrom":
+		return NewPrincipalMappedFrom()
 	case "requestdestination", "RequestDestination":
 		return NewRequestDestination()
 	case "requestsource", "RequestSource":

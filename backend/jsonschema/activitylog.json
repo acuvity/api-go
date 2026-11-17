@@ -1,0 +1,138 @@
+{
+  "$extends": [
+    "@identifiable"
+  ],
+  "$friendlyName": "Activity Log",
+  "$friendlyNamePlural": "Activity Logs",
+  "$modelName": "ActivityLog",
+  "$modelPackage": "remi",
+  "$modelResourceName": "activitylogs",
+  "$modelRestName": "activitylog",
+  "additionalProperties": false,
+  "description": "An audited operation on the platform: a configuration change, or a token issued (objectIdentity issue). Activity logs are read only.  The list can be filtered with q on user, operation, success, objectIdentity, objectID, objectName and date. A date condition sets the time window, which is the last 30 days by default. Conditions can only be combined with and. The list is ordered by date (order=date or order=-date, the default) and is paginated with after and limit.",
+  "properties": {
+    "ID": {
+      "$friendlyName": "ID",
+      "$readOnly": true,
+      "description": "ID is the identifier of the object.",
+      "title": "ID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "claims": {
+      "$friendlyName": "Claims",
+      "$readOnly": true,
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "The claims of the caller, or of the token issued.",
+      "title": "claims",
+      "type": "object"
+    },
+    "date": {
+      "$friendlyName": "Date",
+      "$readOnly": true,
+      "description": "When the operation happened.",
+      "title": "date",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "error": {
+      "$friendlyName": "Error",
+      "$readOnly": true,
+      "description": "The error of the operation, if it failed.",
+      "title": "error",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "namespace": {
+      "$friendlyName": "Namespace",
+      "$readOnly": true,
+      "description": "The namespace of the object.",
+      "title": "namespace",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "objectDiff": {
+      "$friendlyName": "Object Diff",
+      "$readOnly": true,
+      "description": "The change made to the object, if any.",
+      "title": "objectDiff",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "objectID": {
+      "$friendlyName": "Object ID",
+      "$readOnly": true,
+      "description": "The ID of the object of the operation, if any.",
+      "title": "objectID",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "objectIdentity": {
+      "$friendlyName": "Object Identity",
+      "$readOnly": true,
+      "description": "The identity of the object of the operation, issue for a token issued.",
+      "title": "objectIdentity",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "objectName": {
+      "$friendlyName": "Object Name",
+      "$readOnly": true,
+      "description": "The name of the object of the operation, if any.",
+      "title": "objectName",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "operation": {
+      "$friendlyName": "Operation",
+      "$readOnly": true,
+      "description": "The operation.",
+      "title": "operation",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "success": {
+      "$friendlyName": "Success",
+      "$readOnly": true,
+      "description": "Whether the operation succeeded.",
+      "title": "success",
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "user": {
+      "$friendlyName": "User",
+      "$readOnly": true,
+      "description": "The email of the caller.",
+      "title": "user",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [],
+  "title": "ActivityLog",
+  "type": "object"
+}

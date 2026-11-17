@@ -85,29 +85,32 @@ func (o SinkWebhooksList) Version() int {
 // SinkWebhook represents the model of a sinkwebhook
 type SinkWebhook struct {
 	// The JSON body to send, as a Go template. It must render valid JSON of at
-	// most 64 KiB. Variables are written like {{.alert.severity}}. Their values
-	// are escaped for the inside of a JSON string, so put them inside quotes;
-	// only .alert.counter and the event .attempts are numbers that can be
-	// used without quotes.
+	// most 64 KiB. Variables are written like {{.alert.alertDefinition.severity}}.
+	// Their values are escaped for the inside of a JSON string, so put them
+	// inside quotes; only the numbers (.alert.counter, .occurrences and
+	// .attempts) can be used without quotes.
 	//
-	// The alert variables are .alert.id, .alert.name, .alert.friendlyName,
-	// .alert.severity, .alert.message, .alert.url, .alert.counter,
-	// .alert.start, .alert.end and .alert.triggerCriteria. The platform
-	// variable is .platform.host.
+	// The alert has the names of the Alerts API: .alert.ID, .alert.counter,
+	// .alert.start, .alert.end and .alert.alertDefinition, which has .name,
+	// .friendlyName, .severity, .message and .trigger (.occurrences and
+	// .interval). .alert.url is the link to the alert, and .platform.host is the
+	// host of the platform.
 	//
-	// .events lists up to 10 events, for {{range .events}}...{{end}}. Every event
-	// has .type (User, App or DataSink), .timestamp, .provider, .teams, .user,
-	// .name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,
-	// .runID, .backfillID, .attempts, .reason and .description. The ones that
-	// do not apply to the type of the event are empty. Inside a range, use
-	// $.alert or $.platform to reach the other variables.
+	// .alert.alertEvents lists up to 10 events, for
+	// {{range .alert.alertEvents}}...{{end}}. Each has .provider, .timestamp and
+	// .principal, which has .type, .teams, .user.name, .app.name and
+	// .app.component. .alert.dataSinkEvents lists the events of data sinks. Each
+	// has .dataSinkID, .dataSinkName, .dataset, .kind, .status, .runID,
+	// .backfillID, .attempts, .reason and .timestamp.
 	//
-	// A range can only iterate over a field, such as .events or .teams, and can
-	// be nested twice. The template and block actions are not supported.
+	// A field without a value is empty, such as .principal.user.name of an app.
+	// Inside a range, use $.alert or $.platform to reach the other variables.
 	Body string `json:"body" msgpack:"body" bson:"body" mapstructure:"body,omitempty"`
 
 	// The HTTP headers to send with the request. Content-Type defaults to
-	// application/json when not set.
+	// application/json when not set. There can be at most 20 headers, with
+	// distinct names. Host, Content-Length, Transfer-Encoding and Connection
+	// cannot be set.
 	Headers []*SinkWebhookHeader `json:"headers,omitempty" msgpack:"headers,omitempty" bson:"headers,omitempty" mapstructure:"headers,omitempty"`
 
 	// The URL to send the alert to.
@@ -344,6 +347,11 @@ func (o *SinkWebhook) Validate() error {
 		}
 	}
 
+	// Custom object validation.
+	if err := ValidateSinkWebhook(o); err != nil {
+		errors = errors.Append(err)
+	}
+
 	if len(requiredErrors) > 0 {
 		return requiredErrors
 	}
@@ -396,25 +404,26 @@ var SinkWebhookAttributesMap = map[string]elemental.AttributeSpecification{
 		BSONFieldName:  "body",
 		ConvertedName:  "Body",
 		Description: `The JSON body to send, as a Go template. It must render valid JSON of at
-most 64 KiB. Variables are written like {{.alert.severity}}. Their values
-are escaped for the inside of a JSON string, so put them inside quotes;
-only .alert.counter and the event .attempts are numbers that can be
-used without quotes.
+most 64 KiB. Variables are written like {{.alert.alertDefinition.severity}}.
+Their values are escaped for the inside of a JSON string, so put them
+inside quotes; only the numbers (.alert.counter, .occurrences and
+.attempts) can be used without quotes.
 
-The alert variables are .alert.id, .alert.name, .alert.friendlyName,
-.alert.severity, .alert.message, .alert.url, .alert.counter,
-.alert.start, .alert.end and .alert.triggerCriteria. The platform
-variable is .platform.host.
+The alert has the names of the Alerts API: .alert.ID, .alert.counter,
+.alert.start, .alert.end and .alert.alertDefinition, which has .name,
+.friendlyName, .severity, .message and .trigger (.occurrences and
+.interval). .alert.url is the link to the alert, and .platform.host is the
+host of the platform.
 
-.events lists up to 10 events, for {{range .events}}...{{end}}. Every event
-has .type (User, App or DataSink), .timestamp, .provider, .teams, .user,
-.name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,
-.runID, .backfillID, .attempts, .reason and .description. The ones that
-do not apply to the type of the event are empty. Inside a range, use
-$.alert or $.platform to reach the other variables.
+.alert.alertEvents lists up to 10 events, for
+{{range .alert.alertEvents}}...{{end}}. Each has .provider, .timestamp and
+.principal, which has .type, .teams, .user.name, .app.name and
+.app.component. .alert.dataSinkEvents lists the events of data sinks. Each
+has .dataSinkID, .dataSinkName, .dataset, .kind, .status, .runID,
+.backfillID, .attempts, .reason and .timestamp.
 
-A range can only iterate over a field, such as .events or .teams, and can
-be nested twice. The template and block actions are not supported.`,
+A field without a value is empty, such as .principal.user.name of an app.
+Inside a range, use $.alert or $.platform to reach the other variables.`,
 		Exposed:   true,
 		MaxLength: 16384,
 		Name:      "body",
@@ -427,7 +436,9 @@ be nested twice. The template and block actions are not supported.`,
 		BSONFieldName:  "headers",
 		ConvertedName:  "Headers",
 		Description: `The HTTP headers to send with the request. Content-Type defaults to
-application/json when not set.`,
+application/json when not set. There can be at most 20 headers, with
+distinct names. Host, Content-Length, Transfer-Encoding and Connection
+cannot be set.`,
 		Exposed: true,
 		Name:    "headers",
 		Stored:  true,
@@ -457,25 +468,26 @@ var SinkWebhookLowerCaseAttributesMap = map[string]elemental.AttributeSpecificat
 		BSONFieldName:  "body",
 		ConvertedName:  "Body",
 		Description: `The JSON body to send, as a Go template. It must render valid JSON of at
-most 64 KiB. Variables are written like {{.alert.severity}}. Their values
-are escaped for the inside of a JSON string, so put them inside quotes;
-only .alert.counter and the event .attempts are numbers that can be
-used without quotes.
+most 64 KiB. Variables are written like {{.alert.alertDefinition.severity}}.
+Their values are escaped for the inside of a JSON string, so put them
+inside quotes; only the numbers (.alert.counter, .occurrences and
+.attempts) can be used without quotes.
 
-The alert variables are .alert.id, .alert.name, .alert.friendlyName,
-.alert.severity, .alert.message, .alert.url, .alert.counter,
-.alert.start, .alert.end and .alert.triggerCriteria. The platform
-variable is .platform.host.
+The alert has the names of the Alerts API: .alert.ID, .alert.counter,
+.alert.start, .alert.end and .alert.alertDefinition, which has .name,
+.friendlyName, .severity, .message and .trigger (.occurrences and
+.interval). .alert.url is the link to the alert, and .platform.host is the
+host of the platform.
 
-.events lists up to 10 events, for {{range .events}}...{{end}}. Every event
-has .type (User, App or DataSink), .timestamp, .provider, .teams, .user,
-.name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,
-.runID, .backfillID, .attempts, .reason and .description. The ones that
-do not apply to the type of the event are empty. Inside a range, use
-$.alert or $.platform to reach the other variables.
+.alert.alertEvents lists up to 10 events, for
+{{range .alert.alertEvents}}...{{end}}. Each has .provider, .timestamp and
+.principal, which has .type, .teams, .user.name, .app.name and
+.app.component. .alert.dataSinkEvents lists the events of data sinks. Each
+has .dataSinkID, .dataSinkName, .dataset, .kind, .status, .runID,
+.backfillID, .attempts, .reason and .timestamp.
 
-A range can only iterate over a field, such as .events or .teams, and can
-be nested twice. The template and block actions are not supported.`,
+A field without a value is empty, such as .principal.user.name of an app.
+Inside a range, use $.alert or $.platform to reach the other variables.`,
 		Exposed:   true,
 		MaxLength: 16384,
 		Name:      "body",
@@ -488,7 +500,9 @@ be nested twice. The template and block actions are not supported.`,
 		BSONFieldName:  "headers",
 		ConvertedName:  "Headers",
 		Description: `The HTTP headers to send with the request. Content-Type defaults to
-application/json when not set.`,
+application/json when not set. There can be at most 20 headers, with
+distinct names. Host, Content-Length, Transfer-Encoding and Connection
+cannot be set.`,
 		Exposed: true,
 		Name:    "headers",
 		Stored:  true,
@@ -575,29 +589,32 @@ func (o SparseSinkWebhooksList) Version() int {
 // SparseSinkWebhook represents the sparse version of a sinkwebhook.
 type SparseSinkWebhook struct {
 	// The JSON body to send, as a Go template. It must render valid JSON of at
-	// most 64 KiB. Variables are written like {{.alert.severity}}. Their values
-	// are escaped for the inside of a JSON string, so put them inside quotes;
-	// only .alert.counter and the event .attempts are numbers that can be
-	// used without quotes.
+	// most 64 KiB. Variables are written like {{.alert.alertDefinition.severity}}.
+	// Their values are escaped for the inside of a JSON string, so put them
+	// inside quotes; only the numbers (.alert.counter, .occurrences and
+	// .attempts) can be used without quotes.
 	//
-	// The alert variables are .alert.id, .alert.name, .alert.friendlyName,
-	// .alert.severity, .alert.message, .alert.url, .alert.counter,
-	// .alert.start, .alert.end and .alert.triggerCriteria. The platform
-	// variable is .platform.host.
+	// The alert has the names of the Alerts API: .alert.ID, .alert.counter,
+	// .alert.start, .alert.end and .alert.alertDefinition, which has .name,
+	// .friendlyName, .severity, .message and .trigger (.occurrences and
+	// .interval). .alert.url is the link to the alert, and .platform.host is the
+	// host of the platform.
 	//
-	// .events lists up to 10 events, for {{range .events}}...{{end}}. Every event
-	// has .type (User, App or DataSink), .timestamp, .provider, .teams, .user,
-	// .name, .component, .dataSinkID, .dataSinkName, .status, .dataset, .kind,
-	// .runID, .backfillID, .attempts, .reason and .description. The ones that
-	// do not apply to the type of the event are empty. Inside a range, use
-	// $.alert or $.platform to reach the other variables.
+	// .alert.alertEvents lists up to 10 events, for
+	// {{range .alert.alertEvents}}...{{end}}. Each has .provider, .timestamp and
+	// .principal, which has .type, .teams, .user.name, .app.name and
+	// .app.component. .alert.dataSinkEvents lists the events of data sinks. Each
+	// has .dataSinkID, .dataSinkName, .dataset, .kind, .status, .runID,
+	// .backfillID, .attempts, .reason and .timestamp.
 	//
-	// A range can only iterate over a field, such as .events or .teams, and can
-	// be nested twice. The template and block actions are not supported.
+	// A field without a value is empty, such as .principal.user.name of an app.
+	// Inside a range, use $.alert or $.platform to reach the other variables.
 	Body *string `json:"body,omitempty" msgpack:"body,omitempty" bson:"body,omitempty" mapstructure:"body,omitempty"`
 
 	// The HTTP headers to send with the request. Content-Type defaults to
-	// application/json when not set.
+	// application/json when not set. There can be at most 20 headers, with
+	// distinct names. Host, Content-Length, Transfer-Encoding and Connection
+	// cannot be set.
 	Headers *[]*SinkWebhookHeader `json:"headers,omitempty" msgpack:"headers,omitempty" bson:"headers,omitempty" mapstructure:"headers,omitempty"`
 
 	// The URL to send the alert to.

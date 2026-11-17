@@ -99,6 +99,15 @@
       "title": "APIAuthorizations",
       "type": "array"
     },
+    "EntraSources": {
+      "$friendlyName": "Entra Sources",
+      "description": "Entra Sources to import.",
+      "items": {
+        "$ref": "entrasource.json"
+      },
+      "title": "EntraSources",
+      "type": "array"
+    },
     "IPSets": {
       "$friendlyName": "IP Sets",
       "description": "IP sets to import.",

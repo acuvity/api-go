@@ -23,7 +23,9 @@ const (
 //
 //	1: the original
 //	2: A2A connectors
-const GatewayVersion uint = 2
+//	3: webhook connectors with connector tokens, app component mappings,
+//	   a fallback app component or settings
+const GatewayVersion uint = 3
 
 // Separator joins a capability and its version, as in "Discovery-1".
 const Separator = "-"

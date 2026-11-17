@@ -12,6 +12,18 @@
       },
       "type": "array"
     },
+    "activityloghints": {
+      "items": {
+        "$ref": "activityloghint.json"
+      },
+      "type": "array"
+    },
+    "activitylogs": {
+      "items": {
+        "$ref": "activitylog.json"
+      },
+      "type": "array"
+    },
     "admindomainanalyses": {
       "items": {
         "$ref": "admindomainanalysis.json"
@@ -75,6 +87,12 @@
     "agents": {
       "items": {
         "$ref": "agent.json"
+      },
+      "type": "array"
+    },
+    "agentscanartifacts": {
+      "items": {
+        "$ref": "agentscanartifacts.json"
       },
       "type": "array"
     },
@@ -828,6 +846,12 @@
       },
       "type": "array"
     },
+    "entrasources": {
+      "items": {
+        "$ref": "entrasource.json"
+      },
+      "type": "array"
+    },
     "errortransformers": {
       "items": {
         "$ref": "errortransformer.json"
@@ -1308,6 +1332,12 @@
       },
       "type": "array"
     },
+    "principalmappedfroms": {
+      "items": {
+        "$ref": "principalmappedfrom.json"
+      },
+      "type": "array"
+    },
     "principals": {
       "items": {
         "$ref": "principal.json"
@@ -1770,6 +1800,12 @@
       },
       "type": "array"
     },
+    "webhookappcomponentmappings": {
+      "items": {
+        "$ref": "webhookappcomponentmapping.json"
+      },
+      "type": "array"
+    },
     "webhookextractors": {
       "items": {
         "$ref": "webhookextractor.json"
@@ -1791,6 +1827,18 @@
     "webhookintegrations": {
       "items": {
         "$ref": "webhookintegration.json"
+      },
+      "type": "array"
+    },
+    "webhookintegrationsettings": {
+      "items": {
+        "$ref": "webhookintegrationsetting.json"
+      },
+      "type": "array"
+    },
+    "webhookintegrationvariables": {
+      "items": {
+        "$ref": "webhookintegrationvariable.json"
       },
       "type": "array"
     },

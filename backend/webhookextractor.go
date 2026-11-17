@@ -101,8 +101,10 @@ type WebhookExtractor struct {
 	// reads the same request in all of them, and whatever the script chooses to
 	// return as `state`.
 	//
-	// It must contain a top level function called `webhook_input()` taking no
-	// parameters. It returns nil or an empty table when there is nothing to
+	// It must contain a top level function called `webhook_input(settings)`.
+	// `settings` is the effective settings map of the integration (its declared
+	// defaults overridden by the connector's values), never nil, with string values.
+	// It returns nil or an empty table when there is nothing to
 	// inspect, in which case no scan or police pass runs. Otherwise it returns a
 	// table containing:
 	//
@@ -133,6 +135,17 @@ type WebhookExtractor struct {
 	// - `analyzers` and `redactions`: only honored when mode is Scan, where no
 	//   policy runs to decide them. The script owns them because both follow from
 	//   what this payload carries and from what the vendor accepts back.
+	// - `variables`: what the script derived from the call, as a list of
+	//   `key=value` strings, such as claims of a token, the gateway's own
+	//   credential, request headers or body fields. A variable with several values,
+	//   such as roles, is listed once per value. Keys start with an alphanumeric
+	//   character and contain neither `=` nor spaces, and a variable without a
+	//   value is left out; an entry that breaks these rules is answered through
+	//   `webhook_error()` with stage `Target`. The integration documents its
+	//   variables in its `variables`. When the caller authenticated with an AI
+	//   gateway connector token, the connector's app component mappings are
+	//   evaluated against them to pick the app component the call runs as;
+	//   otherwise they are not used. The script needs no knowledge of either.
 	// - `state`: anything at all, handed back to `webhook_output()` and
 	//   `webhook_error()` as the same kind of value it was returned as, so a table
 	//   comes back a table. It is never read or validated. This is how a script
@@ -142,7 +155,8 @@ type WebhookExtractor struct {
 	//
 	// It must also contain a top level function called `webhook_output()`, which
 	// builds the answer this route sends back. It takes the result as its first
-	// parameter and the `state` returned by `webhook_input()` as its second. That
+	// parameter, the `state` returned by `webhook_input()` as its second, and the
+	// same `settings` as `webhook_input()` as its third. That
 	// `state` is nil when `webhook_input()` returned none, which is also the case
 	// when it reported nothing to inspect and the action is therefore
 	// `NotApplicable`. The result is a table containing:
@@ -174,8 +188,8 @@ type WebhookExtractor struct {
 	// something to be inferred, which is why it is required rather than optional.
 	// Like `webhook_output()` it takes the `state` returned by `webhook_input()`
 	// as its second parameter, which is nil when the failure happened before the
-	// script could produce one. Its first parameter is a table describing the
-	// failure:
+	// script could produce one, and `settings` as its third. Its first parameter
+	// is a table describing the failure:
 	//
 	// - `stage`: where it happened. `Target` when no policy target could be
 	//   determined, otherwise the round-trip error stages (`Extraction`,
@@ -542,8 +556,10 @@ one to the next. What does carry over is the call itself, because ` + "`" + `inp
 reads the same request in all of them, and whatever the script chooses to
 return as ` + "`" + `state` + "`" + `.
 
-It must contain a top level function called ` + "`" + `webhook_input()` + "`" + ` taking no
-parameters. It returns nil or an empty table when there is nothing to
+It must contain a top level function called ` + "`" + `webhook_input(settings)` + "`" + `.
+` + "`" + `settings` + "`" + ` is the effective settings map of the integration (its declared
+defaults overridden by the connector's values), never nil, with string values.
+It returns nil or an empty table when there is nothing to
 inspect, in which case no scan or police pass runs. Otherwise it returns a
 table containing:
 
@@ -574,6 +590,17 @@ table containing:
 - ` + "`" + `analyzers` + "`" + ` and ` + "`" + `redactions` + "`" + `: only honored when mode is Scan, where no
   policy runs to decide them. The script owns them because both follow from
   what this payload carries and from what the vendor accepts back.
+- ` + "`" + `variables` + "`" + `: what the script derived from the call, as a list of
+  ` + "`" + `key=value` + "`" + ` strings, such as claims of a token, the gateway's own
+  credential, request headers or body fields. A variable with several values,
+  such as roles, is listed once per value. Keys start with an alphanumeric
+  character and contain neither ` + "`" + `=` + "`" + ` nor spaces, and a variable without a
+  value is left out; an entry that breaks these rules is answered through
+  ` + "`" + `webhook_error()` + "`" + ` with stage ` + "`" + `Target` + "`" + `. The integration documents its
+  variables in its ` + "`" + `variables` + "`" + `. When the caller authenticated with an AI
+  gateway connector token, the connector's app component mappings are
+  evaluated against them to pick the app component the call runs as;
+  otherwise they are not used. The script needs no knowledge of either.
 - ` + "`" + `state` + "`" + `: anything at all, handed back to ` + "`" + `webhook_output()` + "`" + ` and
   ` + "`" + `webhook_error()` + "`" + ` as the same kind of value it was returned as, so a table
   comes back a table. It is never read or validated. This is how a script
@@ -583,7 +610,8 @@ table containing:
 
 It must also contain a top level function called ` + "`" + `webhook_output()` + "`" + `, which
 builds the answer this route sends back. It takes the result as its first
-parameter and the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second. That
+parameter, the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second, and the
+same ` + "`" + `settings` + "`" + ` as ` + "`" + `webhook_input()` + "`" + ` as its third. That
 ` + "`" + `state` + "`" + ` is nil when ` + "`" + `webhook_input()` + "`" + ` returned none, which is also the case
 when it reported nothing to inspect and the action is therefore
 ` + "`" + `NotApplicable` + "`" + `. The result is a table containing:
@@ -615,8 +643,8 @@ answer when we cannot answer is part of an integration's contract, not
 something to be inferred, which is why it is required rather than optional.
 Like ` + "`" + `webhook_output()` + "`" + ` it takes the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + `
 as its second parameter, which is nil when the failure happened before the
-script could produce one. Its first parameter is a table describing the
-failure:
+script could produce one, and ` + "`" + `settings` + "`" + ` as its third. Its first parameter
+is a table describing the failure:
 
 - ` + "`" + `stage` + "`" + `: where it happened. ` + "`" + `Target` + "`" + ` when no policy target could be
   determined, otherwise the round-trip error stages (` + "`" + `Extraction` + "`" + `,
@@ -745,8 +773,10 @@ one to the next. What does carry over is the call itself, because ` + "`" + `inp
 reads the same request in all of them, and whatever the script chooses to
 return as ` + "`" + `state` + "`" + `.
 
-It must contain a top level function called ` + "`" + `webhook_input()` + "`" + ` taking no
-parameters. It returns nil or an empty table when there is nothing to
+It must contain a top level function called ` + "`" + `webhook_input(settings)` + "`" + `.
+` + "`" + `settings` + "`" + ` is the effective settings map of the integration (its declared
+defaults overridden by the connector's values), never nil, with string values.
+It returns nil or an empty table when there is nothing to
 inspect, in which case no scan or police pass runs. Otherwise it returns a
 table containing:
 
@@ -777,6 +807,17 @@ table containing:
 - ` + "`" + `analyzers` + "`" + ` and ` + "`" + `redactions` + "`" + `: only honored when mode is Scan, where no
   policy runs to decide them. The script owns them because both follow from
   what this payload carries and from what the vendor accepts back.
+- ` + "`" + `variables` + "`" + `: what the script derived from the call, as a list of
+  ` + "`" + `key=value` + "`" + ` strings, such as claims of a token, the gateway's own
+  credential, request headers or body fields. A variable with several values,
+  such as roles, is listed once per value. Keys start with an alphanumeric
+  character and contain neither ` + "`" + `=` + "`" + ` nor spaces, and a variable without a
+  value is left out; an entry that breaks these rules is answered through
+  ` + "`" + `webhook_error()` + "`" + ` with stage ` + "`" + `Target` + "`" + `. The integration documents its
+  variables in its ` + "`" + `variables` + "`" + `. When the caller authenticated with an AI
+  gateway connector token, the connector's app component mappings are
+  evaluated against them to pick the app component the call runs as;
+  otherwise they are not used. The script needs no knowledge of either.
 - ` + "`" + `state` + "`" + `: anything at all, handed back to ` + "`" + `webhook_output()` + "`" + ` and
   ` + "`" + `webhook_error()` + "`" + ` as the same kind of value it was returned as, so a table
   comes back a table. It is never read or validated. This is how a script
@@ -786,7 +827,8 @@ table containing:
 
 It must also contain a top level function called ` + "`" + `webhook_output()` + "`" + `, which
 builds the answer this route sends back. It takes the result as its first
-parameter and the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second. That
+parameter, the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + ` as its second, and the
+same ` + "`" + `settings` + "`" + ` as ` + "`" + `webhook_input()` + "`" + ` as its third. That
 ` + "`" + `state` + "`" + ` is nil when ` + "`" + `webhook_input()` + "`" + ` returned none, which is also the case
 when it reported nothing to inspect and the action is therefore
 ` + "`" + `NotApplicable` + "`" + `. The result is a table containing:
@@ -818,8 +860,8 @@ answer when we cannot answer is part of an integration's contract, not
 something to be inferred, which is why it is required rather than optional.
 Like ` + "`" + `webhook_output()` + "`" + ` it takes the ` + "`" + `state` + "`" + ` returned by ` + "`" + `webhook_input()` + "`" + `
 as its second parameter, which is nil when the failure happened before the
-script could produce one. Its first parameter is a table describing the
-failure:
+script could produce one, and ` + "`" + `settings` + "`" + ` as its third. Its first parameter
+is a table describing the failure:
 
 - ` + "`" + `stage` + "`" + `: where it happened. ` + "`" + `Target` + "`" + ` when no policy target could be
   determined, otherwise the round-trip error stages (` + "`" + `Extraction` + "`" + `,

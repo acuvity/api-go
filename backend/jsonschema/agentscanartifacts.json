@@ -1,0 +1,39 @@
+{
+  "$extends": [],
+  "$friendlyName": "Agent Scan Artifacts",
+  "$friendlyNamePlural": "Agent Scan Artifacts",
+  "$modelName": "AgentScanArtifacts",
+  "$modelPackage": "haisou",
+  "$modelResourceName": "agentscanartifacts",
+  "$modelRestName": "agentscanartifacts",
+  "additionalProperties": false,
+  "description": "Retrieves the Agent Scan Artifacts.",
+  "properties": {
+    "installedApps": {
+      "$friendlyName": "Installed Apps",
+      "$readOnly": true,
+      "description": "The list of installed applications the agent scanner will look for.",
+      "items": {
+        "$ref": "agentdiscoveredapp.json"
+      },
+      "title": "installedApps",
+      "type": "array"
+    },
+    "runningProcesses": {
+      "$friendlyName": "Running Processes",
+      "$readOnly": true,
+      "description": "The list of running processes the agent scanner will look for.",
+      "items": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "title": "runningProcesses",
+      "type": "array"
+    }
+  },
+  "required": [],
+  "title": "AgentScanArtifacts",
+  "type": "object"
+}

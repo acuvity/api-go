@@ -132,6 +132,12 @@
       },
       "type": "array"
     },
+    "principalmappedfroms": {
+      "items": {
+        "$ref": "principalmappedfrom.json"
+      },
+      "type": "array"
+    },
     "principals": {
       "items": {
         "$ref": "principal.json"

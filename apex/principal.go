@@ -16,6 +16,9 @@ import (
 type PrincipalAuthTypeValue string
 
 const (
+	// PrincipalAuthTypeAIGatewayConnectorToken represents the value AIGatewayConnectorToken.
+	PrincipalAuthTypeAIGatewayConnectorToken PrincipalAuthTypeValue = "AIGatewayConnectorToken"
+
 	// PrincipalAuthTypeAppToken represents the value AppToken.
 	PrincipalAuthTypeAppToken PrincipalAuthTypeValue = "AppToken"
 
@@ -439,7 +442,7 @@ func (o *Principal) Validate() error {
 		}
 	}
 
-	if err := elemental.ValidateStringInList("authType", string(o.AuthType), []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External"}, false); err != nil {
+	if err := elemental.ValidateStringInList("authType", string(o.AuthType), []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External", "AIGatewayConnectorToken"}, false); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -553,7 +556,7 @@ var PrincipalAttributesMap = map[string]elemental.AttributeSpecification{
 		Type:           "ref",
 	},
 	"AuthType": {
-		AllowedChoices: []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External"},
+		AllowedChoices: []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External", "AIGatewayConnectorToken"},
 		BSONFieldName:  "authtype",
 		ConvertedName:  "AuthType",
 		Description:    `The type of authentication.`,
@@ -663,7 +666,7 @@ var PrincipalLowerCaseAttributesMap = map[string]elemental.AttributeSpecificatio
 		Type:           "ref",
 	},
 	"authtype": {
-		AllowedChoices: []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External"},
+		AllowedChoices: []string{"Certificate", "UserToken", "AppToken", "Hostname", "Token", "ComponentToken", "External", "AIGatewayConnectorToken"},
 		BSONFieldName:  "authtype",
 		ConvertedName:  "AuthType",
 		Description:    `The type of authentication.`,

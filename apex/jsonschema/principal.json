@@ -34,7 +34,8 @@
         "Hostname",
         "Token",
         "ComponentToken",
-        "External"
+        "External",
+        "AIGatewayConnectorToken"
       ],
       "title": "authType"
     },

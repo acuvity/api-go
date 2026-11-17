@@ -84,6 +84,12 @@
       "title": "agentConfigs",
       "type": "array"
     },
+    "agentScanArtifacts": {
+      "$friendlyName": "Agent Scan Artifacts",
+      "$ref": "agentscanartifacts.json",
+      "description": "The apps and the processes the agent scanner looks for.",
+      "title": "agentScanArtifacts"
+    },
     "assignPolicy": {
       "$friendlyName": "Assign Policy",
       "description": "The computed assign policy.",

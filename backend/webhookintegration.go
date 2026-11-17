@@ -127,8 +127,22 @@ type WebhookIntegration struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate bool `json:"propagate" msgpack:"propagate" bson:"propagate" mapstructure:"propagate,omitempty"`
 
+	// The settings this integration supports, keyed by setting name, each with
+	// what it does, its default value and, optionally, a regular expression its
+	// values must match. A connector's settings override the defaults; a setting a
+	// connector sets that is not declared here is not part of this integration and
+	// its scripts ignore it. The scripts receive the defaults overridden by the
+	// connector's values.
+	Settings map[string]*WebhookIntegrationSetting `json:"settings" msgpack:"settings" bson:"settings" mapstructure:"settings,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime time.Time `json:"updateTime" msgpack:"updateTime" bson:"updatetime" mapstructure:"updateTime,omitempty"`
+
+	// The variables this integration's scripts derive from a call, keyed by
+	// variable name. The match of an app component mapping is written against
+	// them. It documents the integration and lets a client suggest variables and
+	// warn about ones the integration does not know; it is not enforced.
+	Variables map[string]*WebhookIntegrationVariable `json:"variables" msgpack:"variables" bson:"variables" mapstructure:"variables,omitempty"`
 
 	// URL to the vendor's documentation for this integration point.
 	VendorURL string `json:"vendorURL,omitempty" msgpack:"vendorURL,omitempty" bson:"vendorurl,omitempty" mapstructure:"vendorURL,omitempty"`
@@ -193,7 +207,9 @@ func (o *WebhookIntegration) GetBSON() (any, error) {
 	s.Name = o.Name
 	s.Namespace = o.Namespace
 	s.Propagate = o.Propagate
+	s.Settings = o.Settings
 	s.UpdateTime = o.UpdateTime
+	s.Variables = o.Variables
 	s.VendorURL = o.VendorURL
 	s.ZHash = o.ZHash
 	s.Zone = o.Zone
@@ -226,7 +242,9 @@ func (o *WebhookIntegration) SetBSON(raw bson.Raw) error {
 	o.Name = s.Name
 	o.Namespace = s.Namespace
 	o.Propagate = s.Propagate
+	o.Settings = s.Settings
 	o.UpdateTime = s.UpdateTime
+	o.Variables = s.Variables
 	o.VendorURL = s.VendorURL
 	o.ZHash = s.ZHash
 	o.Zone = s.Zone
@@ -387,7 +405,9 @@ func (o *WebhookIntegration) ToSparse(fields ...string) elemental.SparseIdentifi
 			Name:         &o.Name,
 			Namespace:    &o.Namespace,
 			Propagate:    &o.Propagate,
+			Settings:     &o.Settings,
 			UpdateTime:   &o.UpdateTime,
+			Variables:    &o.Variables,
 			VendorURL:    &o.VendorURL,
 			ZHash:        &o.ZHash,
 			Zone:         &o.Zone,
@@ -421,8 +441,12 @@ func (o *WebhookIntegration) ToSparse(fields ...string) elemental.SparseIdentifi
 			sp.Namespace = &(o.Namespace)
 		case "propagate":
 			sp.Propagate = &(o.Propagate)
+		case "settings":
+			sp.Settings = &(o.Settings)
 		case "updateTime":
 			sp.UpdateTime = &(o.UpdateTime)
+		case "variables":
+			sp.Variables = &(o.Variables)
 		case "vendorURL":
 			sp.VendorURL = &(o.VendorURL)
 		case "zHash":
@@ -478,8 +502,14 @@ func (o *WebhookIntegration) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Propagate != nil {
 		o.Propagate = *so.Propagate
 	}
+	if so.Settings != nil {
+		o.Settings = *so.Settings
+	}
 	if so.UpdateTime != nil {
 		o.UpdateTime = *so.UpdateTime
+	}
+	if so.Variables != nil {
+		o.Variables = *so.Variables
 	}
 	if so.VendorURL != nil {
 		o.VendorURL = *so.VendorURL
@@ -504,6 +534,24 @@ func (o *WebhookIntegration) EncryptAttributes(encrypter elemental.AttributeEncr
 		}
 	}
 
+	for _, sub := range o.Settings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Settings' for 'WebhookIntegration' (%s): %s", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Variables {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'Variables' for 'WebhookIntegration' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
@@ -516,6 +564,24 @@ func (o *WebhookIntegration) DecryptAttributes(encrypter elemental.AttributeEncr
 		}
 		if err := sub.DecryptAttributes(encrypter); err != nil {
 			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Settings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Settings' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+		}
+	}
+
+	for _, sub := range o.Variables {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'Variables' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
 		}
 	}
 
@@ -580,6 +646,34 @@ func (o *WebhookIntegration) Validate() error {
 	}
 
 	if err := elemental.ValidatePattern("name", o.Name, `^[a-zA-Z0-9-_]+$`, `must only contain alpha numerical characters, '-' or '_'.`, false); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.Settings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "settings", i))
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := ValidateWebhookIntegrationSettings("settings", o.Settings); err != nil {
+		errors = errors.Append(err)
+	}
+
+	for i, sub := range o.Variables {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "variables", i))
+			errors = errors.Append(err)
+		}
+	}
+
+	if err := ValidateWebhookIntegrationVariables("variables", o.Variables); err != nil {
 		errors = errors.Append(err)
 	}
 
@@ -653,8 +747,12 @@ func (o *WebhookIntegration) ValueForAttribute(name string) any {
 		return o.Namespace
 	case "propagate":
 		return o.Propagate
+	case "settings":
+		return o.Settings
 	case "updateTime":
 		return o.UpdateTime
+	case "variables":
+		return o.Variables
 	case "vendorURL":
 		return o.VendorURL
 	case "zHash":
@@ -827,6 +925,22 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"Settings": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "settings",
+		ConvertedName:  "Settings",
+		Description: `The settings this integration supports, keyed by setting name, each with
+what it does, its default value and, optionally, a regular expression its
+values must match. A connector's settings override the defaults; a setting a
+connector sets that is not declared here is not part of this integration and
+its scripts ignore it. The scripts receive the defaults overridden by the
+connector's values.`,
+		Exposed: true,
+		Name:    "settings",
+		Stored:  true,
+		SubType: "webhookintegrationsetting",
+		Type:    "refMap",
+	},
 	"UpdateTime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -841,6 +955,20 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"Variables": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "variables",
+		ConvertedName:  "Variables",
+		Description: `The variables this integration's scripts derive from a call, keyed by
+variable name. The match of an app component mapping is written against
+them. It documents the integration and lets a client suggest variables and
+warn about ones the integration does not know; it is not enforced.`,
+		Exposed: true,
+		Name:    "variables",
+		Stored:  true,
+		SubType: "webhookintegrationvariable",
+		Type:    "refMap",
 	},
 	"VendorURL": {
 		AllowedChoices: []string{},
@@ -1015,6 +1143,22 @@ Name if empty.`,
 		Stored:         true,
 		Type:           "boolean",
 	},
+	"settings": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "settings",
+		ConvertedName:  "Settings",
+		Description: `The settings this integration supports, keyed by setting name, each with
+what it does, its default value and, optionally, a regular expression its
+values must match. A connector's settings override the defaults; a setting a
+connector sets that is not declared here is not part of this integration and
+its scripts ignore it. The scripts receive the defaults overridden by the
+connector's values.`,
+		Exposed: true,
+		Name:    "settings",
+		Stored:  true,
+		SubType: "webhookintegrationsetting",
+		Type:    "refMap",
+	},
 	"updatetime": {
 		AllowedChoices: []string{},
 		Autogenerated:  true,
@@ -1029,6 +1173,20 @@ Name if empty.`,
 		Setter:         true,
 		Stored:         true,
 		Type:           "time",
+	},
+	"variables": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "variables",
+		ConvertedName:  "Variables",
+		Description: `The variables this integration's scripts derive from a call, keyed by
+variable name. The match of an app component mapping is written against
+them. It documents the integration and lets a client suggest variables and
+warn about ones the integration does not know; it is not enforced.`,
+		Exposed: true,
+		Name:    "variables",
+		Stored:  true,
+		SubType: "webhookintegrationvariable",
+		Type:    "refMap",
 	},
 	"vendorurl": {
 		AllowedChoices: []string{},
@@ -1147,8 +1305,22 @@ type SparseWebhookIntegration struct {
 	// Propagates the object to all child namespaces. This is always true.
 	Propagate *bool `json:"propagate,omitempty" msgpack:"propagate,omitempty" bson:"propagate,omitempty" mapstructure:"propagate,omitempty"`
 
+	// The settings this integration supports, keyed by setting name, each with
+	// what it does, its default value and, optionally, a regular expression its
+	// values must match. A connector's settings override the defaults; a setting a
+	// connector sets that is not declared here is not part of this integration and
+	// its scripts ignore it. The scripts receive the defaults overridden by the
+	// connector's values.
+	Settings *map[string]*WebhookIntegrationSetting `json:"settings,omitempty" msgpack:"settings,omitempty" bson:"settings,omitempty" mapstructure:"settings,omitempty"`
+
 	// Last update date of the object.
 	UpdateTime *time.Time `json:"updateTime,omitempty" msgpack:"updateTime,omitempty" bson:"updatetime,omitempty" mapstructure:"updateTime,omitempty"`
+
+	// The variables this integration's scripts derive from a call, keyed by
+	// variable name. The match of an app component mapping is written against
+	// them. It documents the integration and lets a client suggest variables and
+	// warn about ones the integration does not know; it is not enforced.
+	Variables *map[string]*WebhookIntegrationVariable `json:"variables,omitempty" msgpack:"variables,omitempty" bson:"variables,omitempty" mapstructure:"variables,omitempty"`
 
 	// URL to the vendor's documentation for this integration point.
 	VendorURL *string `json:"vendorURL,omitempty" msgpack:"vendorURL,omitempty" bson:"vendorurl,omitempty" mapstructure:"vendorURL,omitempty"`
@@ -1238,8 +1410,14 @@ func (o *SparseWebhookIntegration) GetBSON() (any, error) {
 	if o.Propagate != nil {
 		s.Propagate = o.Propagate
 	}
+	if o.Settings != nil {
+		s.Settings = o.Settings
+	}
 	if o.UpdateTime != nil {
 		s.UpdateTime = o.UpdateTime
+	}
+	if o.Variables != nil {
+		s.Variables = o.Variables
 	}
 	if o.VendorURL != nil {
 		s.VendorURL = o.VendorURL
@@ -1302,8 +1480,14 @@ func (o *SparseWebhookIntegration) SetBSON(raw bson.Raw) error {
 	if s.Propagate != nil {
 		o.Propagate = s.Propagate
 	}
+	if s.Settings != nil {
+		o.Settings = s.Settings
+	}
 	if s.UpdateTime != nil {
 		o.UpdateTime = s.UpdateTime
+	}
+	if s.Variables != nil {
+		o.Variables = s.Variables
 	}
 	if s.VendorURL != nil {
 		o.VendorURL = s.VendorURL
@@ -1364,8 +1548,14 @@ func (o *SparseWebhookIntegration) ToPlain() elemental.PlainIdentifiable {
 	if o.Propagate != nil {
 		out.Propagate = *o.Propagate
 	}
+	if o.Settings != nil {
+		out.Settings = *o.Settings
+	}
 	if o.UpdateTime != nil {
 		out.UpdateTime = *o.UpdateTime
+	}
+	if o.Variables != nil {
+		out.Variables = *o.Variables
 	}
 	if o.VendorURL != nil {
 		out.VendorURL = *o.VendorURL
@@ -1394,6 +1584,28 @@ func (o *SparseWebhookIntegration) EncryptAttributes(encrypter elemental.Attribu
 		}
 	}
 
+	if o.Settings != nil {
+		for _, sub := range *o.Settings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Settings' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Variables != nil {
+		for _, sub := range *o.Variables {
+			if sub == nil {
+				continue
+			}
+			if err := sub.EncryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to encrypt refList/refMap attribute 'Variables' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -1407,6 +1619,28 @@ func (o *SparseWebhookIntegration) DecryptAttributes(encrypter elemental.Attribu
 			}
 			if err := sub.DecryptAttributes(encrypter); err != nil {
 				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Extractors' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Settings != nil {
+		for _, sub := range *o.Settings {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Settings' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
+			}
+		}
+	}
+
+	if o.Variables != nil {
+		for _, sub := range *o.Variables {
+			if sub == nil {
+				continue
+			}
+			if err := sub.DecryptAttributes(encrypter); err != nil {
+				return fmt.Errorf("unable to decrypt refList/refMap attribute 'Variables' for 'WebhookIntegration' (%s): %w", o.Identifier(), err)
 			}
 		}
 	}
@@ -1567,38 +1801,42 @@ func (o *SparseWebhookIntegration) DeepCopyInto(out *SparseWebhookIntegration) {
 }
 
 type mongoAttributesWebhookIntegration struct {
-	ID           bson.ObjectId       `bson:"_id,omitempty"`
-	CreateTime   time.Time           `bson:"createtime"`
-	Description  string              `bson:"description"`
-	Extractors   []*WebhookExtractor `bson:"extractors"`
-	FriendlyName string              `bson:"friendlyname"`
-	Icon         string              `bson:"icon,omitempty"`
-	ImportHash   string              `bson:"importhash,omitempty"`
-	ImportLabel  string              `bson:"importlabel,omitempty"`
-	Lib          string              `bson:"lib,omitempty"`
-	Name         string              `bson:"name"`
-	Namespace    string              `bson:"namespace,omitempty"`
-	Propagate    bool                `bson:"propagate"`
-	UpdateTime   time.Time           `bson:"updatetime"`
-	VendorURL    string              `bson:"vendorurl,omitempty"`
-	ZHash        int                 `bson:"zhash"`
-	Zone         int                 `bson:"zone"`
+	ID           bson.ObjectId                          `bson:"_id,omitempty"`
+	CreateTime   time.Time                              `bson:"createtime"`
+	Description  string                                 `bson:"description"`
+	Extractors   []*WebhookExtractor                    `bson:"extractors"`
+	FriendlyName string                                 `bson:"friendlyname"`
+	Icon         string                                 `bson:"icon,omitempty"`
+	ImportHash   string                                 `bson:"importhash,omitempty"`
+	ImportLabel  string                                 `bson:"importlabel,omitempty"`
+	Lib          string                                 `bson:"lib,omitempty"`
+	Name         string                                 `bson:"name"`
+	Namespace    string                                 `bson:"namespace,omitempty"`
+	Propagate    bool                                   `bson:"propagate"`
+	Settings     map[string]*WebhookIntegrationSetting  `bson:"settings"`
+	UpdateTime   time.Time                              `bson:"updatetime"`
+	Variables    map[string]*WebhookIntegrationVariable `bson:"variables"`
+	VendorURL    string                                 `bson:"vendorurl,omitempty"`
+	ZHash        int                                    `bson:"zhash"`
+	Zone         int                                    `bson:"zone"`
 }
 type mongoAttributesSparseWebhookIntegration struct {
-	ID           bson.ObjectId        `bson:"_id,omitempty"`
-	CreateTime   *time.Time           `bson:"createtime,omitempty"`
-	Description  *string              `bson:"description,omitempty"`
-	Extractors   *[]*WebhookExtractor `bson:"extractors,omitempty"`
-	FriendlyName *string              `bson:"friendlyname,omitempty"`
-	Icon         *string              `bson:"icon,omitempty"`
-	ImportHash   *string              `bson:"importhash,omitempty"`
-	ImportLabel  *string              `bson:"importlabel,omitempty"`
-	Lib          *string              `bson:"lib,omitempty"`
-	Name         *string              `bson:"name,omitempty"`
-	Namespace    *string              `bson:"namespace,omitempty"`
-	Propagate    *bool                `bson:"propagate,omitempty"`
-	UpdateTime   *time.Time           `bson:"updatetime,omitempty"`
-	VendorURL    *string              `bson:"vendorurl,omitempty"`
-	ZHash        *int                 `bson:"zhash,omitempty"`
-	Zone         *int                 `bson:"zone,omitempty"`
+	ID           bson.ObjectId                           `bson:"_id,omitempty"`
+	CreateTime   *time.Time                              `bson:"createtime,omitempty"`
+	Description  *string                                 `bson:"description,omitempty"`
+	Extractors   *[]*WebhookExtractor                    `bson:"extractors,omitempty"`
+	FriendlyName *string                                 `bson:"friendlyname,omitempty"`
+	Icon         *string                                 `bson:"icon,omitempty"`
+	ImportHash   *string                                 `bson:"importhash,omitempty"`
+	ImportLabel  *string                                 `bson:"importlabel,omitempty"`
+	Lib          *string                                 `bson:"lib,omitempty"`
+	Name         *string                                 `bson:"name,omitempty"`
+	Namespace    *string                                 `bson:"namespace,omitempty"`
+	Propagate    *bool                                   `bson:"propagate,omitempty"`
+	Settings     *map[string]*WebhookIntegrationSetting  `bson:"settings,omitempty"`
+	UpdateTime   *time.Time                              `bson:"updatetime,omitempty"`
+	Variables    *map[string]*WebhookIntegrationVariable `bson:"variables,omitempty"`
+	VendorURL    *string                                 `bson:"vendorurl,omitempty"`
+	ZHash        *int                                    `bson:"zhash,omitempty"`
+	Zone         *int                                    `bson:"zone,omitempty"`
 }

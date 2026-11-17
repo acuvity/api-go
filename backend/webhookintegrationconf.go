@@ -13,6 +13,14 @@ import (
 
 // WebhookIntegrationConf represents the model of a webhookintegrationconf
 type WebhookIntegrationConf struct {
+	// How a call made with an AI gateway connector token is mapped onto the app
+	// component that made it. The mappings are evaluated in order against the
+	// variables the integration's script derived from the call, and the first whose
+	// match holds names the app component. When none matches, fallbackAppComponent
+	// applies. Two mappings must not have the same appComponent. It has no effect
+	// for calls authenticated any other way.
+	AppComponentMappings []*WebhookAppComponentMapping `json:"appComponentMappings" msgpack:"appComponentMappings" bson:"-" mapstructure:"appComponentMappings,omitempty"`
+
 	// The routes of this integration. Each one serves a method and a path under
 	// the route of the connector the integration is attached to.
 	Extractors []*WebhookExtractor `json:"extractors" msgpack:"extractors" bson:"-" mapstructure:"extractors,omitempty"`
@@ -24,6 +32,18 @@ type WebhookIntegrationConf struct {
 	// User-facing decisions (Unauthorized, Forbidden, Deny, Ask) are unaffected
 	// and continue to be enforced. Default false.
 	FailClose bool `json:"failClose" msgpack:"failClose" bson:"failclose" mapstructure:"failClose,omitempty"`
+
+	// The app component, written project:app/component, a call made with an AI
+	// gateway connector token runs as when no app component mapping matched. When
+	// fallbackMappingOnError is set, it is also used when a mapping matched but its
+	// appComponent failed to render or names an app component that does not exist.
+	// When it is not set and nothing matched, the call fails.
+	FallbackAppComponent string `json:"fallbackAppComponent,omitempty" msgpack:"fallbackAppComponent,omitempty" bson:"-" mapstructure:"fallbackAppComponent,omitempty"`
+
+	// If true, a call whose matching mapping's appComponent fails to render or names
+	// an app component that does not exist runs as fallbackAppComponent instead of
+	// failing. It has no effect unless fallbackAppComponent is set.
+	FallbackMappingOnError bool `json:"fallbackMappingOnError" msgpack:"fallbackMappingOnError" bson:"-" mapstructure:"fallbackMappingOnError,omitempty"`
 
 	// If set, this snippet of lua will be available in all webhook extractors of
 	// the integration, acting as an effective library. It must be a valid lua
@@ -52,6 +72,11 @@ type WebhookIntegrationConf struct {
 	// behind a finding stays available for review. It has no effect on its own,
 	// and like redactContent it only applies to Scan-mode routes.
 	RedactContentBypass bool `json:"redactContentBypass" msgpack:"redactContentBypass" bson:"-" mapstructure:"redactContentBypass,omitempty"`
+
+	// The effective settings of the integration: the defaults it declares, overridden
+	// by the values the connector sets. This is the map the integration's scripts
+	// receive.
+	Settings map[string]string `json:"settings,omitempty" msgpack:"settings,omitempty" bson:"-" mapstructure:"settings,omitempty"`
 
 	// How long a call may take in total, including the scan or police pass. When
 	// it elapses, the call is answered according to failClose. When empty, the
@@ -134,6 +159,15 @@ func (o *WebhookIntegrationConf) Doc() string {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *WebhookIntegrationConf) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	for _, sub := range o.AppComponentMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt refList/refMap attribute 'AppComponentMappings' for 'WebhookIntegrationConf' (%s): %s", o.Identifier(), err)
+		}
+	}
+
 	for _, sub := range o.Extractors {
 		if sub == nil {
 			continue
@@ -148,6 +182,15 @@ func (o *WebhookIntegrationConf) EncryptAttributes(encrypter elemental.Attribute
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *WebhookIntegrationConf) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	for _, sub := range o.AppComponentMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt refList/refMap attribute 'AppComponentMappings' for 'WebhookIntegrationConf' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	for _, sub := range o.Extractors {
 		if sub == nil {
@@ -192,6 +235,16 @@ func (o *WebhookIntegrationConf) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	for i, sub := range o.AppComponentMappings {
+		if sub == nil {
+			continue
+		}
+		if err := sub.Validate(); err != nil {
+			elemental.InjectAttributePath(err, fmt.Sprintf("%s/%v", "appComponentMappings", i))
+			errors = errors.Append(err)
+		}
+	}
 
 	for i, sub := range o.Extractors {
 		if sub == nil {
@@ -245,10 +298,16 @@ func (*WebhookIntegrationConf) AttributeSpecifications() map[string]elemental.At
 func (o *WebhookIntegrationConf) ValueForAttribute(name string) any {
 
 	switch name {
+	case "appComponentMappings":
+		return o.AppComponentMappings
 	case "extractors":
 		return o.Extractors
 	case "failClose":
 		return o.FailClose
+	case "fallbackAppComponent":
+		return o.FallbackAppComponent
+	case "fallbackMappingOnError":
+		return o.FallbackMappingOnError
 	case "lib":
 		return o.Lib
 	case "maxBodySize":
@@ -261,6 +320,8 @@ func (o *WebhookIntegrationConf) ValueForAttribute(name string) any {
 		return o.RedactContent
 	case "redactContentBypass":
 		return o.RedactContentBypass
+	case "settings":
+		return o.Settings
 	case "timeout":
 		return o.Timeout
 	}
@@ -270,6 +331,20 @@ func (o *WebhookIntegrationConf) ValueForAttribute(name string) any {
 
 // WebhookIntegrationConfAttributesMap represents the map of attribute for WebhookIntegrationConf.
 var WebhookIntegrationConfAttributesMap = map[string]elemental.AttributeSpecification{
+	"AppComponentMappings": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AppComponentMappings",
+		Description: `How a call made with an AI gateway connector token is mapped onto the app
+component that made it. The mappings are evaluated in order against the
+variables the integration's script derived from the call, and the first whose
+match holds names the app component. When none matches, fallbackAppComponent
+applies. Two mappings must not have the same appComponent. It has no effect
+for calls authenticated any other way.`,
+		Exposed: true,
+		Name:    "appComponentMappings",
+		SubType: "webhookappcomponentmapping",
+		Type:    "refList",
+	},
 	"Extractors": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Extractors",
@@ -293,6 +368,28 @@ and continue to be enforced. Default false.`,
 		Exposed: true,
 		Name:    "failClose",
 		Stored:  true,
+		Type:    "boolean",
+	},
+	"FallbackAppComponent": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FallbackAppComponent",
+		Description: `The app component, written project:app/component, a call made with an AI
+gateway connector token runs as when no app component mapping matched. When
+fallbackMappingOnError is set, it is also used when a mapping matched but its
+appComponent failed to render or names an app component that does not exist.
+When it is not set and nothing matched, the call fails.`,
+		Exposed: true,
+		Name:    "fallbackAppComponent",
+		Type:    "string",
+	},
+	"FallbackMappingOnError": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FallbackMappingOnError",
+		Description: `If true, a call whose matching mapping's appComponent fails to render or names
+an app component that does not exist runs as fallbackAppComponent instead of
+failing. It has no effect unless fallbackAppComponent is set.`,
+		Exposed: true,
+		Name:    "fallbackMappingOnError",
 		Type:    "boolean",
 	},
 	"Lib": {
@@ -353,6 +450,17 @@ and like redactContent it only applies to Scan-mode routes.`,
 		Name:    "redactContentBypass",
 		Type:    "boolean",
 	},
+	"Settings": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Settings",
+		Description: `The effective settings of the integration: the defaults it declares, overridden
+by the values the connector sets. This is the map the integration's scripts
+receive.`,
+		Exposed: true,
+		Name:    "settings",
+		SubType: "map[string]string",
+		Type:    "external",
+	},
 	"Timeout": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Timeout",
@@ -367,6 +475,20 @@ system default applies.`,
 
 // WebhookIntegrationConfLowerCaseAttributesMap represents the map of attribute for WebhookIntegrationConf.
 var WebhookIntegrationConfLowerCaseAttributesMap = map[string]elemental.AttributeSpecification{
+	"appcomponentmappings": {
+		AllowedChoices: []string{},
+		ConvertedName:  "AppComponentMappings",
+		Description: `How a call made with an AI gateway connector token is mapped onto the app
+component that made it. The mappings are evaluated in order against the
+variables the integration's script derived from the call, and the first whose
+match holds names the app component. When none matches, fallbackAppComponent
+applies. Two mappings must not have the same appComponent. It has no effect
+for calls authenticated any other way.`,
+		Exposed: true,
+		Name:    "appComponentMappings",
+		SubType: "webhookappcomponentmapping",
+		Type:    "refList",
+	},
 	"extractors": {
 		AllowedChoices: []string{},
 		ConvertedName:  "Extractors",
@@ -390,6 +512,28 @@ and continue to be enforced. Default false.`,
 		Exposed: true,
 		Name:    "failClose",
 		Stored:  true,
+		Type:    "boolean",
+	},
+	"fallbackappcomponent": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FallbackAppComponent",
+		Description: `The app component, written project:app/component, a call made with an AI
+gateway connector token runs as when no app component mapping matched. When
+fallbackMappingOnError is set, it is also used when a mapping matched but its
+appComponent failed to render or names an app component that does not exist.
+When it is not set and nothing matched, the call fails.`,
+		Exposed: true,
+		Name:    "fallbackAppComponent",
+		Type:    "string",
+	},
+	"fallbackmappingonerror": {
+		AllowedChoices: []string{},
+		ConvertedName:  "FallbackMappingOnError",
+		Description: `If true, a call whose matching mapping's appComponent fails to render or names
+an app component that does not exist runs as fallbackAppComponent instead of
+failing. It has no effect unless fallbackAppComponent is set.`,
+		Exposed: true,
+		Name:    "fallbackMappingOnError",
 		Type:    "boolean",
 	},
 	"lib": {
@@ -449,6 +593,17 @@ and like redactContent it only applies to Scan-mode routes.`,
 		Exposed: true,
 		Name:    "redactContentBypass",
 		Type:    "boolean",
+	},
+	"settings": {
+		AllowedChoices: []string{},
+		ConvertedName:  "Settings",
+		Description: `The effective settings of the integration: the defaults it declares, overridden
+by the values the connector sets. This is the map the integration's scripts
+receive.`,
+		Exposed: true,
+		Name:    "settings",
+		SubType: "map[string]string",
+		Type:    "external",
 	},
 	"timeout": {
 		AllowedChoices: []string{},

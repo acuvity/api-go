@@ -90,6 +90,10 @@ type PrincipalApp struct {
 	// The list of labels attached to an application request.
 	Labels []string `json:"labels,omitempty" msgpack:"labels,omitempty" bson:"labels,omitempty" mapstructure:"labels,omitempty"`
 
+	// If set, the request was made with the credential of another source and mapped
+	// onto this application component. It names that source.
+	MappedFrom *PrincipalMappedFrom `json:"mappedFrom,omitempty" msgpack:"mappedFrom,omitempty" bson:"mappedfrom,omitempty" mapstructure:"mappedFrom,omitempty"`
+
 	// The name of the application.
 	Name string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -154,6 +158,7 @@ func (o *PrincipalApp) GetBSON() (any, error) {
 
 	s.Component = o.Component
 	s.Labels = o.Labels
+	s.MappedFrom = o.MappedFrom
 	s.Name = o.Name
 	s.UserClaims = o.UserClaims
 	s.Username = o.Username
@@ -180,6 +185,7 @@ func (o *PrincipalApp) SetBSON(raw bson.Raw) error {
 
 	o.Component = s.Component
 	o.Labels = s.Labels
+	o.MappedFrom = s.MappedFrom
 	o.Name = s.Name
 	o.UserClaims = s.UserClaims
 	o.Username = s.Username
@@ -229,6 +235,7 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 		return &SparsePrincipalApp{
 			Component:             &o.Component,
 			Labels:                &o.Labels,
+			MappedFrom:            o.MappedFrom,
 			Name:                  &o.Name,
 			UserClaims:            &o.UserClaims,
 			Username:              &o.Username,
@@ -246,6 +253,8 @@ func (o *PrincipalApp) ToSparse(fields ...string) elemental.SparseIdentifiable {
 			sp.Component = &(o.Component)
 		case "labels":
 			sp.Labels = &(o.Labels)
+		case "mappedFrom":
+			sp.MappedFrom = o.MappedFrom
 		case "name":
 			sp.Name = &(o.Name)
 		case "userClaims":
@@ -279,6 +288,9 @@ func (o *PrincipalApp) Patch(sparse elemental.SparseIdentifiable) {
 	if so.Labels != nil {
 		o.Labels = *so.Labels
 	}
+	if so.MappedFrom != nil {
+		o.MappedFrom = so.MappedFrom
+	}
 	if so.Name != nil {
 		o.Name = *so.Name
 	}
@@ -305,11 +317,23 @@ func (o *PrincipalApp) Patch(sparse elemental.SparseIdentifiable) {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *PrincipalApp) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.MappedFrom != nil {
+		if err := o.MappedFrom.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MappedFrom' for 'PrincipalApp' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *PrincipalApp) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MappedFrom != nil {
+		if err := o.MappedFrom.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MappedFrom' for 'PrincipalApp' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -345,6 +369,13 @@ func (o *PrincipalApp) Validate() error {
 
 	errors := elemental.Errors{}
 	requiredErrors := elemental.Errors{}
+
+	if o.MappedFrom != nil {
+		if err := o.MappedFrom.Validate(); err != nil {
+			elemental.InjectAttributePath(err, "mappedFrom")
+			errors = errors.Append(err)
+		}
+	}
 
 	if len(requiredErrors) > 0 {
 		return requiredErrors
@@ -384,6 +415,8 @@ func (o *PrincipalApp) ValueForAttribute(name string) any {
 		return o.Component
 	case "labels":
 		return o.Labels
+	case "mappedFrom":
+		return o.MappedFrom
 	case "name":
 		return o.Name
 	case "userClaims":
@@ -425,6 +458,18 @@ var PrincipalAppAttributesMap = map[string]elemental.AttributeSpecification{
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"MappedFrom": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mappedfrom",
+		ConvertedName:  "MappedFrom",
+		Description: `If set, the request was made with the credential of another source and mapped
+onto this application component. It names that source.`,
+		Exposed: true,
+		Name:    "mappedFrom",
+		Stored:  true,
+		SubType: "principalmappedfrom",
+		Type:    "ref",
 	},
 	"Name": {
 		AllowedChoices: []string{},
@@ -522,6 +567,18 @@ var PrincipalAppLowerCaseAttributesMap = map[string]elemental.AttributeSpecifica
 		Stored:         true,
 		SubType:        "string",
 		Type:           "list",
+	},
+	"mappedfrom": {
+		AllowedChoices: []string{},
+		BSONFieldName:  "mappedfrom",
+		ConvertedName:  "MappedFrom",
+		Description: `If set, the request was made with the credential of another source and mapped
+onto this application component. It names that source.`,
+		Exposed: true,
+		Name:    "mappedFrom",
+		Stored:  true,
+		SubType: "principalmappedfrom",
+		Type:    "ref",
 	},
 	"name": {
 		AllowedChoices: []string{},
@@ -666,6 +723,10 @@ type SparsePrincipalApp struct {
 	// The list of labels attached to an application request.
 	Labels *[]string `json:"labels,omitempty" msgpack:"labels,omitempty" bson:"labels,omitempty" mapstructure:"labels,omitempty"`
 
+	// If set, the request was made with the credential of another source and mapped
+	// onto this application component. It names that source.
+	MappedFrom *PrincipalMappedFrom `json:"mappedFrom,omitempty" msgpack:"mappedFrom,omitempty" bson:"mappedfrom,omitempty" mapstructure:"mappedFrom,omitempty"`
+
 	// The name of the application.
 	Name *string `json:"name,omitempty" msgpack:"name,omitempty" bson:"name,omitempty" mapstructure:"name,omitempty"`
 
@@ -729,6 +790,9 @@ func (o *SparsePrincipalApp) GetBSON() (any, error) {
 	if o.Labels != nil {
 		s.Labels = o.Labels
 	}
+	if o.MappedFrom != nil {
+		s.MappedFrom = o.MappedFrom
+	}
 	if o.Name != nil {
 		s.Name = o.Name
 	}
@@ -773,6 +837,9 @@ func (o *SparsePrincipalApp) SetBSON(raw bson.Raw) error {
 	if s.Labels != nil {
 		o.Labels = s.Labels
 	}
+	if s.MappedFrom != nil {
+		o.MappedFrom = s.MappedFrom
+	}
 	if s.Name != nil {
 		o.Name = s.Name
 	}
@@ -814,6 +881,9 @@ func (o *SparsePrincipalApp) ToPlain() elemental.PlainIdentifiable {
 	if o.Labels != nil {
 		out.Labels = *o.Labels
 	}
+	if o.MappedFrom != nil {
+		out.MappedFrom = o.MappedFrom
+	}
 	if o.Name != nil {
 		out.Name = *o.Name
 	}
@@ -842,11 +912,23 @@ func (o *SparsePrincipalApp) ToPlain() elemental.PlainIdentifiable {
 // EncryptAttributes encrypts the attributes marked as `encrypted` using the given encrypter.
 func (o *SparsePrincipalApp) EncryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
 
+	if o.MappedFrom != nil {
+		if err := o.MappedFrom.EncryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to encrypt ref attribute 'MappedFrom' for 'PrincipalApp' (%s): %w", o.Identifier(), err)
+		}
+	}
+
 	return nil
 }
 
 // DecryptAttributes decrypts the attributes marked as `encrypted` using the given decrypter.
 func (o *SparsePrincipalApp) DecryptAttributes(encrypter elemental.AttributeEncrypter) (err error) {
+
+	if o.MappedFrom != nil {
+		if err := o.MappedFrom.DecryptAttributes(encrypter); err != nil {
+			return fmt.Errorf("unable to decrypt ref attribute 'MappedFrom' for 'PrincipalApp' (%s): %w", o.Identifier(), err)
+		}
+	}
 
 	return nil
 }
@@ -876,24 +958,26 @@ func (o *SparsePrincipalApp) DeepCopyInto(out *SparsePrincipalApp) {
 }
 
 type mongoAttributesPrincipalApp struct {
-	Component             string   `bson:"component,omitempty"`
-	Labels                []string `bson:"labels,omitempty"`
-	Name                  string   `bson:"name,omitempty"`
-	UserClaims            []string `bson:"userclaims,omitempty"`
-	Username              string   `bson:"username,omitempty"`
-	WorkloadGroupHash     string   `bson:"workloadgrouphash,omitempty"`
-	WorkloadGroupLabel    string   `bson:"workloadgrouplabel,omitempty"`
-	WorkloadGroupSetHash  string   `bson:"workloadgroupsethash,omitempty"`
-	WorkloadGroupSetLabel string   `bson:"workloadgroupsetlabel,omitempty"`
+	Component             string               `bson:"component,omitempty"`
+	Labels                []string             `bson:"labels,omitempty"`
+	MappedFrom            *PrincipalMappedFrom `bson:"mappedfrom,omitempty"`
+	Name                  string               `bson:"name,omitempty"`
+	UserClaims            []string             `bson:"userclaims,omitempty"`
+	Username              string               `bson:"username,omitempty"`
+	WorkloadGroupHash     string               `bson:"workloadgrouphash,omitempty"`
+	WorkloadGroupLabel    string               `bson:"workloadgrouplabel,omitempty"`
+	WorkloadGroupSetHash  string               `bson:"workloadgroupsethash,omitempty"`
+	WorkloadGroupSetLabel string               `bson:"workloadgroupsetlabel,omitempty"`
 }
 type mongoAttributesSparsePrincipalApp struct {
-	Component             *string   `bson:"component,omitempty"`
-	Labels                *[]string `bson:"labels,omitempty"`
-	Name                  *string   `bson:"name,omitempty"`
-	UserClaims            *[]string `bson:"userclaims,omitempty"`
-	Username              *string   `bson:"username,omitempty"`
-	WorkloadGroupHash     *string   `bson:"workloadgrouphash,omitempty"`
-	WorkloadGroupLabel    *string   `bson:"workloadgrouplabel,omitempty"`
-	WorkloadGroupSetHash  *string   `bson:"workloadgroupsethash,omitempty"`
-	WorkloadGroupSetLabel *string   `bson:"workloadgroupsetlabel,omitempty"`
+	Component             *string              `bson:"component,omitempty"`
+	Labels                *[]string            `bson:"labels,omitempty"`
+	MappedFrom            *PrincipalMappedFrom `bson:"mappedfrom,omitempty"`
+	Name                  *string              `bson:"name,omitempty"`
+	UserClaims            *[]string            `bson:"userclaims,omitempty"`
+	Username              *string              `bson:"username,omitempty"`
+	WorkloadGroupHash     *string              `bson:"workloadgrouphash,omitempty"`
+	WorkloadGroupLabel    *string              `bson:"workloadgrouplabel,omitempty"`
+	WorkloadGroupSetHash  *string              `bson:"workloadgroupsethash,omitempty"`
+	WorkloadGroupSetLabel *string              `bson:"workloadgroupsetlabel,omitempty"`
 }

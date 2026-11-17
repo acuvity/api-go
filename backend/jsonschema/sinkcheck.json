@@ -7,7 +7,7 @@
   "$modelResourceName": "sinkchecks",
   "$modelRestName": "sinkcheck",
   "additionalProperties": false,
-  "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its stored configuration, or a complete webhook draft to test unsaved edits. A draft must include the URL and every header value, because stored secrets are never returned or reused. Checks never save configuration changes.",
+  "description": "Tests a sink by sending it a sample alert. Give a saved sink ID to test its stored configuration, optionally with a webhook draft to test unsaved edits. A draft replaces the stored body and headers; an empty webhook URL keeps the stored URL, and an empty header value keeps the stored value of the header with the same name, as long as the URL is kept. With a new URL, every header value must be given again, so a stored secret is never sent to another address. Without an ID, supply a complete webhook with its URL. Checks never save configuration changes.",
   "properties": {
     "message": {
       "$friendlyName": "Message",
@@ -19,11 +19,11 @@
         "null"
       ]
     },
-    "responseBody": {
-      "$friendlyName": "Response Body",
+    "renderedBody": {
+      "$friendlyName": "Rendered Body",
       "$readOnly": true,
-      "description": "The beginning of the response body of the destination, to help troubleshooting. It is truncated.",
-      "title": "responseBody",
+      "description": "The JSON body that was sent, rendered from the template with sample alert data. It never holds a secret.",
+      "title": "renderedBody",
       "type": [
         "string",
         "null"
@@ -31,7 +31,7 @@
     },
     "sinkID": {
       "$friendlyName": "Sink ID",
-      "description": "The saved sink to test with its stored configuration.",
+      "description": "The saved sink used as the default destination and credential source for the check.",
       "title": "sinkID",
       "type": [
         "string",
@@ -70,7 +70,7 @@
     "webhook": {
       "$friendlyName": "Webhook",
       "$ref": "sinkwebhook.json",
-      "description": "The complete, unsaved webhook configuration to test. Give it or sinkID. The draft is never saved.",
+      "description": "The webhook draft to test instead of the stored configuration. With sinkID, an empty URL keeps the stored one, and so does an empty header value unless the URL is changed. Without sinkID, the URL is required. The draft is never saved.",
       "title": "webhook"
     }
   },
